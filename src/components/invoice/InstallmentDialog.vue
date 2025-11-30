@@ -175,6 +175,7 @@ const previewPlan = computed(() => {
     if (left <= 0) break;
 
     // القسط الأخير يأخذ المبلغ المتبقي لضمان الإغلاق الدقيق
+    // القسط الأخير يأخذ المبلغ المتبقي لضمان الإغلاق الدقيق
     const amount = i === n || stdInst > left ? left : stdInst;
 
     const due = start.add(i, 'month').format('YYYY-MM-DD');
