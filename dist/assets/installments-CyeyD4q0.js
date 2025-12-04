@@ -1,1 +1,0 @@
-import{I as a}from"./InstallmentsDataTable-sW6hUq2R.js";import{k as t,j as e,U as s,o as r,d as o}from"./index-BGcZs_2M.js";import"./PayInstallmentDialog-DzKcA-7d.js";const i={__name:"installments",setup(l){return(c,n)=>(r(),t(s,{class:"pa-0",title:"الاقساط"},{default:e(()=>[o(a)]),_:1}))}};export{i as default};

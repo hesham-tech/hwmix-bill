@@ -154,7 +154,7 @@ async function fetchInstallments() {
   };
 
   try {
-    const res = await getAll('installments', params, true, true, true);
+    const res = await getAll('installments', params, true, false, true);
     installments.value = res.data;
     totalItems.value = res.total;
     // 2. إصدار الحدث بعد تحديث totalItems
@@ -164,12 +164,6 @@ async function fetchInstallments() {
     loading.value = false;
   }
 }
-
-// onMounted(() => {
-//   // 3. جلب البيانات عند تحميل المكون لأول مرة
-//   // هذا مهم جدًا ليتم إصدار الحدث بقيمة totalItems الأولية
-//   fetchInstallments();
-// });
 
 watch(
   () => options.value.page,
