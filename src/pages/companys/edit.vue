@@ -26,7 +26,7 @@ const company = ref({});
 onMounted(() => {
   if (route.params.id) {
     loading.value = true;
-    getOne('company', userId.value, { basic: false })
+    getOne('company', userId.value)
       .then(res => {
         company.value = res.data;
         // قم بتعيين صورة المعاينة إلى الشعار الموجود في البيانات

@@ -36,7 +36,7 @@ const emit = defineEmits(['update-items']);
 function deleted() {
   const itemIds = props.dataDelete.items.map(item => item.id);
 
-  deleteAll(props.api, itemIds).then(() => {
+  deleteAll(props.api, { item_ids: itemIds }).then(() => {
     emit('update-items', itemIds);
   });
   appState.dialogDelete = false;

@@ -32,7 +32,7 @@ export const useUserStore = defineStore('user', {
         const userId = this.getUserId();
         if (!userId) throw new Error('User ID not found');
 
-        const { data } = await getOne('user', userId, { basic: false, loading: true });
+        const { data } = await getOne('user', userId, { loading: true });
         this.user = data;
         // console.log('User initialized permissions :', JSON.stringify(this.user.permissions));
         this.isAuth = true;

@@ -136,7 +136,7 @@ export const getAll = async (apiEndpoint, params = null, loading = true, showToa
 
 export const getOne = async (apiEndpoint, id, options = {}) => {
   // استخدام التفكيك لتعيين قيم افتراضية للخيارات
-  const { basic = true, loading = true, showToast = false, log = false } = options;
+  const { full = false, loading = true, showToast = false, log = false } = options;
 
   const userStore = useUserStore();
   try {
