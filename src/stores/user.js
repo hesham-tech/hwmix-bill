@@ -1,123 +1,84 @@
-// stores/user.js
 import { defineStore } from 'pinia';
-import axios from 'axios';
-import { getOne } from '@/services/api';
+import { ref, computed } from 'vue';
 
-export const useUserStore = defineStore('user', {
-  state: () => ({
-    user: null,
-    userAll: null,
-    isAuth: false,
-    loadingApi: false,
-    permissionsList: null,
-  }),
-  actions: {
-    async initializeUser() {
-      console.log('initializeUser');
-      console.log(this.isAuth);
+export const useUserStore = defineStore('user', () => {
+  const currentUser = ref(null);
+  const permissions = ref([]);
+  const roles = ref([]);
 
-      if (!this.isAuth) {
-        await this.fetchUser();
-        console.log(!this.isAuth);
+  // Fetch current user data from backend
+  const fetchUser = async () => {
+    try {
+      const response = await fetch('/api/me', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        currentUser.value = data.data;
+
+        // Extract permissions array from backend response
+        permissions.value = data.data.permissions || [];
+
+        // Extract roles with their permissions
+        roles.value = data.data.roles || [];
       }
-    },
+    } catch (error) {
+      console.error('Failed to fetch user:', error);
+    }
+  };
 
-    async fetchUser() {
-      this.loadingApi = true;
-      try {
-        const token = localStorage.getItem('authToken');
-        if (!axios.defaults.headers.common['Authorization'] && token) {
-          this.setAuthHeader(token);
-        }
-        const userId = this.getUserId();
-        if (!userId) throw new Error('User ID not found');
+  // Check if user has a specific permission
+  const hasPermission = permission => {
+    if (!permission) return true; // No permission required
+    return permissions.value.includes(permission);
+  };
 
-        const { data } = await getOne('user', userId, { loading: true });
-        this.user = data;
-        // console.log('User initialized permissions :', JSON.stringify(this.user.permissions));
-        this.isAuth = true;
-        this.permissionsList = this.calculatePermissions(this.user);
-      } catch (error) {
-        if (error.status === 401) {
-          this.logout();
-        } else {
-          console.error('Error fetching user:', error);
-        }
-      } finally {
-        this.loadingApi = false;
-      }
-    },
+  // Check if user has ANY of the permissions
+  const hasAnyPermission = (...perms) => {
+    return perms.some(p => hasPermission(p));
+  };
 
-    getUserId() {
-      const user = localStorage.user ? JSON.parse(localStorage.user) : null;
-      return user?.id || null;
-    },
+  // Check if user has ALL of the permissions
+  const hasAllPermissions = (...perms) => {
+    return perms.every(p => hasPermission(p));
+  };
 
-    setAuthHeader(token) {
-      if (token) {
-        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      } else {
-        delete axios.defaults.headers.common['Authorization'];
-        this.logout();
-      }
-    },
+  // Check if user has a specific role
+  const hasRole = role => {
+    return roles.value.some(r => r.name === role);
+  };
 
-    logout() {
-      delete axios.defaults.headers.common['Authorization'];
-      this.isAuth = false;
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('user');
-      location.reload();
-    },
+  // Check if user has ANY of the roles
+  const hasAnyRole = (...roleNames) => {
+    return roleNames.some(r => hasRole(r));
+  };
 
-    calculatePermissions(user) {
-      // const rolesPermissions = user.roles.map(role => role.permissions).flat();
-      // console.log('Roles Permissions:', rolesPermissions);
-      // const permissions = user.permissions;
-      // this.permissionsList = [...new Set([...rolesPermissions, ...permissions])];
-      // return [...new Set([...rolesPermissions, ...permissions])];
-      this.permissionsList = user.permissions;
-      return user.permissions;
-    },
+  // Reset user data
+  const clearUser = () => {
+    currentUser.value = null;
+    permissions.value = [];
+    roles.value = [];
+  };
 
-    can(permission) {
-      // console.log('Checking permission:', permission);
+  // Computed: Check if user is admin/super
+  const isAdmin = computed(() => hasPermission('admin.super'));
+  const isCompanyAdmin = computed(() => hasPermission('admin.company'));
 
-      if (!this.permissionsList) {
-        console.warn('Permissions not calculated yet. Returning false.');
-        return false;
-      }
-      if (Array.isArray(permission)) {
-        return permission.some(perm => this.permissionsList.includes(perm));
-      } else {
-        return this.permissionsList.includes(permission);
-      }
-    },
-
-    // async can(permission) {
-    //   try {
-    //     if (!this.user) {
-    //       await this.fetchUser();
-    //     }
-    //     const allPermissions = this.calculatePermissions(this.user);
-    //     if (Array.isArray(permission)) {
-    //       return permission.some(perm => allPermissions.includes(perm));
-    //     } else {
-    //       return allPermissions.includes(permission);
-    //     }
-    //   } catch (error) {
-    //     console.error('Error checking permissions:', error);
-    //     return false;
-    //   }
-    // },
-  },
-
-  persist: true, // To persist the state even after refresh
-
-  // Use this to trigger the action when the store is first used
-  persistStore(store) {
-    store.$onAction(() => {
-      store.initializeUser(); // Automatically call initializeUser when any action is triggered
-    });
-  },
+  return {
+    currentUser,
+    permissions,
+    roles,
+    isAdmin,
+    isCompanyAdmin,
+    fetchUser,
+    hasPermission,
+    hasAnyPermission,
+    hasAllPermissions,
+    hasRole,
+    hasAnyRole,
+    clearUser,
+  };
 });
