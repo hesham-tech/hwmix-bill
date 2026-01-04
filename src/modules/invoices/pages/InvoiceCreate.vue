@@ -1,231 +1,405 @@
 <template>
-  <div class="invoice-create-page">
-    <CanView permission="invoices.create" show-message>
-      <div class="page-header mb-6">
+  <v-container fluid>
+    <!-- Header -->
+    <div class="d-flex align-center mb-4">
+      <v-btn icon="ri-arrow-right-line" variant="text" @click="goBack" />
+      <div class="ms-3">
         <h1 class="text-h4 font-weight-bold">فاتورة جديدة</h1>
-        <p class="text-body-1 text-grey">إنشاء فاتورة بيع أو شراء</p>
+        <p class="text-medium-emphasis">إنشاء فاتورة جديدة</p>
       </div>
+    </div>
 
-      <v-stepper v-model="step" alt-labels>
-        <v-stepper-header>
-          <v-stepper-item :complete="step > 1" :value="1" title="نوع الفاتورة" icon="ri-file-list-line" />
-          <v-divider />
+    <!-- Stepper -->
+    <v-card>
+      <v-stepper v-model="currentStep" :items="steps" alt-labels>
+        <!-- Step 1: Customer Info -->
+        <template #item.1>
+          <v-card-text>
+            <v-row>
+              <v-col cols="12">
+                <h3 class="text-h6 mb-4">معلومات العميل والفاتورة</h3>
+              </v-col>
 
-          <v-stepper-item :complete="step > 2" :value="2" title="بيانات العميل" icon="ri-user-line" />
-          <v-divider />
+              <v-col cols="12" md="6">
+                <CustomerSelector v-model="formData.customer" @update:model-value="handleCustomerChange" />
+              </v-col>
 
-          <v-stepper-item :complete="step > 3" :value="3" title="الأصناف" icon="ri-shopping-cart-line" />
-          <v-divider />
+              <v-col cols="12" md="6">
+                <v-select
+                  v-model="formData.invoice_type_id"
+                  :items="invoiceTypes"
+                  item-title="name"
+                  item-value="id"
+                  label="نوع الفاتورة *"
+                  prepend-inner-icon="ri-file-copy-line"
+                />
+              </v-col>
 
-          <v-stepper-item :value="4" title="المراجعة" icon="ri-checkbox-circle-line" />
-        </v-stepper-header>
+              <v-col cols="12" md="4">
+                <v-text-field v-model="formData.invoice_date" type="date" label="تاريخ الفاتورة *" prepend-inner-icon="ri-calendar-line" />
+              </v-col>
 
-        <v-stepper-window>
-          <!-- Step 1: Invoice Type -->
-          <v-stepper-window-item :value="1">
-            <v-card flat>
-              <v-card-text>
-                <v-row>
-                  <v-col cols="12" md="6">
-                    <v-card :class="{ 'invoice-type-selected': form.type === 'sales' }" class="invoice-type-card" @click="form.type = 'sales'">
-                      <v-card-text class="text-center pa-8">
-                        <v-icon icon="ri-shopping-bag-line" size="64" color="success" />
-                        <h3 class="text-h5 mt-4">فاتورة بيع</h3>
-                        <p class="text-grey mt-2">إصدار فاتورة للعملاء</p>
-                      </v-card-text>
-                    </v-card>
-                  </v-col>
+              <v-col cols="12" md="4">
+                <v-text-field v-model="formData.due_date" type="date" label="تاريخ الاستحقاق" prepend-inner-icon="ri-calendar-check-line" />
+              </v-col>
 
-                  <v-col cols="12" md="6">
-                    <v-card :class="{ 'invoice-type-selected': form.type === 'purchase' }" class="invoice-type-card" @click="form.type = 'purchase'">
-                      <v-card-text class="text-center pa-8">
-                        <v-icon icon="ri-shopping-cart-line" size="64" color="primary" />
-                        <h3 class="text-h5 mt-4">فاتورة شراء</h3>
-                        <p class="text-grey mt-2">تسجيل مشتريات من الموردين</p>
-                      </v-card-text>
-                    </v-card>
-                  </v-col>
-                </v-row>
-              </v-card-text>
-            </v-card>
-          </v-stepper-window-item>
+              <v-col cols="12" md="4">
+                <v-select
+                  v-model="formData.warehouse_id"
+                  :items="warehouses"
+                  item-title="name"
+                  item-value="id"
+                  label="المخزن"
+                  prepend-inner-icon="ri-building-line"
+                />
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </template>
 
-          <!-- Step 2: Customer Info -->
-          <v-stepper-window-item :value="2">
-            <v-card flat>
-              <v-card-text>
-                <InvoiceForm v-model="form" :step="2" />
-              </v-card-text>
-            </v-card>
-          </v-stepper-window-item>
+        <!-- Step 2: Products -->
+        <template #item.2>
+          <v-card-text>
+            <v-row>
+              <v-col cols="12">
+                <h3 class="text-h6 mb-4">المنتجات</h3>
+              </v-col>
 
-          <!-- Step 3: Items -->
-          <v-stepper-window-item :value="3">
-            <v-card flat>
-              <v-card-text>
-                <InvoiceForm v-model="form" :step="3" />
-              </v-card-text>
-            </v-card>
-          </v-stepper-window-item>
+              <v-col cols="12">
+                <ProductSelector @add="addProduct" />
+              </v-col>
 
-          <!-- Step 4: Review -->
-          <v-stepper-window-item :value="4">
-            <v-card flat>
-              <v-card-text>
-                <div class="review-section">
-                  <h3 class="text-h6 mb-4">مراجعة الفاتورة</h3>
+              <!-- Selected Products Table -->
+              <v-col v-if="formData.items.length > 0" cols="12">
+                <v-card variant="outlined" class="mt-4">
+                  <v-card-title class="text-subtitle-1"> المنتجات المحددة ({{ formData.items.length }}) </v-card-title>
+                  <v-divider />
+                  <v-table>
+                    <thead>
+                      <tr>
+                        <th>المنتج</th>
+                        <th class="text-center">الكمية</th>
+                        <th class="text-end">السعر</th>
+                        <th class="text-end">الخصم</th>
+                        <th class="text-end">الإجمالي</th>
+                        <th class="text-center">إجراءات</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="(item, index) in formData.items" :key="index">
+                        <td>
+                          {{ item.product_name }}
+                          <span v-if="item.variant_name" class="text-caption text-medium-emphasis"> ({{ item.variant_name }}) </span>
+                        </td>
+                        <td class="text-center">{{ item.quantity }}</td>
+                        <td class="text-end">{{ formatCurrency(item.unit_price) }}</td>
+                        <td class="text-end">{{ item.discount_percentage }}%</td>
+                        <td class="text-end font-weight-bold">{{ formatCurrency(item.total) }}</td>
+                        <td class="text-center">
+                          <v-btn icon="ri-delete-bin-line" size="small" variant="text" color="error" @click="removeProduct(index)" />
+                        </td>
+                      </tr>
+                    </tbody>
+                  </v-table>
+                </v-card>
+              </v-col>
 
-                  <v-row>
-                    <v-col cols="12" md="6">
-                      <div class="review-item">
-                        <span class="text-grey">النوع:</span>
-                        <span class="font-weight-bold">
-                          {{ form.type === 'sales' ? 'بيع' : 'شراء' }}
-                        </span>
-                      </div>
-                      <div class="review-item">
-                        <span class="text-grey">العميل:</span>
-                        <span class="font-weight-bold">{{ form.customer_name }}</span>
-                      </div>
-                    </v-col>
+              <v-col v-else cols="12">
+                <v-alert type="info" variant="tonal"> لم يتم إضافة منتجات بعد </v-alert>
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </template>
 
-                    <v-col cols="12" md="6">
-                      <div class="review-item">
-                        <span class="text-grey">التاريخ:</span>
-                        <span class="font-weight-bold">{{ form.date }}</span>
-                      </div>
-                      <div class="review-item">
-                        <span class="text-grey">عدد الأصناف:</span>
-                        <span class="font-weight-bold">{{ form.items?.length || 0 }}</span>
-                      </div>
-                    </v-col>
-                  </v-row>
+        <!-- Step 3: Review & Payment -->
+        <template #item.3>
+          <v-card-text>
+            <v-row>
+              <v-col cols="12" md="7">
+                <h3 class="text-h6 mb-4">ملخص الفاتورة</h3>
 
-                  <v-divider class="my-4" />
+                <!-- Customer Info -->
+                <v-card variant="outlined" class="mb-4">
+                  <v-card-title class="text-subtitle-1">معلومات العميل</v-card-title>
+                  <v-divider />
+                  <v-card-text>
+                    <div><strong>الاسم:</strong> {{ formData.customer?.name }}</div>
+                    <div><strong>الهاتف:</strong> {{ formData.customer?.phone }}</div>
+                    <div v-if="formData.customer?.email"><strong>البريد:</strong> {{ formData.customer.email }}</div>
+                  </v-card-text>
+                </v-card>
 
-                  <div class="totals">
-                    <div class="total-row">
+                <!-- Products Summary -->
+                <v-card variant="outlined">
+                  <v-card-title class="text-subtitle-1">المنتجات</v-card-title>
+                  <v-divider />
+                  <v-list>
+                    <v-list-item
+                      v-for="(item, index) in formData.items"
+                      :key="index"
+                      :title="item.product_name"
+                      :subtitle="`${item.quantity} × ${formatCurrency(item.unit_price)}`"
+                    >
+                      <template #append>
+                        <span class="font-weight-bold">{{ formatCurrency(item.total) }}</span>
+                      </template>
+                    </v-list-item>
+                  </v-list>
+                </v-card>
+              </v-col>
+
+              <v-col cols="12" md="5">
+                <h3 class="text-h6 mb-4">الدفع والإجمالي</h3>
+
+                <v-card variant="outlined">
+                  <v-card-text>
+                    <!-- Discount -->
+                    <v-text-field
+                      v-model.number="formData.discount_percentage"
+                      label="خصم إضافي %"
+                      type="number"
+                      min="0"
+                      max="100"
+                      prepend-inner-icon="ri-percent-line"
+                    />
+
+                    <!-- Tax -->
+                    <v-text-field
+                      v-model.number="formData.tax_percentage"
+                      label="الضريبة %"
+                      type="number"
+                      min="0"
+                      max="100"
+                      prepend-inner-icon="ri-percent-line"
+                    />
+
+                    <!-- Shipping -->
+                    <v-text-field v-model.number="formData.shipping_cost" label="الشحن" type="number" min="0" prepend-inner-icon="ri-truck-line" />
+
+                    <v-divider class="my-4" />
+
+                    <!-- Totals -->
+                    <div class="d-flex justify-space-between mb-2">
                       <span>المجموع الفرعي:</span>
-                      <span>{{ formatCurrency(calculateSubtotal()) }}</span>
+                      <span class="font-weight-medium">{{ formatCurrency(calculations.subtotal) }}</span>
                     </div>
-                    <div class="total-row">
+                    <div v-if="calculations.discountAmount > 0" class="d-flex justify-space-between mb-2 text-error">
+                      <span>الخصم:</span>
+                      <span>-{{ formatCurrency(calculations.discountAmount) }}</span>
+                    </div>
+                    <div v-if="calculations.taxAmount > 0" class="d-flex justify-space-between mb-2">
                       <span>الضريبة:</span>
-                      <span>{{ formatCurrency(form.tax || 0) }}</span>
+                      <span>{{ formatCurrency(calculations.taxAmount) }}</span>
                     </div>
-                    <div class="total-row total">
-                      <span class="text-h6">الإجمالي:</span>
-                      <span class="text-h5 text-success">
-                        {{ formatCurrency(calculateTotal()) }}
-                      </span>
+                    <div v-if="formData.shipping_cost > 0" class="d-flex justify-space-between mb-2">
+                      <span>الشحن:</span>
+                      <span>{{ formatCurrency(formData.shipping_cost) }}</span>
                     </div>
-                  </div>
-                </div>
-              </v-card-text>
-            </v-card>
-          </v-stepper-window-item>
-        </v-stepper-window>
 
-        <v-stepper-actions @click:prev="step--" @click:next="handleNext" :disabled="loading" />
+                    <v-divider class="my-4" />
+
+                    <div class="d-flex justify-space-between text-h5 font-weight-bold text-success">
+                      <span>الإجمالي:</span>
+                      <span>{{ formatCurrency(calculations.total) }}</span>
+                    </div>
+
+                    <v-divider class="my-4" />
+
+                    <!-- Payment -->
+                    <v-select
+                      v-model="formData.payment_method_id"
+                      :items="paymentMethods"
+                      item-title="name"
+                      item-value="id"
+                      label="طريقة الدفع"
+                      prepend-inner-icon="ri-bank-card-line"
+                    />
+
+                    <v-text-field
+                      v-model.number="formData.amount_paid"
+                      label="المبلغ المدفوع"
+                      type="number"
+                      min="0"
+                      :max="calculations.total"
+                      prepend-inner-icon="ri-money-dollar-circle-line"
+                    />
+
+                    <div v-if="calculations.remaining > 0" class="text-warning">المتبقي: {{ formatCurrency(calculations.remaining) }}</div>
+
+                    <!-- Notes -->
+                    <v-textarea v-model="formData.notes" label="ملاحظات" rows="3" prepend-inner-icon="ri-sticky-note-line" class="mt-4" />
+                  </v-card-text>
+                </v-card>
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </template>
+
+        <!-- Actions -->
+        <template #actions>
+          <v-divider />
+          <v-card-actions>
+            <v-btn v-if="currentStep > 1" variant="outlined" @click="currentStep--"> السابق </v-btn>
+            <v-spacer />
+            <v-btn v-if="currentStep < 3" color="primary" :disabled="!canProceed" @click="currentStep++"> التالي </v-btn>
+            <v-btn v-else color="success" :loading="submitting" :disabled="!canSubmit" @click="submitInvoice"> حفظ الفاتورة </v-btn>
+          </v-card-actions>
+        </template>
       </v-stepper>
-    </CanView>
-  </div>
+    </v-card>
+  </v-container>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import InvoiceForm from '../components/InvoiceForm.vue';
-import CanView from '@/components/common/CanView.vue';
-import { invoiceService } from '@/api';
-import { formatCurrency } from '@/utils/formatters';
+import { useApi } from '@/composables/useApi';
+import CustomerSelector from '../components/CustomerSelector.vue';
+import ProductSelector from '../components/ProductSelector.vue';
 import { toast } from 'vue3-toastify';
 
 const router = useRouter();
-const step = ref(1);
-const loading = ref(false);
 
-const form = ref({
-  type: 'sales',
-  customer_name: '',
-  customer_id: null,
-  date: new Date().toISOString().split('T')[0],
+// API
+const invoiceApi = useApi('/api/invoices');
+const { get: getInvoiceTypes } = useApi('/api/invoice-types');
+const { get: getWarehouses } = useApi('/api/warehouses');
+const { get: getPaymentMethods } = useApi('/api/payment-methods');
+
+// Stepper
+const currentStep = ref(1);
+const steps = [
+  { title: 'معلومات الفاتورة', value: 1 },
+  { title: 'المنتجات', value: 2 },
+  { title: 'المراجعة والدفع', value: 3 },
+];
+
+// Form Data
+const formData = ref({
+  customer: null,
+  invoice_type_id: null,
+  invoice_date: new Date().toISOString().split('T')[0],
+  due_date: null,
+  warehouse_id: null,
   items: [],
-  tax: 0,
-  discount: 0,
+  discount_percentage: 0,
+  tax_percentage: 14, // Default tax in Egypt
+  shipping_cost: 0,
+  payment_method_id: null,
+  amount_paid: 0,
   notes: '',
 });
 
-const calculateSubtotal = () => {
-  return form.value.items?.reduce((sum, item) => sum + (item.total || 0), 0) || 0;
-};
+// Lookups
+const invoiceTypes = ref([]);
+const warehouses = ref([]);
+const paymentMethods = ref([]);
+const submitting = ref(false);
 
-const calculateTotal = () => {
-  const subtotal = calculateSubtotal();
-  return subtotal + (form.value.tax || 0) - (form.value.discount || 0);
-};
+// Calculations
+const calculations = computed(() => {
+  const subtotal = formData.value.items.reduce((sum, item) => sum + parseFloat(item.total), 0);
+  const discountAmount = subtotal * (formData.value.discount_percentage / 100);
+  const taxableAmount = subtotal - discountAmount;
+  const taxAmount = taxableAmount * (formData.value.tax_percentage / 100);
+  const total = taxableAmount + taxAmount + formData.value.shipping_cost;
+  const remaining = total - formData.value.amount_paid;
 
-const handleNext = async () => {
-  if (step.value < 4) {
-    step.value++;
-  } else {
-    await handleSubmit();
+  return {
+    subtotal,
+    discountAmount,
+    taxableAmount,
+    taxAmount,
+    total,
+    remaining,
+  };
+});
+
+// Validation
+const canProceed = computed(() => {
+  if (currentStep.value === 1) {
+    return formData.value.customer && formData.value.invoice_date;
   }
+  if (currentStep.value === 2) {
+    return formData.value.items.length > 0;
+  }
+  return true;
+});
+
+const canSubmit = computed(() => {
+  return formData.value.customer && formData.value.items.length > 0 && !submitting.value;
+});
+
+// Methods
+const goBack = () => {
+  router.push('/invoices');
 };
 
-const handleSubmit = async () => {
-  loading.value = true;
+const handleCustomerChange = customer => {
+  formData.value.customer = customer;
+};
+
+const addProduct = item => {
+  formData.value.items.push(item);
+};
+
+const removeProduct = index => {
+  formData.value.items.splice(index, 1);
+};
+
+const submitInvoice = async () => {
+  submitting.value = true;
   try {
-    await invoiceService.save(form.value);
-    toast.success('تم إنشاء الفاتورة بنجاح');
-    router.push('/invoices');
+    const payload = {
+      customer_id: formData.value.customer.id,
+      invoice_type_id: formData.value.invoice_type_id,
+      invoice_date: formData.value.invoice_date,
+      due_date: formData.value.due_date,
+      warehouse_id: formData.value.warehouse_id,
+      items: formData.value.items,
+      discount_percentage: formData.value.discount_percentage,
+      tax_percentage: formData.value.tax_percentage,
+      shipping_cost: formData.value.shipping_cost,
+      payment_method_id: formData.value.payment_method_id,
+      amount_paid: formData.value.amount_paid,
+      notes: formData.value.notes,
+      total: calculations.value.total,
+    };
+
+    const response = await invoiceApi.create(payload, {
+      successMessage: 'تم إنشاء الفاتورة بنجاح',
+    });
+
+    router.push(`/invoices/${response.data.id}`);
   } catch (error) {
-    toast.error('فشل إنشاء الفاتورة');
+    // Error handled in useApi
   } finally {
-    loading.value = false;
+    submitting.value = false;
   }
 };
+
+const formatCurrency = amount => {
+  if (!amount) return '0.00 ج.م';
+  return new Intl.NumberFormat('ar-EG', {
+    style: 'currency',
+    currency: 'EGP',
+  }).format(amount);
+};
+
+// Load data
+onMounted(async () => {
+  try {
+    const [invTypes, whs, pmths] = await Promise.all([
+      getInvoiceTypes({}, { showLoading: false }),
+      getWarehouses({}, { showLoading: false }),
+      getPaymentMethods({}, { showLoading: false }),
+    ]);
+
+    invoiceTypes.value = invTypes.data || [];
+    warehouses.value = whs.data || [];
+    paymentMethods.value = pmths.data || [];
+  } catch (error) {
+    console.error('Error loading data:', error);
+  }
+});
 </script>
-
-<style scoped>
-.invoice-create-page {
-  padding: 24px;
-}
-
-.invoice-type-card {
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: 2px solid transparent;
-}
-
-.invoice-type-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-}
-
-.invoice-type-selected {
-  border-color: #1976d2;
-  background: rgba(25, 118, 210, 0.05);
-}
-
-.review-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 0;
-}
-
-.totals {
-  margin-top: 16px;
-}
-
-.total-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 0;
-}
-
-.total-row.total {
-  border-top: 2px solid #ddd;
-  margin-top: 8px;
-  padding-top: 16px;
-}
-</style>
