@@ -2,7 +2,7 @@
   <v-card>
     <v-card-title class="d-flex align-center">
       <v-icon icon="ri-calendar-todo-line" class="me-2" />
-      الدفعات المستحقة قريباً
+      الفواتير المستحقة قريباً
       <v-spacer />
       <v-chip v-if="upcomingCount > 0" color="warning" size="small">
         {{ upcomingCount }}

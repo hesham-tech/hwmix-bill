@@ -1,5 +1,5 @@
 <template>
-  <v-navigation-drawer v-model="drawer" :rail="rail" permanent class="sidebar" color="background">
+  <v-navigation-drawer v-model="drawer" :rail="rail" scrim="false" permanent floating class="sidebar" color="background">
     <!-- Logo Header -->
     <div class="sidebar-header">
       <div class="logo-container" @click="rail = !rail">
