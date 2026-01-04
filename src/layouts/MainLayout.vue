@@ -12,6 +12,14 @@
 
       <v-spacer />
 
+      <!-- Language Switcher -->
+      <v-btn icon variant="text" @click="toggleLanguage" class="mx-2">
+        <v-icon>{{ localeStore.locale === 'ar' ? 'ri-translate-2' : 'ri-translate-2' }}</v-icon>
+        <v-tooltip activator="parent" location="bottom">
+          {{ localeStore.locale === 'ar' ? 'English' : 'عربي' }}
+        </v-tooltip>
+      </v-btn>
+
       <!-- User Menu -->
       <v-menu>
         <template #activator="{ props }">
@@ -49,6 +57,7 @@
 import { computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useUserStore } from '@/stores/user';
+import { useLocaleStore } from '@/stores/locale';
 import { authService } from '@/api';
 import Sidebar from '@/components/layout/Sidebar.vue';
 import { toast } from 'vue3-toastify';
@@ -56,6 +65,7 @@ import { toast } from 'vue3-toastify';
 const router = useRouter();
 const route = useRoute();
 const userStore = useUserStore();
+const localeStore = useLocaleStore();
 
 // User name from store
 const userName = computed(() => userStore.currentUser?.name || 'المستخدم');
@@ -72,6 +82,12 @@ const breadcrumbs = computed(() => {
 
   return items;
 });
+
+// Toggle language handler
+const toggleLanguage = () => {
+  localeStore.toggleLocale();
+  toast.success(localeStore.locale === 'ar' ? 'تم التبديل للعربية' : 'Switched to English');
+};
 
 // Logout handler
 const handleLogout = async () => {
