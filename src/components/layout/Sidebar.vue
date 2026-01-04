@@ -70,7 +70,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, inject, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 import { useAuthStore } from '@/stores/auth';
@@ -83,6 +83,16 @@ const authStore = useAuthStore();
 
 const drawer = ref(true);
 const rail = ref(false);
+
+// Get parent's sidebarRail ref
+const parentRail = inject('sidebarRail', null);
+
+// Watch rail state and update parent
+watch(rail, newVal => {
+  if (parentRail) {
+    parentRail.value = newVal;
+  }
+});
 
 // Filter menu based on permissions
 const filteredMenu = computed(() => {
@@ -115,6 +125,10 @@ const handleLogout = async () => {
   max-height: 100vh;
   display: flex;
   flex-direction: column;
+  position: fixed !important;
+  top: 0;
+  right: 0;
+  z-index: 1000;
 }
 
 .sidebar-header {
