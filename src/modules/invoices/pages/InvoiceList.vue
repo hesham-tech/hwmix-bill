@@ -1,182 +1,158 @@
 <template>
-  <div class="invoices-page">
-    <AppDataTable
-      v-model:page="store.page"
-      v-model:items-per-page="store.itemsPerPage"
-      v-model:sort-by="store.sortBy"
-      v-model:search="store.search"
-      :headers="headers"
-      :items="invoices"
-      :total-items="totalItems"
-      :loading="loading"
-      title="الفواتير"
-      icon="ri-file-list-3-line"
-      @update:options="loadInvoices"
-      @view="handleView"
-      @edit="handleEdit"
-      @delete="handleDelete"
-    >
-      <!-- Header Actions -->
-      <template #actions>
-        <v-btn color="primary" prepend-icon="ri-add-line" @click="handleCreate('sale')"> فاتورة بيع </v-btn>
+  <v-container fluid>
+    <!-- Header -->
+    <div class="d-flex align-center mb-4">
+      <div>
+        <h1 class="text-h4 font-weight-bold">الفواتير</h1>
+        <p class="text-medium-emphasis">إدارة جميع الفواتير</p>
+      </div>
+      <v-spacer />
+      <v-btn v-if="can('invoices.create')" color="primary" prepend-icon="ri-add-line" size="large" @click="navigateToCreate"> فاتورة جديدة </v-btn>
+    </div>
 
-        <v-btn color="primary" variant="outlined" prepend-icon="ri-shopping-cart-line" @click="handleCreate('purchase')"> فاتورة شراء </v-btn>
+    <!-- Filters -->
+    <InvoiceFilters v-model="filters" @apply="applyFilters" />
 
-        <v-btn color="primary" variant="outlined" prepend-icon="ri-money-dollar-circle-line" @click="handleCreate('installment_sale')">
-          فاتورة تقسيط
+    <!-- Bulk Actions -->
+    <v-card v-if="hasSelection" class="mb-4 bg-primary-lighten-5">
+      <v-card-text class="d-flex align-center">
+        <div class="text-primary font-weight-medium">تم تحديد {{ selectedIds.length }} فاتورة</div>
+        <v-spacer />
+        <v-btn v-if="can('invoices.delete_all')" variant="outlined" color="error" prepend-icon="ri-delete-bin-line" @click="confirmBulkDelete">
+          حذف المحدد
         </v-btn>
-      </template>
+      </v-card-text>
+    </v-card>
 
-      <!-- Custom Columns -->
-      <template #item.invoice_number="{ item }">
-        <span class="font-weight-bold">{{ item.invoice_number }}</span>
-      </template>
+    <!-- Data Table -->
+    <v-card>
+      <InvoiceDataTable
+        :items="items"
+        :loading="loading"
+        :total="total"
+        :current-page="currentPage"
+        :per-page="perPage"
+        @view="viewInvoice"
+        @edit="editInvoice"
+        @print="printInvoice"
+        @delete="confirmDelete"
+        @update:page="changePage"
+        @update:per-page="changePerPage"
+        @update:sort-by="changeSort"
+      />
+    </v-card>
 
-      <template #item.type="{ item }">
-        <v-chip :color="getTypeColor(item.type)" size="small">
-          {{ getTypeLabel(item.type) }}
-        </v-chip>
-      </template>
-
-      <template #item.total="{ item }">
-        <span class="font-weight-medium">{{ formatCurrency(item.total) }}</span>
-      </template>
-
-      <template #item.status="{ item }">
-        <v-chip :color="getStatusColor(item.status)" size="small">
-          {{ getStatusLabel(item.status) }}
-        </v-chip>
-      </template>
-
-      <template #item.date="{ item }">
-        {{ formatDate(item.date) }}
-      </template>
-
-      <!-- Extra Actions -->
-      <template #extra-actions="{ item }">
-        <v-btn icon="ri-download-line" size="small" variant="text" color="success" @click="downloadPDF(item.id)" />
-
-        <v-btn icon="ri-mail-line" size="small" variant="text" color="info" @click="openEmailDialog(item)" />
-      </template>
-    </AppDataTable>
-
-    <!-- Invoice Form Dialog -->
-    <AppDialog v-model="isOpen" :title="isEditMode ? 'تعديل فاتورة' : 'فاتورة جديدة'" max-width="900" persistent @close="close">
-      <InvoiceForm :model-value="formData" @save="handleSave" @cancel="close" />
-    </AppDialog>
-
-    <!-- Confirm Delete Dialog -->
-    <ConfirmDialog v-model="showConfirm" :message="confirmMessage" @confirm="handleConfirm" @cancel="handleCancel" />
-  </div>
+    <!-- Delete Confirmation Dialog -->
+    <v-dialog v-model="deleteDialog" max-width="400">
+      <v-card>
+        <v-card-title class="text-h5">
+          <v-icon icon="ri-error-warning-line" color="error" class="me-2" />
+          تأكيد الحذف
+        </v-card-title>
+        <v-card-text> هل أنت متأكد من حذف هذه الفاتورة؟ لا يمكن التراجع عن هذا الإجراء. </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn variant="text" @click="deleteDialog = false"> إلغاء </v-btn>
+          <v-btn color="error" variant="flat" :loading="deleting" @click="deleteInvoice"> حذف </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </v-container>
 </template>
 
 <script setup>
-import { onMounted, computed } from 'vue';
-import { useInvoiceStore } from '../store/invoice.store';
-import { useInvoice } from '../composables/useInvoice';
-import { AppDataTable, AppDialog, ConfirmDialog } from '@/components';
-import InvoiceForm from '../components/InvoiceForm.vue';
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { useDataTable } from '@/composables/useDataTable';
+import { useApi } from '@/composables/useApi';
+import { usePermissions } from '@/composables/usePermissions';
+import InvoiceDataTable from '../components/InvoiceDataTable.vue';
+import InvoiceFilters from '../components/InvoiceFilters.vue';
+import { toast } from 'vue3-toastify';
 
-const store = useInvoiceStore();
+const router = useRouter();
+const { can } = usePermissions();
+
+// API
+const invoiceApi = useApi('/api/invoices');
+
+// Fetch function for useDataTable
+const fetchInvoices = async params => {
+  return await invoiceApi.get(params, { showLoading: false });
+};
+
+// DataTable composable
 const {
-  invoices,
+  items,
   loading,
-  totalItems,
-  formData,
-  isEditMode,
-  isOpen,
-  close,
-  showConfirm,
-  confirmMessage,
-  handleConfirm,
-  handleCancel,
-  loadInvoices,
-  handleDelete,
-  handleView,
-  handleEdit,
-  handleCreate,
-  downloadPDF,
-  saveInvoice,
-} = useInvoice();
-
-// Table Headers
-const headers = [
-  { title: 'رقم الفاتورة', key: 'invoice_number', sortable: true },
-  { title: 'النوع', key: 'type', sortable: true },
-  { title: 'العميل', key: 'customer_name', sortable: true },
-  { title: 'التاريخ', key: 'date', sortable: true },
-  { title: 'المجموع', key: 'total', sortable: true },
-  { title: 'الحالة', key: 'status', sortable: true },
-  { title: 'الإجراءات', key: 'actions', sortable: false },
-];
-
-// Helpers
-const getTypeColor = type => {
-  const colors = {
-    sale: 'success',
-    purchase: 'warning',
-    installment_sale: 'info',
-  };
-  return colors[type] || 'grey';
-};
-
-const getTypeLabel = type => {
-  const labels = {
-    sale: 'بيع',
-    purchase: 'شراء',
-    installment_sale: 'تقسيط',
-  };
-  return labels[type] || type;
-};
-
-const getStatusColor = status => {
-  const colors = {
-    paid: 'success',
-    pending: 'warning',
-    cancelled: 'error',
-  };
-  return colors[status] || 'grey';
-};
-
-const getStatusLabel = status => {
-  const labels = {
-    paid: 'مدفوعة',
-    pending: 'معلقة',
-    cancelled: 'ملغاة',
-  };
-  return labels[status] || status;
-};
-
-const formatCurrency = amount => {
-  return new Intl.NumberFormat('ar-EG', {
-    style: 'currency',
-    currency: 'EGP',
-  }).format(amount);
-};
-
-const formatDate = date => {
-  return new Date(date).toLocaleDateString('ar-EG');
-};
-
-const handleSave = async data => {
-  await saveInvoice(data);
-  close();
-  await loadInvoices();
-};
-
-const openEmailDialog = invoice => {
-  // TODO: Open email dialog
-  console.log('Send email for invoice:', invoice.id);
-};
-
-// Lifecycle
-onMounted(() => {
-  loadInvoices();
+  currentPage,
+  perPage,
+  total,
+  filters,
+  selectedIds,
+  hasSelection,
+  changePage,
+  changePerPage,
+  changeSort,
+  applyFilters,
+  removeItem,
+  refresh,
+} = useDataTable(fetchInvoices, {
+  initialPerPage: 10,
+  syncWithUrl: true,
 });
-</script>
 
-<style scoped>
-.invoices-page {
-  padding: 1rem;
-}
-</style>
+// Delete state
+const deleteDialog = ref(false);
+const itemToDelete = ref(null);
+const deleting = ref(false);
+
+// Navigation
+const navigateToCreate = () => {
+  router.push('/invoices/create');
+};
+
+const viewInvoice = invoice => {
+  router.push(`/invoices/${invoice.id}`);
+};
+
+const editInvoice = invoice => {
+  router.push(`/invoices/${invoice.id}/edit`);
+};
+
+const printInvoice = async invoice => {
+  try {
+    // TODO: Implement PDF generation
+    toast.info('جاري تجهيز الفاتورة للطباعة...');
+    window.open(`/api/invoice/${invoice.id}/pdf`, '_blank');
+  } catch (error) {
+    toast.error('فشل في طباعة الفاتورة');
+  }
+};
+
+const confirmDelete = invoice => {
+  itemToDelete.value = invoice;
+  deleteDialog.value = true;
+};
+
+const deleteInvoice = async () => {
+  if (!itemToDelete.value) return;
+
+  deleting.value = true;
+  try {
+    await invoiceApi.remove(itemToDelete.value.id);
+    removeItem(itemToDelete.value.id);
+    deleteDialog.value = false;
+    itemToDelete.value = null;
+  } catch (error) {
+    // Error handled in useApi
+  } finally {
+    deleting.value = false;
+  }
+};
+
+const confirmBulkDelete = () => {
+  // TODO: Implement bulk delete
+  toast.info('ميزة الحذف الجماعي قيد التطوير');
+};
+</script>
