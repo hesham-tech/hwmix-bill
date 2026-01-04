@@ -18,11 +18,13 @@ export default [
       {
         title: 'قائمة الفواتير',
         to: '/invoices',
+        icon: 'ri-file-list-line',
         permission: PERMISSIONS.INVOICES_VIEW_ALL,
       },
       {
         title: 'فاتورة جديدة',
         to: '/invoices/create',
+        icon: 'ri-file-add-line',
         permission: PERMISSIONS.INVOICES_CREATE,
       },
     ],
@@ -37,21 +39,25 @@ export default [
       {
         title: 'قائمة المنتجات',
         to: '/products',
+        icon: 'ri-list-check',
         permission: PERMISSIONS.PRODUCTS_VIEW_ALL,
       },
       {
         title: 'منتج جديد',
         to: '/products/create',
+        icon: 'ri-add-box-line',
         permission: PERMISSIONS.PRODUCTS_CREATE,
       },
       {
         title: 'أشكال المنتجات',
         to: '/product-variants',
+        icon: 'ri-stack-line',
         permission: PERMISSIONS.PRODUCTS_VIEW_ALL,
       },
       {
         title: 'المخزون',
         to: '/stock',
+        icon: 'ri-archive-line',
         permission: PERMISSIONS.PRODUCTS_VIEW_ALL,
       },
     ],
@@ -66,11 +72,13 @@ export default [
       {
         title: 'قائمة المدفوعات',
         to: '/payments',
+        icon: 'ri-list-check-2',
         permission: PERMISSIONS.PAYMENTS_VIEW_ALL,
       },
       {
         title: 'إضافة دفعة',
         to: '/payments/create',
+        icon: 'ri-add-circle-line',
         permission: PERMISSIONS.PAYMENTS_CREATE,
       },
     ],
@@ -85,11 +93,13 @@ export default [
       {
         title: 'خطط التقسيط',
         to: '/installment-plans',
+        icon: 'ri-calendar-check-line',
         permission: PERMISSIONS.PAYMENTS_VIEW_ALL,
       },
       {
         title: 'دفعات الأقساط',
         to: '/installment-payments',
+        icon: 'ri-money-dollar-box-line',
         permission: PERMISSIONS.PAYMENTS_VIEW_ALL,
       },
     ],
@@ -104,11 +114,13 @@ export default [
       {
         title: 'قائمة الخزائن',
         to: '/cashboxes',
+        icon: 'ri-inbox-line',
         permission: PERMISSIONS.ADMIN_COMPANY,
       },
       {
         title: 'التحويلات',
         to: '/transactions',
+        icon: 'ri-exchange-line',
         permission: PERMISSIONS.ADMIN_COMPANY,
       },
     ],
@@ -123,26 +135,31 @@ export default [
       {
         title: 'تقرير المبيعات',
         to: '/reports/sales',
+        icon: 'ri-bar-chart-box-line',
         permission: PERMISSIONS.REPORTS_SALES,
       },
       {
         title: 'تقرير المخزون',
         to: '/reports/stock',
+        icon: 'ri-database-2-line',
         permission: PERMISSIONS.REPORTS_STOCK,
       },
       {
         title: 'تقرير الأرباح',
         to: '/reports/profit',
+        icon: 'ri-funds-line',
         permission: PERMISSIONS.REPORTS_PROFIT,
       },
       {
         title: 'التدفق النقدي',
         to: '/reports/cash-flow',
+        icon: 'ri-exchange-funds-line',
         permission: PERMISSIONS.REPORTS_CASH_FLOW,
       },
       {
         title: 'تقرير الضرائب',
         to: '/reports/tax',
+        icon: 'ri-percent-line',
         permission: PERMISSIONS.REPORTS_TAX,
       },
     ],
@@ -158,11 +175,13 @@ export default [
       {
         title: 'المستخدمين',
         to: '/users',
+        icon: 'ri-user-line',
         permission: PERMISSIONS.USERS_VIEW_ALL,
       },
       {
         title: 'الأدوار والصلاحيات',
         to: '/roles',
+        icon: 'ri-shield-user-line',
         permission: PERMISSIONS.ROLES_VIEW_ALL,
       },
 
@@ -170,6 +189,7 @@ export default [
       {
         title: 'المخازن',
         to: '/warehouses',
+        icon: 'ri-building-line',
         permission: PERMISSIONS.WAREHOUSES_VIEW_ALL,
       },
 
@@ -177,16 +197,19 @@ export default [
       {
         title: 'الفئات',
         to: '/categories',
+        icon: 'ri-organization-chart',
         permission: PERMISSIONS.CATEGORIES_VIEW_ALL,
       },
       {
         title: 'العلامات التجارية',
         to: '/brands',
+        icon: 'ri-price-tag-3-line',
         permission: PERMISSIONS.BRANDS_VIEW_ALL,
       },
       {
         title: 'خصائص المنتجات',
         to: '/attributes',
+        icon: 'ri-list-settings-line',
         permission: PERMISSIONS.PRODUCTS_VIEW_ALL,
       },
 
@@ -194,6 +217,7 @@ export default [
       {
         title: 'طرق الدفع',
         to: '/payment-methods',
+        icon: 'ri-bank-card-line',
         permission: PERMISSIONS.PAYMENT_METHODS_VIEW_ALL,
       },
 
@@ -201,11 +225,13 @@ export default [
       {
         title: 'أنواع الفواتير',
         to: '/invoice-types',
+        icon: 'ri-file-copy-line',
         permission: PERMISSIONS.INVOICES_VIEW_ALL,
       },
       {
         title: 'أنواع الخزائن',
         to: '/cashbox-types',
+        icon: 'ri-safe-2-line',
         permission: PERMISSIONS.ADMIN_COMPANY,
       },
 
@@ -213,6 +239,7 @@ export default [
       {
         title: 'سجل الأنشطة',
         to: '/activity-logs',
+        icon: 'ri-history-line',
         permission: PERMISSIONS.ADMIN_SUPER,
       },
 
@@ -220,6 +247,7 @@ export default [
       {
         title: 'بيانات الشركة',
         to: '/company',
+        icon: 'ri-building-2-line',
         permission: PERMISSIONS.ADMIN_COMPANY,
       },
     ],

@@ -33,7 +33,7 @@
       </v-menu>
     </v-app-bar>
 
-    <v-main :class="['main-content', { rail: sidebarRail }]">
+    <v-main class="main-content">
       <v-container fluid class="pa-6">
         <router-view v-slot="{ Component }">
           <transition name="page" mode="out-in">
@@ -46,7 +46,7 @@
 </template>
 
 <script setup>
-import { computed, ref, provide } from 'vue';
+import { computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 import { authService } from '@/api';
@@ -56,10 +56,6 @@ import { toast } from 'vue3-toastify';
 const router = useRouter();
 const route = useRoute();
 const userStore = useUserStore();
-
-// Sidebar rail state
-const sidebarRail = ref(false);
-provide('sidebarRail', sidebarRail);
 
 // User name from store
 const userName = computed(() => userStore.currentUser?.name || 'المستخدم');
@@ -101,13 +97,6 @@ const handleLogout = async () => {
 
 .main-content {
   background: rgb(var(--v-theme-background));
-  margin-right: 256px; /* Default sidebar width */
-  transition: margin-right 0.2s ease;
-}
-
-/* When sidebar is in rail mode (collapsed) */
-.main-content.rail {
-  margin-right: 72px; /* Rail width */
 }
 
 /* Page Transitions */
