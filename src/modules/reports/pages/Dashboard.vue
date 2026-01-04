@@ -22,21 +22,47 @@
         <RecentInvoices :invoices="recentInvoices" :loading="loadingInvoices" />
       </v-col>
     </v-row>
+
+    <!-- Upcoming Payments & Installments -->
+    <v-row class="mt-4">
+      <v-col cols="12" md="6">
+        <UpcomingPayments :payments="upcomingPayments" :loading="loadingUpcoming" />
+      </v-col>
+
+      <v-col cols="12" md="6">
+        <UpcomingInstallments :installments="upcomingInstallments" :loading="loadingInstallments" />
+      </v-col>
+    </v-row>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useDashboardData } from '../composables/useDashboardData';
 import StatsCards from '../components/StatsCards.vue';
 import QuickActions from '../components/QuickActions.vue';
 import RecentInvoices from '../components/RecentInvoices.vue';
+import UpcomingPayments from '../components/UpcomingPayments.vue';
+import UpcomingInstallments from '../components/UpcomingInstallments.vue';
 
 const router = useRouter();
 
 // Use composable for data fetching
-const { stats, recentInvoices, loading, loadingInvoices, fetchDashboardData, fetchRecentInvoices } = useDashboardData();
+const {
+  stats,
+  recentInvoices,
+  upcomingPayments,
+  upcomingInstallments,
+  loading,
+  loadingInvoices,
+  loadingUpcoming,
+  loadingInstallments,
+  fetchDashboardData,
+  fetchRecentInvoices,
+  fetchUpcomingPayments,
+  fetchUpcomingInstallments,
+} = useDashboardData();
 
 // Quick actions configuration
 const quickActions = [
@@ -76,7 +102,7 @@ const handleAction = route => {
 
 // Fetch data on mount
 onMounted(async () => {
-  await Promise.all([fetchDashboardData(), fetchRecentInvoices()]);
+  await Promise.all([fetchDashboardData(), fetchRecentInvoices(), fetchUpcomingPayments(), fetchUpcomingInstallments()]);
 });
 </script>
 
