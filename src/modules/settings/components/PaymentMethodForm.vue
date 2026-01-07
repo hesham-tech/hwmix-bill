@@ -69,24 +69,22 @@
 
 <script setup>
 import { ref, watch, computed } from 'vue';
+import { useApi } from '@/composables/useApi';
+import AppDialog from '@/components/common/AppDialog.vue';
+import AppInput from '@/components/common/AppInput.vue';
 import MediaGallery from '@/components/common/MediaGallery.vue';
-import { imgUrl } from '@/utils/helpers';
-import { PERMISSIONS } from '@/config/permissions';
+import { useAuthStore } from '@/stores/auth';
 
 const authStore = useAuthStore();
-const isSuperAdmin = computed(() => authStore.user?.permissions?.includes(PERMISSIONS.ADMIN_SUPER));
-const isCompanyAdmin = computed(() => authStore.user?.permissions?.includes(PERMISSIONS.ADMIN_COMPANY));
+const isSuperAdmin = computed(() => authStore.user?.permissions?.includes('admin.super'));
+const isCompanyAdmin = computed(() => authStore.user?.permissions?.includes('admin.company'));
 
 const canToggle = computed(() => {
-  if (isSuperAdmin.value || isCompanyAdmin.value) return true;
-
-  // طرق السـيستم لا يمكن لغير الـ Admins تعديل حالتها
+  if (isSuperAdmin.value) return true;
+  // طرق السـيستم لا يمكن لغير السوبر أدمن تعديل حالتها
   if (props.paymentMethod?.is_system) return false;
 
-  return (
-    authStore.user?.permissions?.includes(PERMISSIONS.PAYMENT_METHODS_UPDATE_ALL) ||
-    authStore.user?.permissions?.includes(PERMISSIONS.PAYMENT_METHODS_UPDATE_SELF)
-  );
+  return isCompanyAdmin.value || authStore.user?.permissions?.includes('payment_methods.update');
 });
 
 const props = defineProps({
@@ -124,7 +122,7 @@ const rules = {
 
 const handleImageSelect = image => {
   formData.value.image_id = image.id;
-  imagePreview.value = imgUrl(image.url);
+  imagePreview.value = image.url;
 };
 
 const resetForm = () => {
@@ -150,7 +148,7 @@ watch(
         active: newVal.active ?? true,
         image_id: newVal.image_id || null,
       };
-      imagePreview.value = imgUrl(newVal.image_url) || null;
+      imagePreview.value = newVal.image_url || null;
     } else {
       resetForm();
     }
