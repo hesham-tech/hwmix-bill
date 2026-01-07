@@ -49,7 +49,7 @@ apiClient.interceptors.response.use(
   error => {
     // 401: Unauthorized - Token expired
     if (error?.response?.status === 401 || error?.response?.data?.message === 'Unauthenticated.') {
-      localStorage.removeItem('authToken');
+      localStorage.removeItem('token');
       localStorage.removeItem('user');
 
       toast.warning('جلستك انتهت. من فضلك سجل دخول مرة أخرى.');

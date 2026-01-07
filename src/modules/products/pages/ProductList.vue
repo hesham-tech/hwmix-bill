@@ -1,106 +1,138 @@
 <template>
-  <div class="products-page">
-    <AppDataTable
-      v-model:page="store.page"
-      v-model:items-per-page="store.itemsPerPage"
-      v-model:sort-by="store.sortBy"
-      v-model:search="store.search"
-      :headers="headers"
+  <div class="pa-6">
+    <!-- Header -->
+    <div class="mb-6">
+      <h1 class="text-h4 font-weight-bold">المنتجات</h1>
+      <p class="text-body-1 text-grey">إدارة منتجات المخزون والأسعار والمستويات</p>
+    </div>
+
+    <!-- Filters -->
+    <ProductFilters v-model:filters="filters" @filter-change="handleFilterChange" />
+
+    <!-- Data Table -->
+    <ProductDataTable
       :items="products"
-      :total-items="totalItems"
       :loading="loading"
-      title="المنتجات"
-      icon="ri-shopping-bag-line"
-      @update:options="loadProducts"
+      :page="page"
+      :items-per-page="itemsPerPage"
+      :total="total"
+      @create="handleCreate"
+      @view="handleView"
       @edit="handleEdit"
       @delete="handleDelete"
+      @update:page="
+        page = $event;
+        loadProducts();
+      "
+      @update:items-per-page="handleItemsPerPageChange"
+    />
+
+    <!-- Delete Confirmation -->
+    <AppDialog
+      v-model="showDeleteDialog"
+      title="تأكيد حذف المنتج"
+      icon="ri-delete-bin-line"
+      confirm-color="error"
+      confirm-text="حذف المنتج"
+      :loading="deleting"
+      @confirm="confirmDelete"
     >
-      <template #actions>
-        <v-btn color="primary" prepend-icon="ri-add-line" @click="handleCreate"> منتج جديد </v-btn>
-      </template>
-
-      <template #item.name="{ item }">
-        <div class="d-flex align-center gap-2">
-          <v-avatar v-if="item.image" size="40" rounded>
-            <v-img :src="item.image" />
-          </v-avatar>
-          <span class="font-weight-medium">{{ item.name }}</span>
-        </div>
-      </template>
-
-      <template #item.price="{ item }">
-        <span class="font-weight-bold text-success">
-          {{ formatCurrency(item.price) }}
-        </span>
-      </template>
-
-      <template #item.stock="{ item }">
-        <v-chip :color="item.stock > item.min_stock ? 'success' : 'error'" size="small">
-          {{ item.stock }}
-        </v-chip>
-      </template>
-
-      <template #item.category="{ item }">
-        <v-chip size="small">
-          {{ item.category?.name || '-' }}
-        </v-chip>
-      </template>
-    </AppDataTable>
-
-    <AppDialog v-model="isOpen" :title="isEditMode ? 'تعديل منتج' : 'منتج جديد'" max-width="800" @close="close">
-      <ProductForm :model-value="formData" @save="handleSave" @cancel="close" />
+      هل أنت متأكد من حذف المنتج "<strong>{{ selectedProduct?.name }}</strong
+      >"؟
+      <div class="mt-2 text-error font-weight-medium">
+        <v-icon icon="ri-error-warning-line" size="small" class="me-1" />
+        سيتم حذف جميع البيانات المتعلقة بهذا المنتج نهائياً.
+      </div>
     </AppDialog>
-
-    <ConfirmDialog v-model="showConfirm" :message="confirmMessage" @confirm="handleConfirm" @cancel="handleCancel" />
   </div>
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
-import { useProductStore } from '../store/product.store';
-import { useProduct } from '../composables/useProduct';
-import { AppDataTable, AppDialog, ConfirmDialog } from '@/components';
-import ProductForm from '../components/ProductForm.vue';
+import { ref, reactive, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { useProductsData } from '../composables/useProductsData';
+import ProductFilters from '../components/ProductFilters.vue';
+import ProductDataTable from '../components/ProductDataTable.vue';
+import AppDialog from '@/components/common/AppDialog.vue';
 
-const store = useProductStore();
-const {
-  products,
-  loading,
-  totalItems,
-  formData,
-  isEditMode,
-  isOpen,
-  close,
-  showConfirm,
-  confirmMessage,
-  handleConfirm,
-  handleCancel,
-  loadProducts,
-  handleDelete,
-  handleEdit,
-  handleCreate,
-  saveProduct,
-} = useProduct();
+const router = useRouter();
+const { products, loading, total, fetchProducts, deleteProduct } = useProductsData();
 
-const headers = [
-  { title: 'المنتج', key: 'name', sortable: true },
-  { title: 'التصنيف', key: 'category', sortable: false },
-  { title: 'السعر', key: 'price', sortable: true },
-  { title: 'المخزون', key: 'stock', sortable: true },
-  { title: 'الإجراءات', key: 'actions', sortable: false },
-];
+// Pagination
+const page = ref(1);
+const itemsPerPage = ref(10);
 
-const formatCurrency = amount => {
-  return new Intl.NumberFormat('ar-EG', {
-    style: 'currency',
-    currency: 'EGP',
-  }).format(amount || 0);
+// Filters
+const filters = reactive({
+  search: '',
+  category_id: null,
+  brand_id: null,
+  stock_status: null,
+});
+
+// Delete dialog
+const showDeleteDialog = ref(false);
+const selectedProduct = ref(null);
+const deleting = ref(false);
+
+// Handlers
+const handleCreate = () => {
+  router.push('/products/create');
 };
 
-const handleSave = async data => {
-  await saveProduct(data);
-  close();
-  await loadProducts();
+const handleView = product => {
+  router.push(`/products/${product.id}`);
+};
+
+const handleEdit = product => {
+  router.push(`/products/${product.id}/edit`);
+};
+
+const handleDelete = product => {
+  selectedProduct.value = product;
+  showDeleteDialog.value = true;
+};
+
+const confirmDelete = async () => {
+  deleting.value = true;
+  try {
+    await deleteProduct(selectedProduct.value.id);
+    showDeleteDialog.value = false;
+    await loadProducts();
+  } catch (error) {
+    console.error('Error deleting product:', error);
+  } finally {
+    deleting.value = false;
+  }
+};
+
+const handleFilterChange = () => {
+  page.value = 1;
+  loadProducts();
+};
+
+const handleItemsPerPageChange = value => {
+  itemsPerPage.value = value;
+  page.value = 1;
+  loadProducts();
+};
+
+// Load products
+const loadProducts = async () => {
+  const params = {
+    page: page.value,
+    per_page: itemsPerPage.value,
+    ...filters,
+  };
+
+  // Remove empty filters
+  Object.keys(params).forEach(key => {
+    if (params[key] === null || params[key] === '') {
+      delete params[key];
+    }
+  });
+
+  await fetchProducts(params);
 };
 
 onMounted(() => {
@@ -110,9 +142,6 @@ onMounted(() => {
 
 <style scoped>
 .products-page {
-  padding: 1rem;
-}
-.gap-2 {
-  gap: 0.5rem;
+  padding: 24px;
 }
 </style>

@@ -51,33 +51,27 @@
                     <!-- Login Input -->
                     <div class="input-group">
                       <label class="input-label">البريد الإلكتروني أو اسم المستخدم</label>
-                      <v-text-field
+                      <AppInput
                         v-model="form.login"
-                        placeholder="admin@example.com"
-                        variant="outlined"
+                        placeholder="أدخل بريدك الإلكتروني أو اسم المستخدم"
                         :rules="[required]"
                         prepend-inner-icon="ri-user-line"
-                        color="primary"
                         class="modern-input"
-                        hide-details="auto"
                       />
                     </div>
 
                     <!-- Password Input -->
                     <div class="input-group">
                       <label class="input-label">كلمة المرور</label>
-                      <v-text-field
+                      <AppInput
                         v-model="form.password"
                         :type="showPassword ? 'text' : 'password'"
-                        placeholder="••••••••"
-                        variant="outlined"
+                        placeholder="أدخل كلمة المرور"
                         :rules="[required]"
                         prepend-inner-icon="ri-lock-line"
                         :append-inner-icon="showPassword ? 'ri-eye-off-line' : 'ri-eye-line'"
                         @click:append-inner="showPassword = !showPassword"
-                        color="primary"
                         class="modern-input"
-                        hide-details="auto"
                       />
                     </div>
 
@@ -89,10 +83,10 @@
                     </div>
 
                     <!-- Login Button -->
-                    <v-btn type="submit" color="primary" size="x-large" block :loading="loading" class="login-btn" elevation="0">
+                    <AppButton type="submit" color="primary" block :loading="loading" class="login-btn mb-6" size="large">
                       <v-icon icon="ri-login-box-line" start />
-                      تسجيل الدخول
-                    </v-btn>
+                      تسجيل الدخول للنظام
+                    </AppButton>
 
                     <!-- Register Link -->
                     <div class="register-section">
@@ -108,17 +102,17 @@
 
                     <!-- Social Login -->
                     <div class="social-login">
-                      <v-btn variant="outlined" size="large" class="social-btn" @click="handleGoogleLogin">
-                        <v-icon icon="ri-google-fill" color="#DB4437" />
-                      </v-btn>
+                      <AppButton variant="tonal" color="error" class="social-btn" @click="handleGoogleLogin">
+                        <v-icon icon="ri-google-fill" />
+                      </AppButton>
 
-                      <v-btn variant="outlined" size="large" class="social-btn" @click="handleFacebookLogin">
-                        <v-icon icon="ri-facebook-fill" color="#1877F2" />
-                      </v-btn>
+                      <AppButton variant="tonal" color="primary" class="social-btn" @click="handleFacebookLogin">
+                        <v-icon icon="ri-facebook-fill" />
+                      </AppButton>
 
-                      <v-btn variant="outlined" size="large" class="social-btn" @click="handleTwitterLogin">
-                        <v-icon icon="ri-twitter-fill" color="#1DA1F2" />
-                      </v-btn>
+                      <AppButton variant="tonal" color="info" class="social-btn" @click="handleTwitterLogin">
+                        <v-icon icon="ri-twitter-fill" />
+                      </AppButton>
                     </div>
                   </v-form>
                 </div>
@@ -137,6 +131,8 @@ import { useRouter } from 'vue-router';
 import { authService } from '@/api';
 import { required, email } from '@/utils/validators';
 import { toast } from 'vue3-toastify';
+import AppInput from '@/components/common/AppInput.vue';
+import AppButton from '@/components/common/AppButton.vue';
 
 const router = useRouter();
 const formRef = ref(null);

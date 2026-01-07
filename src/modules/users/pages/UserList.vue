@@ -16,39 +16,49 @@
       @delete="handleDelete"
     >
       <template #actions>
-        <v-btn color="primary" prepend-icon="ri-add-line" @click="handleCreate"> مستخدم جديد </v-btn>
+        <AppButton color="primary" prepend-icon="ri-user-add-line" @click="handleCreate"> مستخدم جديد </AppButton>
       </template>
 
       <template #item.name="{ item }">
-        <div class="d-flex align-center">
-          <v-avatar size="32" color="primary" class="me-2">
-            <span class="text-white text-caption">{{ getInitials(item.name) }}</span>
+        <div class="d-flex align-center py-2">
+          <v-avatar size="40" color="primary-lighten-5" class="me-3">
+            <span class="text-primary font-weight-bold">{{ getInitials(item.name) }}</span>
           </v-avatar>
-          <div>
-            <div class="font-weight-medium">{{ item.name }}</div>
-            <div class="text-caption text-grey">{{ item.email }}</div>
+          <div class="d-flex flex-column">
+            <span class="font-weight-bold text-body-1">{{ item.name }}</span>
+            <span class="text-caption text-grey">{{ item.email || 'لا يوجد بريد إلكتروني' }}</span>
           </div>
         </div>
       </template>
 
       <template #item.role="{ item }">
-        <v-chip size="small" color="info">
+        <v-chip size="small" variant="flat" color="secondary-lighten-5" class="text-secondary font-weight-bold px-3">
+          <v-icon icon="ri-admin-line" size="14" class="me-1" />
           {{ item.role || 'موظف' }}
         </v-chip>
       </template>
 
       <template #item.status="{ item }">
-        <v-chip :color="item.is_active ? 'success' : 'error'" size="small">
+        <v-chip :color="item.is_active ? 'success' : 'error'" size="small" variant="flat" class="font-weight-bold px-3">
           {{ item.is_active ? 'نشط' : 'معطل' }}
         </v-chip>
       </template>
 
       <template #extra-actions="{ item }">
-        <v-btn icon="ri-shield-user-line" size="small" variant="text" color="warning" @click="handleManagePermissions(item)" />
+        <AppButton
+          icon="ri-shield-user-line"
+          size="x-small"
+          variant="text"
+          color="warning"
+          tooltip="إدارة الصلاحيات"
+          @click="handleManagePermissions(item)"
+        />
       </template>
     </AppDataTable>
 
-    <ConfirmDialog v-model="showConfirm" :message="confirmMessage" @confirm="handleConfirm" @cancel="handleCancel" />
+    <div class="px-6 pb-6">
+      <ConfirmDialog v-model="showConfirm" :message="confirmMessage" @confirm="handleConfirm" @cancel="handleCancel" />
+    </div>
   </div>
 </template>
 
@@ -56,7 +66,9 @@
 import { onMounted } from 'vue';
 import { useUserStore } from '../store/user.store';
 import { useUser } from '../composables/useUser';
-import { AppDataTable, ConfirmDialog } from '@/components';
+import AppDataTable from '@/components/common/AppDataTable.vue';
+import AppButton from '@/components/common/AppButton.vue';
+import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
 import { getInitials } from '@/utils/helpers';
 
 const store = useUserStore();
@@ -81,8 +93,4 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
-.users-page {
-  padding: 1rem;
-}
-</style>
+<style scoped></style>

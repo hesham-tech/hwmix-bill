@@ -1,35 +1,57 @@
 <template>
   <v-form ref="formRef" @submit.prevent="handleSubmit">
-    <v-row>
+    <v-row dense>
       <!-- Name -->
       <v-col cols="12">
-        <AppInput v-model="form.name" label="اسم المخزن *" :rules="[required]" prepend-inner-icon="ri-building-4-line" />
+        <AppInput
+          v-model="form.name"
+          label="اسم المخزن *"
+          placeholder="مثال: المخزن الرئيسي"
+          :rules="[required]"
+          prepend-inner-icon="ri-building-4-line"
+        />
       </v-col>
 
       <!-- Location -->
       <v-col cols="12">
-        <AppInput v-model="form.location" label="الموقع" prepend-inner-icon="ri-map-pin-line" />
+        <AppInput v-model="form.location" label="وقع المخزن / العنوان" placeholder="ادخل العنوان بالتفصيل" prepend-inner-icon="ri-map-pin-line" />
       </v-col>
 
       <!-- Description -->
       <v-col cols="12">
-        <v-textarea v-model="form.description" label="الوصف" rows="3" prepend-inner-icon="ri-file-text-line" />
+        <AppTextarea
+          v-model="form.description"
+          label="وصف إضافي"
+          placeholder="أي تفاصيل أخرى عن المخزن..."
+          rows="3"
+          prepend-inner-icon="ri-file-text-line"
+        />
       </v-col>
 
       <!-- Active Status -->
       <v-col cols="12">
-        <v-switch v-model="form.is_active" label="مخزن نشط" color="success" hide-details />
+        <div class="pa-4 border rounded-lg bg-grey-lighten-5 d-flex align-center justify-space-between mb-4">
+          <div class="d-flex align-center">
+            <v-icon
+              :icon="form.is_active ? 'ri-checkbox-circle-line' : 'ri-close-circle-line'"
+              :color="form.is_active ? 'success' : 'grey'"
+              class="me-3"
+            />
+            <div>
+              <div class="font-weight-bold">حالة المستودع</div>
+              <div class="text-caption text-grey">تحديد ما إذا كان المخزن متاحاً للاستخدام حالياً</div>
+            </div>
+          </div>
+          <v-switch v-model="form.is_active" color="success" hide-details />
+        </div>
       </v-col>
     </v-row>
-
-    <!-- Actions -->
-    <FormActions :loading="loading" @cancel="$emit('cancel')" @submit="handleSubmit" />
   </v-form>
 </template>
 
 <script setup>
 import { ref, watch } from 'vue';
-import { AppInput, FormActions } from '@/components';
+import { AppInput, AppTextarea, FormActions } from '@/components';
 import { required } from '@/utils/validators';
 
 const props = defineProps({
@@ -55,12 +77,16 @@ const form = ref({
 const handleSubmit = async () => {
   const { valid } = await formRef.value.validate();
 
-  if (!valid) return;
+  if (!valid) return false; // Return false if invalid
 
-  loading.value = true;
   emit('save', form.value);
-  loading.value = false;
+  return true;
 };
+
+// Expose methods to parent
+defineExpose({
+  handleSubmit,
+});
 
 watch(
   () => props.modelValue,

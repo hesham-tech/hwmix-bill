@@ -1,5 +1,5 @@
 <template>
-  <v-autocomplete
+  <AppAutocomplete
     v-model="selectedCustomer"
     :items="customers"
     :loading="loading"
@@ -17,42 +17,36 @@
     <template #item="{ props, item }">
       <v-list-item v-bind="props">
         <template #prepend>
-          <v-avatar color="primary" size="40">
-            <span class="text-white">
-              {{ item.raw.name.charAt(0) }}
+          <v-avatar color="primary-lighten-5" class="me-3 border" size="40">
+            <span class="text-primary font-weight-bold">
+              {{ item.raw.name.charAt(0).toUpperCase() }}
             </span>
           </v-avatar>
         </template>
         <template #title>
-          {{ item.raw.name }}
+          <span class="font-weight-bold">{{ item.raw.name }}</span>
         </template>
         <template #subtitle>
-          <div class="d-flex flex-column">
-            <span v-if="item.raw.phone">
-              <v-icon icon="ri-phone-line" size="x-small" />
+          <div class="d-flex flex-column gap-1 mt-1">
+            <span v-if="item.raw.phone" class="text-caption">
+              <v-icon icon="ri-phone-line" size="14" class="me-1" />
               {{ item.raw.phone }}
             </span>
             <span v-if="item.raw.email" class="text-caption">
+              <v-icon icon="ri-mail-line" size="14" class="me-1" />
               {{ item.raw.email }}
             </span>
           </div>
         </template>
       </v-list-item>
     </template>
-
-    <!-- No data -->
-    <template #no-data>
-      <v-list-item>
-        <v-list-item-title class="text-center text-medium-emphasis"> لا توجد نتائج </v-list-item-title>
-        <v-list-item-subtitle class="text-center text-caption"> يمكنك إضافة مستخدمين من إعدادات → المستخدمين </v-list-item-subtitle>
-      </v-list-item>
-    </template>
-  </v-autocomplete>
+  </AppAutocomplete>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
 import { useApi } from '@/composables/useApi';
+import AppAutocomplete from '@/components/common/AppAutocomplete.vue';
 
 const props = defineProps({
   modelValue: {

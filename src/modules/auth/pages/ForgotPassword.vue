@@ -24,7 +24,7 @@
               class="mb-4"
             />
 
-            <v-btn type="submit" color="primary" size="large" block :loading="loading" class="mb-4"> إرسال رابط الاستعادة </v-btn>
+            <AppButton type="submit" color="primary" size="large" block :loading="loading" class="mb-4"> إرسال رابط الاستعادة </AppButton>
 
             <div class="text-center">
               <a href="/login" class="text-primary text-decoration-none">
@@ -38,7 +38,7 @@
             <v-icon icon="ri-checkbox-circle-line" size="64" color="success" class="mb-4" />
             <h3 class="text-h6 mb-2">تم إرسال الرابط!</h3>
             <p class="text-body-2 text-grey mb-4">تحقق من بريدك الإلكتروني واتبع التعليمات لإعادة تعيين كلمة المرور</p>
-            <v-btn color="primary" variant="outlined" href="/login"> العودة لتسجيل الدخول </v-btn>
+            <AppButton color="primary" variant="outlined" href="/login" block> العودة لتسجيل الدخول </AppButton>
           </div>
         </div>
       </div>
@@ -48,10 +48,11 @@
 
 <script setup>
 import { ref } from 'vue';
-import { AppInput } from '@/components';
 import { authService } from '@/api';
 import { required, email } from '@/utils/validators';
 import { toast } from 'vue3-toastify';
+import AppInput from '@/components/common/AppInput.vue';
+import AppButton from '@/components/common/AppButton.vue';
 
 const formRef = ref(null);
 const loading = ref(false);

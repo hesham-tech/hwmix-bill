@@ -1,43 +1,93 @@
 <template>
-  <v-dialog :model-value="modelValue" max-width="600" persistent @update:model-value="$emit('update:modelValue', $event)">
-    <v-card>
-      <v-card-title class="d-flex align-center">
-        <v-icon :icon="isEdit ? 'ri-edit-line' : 'ri-add-line'" class="me-2" />
-        {{ isEdit ? 'تعديل طريقة الدفع' : 'طريقة دفع جديدة' }}
-      </v-card-title>
+  <AppDialog
+    :model-value="modelValue"
+    :title="isEdit ? 'تعديل طريقة الدفع' : 'طريقة دفع جديدة'"
+    :icon="isEdit ? 'ri-edit-line' : 'ri-bank-card-line'"
+    :loading="loading"
+    max-width="600"
+    @update:model-value="$emit('update:modelValue', $event)"
+    @confirm="handleSubmit"
+  >
+    <v-form ref="formRef" @submit.prevent="handleSubmit">
+      <v-row>
+        <!-- Logo Selection Section -->
+        <v-col cols="12" class="d-flex justify-center mb-4">
+          <div class="logo-preview-zone position-relative cursor-pointer" @click="showMediaGallery = true">
+            <v-avatar size="120" rounded="xl" color="grey-lighten-4" class="border-2 border-dashed elevation-1 hover-scale overflow-hidden">
+              <v-img v-if="imagePreview" :src="imagePreview" cover />
+              <v-icon v-else icon="ri-image-add-line" size="40" color="grey-lighten-1" />
 
-      <v-card-text>
-        <v-form ref="formRef" @submit.prevent="handleSubmit">
-          <v-row>
-            <v-col cols="12">
-              <v-text-field
-                v-model="formData.name"
-                label="اسم طريقة الدفع *"
-                prepend-inner-icon="ri-bank-card-line"
-                :rules="[rules.required]"
-                :error-messages="errors.name"
-              />
-            </v-col>
+              <div class="change-overlay d-flex flex-column align-center justify-center rounded-xl">
+                <v-icon icon="ri-exchange-line" color="white" size="24" />
+                <span class="text-white text-caption mt-1 font-weight-bold">تغيير الشعار</span>
+              </div>
+            </v-avatar>
+          </div>
+        </v-col>
 
-            <v-col cols="12">
-              <v-switch v-model="formData.is_active" label="نشط" color="success" :true-value="1" :false-value="0" hide-details />
-            </v-col>
-          </v-row>
-        </v-form>
-      </v-card-text>
+        <v-col cols="12">
+          <AppInput
+            v-model="formData.name"
+            label="اسم طريقة الدفع *"
+            prepend-inner-icon="ri-bank-card-line"
+            :rules="[rules.required]"
+            :error-messages="errors.name"
+          />
+        </v-col>
 
-      <v-card-actions>
-        <v-spacer />
-        <v-btn variant="text" @click="handleCancel"> إلغاء </v-btn>
-        <v-btn color="primary" variant="flat" :loading="loading" @click="handleSubmit"> حفظ </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+        <v-col cols="12">
+          <AppInput
+            v-model="formData.code"
+            label="الكود *"
+            prepend-inner-icon="ri-key-line"
+            :rules="[rules.required]"
+            :error-messages="errors.code"
+            :disabled="isEdit"
+            hint="كود فريد للتعريف بالنظام (مثل: CASH, BANK)"
+            persistent-hint
+          />
+        </v-col>
+
+        <v-col v-if="canToggle" cols="12">
+          <v-card variant="tonal" :color="formData.active ? 'primary' : 'grey'" class="pa-4 rounded-lg mt-4">
+            <div class="d-flex align-center justify-space-between">
+              <div>
+                <div class="text-subtitle-1 font-weight-bold">حالة النشاط</div>
+                <div class="text-caption">تفعيل أو تعطيل هذه الطريقة في شاشات الدفع</div>
+              </div>
+              <v-switch v-model="formData.active" color="success" hide-details inset />
+            </div>
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-form>
+
+    <!-- Media Gallery Wrapper -->
+    <MediaGallery v-model="showMediaGallery" type="logo" @select="handleImageSelect" />
+  </AppDialog>
 </template>
 
 <script setup>
 import { ref, watch, computed } from 'vue';
-import { useApi } from '@/composables/useApi';
+import MediaGallery from '@/components/common/MediaGallery.vue';
+import { imgUrl } from '@/utils/helpers';
+import { PERMISSIONS } from '@/config/permissions';
+
+const authStore = useAuthStore();
+const isSuperAdmin = computed(() => authStore.user?.permissions?.includes(PERMISSIONS.ADMIN_SUPER));
+const isCompanyAdmin = computed(() => authStore.user?.permissions?.includes(PERMISSIONS.ADMIN_COMPANY));
+
+const canToggle = computed(() => {
+  if (isSuperAdmin.value || isCompanyAdmin.value) return true;
+
+  // طرق السـيستم لا يمكن لغير الـ Admins تعديل حالتها
+  if (props.paymentMethod?.is_system) return false;
+
+  return (
+    authStore.user?.permissions?.includes(PERMISSIONS.PAYMENT_METHODS_UPDATE_ALL) ||
+    authStore.user?.permissions?.includes(PERMISSIONS.PAYMENT_METHODS_UPDATE_SELF)
+  );
+});
 
 const props = defineProps({
   modelValue: {
@@ -55,17 +105,38 @@ const emit = defineEmits(['update:modelValue', 'saved']);
 const api = useApi('/api/payment-methods');
 const formRef = ref(null);
 const loading = ref(false);
+const showMediaGallery = ref(false);
+const imagePreview = ref(null);
 const errors = ref({});
 
 const formData = ref({
   name: '',
-  is_active: 1,
+  code: '',
+  active: true,
+  image_id: null,
 });
 
 const isEdit = computed(() => !!props.paymentMethod?.id);
 
 const rules = {
   required: v => !!v || 'هذا الحقل مطلوب',
+};
+
+const handleImageSelect = image => {
+  formData.value.image_id = image.id;
+  imagePreview.value = imgUrl(image.url);
+};
+
+const resetForm = () => {
+  formData.value = {
+    name: '',
+    code: '',
+    active: true,
+    image_id: null,
+  };
+  imagePreview.value = null;
+  errors.value = {};
+  formRef.value?.resetValidation();
 };
 
 // Watch for payment method changes to pre-fill form
@@ -75,8 +146,11 @@ watch(
     if (newVal) {
       formData.value = {
         name: newVal.name || '',
-        is_active: newVal.is_active ?? 1,
+        code: newVal.code || '',
+        active: newVal.active ?? true,
+        image_id: newVal.image_id || null,
       };
+      imagePreview.value = imgUrl(newVal.image_url) || null;
     } else {
       resetForm();
     }
@@ -85,6 +159,7 @@ watch(
 );
 
 const handleSubmit = async () => {
+  if (!formRef.value) return;
   const { valid } = await formRef.value.validate();
   if (!valid) return;
 
@@ -113,18 +188,34 @@ const handleSubmit = async () => {
     loading.value = false;
   }
 };
-
-const handleCancel = () => {
-  emit('update:modelValue', false);
-  resetForm();
-};
-
-const resetForm = () => {
-  formData.value = {
-    name: '',
-    is_active: 1,
-  };
-  errors.value = {};
-  formRef.value?.resetValidation();
-};
 </script>
+
+<style scoped>
+.logo-preview-zone .change-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: 2;
+}
+
+.logo-preview-zone:hover .change-overlay {
+  opacity: 1;
+}
+
+.max-width-300 {
+  max-width: 300px;
+}
+
+.hover-scale {
+  transition: transform 0.2s;
+}
+
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+</style>

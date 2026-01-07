@@ -1,0 +1,31 @@
+import { ref } from 'vue';
+import { useApi } from '@/composables/useApi';
+
+export function usePaymentsData() {
+  const api = useApi('/api/payments');
+  const payments = ref([]);
+  const loading = ref(false);
+  const total = ref(0);
+
+  const fetchPayments = async (params = {}) => {
+    loading.value = true;
+    try {
+      const response = await api.get(params, { showLoading: false });
+      payments.value = response.data || [];
+      total.value = response.total || 0;
+      return response;
+    } catch (error) {
+      payments.value = [];
+      total.value = 0;
+      throw error;
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  const deletePayment = async id => {
+    return await api.remove(id, { successMessage: 'تم حذف الدفعة بنجاح' });
+  };
+
+  return { payments, loading, total, fetchPayments, deletePayment };
+}

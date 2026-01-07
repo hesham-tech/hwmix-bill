@@ -112,7 +112,7 @@ class AuthService {
       const response = await apiClient.post('logout');
 
       // Clear storage
-      localStorage.removeItem('authToken');
+      localStorage.removeItem('token');
       localStorage.removeItem('user');
       localStorage.removeItem('products');
 
@@ -160,14 +160,14 @@ class AuthService {
    * Check if user is authenticated
    */
   isAuthenticated() {
-    return !!localStorage.getItem('authToken');
+    return !!localStorage.getItem('token');
   }
 
   /**
    * Get stored token
    */
   getToken() {
-    return localStorage.getItem('authToken');
+    return localStorage.getItem('token');
   }
 
   /**

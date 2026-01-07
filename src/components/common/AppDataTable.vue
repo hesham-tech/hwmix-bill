@@ -41,8 +41,13 @@
       @update:options="handleOptionsUpdate"
     >
       <!-- Custom slots for columns -->
+      <!-- Pass through all slots meant for v-data-table -->
       <template v-for="(_, slot) in $slots" #[slot]="scope">
-        <slot :name="slot" v-bind="scope" />
+        <slot
+          v-if="slot.startsWith('item.') || slot.startsWith('header.') || ['no-data', 'loading', 'body', 'footer', 'top', 'bottom'].includes(slot)"
+          :name="slot"
+          v-bind="scope || {}"
+        />
       </template>
 
       <!-- Actions column -->

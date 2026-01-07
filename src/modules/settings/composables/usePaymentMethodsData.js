@@ -1,31 +1,26 @@
 import { ref } from 'vue';
 import { useApi } from '@/composables/useApi';
 
-/**
- * Composable for Payment Methods data management
- * إدارة بيانات طرق الدفع
- */
 export function usePaymentMethodsData() {
   const api = useApi('/api/payment-methods');
-
-  // State
   const paymentMethods = ref([]);
   const loading = ref(false);
   const total = ref(0);
 
-  /**
-   * Fetch payment methods list
-   * جلب قائمة طرق الدفع
-   */
   const fetchPaymentMethods = async (params = {}) => {
     loading.value = true;
     try {
       const response = await api.get(params, { showLoading: false });
-      paymentMethods.value = response.data || [];
-      total.value = response.total || 0;
+      // Handle both paginated and non-paginated responses
+      if (response.data && Array.isArray(response.data.data)) {
+        paymentMethods.value = response.data.data;
+        total.value = response.data.meta?.total || response.data.data.length;
+      } else {
+        paymentMethods.value = response.data || [];
+        total.value = response.total || paymentMethods.value.length;
+      }
       return response;
     } catch (error) {
-      console.error('Error fetching payment methods:', error);
       paymentMethods.value = [];
       total.value = 0;
       throw error;
@@ -34,24 +29,13 @@ export function usePaymentMethodsData() {
     }
   };
 
-  /**
-   * Delete payment method
-   * حذف طريقة دفع
-   */
   const deletePaymentMethod = async id => {
-    return await api.remove(id, {
-      successMessage: 'تم حذف طريقة الدفع بنجاح',
-    });
+    return await api.remove(id, { successMessage: 'تم حذف طريقة الدفع بنجاح' });
   };
 
-  return {
-    // State
-    paymentMethods,
-    loading,
-    total,
-
-    // Methods
-    fetchPaymentMethods,
-    deletePaymentMethod,
+  const togglePaymentMethodStatus = async id => {
+    return await api.update(`${id}/toggle`, {}, { successMessage: 'تم تغيير حالة طريقة الدفع بنجاح' });
   };
+
+  return { paymentMethods, loading, total, fetchPaymentMethods, deletePaymentMethod, togglePaymentMethodStatus };
 }

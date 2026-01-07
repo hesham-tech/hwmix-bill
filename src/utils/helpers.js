@@ -168,3 +168,17 @@ export const getQueryParams = () => {
   const params = new URLSearchParams(window.location.search);
   return Object.fromEntries(params.entries());
 };
+/**
+ * Get full image URL with backend base
+ */
+export const imgUrl = url => {
+  if (!url) return null;
+  if (url.startsWith('http')) return url;
+
+  // Get backend base URL (removing /api/ if present)
+  const apiBase =
+    import.meta.env.VITE_API_URL || (import.meta.env.MODE === 'production' ? 'https://bill-api.hwnix.com/api/' : 'http://127.0.0.1:8000/api/');
+  const base = apiBase.replace(/\/api\/?$/, '');
+
+  return `${base}${url.startsWith('/') ? '' : '/'}${url}`;
+};

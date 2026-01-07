@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Product autocomplete -->
-    <v-autocomplete
+    <AppAutocomplete
       v-model="selectedProduct"
       :items="products"
       :loading="loading"
@@ -19,25 +19,25 @@
       <template #item="{ props, item }">
         <v-list-item v-bind="props">
           <template #prepend>
-            <v-avatar rounded="sm">
+            <v-avatar rounded="lg" color="primary-lighten-5" class="border">
               <v-img v-if="item.raw.image" :src="item.raw.image" cover />
-              <v-icon v-else icon="ri-product-hunt-line" />
+              <v-icon v-else icon="ri-product-hunt-line" color="primary" />
             </v-avatar>
           </template>
           <template #title>
-            {{ item.raw.name }}
+            <span class="font-weight-bold">{{ item.raw.name }}</span>
           </template>
           <template #subtitle>
-            <div class="d-flex justify-space-between">
+            <div class="d-flex justify-space-between mt-1">
               <span class="text-caption">SKU: {{ item.raw.sku }}</span>
-              <span class="text-success font-weight-medium">
+              <span class="text-success font-weight-bold">
                 {{ formatCurrency(item.raw.sell_price) }}
               </span>
             </div>
           </template>
         </v-list-item>
       </template>
-    </v-autocomplete>
+    </AppAutocomplete>
 
     <!-- Variant selection (if product has variants) -->
     <v-select
@@ -47,6 +47,8 @@
       item-title="name"
       item-value="id"
       label="اختر الشكل"
+      variant="outlined"
+      density="comfortable"
       prepend-inner-icon="ri-stack-line"
       return-object
       class="mt-4"
@@ -54,12 +56,12 @@
       <template #item="{ props, item }">
         <v-list-item v-bind="props">
           <template #title>
-            {{ item.raw.name }}
+            <span class="font-weight-medium">{{ item.raw.name }}</span>
           </template>
           <template #subtitle>
-            <div class="d-flex justify-space-between">
+            <div class="d-flex justify-space-between mt-1">
               <span>المخزون: {{ item.raw.stock }}</span>
-              <span class="text-success">{{ formatCurrency(item.raw.price) }}</span>
+              <span class="text-success font-weight-bold">{{ formatCurrency(item.raw.price) }}</span>
             </div>
           </template>
         </v-list-item>
@@ -69,7 +71,7 @@
     <!-- Quantity & Price -->
     <v-row v-if="selectedProduct" class="mt-2">
       <v-col cols="12" md="3">
-        <v-text-field
+        <AppInput
           v-model.number="quantity"
           label="الكمية *"
           type="number"
@@ -80,7 +82,7 @@
       </v-col>
 
       <v-col cols="12" md="3">
-        <v-text-field
+        <AppInput
           v-model.number="unitPrice"
           label="سعر الوحدة"
           type="number"
@@ -91,24 +93,27 @@
       </v-col>
 
       <v-col cols="12" md="3">
-        <v-text-field v-model.number="discount" label="الخصم %" type="number" min="0" max="100" prepend-inner-icon="ri-percent-line" />
+        <AppInput v-model.number="discount" label="الخصم %" type="number" min="0" max="100" prepend-inner-icon="ri-percent-line" />
       </v-col>
 
       <v-col cols="12" md="3">
-        <v-text-field :model-value="total" label="المجموع" readonly prepend-inner-icon="ri-calculator-line" class="font-weight-bold" />
+        <AppInput :model-value="total" label="المجموع" readonly prepend-inner-icon="ri-calculator-line" class="font-weight-bold" />
       </v-col>
     </v-row>
 
     <!-- Add button -->
-    <v-btn v-if="selectedProduct" color="primary" block prepend-icon="ri-add-line" :disabled="!canAdd" @click="addProduct" class="mt-4">
-      إضافة المنتج
-    </v-btn>
+    <AppButton v-if="selectedProduct" block prepend-icon="ri-add-line" :disabled="!canAdd" @click="addProduct" class="mt-4">
+      إضافة المنتج للفاتورة
+    </AppButton>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, watch } from 'vue';
 import { useApi } from '@/composables/useApi';
+import AppAutocomplete from '@/components/common/AppAutocomplete.vue';
+import AppInput from '@/components/common/AppInput.vue';
+import AppButton from '@/components/common/AppButton.vue';
 
 const emit = defineEmits(['add']);
 

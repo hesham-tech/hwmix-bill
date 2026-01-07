@@ -1,217 +1,252 @@
 <template>
   <v-form ref="formRef" @submit.prevent="handleSubmit">
     <v-row>
-      <!-- Product Name -->
-      <v-col cols="12" md="6">
-        <AppInput v-model="form.name" label="اسم المنتج *" :rules="[required]" prepend-inner-icon="ri-product-hunt-line" />
+      <!-- Basic Info Card -->
+      <v-col cols="12" md="8">
+        <v-card class="mb-4" border flat>
+          <v-card-title>معلومات أساسية</v-card-title>
+          <v-card-text>
+            <v-row>
+              <v-col cols="12">
+                <v-text-field v-model="localData.name" label="اسم المنتج *" :rules="[rules.required]" :error-messages="errors.name" />
+              </v-col>
+
+              <v-col cols="12" md="6">
+                <v-text-field v-model="localData.sku" label="SKU" placeholder="كود المنتج" :error-messages="errors.sku" />
+              </v-col>
+
+              <v-col cols="12" md="6">
+                <v-text-field v-model="localData.barcode" label="باركود" :error-messages="errors.barcode" />
+              </v-col>
+
+              <v-col cols="12" md="6">
+                <v-autocomplete
+                  v-model="localData.category_id"
+                  :items="categories"
+                  item-title="name"
+                  item-value="id"
+                  label="الفئة *"
+                  :rules="[rules.required]"
+                  :error-messages="errors.category_id"
+                />
+              </v-col>
+
+              <v-col cols="12" md="6">
+                <v-autocomplete
+                  v-model="localData.brand_id"
+                  :items="brands"
+                  item-title="name"
+                  item-value="id"
+                  label="العلامة التجارية"
+                  clearable
+                  :error-messages="errors.brand_id"
+                />
+              </v-col>
+
+              <v-col cols="12">
+                <v-textarea v-model="localData.description" label="الوصف" rows="3" :error-messages="errors.description" />
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </v-card>
+
+        <!-- Pricing Card -->
+        <v-card class="mb-4" border flat>
+          <v-card-title>التسعير</v-card-title>
+          <v-card-text>
+            <v-row>
+              <v-col cols="12" md="4">
+                <v-text-field
+                  v-model.number="localData.cost_price"
+                  label="سعر التكلفة *"
+                  type="number"
+                  step="0.01"
+                  prefix="ج.م"
+                  :rules="[rules.required]"
+                  :error-messages="errors.cost_price"
+                />
+              </v-col>
+
+              <v-col cols="12" md="4">
+                <v-text-field
+                  v-model.number="localData.selling_price"
+                  label="سعر البيع *"
+                  type="number"
+                  step="0.01"
+                  prefix="ج.م"
+                  :rules="[rules.required]"
+                  :error-messages="errors.selling_price"
+                />
+              </v-col>
+
+              <v-col cols="12" md="4">
+                <v-text-field
+                  v-model.number="localData.tax_rate"
+                  label="نسبة الضريبة %"
+                  type="number"
+                  step="0.1"
+                  suffix="%"
+                  :error-messages="errors.tax_rate"
+                />
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </v-card>
+
+        <!-- Stock Card -->
+        <v-card border flat>
+          <v-card-title>المخزون</v-card-title>
+          <v-card-text>
+            <v-row>
+              <v-col cols="12" md="6">
+                <v-autocomplete
+                  v-model="localData.warehouse_id"
+                  :items="warehouses"
+                  item-title="name"
+                  item-value="id"
+                  label="المخزن *"
+                  :rules="[rules.required]"
+                  :error-messages="errors.warehouse_id"
+                />
+              </v-col>
+
+              <v-col cols="12" md="6">
+                <v-text-field
+                  v-model.number="localData.stock_quantity"
+                  label="الكمية *"
+                  type="number"
+                  :rules="[rules.required]"
+                  :error-messages="errors.stock_quantity"
+                />
+              </v-col>
+
+              <v-col cols="12" md="6">
+                <v-text-field
+                  v-model.number="localData.min_stock_level"
+                  label="الحد الأدنى للمخزون"
+                  type="number"
+                  hint="سيتم التنبيه عند الوصول لهذا الحد"
+                  persistent-hint
+                  :error-messages="errors.min_stock_level"
+                />
+              </v-col>
+
+              <v-col cols="12" md="6">
+                <v-switch v-model="localData.track_stock" label="تتبع المخزون" color="primary" hide-details />
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </v-card>
       </v-col>
 
-      <!-- SKU/Barcode -->
-      <v-col cols="12" md="6">
-        <AppInput v-model="form.sku" label="كود المنتج / Barcode" prepend-inner-icon="ri-barcode-line" />
-      </v-col>
-
-      <!-- Category -->
-      <v-col cols="12" md="6">
-        <v-autocomplete
-          v-model="form.category_id"
-          :items="categories"
-          item-title="name"
-          item-value="id"
-          label="التصنيف"
-          prepend-inner-icon="ri-folder-line"
-          clearable
-        />
-      </v-col>
-
-      <!-- Brand -->
-      <v-col cols="12" md="6">
-        <v-autocomplete
-          v-model="form.brand_id"
-          :items="brands"
-          item-title="name"
-          item-value="id"
-          label="الماركة"
-          prepend-inner-icon="ri-building-line"
-          clearable
-        />
-      </v-col>
-
-      <!--Price -->
+      <!-- Settings Sidebar -->
       <v-col cols="12" md="4">
-        <AppInput
-          v-model.number="form.price"
-          label="السعر *"
-          type="number"
-          :rules="[required, positiveNumber]"
-          prepend-inner-icon="ri-money-dollar-circle-line"
-          min="0"
-          step="0.01"
-        />
-      </v-col>
+        <v-card class="mb-4" border flat>
+          <v-card-title>الحالة والصورة</v-card-title>
+          <v-card-text>
+            <v-switch v-model="localData.is_active" label="نشط" color="success" class="mb-4" />
 
-      <!-- Cost -->
-      <v-col cols="12" md="4">
-        <AppInput v-model.number="form.cost" label="التكلفة" type="number" prepend-inner-icon="ri-coins-line" min="0" step="0.01" />
-      </v-col>
+            <v-file-input v-model="imageFile" label="صورة المنتج" accept="image/*" prepend-icon="ri-image-line" @change="handleImageChange" />
 
-      <!-- Stock Quantity -->
-      <v-col cols="12" md="4">
-        <AppInput
-          v-model.number="form.stock"
-          label="الكمية المتوفرة *"
-          type="number"
-          :rules="[required]"
-          prepend-inner-icon="ri-stack-line"
-          min="0"
-        />
-      </v-col>
+            <v-img v-if="imagePreview || localData.image" :src="imagePreview || localData.image" max-height="200" class="mt-4 border rounded" cover />
+          </v-card-text>
+        </v-card>
 
-      <!-- Min Stock -->
-      <v-col cols="12" md="6">
-        <AppInput
-          v-model.number="form.min_stock"
-          label="الحد الأدنى للمخزون"
-          type="number"
-          prepend-inner-icon="ri-alert-line"
-          min="0"
-          hint="تنبيه عند الوصول لهذا الحد"
-          persistent-hint
-        />
-      </v-col>
-
-      <!-- Unit -->
-      <v-col cols="12" md="6">
-        <v-select v-model="form.unit" :items="unitOptions" label="الوحدة" prepend-inner-icon="ri-ruler-line" />
-      </v-col>
-
-      <!-- Image Upload -->
-      <v-col cols="12">
-        <v-file-input v-model="imageFile" label="صورة المنتج" accept="image/*" prepend-icon="ri-image-line" show-size @change="handleImageUpload" />
-
-        <div v-if="imagePreview" class="mt-2">
-          <v-img :src="imagePreview" max-width="200" max-height="200" class="rounded" />
-        </div>
-      </v-col>
-
-      <!-- Description -->
-      <v-col cols="12">
-        <v-textarea v-model="form.description" label="الوصف" rows="3" prepend-inner-icon="ri-file-text-line" />
-      </v-col>
-
-      <!-- Active Status -->
-      <v-col cols="12">
-        <v-switch v-model="form.is_active" label="منتج نشط" color="success" hide-details />
+        <!-- Form Actions -->
+        <v-card border flat>
+          <v-card-actions class="pa-4">
+            <v-btn variant="text" @click="$emit('cancel')" block class="mb-2"> إلغاء </v-btn>
+            <v-btn color="primary" type="submit" :loading="loading" block>
+              {{ isEdit ? 'تحديث المنتج' : 'حفظ المنتج' }}
+            </v-btn>
+          </v-card-actions>
+        </v-card>
       </v-col>
     </v-row>
-
-    <!-- Form Actions -->
-    <FormActions :loading="loading" @cancel="$emit('cancel')" @submit="handleSubmit" />
   </v-form>
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
-import { AppInput, FormActions } from '@/components';
-import { categoryService, brandService } from '@/api';
-import { required, positiveNumber } from '@/utils/validators';
+import { ref, watch } from 'vue';
 
 const props = defineProps({
   modelValue: {
     type: Object,
+    required: true,
+  },
+  categories: {
+    type: Array,
+    default: () => [],
+  },
+  brands: {
+    type: Array,
+    default: () => [],
+  },
+  warehouses: {
+    type: Array,
+    default: () => [],
+  },
+  loading: {
+    type: Boolean,
+    default: false,
+  },
+  errors: {
+    type: Object,
     default: () => ({}),
+  },
+  isEdit: {
+    type: Boolean,
+    default: false,
   },
 });
 
-const emit = defineEmits(['save', 'cancel']);
+const emit = defineEmits(['update:modelValue', 'submit', 'cancel', 'image-change']);
 
 const formRef = ref(null);
-const loading = ref(false);
-const categories = ref([]);
-const brands = ref([]);
+const localData = ref({ ...props.modelValue });
 const imageFile = ref(null);
 const imagePreview = ref(null);
 
-const form = ref({
-  name: '',
-  sku: '',
-  category_id: null,
-  brand_id: null,
-  price: 0,
-  cost: 0,
-  stock: 0,
-  min_stock: 0,
-  unit: 'قطعة',
-  description: '',
-  is_active: true,
-  image: null,
-  ...props.modelValue,
-});
-
-const unitOptions = ['قطعة', 'كيلو', 'متر', 'لتر', 'علبة', 'كرتونة', 'زجاجة'];
-
-const handleImageUpload = event => {
-  const file = imageFile.value?.[0];
-
-  if (!file) {
-    imagePreview.value = null;
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.onload = e => {
-    imagePreview.value = e.target.result;
-  };
-  reader.readAsDataURL(file);
-
-  form.value.image = file;
+const rules = {
+  required: v => !!v || 'هذا الحقل مطلوب',
 };
 
-const handleSubmit = async () => {
-  const { valid } = await formRef.value.validate();
-
-  if (!valid) return;
-
-  loading.value = true;
-  emit('save', form.value);
-  loading.value = false;
-};
-
-// Load categories and brands
-const loadData = async () => {
-  try {
-    const [categoriesRes, brandsRes] = await Promise.all([
-      categoryService.getAll({ per_page: -1 }, { showToast: false }),
-      brandService.getAll({ per_page: -1 }, { showToast: false }),
-    ]);
-
-    categories.value = categoriesRes.data;
-    brands.value = brandsRes.data;
-  } catch (error) {
-    console.error('Error loading data:', error);
-  }
-};
-
-// Watch for modelValue changes
 watch(
   () => props.modelValue,
   newVal => {
-    form.value = { ...form.value, ...newVal };
-
-    // Set image preview if exists
-    if (newVal.image_url) {
-      imagePreview.value = newVal.image_url;
-    }
+    localData.value = { ...newVal };
   },
   { deep: true }
 );
 
-onMounted(() => {
-  loadData();
+watch(
+  localData,
+  newVal => {
+    emit('update:modelValue', newVal);
+  },
+  { deep: true }
+);
 
-  // Set existing image preview
-  if (form.value.image_url) {
-    imagePreview.value = form.value.image_url;
+const handleImageChange = e => {
+  const file = e.target.files?.[0];
+  if (file) {
+    emit('image-change', file);
+    const reader = new FileReader();
+    reader.onload = res => {
+      imagePreview.value = res.target.result;
+    };
+    reader.readAsDataURL(file);
   }
+};
+
+const handleSubmit = async () => {
+  const { valid } = await formRef.value.validate();
+  if (valid) {
+    emit('submit', localData.value);
+  }
+};
+
+defineExpose({
+  validate: () => formRef.value.validate(),
 });
 </script>

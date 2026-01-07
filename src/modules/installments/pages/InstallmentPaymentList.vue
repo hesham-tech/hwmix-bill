@@ -1,70 +1,115 @@
 <template>
   <div class="installment-payments-page">
-    <AppCard :title="`الدفعات - خطة #${planId || 'الكل'}`" icon="ri-money-dollar-box-line">
-      <v-data-table :headers="headers" :items="payments" :loading="loading" density="comfortable">
+    <div class="px-6 pb-6">
+      <AppDataTable
+        :headers="headers"
+        :items="payments"
+        :loading="loading"
+        :title="`سجل دفعات الخطة #${planId || 'العامة'}`"
+        icon="ri-money-dollar-box-line"
+      >
+        <template #actions>
+          <AppButton color="primary" prepend-icon="ri-add-line" @click="handleAddPayment"> تسجيل دفعة جديدة </AppButton>
+        </template>
+
         <template #item.amount="{ item }">
-          <span class="font-weight-bold text-success">
+          <div class="font-weight-black text-h6 text-success">
             {{ formatCurrency(item.amount) }}
-          </span>
+          </div>
         </template>
 
         <template #item.date="{ item }">
-          {{ formatDate(item.date) }}
+          <div class="font-weight-medium text-body-1">{{ formatDate(item.date) }}</div>
         </template>
 
         <template #item.method="{ item }">
-          <v-chip size="small">
+          <v-chip size="small" variant="flat" color="primary-lighten-5" class="text-primary font-weight-bold px-3">
+            <v-icon icon="ri-wallet-line" size="14" class="me-1" />
             {{ getMethodLabel(item.method) }}
           </v-chip>
         </template>
 
-        <template #item.actions="{ item }">
-          <v-btn icon="ri-eye-line" size="small" variant="text" color="info" @click="handleViewDetails(item)" />
+        <template #item.notes="{ item }">
+          <span class="text-caption text-grey text-truncate d-inline-block" style="max-width: 200px">
+            {{ item.notes || '---' }}
+          </span>
         </template>
 
-        <template #top>
-          <div class="pa-4">
-            <v-btn color="primary" prepend-icon="ri-add-line" @click="handleAddPayment"> تسجيل دفعة </v-btn>
+        <template #item.actions="{ item }">
+          <div class="d-flex justify-end">
+            <AppButton
+              icon="ri-eye-line"
+              size="x-small"
+              variant="text"
+              color="info"
+              tooltip="عرض التفاصيل الكاملة"
+              @click="handleViewDetails(item)"
+            />
           </div>
         </template>
-      </v-data-table>
-    </AppCard>
+      </AppDataTable>
+    </div>
 
     <!-- Payment Details Dialog -->
-    <AppDialog v-model="showDetails" title="تفاصيل الدفعة" max-width="800" @close="showDetails = false">
+    <AppDialog v-model="showDetails" title="تفاصيل دفعة القسط" icon="ri-information-line" max-width="600" hide-confirm>
       <div v-if="selectedPayment">
-        <v-row>
-          <v-col cols="12" md="6">
-            <div class="text-caption text-grey">المبلغ:</div>
-            <div class="text-h6">{{ formatCurrency(selectedPayment.amount) }}</div>
+        <v-row dense>
+          <v-col cols="12" sm="6">
+            <div class="pa-3 border rounded-lg bg-grey-lighten-5 mb-2">
+              <div class="text-caption text-grey mb-1">قيمة الدفعة</div>
+              <div class="text-h5 font-weight-black text-success">{{ formatCurrency(selectedPayment.amount) }}</div>
+            </div>
           </v-col>
-          <v-col cols="12" md="6">
-            <div class="text-caption text-grey">التاريخ:</div>
-            <div class="text-h6">{{ formatDate(selectedPayment.date) }}</div>
+          <v-col cols="12" sm="6">
+            <div class="pa-3 border rounded-lg bg-grey-lighten-5 mb-2">
+              <div class="text-caption text-grey mb-1">تاريخ العملية</div>
+              <div class="text-h6 font-weight-bold">{{ formatDate(selectedPayment.date) }}</div>
+            </div>
           </v-col>
           <v-col cols="12">
-            <div class="text-caption text-grey">الطريقة:</div>
-            <div>{{ getMethodLabel(selectedPayment.method) }}</div>
+            <div class="pa-3 border rounded-lg bg-grey-lighten-5 mb-4">
+              <div class="text-caption text-grey mb-1">طريقة الدفع</div>
+              <div class="d-flex align-center">
+                <v-icon icon="ri-wallet-line" size="small" class="me-2" />
+                <span class="font-weight-bold">{{ getMethodLabel(selectedPayment.method) }}</span>
+              </div>
+            </div>
           </v-col>
           <v-col v-if="selectedPayment.notes" cols="12">
-            <div class="text-caption text-grey">ملاحظات:</div>
-            <div>{{ selectedPayment.notes }}</div>
+            <div class="pa-3 border rounded-lg bg-grey-lighten-5 mb-4">
+              <div class="text-caption text-grey mb-1">ملاحظات إضافية</div>
+              <div class="text-body-2">{{ selectedPayment.notes }}</div>
+            </div>
           </v-col>
         </v-row>
 
         <v-divider class="my-4" />
 
-        <h4>التفاصيل</h4>
-        <v-list v-if="paymentDetails.length">
-          <v-list-item v-for="detail in paymentDetails" :key="detail.id">
-            <v-list-item-title> قسط #{{ detail.installment_id }} </v-list-item-title>
-            <v-list-item-subtitle>
-              {{ formatCurrency(detail.amount_paid) }}
-            </v-list-item-subtitle>
-          </v-list-item>
-        </v-list>
-        <AppSkeleton v-else-if="loadingDetails" type="list" />
-        <EmptyState v-else title="لا توجد تفاصيل" />
+        <div class="d-flex align-center mb-4">
+          <v-icon icon="ri-list-check-line" size="small" color="primary" class="me-2" />
+          <h4 class="text-subtitle-1 font-weight-bold">توزيع الدفعة على الأقساط</h4>
+        </div>
+
+        <div v-if="loadingDetails" class="py-12">
+          <AppSkeleton type="list" />
+        </div>
+        <div v-else-if="paymentDetails.length">
+          <v-list border class="rounded-lg pa-0 overflow-hidden">
+            <v-list-item v-for="(detail, index) in paymentDetails" :key="detail.id" :class="{ 'border-b': index < paymentDetails.length - 1 }">
+              <template #prepend>
+                <v-avatar color="primary-lighten-5" size="32" class="me-3">
+                  <span class="text-primary text-caption font-weight-bold">#{{ detail.installment_id }}</span>
+                </v-avatar>
+              </template>
+              <v-list-item-title class="font-weight-bold">قسط مستحق</v-list-item-title>
+              <v-list-item-subtitle class="text-grey">تم سداد جزء من قيمة القسط</v-list-item-subtitle>
+              <template #append>
+                <div class="text-h6 font-weight-black text-primary">{{ formatCurrency(detail.amount_paid) }}</div>
+              </template>
+            </v-list-item>
+          </v-list>
+        </div>
+        <EmptyState v-else title="لا توجد تفاصيل لتوزيع هذه الدفعة" icon="ri-error-warning-line" />
       </div>
     </AppDialog>
   </div>
@@ -73,7 +118,12 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useInstallment } from '../composables/useInstallment';
-import { AppCard, AppDialog, AppSkeleton, EmptyState } from '@/components';
+import AppDataTable from '@/components/common/AppDataTable.vue';
+import AppButton from '@/components/common/AppButton.vue';
+import AppCard from '@/components/common/AppCard.vue';
+import AppDialog from '@/components/common/AppDialog.vue';
+import AppSkeleton from '@/components/common/AppSkeleton.vue';
+import EmptyState from '@/components/common/EmptyState.vue';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import { PAYMENT_METHOD_LABELS } from '@/utils/constants';
 
@@ -126,8 +176,4 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
-.installment-payments-page {
-  padding: 1rem;
-}
-</style>
+<style scoped></style>

@@ -1,6 +1,6 @@
-import axios from 'axios';
 import { ref } from 'vue';
 import { toast } from 'vue3-toastify';
+import apiClient from '@/api/axios.config';
 
 /**
  * Composable for making API calls with loading states and error handling
@@ -10,6 +10,9 @@ import { toast } from 'vue3-toastify';
  * @returns {Object} - دوال CRUD و loading states
  */
 export function useApi(baseUrl) {
+  // تنظيف الرابط من البادئة المكررة /api لتجنب مشاكل baseURL في apiClient
+  const resource = baseUrl.startsWith('/api/') ? baseUrl.substring(5) : baseUrl.startsWith('api/') ? baseUrl.substring(4) : baseUrl;
+
   const loading = ref(false);
   const error = ref(null);
 
@@ -23,7 +26,7 @@ export function useApi(baseUrl) {
     error.value = null;
 
     try {
-      const response = await axios.get(baseUrl, { params });
+      const response = await apiClient.get(resource, { params });
       return response.data;
     } catch (err) {
       error.value = err.response?.data?.message || err.message || 'حدث خطأ في تحميل البيانات';
@@ -46,7 +49,7 @@ export function useApi(baseUrl) {
     error.value = null;
 
     try {
-      const response = await axios.get(`${baseUrl}/${id}`);
+      const response = await apiClient.get(`${resource}/${id}`);
       return response.data;
     } catch (err) {
       error.value = err.response?.data?.message || err.message || 'حدث خطأ في تحميل البيانات';
@@ -69,7 +72,7 @@ export function useApi(baseUrl) {
     error.value = null;
 
     try {
-      const response = await axios.post(baseUrl, data);
+      const response = await apiClient.post(resource, data);
       if (showSuccess) {
         toast.success(successMessage);
       }
@@ -95,7 +98,7 @@ export function useApi(baseUrl) {
     error.value = null;
 
     try {
-      const response = await axios.put(`${baseUrl}/${id}`, data);
+      const response = await apiClient.put(`${resource}/${id}`, data);
       if (showSuccess) {
         toast.success(successMessage);
       }
@@ -121,7 +124,7 @@ export function useApi(baseUrl) {
     error.value = null;
 
     try {
-      const response = await axios.delete(`${baseUrl}/${id}`);
+      const response = await apiClient.delete(`${resource}/${id}`);
       if (showSuccess) {
         toast.success(successMessage);
       }
@@ -147,7 +150,7 @@ export function useApi(baseUrl) {
     error.value = null;
 
     try {
-      const response = await axios.post(`${baseUrl}/bulk-delete`, { ids });
+      const response = await apiClient.post(`${resource}/bulk-delete`, { ids });
       if (showSuccess) {
         toast.success(successMessage);
       }
@@ -173,9 +176,12 @@ export function useApi(baseUrl) {
     error.value = null;
 
     try {
-      const response = await axios({
+      // التأكد من عدم تكرار البادئة في الطلبات المخصصة أيضاً
+      const finalUrl = url.startsWith('/') ? `${resource}${url}` : `${resource}/${url}`;
+
+      const response = await apiClient({
         method,
-        url: `${baseUrl}${url}`,
+        url: finalUrl,
         data,
       });
       return response.data;

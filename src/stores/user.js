@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
+import apiClient from '@/api/axios.config';
 
 export const useUserStore = defineStore('user', () => {
   const currentUser = ref(null);
@@ -9,22 +10,16 @@ export const useUserStore = defineStore('user', () => {
   // Fetch current user data from backend
   const fetchUser = async () => {
     try {
-      const response = await fetch('/api/me', {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
+      const response = await apiClient.get('/me');
+      const data = response.data;
 
-      if (response.ok) {
-        const data = await response.json();
-        currentUser.value = data.data;
+      currentUser.value = data.data;
 
-        // Extract permissions array from backend response
-        permissions.value = data.data.permissions || [];
+      // Extract permissions array from backend response
+      permissions.value = data.data.permissions || [];
 
-        // Extract roles with their permissions
-        roles.value = data.data.roles || [];
-      }
+      // Extract roles with their permissions
+      roles.value = data.data.roles || [];
     } catch (error) {
       console.error('Failed to fetch user:', error);
     }

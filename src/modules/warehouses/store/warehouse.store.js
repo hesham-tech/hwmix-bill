@@ -30,7 +30,10 @@ export const useWarehouseStore = defineStore('warehouse', () => {
     loading.value = true;
     try {
       const response = await warehouseService.getAll(params.value, { showToast: false });
-      warehouses.value = response.data;
+      warehouses.value = response.data.map(item => ({
+        ...item,
+        is_active: item.status === 'active',
+      }));
       totalItems.value = response.total;
       return response;
     } catch (error) {
@@ -45,8 +48,12 @@ export const useWarehouseStore = defineStore('warehouse', () => {
     loading.value = true;
     try {
       const response = await warehouseService.getOne(id);
-      currentWarehouse.value = response.data[0];
-      return response.data[0];
+      const data = response.data[0];
+      currentWarehouse.value = {
+        ...data,
+        is_active: data.status === 'active',
+      };
+      return currentWarehouse.value;
     } catch (error) {
       console.error('Error fetching warehouse:', error);
       throw error;
@@ -58,7 +65,11 @@ export const useWarehouseStore = defineStore('warehouse', () => {
   async function createWarehouse(data) {
     loading.value = true;
     try {
-      const response = await warehouseService.save(data);
+      const payload = {
+        ...data,
+        status: data.is_active ? 'active' : 'inactive',
+      };
+      const response = await warehouseService.save(payload);
       await fetchWarehouses();
       toast.success('تم إنشاء المخزن بنجاح');
       return response.data[0];
@@ -73,7 +84,11 @@ export const useWarehouseStore = defineStore('warehouse', () => {
   async function updateWarehouse(id, data) {
     loading.value = true;
     try {
-      const response = await warehouseService.save(data, id);
+      const payload = {
+        ...data,
+        status: data.is_active ? 'active' : 'inactive',
+      };
+      const response = await warehouseService.save(payload, id);
       await fetchWarehouses();
       toast.success('تم تحديث المخزن بنجاح');
       return response.data[0];

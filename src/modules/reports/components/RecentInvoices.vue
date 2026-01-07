@@ -1,38 +1,45 @@
 <template>
-  <v-card>
-    <v-card-title>
-      <v-icon icon="ri-file-list-line" class="me-2" />
-      آخر الفواتير
-    </v-card-title>
-    <v-card-text class="pa-0">
-      <v-data-table :headers="headers" :items="invoices" :items-per-page="5" :loading="loading" density="comfortable">
-        <template #item.invoice_number="{ item }">
-          <span class="text-primary font-weight-medium">#{{ item.invoice_number }}</span>
-        </template>
+  <AppDataTable
+    :headers="headers"
+    :items="invoices"
+    :loading="loading"
+    title="آخر الفواتير الصادرة"
+    icon="ri-file-list-3-line"
+    hide-footer
+    :items-per-page="5"
+  >
+    <template #item.invoice_number="{ item }">
+      <div class="font-weight-black text-primary">#{{ item.invoice_number }}</div>
+    </template>
 
-        <template #item.customer="{ item }">
-          {{ item.customer?.name || '-' }}
-        </template>
+    <template #item.customer="{ item }">
+      <div class="font-weight-medium">{{ item.customer?.name || '---' }}</div>
+    </template>
 
-        <template #item.total="{ item }">
-          <span class="font-weight-bold">{{ formatCurrency(item.total) }}</span>
-        </template>
+    <template #item.total="{ item }">
+      <div class="font-weight-black text-h6 text-success">
+        {{ formatCurrency(item.total) }}
+      </div>
+    </template>
 
-        <template #item.status="{ item }">
-          <v-chip :color="getStatusColor(item.status)" size="small">
-            {{ getStatusLabel(item.status) }}
-          </v-chip>
-        </template>
+    <template #item.status="{ item }">
+      <v-chip :color="getStatusColor(item.status)" size="small" variant="flat" class="font-weight-bold px-3">
+        {{ getStatusLabel(item.status) }}
+      </v-chip>
+    </template>
 
-        <template #no-data>
-          <div class="text-center pa-4 text-medium-emphasis">لا توجد فواتير</div>
-        </template>
-      </v-data-table>
-    </v-card-text>
-  </v-card>
+    <template #no-data>
+      <div class="text-center pa-8">
+        <v-icon icon="ri-file-history-line" size="48" color="grey-lighten-2" class="mb-2" />
+        <div class="text-subtitle-1 text-grey font-weight-medium">لا توجد فواتير حديثة حتى الآن</div>
+      </div>
+    </template>
+  </AppDataTable>
 </template>
 
 <script setup>
+import AppDataTable from '@/components/common/AppDataTable.vue';
+
 defineProps({
   invoices: {
     type: Array,

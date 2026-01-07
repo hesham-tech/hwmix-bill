@@ -54,6 +54,31 @@ export default [
         icon: 'ri-stack-line',
         permission: PERMISSIONS.PRODUCTS_VIEW_ALL,
       },
+
+      {
+        title: 'الأقسام والفئات',
+        to: '/categories',
+        icon: 'ri-organization-chart',
+        permission: PERMISSIONS.CATEGORIES_VIEW_ALL,
+      },
+      {
+        title: 'العلامات التجارية',
+        to: '/brands',
+        icon: 'ri-price-tag-3-line',
+        permission: PERMISSIONS.BRANDS_VIEW_ALL,
+      },
+      {
+        title: 'خصائص المنتج',
+        to: '/attributes',
+        icon: 'ri-list-settings-line',
+        permission: PERMISSIONS.PRODUCTS_VIEW_ALL,
+      },
+      {
+        title: 'المخازن',
+        to: '/warehouses',
+        icon: 'ri-building-line',
+        permission: PERMISSIONS.WAREHOUSES_VIEW_ALL,
+      },
       {
         title: 'المخزون',
         to: '/stock',
@@ -165,17 +190,16 @@ export default [
     ],
   },
 
-  // ==================== Settings ====================
+  // ==================== Users ====================
   {
-    title: 'الإعدادات',
-    icon: 'ri-settings-3-line',
-    permission: PERMISSIONS.ADMIN_COMPANY,
+    title: 'المستخدمين',
+    icon: 'ri-user-line',
+    permission: PERMISSIONS.USERS_VIEW_ALL,
     children: [
-      // Users & Roles
       {
-        title: 'المستخدمين',
+        title: 'قائمة المستخدمين',
         to: '/users',
-        icon: 'ri-user-line',
+        icon: 'ri-group-line',
         permission: PERMISSIONS.USERS_VIEW_ALL,
       },
       {
@@ -184,35 +208,22 @@ export default [
         icon: 'ri-shield-user-line',
         permission: PERMISSIONS.ROLES_VIEW_ALL,
       },
+    ],
+  },
 
-      // Warehouses
+  // ==================== Settings ====================
+  {
+    title: 'الإعدادات',
+    icon: 'ri-settings-3-line',
+    permission: PERMISSIONS.ADMIN_COMPANY,
+    children: [
+      // Company Settings
       {
-        title: 'المخازن',
-        to: '/warehouses',
-        icon: 'ri-building-line',
-        permission: PERMISSIONS.WAREHOUSES_VIEW_ALL,
+        title: 'بيانات الشركة',
+        to: '/company',
+        icon: 'ri-building-2-line',
+        permission: PERMISSIONS.ADMIN_COMPANY,
       },
-
-      // Categories & Brands
-      {
-        title: 'الفئات',
-        to: '/categories',
-        icon: 'ri-organization-chart',
-        permission: PERMISSIONS.CATEGORIES_VIEW_ALL,
-      },
-      {
-        title: 'العلامات التجارية',
-        to: '/brands',
-        icon: 'ri-price-tag-3-line',
-        permission: PERMISSIONS.BRANDS_VIEW_ALL,
-      },
-      {
-        title: 'خصائص المنتجات',
-        to: '/attributes',
-        icon: 'ri-list-settings-line',
-        permission: PERMISSIONS.PRODUCTS_VIEW_ALL,
-      },
-
       // Payment Methods
       {
         title: 'طرق الدفع',
@@ -241,14 +252,6 @@ export default [
         to: '/activity-logs',
         icon: 'ri-history-line',
         permission: PERMISSIONS.ADMIN_SUPER,
-      },
-
-      // Company Settings
-      {
-        title: 'بيانات الشركة',
-        to: '/company',
-        icon: 'ri-building-2-line',
-        permission: PERMISSIONS.ADMIN_COMPANY,
       },
     ],
   },

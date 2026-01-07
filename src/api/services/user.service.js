@@ -1,4 +1,5 @@
 import BaseService from '../base.service';
+import apiClient from '../axios.config';
 
 /**
  * User Service

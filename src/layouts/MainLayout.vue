@@ -1,95 +1,104 @@
 <template>
-  <v-app>
-    <Sidebar />
+  <Sidebar v-model="drawer" />
 
-    <v-app-bar color="surface" elevation="0" class="app-bar">
-      <!-- Breadcrumbs -->
-      <v-breadcrumbs :items="breadcrumbs" class="px-4">
-        <template #divider>
-          <v-icon icon="ri-arrow-left-s-line" />
-        </template>
-      </v-breadcrumbs>
+  <v-app-bar color="surface" elevation="0" class="border-b">
+    <v-app-bar-nav-icon color="primary" @click="drawer = !drawer" class="d-flex d-sm-none" />
 
-      <v-spacer />
+    <v-spacer />
 
-      <!-- Language Switcher -->
-      <v-btn icon variant="text" @click="toggleLanguage" class="mx-2">
-        <v-icon>{{ localeStore.locale === 'ar' ? 'ri-translate-2' : 'ri-translate-2' }}</v-icon>
-        <v-tooltip activator="parent" location="bottom">
-          {{ localeStore.locale === 'ar' ? 'English' : 'عربي' }}
-        </v-tooltip>
-      </v-btn>
+    <AppButton icon variant="text" @click="toggleLanguage" class="mx-2">
+      <v-icon>ri-translate-2</v-icon>
+      <v-tooltip activator="parent" location="bottom">
+        {{ localeStore.locale === 'ar' ? 'English' : 'عربي' }}
+      </v-tooltip>
+    </AppButton>
 
-      <!-- User Menu -->
-      <v-menu>
-        <template #activator="{ props }">
-          <v-btn v-bind="props" variant="text" class="user-menu-btn">
-            <v-avatar size="32" color="primary">
-              <v-icon icon="ri-user-line" />
-            </v-avatar>
-            <span class="mr-2">{{ userName }}</span>
-            <v-icon icon="ri-arrow-down-s-line" size="small" />
-          </v-btn>
-        </template>
+    <v-menu>
+      <template #activator="{ props }">
+        <AppButton v-bind="props" variant="text" class="user-menu-btn px-2">
+          <v-avatar size="30" color="primary" class="ml-2">
+            <v-icon icon="ri-user-line" size="small" />
+          </v-avatar>
+          <span class="d-none d-sm-inline">{{ userName }}</span>
+          <v-icon icon="ri-arrow-down-s-line" size="x-small" class="ms-1" />
+        </AppButton>
+      </template>
+      <v-list density="compact">
+        <v-list-item prepend-icon="ri-user-settings-line" title="الملف الشخصي" to="/profile" />
+        <v-list-item prepend-icon="ri-settings-3-line" title="الإعدادات" to="/settings" />
+        <v-divider class="my-1" />
+        <v-list-item prepend-icon="ri-logout-box-line" title="تسجيل الخروج" @click="handleLogout" class="text-error" />
+      </v-list>
+    </v-menu>
+  </v-app-bar>
 
-        <v-list>
-          <v-list-item prepend-icon="ri-user-settings-line" title="الملف الشخصي" to="/profile" />
-          <v-list-item prepend-icon="ri-settings-3-line" title="الإعدادات" to="/settings" />
-          <v-divider />
-          <v-list-item prepend-icon="ri-logout-box-line" title="تسجيل الخروج" @click="handleLogout" class="text-error" />
-        </v-list>
-      </v-menu>
-    </v-app-bar>
-
-    <v-main class="main-content">
-      <v-container fluid class="pa-6">
-        <router-view v-slot="{ Component }">
-          <transition name="page" mode="out-in">
-            <component :is="Component" />
-          </transition>
-        </router-view>
+  <v-main class="main-content">
+    <div class="sticky-breadcrumbs-container border-b">
+      <v-container fluid class="py-1 px-6">
+        <v-breadcrumbs :items="breadcrumbs" class="pa-0 text-caption">
+          <template #divider>
+            <v-icon icon="ri-arrow-left-s-line" size="small" />
+          </template>
+        </v-breadcrumbs>
       </v-container>
-    </v-main>
-  </v-app>
+    </div>
+
+    <v-container fluid class="pa-6">
+      <router-view v-slot="{ Component }">
+        <transition name="page" mode="out-in">
+          <component :is="Component" />
+        </transition>
+      </router-view>
+    </v-container>
+  </v-main>
 </template>
 
 <script setup>
-import { computed } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { ref, computed, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 import { useLocaleStore } from '@/stores/locale';
 import { authService } from '@/api';
 import Sidebar from '@/components/layout/Sidebar.vue';
+import AppButton from '@/components/common/AppButton.vue';
 import { toast } from 'vue3-toastify';
+import { useDisplay } from 'vuetify';
 
-const router = useRouter();
+const { xs } = useDisplay();
 const route = useRoute();
+const router = useRouter();
 const userStore = useUserStore();
 const localeStore = useLocaleStore();
 
-// User name from store
+// نجعل القائمة مغلقة افتراضياً في الجوال ومفتوحة في الحاسوب
+const drawer = ref(!xs.value);
+
+// مراقبة الحجم لضبط الـ drawer
+watch(
+  xs,
+  isMobile => {
+    drawer.value = !isMobile;
+  },
+  { immediate: true }
+);
+
 const userName = computed(() => userStore.currentUser?.name || 'المستخدم');
 
-// Breadcrumbs from route meta
 const breadcrumbs = computed(() => {
-  const items = [{ title: 'الرئيسية', to: '/dashboard' }];
-
+  const items = [{ title: 'الرئيسية', to: '/dashboard', disabled: false }];
   if (route.meta.breadcrumbs) {
     items.push(...route.meta.breadcrumbs);
   } else if (route.meta.title) {
     items.push({ title: route.meta.title, disabled: true });
   }
-
   return items;
 });
 
-// Toggle language handler
 const toggleLanguage = () => {
   localeStore.toggleLocale();
   toast.success(localeStore.locale === 'ar' ? 'تم التبديل للعربية' : 'Switched to English');
 };
 
-// Logout handler
 const handleLogout = async () => {
   try {
     await authService.logout();
@@ -102,32 +111,34 @@ const handleLogout = async () => {
 </script>
 
 <style scoped>
-.app-bar {
-  border-bottom: 1px solid rgb(var(--v-theme-surface-variant));
-}
-
-.user-menu-btn {
-  text-transform: none;
-  letter-spacing: 0;
+.sticky-breadcrumbs-container {
+  position: sticky;
+  top: 48px;
+  z-index: 5;
+  background: rgb(var(--v-theme-surface));
 }
 
 .main-content {
   background: rgb(var(--v-theme-background));
+  min-height: 100vh;
+}
+
+.user-menu-btn {
+  text-transform: none;
+  font-weight: 500;
 }
 
 /* Page Transitions */
 .page-enter-active,
 .page-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition: all 0.2s ease;
 }
-
 .page-enter-from {
   opacity: 0;
-  transform: translateX(-10px);
+  transform: translateY(5px);
 }
-
 .page-leave-to {
   opacity: 0;
-  transform: translateX(10px);
+  transform: translateY(-5px);
 }
 </style>

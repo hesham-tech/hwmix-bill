@@ -21,7 +21,6 @@ onMounted(() => {
 
   // تحديث Vuetify
   currentLocale.value = locale;
-  isRtl.value = locale === 'ar';
 });
 
 // ✅ مراقبة تغيير اللغة
@@ -33,7 +32,6 @@ watch(
 
     // تحديث Vuetify ديناميكياً
     currentLocale.value = newLocale;
-    isRtl.value = newLocale === 'ar';
 
     // إعادة تحميل الصفحة لتطبيق التغييرات بشكل كامل
     window.location.reload();

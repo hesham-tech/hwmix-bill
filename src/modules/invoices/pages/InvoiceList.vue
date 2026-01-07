@@ -1,62 +1,55 @@
 <template>
   <v-container fluid>
-    <!-- Header -->
-    <div class="d-flex align-center mb-4">
+    <div class="d-flex align-center justify-space-between mb-6">
       <div>
         <h1 class="text-h4 font-weight-bold">الفواتير</h1>
-        <p class="text-medium-emphasis">إدارة جميع الفواتير</p>
+        <p class="text-body-1 text-grey">إدارة جميع الفواتير الصادرة والواردة</p>
       </div>
-      <v-spacer />
-      <v-btn v-if="can('invoices.create')" color="primary" prepend-icon="ri-add-line" size="large" @click="navigateToCreate"> فاتورة جديدة </v-btn>
+      <AppButton v-if="can('invoices.create')" prepend-icon="ri-add-line" size="large" @click="navigateToCreate"> فاتورة جديدة </AppButton>
     </div>
 
     <!-- Filters -->
     <InvoiceFilters v-model="filters" @apply="applyFilters" />
 
     <!-- Bulk Actions -->
-    <v-card v-if="hasSelection" class="mb-4 bg-primary-lighten-5">
-      <v-card-text class="d-flex align-center">
-        <div class="text-primary font-weight-medium">تم تحديد {{ selectedIds.length }} فاتورة</div>
+    <AppCard v-if="hasSelection" class="mb-4" color="primary" variant="tonal">
+      <div class="d-flex align-center px-4 py-2">
+        <div class="text-primary font-weight-bold">تم تحديد {{ selectedIds.length }} فاتورة</div>
         <v-spacer />
-        <v-btn v-if="can('invoices.delete_all')" variant="outlined" color="error" prepend-icon="ri-delete-bin-line" @click="confirmBulkDelete">
+        <AppButton v-if="can('invoices.delete_all')" variant="outlined" color="error" prepend-icon="ri-delete-bin-line" @click="confirmBulkDelete">
           حذف المحدد
-        </v-btn>
-      </v-card-text>
-    </v-card>
+        </AppButton>
+      </div>
+    </AppCard>
 
     <!-- Data Table -->
-    <v-card>
-      <InvoiceDataTable
-        :items="items"
-        :loading="loading"
-        :total="total"
-        :current-page="currentPage"
-        :per-page="perPage"
-        @view="viewInvoice"
-        @edit="editInvoice"
-        @print="printInvoice"
-        @delete="confirmDelete"
-        @update:page="changePage"
-        @update:per-page="changePerPage"
-        @update:sort-by="changeSort"
-      />
-    </v-card>
+    <InvoiceDataTable
+      :items="items"
+      :loading="loading"
+      :total="total"
+      :current-page="currentPage"
+      :per-page="perPage"
+      @view="viewInvoice"
+      @edit="editInvoice"
+      @print="printInvoice"
+      @delete="confirmDelete"
+      @update:page="changePage"
+      @update:per-page="changePerPage"
+      @update:sort-by="changeSort"
+    />
 
     <!-- Delete Confirmation Dialog -->
-    <v-dialog v-model="deleteDialog" max-width="400">
-      <v-card>
-        <v-card-title class="text-h5">
-          <v-icon icon="ri-error-warning-line" color="error" class="me-2" />
-          تأكيد الحذف
-        </v-card-title>
-        <v-card-text> هل أنت متأكد من حذف هذه الفاتورة؟ لا يمكن التراجع عن هذا الإجراء. </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn variant="text" @click="deleteDialog = false"> إلغاء </v-btn>
-          <v-btn color="error" variant="flat" :loading="deleting" @click="deleteInvoice"> حذف </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <AppDialog
+      v-model="deleteDialog"
+      title="تأكيد الحذف"
+      icon="ri-delete-bin-line"
+      confirm-color="error"
+      confirm-text="حذف الفاتورة"
+      :loading="deleting"
+      @confirm="deleteInvoice"
+    >
+      هل أنت متأكد من حذف هذه الفاتورة؟ لا يمكن التراجع عن هذا الإجراء.
+    </AppDialog>
   </v-container>
 </template>
 
@@ -68,6 +61,9 @@ import { useApi } from '@/composables/useApi';
 import { usePermissions } from '@/composables/usePermissions';
 import InvoiceDataTable from '../components/InvoiceDataTable.vue';
 import InvoiceFilters from '../components/InvoiceFilters.vue';
+import AppButton from '@/components/common/AppButton.vue';
+import AppCard from '@/components/common/AppCard.vue';
+import AppDialog from '@/components/common/AppDialog.vue';
 import { toast } from 'vue3-toastify';
 
 const router = useRouter();

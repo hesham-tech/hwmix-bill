@@ -1,65 +1,67 @@
 <template>
-  <v-card>
-    <v-card-title class="d-flex align-center">
-      <v-icon icon="ri-calendar-todo-line" class="me-2" />
-      الفواتير المستحقة قريباً
-      <v-spacer />
-      <v-chip v-if="upcomingCount > 0" color="warning" size="small">
-        {{ upcomingCount }}
+  <AppDataTable
+    :headers="headers"
+    :items="payments"
+    :loading="loading"
+    title="الفواتير المستحقة قريباً"
+    icon="ri-calendar-todo-line"
+    hide-footer
+    :items-per-page="5"
+  >
+    <template #actions>
+      <v-chip v-if="upcomingCount > 0" color="error" size="small" variant="flat" class="font-weight-black">
+        {{ upcomingCount }} فواتير متأخرة
       </v-chip>
-    </v-card-title>
+    </template>
 
-    <v-card-text class="pa-0">
-      <v-data-table :headers="headers" :items="payments" :loading="loading" :items-per-page="5" density="comfortable">
-        <template #item.customer="{ item }">
-          <div class="d-flex align-center">
-            <v-avatar size="32" color="primary" class="me-2">
-              <span class="text-white text-caption">
-                {{ item.customer?.name?.charAt(0) }}
-              </span>
-            </v-avatar>
-            <div>
-              <div class="font-weight-medium">{{ item.customer?.name }}</div>
-              <div class="text-caption text-medium-emphasis">فاتورة #{{ item.invoice_number }}</div>
-            </div>
-          </div>
-        </template>
+    <template #item.customer="{ item }">
+      <div class="d-flex align-center py-2">
+        <v-avatar size="36" color="primary-lighten-5" class="me-3">
+          <span class="text-primary font-weight-bold text-caption">
+            {{ item.customer?.name?.charAt(0) }}
+          </span>
+        </v-avatar>
+        <div class="d-flex flex-column">
+          <span class="font-weight-bold text-body-1">{{ item.customer?.name }}</span>
+          <span class="text-caption text-grey">فاتورة #{{ item.invoice_number }}</span>
+        </div>
+      </div>
+    </template>
 
-        <template #item.due_date="{ item }">
-          <div>
-            <div>{{ formatDate(item.due_date) }}</div>
-            <div :class="getDaysLeftClass(item.due_date)" class="text-caption">
-              {{ getDaysLeft(item.due_date) }}
-            </div>
-          </div>
-        </template>
+    <template #item.due_date="{ item }">
+      <div class="d-flex flex-column">
+        <span class="font-weight-medium text-body-2">{{ formatDate(item.due_date) }}</span>
+        <span :class="getDaysLeftClass(item.due_date)" class="text-caption">
+          {{ getDaysLeft(item.due_date) }}
+        </span>
+      </div>
+    </template>
 
-        <template #item.amount="{ item }">
-          <div class="text-end">
-            <div class="font-weight-bold">{{ formatCurrency(item.remaining) }}</div>
-            <div class="text-caption text-medium-emphasis">من {{ formatCurrency(item.total) }}</div>
-          </div>
-        </template>
+    <template #item.amount="{ item }">
+      <div class="d-flex flex-column align-end">
+        <span class="font-weight-black text-body-1 text-error">{{ formatCurrency(item.remaining) }}</span>
+        <span class="text-caption text-grey">من {{ formatCurrency(item.total) }}</span>
+      </div>
+    </template>
 
-        <template #item.urgency="{ item }">
-          <v-chip :color="getUrgencyColor(item.due_date)" size="small" variant="tonal">
-            {{ getUrgencyLabel(item.due_date) }}
-          </v-chip>
-        </template>
+    <template #item.urgency="{ item }">
+      <v-chip :color="getUrgencyColor(item.due_date)" size="small" variant="flat" class="font-weight-bold px-3">
+        {{ getUrgencyLabel(item.due_date) }}
+      </v-chip>
+    </template>
 
-        <template #no-data>
-          <div class="text-center pa-4">
-            <v-icon icon="ri-checkbox-circle-line" size="48" color="success" class="mb-2" />
-            <div class="text-medium-emphasis">لا توجد دفعات مستحقة خلال الأيام القادمة</div>
-          </div>
-        </template>
-      </v-data-table>
-    </v-card-text>
-  </v-card>
+    <template #no-data>
+      <div class="text-center pa-8">
+        <v-icon icon="ri-checkbox-circle-fill" size="48" color="success" class="mb-2 opacity-50" />
+        <div class="text-subtitle-1 text-success font-weight-medium">ممتاز! لا توجد مديونيات متأخرة حالياً</div>
+      </div>
+    </template>
+  </AppDataTable>
 </template>
 
 <script setup>
 import { computed } from 'vue';
+import AppDataTable from '@/components/common/AppDataTable.vue';
 
 const props = defineProps({
   payments: {

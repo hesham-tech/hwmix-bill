@@ -1,245 +1,152 @@
 <template>
   <div class="sales-report-page">
-    <div class="page-header mb-6">
-      <h1 class="text-h4 font-weight-bold">تقرير المبيعات</h1>
-      <p class="text-body-1 text-grey">تحليل مفصل لأداء المبيعات</p>
+    <div class="mb-6 px-6 pt-6">
+      <h1 class="text-h4 font-weight-bold">تقرير المبيعات التفصيلي</h1>
+      <p class="text-body-1 text-grey">تحليل أداء المبيعات والإيرادات والأرباح التشغيلية</p>
     </div>
 
-    <!-- Filters -->
-    <v-card class="mb-6">
-      <v-card-text>
-        <v-row>
-          <v-col cols="12" md="3">
-            <v-select v-model="filters.period" :items="periods" label="الفترة" prepend-inner-icon="ri-calendar-line" />
+    <div class="px-6 mb-4">
+      <AppCard title="خيارات البحث والفلترة" icon="ri-filter-3-line">
+        <v-row dense>
+          <v-col cols="12" sm="4" md="3">
+            <AppInput v-model="filters.date_from" label="من تاريخ" type="date" prepend-inner-icon="ri-calendar-line" />
           </v-col>
-
-          <v-col cols="12" md="3">
-            <v-text-field v-model="filters.dateFrom" type="date" label="من" prepend-inner-icon="ri-calendar-2-line" />
+          <v-col cols="12" sm="4" md="3">
+            <AppInput v-model="filters.date_to" label="إلى تاريخ" type="date" prepend-inner-icon="ri-calendar-check-line" />
           </v-col>
-
-          <v-col cols="12" md="3">
-            <v-text-field v-model="filters.dateTo" type="date" label="إلى" prepend-inner-icon="ri-calendar-2-line" />
-          </v-col>
-
-          <v-col cols="12" md="3">
-            <v-btn color="primary" block height="56" @click="loadReport">
-              <v-icon icon="ri-search-line" class="me-2" />
-              بحث
-            </v-btn>
+          <v-col cols="12" sm="4" md="6" class="d-flex align-center pt-2">
+            <AppButton color="primary" block prepend-icon="ri-search-line" @click="loadReport" class="me-2"> عرض التقرير </AppButton>
+            <AppButton variant="tonal" color="success" prepend-icon="ri-file-excel-2-line" @click="exportReport" :disabled="!invoices.length">
+              تصدير
+            </AppButton>
           </v-col>
         </v-row>
-      </v-card-text>
-    </v-card>
+      </AppCard>
+    </div>
 
-    <!-- Summary Cards -->
-    <v-row class="mb-6">
+    <v-row class="px-6 mx-0 mb-4" dense>
       <v-col cols="12" sm="6" md="3">
-        <StatsCard
-          title="إجمالي المبيعات"
-          :value="summary.totalSales"
-          type="currency"
-          icon="ri-shopping-cart-line"
-          color="#4CAF50"
-          :trend="summary.salesTrend"
-        />
+        <v-card border flat class="rounded-xl overflow-hidden pa-1 border-success">
+          <v-card-text class="pa-4 bg-success-lighten-5">
+            <div class="text-caption font-weight-bold text-success mb-1">إجمالي المبيعات</div>
+            <div class="text-h4 font-weight-black text-success">{{ formatCurrency(summary.total_sales) }}</div>
+          </v-card-text>
+        </v-card>
       </v-col>
-
       <v-col cols="12" sm="6" md="3">
-        <StatsCard title="عدد الفواتير" :value="summary.invoiceCount" icon="ri-file-list-3-line" color="#2196F3" :trend="summary.invoiceTrend" />
+        <v-card border flat class="rounded-xl overflow-hidden pa-1">
+          <v-card-text class="pa-4 bg-grey-lighten-5">
+            <div class="text-caption font-weight-bold text-grey-darken-2 mb-1">عدد الفواتير</div>
+            <div class="text-h4 font-weight-black">{{ summary.total_invoices }}</div>
+          </v-card-text>
+        </v-card>
       </v-col>
-
       <v-col cols="12" sm="6" md="3">
-        <StatsCard title="متوسط قيمة الفاتورة" :value="summary.avgInvoice" type="currency" icon="ri-calculator-line" color="#FF9800" />
+        <v-card border flat class="rounded-xl overflow-hidden pa-1">
+          <v-card-text class="pa-4 bg-grey-lighten-5">
+            <div class="text-caption font-weight-bold text-grey-darken-2 mb-1">متوسط الفاتورة</div>
+            <div class="text-h4 font-weight-black">{{ formatCurrency(summary.average_invoice) }}</div>
+          </v-card-text>
+        </v-card>
       </v-col>
-
       <v-col cols="12" sm="6" md="3">
-        <StatsCard
-          title="الربح الصافي"
-          :value="summary.netProfit"
-          type="currency"
-          icon="ri-funds-line"
-          color="#9C27B0"
-          :trend="summary.profitTrend"
-        />
+        <v-card border flat class="rounded-xl overflow-hidden pa-1 border-info">
+          <v-card-text class="pa-4 bg-info-lighten-5">
+            <div class="text-caption font-weight-bold text-info mb-1">الربح التقديري</div>
+            <div class="text-h4 font-weight-black text-info">{{ formatCurrency(summary.profit) }}</div>
+          </v-card-text>
+        </v-card>
       </v-col>
     </v-row>
 
-    <!-- Charts -->
-    <v-row>
-      <v-col cols="12" md="8">
-        <AppCard title="اتجاه المبيعات" icon="ri-line-chart-line">
-          <template #title-actions>
-            <v-btn-group density="compact" variant="outlined">
-              <v-btn @click="chartView = 'daily'">يومي</v-btn>
-              <v-btn @click="chartView = 'monthly'">شهري</v-btn>
-              <v-btn @click="chartView = 'yearly'">سنوي</v-btn>
-            </v-btn-group>
-          </template>
-
-          <div class="pa-4">
-            <canvas ref="salesChartRef" height="350"></canvas>
+    <div class="px-6 pb-6">
+      <AppDataTable :headers="headers" :items="invoices" :loading="loading" title="كشف الفواتير التفصيلي" icon="ri-file-list-3-line">
+        <template #item.invoice_number="{ item }">
+          <div class="font-weight-black text-primary">#{{ item.invoice_number }}</div>
+        </template>
+        <template #item.total="{ item }">
+          <div class="font-weight-black text-h6 text-success">{{ formatCurrency(item.total) }}</div>
+        </template>
+        <template #no-data>
+          <div class="text-center pa-10">
+            <v-icon icon="ri-file-history-line" size="64" color="grey-lighten-2" class="mb-4" />
+            <div class="text-h6 text-grey font-weight-medium">لا توجد بيانات متاحة لهذا النطاق الزمني</div>
+            <div class="text-body-2 text-grey">جرب اختيار تواريخ مختلفة لعرض النتائج</div>
           </div>
-        </AppCard>
-      </v-col>
-
-      <v-col cols="12" md="4">
-        <AppCard title="أعلى المنتجات مبيعاً" icon="ri-medal-line">
-          <v-list>
-            <v-list-item v-for="(product, index) in topProducts" :key="product.id">
-              <template #prepend>
-                <v-avatar :color="getMedalColor(index)" size="32">
-                  {{ index + 1 }}
-                </v-avatar>
-              </template>
-
-              <v-list-item-title>{{ product.name }}</v-list-item-title>
-              <v-list-item-subtitle>
-                {{ formatCurrency(product.sales) }}
-              </v-list-item-subtitle>
-
-              <template #append>
-                <v-chip size="small" color="success"> {{ product.quantity }} قطعة </v-chip>
-              </template>
-            </v-list-item>
-          </v-list>
-        </AppCard>
-      </v-col>
-    </v-row>
-
-    <!-- Detailed Table -->
-    <v-row class="mt-4">
-      <v-col cols="12">
-        <AppCard title="تفاصيل المبيعات" icon="ri-table-line">
-          <template #title-actions>
-            <v-btn color="success" prepend-icon="ri-file-excel-line" @click="exportToExcel"> تصدير Excel </v-btn>
-          </template>
-
-          <AppDataTable :headers="headers" :items="salesData" :loading="loading">
-            <template #item.amount="{ item }">
-              <span class="font-weight-bold text-success">
-                {{ formatCurrency(item.amount) }}
-              </span>
-            </template>
-
-            <template #item.date="{ item }">
-              {{ formatDate(item.date) }}
-            </template>
-          </AppDataTable>
-        </AppCard>
-      </v-col>
-    </v-row>
+        </template>
+      </AppDataTable>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { AppCard, AppDataTable } from '@/components';
-import StatsCard from '@/components/common/StatsCard.vue';
-import { formatCurrency, formatDate } from '@/utils/formatters';
-import { reportService } from '@/api';
-import Chart from 'chart.js/auto';
+import { useApi } from '@/composables/useApi';
+import { usePrintExport } from '@/composables/usePrintExport';
+import AppCard from '@/components/common/AppCard.vue';
+import AppButton from '@/components/common/AppButton.vue';
+import AppInput from '@/components/common/AppInput.vue';
+import AppDataTable from '@/components/common/AppDataTable.vue';
 
-const salesChartRef = ref(null);
+const api = useApi('/api/invoices');
+const { exportToCSV } = usePrintExport();
+
 const loading = ref(false);
-const chartView = ref('monthly');
-
 const filters = ref({
-  period: 'month',
-  dateFrom: '',
-  dateTo: '',
+  date_from: new Date(new Date().setDate(1)).toISOString().split('T')[0],
+  date_to: new Date().toISOString().split('T')[0],
 });
-
-const periods = [
-  { title: 'اليوم', value: 'today' },
-  { title: 'هذا الأسبوع', value: 'week' },
-  { title: 'هذا الشهر', value: 'month' },
-  { title: 'هذا العام', value: 'year' },
-  { title: 'مخصص', value: 'custom' },
-];
 
 const summary = ref({
-  totalSales: 250000,
-  invoiceCount: 485,
-  avgInvoice: 515,
-  netProfit: 75000,
-  salesTrend: '+18.5%',
-  invoiceTrend: '+12.3%',
-  profitTrend: '+22.1%',
+  total_sales: 0,
+  total_invoices: 0,
+  average_invoice: 0,
+  profit: 0,
 });
 
-const topProducts = ref([
-  { id: 1, name: 'منتج أ', sales: 45000, quantity: 120 },
-  { id: 2, name: 'منتج ب', sales: 38000, quantity: 95 },
-  { id: 3, name: 'منتج ج', sales: 32000, quantity: 80 },
-  { id: 4, name: 'منتج د', sales: 28000, quantity: 70 },
-  { id: 5, name: 'منتج هـ', sales: 25000, quantity: 65 },
-]);
+const invoices = ref([]);
 
 const headers = [
   { title: 'رقم الفاتورة', key: 'invoice_number' },
-  { title: 'العميل', key: 'customer' },
-  { title: 'المبلغ', key: 'amount' },
-  { title: 'التاريخ', key: 'date' },
-  { title: 'الحالة', key: 'status' },
+  { title: 'العميل', key: 'customer.name' },
+  { title: 'التاريخ', key: 'invoice_date' },
+  { title: 'الإجمالي', key: 'total', align: 'end' },
 ];
 
-const salesData = ref([
-  { invoice_number: 'INV-001', customer: 'عميل 1', amount: 5000, date: '2026-01-03', status: 'مدفوعة' },
-  { invoice_number: 'INV-002', customer: 'عميل 2', amount: 3500, date: '2026-01-03', status: 'معلقة' },
-]);
+const formatCurrency = amount => {
+  if (!amount) return '0.00 ج.م';
+  return new Intl.NumberFormat('ar-EG', { style: 'currency', currency: 'EGP' }).format(amount);
+};
 
-const getMedalColor = index => {
-  const colors = ['#FFD700', '#C0C0C0', '#CD7F32', '#4CAF50', '#2196F3'];
-  return colors[index] || '#9E9E9E';
+const exportReport = () => {
+  const data = invoices.value.map(inv => ({
+    'رقم الفاتورة': inv.invoice_number,
+    العميل: inv.customer?.name || '-',
+    التاريخ: inv.invoice_date,
+    الإجمالي: inv.total,
+  }));
+  exportToCSV(data, `تقرير_المبيعات_${filters.value.date_from}_إلى_${filters.value.date_to}.csv`, ['رقم الفاتورة', 'العميل', 'التاريخ', 'الإجمالي']);
 };
 
 const loadReport = async () => {
   loading.value = true;
   try {
-    // TODO: Load from API
-    await new Promise(resolve => setTimeout(resolve, 500));
+    const response = await api.get({ ...filters.value, per_page: 100 }, { showLoading: false });
+    invoices.value = response.data || [];
+
+    const total = invoices.value.reduce((sum, inv) => sum + parseFloat(inv.total || 0), 0);
+    summary.value = {
+      total_sales: total,
+      total_invoices: invoices.value.length,
+      average_invoice: invoices.value.length ? total / invoices.value.length : 0,
+      profit: total * 0.3,
+    };
   } finally {
     loading.value = false;
   }
 };
 
-const exportToExcel = () => {
-  reportService.exportToExcel('sales', filters.value);
-};
-
-const initChart = () => {
-  if (salesChartRef.value) {
-    new Chart(salesChartRef.value, {
-      type: 'line',
-      data: {
-        labels: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'],
-        datasets: [
-          {
-            label: 'المبيعات',
-            data: [35000, 42000, 38000, 51000, 48000, 60000],
-            borderColor: '#4CAF50',
-            backgroundColor: 'rgba(76, 175, 80, 0.1)',
-            tension: 0.4,
-            fill: true,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-      },
-    });
-  }
-};
-
-onMounted(() => {
-  initChart();
-  loadReport();
-});
+onMounted(loadReport);
 </script>
 
-<style scoped>
-.sales-report-page {
-  padding: 24px;
-}
-</style>
+<style scoped></style>

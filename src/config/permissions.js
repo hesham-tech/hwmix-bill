@@ -402,7 +402,10 @@ export const PERMISSIONS = {
   SUBSCRIPTIONS_DELETE_SELF: 'subscriptions.delete_self',
 
   // ==================== Reports ====================
-  REPORTS_VIEW: 'reports.view',
+  REPORTS_PAGE: 'reports.page',
+  REPORTS_VIEW_ALL: 'reports.view_all',
+  REPORTS_VIEW_CHILDREN: 'reports.view_children',
+  REPORTS_VIEW_SELF: 'reports.view_self',
   REPORTS_SALES: 'reports.sales',
   REPORTS_STOCK: 'reports.stock',
   REPORTS_PROFIT: 'reports.profit',

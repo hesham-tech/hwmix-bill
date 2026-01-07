@@ -1,201 +1,212 @@
 <template>
   <v-container fluid>
-    <!-- Header -->
-    <div class="d-flex align-center mb-4">
-      <v-btn icon="ri-arrow-right-line" variant="text" @click="goBack" />
-      <div class="ms-3">
-        <h1 class="text-h4 font-weight-bold">الفاتورة #{{ invoice?.invoice_number }}</h1>
-        <p class="text-medium-emphasis">{{ formatDate(invoice?.invoice_date) }}</p>
+    <div class="d-flex align-center justify-space-between mb-6">
+      <div class="d-flex align-center">
+        <AppButton icon="ri-arrow-right-line" variant="text" color="secondary" @click="goBack" class="me-3" />
+        <div>
+          <h1 class="text-h4 font-weight-bold">الفاتورة #{{ invoice?.invoice_number }}</h1>
+          <p class="text-body-1 text-grey" v-if="invoice">{{ formatDate(invoice.invoice_date) }}</p>
+        </div>
       </div>
-      <v-spacer />
-
-      <!-- Actions -->
-      <div class="d-flex gap-2">
-        <v-btn v-if="can('invoices.update_all')" color="primary" prepend-icon="ri-edit-line" @click="editInvoice"> تعديل </v-btn>
-        <v-btn v-if="can('invoices.print')" color="info" prepend-icon="ri-printer-line" @click="printInvoice"> طباعة </v-btn>
-        <v-btn v-if="can('invoices.delete_all')" color="error" prepend-icon="ri-delete-bin-line" @click="showDeleteDialog = true"> حذف </v-btn>
+      <div class="d-flex gap-2 no-print">
+        <AppButton v-if="can('invoices.update_all')" color="primary" prepend-icon="ri-edit-line" @click="editInvoice"> تعديل </AppButton>
+        <AppButton v-if="can('invoices.print')" color="info" prepend-icon="ri-printer-line" @click="printInvoice"> طباعة </AppButton>
+        <AppButton v-if="can('invoices.delete_all')" color="error" prepend-icon="ri-delete-bin-line" @click="showDeleteDialog = true">
+          حذف
+        </AppButton>
       </div>
     </div>
 
     <!-- Loading -->
-    <v-progress-linear v-if="loading" indeterminate />
+    <div v-if="loading" class="d-flex justify-center align-center py-12">
+      <LoadingSpinner />
+    </div>
 
-    <v-row v-else-if="invoice">
-      <!-- Invoice Details -->
-      <v-col cols="12" md="8">
-        <!-- Customer Info -->
-        <v-card class="mb-4">
-          <v-card-title>معلومات العميل</v-card-title>
-          <v-divider />
-          <v-card-text>
+    <div id="invoice-content">
+      <v-row v-else-if="invoice">
+        <!-- Invoice Details -->
+        <v-col cols="12" md="8">
+          <!-- Customer Info -->
+          <AppCard title="معلومات العميل" icon="ri-user-line" class="mb-6">
             <v-row>
-              <v-col cols="6">
-                <div class="text-caption text-medium-emphasis">الاسم</div>
-                <div class="font-weight-medium">{{ invoice.customer?.name }}</div>
+              <v-col cols="12" sm="6">
+                <div class="text-caption text-grey mb-1">الاسم الكامل</div>
+                <div class="font-weight-bold text-h6">{{ invoice.customer?.name }}</div>
               </v-col>
-              <v-col cols="6">
-                <div class="text-caption text-medium-emphasis">الهاتف</div>
-                <div class="font-weight-medium">{{ invoice.customer?.phone }}</div>
+              <v-col cols="12" sm="6">
+                <div class="text-caption text-grey mb-1">رقم الهاتف</div>
+                <div class="font-weight-bold text-h6">
+                  <v-icon icon="ri-phone-line" size="small" class="me-1" />
+                  {{ invoice.customer?.phone }}
+                </div>
               </v-col>
-              <v-col v-if="invoice.customer?.email" cols="6">
-                <div class="text-caption text-medium-emphasis">البريد</div>
+              <v-col v-if="invoice.customer?.email" cols="12" sm="6">
+                <div class="text-caption text-grey mb-1">البريد الإلكتروني</div>
                 <div class="font-weight-medium">{{ invoice.customer.email }}</div>
               </v-col>
-              <v-col v-if="invoice.customer?.address" cols="6">
-                <div class="text-caption text-medium-emphasis">العنوان</div>
+              <v-col v-if="invoice.customer?.address" cols="12" sm="6">
+                <div class="text-caption text-grey mb-1">العنوان</div>
                 <div class="font-weight-medium">{{ invoice.customer.address }}</div>
               </v-col>
             </v-row>
-          </v-card-text>
-        </v-card>
+          </AppCard>
 
-        <!-- Items -->
-        <v-card class="mb-4">
-          <v-card-title>العناصر</v-card-title>
-          <v-divider />
-          <v-table>
-            <thead>
-              <tr>
-                <th>المنتج</th>
-                <th class="text-center">الكمية</th>
-                <th class="text-end">السعر</th>
-                <th class="text-end">الخصم</th>
-                <th class="text-end">الإجمالي</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="item in invoice.items" :key="item.id">
-                <td>
-                  {{ item.product_name }}
-                  <span v-if="item.variant_name" class="text-caption"> ({{ item.variant_name }}) </span>
-                </td>
-                <td class="text-center">{{ item.quantity }}</td>
-                <td class="text-end">{{ formatCurrency(item.unit_price) }}</td>
-                <td class="text-end">{{ item.discount_percentage }}%</td>
-                <td class="text-end font-weight-bold">{{ formatCurrency(item.total) }}</td>
-              </tr>
-            </tbody>
-          </v-table>
-        </v-card>
+          <!-- Items -->
+          <AppCard title="عناصر الفاتورة" icon="ri-list-check-2" class="mb-6">
+            <v-table>
+              <thead>
+                <tr>
+                  <th class="text-right">المنتج</th>
+                  <th class="text-center">الكمية</th>
+                  <th class="text-left">السعر</th>
+                  <th class="text-left">الخصم</th>
+                  <th class="text-left font-weight-bold">الإجمالي</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="item in invoice.items" :key="item.id">
+                  <td>
+                    <div class="font-weight-bold">{{ item.product_name }}</div>
+                    <div v-if="item.variant_name" class="text-caption text-grey">{{ item.variant_name }}</div>
+                  </td>
+                  <td class="text-center">
+                    <v-chip size="small" variant="tonal" color="primary">{{ item.quantity }}</v-chip>
+                  </td>
+                  <td class="text-left text-body-2">{{ formatCurrency(item.unit_price) }}</td>
+                  <td class="text-left text-body-2 text-error">{{ item.discount_percentage }}%</td>
+                  <td class="text-left font-weight-bold text-success">{{ formatCurrency(item.total) }}</td>
+                </tr>
+              </tbody>
+            </v-table>
+          </AppCard>
 
-        <!-- Payment History -->
-        <v-card>
-          <v-card-title class="d-flex align-center">
-            سجل المدفوعات
-            <v-spacer />
-            <v-btn
-              v-if="invoice.payment_status !== 'paid'"
-              variant="outlined"
-              prepend-icon="ri-add-line"
-              size="small"
-              @click="showPaymentDialog = true"
-            >
-              إضافة دفعة
-            </v-btn>
-          </v-card-title>
-          <v-divider />
-          <v-list v-if="invoice.payments?.length">
-            <v-list-item v-for="payment in invoice.payments" :key="payment.id">
-              <template #prepend>
-                <v-icon icon="ri-money-dollar-circle-line" color="success" />
-              </template>
-              <v-list-item-title>
-                {{ formatCurrency(payment.amount) }}
-              </v-list-item-title>
-              <v-list-item-subtitle> {{ formatDate(payment.payment_date) }} - {{ payment.payment_method?.name }} </v-list-item-subtitle>
-            </v-list-item>
-          </v-list>
-          <v-card-text v-else class="text-center text-medium-emphasis"> لا توجد مدفوعات </v-card-text>
-        </v-card>
-      </v-col>
+          <!-- Payment History -->
+          <AppCard title="سجل المدفوعات" icon="ri-history-line">
+            <template #actions>
+              <AppButton
+                v-if="invoice.payment_status !== 'paid'"
+                variant="outlined"
+                prepend-icon="ri-add-line"
+                size="small"
+                class="no-print"
+                @click="showPaymentDialog = true"
+              >
+                إضافة دفعة
+              </AppButton>
+            </template>
 
-      <!-- Summary -->
-      <v-col cols="12" md="4">
-        <!-- Status -->
-        <v-card class="mb-4">
-          <v-card-title>الحالة</v-card-title>
-          <v-divider />
-          <v-card-text>
-            <div class="mb-3">
-              <div class="text-caption text-medium-emphasis mb-1">حالة الفاتورة</div>
-              <v-chip :color="getStatusColor(invoice.status)" variant="tonal">
-                {{ getStatusLabel(invoice.status) }}
-              </v-chip>
+            <v-list v-if="invoice.payments?.length" class="pa-0">
+              <v-list-item
+                v-for="(payment, index) in invoice.payments"
+                :key="payment.id"
+                :class="{ 'border-bottom': index < invoice.payments.length - 1 }"
+              >
+                <template #prepend>
+                  <v-avatar color="success-lighten-5" size="40" class="me-3">
+                    <v-icon icon="ri-money-dollar-circle-line" color="success" />
+                  </v-avatar>
+                </template>
+                <v-list-item-title class="font-weight-bold text-success">
+                  {{ formatCurrency(payment.amount) }}
+                </v-list-item-title>
+                <v-list-item-subtitle> {{ formatDate(payment.payment_date) }} - {{ payment.payment_method?.name }} </v-list-item-subtitle>
+              </v-list-item>
+            </v-list>
+            <div v-else class="text-center py-6 text-grey">لا توجد مدفوعات مسجلة لهذه الفاتورة.</div>
+          </AppCard>
+        </v-col>
+
+        <!-- Summary -->
+        <v-col cols="12" md="4">
+          <!-- Status -->
+          <AppCard title="الحالة والمتابعة" icon="ri-settings-4-line" class="mb-6">
+            <div class="d-flex flex-column gap-4">
+              <div>
+                <div class="text-caption text-grey mb-1">حالة الفاتورة العامة</div>
+                <v-chip :color="getStatusColor(invoice.status)" variant="tonal" class="px-4 font-weight-bold">
+                  {{ getStatusLabel(invoice.status) }}
+                </v-chip>
+              </div>
+              <div>
+                <div class="text-caption text-grey mb-1">حالة تحصيل المبالغ</div>
+                <v-chip :color="getPaymentStatusColor(invoice.payment_status)" variant="tonal" class="px-4 font-weight-bold">
+                  {{ getPaymentStatusLabel(invoice.payment_status) }}
+                </v-chip>
+              </div>
+
+              <v-divider v-if="can('invoices.update_all')" class="no-print" />
+
+              <v-select
+                v-if="can('invoices.update_all')"
+                v-model="selectedStatus"
+                :items="statusOptions"
+                label="تغيير الحالة"
+                variant="outlined"
+                density="comfortable"
+                class="no-print mt-2"
+                hide-details
+                @update:model-value="updateStatus"
+              />
             </div>
-            <div>
-              <div class="text-caption text-medium-emphasis mb-1">حالة الدفع</div>
-              <v-chip :color="getPaymentStatusColor(invoice.payment_status)" variant="tonal">
-                {{ getPaymentStatusLabel(invoice.payment_status) }}
-              </v-chip>
+          </AppCard>
+
+          <!-- Totals -->
+          <AppCard title="الملخص المالي" icon="ri-money-dollar-box-line">
+            <div class="d-flex flex-column gap-2 mb-4">
+              <div class="d-flex justify-space-between text-body-2">
+                <span class="text-grey">المجموع الفرعي:</span>
+                <span class="font-weight-medium">{{ formatCurrency(invoice.subtotal) }}</span>
+              </div>
+              <div v-if="invoice.discount_amount > 0" class="d-flex justify-space-between text-body-2 text-error">
+                <span>إجمالي الخصم:</span>
+                <span>-{{ formatCurrency(invoice.discount_amount) }}</span>
+              </div>
+              <div v-if="invoice.tax_amount > 0" class="d-flex justify-space-between text-body-2">
+                <span class="text-grey">إجمالي الضريبة:</span>
+                <span>{{ formatCurrency(invoice.tax_amount) }}</span>
+              </div>
+              <div v-if="invoice.shipping_cost > 0" class="d-flex justify-space-between text-body-2">
+                <span class="text-grey">تكلفة الشحن:</span>
+                <span>{{ formatCurrency(invoice.shipping_cost) }}</span>
+              </div>
             </div>
 
-            <v-select
-              v-if="can('invoices.update_all')"
-              v-model="selectedStatus"
-              :items="statusOptions"
-              label="تحديث الحالة"
-              class="mt-4"
-              @update:model-value="updateStatus"
-            />
-          </v-card-text>
-        </v-card>
+            <v-divider class="my-4" />
 
-        <!-- Totals -->
-        <v-card>
-          <v-card-title>الإجمالي</v-card-title>
-          <v-divider />
-          <v-card-text>
-            <div class="d-flex justify-space-between mb-2">
-              <span>المجموع الفرعي:</span>
-              <span class="font-weight-medium">{{ formatCurrency(invoice.subtotal) }}</span>
-            </div>
-            <div v-if="invoice.discount_amount > 0" class="d-flex justify-space-between mb-2 text-error">
-              <span>الخصم:</span>
-              <span>-{{ formatCurrency(invoice.discount_amount) }}</span>
-            </div>
-            <div v-if="invoice.tax_amount > 0" class="d-flex justify-space-between mb-2">
-              <span>الضريبة:</span>
-              <span>{{ formatCurrency(invoice.tax_amount) }}</span>
-            </div>
-            <div v-if="invoice.shipping_cost > 0" class="d-flex justify-space-between mb-2">
-              <span>الشحن:</span>
-              <span>{{ formatCurrency(invoice.shipping_cost) }}</span>
+            <div class="d-flex justify-space-between align-center mb-4">
+              <span class="text-h6 font-weight-bold">إجمالي الفاتورة:</span>
+              <span class="text-h5 font-weight-black text-success">{{ formatCurrency(invoice.total) }}</span>
             </div>
 
-            <v-divider class="my-3" />
+            <v-divider class="mb-4" />
 
-            <div class="d-flex justify-space-between text-h5 font-weight-bold mb-2">
-              <span>الإجمالي:</span>
-              <span class="text-success">{{ formatCurrency(invoice.total) }}</span>
+            <div class="d-flex flex-column gap-2 p-2 rounded-lg bg-grey-lighten-4">
+              <div class="d-flex justify-space-between text-body-2">
+                <span class="text-grey">إجمالي المدفوع:</span>
+                <span class="font-weight-bold text-info">{{ formatCurrency(invoice.paid_amount) }}</span>
+              </div>
+              <div v-if="invoice.remaining > 0" class="d-flex justify-space-between text-body-2">
+                <span class="text-grey">المبلغ المتبقي:</span>
+                <span class="font-weight-bold text-error">{{ formatCurrency(invoice.remaining) }}</span>
+              </div>
+              <div v-else class="text-center text-success font-weight-bold py-1">مدفوعة بالكامل</div>
             </div>
-            <div class="d-flex justify-space-between">
-              <span>المدفوع:</span>
-              <span class="font-weight-medium text-info">{{ formatCurrency(invoice.paid_amount) }}</span>
-            </div>
-            <div v-if="invoice.remaining > 0" class="d-flex justify-space-between text-warning">
-              <span>المتبقي:</span>
-              <span class="font-weight-bold">{{ formatCurrency(invoice.remaining) }}</span>
-            </div>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
+          </AppCard>
+        </v-col>
+      </v-row>
+    </div>
 
-    <!-- Delete Dialog -->
-    <v-dialog v-model="showDeleteDialog" max-width="400">
-      <v-card>
-        <v-card-title class="text-h5">
-          <v-icon icon="ri-error-warning-line" color="error" class="me-2" />
-          تأكيد الحذف
-        </v-card-title>
-        <v-card-text> هل أنت متأكد من حذف هذه الفاتورة؟ </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn variant="text" @click="showDeleteDialog = false">إلغاء</v-btn>
-          <v-btn color="error" @click="deleteInvoice">حذف</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <!-- Delete Confirmation Dialog -->
+    <AppDialog
+      v-model="showDeleteDialog"
+      title="تأكيد حذف الفاتورة"
+      icon="ri-delete-bin-line"
+      confirm-color="error"
+      confirm-text="حذف"
+      @confirm="deleteInvoice"
+    >
+      هل أنت متأكد من حذف هذه الفاتورة؟ لا يمكن التراجع عن هذا الإجراء وسيتم حذف الفاتورة وجميع المدفوعات المرتبطة بها نهائياً.
+    </AppDialog>
   </v-container>
 </template>
 
@@ -204,11 +215,17 @@ import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useApi } from '@/composables/useApi';
 import { usePermissions } from '@/composables/usePermissions';
+import { usePrintExport } from '@/composables/usePrintExport';
+import AppButton from '@/components/common/AppButton.vue';
+import AppCard from '@/components/common/AppCard.vue';
+import AppDialog from '@/components/common/AppDialog.vue';
+import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import { toast } from 'vue3-toastify';
 
 const router = useRouter();
 const route = useRoute();
 const { can } = usePermissions();
+const { printElement } = usePrintExport();
 
 const invoiceApi = useApi('/api/invoices');
 
@@ -229,7 +246,7 @@ const goBack = () => router.push('/invoices');
 const editInvoice = () => router.push(`/invoices/${route.params.id}/edit`);
 
 const printInvoice = () => {
-  window.open(`/api/invoice/${route.params.id}/pdf`, '_blank');
+  printElement('invoice-content', `فاتورة #${invoice.value?.invoice_number}`);
 };
 
 const deleteInvoice = async () => {

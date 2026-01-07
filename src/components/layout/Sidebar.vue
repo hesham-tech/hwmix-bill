@@ -1,127 +1,231 @@
 <template>
-  <v-navigation-drawer v-model="drawer" :rail="rail" scrim="false" permanent floating class="sidebar" color="background">
-    <!-- Logo Header -->
-    <div class="sidebar-header">
-      <div class="logo-container" @click="rail = !rail">
-        <v-icon icon="ri-building-line" size="32" color="primary" />
+  <v-navigation-drawer
+    v-model="drawer"
+    :rail="rail"
+    :permanent="smAndUp"
+    :persistent="smAndUp"
+    :temporary="xs"
+    :touchless="smAndUp"
+    :scrim="xs ? 'rgba(0,0,0,0.1)' : false"
+    width="280"
+    class="sidebar"
+    color="background"
+  >
+    <div class="sidebar-header" @click="!xs ? (rail = !rail) : null">
+      <div class="logo-container">
+        <v-avatar size="32" v-if="userStore.currentUser?.company_logo">
+          <v-img :src="userStore.currentUser.company_logo" contain />
+        </v-avatar>
+        <v-icon v-else icon="ri-building-line" size="32" color="primary" />
         <transition name="fade">
-          <h2 v-if="!rail" class="logo-text">hwmix-bill</h2>
+          <h2 v-if="!rail || xs" class="logo-text ms-2">hwmix-bill</h2>
         </transition>
       </div>
     </div>
 
     <v-divider />
 
-    <!-- Navigation Menu - Scrollable -->
     <div class="sidebar-menu-wrapper">
-      <v-list density="compact" nav class="sidebar-menu">
+      <v-list v-model:opened="openedGroups" open-strategy="single" density="compact" nav class="sidebar-menu">
         <template v-for="(item, index) in filteredMenu" :key="index">
-          <!-- Menu Item with Children -->
-          <v-list-group v-if="item.children" :value="item.title">
-            <template #activator="{ props }">
-              <v-tooltip :text="item.title" location="end" :disabled="!rail">
+          <!-- Item with children -->
+          <v-list-group v-if="item.children && item.children.length > 0" :value="item.title">
+            <template #activator="{ props: groupProps }">
+              <v-tooltip v-if="rail && !xs" :text="item.title" location="end">
                 <template #activator="{ props: tooltipProps }">
-                  <v-list-item v-bind="{ ...props, ...tooltipProps }" :prepend-icon="item.icon" :title="item.title" class="menu-item" />
+                  <v-list-item
+                    v-bind="{ ...groupProps, ...tooltipProps }"
+                    :prepend-icon="item.icon"
+                    :title="item.title"
+                    class="menu-item group-header"
+                  />
                 </template>
               </v-tooltip>
+              <v-list-item v-else v-bind="groupProps" :prepend-icon="item.icon" :title="item.title" class="menu-item group-header" />
             </template>
 
-            <v-tooltip
-              v-for="(child, childIndex) in item.children.filter(c => canAccess(c.permission))"
-              :key="childIndex"
-              :text="child.title"
-              location="end"
-              :disabled="!rail"
-            >
-              <template #activator="{ props: tooltipProps }">
-                <v-list-item v-bind="tooltipProps" :to="child.to" :title="child.title" :prepend-icon="child.icon" class="menu-sub-item" />
-              </template>
-            </v-tooltip>
+            <template v-for="(child, childIndex) in item.children.filter(c => canAccess(c.permission))" :key="childIndex">
+              <v-tooltip v-if="rail && !xs" :text="child.title" location="end">
+                <template #activator="{ props: childTooltipProps }">
+                  <v-list-item
+                    v-bind="childTooltipProps"
+                    :to="child.to"
+                    :title="child.title"
+                    :prepend-icon="child.icon || 'ri-subtract-line'"
+                    class="menu-sub-item"
+                    selected-class="active-link"
+                    @click="xs ? (drawer = false) : null"
+                  />
+                </template>
+              </v-tooltip>
+              <v-list-item
+                v-else
+                :to="child.to"
+                :title="child.title"
+                :prepend-icon="child.icon || 'ri-subtract-line'"
+                class="menu-sub-item"
+                selected-class="active-link"
+                @click="xs ? (drawer = false) : null"
+              />
+            </template>
           </v-list-group>
 
-          <!-- Single Menu Item -->
-          <v-tooltip v-else :text="item.title" location="end" :disabled="!rail">
-            <template #activator="{ props: tooltipProps }">
-              <v-list-item v-bind="tooltipProps" :to="item.to" :prepend-icon="item.icon" :title="item.title" class="menu-item" />
-            </template>
-          </v-tooltip>
+          <!-- Standalone item -->
+          <template v-else>
+            <v-tooltip v-if="rail && !xs" :text="item.title" location="end">
+              <template #activator="{ props: itemTooltipProps }">
+                <v-list-item
+                  v-bind="itemTooltipProps"
+                  :to="item.to"
+                  :prepend-icon="item.icon"
+                  :title="item.title"
+                  class="menu-item"
+                  selected-class="active-link"
+                  @click="xs ? (drawer = false) : null"
+                />
+              </template>
+            </v-tooltip>
+            <v-list-item
+              v-else
+              :to="item.to"
+              :prepend-icon="item.icon"
+              :title="item.title"
+              class="menu-item"
+              selected-class="active-link"
+              @click="xs ? (drawer = false) : null"
+            />
+          </template>
         </template>
       </v-list>
     </div>
 
-    <!-- Bottom Section -->
     <template #append>
       <v-divider />
-
       <v-list density="compact" nav>
-        <v-tooltip text="تسجيل الخروج" location="end" :disabled="!rail">
-          <template #activator="{ props: tooltipProps }">
-            <v-list-item v-bind="tooltipProps" prepend-icon="ri-logout-box-line" title="تسجيل الخروج" @click="handleLogout" class="logout-item" />
+        <v-tooltip v-if="rail && !xs" text="تسجيل الخروج" location="end">
+          <template #activator="{ props: logoutTooltipProps }">
+            <v-list-item
+              v-bind="logoutTooltipProps"
+              prepend-icon="ri-logout-box-line"
+              title="تسجيل الخروج"
+              @click="handleLogout"
+              class="logout-item"
+            />
           </template>
         </v-tooltip>
+        <v-list-item v-else prepend-icon="ri-logout-box-line" title="تسجيل الخروج" @click="handleLogout" class="logout-item" />
       </v-list>
-
-      <!-- Toggle Button -->
-      <div class="rail-toggle">
-        <v-btn :icon="rail ? 'ri-menu-unfold-line' : 'ri-menu-fold-line'" variant="text" @click="rail = !rail" />
+      <div v-if="!xs" class="rail-toggle">
+        <AppButton :icon="rail ? 'ri-menu-unfold-line' : 'ri-menu-fold-line'" variant="text" @click="rail = !rail" />
       </div>
     </template>
   </v-navigation-drawer>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed, watch, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 import { useAuthStore } from '@/stores/auth';
 import navigationMenu from '@/config/navigation';
 import { toast } from 'vue3-toastify';
+import { useDisplay } from 'vuetify';
+import AppButton from '@/components/common/AppButton.vue';
 
+const { xs, smAndUp } = useDisplay();
 const router = useRouter();
+const route = useRoute();
 const userStore = useUserStore();
 const authStore = useAuthStore();
 
-const drawer = ref(true);
-const rail = ref(false);
+const props = defineProps({
+  modelValue: { type: Boolean, default: true },
+});
 
-// Filter menu based on permissions
+const emit = defineEmits(['update:modelValue']);
+
+// تحويل v-model ليعمل بشكل متوافق مع Vuetify
+const drawer = computed({
+  get: () => props.modelValue,
+  set: val => emit('update:modelValue', val),
+});
+
+const rail = ref(false);
+const openedGroups = ref([]);
+
+// مراقبة حجم الشاشة لضبط الحالة الابتدائية
+watch(
+  xs,
+  isMobile => {
+    if (!isMobile) {
+      drawer.value = true;
+      rail.value = false;
+    } else {
+      drawer.value = false;
+    }
+  },
+  { immediate: true }
+);
+
+const scrollToActive = () => {
+  setTimeout(() => {
+    const activeItem = document.querySelector('.sidebar .active-link');
+    if (activeItem) {
+      activeItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, 300);
+};
+
+onMounted(scrollToActive);
+watch(() => route.path, scrollToActive);
+
 const filteredMenu = computed(() => {
   return navigationMenu.filter(item => canAccess(item.permission));
 });
 
-// Check if user has permission to access menu item
 const canAccess = permission => {
-  if (!permission) return true; // No permission required
+  if (!permission) return true;
   return userStore.hasPermission(permission);
 };
 
-// Logout handler
 const handleLogout = async () => {
   try {
     await authStore.logout();
     toast.success('تم تسجيل الخروج بنجاح');
     router.push('/login');
   } catch (error) {
-    console.error('Logout error:', error);
     toast.error('حدث خطأ أثناء تسجيل الخروج');
   }
 };
 </script>
 
 <style scoped>
+.active-link {
+  background: rgba(var(--v-theme-primary), 0.12) !important;
+  color: rgb(var(--v-theme-primary)) !important;
+  font-weight: 600;
+  border-inline-start: 4px solid rgb(var(--v-theme-primary));
+}
+
 .sidebar {
-  border-left: 1px solid rgb(var(--v-theme-surface-variant));
+  border-inline-end: 1px solid rgba(var(--v-theme-on-surface), 0.12);
   height: 100vh !important;
-  max-height: 100vh;
+  position: fixed !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  z-index: 1000;
+  overflow-y: hidden !important;
+}
+
+:deep(.v-navigation-drawer__content) {
   display: flex;
   flex-direction: column;
-  z-index: 1000;
+  height: 100%;
 }
 
 .sidebar-header {
-  padding: 24px 16px;
+  padding: 20px 16px;
   cursor: pointer;
-  flex-shrink: 0;
 }
 
 .logo-container {
@@ -131,81 +235,47 @@ const handleLogout = async () => {
 }
 
 .logo-text {
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   font-weight: 700;
   color: rgb(var(--v-theme-primary));
-  white-space: nowrap;
 }
 
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-
-/* ✅ Scrollable menu wrapper */
 .sidebar-menu-wrapper {
   flex: 1;
   overflow-y: auto;
-  overflow-x: hidden;
-  min-height: 0;
+  scroll-behavior: smooth;
 }
 
-.sidebar-menu {
-  padding: 8px;
+/* تخصيص السكرول بار */
+.sidebar-menu-wrapper::-webkit-scrollbar {
+  width: 4px;
+}
+.sidebar-menu-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(var(--v-theme-primary), 0.2);
+  border-radius: 10px;
 }
 
-.menu-item {
+.menu-item,
+.menu-sub-item {
   margin-bottom: 4px;
   border-radius: 8px;
-  transition: all 0.2s ease;
-}
-
-.menu-item:hover {
-  background: rgba(var(--v-theme-primary), 0.08);
 }
 
 .menu-sub-item {
-  padding-right: 48px !important;
-  margin-bottom: 2px;
-  border-radius: 8px;
-  font-size: 0.9rem;
+  padding-inline-start: 24px !important;
+  font-size: 0.85rem;
+}
+
+.group-header {
+  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.05) !important;
+  margin-bottom: 8px !important;
 }
 
 .logout-item {
   color: rgb(var(--v-theme-error));
-  margin: 8px;
-  border-radius: 8px;
-}
-
-.logout-item:hover {
-  background: rgba(var(--v-theme-error), 0.08);
 }
 
 .rail-toggle {
   padding: 8px;
-  text-align: center;
-}
-
-/* ✅ Custom scrollbar */
-.sidebar-menu-wrapper::-webkit-scrollbar {
-  width: 6px;
-}
-
-.sidebar-menu-wrapper::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.sidebar-menu-wrapper::-webkit-scrollbar-thumb {
-  background: rgba(var(--v-theme-primary), 0.2);
-  border-radius: 3px;
-}
-
-.sidebar-menu-wrapper::-webkit-scrollbar-thumb:hover {
-  background: rgba(var(--v-theme-primary), 0.3);
 }
 </style>

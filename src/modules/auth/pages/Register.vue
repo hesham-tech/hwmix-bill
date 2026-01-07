@@ -70,7 +70,7 @@
               </v-col>
             </v-row>
 
-            <v-btn type="submit" color="primary" size="large" block :loading="loading" class="mt-4"> إنشاء حساب </v-btn>
+            <AppButton type="submit" color="primary" size="large" block :loading="loading" class="mt-4 shadow-sm"> إنشاء حساب جديد </AppButton>
 
             <div class="text-center mt-4">
               <span class="text-grey">لديك حساب بالفعل؟</span>
@@ -86,10 +86,11 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { AppInput } from '@/components';
 import { authService } from '@/api';
 import { required, email, phone, strongPassword } from '@/utils/validators';
 import { toast } from 'vue3-toastify';
+import AppInput from '@/components/common/AppInput.vue';
+import AppButton from '@/components/common/AppButton.vue';
 
 const router = useRouter();
 const formRef = ref(null);
