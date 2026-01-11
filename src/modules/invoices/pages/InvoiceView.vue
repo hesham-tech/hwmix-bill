@@ -23,7 +23,7 @@
     </div>
 
     <div id="invoice-content">
-      <v-row v-else-if="invoice">
+      <v-row v-if="invoice">
         <!-- Invoice Details -->
         <v-col cols="12" md="8">
           <!-- Customer Info -->
