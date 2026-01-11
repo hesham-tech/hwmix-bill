@@ -43,11 +43,41 @@ export function useProductsData() {
   };
 
   /**
+   * Helper to prepare payload for API
+   */
+  const preparePayload = data => {
+    // If there are images, we use FormData
+    if (data.images && data.images.some(img => img.file)) {
+      const formData = new FormData();
+      Object.keys(data).forEach(key => {
+        if (key === 'images') {
+          data.images.forEach((img, index) => {
+            if (img.file) {
+              formData.append(`images[${index}]`, img.file);
+            } else if (img.url) {
+              formData.append(`existing_images[${index}]`, img.url);
+            }
+          });
+        } else if (key === 'variants') {
+          formData.append('variants', JSON.stringify(data.variants));
+        } else if (key === 'tags') {
+          formData.append('tags', JSON.stringify(data.tags));
+        } else if (data[key] !== null && data[key] !== undefined) {
+          formData.append(key, data[key]);
+        }
+      });
+      return formData;
+    }
+    return data; // Return as JSON if no new files
+  };
+
+  /**
    * Create new product
    * إنشاء منتج جديد
    */
   const createProduct = async data => {
-    return await api.create(data, {
+    const payload = preparePayload(data);
+    return await api.create(payload, {
       successMessage: 'تم إضافة المنتج بنجاح',
     });
   };
@@ -57,7 +87,16 @@ export function useProductsData() {
    * تحديث منتج
    */
   const updateProduct = async (id, data) => {
-    return await api.update(id, data, {
+    const payload = preparePayload(data);
+    // Note: Laravel sometimes has issues with PUT/PATCH and FormData,
+    // we might need to spoof it with POST + _method=PUT if using FormData
+    if (payload instanceof FormData) {
+      payload.append('_method', 'PUT');
+      return await api.post(`/${id}`, payload, {
+        successMessage: 'تم تحديث المنتج بنجاح',
+      });
+    }
+    return await api.update(id, payload, {
       successMessage: 'تم تحديث المنتج بنجاح',
     });
   };

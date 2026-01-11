@@ -1,0 +1,38 @@
+name: Deploy Vue Frontend to Test Subdomain (SSH)
+
+on:
+  push:
+    branches:
+      - restructure-v2 # هذا هو البرانش الذي تعمل عليه حالياً
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build project
+        run: npm run build
+        env:
+          VITE_API_URL: ${{ secrets.TEST_API_URL }}
+
+      - name: Deploy via SSH/Rsync
+        uses: easedit/rsync-deploy-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          user: ${{ secrets.SSH_USER }}
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          local-dir: ./dist/
+          remote-dir: /home/u715355537/domains/hwnix.com/public_html/bill-teste/
+          args: -az --delete
