@@ -1,271 +1,220 @@
 <template>
-  <div class="role-management-page">
-    <div class="mb-6 px-6 pt-6">
-      <h1 class="text-h4 font-weight-bold">إدارة الأدوار والصلاحيات</h1>
-      <p class="text-body-1 text-grey">تحكم دقيق في مستويات الوصول والعمليات المتاحة لكل موظف</p>
+  <div class="role-management-page pa-6">
+    <!-- Header -->
+    <div class="d-flex align-center justify-space-between mb-8">
+      <div>
+        <h1 class="text-h4 font-weight-black text-primary mb-1">إدارة الأدوار الوظيفية</h1>
+        <p class="text-body-1 text-grey-darken-1">عرّف المسميات الوظيفية وصلاحياتها لتنظيم فريق العمل</p>
+      </div>
+      <AppButton color="primary" prepend-icon="ri-add-line" size="large" class="px-6 rounded-xl shadow-lg" @click="openRoleDialog()">
+        إضافة دور جديد
+      </AppButton>
     </div>
 
-    <v-row>
-      <!-- Users List -->
-      <v-col cols="12" md="4">
-        <AppCard title="المستخدمين النشطين" icon="ri-team-line" class="fill-height">
-          <template #actions>
-            <AppInput
-              v-model="search"
-              placeholder="بحث بالاسم أو البريد..."
-              density="compact"
-              hide-details
-              prepend-inner-icon="ri-search-line"
-              class="max-width-200"
-            />
-          </template>
-
-          <v-list v-if="!loadingUsers" lines="two" class="pa-0">
-            <v-list-item
-              v-for="user in filteredUsers"
-              :key="user.id"
-              :active="selectedUserId === user.id"
-              class="border-b"
-              @click="selectUser(user)"
-              active-color="primary"
-            >
-              <template #prepend>
-                <v-avatar color="primary-lighten-5" size="40">
-                  <span class="text-primary font-weight-bold text-caption">{{ getInitials(user.name) }}</span>
-                </v-avatar>
-              </template>
-              <v-list-item-title class="font-weight-bold">{{ user.name }}</v-list-item-title>
-              <v-list-item-subtitle class="text-caption">{{ user.email }}</v-list-item-subtitle>
-              <template #append>
-                <v-chip size="x-small" variant="flat" color="grey-lighten-4" class="font-weight-black">
-                  {{ user.roles?.[0]?.name || 'بدون دور' }}
-                </v-chip>
-              </template>
-            </v-list-item>
-          </v-list>
-          <div v-else class="pa-10 text-center">
-            <v-progress-circular indeterminate color="primary" />
-          </div>
-        </AppCard>
-      </v-col>
-
-      <!-- Permissions Management -->
-      <v-col cols="12" md="8">
-        <AppCard v-if="selectedUserId" :title="`صلاحيات: ${selectedUser?.name}`" icon="ri-shield-keyhole-line">
-          <template #actions>
-            <AppButton color="success" :loading="saving" prepend-icon="ri-save-line" @click="savePermissions"> حفظ التغييرات </AppButton>
-          </template>
-
-          <v-tabs v-model="activeTab" color="primary" align-tabs="start" class="border-b">
-            <v-tab value="roles" class="text-none">
-              <v-icon icon="ri-admin-line" class="me-2" />
-              الأدوار الوظيفية
-            </v-tab>
-            <v-tab value="permissions" class="text-none">
-              <v-icon icon="ri-list-settings-line" class="me-2" />
-              قواعد الوصول التفصيلية
-            </v-tab>
-          </v-tabs>
-
-          <v-window v-model="activeTab" class="pa-6">
-            <!-- Roles Tab -->
-            <v-window-item value="roles">
-              <div class="text-subtitle-1 font-weight-bold mb-4">اختر الدور الوظيفي الرئيسي للمستخدم:</div>
-              <v-radio-group v-model="userRole">
-                <v-row>
-                  <v-col v-for="role in allRoles" :key="role.id" cols="12" sm="6">
-                    <v-card
-                      border
-                      flat
-                      class="pa-4 clickable h-100"
-                      :class="{ 'border-primary bg-primary-lighten-5': userRole === role.name }"
-                      @click="userRole = role.name"
-                    >
-                      <v-radio :value="role.name" color="primary">
-                        <template #label>
-                          <div class="ms-2">
-                            <div class="font-weight-black text-body-1">{{ role.label }}</div>
-                            <div class="text-caption text-grey-darken-1">{{ role.description }}</div>
-                          </div>
-                        </template>
-                      </v-radio>
-                    </v-card>
-                  </v-col>
-                </v-row>
-              </v-radio-group>
-            </v-window-item>
-
-            <!-- Permissions Tab -->
-            <v-window-item value="permissions">
-              <v-row dense>
-                <v-col v-for="(perms, group) in permissionGroups" :key="group" cols="12" sm="6">
-                  <v-card border flat class="mb-4">
-                    <div class="bg-grey-lighten-4 px-4 py-2 font-weight-black text-subtitle-2 border-b">
-                      <v-icon :icon="getGroupIcon(group)" size="small" class="me-2" />
-                      {{ getGroupLabel(group) }}
-                    </div>
-                    <v-card-text class="pa-3">
-                      <v-checkbox
-                        v-for="perm in perms"
-                        :key="perm.name"
-                        v-model="userPermissions"
-                        :label="perm.label"
-                        :value="perm.name"
-                        color="primary"
-                        density="compact"
-                        hide-details
-                      />
-                    </v-card-text>
-                  </v-card>
-                </v-col>
-              </v-row>
-            </v-window-item>
-          </v-window>
-        </AppCard>
-
-        <AppCard v-else class="fill-height d-flex align-center justify-center bg-grey-lighten-5 border-dashed">
-          <div class="text-center pa-12">
-            <v-avatar color="grey-lighten-4" size="100" class="mb-6">
-              <v-icon size="48" color="grey-lighten-1">ri-user-settings-line</v-icon>
+    <!-- Stats Row -->
+    <v-row class="mb-6">
+      <v-col cols="12" sm="4">
+        <v-card variant="flat" border class="pa-4 rounded-xl bg-primary-lighten-5 border-primary">
+          <div class="d-flex align-center gap-4">
+            <v-avatar color="primary" variant="tonal" size="48">
+              <v-icon icon="ri-shield-user-line" color="primary" />
             </v-avatar>
-            <div class="text-h5 font-weight-bold text-grey-darken-1">تعديل الصلاحيات</div>
-            <div class="text-body-1 text-grey-lighten-1 mt-2">يرجى اختيار موظف من القائمة الجانبية للبدء في تخصيص صلاحيات الوصول الخاصة به</div>
+            <div>
+              <div class="text-h5 font-weight-black">{{ store.roles.length }}</div>
+              <div class="text-caption text-primary">إجمالي الأدوار المعرفة</div>
+            </div>
           </div>
-        </AppCard>
+        </v-card>
       </v-col>
     </v-row>
+
+    <!-- Roles Grid -->
+    <v-row v-if="!store.loading">
+      <v-col v-for="role in store.roles" :key="role.id" cols="12" md="4" lg="3">
+        <v-card variant="flat" border class="role-card h-100 transition-swing">
+          <v-card-text class="pa-5">
+            <div class="d-flex align-center justify-space-between mb-4">
+              <v-icon :icon="getRoleIcon(role.name)" size="32" color="primary" class="bg-grey-lighten-4 pa-4 rounded-lg" />
+              <v-menu location="bottom end">
+                <template #activator="{ props }">
+                  <v-btn icon="ri-more-2-fill" variant="text" size="small" v-bind="props" />
+                </template>
+                <v-list density="compact" class="rounded-lg">
+                  <v-list-item @click="openRoleDialog(role)">
+                    <template #prepend><v-icon icon="ri-edit-line" size="small" /></template>
+                    <v-list-item-title>تعديل الدور</v-list-item-title>
+                  </v-list-item>
+                  <v-divider />
+                  <v-list-item color="error" @click="confirmDelete(role)">
+                    <template #prepend><v-icon icon="ri-delete-bin-line" size="small" /></template>
+                    <v-list-item-title>حذف الدور</v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </div>
+
+            <h3 class="text-h6 font-weight-bold mb-1">{{ role.label || role.name }}</h3>
+            <p class="text-caption text-grey-darken-1 mb-4 line-clamp-2" style="height: 40px">
+              {{ role.description || 'لا يوجد وصف متاح لهذا الدور الوظيفي.' }}
+            </p>
+
+            <div class="d-flex align-center flex-wrap gap-2">
+              <v-chip size="x-small" color="primary" variant="tonal" class="font-weight-bold"> {{ role.permissions_count || 0 }} صلاحية </v-chip>
+              <v-chip v-if="role.users_count !== undefined" size="x-small" color="grey" variant="flat"> {{ role.users_count }} مستخدمين </v-chip>
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-col>
+
+      <!-- Empty State -->
+      <v-col v-if="store.roles.length === 0" cols="12">
+        <div class="text-center pa-12 bg-grey-lighten-5 rounded-xl border-dashed">
+          <v-icon icon="ri-shield-flash-line" size="64" color="grey-lighten-2" />
+          <div class="text-h6 text-grey mt-4">لا يوجد أدوار مسجلة حالياً</div>
+          <p class="text-caption text-grey-darken-1 mb-6">ابدأ بإنشاء أول دور وظيفي لفريق عملك</p>
+          <AppButton color="primary" @click="openRoleDialog()">إضافة أول دور</AppButton>
+        </div>
+      </v-col>
+    </v-row>
+
+    <!-- Loading State -->
+    <div v-else class="text-center pa-12">
+      <v-progress-circular indeterminate color="primary" size="64" />
+      <div class="mt-4 text-grey">جاري تحميل الأدوار...</div>
+    </div>
+
+    <!-- Role Dialog -->
+    <v-dialog v-model="dialog.isOpen" max-width="800" persistent scrollable>
+      <RoleForm
+        v-if="dialog.isOpen"
+        :role="dialog.data"
+        :is-edit-mode="dialog.isEdit"
+        :available-permissions="store.availablePermissions"
+        :loading="dialog.loading"
+        @save="handleSaveRole"
+        @cancel="dialog.isOpen = false"
+      />
+    </v-dialog>
+
+    <!-- Delete Confirmation -->
+    <v-dialog v-model="deleteDialog.isOpen" max-width="400">
+      <v-card class="rounded-xl pa-4">
+        <v-card-text class="text-center pt-6">
+          <v-avatar color="error-lighten-5" size="72" class="mb-4">
+            <v-icon icon="ri-error-warning-line" color="error" size="40" />
+          </v-avatar>
+          <div class="text-h6 font-weight-bold mb-2">هل أنت متأكد من الحذف؟</div>
+          <p class="text-body-2 text-grey-darken-1">
+            سيتم حذف الدور <span class="font-weight-bold text-error">"{{ deleteDialog.data?.label }}"</span> نهائياً. هذا الإجراء قد يؤثر على وصول
+            المستخدمين المرتبطين بهذا الدور.
+          </p>
+        </v-card-text>
+        <v-card-actions class="gap-3 pt-4 px-4 pb-4">
+          <v-btn variant="tonal" block class="flex-grow-1" @click="deleteDialog.isOpen = false">إلغاء</v-btn>
+          <v-btn color="error" variant="flat" block class="flex-grow-1" :loading="deleteDialog.loading" @click="deleteRole"> تأكيد الحذف </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { useApi } from '@/composables/useApi';
-import AppCard from '@/components/common/AppCard.vue';
+import { ref, onMounted, reactive } from 'vue';
+import { useUserStore } from '../store/user.store';
 import AppButton from '@/components/common/AppButton.vue';
-import AppInput from '@/components/common/AppInput.vue';
-import { getInitials } from '@/utils/helpers';
+import RoleForm from '../components/RoleForm.vue';
 
-const usersApi = useApi('/api/users');
-const rolesApi = useApi('/api/roles');
+const store = useUserStore();
 
-const search = ref('');
-const loadingUsers = ref(false);
-const saving = ref(false);
-const users = ref([]);
-const allRoles = ref([
-  { id: 1, name: 'admin', label: 'مدير النظام', description: 'وصول كامل لجميع ميزات النظام' },
-  { id: 2, name: 'manager', label: 'مدير فرع', description: 'إدارة المبيعات والمخزون والتقارير' },
-  { id: 3, name: 'sales', label: 'بائع', description: 'إنشاء الفواتير والبحث عن المنتجات' },
-  { id: 4, name: 'accountant', label: 'محاسب', description: 'مراجعة التقارير المالية والمدفوعات' },
-]);
-
-const selectedUserId = ref(null);
-const selectedUser = ref(null);
-const activeTab = ref('roles');
-const userRole = ref('');
-const userPermissions = ref([]);
-
-const permissionGroups = {
-  invoices: [
-    { name: 'invoices.view', label: 'عرض الفواتير' },
-    { name: 'invoices.create', label: 'إنشاء فواتير' },
-    { name: 'invoices.edit', label: 'تعديل فواتير' },
-    { name: 'invoices.delete', label: 'حذف فواتير' },
-  ],
-  products: [
-    { name: 'products.view', label: 'عرض المنتجات' },
-    { name: 'products.create', label: 'إضافة منتجات' },
-    { name: 'products.edit', label: 'تعديل منتجات' },
-    { name: 'products.delete', label: 'حذف منتجات' },
-  ],
-  customers: [
-    { name: 'customers.view', label: 'عرض العملاء' },
-    { name: 'customers.create', label: 'إضافة عملاء' },
-    { name: 'customers.edit', label: 'تعديل عملاء' },
-  ],
-  reports: [
-    { name: 'reports.sales', label: 'تقرير المبيعات' },
-    { name: 'reports.profit', label: 'تقرير الأرباح' },
-    { name: 'reports.stock', label: 'تقرير المخزون' },
-  ],
-};
-
-const getGroupLabel = group => {
-  const labels = {
-    invoices: 'إدارة الفواتير',
-    products: 'إدارة المنتجات',
-    customers: 'إدارة العملاء',
-    reports: 'التقارير المتقدمة',
-  };
-  return labels[group] || group;
-};
-
-const getGroupIcon = group => {
-  const icons = {
-    invoices: 'ri-file-list-3-line',
-    products: 'ri-box-3-line',
-    customers: 'ri-team-line',
-    reports: 'ri-bar-chart-box-line',
-  };
-  return icons[group] || 'ri-checkbox-circle-line';
-};
-
-const filteredUsers = computed(() => {
-  if (!search.value) return users.value;
-  const q = search.value.toLowerCase();
-  return users.value.filter(u => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
+const dialog = reactive({
+  isOpen: false,
+  isEdit: false,
+  data: null,
+  loading: false,
 });
 
-const loadUsers = async () => {
-  loadingUsers.value = true;
+const deleteDialog = reactive({
+  isOpen: false,
+  data: null,
+  loading: false,
+});
+
+onMounted(async () => {
+  await Promise.all([store.fetchRoles(), store.fetchAvailablePermissions()]);
+});
+
+const openRoleDialog = (role = null) => {
+  dialog.isEdit = !!role;
+  dialog.data = role ? { ...role } : { permissions: [] };
+  dialog.isOpen = true;
+};
+
+const handleSaveRole = async formData => {
+  dialog.loading = true;
   try {
-    const res = await usersApi.get({ per_page: 100 }, { showLoading: false });
-    users.value = res.data || [];
+    if (dialog.isEdit) {
+      await store.updateRole(dialog.data.id, formData);
+    } else {
+      await store.createRole(formData);
+    }
+    dialog.isOpen = false;
   } finally {
-    loadingUsers.value = false;
+    dialog.loading = false;
   }
 };
 
-const selectUser = user => {
-  selectedUserId.value = user.id;
-  selectedUser.value = user;
-  userRole.value = user.roles?.[0]?.name || '';
-  userPermissions.value = user.permissions?.map(p => p.name) || [];
+const confirmDelete = role => {
+  deleteDialog.data = role;
+  deleteDialog.isOpen = true;
 };
 
-const savePermissions = async () => {
-  if (!selectedUserId.value) return;
-  saving.value = true;
+const deleteRole = async () => {
+  deleteDialog.loading = true;
   try {
-    // Sync roles and permissions via API
-    await usersApi.update(
-      `${selectedUserId.value}/sync-permissions`,
-      {
-        role: userRole.value,
-        permissions: userPermissions.value,
-      },
-      { successMessage: 'تم تحديث الصلاحيات بنجاح' }
-    );
+    await store.deleteRole(deleteDialog.data.id);
+    deleteDialog.isOpen = false;
   } finally {
-    saving.value = false;
+    deleteDialog.loading = false;
   }
 };
 
-onMounted(loadUsers);
+const getRoleIcon = name => {
+  const icons = {
+    admin: 'ri-admin-line',
+    manager: 'ri-briefcase-line',
+    sales: 'ri-shopping-cart-2-line',
+    accounting: 'ri-calculator-line',
+    warehouse: 'ri-home-gear-line',
+    customer: 'ri-user-heart-line',
+  };
+  return icons[name] || 'ri-shield-line';
+};
 </script>
 
 <style scoped>
-.role-management-page {
-  padding: 24px;
+.role-card {
+  border-radius: 20px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.max-width-200 {
-  max-width: 200px;
+
+.role-card:hover {
+  transform: translateY(-8px);
+  border-color: rgb(var(--v-theme-primary), 0.3) !important;
+  box-shadow: 0 12px 24px -10px rgba(var(--v-theme-primary), 0.2) !important;
 }
-.clickable {
-  cursor: pointer;
-  transition: all 0.2s;
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
-.clickable:hover {
-  background-color: #f5f5f5;
+
+.bg-primary-lighten-5 {
+  background-color: rgba(var(--v-theme-primary), 0.05) !important;
+}
+
+.border-dashed {
+  border: 2px dashed #e0e0e0 !important;
 }
 </style>

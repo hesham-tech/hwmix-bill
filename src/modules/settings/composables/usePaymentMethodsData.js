@@ -7,18 +7,31 @@ export function usePaymentMethodsData() {
   const loading = ref(false);
   const total = ref(0);
 
-  const fetchPaymentMethods = async (params = {}) => {
+  const fetchPaymentMethods = async (params = {}, options = {}) => {
+    const { append = false } = options;
     loading.value = true;
     try {
       const response = await api.get(params, { showLoading: false });
+
+      let incomingData = [];
+      let incomingTotal = 0;
+
       // Handle both paginated and non-paginated responses
       if (response.data && Array.isArray(response.data.data)) {
-        paymentMethods.value = response.data.data;
-        total.value = response.data.meta?.total || response.data.data.length;
+        incomingData = response.data.data;
+        incomingTotal = response.data.meta?.total || response.data.data.length;
       } else {
-        paymentMethods.value = response.data || [];
-        total.value = response.total || paymentMethods.value.length;
+        incomingData = response.data || [];
+        incomingTotal = response.total || incomingData.length;
       }
+
+      if (append) {
+        paymentMethods.value = [...paymentMethods.value, ...incomingData];
+      } else {
+        paymentMethods.value = incomingData;
+      }
+
+      total.value = incomingTotal;
       return response;
     } catch (error) {
       paymentMethods.value = [];

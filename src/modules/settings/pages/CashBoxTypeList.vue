@@ -1,92 +1,165 @@
 <template>
-  <div class="cashbox-types-page">
-    <div class="page-header mb-6">
-      <h1 class="text-h4 font-weight-bold">أنواع الخزائن</h1>
-      <p class="text-body-1 text-grey">إدارة أنواع الخزائن في النظام</p>
+  <div class="cash-box-types-page">
+    <!-- Page Header -->
+    <div class="page-header d-flex align-center justify-space-between mb-6">
+      <div>
+        <h1 class="text-h4 font-weight-bold ml-2">أنواع الخزائن</h1>
+        <p class="text-body-1 text-grey">إدارة أنواع الخزائن المتاحة في النظام</p>
+      </div>
+      <AppButton v-if="canCreate" prepend-icon="ri-add-line" size="large" elevation="2" @click="handleCreate"> نوع جديد </AppButton>
     </div>
 
-    <AppDataTable
-      title="أنواع الخزائن"
-      icon="ri-list-settings-line"
-      :headers="headers"
-      :items="cashBoxTypes"
-      :total-items="total"
-      :loading="loading"
-      v-model:page="page"
-      v-model:items-per-page="itemsPerPage"
-      @update:options="fetchCashBoxTypes($event)"
-    >
-      <template #actions>
-        <AppButton v-if="canCreate" color="primary" prepend-icon="ri-add-line" @click="handleCreate"> نوع جديد </AppButton>
-      </template>
+    <!-- Filters & View Toggle -->
+    <AppCard class="mb-6">
+      <div class="d-flex align-center flex-wrap gap-4">
+        <AppInput
+          v-model="search"
+          label="بحث عن نوع..."
+          prepend-inner-icon="ri-search-line"
+          class="max-width-300 flex-grow-1"
+          hide-details
+          @update:model-value="handleSearch"
+        />
 
-      <template #item.name="{ item }">
-        <div class="d-flex align-center">
-          <v-icon icon="ri-money-dollar-box-line" size="small" color="warning" class="me-2" />
-          <span class="font-weight-bold">{{ item.name }}</span>
-        </div>
-      </template>
+        <v-spacer />
+        <AppSwitch
+          v-if="isSuperAdmin"
+          v-model="isSystemVisible"
+          :label="isSystemVisible ? 'مشاهدة الأنواع الأساسية (System)' : 'مشاهدة الأنواع المخصصة (Custom)'"
+          hide-details
+        />
+        <v-btn-group variant="outlined" density="comfortable" color="primary">
+          <AppButton :active="viewMode === 'grid'" icon="ri-grid-fill" @click="viewMode = 'grid'" title="عرض شبكي" />
+          <AppButton :active="viewMode === 'list'" icon="ri-list-check" @click="viewMode = 'list'" title="عرض قائمة" />
+        </v-btn-group>
+      </div>
+    </AppCard>
 
-      <template #item.is_active="{ item }">
-        <v-chip :color="item.is_active ? 'success' : 'error'" size="small" variant="flat" class="font-weight-bold px-3">
-          {{ item.is_active ? 'نشط' : 'غير نشط' }}
-        </v-chip>
-      </template>
+    <!-- Content Area -->
+    <LoadingSpinner v-if="loading && !cashBoxTypes.length" size="64" text="جاري تحميل أنواع الخزائن..." />
 
-      <template #item.actions="{ item }">
-        <div class="d-flex justify-end gap-1">
-          <AppButton
-            v-if="canUpdate(item)"
-            icon="ri-edit-line"
-            size="x-small"
-            variant="text"
-            color="primary"
-            tooltip="تعديل"
-            @click="handleEdit(item)"
-          />
-          <AppButton
-            v-if="canDelete(item)"
-            icon="ri-delete-bin-line"
-            size="x-small"
-            variant="text"
-            color="error"
-            tooltip="حذف"
-            @click="handleDelete(item)"
-          />
-        </div>
-      </template>
-    </AppDataTable>
+    <EmptyState
+      v-else-if="!cashBoxTypes.length"
+      icon="ri-inbox-archive-line"
+      title="لا توجد أنواع خزائن حالياً"
+      message="ابدأ بإضافة أول نوع خزينة لنظامك"
+      :show-action="canCreate"
+      action-text="إضافة نوع جديد"
+      @action="handleCreate"
+    />
 
-    <!-- Form Dialog -->
-    <AppDialog
-      v-model="showDialog"
-      :title="isEdit ? 'تعديل نوع الخزينة' : 'نوع خزينة جديد'"
-      :icon="isEdit ? 'ri-edit-line' : 'ri-safe-add-line'"
-      :loading="saving"
-      max-width="500"
-      @confirm="handleSave"
-    >
-      <v-form ref="formRef" @submit.prevent="handleSave">
-        <v-row dense>
-          <v-col cols="12">
-            <AppInput v-model="formData.name" label="اسم النوع *" placeholder="مثال: خزنة فرعية" :rules="[rules.required]" />
-          </v-col>
-          <v-col cols="12">
-            <v-card variant="tonal" color="primary" class="pa-4 rounded-lg">
-              <div class="d-flex align-center justify-space-between">
-                <div>
-                  <div class="text-subtitle-1 font-weight-bold">حالة النشاط</div>
-                  <div class="text-caption">تحديد ما إذا كان هذا النوع متاحاً للاختيار عند إضافة خزائن جديدة</div>
-                </div>
-                <v-switch v-model="formData.is_active" color="success" hide-details inset :true-value="1" :false-value="0" />
+    <template v-else>
+      <!-- Grid View with Infinite Scroll -->
+      <AppInfiniteScroll
+        v-if="viewMode === 'grid'"
+        :loading="loading && cashBoxTypes.length > 0"
+        :has-more="cashBoxTypes.length < total"
+        no-more-text="لا يوجد المزيد من أنواع الخزائن"
+        @load="handleLoadMore"
+      >
+        <v-row>
+          <v-col v-for="item in cashBoxTypes" :key="item.id" cols="12" sm="6" md="4" lg="3">
+            <AppCard class="type-card h-100" no-padding>
+              <div class="type-card-header d-flex align-center justify-center pa-6 bg-grey-lighten-4 position-relative">
+                <v-avatar size="120" rounded="circle" :color="item.is_active ? 'bg-white' : 'grey-lighten-3'" class="elevation-1 bg-white">
+                  <v-img v-if="item.image_url" :src="item.image_url" cover />
+                  <v-icon v-else icon="ri-inbox-archive-line" size="60" :color="item.is_active ? 'primary' : 'grey'" />
+                </v-avatar>
               </div>
-            </v-card>
+
+              <v-card-item class="position-relative pt-4">
+                <v-card-title class="text-h6 font-weight-bold pa-0 mb-1">{{ item.name }}</v-card-title>
+
+                <span class="text-caption text-grey-darken-1 me-2">{{ item.description }}</span>
+                <div class="d-flex align-center justify-space-between mb-1" style="height: 32px">
+                  <div class="d-flex align-center">
+                    <span class="text-caption text-grey-darken-1 me-2">الحالة:</span>
+                    <v-chip :color="item.is_active ? 'success' : 'error'" size="x-small" class="font-weight-bold" variant="flat">
+                      {{ item.is_active ? 'نشط' : 'معطل' }}
+                    </v-chip>
+                  </div>
+
+                  <AppSwitch
+                    v-if="canToggle(item)"
+                    :model-value="item.is_active"
+                    :loading="togglingId === item.id"
+                    @update:model-value="handleToggleStatus(item)"
+                  />
+                </div>
+
+                <v-card-subtitle class="pa-0">الخزائن: {{ item.cash_boxes_count || 0 }}</v-card-subtitle>
+
+                <!-- Essential/System Chip -->
+                <v-chip v-if="item.is_system" color="info" size="x-small" class="position-absolute" style="top: 16px; left: 16px" variant="tonal">
+                  أساسي
+                </v-chip>
+              </v-card-item>
+
+              <template #actions>
+                <v-spacer />
+                <AppButton icon="ri-edit-line" variant="text" color="primary" @click="handleEdit(item)" />
+                <AppButton v-if="canDelete(item)" icon="ri-delete-bin-line" variant="text" color="error" @click="handleDelete(item)" />
+              </template>
+            </AppCard>
           </v-col>
         </v-row>
-      </v-form>
-    </AppDialog>
+      </AppInfiniteScroll>
 
-    <!-- Delete Dialog -->
+      <!-- List View -->
+      <AppDataTable
+        v-else
+        :headers="headers"
+        :items="cashBoxTypes"
+        :total-items="total"
+        :loading="loading"
+        v-model:page="page"
+        v-model:items-per-page="itemsPerPage"
+        :searchable="false"
+        :can-view="false"
+        :can-delete="false"
+        @update:options="onTableOptionsUpdate"
+        @edit="handleEdit"
+      >
+        <template #item.name="{ item }">
+          <div class="d-flex align-center py-2">
+            <v-avatar size="48" rounded="circle" :color="item.is_active ? 'bg-white' : 'grey-lighten-4'" class="me-3 border">
+              <v-img v-if="item.image_url" :src="item.image_url" cover />
+              <v-icon v-else icon="ri-inbox-archive-line" size="24" :color="item.is_active ? 'primary' : 'grey'" />
+            </v-avatar>
+            <div class="d-flex flex-column">
+              <span class="font-weight-bold">{{ item.name }}</span>
+              <v-chip v-if="item.is_system" size="x-small" color="info" variant="tonal" class="mt-1" style="width: fit-content">أساسي</v-chip>
+            </div>
+          </div>
+        </template>
+
+        <template #item.is_active="{ item }">
+          <div class="d-flex align-center justify-center">
+            <span v-if="canToggle(item)" class="text-caption me-2 font-weight-bold" :class="item.is_active ? 'text-success' : 'text-error'">
+              {{ item.is_active ? 'نشط' : 'معطل' }}
+            </span>
+            <AppSwitch
+              v-if="canToggle(item)"
+              :model-value="item.is_active"
+              :loading="togglingId === item.id"
+              @update:model-value="handleToggleStatus(item)"
+            />
+            <v-chip v-else :color="item.is_active ? 'success' : 'error'" size="small" variant="flat" class="font-weight-bold">
+              {{ item.is_active ? 'نشط' : 'معطل' }}
+            </v-chip>
+          </div>
+        </template>
+
+        <template #extra-actions="{ item }">
+          <AppButton v-if="canDelete(item)" icon="ri-delete-bin-line" variant="text" color="error" size="small" @click="handleDelete(item)" />
+        </template>
+      </AppDataTable>
+    </template>
+
+    <!-- CashBoxType Form Dialog -->
+    <CashBoxTypeForm v-model="showDialog" :cash-box-type="selectedItem" @saved="loadData" />
+
+    <!-- Delete Confirmation -->
     <AppDialog
       v-model="showDeleteDialog"
       title="حذف نوع الخزينة؟"
@@ -101,131 +174,118 @@
           <v-icon icon="ri-delete-bin-7-line" color="error" size="40" />
         </v-avatar>
         <p class="text-body-1 text-grey-darken-1">هل أنت متأكد من حذف "{{ selectedItem?.name }}"؟</p>
-        <div class="mt-2 text-error text-caption font-weight-bold">
-          <v-icon icon="ri-error-warning-line" size="small" class="me-1" />
-          هذا الإجراء قد يؤثر على الخزائن المرتبطة بهذا النوع!
-        </div>
+        <v-alert v-if="selectedItem?.cash_boxes_count > 0" type="warning" variant="tonal" density="compact" class="mt-4 text-right">
+          هذا النوع مرتبط بـ {{ selectedItem.cash_boxes_count }} خزينة. لا ينصح بحذفه.
+        </v-alert>
       </div>
     </AppDialog>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useCashBoxTypesData } from '../composables/useCashBoxTypesData';
-import { useApi } from '@/composables/useApi';
-import { useAuthStore } from '@/stores/auth';
-import AppDataTable from '@/components/common/AppDataTable.vue';
-import AppDialog from '@/components/common/AppDialog.vue';
+import CashBoxTypeForm from '../components/CashBoxTypeForm.vue';
+import AppSwitch from '@/components/common/AppSwitch.vue';
+import AppCard from '@/components/common/AppCard.vue';
 import AppButton from '@/components/common/AppButton.vue';
 import AppInput from '@/components/common/AppInput.vue';
+import AppDialog from '@/components/common/AppDialog.vue';
+import AppDataTable from '@/components/common/AppDataTable.vue';
+import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
+import EmptyState from '@/components/common/EmptyState.vue';
+import AppInfiniteScroll from '@/components/common/AppInfiniteScroll.vue';
+import { PERMISSIONS } from '@/config/permissions';
+import { useApi } from '@/composables/useApi';
+import { useUserStore } from '@/stores/user';
+
+// Simple debounce
+const debounce = (fn, delay) => {
+  let timeoutId;
+  return (...args) => {
+    if (timeoutId) clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => fn(...args), delay);
+  };
+};
 
 const { cashBoxTypes, loading, total, fetchCashBoxTypes, deleteCashBoxType } = useCashBoxTypesData();
-const api = useApi('/api/cash-box-types');
+
+const userStore = useUserStore();
+
+const isSuperAdmin = computed(() => userStore.isAdmin);
+const isCompanyAdmin = computed(() => userStore.isCompanyAdmin);
+
+const canCreate = computed(() => {
+  return isSuperAdmin.value || isCompanyAdmin.value || userStore.hasPermission(PERMISSIONS.CASH_BOX_TYPES_CREATE);
+});
+
+const canDelete = item => {
+  if (isSuperAdmin.value) return true;
+  if (item.is_system) return false;
+  return isCompanyAdmin.value || userStore.hasPermission(PERMISSIONS.CASH_BOX_TYPES_DELETE_ALL);
+};
+
+const canToggle = item => {
+  if (isSuperAdmin.value) return true;
+  if (item.is_system) return false;
+  return isCompanyAdmin.value || userStore.hasPermission(PERMISSIONS.CASH_BOX_TYPES_UPDATE_ALL);
+};
+
+const typeApi = useApi('/api/cash-box-types');
+const togglingId = ref(null);
+
+const handleToggleStatus = async item => {
+  togglingId.value = item.id;
+  try {
+    await typeApi.update(item.id, { is_active: !item.is_active });
+    item.is_active = !item.is_active;
+  } finally {
+    togglingId.value = null;
+    ``;
+  }
+};
+const isSystemVisible = ref(false);
+
+const handleLoadMore = () => {
+  if (loading.value || cashBoxTypes.value.length >= total.value) return;
+  page.value++;
+  loadData(true);
+};
 
 const page = ref(1);
-const itemsPerPage = ref(10);
+const itemsPerPage = ref(12);
+const search = ref('');
+const viewMode = ref('grid');
 const showDialog = ref(false);
 const showDeleteDialog = ref(false);
 const selectedItem = ref(null);
-const saving = ref(false);
 const deleting = ref(false);
-const formRef = ref(null);
 
-// Permissions
-const authStore = useAuthStore();
-const isSuperAdmin = computed(() => authStore.user?.permissions?.includes('admin.super'));
-const isCompanyAdmin = computed(() => authStore.user?.permissions?.includes('admin.company'));
+const headers = [
+  { title: 'نوع الخزينة', key: 'name', sortable: true },
+  { title: 'عدد الخزن', key: 'cash_boxes_count', align: 'center', sortable: true },
+  { title: 'الحالة', key: 'is_active', align: 'center', sortable: true },
+  { title: 'الإجراءات', key: 'actions', sortable: false, align: 'end', width: '120px' },
+];
 
-const canCreate = computed(() => {
-  return isSuperAdmin.value || isCompanyAdmin.value || authStore.user?.permissions?.includes('cash_box_types.create');
-});
-
-const canUpdate = item => {
-  if (isSuperAdmin.value || isCompanyAdmin.value) return true;
-  return (
-    authStore.user?.permissions?.includes('cash_box_types.update_all') ||
-    (authStore.user?.permissions?.includes('cash_box_types.update_self') && item.created_by === authStore.user?.id)
-  );
-};
-
-const canDelete = item => {
-  if (isSuperAdmin.value || isCompanyAdmin.value) return true;
-  return (
-    authStore.user?.permissions?.includes('cash_box_types.delete_all') ||
-    (authStore.user?.permissions?.includes('cash_box_types.delete_self') && item.created_by === authStore.user?.id)
-  );
-};
-
-const canUpdateAny = computed(() => {
-  return (
-    isSuperAdmin.value ||
-    isCompanyAdmin.value ||
-    authStore.user?.permissions?.includes('cash_box_types.update_all') ||
-    authStore.user?.permissions?.includes('cash_box_types.update_self')
-  );
-});
-
-const canDeleteAny = computed(() => {
-  return (
-    isSuperAdmin.value ||
-    isCompanyAdmin.value ||
-    authStore.user?.permissions?.includes('cash_box_types.delete_all') ||
-    authStore.user?.permissions?.includes('cash_box_types.delete_self')
-  );
-});
-
-const formData = ref({ name: '', is_active: 1 });
-const isEdit = computed(() => !!selectedItem.value?.id);
-
-const headers = computed(() => {
-  const baseHeaders = [
-    { title: 'الاسم', key: 'name', sortable: true },
-    { title: 'الحالة', key: 'is_active', align: 'center', sortable: true },
-  ];
-
-  if (canUpdateAny.value || canDeleteAny.value) {
-    baseHeaders.push({ title: 'الإجراءات', key: 'actions', sortable: false, align: 'end', width: '120px' });
-  }
-
-  return baseHeaders;
-});
-
-const rules = { required: v => !!v || 'مطلوب' };
+const handleSearch = debounce(() => {
+  page.value = 1;
+  loadData();
+}, 500);
 
 const handleCreate = () => {
   selectedItem.value = null;
-  formData.value = { name: '', is_active: 1 };
   showDialog.value = true;
 };
 
 const handleEdit = item => {
   selectedItem.value = item;
-  formData.value = { ...item };
   showDialog.value = true;
 };
 
 const handleDelete = item => {
   selectedItem.value = item;
   showDeleteDialog.value = true;
-};
-
-const handleSave = async () => {
-  const { valid } = await formRef.value.validate();
-  if (!valid) return;
-
-  saving.value = true;
-  try {
-    if (isEdit.value) {
-      await api.update(selectedItem.value.id, formData.value, { successMessage: 'تم التحديث بنجاح' });
-    } else {
-      await api.create(formData.value, { successMessage: 'تم الإضافة بنجاح' });
-    }
-    showDialog.value = false;
-    loadData();
-  } finally {
-    saving.value = false;
-  }
 };
 
 const confirmDelete = async () => {
@@ -239,19 +299,78 @@ const confirmDelete = async () => {
   }
 };
 
-const handleItemsPerPageChange = value => {
-  itemsPerPage.value = value;
-  page.value = 1;
-  loadData();
+const onTableOptionsUpdate = options => {
+  if (viewMode.value === 'list') {
+    loadData();
+  }
 };
 
-const loadData = () => fetchCashBoxTypes({ page: page.value, per_page: itemsPerPage.value });
+const loadData = (options = {}) => {
+  const isAppend = options === true;
+
+  const params = {
+    page: page.value,
+    per_page: itemsPerPage.value,
+    search: search.value,
+  };
+
+  if (isSuperAdmin.value) {
+    params.is_system = isSystemVisible.value ? 1 : 0;
+  }
+
+  fetchCashBoxTypes(params, { append: isAppend });
+};
 
 onMounted(loadData);
+
+watch(page, () => {
+  if (viewMode.value === 'list') {
+    loadData();
+  }
+});
+
+watch(itemsPerPage, () => {
+  if (viewMode.value === 'list') {
+    page.value = 1;
+    loadData();
+  }
+});
+
+watch(viewMode, () => {
+  page.value = 1;
+  loadData();
+});
+
+watch(isSystemVisible, () => {
+  page.value = 1;
+  loadData();
+});
 </script>
 
 <style scoped>
-.cashbox-types-page {
+.cash-box-types-page {
   padding: 24px;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+.max-width-300 {
+  max-width: 300px;
+}
+
+.type-card {
+  transition: all 0.3s ease;
+  border-radius: 16px;
+  border: 1px solid #eee;
+}
+
+.type-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1) !important;
+}
+
+.type-card-header {
+  height: 180px;
+  border-radius: 16px 16px 0 0;
 }
 </style>

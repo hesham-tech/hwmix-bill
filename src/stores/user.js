@@ -1,11 +1,13 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import apiClient from '@/api/axios.config';
+import { PERMISSIONS } from '@/config/permissions';
 
 export const useUserStore = defineStore('user', () => {
   const currentUser = ref(null);
   const permissions = ref([]);
   const roles = ref([]);
+  const companies = ref([]);
 
   // Fetch current user data from backend
   const fetchUser = async () => {
@@ -20,14 +22,20 @@ export const useUserStore = defineStore('user', () => {
 
       // Extract roles with their permissions
       roles.value = data.data.roles || [];
+
+      // Extract available companies
+      companies.value = data.data.companies || [];
     } catch (error) {
       console.error('Failed to fetch user:', error);
     }
   };
 
-  // Check if user has a specific permission
+  // Check if user has a specific permission (can be string or array)
   const hasPermission = permission => {
-    if (!permission) return true; // No permission required
+    if (!permission) return true;
+    if (Array.isArray(permission)) {
+      return permission.some(p => permissions.value.includes(p));
+    }
     return permissions.value.includes(permission);
   };
 
@@ -56,19 +64,55 @@ export const useUserStore = defineStore('user', () => {
     currentUser.value = null;
     permissions.value = [];
     roles.value = [];
+    companies.value = [];
+  };
+
+  // Switch Active Company
+  const switchCompany = async companyId => {
+    try {
+      const response = await apiClient.post(`/users/${currentUser.value.id}/change-company`, {
+        company_id: companyId,
+      });
+
+      if (response.data.success) {
+        // Full page reload is the safest way to reset all stores and
+        // ensure all subsequent requests use the new company context.
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error('Failed to switch company:', error);
+      throw error;
+    }
   };
 
   // Computed: Check if user is admin/super
-  const isAdmin = computed(() => hasPermission('admin.super'));
-  const isCompanyAdmin = computed(() => hasPermission('admin.company'));
+  const isAdmin = computed(() => hasPermission(PERMISSIONS.ADMIN_SUPER));
+  const isCompanyAdmin = computed(() => hasPermission(PERMISSIONS.ADMIN_COMPANY));
+
+  // A user is "Staff" if they have ANY administrative or company-level permission
+  const isStaff = computed(() => {
+    if (isAdmin.value || isCompanyAdmin.value) return true;
+
+    // Staff patterns: categories where possessing even one permission indicates an employee/admin role
+    const staffActionPatterns = ['.create', '.update', '.delete', '.view_all', '.view_children', '.page'];
+    const isEmp = permissions.value.some(p => {
+      // Check if permission matches any staff action pattern
+      return staffActionPatterns.some(pattern => p.endsWith(pattern) || p.includes(pattern));
+    });
+
+    return isEmp;
+  });
 
   return {
     currentUser,
     permissions,
     roles,
+    companies,
     isAdmin,
     isCompanyAdmin,
+    isStaff,
     fetchUser,
+    switchCompany,
     hasPermission,
     hasAnyPermission,
     hasAllPermissions,

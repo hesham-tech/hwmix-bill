@@ -44,48 +44,64 @@
     />
 
     <template v-else>
-      <!-- Grid View -->
-      <v-row v-if="viewMode === 'grid'">
-        <v-col v-for="brand in brands" :key="brand.id" cols="12" sm="6" md="4" lg="3">
-          <AppCard class="brand-card h-100" no-padding>
-            <div class="brand-card-image d-flex align-center justify-center pa-4 bg-grey-lighten-4 position-relative">
-              <v-avatar size="100" rounded="lg" class="elevation-1 bg-white">
-                <v-img v-if="brand.image_url" :src="brand.image_url" cover />
-                <v-icon v-else icon="ri-award-line" size="48" color="grey" />
-              </v-avatar>
+      <!-- Grid View with Infinite Scroll -->
+      <AppInfiniteScroll
+        v-if="viewMode === 'grid'"
+        :loading="loading && brands.length > 0"
+        :has-more="brands.length < total"
+        no-more-text="لا يوجد المزيد من العلامات التجارية"
+        @load="handleLoadMore"
+      >
+        <v-row>
+          <v-col v-for="brand in brands" :key="brand.id" cols="12" sm="6" md="4" lg="3">
+            <AppCard class="brand-card h-100" no-padding>
+              <div class="brand-card-header d-flex align-center justify-center pa-6 bg-grey-lighten-4 position-relative">
+                <v-avatar size="120" rounded="circle" :color="brand.active ? 'bg-white' : 'grey-lighten-3'" class="elevation-1 bg-white">
+                  <v-img v-if="brand.image_url" :src="brand.image_url" cover />
+                  <v-icon v-else icon="ri-award-line" size="60" :color="brand.active ? 'primary' : 'grey'" />
+                </v-avatar>
+              </div>
 
-              <v-chip
-                :color="brand.active ? 'success' : 'error'"
-                size="x-small"
-                class="position-absolute top-2 right-2 font-weight-bold"
-                variant="flat"
-              >
-                {{ brand.active ? 'نشط' : 'معطل' }}
-              </v-chip>
-            </div>
+              <v-card-item class="position-relative pt-4">
+                <v-card-title class="text-h6 font-weight-bold pa-0 mb-1">{{ brand.name }}</v-card-title>
 
-            <v-card-item>
-              <v-card-title class="text-h6 font-weight-bold">{{ brand.name }}</v-card-title>
-              <v-card-subtitle class="d-flex align-center mt-1">
-                <v-icon icon="ri-box-3-line" size="14" class="me-1" />
-                {{ brand.products_count || 0 }} منتج مربوط
-              </v-card-subtitle>
-            </v-card-item>
+                <div class="d-flex align-center justify-space-between mb-1" style="height: 32px">
+                  <div class="d-flex align-center">
+                    <span class="text-caption text-grey-darken-1 me-2">الحالة:</span>
+                    <v-chip :color="brand.active ? 'success' : 'error'" size="x-small" class="font-weight-bold" variant="flat">
+                      {{ brand.active ? 'نشط' : 'معطل' }}
+                    </v-chip>
+                  </div>
 
-            <v-card-text class="pt-0">
-              <p class="text-body-2 text-grey-darken-1 text-truncate-3 height-60">
-                {{ brand.description || 'لا يوجد وصف متاح لهذه العلامة التجارية.' }}
-              </p>
-            </v-card-text>
+                  <AppSwitch
+                    v-if="canUpdate(brand)"
+                    :model-value="!!brand.active"
+                    :loading="togglingId === brand.id"
+                    @update:model-value="handleToggleStatus(brand)"
+                  />
+                </div>
 
-            <template #actions>
-              <v-spacer />
-              <AppButton v-if="canUpdate(brand)" icon="ri-edit-line" variant="text" color="primary" @click="handleEdit(brand)" />
-              <AppButton v-if="canDelete(brand)" icon="ri-delete-bin-line" variant="text" color="error" @click="handleDelete(brand)" />
-            </template>
-          </AppCard>
-        </v-col>
-      </v-row>
+                <v-card-subtitle class="pa-0 d-flex align-center">
+                  <v-icon icon="ri-box-3-line" size="14" class="me-1" />
+                  {{ brand.products_count || 0 }} منتج مربوط
+                </v-card-subtitle>
+              </v-card-item>
+
+              <v-card-text class="pt-0 pb-2">
+                <p class="text-body-2 text-grey-darken-1 text-truncate-2 height-40 mb-0">
+                  {{ brand.description || 'لا يوجد وصف متاح لهذه العلامة التجارية.' }}
+                </p>
+              </v-card-text>
+
+              <template #actions>
+                <v-spacer />
+                <AppButton icon="ri-edit-line" variant="text" color="primary" @click="handleEdit(brand)" />
+                <AppButton v-if="canDelete(brand)" icon="ri-delete-bin-line" variant="text" color="error" @click="handleDelete(brand)" />
+              </template>
+            </AppCard>
+          </v-col>
+        </v-row>
+      </AppInfiniteScroll>
 
       <!-- List View -->
       <AppDataTable
@@ -97,52 +113,56 @@
         v-model:page="page"
         v-model:items-per-page="itemsPerPage"
         :searchable="false"
-        @update:options="loadData"
-        :can-edit="canUpdateAny"
-        :can-delete="canDeleteAny"
-        @edit="handleEdit"
-        @delete="handleDelete"
+        :can-view="false"
+        :can-edit="false"
+        :can-delete="false"
+        @update:options="onTableOptionsUpdate"
       >
         <template #[`item.name`]="{ item }">
           <div class="d-flex align-center py-2">
-            <v-avatar size="40" rounded="lg" class="me-3 bg-grey-lighten-4 border">
+            <v-avatar size="48" rounded="circle" :color="item.active ? 'bg-white' : 'grey-lighten-4'" class="me-3 border">
               <v-img v-if="item.image_url" :src="item.image_url" cover />
-              <v-icon v-else icon="ri-award-line" size="20" color="grey" />
+              <v-icon v-else icon="ri-award-line" size="24" color="grey" />
             </v-avatar>
-            <div>
-              <div class="font-weight-bold text-subtitle-1">{{ item.name }}</div>
-              <div class="text-caption text-grey text-truncate max-width-200">
+            <div class="d-flex flex-column">
+              <span class="font-weight-bold text-subtitle-1">{{ item.name }}</span>
+              <span class="text-caption text-grey text-truncate max-width-200">
                 {{ item.description || 'بدون وصف' }}
-              </div>
+              </span>
             </div>
           </div>
         </template>
 
         <template #[`item.products_count`]="{ item }">
-          <v-chip size="small" variant="tonal" prepend-icon="ri-box-3-line">
+          <v-chip size="small" variant="tonal" prepend-icon="ri-box-3-line" color="primary">
             {{ item.products_count || 0 }}
           </v-chip>
         </template>
 
         <template #[`item.active`]="{ item }">
-          <v-chip :color="item.active ? 'success' : 'error'" size="small" variant="flat" class="font-weight-bold">
-            {{ item.active ? 'نشط' : 'معطل' }}
-          </v-chip>
+          <div class="d-flex align-center justify-center">
+            <span v-if="canUpdate(item)" class="text-caption me-2 font-weight-bold" :class="item.active ? 'text-success' : 'text-error'">
+              {{ item.active ? 'نشط' : 'معطل' }}
+            </span>
+            <AppSwitch
+              v-if="canUpdate(item)"
+              :model-value="!!item.active"
+              :loading="togglingId === item.id"
+              @update:model-value="handleToggleStatus(item)"
+            />
+            <v-chip v-else :color="item.active ? 'success' : 'error'" size="small" variant="flat" class="font-weight-bold">
+              {{ item.active ? 'نشط' : 'معطل' }}
+            </v-chip>
+          </div>
+        </template>
+
+        <template #extra-actions="{ item }">
+          <AppButton v-if="canUpdate(item)" icon="ri-edit-line" variant="text" color="primary" size="small" @click="handleEdit(item)" />
+          <AppButton v-if="canDelete(item)" icon="ri-delete-bin-line" variant="text" color="error" size="small" @click="handleDelete(item)" />
         </template>
       </AppDataTable>
 
-      <!-- Pagination -->
-      <div v-if="viewMode === 'grid'" class="mt-8 d-flex align-center justify-space-between flex-wrap gap-4">
-        <div class="text-body-2 text-grey">عرض {{ brands.length }} من إجمالي {{ total }} ماركة</div>
-        <v-pagination
-          v-model="page"
-          :length="Math.ceil(total / itemsPerPage)"
-          :total-visible="5"
-          rounded="circle"
-          size="small"
-          @update:model-value="loadData"
-        />
-      </div>
+      <!-- No grid pagination -->
     </template>
 
     <!-- Brand Form Dialog -->
@@ -196,7 +216,7 @@
                   <div class="text-subtitle-1 font-weight-bold">حالة النشاط</div>
                   <div class="text-caption">تحديد ما إذا كانت الماركة تظهر في قائمة المنتجات</div>
                 </div>
-                <v-switch v-model="formData.active" color="success" hide-details inset />
+                <AppSwitch v-model="formData.active" hide-details />
               </div>
             </v-card>
           </v-col>
@@ -232,7 +252,9 @@ import { ref, onMounted, computed, watch } from 'vue';
 import { useBrandsData } from '../composables/useBrandsData';
 import { useApi } from '@/composables/useApi';
 import { useAuthStore } from '@/stores/auth';
+import { useUserStore } from '@/stores/user';
 import MediaGallery from '@/components/common/MediaGallery.vue';
+import AppSwitch from '@/components/common/AppSwitch.vue';
 import AppCard from '@/components/common/AppCard.vue';
 import AppButton from '@/components/common/AppButton.vue';
 import AppInput from '@/components/common/AppInput.vue';
@@ -240,6 +262,8 @@ import AppDialog from '@/components/common/AppDialog.vue';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import EmptyState from '@/components/common/EmptyState.vue';
+import AppInfiniteScroll from '@/components/common/AppInfiniteScroll.vue';
+import { PERMISSIONS } from '@/config/permissions';
 
 // Simple debounce
 const debounce = (fn, delay) => {
@@ -251,6 +275,18 @@ const debounce = (fn, delay) => {
 };
 
 const { brands, loading, total, fetchBrands, deleteBrand } = useBrandsData();
+
+const onTableOptionsUpdate = options => {
+  if (viewMode.value === 'list') {
+    loadData();
+  }
+};
+
+const handleLoadMore = () => {
+  if (loading.value || brands.value.length >= total.value) return;
+  page.value++;
+  loadData(true);
+};
 const api = useApi('/api/brands');
 
 const page = ref(1);
@@ -268,18 +304,19 @@ const imagePreview = ref(null);
 
 // Permissions
 const authStore = useAuthStore();
-const isSuperAdmin = computed(() => authStore.user?.permissions?.includes('admin.super'));
-const isCompanyAdmin = computed(() => authStore.user?.permissions?.includes('admin.company'));
+const userStore = useUserStore();
+const isSuperAdmin = computed(() => userStore.hasPermission(PERMISSIONS.ADMIN_SUPER));
+const isCompanyAdmin = computed(() => userStore.hasPermission(PERMISSIONS.ADMIN_COMPANY));
 
 const canCreate = computed(() => {
-  return isSuperAdmin.value || isCompanyAdmin.value || authStore.user?.permissions?.includes('brands.create');
+  return isSuperAdmin.value || isCompanyAdmin.value || userStore.hasPermission(PERMISSIONS.BRANDS_CREATE);
 });
 
 const canUpdate = item => {
   if (isSuperAdmin.value || isCompanyAdmin.value) return true;
   return (
-    authStore.user?.permissions?.includes('brands.update_all') ||
-    (authStore.user?.permissions?.includes('brands.update_self') && item.created_by === authStore.user?.id)
+    userStore.hasPermission(PERMISSIONS.BRANDS_UPDATE_ALL) ||
+    (userStore.hasPermission(PERMISSIONS.BRANDS_UPDATE_SELF) && item.created_by === userStore.currentUser?.id)
   );
 };
 
@@ -287,16 +324,16 @@ const canUpdateAny = computed(() => {
   return (
     isSuperAdmin.value ||
     isCompanyAdmin.value ||
-    authStore.user?.permissions?.includes('brands.update_all') ||
-    authStore.user?.permissions?.includes('brands.update_self')
+    userStore.hasPermission(PERMISSIONS.BRANDS_UPDATE_ALL) ||
+    userStore.hasPermission(PERMISSIONS.BRANDS_UPDATE_SELF)
   );
 });
 
 const canDelete = item => {
   if (isSuperAdmin.value || isCompanyAdmin.value) return true;
   return (
-    authStore.user?.permissions?.includes('brands.delete_all') ||
-    (authStore.user?.permissions?.includes('brands.delete_self') && item.created_by === authStore.user?.id)
+    userStore.hasPermission(PERMISSIONS.BRANDS_DELETE_ALL) ||
+    (userStore.hasPermission(PERMISSIONS.BRANDS_DELETE_SELF) && item.created_by === userStore.currentUser?.id)
   );
 };
 
@@ -304,13 +341,24 @@ const canDeleteAny = computed(() => {
   return (
     isSuperAdmin.value ||
     isCompanyAdmin.value ||
-    authStore.user?.permissions?.includes('brands.delete_all') ||
-    authStore.user?.permissions?.includes('brands.delete_self')
+    userStore.hasPermission(PERMISSIONS.BRANDS_DELETE_ALL) ||
+    userStore.hasPermission(PERMISSIONS.BRANDS_DELETE_SELF)
   );
 });
 
 const formData = ref({ name: '', active: true, description: '', image_id: null });
 const isEdit = computed(() => !!selectedItem.value?.id);
+const togglingId = ref(null);
+
+const handleToggleStatus = async item => {
+  togglingId.value = item.id;
+  try {
+    await api.update(item.id, { active: !item.active });
+    item.active = !item.active;
+  } finally {
+    togglingId.value = null;
+  }
+};
 
 const headers = [
   { title: 'الماركة', key: 'name', sortable: true },
@@ -391,16 +439,37 @@ const handleItemsPerPageChange = value => {
   loadData();
 };
 
-const loadData = () => {
-  fetchBrands({
-    page: page.value,
-    per_page: itemsPerPage.value,
-    search: search.value,
-  });
+const loadData = (options = {}) => {
+  const isAppend = options === true;
+  fetchBrands(
+    {
+      page: page.value,
+      per_page: itemsPerPage.value,
+      search: search.value,
+    },
+    { append: isAppend }
+  );
 };
 
 onMounted(loadData);
-watch(page, () => loadData());
+
+watch(page, () => {
+  if (viewMode.value === 'list') {
+    loadData();
+  }
+});
+
+watch(itemsPerPage, () => {
+  if (viewMode.value === 'list') {
+    page.value = 1;
+    loadData();
+  }
+});
+
+watch(viewMode, () => {
+  page.value = 1;
+  loadData();
+});
 </script>
 
 <style scoped>
@@ -425,19 +494,19 @@ watch(page, () => loadData());
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1) !important;
 }
 
-.brand-card-image {
-  height: 160px;
+.brand-card-header {
+  height: 180px;
   border-radius: 16px 16px 0 0;
 }
 
-.height-60 {
-  height: 60px;
+.height-40 {
+  height: 40px;
 }
 
-.text-truncate-3 {
+.text-truncate-2 {
   display: -webkit-box;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

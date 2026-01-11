@@ -15,26 +15,25 @@
           <v-card-text class="pa-8 text-center bg-grey-lighten-5">
             <!-- Professional Logo Preview (Standardized with Brands) -->
             <div class="logo-preview-zone mx-auto mb-6" :class="{ 'cursor-pointer': canUpdate }" @click="canUpdate && (showMediaGallery = true)">
-                <v-avatar size="180" rounded="xl" color="white" class="border-2 border-dashed elevation-3 hover-scale overflow-hidden">
-                  <v-img v-if="formData.logo" :src="formData.logo" cover />
-                  <v-icon v-else icon="ri-building-line" size="64" color="grey-lighten-2" />
+              <v-avatar size="180" rounded="xl" color="white" class="border-2 border-dashed elevation-3 hover-scale overflow-hidden">
+                <v-img v-if="formData.logo" :src="formData.logo" cover />
+                <v-icon v-else icon="ri-building-line" size="64" color="grey-lighten-2" />
 
-                  <!-- Hover Overlay -->
-                  <div v-if="canUpdate" class="change-overlay d-flex flex-column align-center justify-center rounded-xl">
-                    <v-icon icon="ri-camera-switch-line" color="white" size="32" />
-                    <span class="text-white text-subtitle-2 mt-2 font-weight-bold">تغيير الشعار</span>
-                  </div>
-                </v-avatar>
+                <!-- Hover Overlay -->
+                <div v-if="canUpdate" class="change-overlay d-flex flex-column align-center justify-center rounded-xl">
+                  <v-icon icon="ri-camera-switch-line" color="white" size="32" />
+                  <span class="text-white text-subtitle-2 mt-2 font-weight-bold">تغيير الشعار</span>
+                </div>
+              </v-avatar>
 
-                <!-- Floating Badge -->
-                <AppButton
-                  v-if="canUpdate"
-                  icon="ri-gallery-upload-line"
-                  size="small"
-                  class="position-absolute bottom-0 right-0 elevation-6"
-                  @click.stop="showMediaGallery = true"
-                />
-              </div>
+              <!-- Floating Badge -->
+              <AppButton
+                v-if="canUpdate"
+                icon="ri-gallery-upload-line"
+                size="small"
+                class="position-absolute bottom-0 right-0 elevation-6"
+                @click.stop="showMediaGallery = true"
+              />
             </div>
 
             <h3 class="text-h6 font-weight-bold mb-1">شعار الشركة</h3>
@@ -147,9 +146,43 @@
                   placeholder="https://example.com"
                   dir="ltr"
                   :error-messages="errors.website"
+                  @blur="sanitizeUrl(formData, 'website')"
                 />
               </v-col>
             </v-row>
+
+            <!-- Social Media Card -->
+            <AppCard title="وسائل التواصل الاجتماعي" icon="ri-share-line" class="my-4">
+              <div v-for="(link, index) in formData.social_links" :key="index" class="d-flex align-center gap-3 mb-4">
+                <v-select
+                  v-model="link.platform"
+                  :items="socialPlatforms"
+                  item-title="title"
+                  item-value="value"
+                  density="comfortable"
+                  variant="outlined"
+                  hide-details
+                  style="width: 140px; flex-shrink: 0"
+                >
+                  <template #prepend-inner>
+                    <v-icon :icon="getPlatformIcon(link.platform)" size="20" :color="getPlatformColor(link.platform)" />
+                  </template>
+                </v-select>
+
+                <AppInput
+                  v-model="link.url"
+                  placeholder="رابط الحساب..."
+                  hide-details
+                  class="flex-grow-1"
+                  dir="ltr"
+                  @blur="sanitizeUrl(link, 'url')"
+                />
+
+                <AppButton icon="ri-delete-bin-line" variant="text" color="error" size="small" @click="removeSocialLink(index)" />
+              </div>
+
+              <AppButton variant="tonal" block prepend-icon="ri-add-line" class="mt-2" @click="addSocialLink"> إضافة رابط تواصل </AppButton>
+            </AppCard>
           </AppCard>
         </v-form>
       </v-col>
@@ -190,19 +223,23 @@ import AppInput from '@/components/common/AppInput.vue';
 import AppButton from '@/components/common/AppButton.vue';
 import { toast } from 'vue3-toastify';
 import { useAuthStore } from '@/stores/auth';
+import { PERMISSIONS } from '@/config/permissions';
 import { computed } from 'vue';
 
 const userStore = useUserStore();
 const authStore = useAuthStore();
 const api = useApi('/api/company');
 
-const isSuperAdmin = computed(() => authStore.user?.permissions?.includes('admin.super'));
-const isCompanyAdmin = computed(() => authStore.user?.permissions?.includes('admin.company'));
+const isSuperAdmin = computed(() => authStore.user?.permissions?.includes(PERMISSIONS.ADMIN_SUPER));
+const isCompanyAdmin = computed(() => authStore.user?.permissions?.includes(PERMISSIONS.ADMIN_COMPANY));
 
 const canUpdate = computed(() => {
-  return isSuperAdmin.value || isCompanyAdmin.value || 
-         authStore.user?.permissions?.includes('companies.update_all') || 
-         authStore.user?.permissions?.includes('companies.update_self');
+  return (
+    isSuperAdmin.value ||
+    isCompanyAdmin.value ||
+    authStore.user?.permissions?.includes(PERMISSIONS.COMPANIES_UPDATE_ALL) ||
+    authStore.user?.permissions?.includes(PERMISSIONS.COMPANIES_UPDATE_SELF)
+  );
 });
 
 const loading = ref(false);
@@ -223,8 +260,51 @@ const formData = ref({
   description: '',
   website: '',
   logo: '',
+  social_links: [],
   images_ids: [],
 });
+
+const socialPlatforms = [
+  { title: 'فيسبوك', value: 'facebook', icon: 'ri-facebook-fill', color: '#1877F2' },
+  { title: 'واتساب', value: 'whatsapp', icon: 'ri-whatsapp-line', color: '#25D366' },
+  { title: 'إنستجرام', value: 'instagram', icon: 'ri-instagram-line', color: '#E4405F' },
+  { title: 'تويتر (X)', value: 'twitter', icon: 'ri-twitter-x-fill', color: '#000000' },
+  { title: 'لينكد إن', value: 'linkedin', icon: 'ri-linkedin-box-line', color: '#0A66C2' },
+  { title: 'تيك توك', value: 'tiktok', icon: 'ri-tiktok-line', color: '#000000' },
+  { title: 'يوتيوب', value: 'youtube', icon: 'ri-youtube-line', color: '#FF0000' },
+  { title: 'سناب شات', value: 'snapchat', icon: 'ri-snapchat-line', color: '#FFFC00' },
+  { title: 'تليجرام', value: 'telegram', icon: 'ri-telegram-line', color: '#26A5E4' },
+  { title: 'أخرى', value: 'other', icon: 'ri-links-line', color: '#607D8B' },
+];
+
+const getPlatformIcon = platform => {
+  const p = socialPlatforms.find(i => i.value === platform);
+  return p ? p.icon : 'ri-links-line';
+};
+
+const getPlatformColor = platform => {
+  const p = socialPlatforms.find(i => i.value === platform);
+  return p ? p.color : undefined;
+};
+
+const addSocialLink = () => {
+  formData.value.social_links.push({ platform: 'facebook', url: '' });
+};
+
+const removeSocialLink = index => {
+  formData.value.social_links.splice(index, 1);
+};
+
+const sanitizeUrl = (obj, key) => {
+  if (!obj[key]) return;
+  const val = obj[key].trim();
+  if (!val) return;
+
+  // If it doesn't start with http:// or https://, add https://
+  if (!/^https?:\/\//i.test(val)) {
+    obj[key] = `https://${val}`;
+  }
+};
 
 const rules = {
   required: v => !!v || 'هذا الحقل مطلوب أساسي لاستكمال البيانات',
@@ -257,6 +337,7 @@ const loadCompanyData = async () => {
         description: data.description || '',
         website: data.website || '',
         logo: data.logo || '',
+        social_links: Array.isArray(data.social_links) ? data.social_links : [],
         images_ids: [],
       };
     }

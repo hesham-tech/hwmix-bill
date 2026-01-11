@@ -93,7 +93,7 @@
                 />
               </v-col>
               <v-col cols="12">
-                <v-switch v-model="formData.is_active" label="نشط" color="success" :true-value="1" :false-value="0" />
+                <AppSwitch v-model="formData.is_active" label="نشط" :true-value="1" :false-value="0" />
               </v-col>
             </v-row>
           </v-form>
@@ -128,6 +128,8 @@
 import { ref, onMounted, computed } from 'vue';
 import { useWarehousesData } from '../composables/useWarehousesData';
 import { useApi } from '@/composables/useApi';
+import AppSwitch from '@/components/common/AppSwitch.vue';
+import AppCard from '@/components/common/AppCard.vue';
 
 const { warehouses, loading, total, fetchWarehouses, deleteWarehouse } = useWarehousesData();
 const api = useApi('/api/warehouses');

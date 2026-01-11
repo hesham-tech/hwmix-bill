@@ -18,6 +18,7 @@ export function useDashboardData() {
   const loadingInvoices = ref(false);
   const loadingUpcoming = ref(false);
   const loadingInstallments = ref(false);
+  const refreshing = ref(false);
 
   const stats = ref({
     totalInvoices: 0,
@@ -152,6 +153,19 @@ export function useDashboardData() {
     }
   };
 
+  /**
+   * Refresh all dashboard data
+   * تحديث كافة البيانات
+   */
+  const refreshAll = async () => {
+    refreshing.value = true;
+    try {
+      await Promise.all([fetchDashboardData(), fetchRecentInvoices(), fetchUpcomingPayments(), fetchUpcomingInstallments()]);
+    } finally {
+      refreshing.value = false;
+    }
+  };
+
   return {
     // State
     stats,
@@ -162,11 +176,13 @@ export function useDashboardData() {
     loadingInvoices,
     loadingUpcoming,
     loadingInstallments,
+    refreshing,
 
     // Methods
     fetchDashboardData,
     fetchRecentInvoices,
     fetchUpcomingPayments,
     fetchUpcomingInstallments,
+    refreshAll,
   };
 }

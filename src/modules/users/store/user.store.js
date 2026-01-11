@@ -1,14 +1,22 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import { userService } from '@/api';
+import { userService, roleService, permissionService } from '@/api';
 import { toast } from 'vue3-toastify';
 
-export const useUserStore = defineStore('user', () => {
+export const useUserStore = defineStore('userManagement', () => {
   // State
   const users = ref([]);
+  const roles = ref([]);
+  const availablePermissions = ref({});
   const currentUser = ref(null);
   const loading = ref(false);
   const totalItems = ref(0);
+  const stats = ref({
+    total: 0,
+    active: 0,
+    inactive: 0,
+    admins: 0,
+  });
 
   // Pagination
   const page = ref(1);
@@ -19,6 +27,7 @@ export const useUserStore = defineStore('user', () => {
   // Filters
   const roleFilter = ref(null);
   const statusFilter = ref(null);
+  const isGlobalMode = ref(false);
 
   // Computed
   const params = computed(() => ({
@@ -29,14 +38,35 @@ export const useUserStore = defineStore('user', () => {
     status: statusFilter.value,
     sort_by: sortBy.value[0]?.key || '',
     order: sortBy.value[0]?.order || 'desc',
+    global: isGlobalMode.value,
   }));
 
   // Actions
-  async function fetchUsers() {
+  async function lookupUser(searchParams) {
+    loading.value = true;
+    try {
+      const response = await userService.lookup(searchParams);
+      return response.data;
+    } catch (error) {
+      console.error('Error looking up user:', error);
+      throw error;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function fetchUsers(options = {}) {
+    const { append = false } = options;
     loading.value = true;
     try {
       const response = await userService.getAll(params.value, { showToast: false });
-      users.value = response.data;
+
+      if (append) {
+        users.value = [...users.value, ...response.data];
+      } else {
+        users.value = response.data;
+      }
+
       totalItems.value = response.total;
       return response;
     } catch (error) {
@@ -44,6 +74,16 @@ export const useUserStore = defineStore('user', () => {
       throw error;
     } finally {
       loading.value = false;
+    }
+  }
+
+  async function fetchStats() {
+    try {
+      const response = await userService.getStats();
+      stats.value = response.data;
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching user stats:', error);
     }
   }
 
@@ -66,6 +106,7 @@ export const useUserStore = defineStore('user', () => {
     try {
       const response = await userService.save(data);
       await fetchUsers();
+      await fetchStats();
       toast.success('تم إنشاء المستخدم بنجاح');
       return response.data[0];
     } catch (error) {
@@ -79,8 +120,9 @@ export const useUserStore = defineStore('user', () => {
   async function updateUser(id, data) {
     loading.value = true;
     try {
-      const response = await userService.save(data, id);
+      const response = await userService.update(id, data);
       await fetchUsers();
+      await fetchStats();
       toast.success('تم تحديث المستخدم بنجاح');
       return response.data[0];
     } catch (error) {
@@ -96,6 +138,7 @@ export const useUserStore = defineStore('user', () => {
     try {
       await userService.delete(id);
       await fetchUsers();
+      await fetchStats();
       toast.success('تم حذف المستخدم بنجاح');
     } catch (error) {
       console.error('Error deleting user:', error);
@@ -105,10 +148,10 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
-  async function assignRole(userId, roleId) {
+  async function assignRole(userId, roles) {
     loading.value = true;
     try {
-      await userService.assignRole(userId, roleId);
+      await userService.assignRole(userId, roles);
       await fetchUser(userId);
       toast.success('تم تعيين الدور بنجاح');
     } catch (error) {
@@ -119,16 +162,23 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
-  async function updatePermissions(userId, permissions) {
-    loading.value = true;
+  async function fetchRoles() {
     try {
-      await userService.updatePermissions(userId, permissions);
-      toast.success('تم تحديث الصلاحيات بنجاح');
+      const response = await roleService.getAll();
+      roles.value = response.data;
+      return response.data;
     } catch (error) {
-      console.error('Error updating permissions:', error);
-      throw error;
-    } finally {
-      loading.value = false;
+      console.error('Error fetching roles:', error);
+    }
+  }
+
+  async function fetchAvailablePermissions() {
+    try {
+      const response = await permissionService.getAll();
+      availablePermissions.value = response.data;
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching permissions:', error);
     }
   }
 
@@ -139,30 +189,58 @@ export const useUserStore = defineStore('user', () => {
     page.value = 1;
   }
 
+  const createRole = async data => {
+    const response = await roleService.create(data);
+    if (response) await fetchRoles();
+    return response;
+  };
+
+  const updateRole = async (id, data) => {
+    const response = await roleService.update(id, data);
+    if (response) await fetchRoles();
+    return response;
+  };
+
+  const deleteRole = async id => {
+    const response = await roleService.delete(id);
+    if (response) await fetchRoles();
+    return response;
+  };
+
   return {
     // State
     users,
+    roles,
+    availablePermissions,
     currentUser,
     loading,
     totalItems,
+    stats,
     page,
     itemsPerPage,
     search,
     sortBy,
     roleFilter,
-    statusFilter,
+    statusFilter, // Added statusFilter to return
+    isGlobalMode,
 
     // Computed
     params,
 
     // Actions
     fetchUsers,
+    fetchStats,
     fetchUser,
+    lookupUser,
     createUser,
     updateUser,
     deleteUser,
     assignRole,
-    updatePermissions,
+    fetchRoles,
+    fetchAvailablePermissions,
     resetFilters,
+    createRole,
+    updateRole,
+    deleteRole,
   };
 });

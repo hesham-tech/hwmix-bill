@@ -70,11 +70,9 @@
 
             <template #actions>
               <v-spacer />
-              <v-switch
-                :model-value="type.is_active"
-                color="success"
+              <AppSwitch
+                v-model="type.is_active"
                 hide-details
-                inset
                 :loading="toggling[type.id]"
                 density="compact"
                 @update:model-value="confirmToggle(type, $event)"
@@ -124,11 +122,9 @@
         </template>
 
         <template #extra-actions="{ item }">
-          <v-switch
-            :model-value="item.is_active"
-            color="success"
+          <AppSwitch
+            v-model="item.is_active"
             hide-details
-            inset
             :loading="toggling[item.id]"
             density="compact"
             @update:model-value="confirmToggle(item, $event)"
@@ -161,6 +157,7 @@ import { ref, onMounted, computed } from 'vue';
 import { useInvoiceTypesData } from '../composables/useInvoiceTypesData';
 import { useApi } from '@/composables/useApi';
 import AppCard from '@/components/common/AppCard.vue';
+import AppSwitch from '@/components/common/AppSwitch.vue';
 import AppButton from '@/components/common/AppButton.vue';
 import AppInput from '@/components/common/AppInput.vue';
 import AppDataTable from '@/components/common/AppDataTable.vue';

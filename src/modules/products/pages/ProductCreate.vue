@@ -185,7 +185,7 @@
               </v-col>
 
               <v-col cols="12" md="6" class="d-flex align-center">
-                <v-switch v-model="formData.track_stock" label="تفعيل تتبع المخزون" color="primary" hide-details class="ms-2" />
+                <AppSwitch v-model="formData.track_stock" label="تفعيل تتبع المخزون" color="primary" hide-details class="ms-2" />
               </v-col>
             </v-row>
           </AppCard>
@@ -200,7 +200,7 @@
                 <span :class="formData.is_active ? 'text-success' : 'text-error'" class="font-weight-bold">
                   {{ formData.is_active ? 'المنتج متاح للبيع' : 'المنتج غير متاح حالياً' }}
                 </span>
-                <v-switch v-model="formData.is_active" color="success" hide-details />
+                <AppSwitch v-model="formData.is_active" hide-details />
               </div>
             </div>
 
@@ -253,6 +253,7 @@ import { useRouter, useRoute } from 'vue-router';
 import { useProductsData } from '../composables/useProductsData';
 import { useApi } from '@/composables/useApi';
 import AppCard from '@/components/common/AppCard.vue';
+import AppSwitch from '@/components/common/AppSwitch.vue';
 import AppButton from '@/components/common/AppButton.vue';
 import AppInput from '@/components/common/AppInput.vue';
 

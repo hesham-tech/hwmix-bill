@@ -50,7 +50,7 @@ const router = createRouter({
           component: () => import('@/modules/invoices/pages/InvoiceList.vue'),
           meta: {
             title: 'الفواتير',
-            permission: PERMISSIONS.INVOICES_VIEW_ALL,
+            permission: [PERMISSIONS.INVOICES_VIEW_ALL, 'invoices.view_self'],
           },
         },
         {
@@ -68,7 +68,7 @@ const router = createRouter({
           component: () => import('@/modules/invoices/pages/InvoiceView.vue'),
           meta: {
             title: 'عرض الفاتورة',
-            permission: PERMISSIONS.INVOICES_VIEW_ALL,
+            permission: [PERMISSIONS.INVOICES_VIEW_ALL, 'invoices.view_self'],
           },
         },
         {
@@ -77,7 +77,7 @@ const router = createRouter({
           component: () => import('@/modules/invoices/pages/InvoiceEdit.vue'),
           meta: {
             title: 'تعديل الفاتورة',
-            permission: PERMISSIONS.INVOICES_UPDATE_ALL,
+            permission: [PERMISSIONS.INVOICES_UPDATE_ALL, 'invoices.view_self'],
           },
         },
 
@@ -88,7 +88,7 @@ const router = createRouter({
           component: () => import('@/modules/products/pages/ProductList.vue'),
           meta: {
             title: 'المنتجات',
-            permission: PERMISSIONS.PRODUCTS_VIEW_ALL,
+            permission: [PERMISSIONS.PRODUCTS_VIEW_ALL, 'products.view_self'],
           },
         },
         {
@@ -106,7 +106,7 @@ const router = createRouter({
           component: () => import('@/modules/products/pages/ProductView.vue'),
           meta: {
             title: 'عرض المنتج',
-            permission: PERMISSIONS.PRODUCTS_VIEW_ALL,
+            permission: [PERMISSIONS.PRODUCTS_VIEW_ALL, 'products.view_self'],
           },
         },
         {
@@ -146,7 +146,7 @@ const router = createRouter({
           component: () => import('@/modules/payments/pages/PaymentList.vue'),
           meta: {
             title: 'المدفوعات',
-            permission: PERMISSIONS.PAYMENTS_VIEW_ALL,
+            permission: [PERMISSIONS.PAYMENTS_VIEW_ALL, 'payments.view_self'],
           },
         },
         {
@@ -166,7 +166,7 @@ const router = createRouter({
           component: () => import('@/modules/installments/pages/InstallmentPlanList.vue'),
           meta: {
             title: 'خطط التقسيط',
-            permission: PERMISSIONS.PAYMENTS_VIEW_ALL,
+            permission: [PERMISSIONS.PAYMENTS_VIEW_ALL, 'payments.view_self'],
           },
         },
         {
@@ -175,7 +175,7 @@ const router = createRouter({
           component: () => import('@/modules/installments/pages/InstallmentPaymentList.vue'),
           meta: {
             title: 'دفعات الأقساط',
-            permission: PERMISSIONS.PAYMENTS_VIEW_ALL,
+            permission: [PERMISSIONS.PAYMENTS_VIEW_ALL, 'payments.view_self'],
           },
         },
 
@@ -358,6 +358,18 @@ const router = createRouter({
             title: 'بيانات الشركة',
             permission: PERMISSIONS.ADMIN_COMPANY,
           },
+        },
+        {
+          path: 'profile',
+          name: 'profile',
+          component: () => import('@/modules/users/pages/Profile.vue'),
+          meta: { title: 'الملف الشخصي' },
+        },
+        {
+          path: 'settings',
+          name: 'settings',
+          component: () => import('@/modules/settings/pages/Settings.vue'),
+          meta: { title: 'الإعدادات' },
         },
 
         // ==================== Error Pages ====================

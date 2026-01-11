@@ -38,73 +38,73 @@
           <EmptyState v-if="cashBoxes.length === 0" icon="ri-safe-2-line" title="لا توجد خزائن" subtitle="لم يتم العثور على أي خزائن مطابقة لبحثك." />
 
           <template v-else>
-            <!-- Grid View -->
-            <v-row v-if="viewMode === 'grid'">
-              <v-col v-for="item in cashBoxes" :key="item.id" cols="12" sm="6" md="4" lg="3">
-                <AppCard class="cashbox-card h-100" no-padding>
-                  <div class="cashbox-card-header d-flex align-center justify-center pa-4 bg-grey-lighten-4 position-relative">
-                    <v-avatar size="80" rounded="lg" class="elevation-1 bg-white">
-                      <v-icon icon="ri-safe-2-line" size="40" color="warning" />
-                    </v-avatar>
+            <!-- Grid View with Infinite Scroll -->
+            <AppInfiniteScroll
+              v-if="viewMode === 'grid'"
+              :loading="loading && cashBoxes.length > 0"
+              :has-more="cashBoxes.length < total"
+              no-more-text="لا يوجد المزيد من الخزائن"
+              @load="handleLoadMore"
+            >
+              <v-row>
+                <v-col v-for="item in cashBoxes" :key="item.id" cols="12" sm="6" md="4" lg="3">
+                  <AppCard class="cashbox-card h-100" no-padding>
+                    <div class="cashbox-card-header d-flex align-center justify-center pa-4 bg-grey-lighten-4 position-relative">
+                      <v-avatar size="80" rounded="lg" class="elevation-1 bg-white">
+                        <v-icon icon="ri-safe-2-line" size="40" color="warning" />
+                      </v-avatar>
 
-                    <v-chip
-                      :color="item.is_active ? 'success' : 'error'"
-                      size="x-small"
-                      class="position-absolute top-2 right-2 font-weight-bold"
-                      variant="flat"
-                    >
-                      {{ item.is_active ? 'نشط' : 'معطل' }}
-                    </v-chip>
-                  </div>
-
-                  <v-card-item>
-                    <v-card-title class="text-h6 font-weight-bold">{{ item.name }}</v-card-title>
-                    <v-card-subtitle class="d-flex align-center mt-1">
-                      <v-chip v-if="item.type" size="x-small" variant="flat" color="primary-lighten-5" class="text-primary font-weight-bold">
-                        {{ item.type.name }}
+                      <v-chip
+                        :color="item.is_active ? 'success' : 'error'"
+                        size="x-small"
+                        class="position-absolute top-2 right-2 font-weight-bold"
+                        variant="flat"
+                      >
+                        {{ item.is_active ? 'نشط' : 'معطل' }}
                       </v-chip>
-                    </v-card-subtitle>
-                  </v-card-item>
-
-                  <v-card-text class="pt-0">
-                    <div class="d-flex align-center justify-space-between mt-2">
-                      <span class="text-caption text-grey">الرصيد الحالي</span>
-                      <span class="font-weight-black" :class="item.balance >= 0 ? 'text-success' : 'text-error'">
-                        {{ formatCurrency(item.balance) }}
-                      </span>
                     </div>
-                  </v-card-text>
 
-                  <template v-if="canUpdate(item) || canDelete(item)" #actions>
-                    <v-spacer />
-                    <AppButton v-if="canUpdate(item)" icon="ri-edit-line" variant="text" color="primary" tooltip="تعديل" @click="handleEdit(item)" />
-                    <AppButton
-                      v-if="canDelete(item)"
-                      icon="ri-delete-bin-line"
-                      variant="text"
-                      color="error"
-                      tooltip="حذف"
-                      @click="handleDelete(item)"
-                    />
-                  </template>
-                </AppCard>
-              </v-col>
+                    <v-card-item>
+                      <v-card-title class="text-h6 font-weight-bold">{{ item.name }}</v-card-title>
+                      <v-card-subtitle class="d-flex align-center mt-1">
+                        <v-chip v-if="item.type" size="x-small" variant="flat" color="primary-lighten-5" class="text-primary font-weight-bold">
+                          {{ item.type.name }}
+                        </v-chip>
+                      </v-card-subtitle>
+                    </v-card-item>
 
-              <!-- Pagination for Grid -->
-              <v-col cols="12" class="mt-4">
-                <div class="d-flex align-center justify-space-between flex-wrap gap-4">
-                  <div class="text-body-2 text-grey">عرض {{ cashBoxes.length }} من إجمالي {{ total }} خزينة</div>
-                  <v-pagination
-                    v-model="page"
-                    :length="Math.ceil(total / itemsPerPage)"
-                    :total-visible="5"
-                    rounded="circle"
-                    size="small"
-                    @update:model-value="loadData"
-                  />
-                </div>
-              </v-col>
-            </v-row>
+                    <v-card-text class="pt-0">
+                      <div class="d-flex align-center justify-space-between mt-2">
+                        <span class="text-caption text-grey">الرصيد الحالي</span>
+                        <span class="font-weight-black" :class="item.balance >= 0 ? 'text-success' : 'text-error'">
+                          {{ formatCurrency(item.balance) }}
+                        </span>
+                      </div>
+                    </v-card-text>
+
+                    <template v-if="canUpdate(item) || canDelete(item)" #actions>
+                      <v-spacer />
+                      <AppButton
+                        v-if="canUpdate(item)"
+                        icon="ri-edit-line"
+                        variant="text"
+                        color="primary"
+                        tooltip="تعديل"
+                        @click="handleEdit(item)"
+                      />
+                      <AppButton
+                        v-if="canDelete(item)"
+                        icon="ri-delete-bin-line"
+                        variant="text"
+                        color="error"
+                        tooltip="حذف"
+                        @click="handleDelete(item)"
+                      />
+                    </template>
+                  </AppCard>
+                </v-col>
+              </v-row>
+            </AppInfiniteScroll>
 
             <!-- List View -->
             <AppDataTable
@@ -117,11 +117,7 @@
               :page="page"
               title="قائمة الخزائن"
               icon="ri-safe-2-line"
-              @update:page="
-                page = $event;
-                loadData();
-              "
-              @update:items-per-page="handleItemsPerPageChange"
+              @update:options="onTableOptionsUpdate"
             >
               <template #item.name="{ item }">
                 <div class="d-flex align-center">
@@ -225,7 +221,7 @@
                   <div class="text-subtitle-1 font-weight-bold">حالة النشاط</div>
                   <div class="text-caption">تحديد ما إذا كانت الخزينة متاحة حالياً للعمليات</div>
                 </div>
-                <v-switch v-model="formData.is_active" color="success" hide-details inset :true-value="1" :false-value="0" />
+                <AppSwitch v-model="formData.is_active" :true-value="1" :false-value="0" hide-details />
               </div>
             </v-card>
           </v-col>
@@ -267,9 +263,12 @@ import AppDataTable from '@/components/common/AppDataTable.vue';
 import AppButton from '@/components/common/AppButton.vue';
 import AppDialog from '@/components/common/AppDialog.vue';
 import AppInput from '@/components/common/AppInput.vue';
+import AppSwitch from '@/components/common/AppSwitch.vue';
 import AppCard from '@/components/common/AppCard.vue';
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import EmptyState from '@/components/common/EmptyState.vue';
+import AppInfiniteScroll from '@/components/common/AppInfiniteScroll.vue';
+import { PERMISSIONS } from '@/config/permissions';
 
 // Simple debounce
 const debounce = (fn, delay) => {
@@ -281,6 +280,18 @@ const debounce = (fn, delay) => {
 };
 
 const { cashBoxes, loading, total, fetchCashBoxes, deleteCashBox } = useCashBoxesData();
+
+const onTableOptionsUpdate = options => {
+  if (viewMode.value === 'list') {
+    loadData();
+  }
+};
+
+const handleLoadMore = () => {
+  if (loading.value || cashBoxes.value.length >= total.value) return;
+  page.value++;
+  loadData(true);
+};
 const api = useApi('/api/cash-boxes');
 const typesApi = useApi('/api/cash-box-types');
 
@@ -299,26 +310,26 @@ const loadingTypes = ref(false);
 
 // Permissions
 const authStore = useAuthStore();
-const isSuperAdmin = computed(() => authStore.user?.permissions?.includes('admin.super'));
-const isCompanyAdmin = computed(() => authStore.user?.permissions?.includes('admin.company'));
+const isSuperAdmin = computed(() => authStore.user?.permissions?.includes(PERMISSIONS.ADMIN_SUPER));
+const isCompanyAdmin = computed(() => authStore.user?.permissions?.includes(PERMISSIONS.ADMIN_COMPANY));
 
 const canCreate = computed(() => {
-  return isSuperAdmin.value || isCompanyAdmin.value || authStore.user?.permissions?.includes('cash_boxes.create');
+  return isSuperAdmin.value || isCompanyAdmin.value || authStore.user?.permissions?.includes(PERMISSIONS.CASH_BOXES_CREATE);
 });
 
 const canUpdate = item => {
   if (isSuperAdmin.value || isCompanyAdmin.value) return true;
   return (
-    authStore.user?.permissions?.includes('cash_boxes.update_all') ||
-    (authStore.user?.permissions?.includes('cash_boxes.update_self') && item.created_by === authStore.user?.id)
+    authStore.user?.permissions?.includes(PERMISSIONS.CASH_BOXES_UPDATE_ALL) ||
+    (authStore.user?.permissions?.includes(PERMISSIONS.CASH_BOXES_UPDATE_SELF) && item.created_by === authStore.user?.id)
   );
 };
 
 const canDelete = item => {
   if (isSuperAdmin.value || isCompanyAdmin.value) return true;
   return (
-    authStore.user?.permissions?.includes('cash_boxes.delete_all') ||
-    (authStore.user?.permissions?.includes('cash_boxes.delete_self') && item.created_by === authStore.user?.id)
+    authStore.user?.permissions?.includes(PERMISSIONS.CASH_BOXES_DELETE_ALL) ||
+    (authStore.user?.permissions?.includes(PERMISSIONS.CASH_BOXES_DELETE_SELF) && item.created_by === authStore.user?.id)
   );
 };
 
@@ -326,8 +337,8 @@ const canUpdateAny = computed(() => {
   return (
     isSuperAdmin.value ||
     isCompanyAdmin.value ||
-    authStore.user?.permissions?.includes('cash_boxes.update_all') ||
-    authStore.user?.permissions?.includes('cash_boxes.update_self')
+    authStore.user?.permissions?.includes(PERMISSIONS.CASH_BOXES_UPDATE_ALL) ||
+    authStore.user?.permissions?.includes(PERMISSIONS.CASH_BOXES_UPDATE_SELF)
   );
 });
 
@@ -335,8 +346,8 @@ const canDeleteAny = computed(() => {
   return (
     isSuperAdmin.value ||
     isCompanyAdmin.value ||
-    authStore.user?.permissions?.includes('cash_boxes.delete_all') ||
-    authStore.user?.permissions?.includes('cash_boxes.delete_self')
+    authStore.user?.permissions?.includes(PERMISSIONS.CASH_BOXES_DELETE_ALL) ||
+    authStore.user?.permissions?.includes(PERMISSIONS.CASH_BOXES_DELETE_SELF)
   );
 });
 
@@ -434,10 +445,29 @@ const handleSearch = debounce(() => {
   loadData();
 }, 500);
 
-const loadData = () => fetchCashBoxes({ page: page.value, per_page: itemsPerPage.value, name: search.value });
+const loadData = (options = {}) => {
+  const isAppend = options === true;
+  return fetchCashBoxes({ page: page.value, per_page: itemsPerPage.value, name: search.value }, { append: isAppend });
+};
 
 onMounted(loadData);
-watch(page, () => loadData());
+watch(page, () => {
+  if (viewMode.value === 'list') {
+    loadData();
+  }
+});
+
+watch(itemsPerPage, () => {
+  if (viewMode.value === 'list') {
+    page.value = 1;
+    loadData();
+  }
+});
+
+watch(viewMode, () => {
+  page.value = 1;
+  loadData();
+});
 </script>
 
 <style scoped></style>

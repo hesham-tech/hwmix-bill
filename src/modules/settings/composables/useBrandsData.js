@@ -7,12 +7,31 @@ export function useBrandsData() {
   const loading = ref(false);
   const total = ref(0);
 
-  const fetchBrands = async (params = {}) => {
+  const fetchBrands = async (params = {}, options = {}) => {
+    const { append = false } = options;
     loading.value = true;
     try {
       const response = await api.get(params, { showLoading: false });
-      brands.value = response.data || [];
-      total.value = response.total || 0;
+
+      let incomingData = [];
+      let incomingTotal = 0;
+
+      // Handle both paginated and non-paginated responses
+      if (response.data && Array.isArray(response.data.data)) {
+        incomingData = response.data.data;
+        incomingTotal = response.data.meta?.total || response.data.data.length;
+      } else {
+        incomingData = response.data || [];
+        incomingTotal = response.total || incomingData.length;
+      }
+
+      if (append) {
+        brands.value = [...brands.value, ...incomingData];
+      } else {
+        brands.value = incomingData;
+      }
+
+      total.value = incomingTotal;
       return response;
     } catch (error) {
       brands.value = [];

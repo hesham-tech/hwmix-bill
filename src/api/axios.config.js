@@ -21,11 +21,22 @@ const apiClient = axios.create({
  * إضافة token وتحديد content-type
  */
 apiClient.interceptors.request.use(
-  config => {
+  async config => {
     const token = localStorage.getItem('token');
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    // Add Company ID header from userStore if available
+    try {
+      const { useUserStore } = await import('@/stores/user');
+      const userStore = useUserStore();
+      if (userStore.currentUser?.company_id) {
+        config.headers['X-Company-Id'] = userStore.currentUser.company_id;
+      }
+    } catch (e) {
+      // Silent fail if store is not ready
     }
 
     // لو FormData، خلي axios يحدد content-type تلقائياً

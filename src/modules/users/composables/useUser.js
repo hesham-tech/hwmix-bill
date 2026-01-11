@@ -5,6 +5,7 @@ import { useDialog, useConfirm } from '@/composables';
 export function useUser() {
   const store = useUserStore();
   const { isOpen, formData, isEditMode, open, close } = useDialog();
+  const { isOpen: isPermissionOpen, formData: permissionUser, open: openPermissions, close: closePermissions } = useDialog();
   const { showConfirm, confirmMessage, confirm, handleConfirm, handleCancel } = useConfirm();
 
   // Computed
@@ -13,8 +14,14 @@ export function useUser() {
   const totalItems = computed(() => store.totalItems);
 
   // Actions
-  const loadUsers = async () => {
-    await store.fetchUsers();
+  const loadUsers = async (append = false) => {
+    await store.fetchUsers({ append });
+  };
+
+  const loadMore = async () => {
+    if (loading.value || !users.value || users.value.length >= (totalItems.value || 0)) return;
+    store.page++;
+    await loadUsers(true);
   };
 
   const loadUser = async id => {
@@ -30,7 +37,8 @@ export function useUser() {
   };
 
   const handleDelete = user => {
-    confirm(`هل أنت متأكد من حذف المستخدم "${user.name}"؟`, async () => {
+    const name = user.nickname || user.full_name || user.name || 'هذا المستخدم';
+    confirm(`هل أنت متأكد من حذف المستخدم "${name}"؟`, async () => {
       await store.deleteUser(user.id);
     });
   };
@@ -67,6 +75,10 @@ export function useUser() {
       await loadUsers();
     },
     handleCancel,
+    isPermissionOpen,
+    permissionUser,
+    openPermissions,
+    closePermissions,
     loadUsers,
     loadUser,
     saveUser,

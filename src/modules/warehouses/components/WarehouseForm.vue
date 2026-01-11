@@ -42,7 +42,7 @@
               <div class="text-caption text-grey">تحديد ما إذا كان المخزن متاحاً للاستخدام حالياً</div>
             </div>
           </div>
-          <v-switch v-model="form.is_active" color="success" hide-details />
+          <AppSwitch v-model="form.is_active" hide-details />
         </div>
       </v-col>
     </v-row>
@@ -51,7 +51,10 @@
 
 <script setup>
 import { ref, watch } from 'vue';
-import { AppInput, AppTextarea, FormActions } from '@/components';
+import { useApi } from '@/composables/useApi';
+import AppSwitch from '@/components/common/AppSwitch.vue';
+import AppInput from '@/components/common/AppInput.vue';
+import AppTextarea from '@/components/common/AppTextarea.vue';
 import { required } from '@/utils/validators';
 
 const props = defineProps({

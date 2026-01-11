@@ -132,7 +132,7 @@
               </v-col>
 
               <v-col cols="12" md="6">
-                <v-switch v-model="localData.track_stock" label="تتبع المخزون" color="primary" hide-details />
+                <AppSwitch v-model="localData.track_stock" label="تتبع المخزون" color="primary" hide-details />
               </v-col>
             </v-row>
           </v-card-text>
@@ -144,7 +144,7 @@
         <v-card class="mb-4" border flat>
           <v-card-title>الحالة والصورة</v-card-title>
           <v-card-text>
-            <v-switch v-model="localData.is_active" label="نشط" color="success" class="mb-4" />
+            <AppSwitch v-model="localData.is_active" label="نشط" class="mb-4" />
 
             <v-file-input v-model="imageFile" label="صورة المنتج" accept="image/*" prepend-icon="ri-image-line" @change="handleImageChange" />
 
@@ -168,6 +168,9 @@
 
 <script setup>
 import { ref, watch } from 'vue';
+import MediaGallery from '@/components/common/MediaGallery.vue';
+import AppSwitch from '@/components/common/AppSwitch.vue';
+import AppInput from '@/components/common/AppInput.vue';
 
 const props = defineProps({
   modelValue: {

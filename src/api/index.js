@@ -14,6 +14,8 @@ export { default as categoryService } from './services/category.service';
 export { default as brandService } from './services/brand.service';
 export { default as stockService } from './services/stock.service';
 export { default as reportService } from './services/report.service';
+export { default as roleService } from './services/role.service';
+export { default as permissionService } from './services/permission.service';
 
 // Export axios instance for custom calls
 export { default as apiClient } from './axios.config';

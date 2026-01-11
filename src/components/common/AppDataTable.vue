@@ -38,7 +38,9 @@
       density="comfortable"
       :items-per-page-options="itemsPerPageOptions"
       :no-data-text="emptyText"
+      :hide-default-footer="hidePagination"
       @update:options="handleOptionsUpdate"
+      @click:row="(event, { item }) => $emit('click:row', item)"
     >
       <!-- Custom slots for columns -->
       <!-- Pass through all slots meant for v-data-table -->
@@ -164,6 +166,12 @@ const props = defineProps({
   emptySubtext: {
     type: String,
     default: 'ابدأ بإضافة عنصر جديد',
+  },
+
+  // UI
+  hidePagination: {
+    type: Boolean,
+    default: false,
   },
 
   // Options

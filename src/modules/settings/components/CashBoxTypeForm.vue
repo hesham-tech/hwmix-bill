@@ -1,15 +1,15 @@
 <template>
   <AppDialog
     :model-value="modelValue"
-    :title="isEdit ? 'تعديل طريقة الدفع' : 'طريقة دفع جديدة'"
-    :icon="isEdit ? 'ri-edit-line' : 'ri-bank-card-line'"
+    :title="isEdit ? 'تعديل نوع الخزينة' : 'نوع خزينة جديد'"
+    :icon="isEdit ? 'ri-edit-line' : 'ri-inbox-archive-line'"
     :loading="loading"
     max-width="600"
     @update:model-value="$emit('update:modelValue', $event)"
     @confirm="handleSubmit"
   >
     <template #prepend-title>
-      <v-icon :icon="isEdit ? 'ri-edit-line' : 'ri-bank-card-line'" class="me-2" />
+      <v-icon :icon="isEdit ? 'ri-edit-line' : 'ri-inbox-archive-line'" class="me-2" />
     </template>
     <v-form ref="formRef" @submit.prevent="handleSubmit">
       <v-row>
@@ -31,8 +31,8 @@
         <v-col cols="12">
           <AppInput
             v-model="formData.name"
-            label="اسم طريقة الدفع *"
-            prepend-inner-icon="ri-bank-card-line"
+            label="اسم نوع الخزينة *"
+            prepend-inner-icon="ri-inbox-archive-line"
             :rules="[rules.required]"
             :error-messages="errors.name"
           />
@@ -40,25 +40,22 @@
 
         <v-col cols="12">
           <AppInput
-            v-model="formData.code"
-            label="الكود *"
-            prepend-inner-icon="ri-key-line"
+            v-model="formData.description"
+            label="الوصف *"
+            prepend-inner-icon="ri-article-line"
             :rules="[rules.required]"
-            :error-messages="errors.code"
-            :disabled="isEdit"
-            hint="كود فريد للتعريف بالنظام (مثل: CASH, BANK)"
-            persistent-hint
+            :error-messages="errors.description"
           />
         </v-col>
 
         <v-col v-if="canToggle" cols="12">
-          <v-card variant="tonal" :color="formData.active ? 'primary' : 'grey'" class="pa-4 rounded-lg mt-4">
+          <v-card variant="tonal" :color="formData.is_active ? 'primary' : 'grey'" class="pa-4 rounded-lg mt-4">
             <div class="d-flex align-center justify-space-between">
               <div>
                 <div class="text-subtitle-1 font-weight-bold">حالة النشاط</div>
-                <div class="text-caption">تفعيل أو تعطيل هذه الطريقة في شاشات الدفع</div>
+                <div class="text-subtitle-2 opacity-70">تفعيل أو تعطيل هذا النوع في شاشات الخزينة</div>
               </div>
-              <AppSwitch v-model="formData.active" label="نشط" hide-details />
+              <AppSwitch v-model="formData.is_active" label="نشط" hide-details />
             </div>
           </v-card>
         </v-col>
@@ -67,8 +64,8 @@
           <v-card variant="tonal" :color="formData.is_system ? 'info' : 'grey'" class="pa-4 rounded-lg">
             <div class="d-flex align-center justify-space-between">
               <div>
-                <div class="text-subtitle-1 font-weight-bold">طريقة أساسية (System)</div>
-                <div class="text-caption">إذا تم تفعيلها، ستظهر لجميع الشركات كنظام افتراضي</div>
+                <div class="text-subtitle-1 font-weight-bold">نوع أساسي (System)</div>
+                <div class="text-subtitle-2 opacity-70">إذا تم تفعيلها، ستظهر لجميع الشركات كنظام افتراضي</div>
               </div>
               <AppSwitch v-model="formData.is_system" color="info" hide-details />
             </div>
@@ -83,7 +80,7 @@
 </template>
 
 <script setup>
-import { ref, watch, computed, onMounted } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { useApi } from '@/composables/useApi';
 import AppDialog from '@/components/common/AppDialog.vue';
 import AppInput from '@/components/common/AppInput.vue';
@@ -96,24 +93,12 @@ const userStore = useUserStore();
 const isSuperAdmin = computed(() => userStore.isAdmin);
 const isCompanyAdmin = computed(() => userStore.isCompanyAdmin);
 
-onMounted(() => {
-  // User permissions debug logs removed as problem is solved
-});
-
-const canToggle = computed(() => {
-  if (isSuperAdmin.value) return true;
-  // طرق السـيستم لا يمكن لغير السوبر أدمن تعديل حالتها
-  if (props.paymentMethod?.is_system) return false;
-
-  return isCompanyAdmin.value || userStore.hasPermission(PERMISSIONS.PAYMENT_METHODS_UPDATE_ALL);
-});
-
 const props = defineProps({
   modelValue: {
     type: Boolean,
     required: true,
   },
-  paymentMethod: {
+  cashBoxType: {
     type: Object,
     default: null,
   },
@@ -121,7 +106,14 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'saved']);
 
-const api = useApi('/api/payment-methods');
+const canToggle = computed(() => {
+  if (isSuperAdmin.value) return true;
+  if (props.cashBoxType?.is_system) return false;
+
+  return isCompanyAdmin.value || userStore.hasPermission(PERMISSIONS.CASH_BOX_TYPES_UPDATE_ALL);
+});
+
+const api = useApi('/api/cash-box-types');
 const formRef = ref(null);
 const loading = ref(false);
 const showMediaGallery = ref(false);
@@ -130,13 +122,13 @@ const errors = ref({});
 
 const formData = ref({
   name: '',
-  code: '',
-  active: true,
+  description: '',
+  is_active: true,
   is_system: false,
   image_id: null,
 });
 
-const isEdit = computed(() => !!props.paymentMethod?.id);
+const isEdit = computed(() => !!props.cashBoxType?.id);
 
 const rules = {
   required: v => !!v || 'هذا الحقل مطلوب',
@@ -150,8 +142,8 @@ const handleImageSelect = image => {
 const resetForm = () => {
   formData.value = {
     name: '',
-    code: '',
-    active: true,
+    description: '',
+    is_active: true,
     is_system: false,
     image_id: null,
   };
@@ -160,19 +152,17 @@ const resetForm = () => {
   formRef.value?.resetValidation();
 };
 
-// Watch for payment method changes to pre-fill form
 watch(
-  () => props.paymentMethod,
+  () => props.cashBoxType,
   newVal => {
     if (newVal) {
       formData.value = {
         name: newVal.name || '',
-        code: newVal.code || '',
-        active: Boolean(newVal.active ?? true),
+        description: newVal.description || '',
+        is_active: Boolean(newVal.is_active ?? true),
         is_system: Boolean(newVal.is_system),
         image_id: newVal.image_id || null,
       };
-      console.log('Payment Method Loaded:', newVal.name, 'is_system:', newVal.is_system, 'cast:', formData.value.is_system);
       imagePreview.value = newVal.image_url || null;
     } else {
       resetForm();
@@ -191,12 +181,12 @@ const handleSubmit = async () => {
 
   try {
     if (isEdit.value) {
-      await api.update(props.paymentMethod.id, formData.value, {
-        successMessage: 'تم تحديث طريقة الدفع بنجاح',
+      await api.update(props.cashBoxType.id, formData.value, {
+        successMessage: 'تم تحديث نوع الخزينة بنجاح',
       });
     } else {
       await api.create(formData.value, {
-        successMessage: 'تم إضافة طريقة الدفع بنجاح',
+        successMessage: 'تم إضافة نوع الخزينة بنجاح',
       });
     }
 
@@ -228,10 +218,6 @@ const handleSubmit = async () => {
 
 .logo-preview-zone:hover .change-overlay {
   opacity: 1;
-}
-
-.max-width-300 {
-  max-width: 300px;
 }
 
 .hover-scale {

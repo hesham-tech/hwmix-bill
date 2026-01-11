@@ -256,3 +256,36 @@ export default [
     ],
   },
 ];
+
+export const CUSTOMER_MENU = [
+  {
+    title: 'لوحة التحكم',
+    icon: 'ri-dashboard-3-line',
+    to: '/dashboard',
+    permission: null,
+  },
+  {
+    title: 'مشترياتي',
+    icon: 'ri-bill-line',
+    to: '/invoices',
+    permission: null,
+  },
+  {
+    title: 'جدول الأقساط',
+    icon: 'ri-calendar-todo-line',
+    to: '/installments',
+    permission: null,
+  },
+  {
+    title: 'حسابي المالي',
+    icon: 'ri-wallet-3-line',
+    to: '/reports/my-statement',
+    permission: null,
+  },
+  {
+    title: 'التحويلات',
+    icon: 'ri-exchange-line',
+    to: '/transactions',
+    permission: null,
+  },
+];

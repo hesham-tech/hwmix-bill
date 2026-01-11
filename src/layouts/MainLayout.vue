@@ -17,7 +17,8 @@
       <template #activator="{ props }">
         <AppButton v-bind="props" variant="text" class="user-menu-btn px-2">
           <v-avatar size="30" color="primary" class="ml-2">
-            <v-icon icon="ri-user-line" size="small" />
+            <v-img v-if="userStore.currentUser?.avatar_url" :src="userStore.currentUser?.avatar_url" cover />
+            <v-icon v-else icon="ri-user-line" size="small" />
           </v-avatar>
           <span class="d-none d-sm-inline">{{ userName }}</span>
           <v-icon icon="ri-arrow-down-s-line" size="x-small" class="ms-1" />
@@ -82,7 +83,7 @@ watch(
   { immediate: true }
 );
 
-const userName = computed(() => userStore.currentUser?.name || 'المستخدم');
+const userName = computed(() => userStore.currentUser?.full_name || 'المستخدم');
 
 const breadcrumbs = computed(() => {
   const items = [{ title: 'الرئيسية', to: '/dashboard', disabled: false }];

@@ -11,16 +11,12 @@ class UserService extends BaseService {
   }
 
   /**
-   * Get user roles
+   * Lookup a user globally by phone or email
    */
-  async getRoles(userId, options = {}) {
-    const { showToast = false, loading = true } = options;
-    const userStore = useUserStore();
-
-    if (loading) userStore.loadingApi = true;
-
+  async lookup(params = {}, options = {}) {
+    const { showToast = false } = options;
     try {
-      const response = await apiClient.get(`user/${userId}/roles`);
+      const response = await apiClient.get('users/lookup', { params });
       return this.handleSuccess(response, showToast);
     } catch (error) {
       return this.handleError(error, showToast);
@@ -28,16 +24,12 @@ class UserService extends BaseService {
   }
 
   /**
-   * Assign role to user
+   * Get user statistics
    */
-  async assignRole(userId, roleId, options = {}) {
-    const { showToast = true, loading = true } = options;
-    const userStore = useUserStore();
-
-    if (loading) userStore.loadingApi = true;
-
+  async getStats(options = {}) {
+    const { showToast = false } = options;
     try {
-      const response = await apiClient.post(`user/${userId}/roles`, { role_id: roleId });
+      const response = await apiClient.get('users/stats');
       return this.handleSuccess(response, showToast);
     } catch (error) {
       return this.handleError(error, showToast);
@@ -45,16 +37,15 @@ class UserService extends BaseService {
   }
 
   /**
-   * Get user permissions
+   * Assign roles to user
    */
-  async getPermissions(userId, options = {}) {
-    const { showToast = false, loading = true } = options;
-    const userStore = useUserStore();
-
-    if (loading) userStore.loadingApi = true;
-
+  async assignRole(userId, roles, options = {}) {
+    const { showToast = true } = options;
     try {
-      const response = await apiClient.get(`user/${userId}/permissions`);
+      const response = await apiClient.post('role/assignRole', {
+        user_id: userId,
+        roles: Array.isArray(roles) ? roles : [roles],
+      });
       return this.handleSuccess(response, showToast);
     } catch (error) {
       return this.handleError(error, showToast);
@@ -62,16 +53,12 @@ class UserService extends BaseService {
   }
 
   /**
-   * Update user permissions
+   * Update user details (includes status and roles)
    */
-  async updatePermissions(userId, permissions, options = {}) {
-    const { showToast = true, loading = true } = options;
-    const userStore = useUserStore();
-
-    if (loading) userStore.loadingApi = true;
-
+  async update(userId, data, options = {}) {
+    const { showToast = true } = options;
     try {
-      const response = await apiClient.post(`user/${userId}/permissions`, { permissions });
+      const response = await apiClient.put(`users/${userId}`, data);
       return this.handleSuccess(response, showToast);
     } catch (error) {
       return this.handleError(error, showToast);

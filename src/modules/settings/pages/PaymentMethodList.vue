@@ -22,7 +22,12 @@
         />
 
         <v-spacer />
-
+        <AppSwitch
+          v-if="isSuperAdmin"
+          v-model="isSystemVisible"
+          :label="isSystemVisible ? 'مشاهدة الأنواع الأساسية (System)' : 'مشاهدة الأنواع المخصصة (Custom)'"
+          hide-details
+        />
         <v-btn-group variant="outlined" density="comfortable" color="primary">
           <AppButton :active="viewMode === 'grid'" icon="ri-grid-fill" @click="viewMode = 'grid'" title="عرض شبكي" />
           <AppButton :active="viewMode === 'list'" icon="ri-list-check" @click="viewMode = 'list'" title="عرض قائمة" />
@@ -44,43 +49,60 @@
     />
 
     <template v-else>
-      <!-- Grid View -->
-      <v-row v-if="viewMode === 'grid'">
-        <v-col v-for="item in paymentMethods" :key="item.id" cols="12" sm="6" md="4" lg="3">
-          <AppCard class="method-card h-100" no-padding>
-            <div class="method-card-header d-flex align-center justify-center pa-6 bg-grey-lighten-4 position-relative">
-              <v-avatar size="80" rounded="circle" :color="item.active ? 'bg-white' : 'grey-lighten-3'" class="elevation-1 bg-white">
-                <v-img v-if="item.image_url" :src="item.image_url" cover />
-                <v-icon v-else :icon="getMethodIcon(item.code)" size="40" :color="item.active ? 'success' : 'grey'" />
-              </v-avatar>
+      <!-- Grid View with Infinite Scroll -->
+      <AppInfiniteScroll
+        v-if="viewMode === 'grid'"
+        :loading="loading && paymentMethods.length > 0"
+        :has-more="paymentMethods.length < total"
+        no-more-text="لا يوجد المزيد من طرق الدفع"
+        @load="handleLoadMore"
+      >
+        <v-row>
+          <v-col v-for="item in paymentMethods" :key="item.id" cols="12" sm="6" md="4" lg="3">
+            <AppCard class="method-card h-100" no-padding>
+              <div class="method-card-header d-flex align-center justify-center pa-6 bg-grey-lighten-4 position-relative">
+                <v-avatar size="120" rounded="circle" :color="item.active ? 'bg-white' : 'grey-lighten-3'" class="elevation-1 bg-white">
+                  <v-img v-if="item.image_url" :src="item.image_url" cover />
+                  <v-icon v-else :icon="getMethodIcon(item.code)" size="60" :color="item.active ? 'success' : 'grey'" />
+                </v-avatar>
+              </div>
 
-              <v-chip
-                :color="item.active ? 'success' : 'error'"
-                size="x-small"
-                class="position-absolute top-2 right-2 font-weight-bold"
-                variant="flat"
-              >
-                {{ item.active ? 'نشط' : 'معطل' }}
-              </v-chip>
+              <v-card-item class="position-relative pt-4">
+                <v-card-title class="text-h6 font-weight-bold pa-0 mb-1">{{ item.name }}</v-card-title>
 
-              <v-chip v-if="item.is_system" color="info" size="x-small" class="position-absolute top-2 left-2 font-weight-bold" variant="tonal">
-                نظام
-              </v-chip>
-            </div>
+                <div class="d-flex align-center justify-space-between mb-1" style="height: 32px">
+                  <div class="d-flex align-center">
+                    <span class="text-caption text-grey-darken-1 me-2">الحالة:</span>
+                    <v-chip :color="item.active ? 'success' : 'error'" size="x-small" class="font-weight-bold" variant="flat">
+                      {{ item.active ? 'نشط' : 'معطل' }}
+                    </v-chip>
+                  </div>
 
-            <v-card-item>
-              <v-card-title class="text-h6 font-weight-bold">{{ item.name }}</v-card-title>
-              <v-card-subtitle class="mt-1">كود: {{ item.code }}</v-card-subtitle>
-            </v-card-item>
+                  <AppSwitch
+                    v-if="canToggle(item)"
+                    :model-value="item.active"
+                    :loading="togglingId === item.id"
+                    @update:model-value="handleToggleStatus(item)"
+                  />
+                </div>
 
-            <template #actions>
-              <v-spacer />
-              <AppButton icon="ri-edit-line" variant="text" color="primary" @click="handleEdit(item)" />
-              <AppButton v-if="canDelete(item)" icon="ri-delete-bin-line" variant="text" color="error" @click="handleDelete(item)" />
-            </template>
-          </AppCard>
-        </v-col>
-      </v-row>
+                <v-card-subtitle class="pa-0">كود: {{ item.code }}</v-card-subtitle>
+
+                <!-- Essential/System Chip -->
+                <v-chip v-if="item.is_system" color="info" size="x-small" class="position-absolute" style="top: 16px; left: 16px" variant="tonal">
+                  اساسي
+                </v-chip>
+              </v-card-item>
+
+              <template #actions>
+                <v-spacer />
+                <AppButton icon="ri-edit-line" variant="text" color="primary" @click="handleEdit(item)" />
+                <AppButton v-if="canDelete(item)" icon="ri-delete-bin-line" variant="text" color="error" @click="handleDelete(item)" />
+              </template>
+            </AppCard>
+          </v-col>
+        </v-row>
+      </AppInfiniteScroll>
 
       <!-- List View -->
       <AppDataTable
@@ -94,24 +116,37 @@
         :searchable="false"
         :can-view="false"
         :can-delete="false"
-        @update:options="loadData"
+        @update:options="onTableOptionsUpdate"
         @edit="handleEdit"
       >
         <template #item.name="{ item }">
-          <div class="d-flex align-center py-1">
-            <v-avatar size="32" rounded="circle" :color="item.active ? 'bg-white' : 'grey-lighten-4'" class="me-3 border">
+          <div class="d-flex align-center py-2">
+            <v-avatar size="48" rounded="circle" :color="item.active ? 'bg-white' : 'grey-lighten-4'" class="me-3 border">
               <v-img v-if="item.image_url" :src="item.image_url" cover />
-              <v-icon v-else :icon="getMethodIcon(item.code)" size="18" :color="item.active ? 'success' : 'grey'" />
+              <v-icon v-else :icon="getMethodIcon(item.code)" size="24" :color="item.active ? 'success' : 'grey'" />
             </v-avatar>
-            <span class="font-weight-bold">{{ item.name }}</span>
-            <v-chip v-if="item.is_system" size="x-small" color="info" variant="tonal" class="ms-2">أساسي</v-chip>
+            <div class="d-flex flex-column">
+              <span class="font-weight-bold">{{ item.name }}</span>
+              <v-chip v-if="item.is_system" size="x-small" color="info" variant="tonal" class="mt-1" style="width: fit-content">أساسي</v-chip>
+            </div>
           </div>
         </template>
 
         <template #item.active="{ item }">
-          <v-chip :color="item.active ? 'success' : 'error'" size="small" variant="flat" class="font-weight-bold">
-            {{ item.active ? 'نشط' : 'معطل' }}
-          </v-chip>
+          <div class="d-flex align-center justify-center">
+            <span v-if="canToggle(item)" class="text-caption me-2 font-weight-bold" :class="item.active ? 'text-success' : 'text-error'">
+              {{ item.active ? 'نشط' : 'معطل' }}
+            </span>
+            <AppSwitch
+              v-if="canToggle(item)"
+              :model-value="item.active"
+              :loading="togglingId === item.id"
+              @update:model-value="handleToggleStatus(item)"
+            />
+            <v-chip v-else :color="item.active ? 'success' : 'error'" size="small" variant="flat" class="font-weight-bold">
+              {{ item.active ? 'نشط' : 'معطل' }}
+            </v-chip>
+          </div>
         </template>
 
         <template #extra-actions="{ item }">
@@ -119,18 +154,7 @@
         </template>
       </AppDataTable>
 
-      <!-- Pagination -->
-      <div v-if="viewMode === 'grid'" class="mt-8 d-flex align-center justify-space-between flex-wrap gap-4 px-2">
-        <div class="text-body-2 text-grey">عرض {{ paymentMethods.length }} من إجمالي {{ total }} طريقة</div>
-        <v-pagination
-          v-model="page"
-          :length="Math.ceil(total / itemsPerPage)"
-          :total-visible="5"
-          rounded="circle"
-          size="small"
-          @update:model-value="loadData"
-        />
-      </div>
+      <!-- No grid pagination, using infinite scroll above -->
     </template>
 
     <!-- Payment Method Form Dialog -->
@@ -163,6 +187,7 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import { usePaymentMethodsData } from '../composables/usePaymentMethodsData';
 import PaymentMethodForm from '../components/PaymentMethodForm.vue';
+import AppSwitch from '@/components/common/AppSwitch.vue';
 import AppCard from '@/components/common/AppCard.vue';
 import AppButton from '@/components/common/AppButton.vue';
 import AppInput from '@/components/common/AppInput.vue';
@@ -170,6 +195,10 @@ import AppDialog from '@/components/common/AppDialog.vue';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import EmptyState from '@/components/common/EmptyState.vue';
+import AppInfiniteScroll from '@/components/common/AppInfiniteScroll.vue';
+import { PERMISSIONS } from '@/config/permissions';
+import { useApi } from '@/composables/useApi';
+import { useUserStore } from '@/stores/user';
 
 // Simple debounce
 const debounce = (fn, delay) => {
@@ -185,17 +214,44 @@ const { paymentMethods, loading, total, fetchPaymentMethods, deletePaymentMethod
 // Check for permissions
 import { useAuthStore } from '@/stores/auth';
 const authStore = useAuthStore();
-const isSuperAdmin = computed(() => authStore.user?.permissions?.includes('admin.super'));
-const isCompanyAdmin = computed(() => authStore.user?.permissions?.includes('admin.company'));
+const userStore = useUserStore();
+
+const isSuperAdmin = computed(() => userStore.hasPermission(PERMISSIONS.ADMIN_SUPER));
+const isCompanyAdmin = computed(() => userStore.hasPermission(PERMISSIONS.ADMIN_COMPANY));
 
 const canCreate = computed(() => {
-  return isSuperAdmin.value || isCompanyAdmin.value || authStore.user?.permissions?.includes('payment_methods.create');
+  return isSuperAdmin.value || isCompanyAdmin.value || userStore.hasPermission(PERMISSIONS.PAYMENT_METHODS_CREATE);
 });
 
 const canDelete = item => {
   if (isSuperAdmin.value) return true;
   if (item.is_system) return false;
-  return isCompanyAdmin.value || authStore.user?.permissions?.includes('payment_methods.delete');
+  return isCompanyAdmin.value || userStore.hasPermission(PERMISSIONS.PAYMENT_METHODS_DELETE);
+};
+
+const canToggle = item => {
+  if (isSuperAdmin.value) return true;
+  if (item.is_system) return false;
+  return isCompanyAdmin.value || userStore.hasPermission(PERMISSIONS.PAYMENT_METHODS_UPDATE_ALL);
+};
+
+const methodApi = useApi('/api/payment-methods');
+const togglingId = ref(null);
+
+const handleToggleStatus = async item => {
+  togglingId.value = item.id;
+  try {
+    await methodApi.update(item.id, { active: !item.active });
+    item.active = !item.active;
+  } finally {
+    togglingId.value = null;
+  }
+};
+
+const handleLoadMore = () => {
+  if (loading.value || paymentMethods.value.length >= total.value) return;
+  page.value++;
+  loadData(true);
 };
 
 const page = ref(1);
@@ -206,6 +262,7 @@ const showDialog = ref(false);
 const showDeleteDialog = ref(false);
 const selectedItem = ref(null);
 const deleting = ref(false);
+const isSystemVisible = ref(false);
 
 const headers = [
   { title: 'طريقة الدفع', key: 'name', sortable: true },
@@ -256,16 +313,56 @@ const confirmDelete = async () => {
   }
 };
 
-const loadData = () => {
-  fetchPaymentMethods({
+const onTableOptionsUpdate = options => {
+  // When options change (like itemsPerPage), we want to reload
+  // v-data-table-server handles page and itemsPerPage syncing via v-model
+  if (viewMode.value === 'list') {
+    loadData();
+  }
+};
+
+const loadData = (options = {}) => {
+  const isAppend = options === true;
+
+  const params = {
     page: page.value,
     per_page: itemsPerPage.value,
     search: search.value,
-  });
+  };
+
+  if (isSuperAdmin.value) {
+    params.is_system = isSystemVisible.value ? 1 : 0;
+  }
+
+  fetchPaymentMethods(params, { append: isAppend });
 };
 
 onMounted(loadData);
-watch(page, () => loadData());
+
+watch(page, (newPage, oldPage) => {
+  // Only trigger loadData if it's the List view (Grid view uses handleLoadMore)
+  if (viewMode.value === 'list') {
+    loadData();
+  }
+});
+
+watch(itemsPerPage, () => {
+  if (viewMode.value === 'list') {
+    page.value = 1;
+    loadData();
+  }
+});
+
+watch(viewMode, () => {
+  // Reset when switching views to ensure clean state
+  page.value = 1;
+  loadData();
+});
+
+watch(isSystemVisible, () => {
+  page.value = 1;
+  loadData();
+});
 </script>
 
 <style scoped>
@@ -291,7 +388,7 @@ watch(page, () => loadData());
 }
 
 .method-card-header {
-  height: 140px;
+  height: 180px;
   border-radius: 16px 16px 0 0;
 }
 </style>

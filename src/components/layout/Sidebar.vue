@@ -11,18 +11,51 @@
     class="sidebar"
     color="background"
   >
-    <div class="sidebar-header" @click="!xs ? (rail = !rail) : null">
-      <div class="logo-container">
-        <v-avatar size="32" v-if="userStore.currentUser?.company_logo">
-          <v-img :src="userStore.currentUser.company_logo" contain />
-        </v-avatar>
-        <v-icon v-else icon="ri-building-line" size="32" color="primary" />
-        <transition name="fade">
-          <h2 v-if="!rail || xs" class="logo-text ms-2">hwmix-bill</h2>
-        </transition>
+    <div class="sidebar-sidebar-header-wrapper" :class="{ 'collapsible-header': userStore.companies.length > 1 }">
+      <div
+        class="sidebar-header flex-grow-1"
+        :class="{ clickable: userStore.companies.length > 1 }"
+        @click="userStore.companies.length > 1 ? (showCompanySwitch = true) : null"
+      >
+        <div class="logo-container">
+          <v-avatar size="50" rounded="lg" v-if="activeCompany?.logo" class="logo-avatar">
+            <v-img :src="activeCompany.logo" contain />
+          </v-avatar>
+          <v-avatar v-else size="50" rounded="lg" color="primary" variant="tonal" class="logo-avatar">
+            <v-icon icon="ri-building-line" size="28" />
+          </v-avatar>
+          <transition name="fade">
+            <div v-if="!rail || xs" class="logo-text-wrapper ms-3">
+              <h2 class="logo-text">{{ activeCompany?.name || 'hwmix-bill' }}</h2>
+              <div v-if="activeCompany?.field && !rail" class="company-field text-caption text-primary font-weight-medium">
+                {{ activeCompany.field }}
+              </div>
+              <div v-if="userStore.companies.length > 1" class="text-caption text-grey-darken-1 d-flex align-center mt-0 switch-hint">
+                <span>تبديل الشركة</span>
+                <v-icon icon="ri-arrow-up-down-line" size="10" class="ms-1" />
+              </div>
+            </div>
+          </transition>
+        </div>
+      </div>
+
+      <!-- Absolute Rail Toggle with Tooltip -->
+      <div v-if="!xs" class="header-rail-toggle">
+        <v-tooltip :text="rail ? 'توسيع القائمة' : 'تقليص القائمة'" location="right">
+          <template #activator="{ props: tooltipProps }">
+            <v-btn
+              v-bind="tooltipProps"
+              :icon="!rail ? 'ri-arrow-right-s-line' : 'ri-arrow-left-s-line'"
+              color="primary"
+              size="40"
+              class="rail-floating-btn"
+              elevation="4"
+              @click.stop="rail = !rail"
+            />
+          </template>
+        </v-tooltip>
       </div>
     </div>
-
     <v-divider />
 
     <div class="sidebar-menu-wrapper">
@@ -31,17 +64,9 @@
           <!-- Item with children -->
           <v-list-group v-if="item.children && item.children.length > 0" :value="item.title">
             <template #activator="{ props: groupProps }">
-              <v-tooltip v-if="rail && !xs" :text="item.title" location="end">
-                <template #activator="{ props: tooltipProps }">
-                  <v-list-item
-                    v-bind="{ ...groupProps, ...tooltipProps }"
-                    :prepend-icon="item.icon"
-                    :title="item.title"
-                    class="menu-item group-header"
-                  />
-                </template>
-              </v-tooltip>
-              <v-list-item v-else v-bind="groupProps" :prepend-icon="item.icon" :title="item.title" class="menu-item group-header" />
+              <v-list-item v-bind="groupProps" :prepend-icon="item.icon" :title="item.title" class="menu-item group-header">
+                <v-tooltip v-if="rail && !xs" activator="parent" :text="item.title" location="end" />
+              </v-list-item>
             </template>
 
             <template v-for="(child, childIndex) in item.children.filter(c => canAccess(c.permission))" :key="childIndex">
@@ -72,53 +97,28 @@
 
           <!-- Standalone item -->
           <template v-else>
-            <v-tooltip v-if="rail && !xs" :text="item.title" location="end">
-              <template #activator="{ props: itemTooltipProps }">
-                <v-list-item
-                  v-bind="itemTooltipProps"
-                  :to="item.to"
-                  :prepend-icon="item.icon"
-                  :title="item.title"
-                  class="menu-item"
-                  selected-class="active-link"
-                  @click="xs ? (drawer = false) : null"
-                />
-              </template>
-            </v-tooltip>
             <v-list-item
-              v-else
               :to="item.to"
               :prepend-icon="item.icon"
               :title="item.title"
               class="menu-item"
               selected-class="active-link"
               @click="xs ? (drawer = false) : null"
-            />
+            >
+              <v-tooltip v-if="rail && !xs" activator="parent" :text="item.title" location="end" />
+            </v-list-item>
           </template>
         </template>
+        <!-- Logout Item (Scrollable) -->
+        <v-spacer />
+        <v-divider class="my-2" />
+        <v-list-item prepend-icon="ri-logout-box-line" title="تسجيل الخروج" @click="handleLogout" class="logout-item">
+          <v-tooltip v-if="rail && !xs" activator="parent" text="تسجيل الخروج" location="end" />
+        </v-list-item>
       </v-list>
     </div>
 
-    <template #append>
-      <v-divider />
-      <v-list density="compact" nav>
-        <v-tooltip v-if="rail && !xs" text="تسجيل الخروج" location="end">
-          <template #activator="{ props: logoutTooltipProps }">
-            <v-list-item
-              v-bind="logoutTooltipProps"
-              prepend-icon="ri-logout-box-line"
-              title="تسجيل الخروج"
-              @click="handleLogout"
-              class="logout-item"
-            />
-          </template>
-        </v-tooltip>
-        <v-list-item v-else prepend-icon="ri-logout-box-line" title="تسجيل الخروج" @click="handleLogout" class="logout-item" />
-      </v-list>
-      <div v-if="!xs" class="rail-toggle">
-        <AppButton :icon="rail ? 'ri-menu-unfold-line' : 'ri-menu-fold-line'" variant="text" @click="rail = !rail" />
-      </div>
-    </template>
+    <CompanySwitchDialog v-model="showCompanySwitch" />
   </v-navigation-drawer>
 </template>
 
@@ -127,15 +127,23 @@ import { ref, computed, watch, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 import { useAuthStore } from '@/stores/auth';
-import navigationMenu from '@/config/navigation';
+import navigationMenu, { CUSTOMER_MENU } from '@/config/navigation';
 import { toast } from 'vue3-toastify';
 import { useDisplay } from 'vuetify';
 import AppButton from '@/components/common/AppButton.vue';
+import CompanySwitchDialog from '@/components/common/CompanySwitchDialog.vue';
+
+const showCompanySwitch = ref(false);
 
 const { xs, smAndUp } = useDisplay();
 const router = useRouter();
 const route = useRoute();
 const userStore = useUserStore();
+
+const activeCompany = computed(() => {
+  return userStore.companies.find(c => c.id === userStore.currentUser?.company_id);
+});
+
 const authStore = useAuthStore();
 
 const props = defineProps({
@@ -180,7 +188,8 @@ onMounted(scrollToActive);
 watch(() => route.path, scrollToActive);
 
 const filteredMenu = computed(() => {
-  return navigationMenu.filter(item => canAccess(item.permission));
+  const menuSource = userStore.isStaff ? navigationMenu : CUSTOMER_MENU;
+  return menuSource.filter(item => canAccess(item.permission));
 });
 
 const canAccess = permission => {
@@ -200,6 +209,9 @@ const handleLogout = async () => {
 </script>
 
 <style scoped>
+:deep(.v-list-item--nav .v-list-item-title) {
+  padding: 5px 0;
+}
 .active-link {
   background: rgba(var(--v-theme-primary), 0.12) !important;
   color: rgb(var(--v-theme-primary)) !important;
@@ -214,34 +226,102 @@ const handleLogout = async () => {
   top: 0 !important;
   bottom: 0 !important;
   z-index: 1000;
-  overflow-y: hidden !important;
+  overflow: visible !important; /* Allow rail toggle to show outside */
 }
 
 :deep(.v-navigation-drawer__content) {
   display: flex;
   flex-direction: column;
   height: 100%;
+  overflow: visible !important; /* Allow rail toggle to show outside */
+}
+
+.sidebar-sidebar-header-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 0px 10px;
+  min-height: 74px;
+  transition: all 0.3s ease;
 }
 
 .sidebar-header {
-  padding: 20px 16px;
-  cursor: pointer;
+  padding: 8px 10px;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  overflow: hidden;
+}
+
+.sidebar-header.clickable:hover {
+  background-color: rgba(var(--v-theme-primary), 0.05);
+}
+
+.company-field {
+  font-size: 0.75rem !important;
+  line-height: 1;
+  margin-bottom: 2px;
+  opacity: 0.8;
+}
+
+.switch-hint {
+  font-size: 0.7rem !important;
+  opacity: 0.6;
 }
 
 .logo-container {
   display: flex;
   align-items: center;
-  gap: 12px;
+}
+
+.logo-avatar {
+  flex-shrink: 0;
+  padding: 2px !important;
+}
+
+.logo-text-wrapper {
+  line-height: 1.1;
+  flex: 1;
+  min-width: 0;
 }
 
 .logo-text {
-  font-size: 1.15rem;
+  font-size: 1rem;
   font-weight: 700;
   color: rgb(var(--v-theme-primary));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px;
+  line-height: 1.2;
+}
+
+.header-rail-toggle {
+  position: absolute;
+  top: 50%;
+  inset-inline-end: -14px;
+  transform: translate(-14%, -50%);
+  z-index: 1001;
+}
+
+.rail-icon-btn {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: rgb(var(--v-theme-surface));
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.rail-icon-btn:hover {
+  transform: scale(1.1);
+  color: rgb(var(--v-theme-secondary)) !important;
 }
 
 .sidebar-menu-wrapper {
   flex: 1;
+  height: 100vh;
   overflow-y: auto;
   scroll-behavior: smooth;
 }
