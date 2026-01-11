@@ -26,13 +26,11 @@ jobs:
         env:
           VITE_API_URL: ${{ secrets.TEST_API_URL }}
 
-      - name: Deploy via SSH/Rsync
-        uses: easedit/rsync-deploy-action@v1
+      - name: Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.9.0
         with:
-          host: ${{ secrets.SSH_HOST }}
-          port: ${{ secrets.SSH_PORT }}
-          user: ${{ secrets.SSH_USER }}
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-          local-dir: ./dist/
-          remote-dir: /home/u715355537/domains/hwnix.com/public_html/bill-teste/
-          args: -az --delete
+
+      - name: Deploy via Rsync
+        run: |
+          rsync -avz --delete -e "ssh -p 65002 -o StrictHostKeyChecking=no" ./dist/ u715355537@212.107.17.234:/home/u715355537/domains/hwnix.com/public_html/bill-teste/
