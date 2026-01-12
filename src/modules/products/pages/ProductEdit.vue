@@ -1,1 +1,7 @@
-export { default } from './ProductCreate.vue'
+<template>
+  <ProductCreate />
+</template>
+
+<script setup>
+import ProductCreate from './ProductCreate.vue';
+</script>
