@@ -61,10 +61,14 @@
           <v-col v-for="item in paymentMethods" :key="item.id" cols="12" sm="6" md="4" lg="3">
             <AppCard class="method-card h-100" no-padding>
               <div class="method-card-header d-flex align-center justify-center pa-6 bg-grey-lighten-4 position-relative">
-                <v-avatar size="120" rounded="circle" :color="item.active ? 'bg-white' : 'grey-lighten-3'" class="elevation-1 bg-white">
-                  <v-img v-if="item.image_url" :src="item.image_url" cover />
-                  <v-icon v-else :icon="getMethodIcon(item.code)" size="60" :color="item.active ? 'success' : 'grey'" />
-                </v-avatar>
+                <AppAvatar
+                  :img-url="item.image_url"
+                  :name="item.name"
+                  type="payment"
+                  size="120"
+                  :custom-class="item.active ? 'bg-white' : 'grey-lighten-3'"
+                  class="elevation-1"
+                />
               </div>
 
               <v-card-item class="position-relative pt-4">
@@ -121,10 +125,7 @@
       >
         <template #item.name="{ item }">
           <div class="d-flex align-center py-2">
-            <v-avatar size="48" rounded="circle" :color="item.active ? 'bg-white' : 'grey-lighten-4'" class="me-3 border">
-              <v-img v-if="item.image_url" :src="item.image_url" cover />
-              <v-icon v-else :icon="getMethodIcon(item.code)" size="24" :color="item.active ? 'success' : 'grey'" />
-            </v-avatar>
+            <AppAvatar :img-url="item.image_url" :name="item.name" type="payment" size="48" class="me-3 border" />
             <div class="d-flex flex-column">
               <span class="font-weight-bold">{{ item.name }}</span>
               <v-chip v-if="item.is_system" size="x-small" color="info" variant="tonal" class="mt-1" style="width: fit-content">أساسي</v-chip>
@@ -196,6 +197,7 @@ import AppDataTable from '@/components/common/AppDataTable.vue';
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import EmptyState from '@/components/common/EmptyState.vue';
 import AppInfiniteScroll from '@/components/common/AppInfiniteScroll.vue';
+import AppAvatar from '@/components/common/AppAvatar.vue';
 import { PERMISSIONS } from '@/config/permissions';
 import { useApi } from '@/composables/useApi';
 import { useUserStore } from '@/stores/user';

@@ -24,10 +24,7 @@
     >
       <template #item.user="{ item }">
         <div v-if="item.user" class="d-flex align-center">
-          <v-avatar size="28" color="primary-lighten-5" class="me-2 text-primary font-weight-bold border">
-            <v-img v-if="item.user.avatar_url" :src="item.user.avatar_url" cover />
-            <span v-else>{{ (item.user.nickname || item.user.name)?.charAt(0).toUpperCase() }}</span>
-          </v-avatar>
+          <AppAvatar :img-url="item.user?.avatar_url" :name="item.user?.nickname || item.user?.name" type="user" size="28" class="me-2 border" />
           <span class="font-weight-medium text-body-2">{{ item.user.nickname || item.user.name }}</span>
         </div>
         <div v-else class="d-flex align-center text-grey">

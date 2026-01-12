@@ -8,6 +8,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AppAutocomplete: typeof import('./src/components/common/AppAutocomplete.vue')['default']
+    AppAvatar: typeof import('./src/components/common/AppAvatar.vue')['default']
     AppButton: typeof import('./src/components/common/AppButton.vue')['default']
     AppCard: typeof import('./src/components/common/AppCard.vue')['default']
     AppDataTable: typeof import('./src/components/common/AppDataTable.vue')['default']

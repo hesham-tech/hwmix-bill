@@ -16,10 +16,7 @@
     <v-menu>
       <template #activator="{ props }">
         <AppButton v-bind="props" variant="text" class="user-menu-btn px-2">
-          <v-avatar size="30" color="primary" class="ml-2">
-            <v-img v-if="userStore.currentUser?.avatar_url" :src="userStore.currentUser?.avatar_url" cover />
-            <v-icon v-else icon="ri-user-line" size="small" />
-          </v-avatar>
+          <AppAvatar :img-url="userStore.currentUser?.avatar_url" :name="userStore.currentUser?.full_name" size="30" class="ml-2" />
           <span class="d-none d-sm-inline">{{ userName }}</span>
           <v-icon icon="ri-arrow-down-s-line" size="x-small" class="ms-1" />
         </AppButton>
@@ -62,6 +59,7 @@ import { useLocaleStore } from '@/stores/locale';
 import { authService } from '@/api';
 import Sidebar from '@/components/layout/Sidebar.vue';
 import AppButton from '@/components/common/AppButton.vue';
+import AppAvatar from '@/components/common/AppAvatar.vue';
 import { toast } from 'vue3-toastify';
 import { useDisplay } from 'vuetify';
 

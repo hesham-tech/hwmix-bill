@@ -218,6 +218,7 @@ import { ref, onMounted } from 'vue';
 import { useApi } from '@/composables/useApi';
 import { useUserStore } from '@/stores/user';
 import MediaGallery from '@/components/common/MediaGallery.vue';
+import AppAvatar from '@/components/common/AppAvatar.vue';
 import AppCard from '@/components/common/AppCard.vue';
 import AppInput from '@/components/common/AppInput.vue';
 import AppButton from '@/components/common/AppButton.vue';

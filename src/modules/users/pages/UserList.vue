@@ -132,10 +132,7 @@
       >
         <template #item.name="{ item }">
           <div class="d-flex align-center py-2">
-            <v-avatar size="45" :color="!item.avatar_url ? 'primary-lighten-5' : undefined" class="me-3 border shadow-sm overflow-hidden">
-              <v-img v-if="item.avatar_url" :src="item.avatar_url" cover />
-              <span v-else class="text-primary font-weight-bold text-subtitle-1">{{ getInitials(item.nickname || item.full_name) }}</span>
-            </v-avatar>
+            <AppAvatar :img-url="item.avatar_url" :name="item.nickname || item.full_name" size="45" class="me-3 border shadow-sm" />
             <div class="d-flex flex-column">
               <span class="font-weight-bold text-body-1">{{ item.nickname || item.full_name }}</span>
               <span class="text-caption text-grey d-flex align-center gap-1">

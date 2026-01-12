@@ -40,17 +40,29 @@ export function useDashboardData() {
 
     try {
       // Fetch counts in parallel for better performance
-      const [invoicesRes, productsRes, usersRes, paymentsRes] = await Promise.all([
+      const promises = [
         invoiceApi.get({ per_page: 1 }, { showLoading: false, showError: false }),
         productApi.get({ per_page: 1 }, { showLoading: false, showError: false }),
-        userApi.get({ per_page: 1 }, { showLoading: false, showError: false }),
-        paymentApi.get({ per_page: 1 }, { showLoading: false, showError: false }),
-      ]);
+      ];
+
+      const userStore = typeof window !== 'undefined' ? (await import('@/stores/user')).useUserStore() : null;
+      const isStaff = userStore?.isStaff ?? false;
+
+      if (isStaff) {
+        promises.push(userApi.get({ per_page: 1 }, { showLoading: false, showError: false }));
+        promises.push(paymentApi.get({ per_page: 1 }, { showLoading: false, showError: false }));
+      } else {
+        // Customers only see their own transactions; skip user count
+        promises.push(Promise.resolve({ total: 0 }));
+        promises.push(paymentApi.get({ per_page: 1 }, { showLoading: false, showError: false }));
+      }
+
+      const [invoicesRes, productsRes, usersRes, paymentsRes] = await Promise.all(promises);
 
       stats.value = {
         totalInvoices: invoicesRes.total || invoicesRes.data?.length || 0,
         totalProducts: productsRes.total || productsRes.data?.length || 0,
-        totalUsers: usersRes.total || usersRes.data?.length || 0,
+        totalUsers: isStaff ? usersRes.total || usersRes.data?.length || 0 : 0,
         totalPayments: paymentsRes.total || paymentsRes.data?.length || 0,
       };
     } catch (error) {

@@ -157,7 +157,7 @@ onMounted(() => {
 }
 
 .balance-card {
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  background: linear-gradient(135deg, rgb(var(--v-theme-primary)) 0%, #312e81 100%);
   color: white;
 }
 
