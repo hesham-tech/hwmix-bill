@@ -11,16 +11,19 @@
         <AppCard title="الصورة الشخصية" icon="ri-user-smile-line" class="mb-6" no-padding>
           <v-card-text class="pa-8 text-center bg-grey-lighten-5">
             <div class="avatar-preview-zone mx-auto mb-6 cursor-pointer" @click="showMediaGallery = true">
-              <v-avatar size="180" rounded="circle" color="white" class="border-2 border-dashed elevation-3 hover-scale overflow-hidden">
-                <v-img v-if="formData.avatar_url" :src="formData.avatar_url" cover />
-                <v-icon v-else icon="ri-user-line" size="64" color="grey-lighten-2" />
+              <AppAvatar
+                :img-url="formData.avatar_url"
+                :name="formData.nickname || formData.full_name"
+                size="180"
+                type="user"
+                class="border-2 border-dashed elevation-3 hover-scale overflow-hidden"
+              />
 
-                <!-- Hover Overlay -->
-                <div class="change-overlay d-flex flex-column align-center justify-center">
-                  <v-icon icon="ri-camera-switch-line" color="white" size="32" />
-                  <span class="text-white text-subtitle-2 mt-2 font-weight-bold">تغيير الصورة</span>
-                </div>
-              </v-avatar>
+              <!-- Hover Overlay -->
+              <div class="change-overlay d-flex flex-column align-center justify-center">
+                <v-icon icon="ri-camera-switch-line" color="white" size="32" />
+                <span class="text-white text-subtitle-2 mt-2 font-weight-bold">تغيير الصورة</span>
+              </div>
 
               <!-- Floating Action Button -->
               <v-btn
@@ -52,6 +55,25 @@
             </div>
           </v-card-text>
         </AppCard>
+
+        <!-- Account Specs -->
+        <AppCard title="معلومات الحساب" icon="ri-key-line" class="mb-6">
+          <AppInput
+            v-model="formData.username"
+            label="اسم المستخدم (Username)"
+            prepend-inner-icon="ri-at-line"
+            dir="ltr"
+            placeholder="مثال: hwmix_owner"
+            :error-messages="errors.username"
+          />
+          <AppInput
+            v-model="formData.position"
+            label="المسمى الوظيفي"
+            prepend-inner-icon="ri-briefcase-line"
+            placeholder="مثال: مدير مبيعات، عميل مميز..."
+            :error-messages="errors.position"
+          />
+        </AppCard>
       </v-col>
 
       <!-- Right Column: Profile Form -->
@@ -81,11 +103,11 @@
               <v-col cols="12" md="6">
                 <AppInput
                   v-model="formData.email"
-                  label="البريد الإلكتروني *"
+                  label="البريد الإلكتروني"
                   prepend-inner-icon="ri-mail-line"
                   type="email"
                   dir="ltr"
-                  :rules="[rules.required, rules.email]"
+                  :rules="formData.email ? [rules.email] : []"
                   :error-messages="errors.email"
                 />
               </v-col>
@@ -127,6 +149,7 @@ import AppCard from '@/components/common/AppCard.vue';
 import AppInput from '@/components/common/AppInput.vue';
 import AppButton from '@/components/common/AppButton.vue';
 import MediaGallery from '@/components/common/MediaGallery.vue';
+import AppAvatar from '@/components/common/AppAvatar.vue';
 
 const userStore = useUserStore();
 const api = useApi('/api/users');
@@ -139,6 +162,8 @@ const formData = reactive({
   id: null,
   full_name: '',
   nickname: '',
+  username: '',
+  position: '',
   email: '',
   phone: '',
   avatar_url: '',
@@ -163,6 +188,8 @@ const initForm = () => {
   formData.id = user.id;
   formData.full_name = user.full_name || '';
   formData.nickname = user.nickname || '';
+  formData.username = user.username || '';
+  formData.position = user.position || '';
   formData.email = user.email || '';
   formData.phone = user.phone || '';
   formData.avatar_url = user.avatar_url || '';
