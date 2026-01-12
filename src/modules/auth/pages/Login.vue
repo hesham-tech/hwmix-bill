@@ -63,14 +63,11 @@
                     <!-- Password Input -->
                     <div class="input-group">
                       <label class="input-label">كلمة المرور</label>
-                      <AppInput
+                      <AppPasswordInput
                         v-model="form.password"
-                        :type="showPassword ? 'text' : 'password'"
                         placeholder="أدخل كلمة المرور"
                         :rules="[required]"
                         prepend-inner-icon="ri-lock-line"
-                        :append-inner-icon="showPassword ? 'ri-eye-off-line' : 'ri-eye-line'"
-                        @click:append-inner="showPassword = !showPassword"
                         class="modern-input"
                       />
                     </div>
@@ -132,12 +129,12 @@ import { authService } from '@/api';
 import { required, email } from '@/utils/validators';
 import { toast } from 'vue3-toastify';
 import AppInput from '@/components/common/AppInput.vue';
+import AppPasswordInput from '@/components/common/AppPasswordInput.vue';
 import AppButton from '@/components/common/AppButton.vue';
 
 const router = useRouter();
 const formRef = ref(null);
 const loading = ref(false);
-const showPassword = ref(false);
 
 const form = ref({
   login: '',

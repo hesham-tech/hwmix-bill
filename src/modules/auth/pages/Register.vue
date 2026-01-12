@@ -39,9 +39,8 @@
               </v-col>
 
               <v-col cols="12">
-                <AppInput
+                <AppPasswordInput
                   v-model="form.password"
-                  :type="showPassword ? 'text' : 'password'"
                   label="كلمة المرور *"
                   :rules="[required, strongPassword]"
                   prepend-inner-icon="ri-lock-line"
@@ -49,9 +48,8 @@
               </v-col>
 
               <v-col cols="12">
-                <AppInput
+                <AppPasswordInput
                   v-model="form.password_confirmation"
-                  :type="showPassword ? 'text' : 'password'"
                   label="تأكيد كلمة المرور *"
                   :rules="[required, v => v === form.password || 'كلمة المرور غير متطابقة']"
                   prepend-inner-icon="ri-lock-line"
@@ -90,12 +88,12 @@ import { authService } from '@/api';
 import { required, email, phone, strongPassword } from '@/utils/validators';
 import { toast } from 'vue3-toastify';
 import AppInput from '@/components/common/AppInput.vue';
+import AppPasswordInput from '@/components/common/AppPasswordInput.vue';
 import AppButton from '@/components/common/AppButton.vue';
 
 const router = useRouter();
 const formRef = ref(null);
 const loading = ref(false);
-const showPassword = ref(false);
 
 const form = ref({
   first_name: '',
@@ -130,7 +128,7 @@ const handleRegister = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 6px;
 }
 
@@ -146,7 +144,7 @@ const handleRegister = async () => {
 
 .register-brand {
   flex: 0 0 350px;
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 15px;
   display: flex;
   align-items: center;

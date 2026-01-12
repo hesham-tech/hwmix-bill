@@ -128,10 +128,9 @@
         </v-col>
 
         <v-col v-if="!form.id" cols="12" md="6">
-          <AppInput
+          <AppPasswordInput
             v-model="form.password"
             :label="isEditMode ? 'كلمة المرور (اتركها فارغة للتخطي)' : 'كلمة المرور *'"
-            type="text"
             :rules="isEditMode ? [] : [required, minLength(8)]"
             prepend-inner-icon="ri-lock-line"
           />
@@ -170,6 +169,7 @@ import { ref, watch, onMounted, computed } from 'vue';
 import MediaGallery from '@/components/common/MediaGallery.vue';
 import AppSwitch from '@/components/common/AppSwitch.vue';
 import AppInput from '@/components/common/AppInput.vue';
+import AppPasswordInput from '@/components/common/AppPasswordInput.vue';
 import AppButton from '@/components/common/AppButton.vue';
 import { required, email, phone, minLength } from '@/utils/validators';
 import { PERMISSIONS } from '@/config/permissions';

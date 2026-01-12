@@ -88,10 +88,9 @@
                 <v-text-field v-model="formData.email" label="البريد الإلكتروني *" type="email" :rules="[rules.required, rules.email]" />
               </v-col>
               <v-col cols="12" md="6">
-                <v-text-field
+                <AppPasswordInput
                   v-model="formData.password"
                   :label="isEdit ? 'كلمة المرور (اتركها فارغة لعدم التغيير)' : 'كلمة المرور *'"
-                  type="password"
                   :rules="isEdit ? [] : [rules.required]"
                 />
               </v-col>
@@ -147,6 +146,7 @@ import { useUsersData } from '../composables/useUsersData';
 import { useApi } from '@/composables/useApi';
 import AppSwitch from '@/components/common/AppSwitch.vue';
 import AppCard from '@/components/common/AppCard.vue';
+import AppPasswordInput from '@/components/common/AppPasswordInput.vue';
 const { users, loading, total, fetchUsers, deleteUser } = useUsersData();
 const api = useApi('/api/users');
 const rolesApi = useApi('/api/roles');

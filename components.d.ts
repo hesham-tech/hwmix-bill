@@ -16,6 +16,7 @@ declare module 'vue' {
     AppDialog: typeof import('./src/components/common/AppDialog.vue')['default']
     AppInfiniteScroll: typeof import('./src/components/common/AppInfiniteScroll.vue')['default']
     AppInput: typeof import('./src/components/common/AppInput.vue')['default']
+    AppPasswordInput: typeof import('./src/components/common/AppPasswordInput.vue')['default']
     AppSkeleton: typeof import('./src/components/common/AppSkeleton.vue')['default']
     AppSwitch: typeof import('./src/components/common/AppSwitch.vue')['default']
     AppTextarea: typeof import('./src/components/common/AppTextarea.vue')['default']
