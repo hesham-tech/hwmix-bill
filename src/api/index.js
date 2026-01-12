@@ -8,6 +8,7 @@ export { default as invoiceService } from './services/invoice.service';
 export { default as productService } from './services/product.service';
 export { default as paymentService } from './services/payment.service';
 export { default as installmentService } from './services/installment.service';
+export { default as installmentDetailService } from './services/installment-detail.service';
 export { default as userService } from './services/user.service';
 export { default as warehouseService } from './services/warehouse.service';
 export { default as categoryService } from './services/category.service';
