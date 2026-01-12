@@ -91,11 +91,15 @@
           </AppInput>
         </v-col>
 
-        <v-col cols="12" md="6">
-          <AppInput v-model="form.full_name" label="الاسم الكامل *" :rules="[required]" prepend-inner-icon="ri-user-follow-line" />
+        <v-col cols="12" md="4">
+          <AppInput v-model="form.first_name" label="الاسم الأول *" :rules="[required]" prepend-inner-icon="ri-user-line" />
         </v-col>
 
-        <v-col cols="12" md="6">
+        <v-col cols="12" md="4">
+          <AppInput v-model="form.last_name" label="الاسم الأخير *" :rules="[required]" prepend-inner-icon="ri-user-line" />
+        </v-col>
+
+        <v-col cols="12" md="4">
           <AppInput v-model="form.nickname" label="الاسم المختصر (اللقب) *" :rules="[required]" prepend-inner-icon="ri-user-star-line" />
         </v-col>
 
@@ -214,7 +218,8 @@ const handleLookup = async field => {
 
       // Autofill logic
       form.value.id = result.id;
-      form.value.full_name = result.full_name || form.value.full_name;
+      form.value.first_name = result.first_name || form.value.first_name;
+      form.value.last_name = result.last_name || form.value.last_name;
       form.value.nickname = result.nickname || form.value.nickname;
       form.value.username = result.username || form.value.username;
       form.value.email = result.email || form.value.email;
@@ -235,7 +240,8 @@ const handleLookup = async field => {
 
 const resetForm = () => {
   form.value = {
-    full_name: '',
+    first_name: '',
+    last_name: '',
     nickname: '',
     username: '',
     email: '',
@@ -253,7 +259,8 @@ const resetForm = () => {
 };
 
 const form = ref({
-  full_name: '',
+  first_name: '',
+  last_name: '',
   nickname: '',
   username: '',
   email: '',

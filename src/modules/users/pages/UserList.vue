@@ -130,7 +130,7 @@
         @edit="handleEdit"
         @delete="handleDelete"
       >
-        <template #item.name="{ item }">
+        <template #item.full_name="{ item }">
           <div class="d-flex align-center py-2">
             <AppAvatar :img-url="item.avatar_url" :name="item.nickname || item.full_name" size="45" class="me-3 border shadow-sm" />
             <div class="d-flex flex-column">
@@ -269,7 +269,7 @@ const handleLoadMore = () => {
 };
 
 const headers = [
-  { title: 'المستخدم', key: 'name', sortable: true },
+  { title: 'المستخدم', key: 'full_name', sortable: true },
   { title: 'الهاتف', key: 'phone', sortable: true },
   { title: 'الأدوار', key: 'roles', sortable: false },
   { title: 'الحالة', key: 'status', sortable: true },

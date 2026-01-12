@@ -28,13 +28,13 @@
           @update:items-per-page="handleItemsPerPageChange"
           density="comfortable"
         >
-          <template #item.name="{ item }">
+          <template #item.full_name="{ item }">
             <div class="d-flex align-center">
               <v-avatar size="32" color="primary" class="me-2">
-                <span class="text-white text-caption">{{ item.name?.charAt(0) }}</span>
+                <span class="text-white text-caption">{{ (item.first_name || item.full_name)?.charAt(0) }}</span>
               </v-avatar>
               <div>
-                <div class="font-weight-medium">{{ item.name }}</div>
+                <div class="font-weight-medium">{{ item.full_name }}</div>
                 <div class="text-caption text-medium-emphasis">{{ item.email }}</div>
               </div>
             </div>
@@ -163,7 +163,9 @@ const rolesList = ref([]);
 const loadingRoles = ref(false);
 
 const formData = ref({
-  name: '',
+  first_name: '',
+  last_name: '',
+  nickname: '',
   email: '',
   password: '',
   phone: '',
@@ -174,7 +176,7 @@ const formData = ref({
 const isEdit = computed(() => !!selectedItem.value?.id);
 
 const headers = [
-  { title: 'المستخدم', key: 'name' },
+  { title: 'المستخدم', key: 'full_name' },
   { title: 'الدور', key: 'role' },
   { title: 'الهاتف', key: 'phone' },
   { title: 'الحالة', key: 'is_active' },
@@ -198,7 +200,7 @@ const loadRoles = async () => {
 
 const handleCreate = () => {
   selectedItem.value = null;
-  formData.value = { name: '', email: '', password: '', phone: '', role_id: null, is_active: 1 };
+  formData.value = { first_name: '', last_name: '', nickname: '', email: '', password: '', phone: '', role_id: null, is_active: 1 };
   showDialog.value = true;
   if (!rolesList.value.length) loadRoles();
 };
@@ -206,7 +208,9 @@ const handleCreate = () => {
 const handleEdit = item => {
   selectedItem.value = item;
   formData.value = {
-    name: item.name,
+    first_name: item.first_name || '',
+    last_name: item.last_name || '',
+    nickname: item.nickname || '',
     email: item.email,
     password: '',
     phone: item.phone || '',
