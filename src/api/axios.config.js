@@ -8,7 +8,7 @@ import router from '@/router';
  * مركزي لكل API calls
  */
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
+  baseURL: (import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : import.meta.env.VITE_API_BASE_URL) || '/api',
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',
