@@ -12,7 +12,7 @@
       <div class="register-form-wrapper">
         <div class="register-form">
           <h2 class="text-h4 font-weight-bold mb-2">إنشاء حساب جديد</h2>
-          <p class="text-body-1 text-grey mb-6">املأ البيانات للبدء</p>
+          <p class="text-body-1 text-grey mb-4">املأ البيانات للبدء</p>
 
           <v-form ref="formRef" @submit.prevent="handleRegister">
             <v-row>
@@ -131,7 +131,7 @@ const handleRegister = async () => {
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-  padding: 24px;
+  padding: 12px;
 }
 
 .register-container {
@@ -147,7 +147,7 @@ const handleRegister = async () => {
 .register-brand {
   flex: 0 0 350px;
   background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-  padding: 48px;
+  padding: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -170,7 +170,7 @@ const handleRegister = async () => {
 
 .register-form-wrapper {
   flex: 1;
-  padding: 48px;
+  padding: 32px;
   overflow-y: auto;
 }
 

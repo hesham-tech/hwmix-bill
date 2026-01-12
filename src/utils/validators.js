@@ -99,17 +99,7 @@ export const url = v => {
  */
 export const strongPassword = v => {
   if (!v) return true;
-  const hasMinLength = v.length >= 8;
-  const hasUpperCase = /[A-Z]/.test(v);
-  const hasLowerCase = /[a-z]/.test(v);
-  const hasNumber = /\d/.test(v);
-
-  if (!hasMinLength) return 'كلمة المرور يجب أن تكون 8 أحرف على الأقل';
-  if (!hasUpperCase) return 'كلمة المرور يجب أن تحتوي على حرف كبير';
-  if (!hasLowerCase) return 'كلمة المرور يجب أن تحتوي على حرف صغير';
-  if (!hasNumber) return 'كلمة المرور يجب أن تحتوي على رقم';
-
-  return true;
+  return v.length >= 8 || 'كلمة المرور يجب أن تكون 8 أحرف على الأقل';
 };
 
 /**
