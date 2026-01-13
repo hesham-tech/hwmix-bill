@@ -6,7 +6,7 @@
         <h1 class="text-h4 font-weight-bold ml-2">الفئات</h1>
         <p class="text-body-1 text-grey">إدارة وتحليل فئات المنتجات</p>
       </div>
-      <AppButton v-if="canCreate" prepend-icon="ri-add-line" size="large" elevation="2" @click="handleCreate"> فئة جديدة </AppButton>
+      <AppButton v-if="can('categories.create')" prepend-icon="ri-add-line" size="large" elevation="2" @click="handleCreate"> فئة جديدة </AppButton>
     </div>
 
     <!-- Filters & View Toggle -->
@@ -41,7 +41,7 @@
         icon="ri-folder-line"
         title="لا توجد فئات حالياً"
         :message="search ? 'لا توجد نتائج تطابق بحثك' : 'ابدأ بإضافة أول فئة لنظامك'"
-        :show-action="canCreate"
+        :show-action="can('categories.create')"
         action-text="إضافة فئة"
         @action="handleCreate"
       />
@@ -93,7 +93,7 @@
                     </div>
 
                     <AppSwitch
-                      v-if="canUpdate(category)"
+                      v-if="can('categories.update_all', { resource: category })"
                       :model-value="!!category.active"
                       :loading="togglingId === category.id"
                       @click.stop
@@ -119,8 +119,20 @@
                     دخول
                   </AppButton>
                   <v-spacer />
-                  <AppButton icon="ri-edit-line" variant="text" color="primary" @click.stop="handleEdit(category)" />
-                  <AppButton v-if="canDelete(category)" icon="ri-delete-bin-line" variant="text" color="error" @click.stop="handleDelete(category)" />
+                  <AppButton
+                    v-if="can('categories.update_all', { resource: category })"
+                    icon="ri-edit-line"
+                    variant="text"
+                    color="primary"
+                    @click.stop="handleEdit(category)"
+                  />
+                  <AppButton
+                    v-if="can('categories.delete_all', { resource: category })"
+                    icon="ri-delete-bin-line"
+                    variant="text"
+                    color="error"
+                    @click.stop="handleDelete(category)"
+                  />
                 </template>
               </AppCard>
             </v-col>
@@ -140,6 +152,7 @@
           :can-view="false"
           :can-edit="false"
           :can-delete="false"
+          permission-module="categories"
           @update:options="onTableOptionsUpdate"
         >
           <template #[`item.name`]="{ item }">
@@ -173,7 +186,7 @@
                 {{ item.active ? 'نشط' : 'معطل' }}
               </span>
               <AppSwitch
-                v-if="canUpdate(item)"
+                v-if="can('categories.update_all', { resource: item })"
                 :model-value="!!item.active"
                 :loading="togglingId === item.id"
                 @update:model-value="handleToggleStatus(item)"
@@ -186,8 +199,22 @@
 
           <template #extra-actions="{ item }">
             <AppButton icon="ri-arrow-right-up-line" variant="text" color="info" size="small" @click="handleCategoryClick(item)" title="دخول القسم" />
-            <AppButton v-if="canUpdate(item)" icon="ri-edit-line" variant="text" color="primary" size="small" @click="handleEdit(item)" />
-            <AppButton v-if="canDelete(item)" icon="ri-delete-bin-line" variant="text" color="error" size="small" @click="handleDelete(item)" />
+            <AppButton
+              v-if="can('categories.update_all', { resource: item })"
+              icon="ri-edit-line"
+              variant="text"
+              color="primary"
+              size="small"
+              @click="handleEdit(item)"
+            />
+            <AppButton
+              v-if="can('categories.delete_all', { resource: item })"
+              icon="ri-delete-bin-line"
+              variant="text"
+              color="error"
+              size="small"
+              @click="handleDelete(item)"
+            />
           </template>
         </AppDataTable>
       </template>
@@ -268,7 +295,7 @@ import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useCategoriesData } from '../composables/useCategoriesData';
 import { useApi } from '@/composables/useApi';
-import { useUserStore } from '@/stores/user';
+import { usePermissions } from '@/composables/usePermissions';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 import AppDialog from '@/components/common/AppDialog.vue';
 import AppButton from '@/components/common/AppButton.vue';
@@ -291,11 +318,8 @@ const debounce = (fn, delay) => {
   };
 };
 
-const { categories, loading, total, fetchCategories, deleteCategory } = useCategoriesData();
+const { can } = usePermissions();
 const api = useApi('/api/categories');
-const userStore = useUserStore();
-const route = useRoute();
-const router = useRouter();
 
 const page = ref(1);
 const itemsPerPage = ref(12);
@@ -312,29 +336,6 @@ const showExplorer = ref(false);
 const explorerTarget = ref(null);
 const showMediaGallery = ref(false);
 const imagePreview = ref(null);
-
-const isSuperAdmin = computed(() => userStore.hasPermission(PERMISSIONS.ADMIN_SUPER));
-const isCompanyAdmin = computed(() => userStore.hasPermission(PERMISSIONS.ADMIN_COMPANY));
-
-const canCreate = computed(() => {
-  return isSuperAdmin.value || isCompanyAdmin.value || userStore.hasPermission(PERMISSIONS.CATEGORIES_CREATE);
-});
-
-const canUpdate = item => {
-  if (isSuperAdmin.value || isCompanyAdmin.value) return true;
-  return (
-    userStore.hasPermission(PERMISSIONS.CATEGORIES_UPDATE_ALL) ||
-    (userStore.hasPermission(PERMISSIONS.CATEGORIES_UPDATE_SELF) && item.created_by === userStore.currentUser?.id)
-  );
-};
-
-const canDelete = item => {
-  if (isSuperAdmin.value || isCompanyAdmin.value) return true;
-  return (
-    userStore.hasPermission(PERMISSIONS.CATEGORIES_DELETE_ALL) ||
-    (userStore.hasPermission(PERMISSIONS.CATEGORIES_DELETE_SELF) && item.created_by === userStore.currentUser?.id)
-  );
-};
 
 const formData = ref({ name: '', parent_id: null, active: 1, image_id: null });
 const isEdit = computed(() => !!selectedItem.value?.id);

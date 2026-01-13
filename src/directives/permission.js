@@ -15,11 +15,11 @@ export default {
     const permission = binding.value;
 
     if (!userStore.hasPermission(permission)) {
-      // Hide element if user doesn't have permission
+      el._originalDisplay = el.style.display;
       el.style.display = 'none';
 
-      // Optionally, remove from DOM completely
       if (binding.modifiers.remove) {
+        el._removed = true;
         el.parentNode?.removeChild(el);
       }
     }

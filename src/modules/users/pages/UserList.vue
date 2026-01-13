@@ -92,7 +92,7 @@
         />
 
         <v-switch
-          v-if="userStore.isAdmin"
+          v-if="userStore.isAdmin || can('users.view_all')"
           v-model="store.isGlobalMode"
           label="عرض عالمي"
           color="primary"
@@ -105,7 +105,13 @@
 
         <v-spacer />
 
-        <AppButton color="primary" prepend-icon="ri-user-add-line" class="font-weight-bold rounded-pill" @click="handleCreate">
+        <AppButton
+          v-if="can('users.create')"
+          color="primary"
+          prepend-icon="ri-user-add-line"
+          class="font-weight-bold rounded-pill"
+          @click="handleCreate"
+        >
           مستخدم جديد
         </AppButton>
       </div>
@@ -126,6 +132,7 @@
         :total-items="totalItems || 0"
         :loading="loading"
         hide-pagination
+        permission-module="users"
         @update:options="onTableOptionsUpdate"
         @edit="handleEdit"
         @delete="handleDelete"
@@ -180,6 +187,7 @@
 
         <template #extra-actions="{ item }">
           <v-btn
+            v-if="can('roles.page')"
             icon="ri-shield-user-line"
             size="small"
             variant="text"
@@ -217,6 +225,7 @@
 import { onMounted, watch, computed } from 'vue';
 import { useUserStore as useGlobalUserStore } from '@/stores/user';
 import { useUserStore } from '../store/user.store';
+import { usePermissions } from '@/composables/usePermissions';
 import { useUser } from '../composables/useUser';
 import UserForm from '../components/UserForm.vue';
 import UserPermissionManager from '../components/UserPermissionManager.vue';
@@ -227,6 +236,7 @@ import AppInfiniteScroll from '@/components/common/AppInfiniteScroll.vue';
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
 import { getInitials } from '@/utils/helpers';
 
+const { can } = usePermissions();
 const store = useUserStore();
 const userStore = useGlobalUserStore();
 const {
@@ -306,8 +316,10 @@ const handleSearch = () => {
 };
 
 const onTableOptionsUpdate = options => {
-  store.sortBy = options.sortBy;
-  loadUsers();
+  if (JSON.stringify(store.sortBy) !== JSON.stringify(options.sortBy)) {
+    store.sortBy = options.sortBy;
+    loadUsers();
+  }
 };
 
 const handleManagePermissions = user => {

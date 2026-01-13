@@ -12,24 +12,19 @@ const props = defineProps({
     type: String,
     required: false,
   },
-})
+});
 </script>
 
 <template>
-  <IconBtn>
-    <VIcon
-      :size="iconSize"
-      icon="ri-more-2-line"
-    />
-
-    <VMenu
-      v-if="props.menuList"
-      activator="parent"
-    >
-      <VList
-        :items="props.menuList"
-        :item-props="props.itemProps"
-      />
-    </VMenu>
+  <VMenu v-if="props.menuList">
+    <template #activator="{ props: menuProps }">
+      <IconBtn v-bind="menuProps">
+        <VIcon :size="iconSize" icon="ri-more-2-line" />
+      </IconBtn>
+    </template>
+    <VList :items="props.menuList" :item-props="props.itemProps" />
+  </VMenu>
+  <IconBtn v-else>
+    <VIcon :size="iconSize" icon="ri-more-2-line" />
   </IconBtn>
 </template>

@@ -55,11 +55,32 @@
       <!-- Actions column -->
       <template v-if="showActions" #item.actions="{ item }">
         <div class="d-flex gap-1">
-          <v-btn v-if="canView" icon="ri-eye-line" size="small" variant="text" color="info" @click="$emit('view', item)" />
+          <v-btn
+            v-if="canView && (!permissionModule || can(`${permissionModule}.view_all`, { resource: item }))"
+            icon="ri-eye-line"
+            size="small"
+            variant="text"
+            color="info"
+            @click="$emit('view', item)"
+          />
 
-          <v-btn v-if="canEdit" icon="ri-edit-line" size="small" variant="text" color="primary" @click="$emit('edit', item)" />
+          <v-btn
+            v-if="canEdit && (!permissionModule || can(`${permissionModule}.update_all`, { resource: item }))"
+            icon="ri-edit-line"
+            size="small"
+            variant="text"
+            color="primary"
+            @click="$emit('edit', item)"
+          />
 
-          <v-btn v-if="canDelete" icon="ri-delete-bin-line" size="small" variant="text" color="error" @click="$emit('delete', item)" />
+          <v-btn
+            v-if="canDelete && (!permissionModule || can(`${permissionModule}.delete_all`, { resource: item }))"
+            icon="ri-delete-bin-line"
+            size="small"
+            variant="text"
+            color="error"
+            @click="$emit('delete', item)"
+          />
 
           <slot name="extra-actions" :item="item" />
         </div>
@@ -86,6 +107,9 @@
 
 <script setup>
 import { computed } from 'vue';
+import { usePermissions } from '@/composables/usePermissions';
+
+const { can } = usePermissions();
 
 const props = defineProps({
   // Table data
@@ -140,7 +164,11 @@ const props = defineProps({
     default: '',
   },
 
-  // Actions
+  // Permissions
+  permissionModule: {
+    type: String,
+    default: '',
+  },
   showActions: {
     type: Boolean,
     default: true,

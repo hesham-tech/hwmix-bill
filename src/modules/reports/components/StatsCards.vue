@@ -5,14 +5,48 @@
         <v-card-text class="pa-4 bg-success-lighten-5">
           <div class="d-flex align-center justify-space-between">
             <div>
-              <div class="text-caption font-weight-bold text-success mb-1">إجمالي الفواتير</div>
-              <div class="text-h4 font-weight-black text-success">{{ stats.totalInvoices }}</div>
+              <div class="text-caption font-weight-bold text-success mb-1">إجمالي المبيعات</div>
+              <div class="text-h5 font-weight-black text-success">{{ formatCurrency(stats.totalSales) }}</div>
             </div>
             <v-avatar color="success" size="48" variant="flat" class="rounded-lg">
-              <v-icon icon="ri-file-list-3-line" color="white" size="28" />
+              <v-icon icon="ri-money-dollar-box-line" color="white" size="28" />
             </v-avatar>
           </div>
-          <div class="mt-3 text-caption text-grey">جميع الفواتير المسجلة</div>
+          <div class="mt-3 text-caption text-grey">تراكمي منذ البداية</div>
+        </v-card-text>
+      </v-card>
+    </v-col>
+
+    <v-col cols="12" sm="6" md="3">
+      <v-card border flat class="rounded-xl overflow-hidden pa-1">
+        <v-card-text class="pa-4 bg-primary-lighten-5">
+          <div class="d-flex align-center justify-space-between">
+            <div>
+              <div class="text-caption font-weight-bold text-primary mb-1">مبيعات الشهر</div>
+              <div class="text-h5 font-weight-black text-primary">{{ formatCurrency(stats.monthlySales) }}</div>
+            </div>
+            <v-avatar color="primary" size="48" variant="flat" class="rounded-lg">
+              <v-icon icon="ri-calendar-event-line" color="white" size="28" />
+            </v-avatar>
+          </div>
+          <div class="mt-3 text-caption text-grey">مبيعات الشهر الحالي</div>
+        </v-card-text>
+      </v-card>
+    </v-col>
+
+    <v-col cols="12" sm="6" md="3">
+      <v-card border flat class="rounded-xl overflow-hidden pa-1">
+        <v-card-text class="pa-4 bg-error-lighten-5">
+          <div class="d-flex align-center justify-space-between">
+            <div>
+              <div class="text-caption font-weight-bold text-error mb-1">تحصيل معلق</div>
+              <div class="text-h5 font-weight-black text-error">{{ formatCurrency(stats.pendingPayments) }}</div>
+            </div>
+            <v-avatar color="error" size="48" variant="flat" class="rounded-lg">
+              <v-icon icon="ri-hand-coin-line" color="white" size="28" />
+            </v-avatar>
+          </div>
+          <div class="mt-3 text-caption text-grey">مبالغ لم يتم تحصيلها</div>
         </v-card-text>
       </v-card>
     </v-col>
@@ -22,48 +56,14 @@
         <v-card-text class="pa-4 bg-info-lighten-5">
           <div class="d-flex align-center justify-space-between">
             <div>
-              <div class="text-caption font-weight-bold text-info mb-1">إجمالي المنتجات</div>
-              <div class="text-h4 font-weight-black text-info">{{ stats.totalProducts }}</div>
+              <div class="text-caption font-weight-bold text-info mb-1">العملاء</div>
+              <div class="text-h5 font-weight-black text-info">{{ stats.totalCustomers || 0 }}</div>
             </div>
             <v-avatar color="info" size="48" variant="flat" class="rounded-lg">
-              <v-icon icon="ri-shopping-bag-3-line" color="white" size="28" />
-            </v-avatar>
-          </div>
-          <div class="mt-3 text-caption text-grey">الأصناف المتوفرة حالياً</div>
-        </v-card-text>
-      </v-card>
-    </v-col>
-
-    <v-col cols="12" sm="6" md="3">
-      <v-card border flat class="rounded-xl overflow-hidden pa-1">
-        <v-card-text class="pa-4 bg-warning-lighten-5">
-          <div class="d-flex align-center justify-space-between">
-            <div>
-              <div class="text-caption font-weight-bold text-warning mb-1">فريق العمل</div>
-              <div class="text-h4 font-weight-black text-warning">{{ stats.totalUsers }}</div>
-            </div>
-            <v-avatar color="warning" size="48" variant="flat" class="rounded-lg">
               <v-icon icon="ri-team-line" color="white" size="28" />
             </v-avatar>
           </div>
-          <div class="mt-3 text-caption text-grey">إجمالي المستخدمين والمديرين</div>
-        </v-card-text>
-      </v-card>
-    </v-col>
-
-    <v-col cols="12" sm="6" md="3">
-      <v-card border flat class="rounded-xl overflow-hidden pa-1">
-        <v-card-text class="pa-4 bg-secondary-lighten-5">
-          <div class="d-flex align-center justify-space-between">
-            <div>
-              <div class="text-caption font-weight-bold text-secondary mb-1">المدفوعات</div>
-              <div class="text-h4 font-weight-black text-secondary">{{ stats.totalPayments }}</div>
-            </div>
-            <v-avatar color="secondary" size="48" variant="flat" class="rounded-lg">
-              <v-icon icon="ri-money-dollar-circle-line" color="white" size="28" />
-            </v-avatar>
-          </div>
-          <div class="mt-3 text-caption text-grey">العمليات المالية المحصلة</div>
+          <div class="mt-3 text-caption text-grey">عدد العملاء النشطين</div>
         </v-card-text>
       </v-card>
     </v-col>
@@ -71,6 +71,8 @@
 </template>
 
 <script setup>
+import { formatCurrency } from '@/utils/formatters';
+
 defineProps({
   stats: {
     type: Object,

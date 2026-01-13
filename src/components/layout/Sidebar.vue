@@ -64,9 +64,17 @@
           <!-- Item with children -->
           <v-list-group v-if="item.children && item.children.length > 0" :value="item.title">
             <template #activator="{ props: groupProps }">
-              <v-list-item v-bind="groupProps" :prepend-icon="item.icon" :title="item.title" class="menu-item group-header">
-                <v-tooltip v-if="rail && !xs" activator="parent" :text="item.title" location="end" />
-              </v-list-item>
+              <v-tooltip v-if="rail && !xs" :text="item.title" location="end">
+                <template #activator="{ props: tooltipProps }">
+                  <v-list-item
+                    v-bind="{ ...groupProps, ...tooltipProps }"
+                    :prepend-icon="item.icon"
+                    :title="item.title"
+                    class="menu-item group-header"
+                  />
+                </template>
+              </v-tooltip>
+              <v-list-item v-else v-bind="groupProps" :prepend-icon="item.icon" :title="item.title" class="menu-item group-header" />
             </template>
 
             <template v-for="(child, childIndex) in item.children.filter(c => canAccess(c.permission))" :key="childIndex">
@@ -95,26 +103,46 @@
             </template>
           </v-list-group>
 
-          <!-- Standalone item -->
           <template v-else>
+            <v-tooltip v-if="rail && !xs" :text="item.title" location="end">
+              <template #activator="{ props: tooltipProps }">
+                <v-list-item
+                  v-bind="tooltipProps"
+                  :to="item.to"
+                  :prepend-icon="item.icon"
+                  :title="item.title"
+                  class="menu-item"
+                  selected-class="active-link"
+                  @click="xs ? (drawer = false) : null"
+                />
+              </template>
+            </v-tooltip>
             <v-list-item
+              v-else
               :to="item.to"
               :prepend-icon="item.icon"
               :title="item.title"
               class="menu-item"
               selected-class="active-link"
               @click="xs ? (drawer = false) : null"
-            >
-              <v-tooltip v-if="rail && !xs" activator="parent" :text="item.title" location="end" />
-            </v-list-item>
+            />
           </template>
         </template>
         <!-- Logout Item (Scrollable) -->
         <v-spacer />
         <v-divider class="my-2" />
-        <v-list-item prepend-icon="ri-logout-box-line" title="تسجيل الخروج" @click="handleLogout" class="logout-item">
-          <v-tooltip v-if="rail && !xs" activator="parent" text="تسجيل الخروج" location="end" />
-        </v-list-item>
+        <v-tooltip v-if="rail && !xs" text="تسجيل الخروج" location="end">
+          <template #activator="{ props: logoutTooltipProps }">
+            <v-list-item
+              v-bind="logoutTooltipProps"
+              prepend-icon="ri-logout-box-line"
+              title="تسجيل الخروج"
+              @click="handleLogout"
+              class="logout-item"
+            />
+          </template>
+        </v-tooltip>
+        <v-list-item v-else prepend-icon="ri-logout-box-line" title="تسجيل الخروج" @click="handleLogout" class="logout-item" />
       </v-list>
     </div>
 

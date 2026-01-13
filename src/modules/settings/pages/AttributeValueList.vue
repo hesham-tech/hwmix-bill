@@ -8,7 +8,7 @@
         </div>
         <p class="text-body-1 text-grey ms-10">إدارة القيم المتاحة لهذه الخاصية لاستخدامها في المنتجات</p>
       </div>
-      <AppButton prepend-icon="ri-add-line" @click="handleCreate"> إضافة قيمة جديدة </AppButton>
+      <AppButton v-if="can('attributes.create')" prepend-icon="ri-add-line" @click="handleCreate"> إضافة قيمة جديدة </AppButton>
     </div>
 
     <div class="px-6 pb-6">
@@ -18,6 +18,7 @@
         :headers="headers"
         :items="values"
         :loading="loading"
+        permission-module="attributes"
         @edit="handleEdit"
         @delete="handleDelete"
       >
@@ -60,12 +61,14 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useApi } from '@/composables/useApi';
+import { usePermissions } from '@/composables/usePermissions';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 import AppDialog from '@/components/common/AppDialog.vue';
 import AppButton from '@/components/common/AppButton.vue';
 import AppInput from '@/components/common/AppInput.vue';
 
 const route = useRoute();
+const { can } = usePermissions();
 const attributeId = route.params.id;
 const api = useApi(`/api/attributes/${attributeId}/values`);
 const attributeApi = useApi(`/api/attributes`);

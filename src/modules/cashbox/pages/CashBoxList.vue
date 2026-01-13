@@ -22,7 +22,7 @@
             <v-spacer />
 
             <div class="d-flex align-center gap-3">
-              <AppButton v-if="canCreate" color="primary" prepend-icon="ri-add-line" @click="handleCreate"> خزينة جديدة </AppButton>
+              <AppButton v-if="can('cash_boxes.create')" color="primary" prepend-icon="ri-add-line" @click="handleCreate"> خزينة جديدة </AppButton>
 
               <v-btn-group variant="outlined" density="comfortable" color="primary" class="bg-white">
                 <AppButton :active="viewMode === 'grid'" icon="ri-grid-fill" @click="viewMode = 'grid'" title="عرض شبكي" />
@@ -82,10 +82,10 @@
                       </div>
                     </v-card-text>
 
-                    <template v-if="canUpdate(item) || canDelete(item)" #actions>
+                    <template v-if="can('cash_boxes.update_all', { resource: item }) || can('cash_boxes.delete_all', { resource: item })" #actions>
                       <v-spacer />
                       <AppButton
-                        v-if="canUpdate(item)"
+                        v-if="can('cash_boxes.update_all', { resource: item })"
                         icon="ri-edit-line"
                         variant="text"
                         color="primary"
@@ -93,7 +93,7 @@
                         @click="handleEdit(item)"
                       />
                       <AppButton
-                        v-if="canDelete(item)"
+                        v-if="can('cash_boxes.delete_all', { resource: item })"
                         icon="ri-delete-bin-line"
                         variant="text"
                         color="error"
@@ -117,6 +117,7 @@
               :page="page"
               title="قائمة الخزائن"
               icon="ri-safe-2-line"
+              permission-module="cash_boxes"
               @update:options="onTableOptionsUpdate"
             >
               <template #item.name="{ item }">
@@ -148,7 +149,7 @@
               <template #item.actions="{ item }">
                 <div class="d-flex justify-end gap-1">
                   <AppButton
-                    v-if="canUpdate(item)"
+                    v-if="can('cash_boxes.update_all', { resource: item })"
                     icon="ri-edit-line"
                     size="x-small"
                     variant="text"
@@ -157,7 +158,7 @@
                     @click="handleEdit(item)"
                   />
                   <AppButton
-                    v-if="canDelete(item)"
+                    v-if="can('cash_boxes.delete_all', { resource: item })"
                     icon="ri-delete-bin-line"
                     size="x-small"
                     variant="text"
@@ -258,7 +259,7 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import { useCashBoxesData } from '../composables/useCashBoxesData';
 import { useApi } from '@/composables/useApi';
-import { useAuthStore } from '@/stores/auth';
+import { usePermissions } from '@/composables/usePermissions';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 import AppButton from '@/components/common/AppButton.vue';
 import AppDialog from '@/components/common/AppDialog.vue';
@@ -292,6 +293,7 @@ const handleLoadMore = () => {
   page.value++;
   loadData(true);
 };
+const { can } = usePermissions();
 const api = useApi('/api/cash-boxes');
 const typesApi = useApi('/api/cash-box-types');
 
@@ -308,52 +310,6 @@ const formRef = ref(null);
 const cashBoxTypes = ref([]);
 const loadingTypes = ref(false);
 
-// Permissions
-const authStore = useAuthStore();
-const isSuperAdmin = computed(() => authStore.user?.permissions?.includes(PERMISSIONS.ADMIN_SUPER));
-const isCompanyAdmin = computed(() => authStore.user?.permissions?.includes(PERMISSIONS.ADMIN_COMPANY));
-
-const canCreate = computed(() => {
-  return isSuperAdmin.value || isCompanyAdmin.value || authStore.user?.permissions?.includes(PERMISSIONS.CASH_BOXES_CREATE);
-});
-
-const canUpdate = item => {
-  if (isSuperAdmin.value || isCompanyAdmin.value) return true;
-  return (
-    authStore.user?.permissions?.includes(PERMISSIONS.CASH_BOXES_UPDATE_ALL) ||
-    (authStore.user?.permissions?.includes(PERMISSIONS.CASH_BOXES_UPDATE_SELF) && item.created_by === authStore.user?.id)
-  );
-};
-
-const canDelete = item => {
-  if (isSuperAdmin.value || isCompanyAdmin.value) return true;
-  return (
-    authStore.user?.permissions?.includes(PERMISSIONS.CASH_BOXES_DELETE_ALL) ||
-    (authStore.user?.permissions?.includes(PERMISSIONS.CASH_BOXES_DELETE_SELF) && item.created_by === authStore.user?.id)
-  );
-};
-
-const canUpdateAny = computed(() => {
-  return (
-    isSuperAdmin.value ||
-    isCompanyAdmin.value ||
-    authStore.user?.permissions?.includes(PERMISSIONS.CASH_BOXES_UPDATE_ALL) ||
-    authStore.user?.permissions?.includes(PERMISSIONS.CASH_BOXES_UPDATE_SELF)
-  );
-});
-
-const canDeleteAny = computed(() => {
-  return (
-    isSuperAdmin.value ||
-    isCompanyAdmin.value ||
-    authStore.user?.permissions?.includes(PERMISSIONS.CASH_BOXES_DELETE_ALL) ||
-    authStore.user?.permissions?.includes(PERMISSIONS.CASH_BOXES_DELETE_SELF)
-  );
-});
-
-const formData = ref({ name: '', cash_box_type_id: null, initial_balance: 0, is_active: 1 });
-const isEdit = computed(() => !!selectedItem.value?.id);
-
 const headers = computed(() => {
   const baseHeaders = [
     { title: 'الاسم', key: 'name', sortable: true },
@@ -362,7 +318,7 @@ const headers = computed(() => {
     { title: 'الحالة', key: 'is_active', align: 'center', sortable: true },
   ];
 
-  if (canUpdateAny.value || canDeleteAny.value) {
+  if (can('cash_boxes.update_all') || can('cash_boxes.delete_all')) {
     baseHeaders.push({ title: 'الإجراءات', key: 'actions', sortable: false, align: 'end', width: '120px' });
   }
 

@@ -6,7 +6,7 @@
         <h1 class="text-h4 font-weight-bold ml-2">خصائص المنتجات</h1>
         <p class="text-body-1 text-grey">إدارة وتحليل خصائص ومواصفات المنتجات</p>
       </div>
-      <AppButton v-if="canCreate" prepend-icon="ri-add-line" size="large" elevation="2" @click="handleCreate"> خاصية جديدة </AppButton>
+      <AppButton v-if="can('attributes.create')" prepend-icon="ri-add-line" size="large" elevation="2" @click="handleCreate"> خاصية جديدة </AppButton>
     </div>
 
     <!-- Filters & View Toggle -->
@@ -38,7 +38,7 @@
       icon="ri-paint-brush-line"
       title="لا توجد خصائص حالياً"
       message="ابدأ بإضافة أول خاصية لنظامك (مثل: اللون، المقاس)"
-      :show-action="canCreate"
+      :show-action="can('attributes.create')"
       action-text="إضافة خاصية"
       @action="handleCreate"
     />
@@ -69,7 +69,7 @@
                     {{ attribute.is_active ? 'نشط' : 'معطل' }}
                   </v-chip>
                   <AppSwitch
-                    v-if="canUpdate(attribute)"
+                    v-if="can('attributes.update_all', { resource: attribute })"
                     :model-value="!!attribute.is_active"
                     :loading="togglingId === attribute.id"
                     class="ms-3"
@@ -95,8 +95,20 @@
 
               <template #actions>
                 <v-spacer />
-                <AppButton icon="ri-edit-line" variant="text" color="primary" @click="handleEdit(attribute)" />
-                <AppButton v-if="canDelete(attribute)" icon="ri-delete-bin-line" variant="text" color="error" @click="handleDelete(attribute)" />
+                <AppButton
+                  v-if="can('attributes.update_all', { resource: attribute })"
+                  icon="ri-edit-line"
+                  variant="text"
+                  color="primary"
+                  @click="handleEdit(attribute)"
+                />
+                <AppButton
+                  v-if="can('attributes.delete_all', { resource: attribute })"
+                  icon="ri-delete-bin-line"
+                  variant="text"
+                  color="error"
+                  @click="handleDelete(attribute)"
+                />
               </template>
             </AppCard>
           </v-col>
@@ -116,6 +128,7 @@
         :can-view="false"
         :can-edit="false"
         :can-delete="false"
+        permission-module="attributes"
         @update:options="onTableOptionsUpdate"
       >
         <template #[`item.name`]="{ item }">
@@ -145,7 +158,7 @@
               {{ item.is_active ? 'نشط' : 'معطل' }}
             </span>
             <AppSwitch
-              v-if="canUpdate(item)"
+              v-if="can('attributes.update_all', { resource: item })"
               :model-value="!!item.is_active"
               :loading="togglingId === item.id"
               @update:model-value="handleToggleStatus(item)"
@@ -157,8 +170,22 @@
         </template>
 
         <template #extra-actions="{ item }">
-          <AppButton v-if="canUpdate(item)" icon="ri-edit-line" variant="text" color="primary" size="small" @click="handleEdit(item)" />
-          <AppButton v-if="canDelete(item)" icon="ri-delete-bin-line" variant="text" color="error" size="small" @click="handleDelete(item)" />
+          <AppButton
+            v-if="can('attributes.update_all', { resource: item })"
+            icon="ri-edit-line"
+            variant="text"
+            color="primary"
+            size="small"
+            @click="handleEdit(item)"
+          />
+          <AppButton
+            v-if="can('attributes.delete_all', { resource: item })"
+            icon="ri-delete-bin-line"
+            variant="text"
+            color="error"
+            size="small"
+            @click="handleDelete(item)"
+          />
         </template>
       </AppDataTable>
     </template>
@@ -229,7 +256,7 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import { useAttributesData } from '../composables/useAttributesData';
 import { useApi } from '@/composables/useApi';
-import { useUserStore } from '@/stores/user';
+import { usePermissions } from '@/composables/usePermissions';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 import AppDialog from '@/components/common/AppDialog.vue';
 import AppButton from '@/components/common/AppButton.vue';
@@ -251,8 +278,8 @@ const debounce = (fn, delay) => {
 };
 
 const { attributes, loading, total, fetchAttributes, deleteAttribute } = useAttributesData();
+const { can } = usePermissions();
 const api = useApi('/api/attributes');
-const userStore = useUserStore();
 
 const page = ref(1);
 const itemsPerPage = ref(12);
@@ -265,29 +292,6 @@ const saving = ref(false);
 const deleting = ref(false);
 const formRef = ref(null);
 const togglingId = ref(null);
-
-const isSuperAdmin = computed(() => userStore.hasPermission(PERMISSIONS.ADMIN_SUPER));
-const isCompanyAdmin = computed(() => userStore.hasPermission(PERMISSIONS.ADMIN_COMPANY));
-
-const canCreate = computed(() => {
-  return isSuperAdmin.value || isCompanyAdmin.value || userStore.hasPermission(PERMISSIONS.ATTRIBUTES_CREATE);
-});
-
-const canUpdate = item => {
-  if (isSuperAdmin.value || isCompanyAdmin.value) return true;
-  return (
-    userStore.hasPermission(PERMISSIONS.ATTRIBUTES_UPDATE_ALL) ||
-    (userStore.hasPermission(PERMISSIONS.ATTRIBUTES_UPDATE_SELF) && item.created_by === userStore.currentUser?.id)
-  );
-};
-
-const canDelete = item => {
-  if (isSuperAdmin.value || isCompanyAdmin.value) return true;
-  return (
-    userStore.hasPermission(PERMISSIONS.ATTRIBUTES_DELETE_ALL) ||
-    (userStore.hasPermission(PERMISSIONS.ATTRIBUTES_DELETE_SELF) && item.created_by === userStore.currentUser?.id)
-  );
-};
 
 const formData = ref({ name: '', values: [], is_active: 1 });
 const isEdit = computed(() => !!selectedItem.value?.id);

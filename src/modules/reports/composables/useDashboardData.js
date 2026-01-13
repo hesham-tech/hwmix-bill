@@ -15,7 +15,6 @@ export function useDashboardData() {
 
   // State
   const loading = ref(true);
-  const loadingInvoices = ref(false);
   const loadingUpcoming = ref(false);
   const loadingInstallments = ref(false);
   const refreshing = ref(false);
@@ -25,141 +24,94 @@ export function useDashboardData() {
     totalProducts: 0,
     totalUsers: 0,
     totalPayments: 0,
+    totalSales: 0,
+    monthlySales: 0,
+    pendingPayments: 0,
   });
 
   const recentInvoices = ref([]);
   const upcomingPayments = ref([]);
   const upcomingInstallments = ref([]);
+  const salesTrend = ref([]);
+  const topProducts = ref([]);
 
   /**
-   * Fetch dashboard statistics
-   * جلب الإحصائيات الرئيسية
+   * Fetch dashboard core summary
    */
   const fetchDashboardData = async () => {
     loading.value = true;
-
     try {
-      // Fetch counts in parallel for better performance
-      const promises = [
-        invoiceApi.get({ per_page: 1 }, { showLoading: false, showError: false }),
-        productApi.get({ per_page: 1 }, { showLoading: false, showError: false }),
-      ];
+      const response = await useApi('/api/dashboard/summary').get({}, { showLoading: false });
+      const data = response.data;
 
-      const userStore = typeof window !== 'undefined' ? (await import('@/stores/user')).useUserStore() : null;
-      const isStaff = userStore?.isStaff ?? false;
+      if (data) {
+        // Map backend KPIs
+        stats.value = {
+          totalSales: data.kpis?.total_sales || 0,
+          monthlySales: data.kpis?.monthly_sales || 0,
+          pendingPayments: data.kpis?.pending_payments || 0,
+          totalCustomers: data.kpis?.total_customers || 0,
+          totalProducts: data.kpis?.total_products || 0,
+          totalInvoices: data.recent_invoices?.length || 0, // Fallback if no specific count
+        };
 
-      if (isStaff) {
-        promises.push(userApi.get({ per_page: 1 }, { showLoading: false, showError: false }));
-        promises.push(paymentApi.get({ per_page: 1 }, { showLoading: false, showError: false }));
-      } else {
-        // Customers only see their own transactions; skip user count
-        promises.push(Promise.resolve({ total: 0 }));
-        promises.push(paymentApi.get({ per_page: 1 }, { showLoading: false, showError: false }));
+        salesTrend.value = data.sales_trend || [];
+        recentInvoices.value = data.recent_invoices || [];
+        topProducts.value = data.top_products || [];
       }
-
-      const [invoicesRes, productsRes, usersRes, paymentsRes] = await Promise.all(promises);
-
-      stats.value = {
-        totalInvoices: invoicesRes.total || invoicesRes.data?.length || 0,
-        totalProducts: productsRes.total || productsRes.data?.length || 0,
-        totalUsers: isStaff ? usersRes.total || usersRes.data?.length || 0 : 0,
-        totalPayments: paymentsRes.total || paymentsRes.data?.length || 0,
-      };
     } catch (error) {
-      console.error('Error fetching dashboard stats:', error);
-      // Keep default 0 values on error
+      console.error('Error fetching dashboard summary:', error);
     } finally {
       loading.value = false;
     }
   };
 
   /**
-   * Fetch recent invoices
-   * جلب آخر الفواتير
-   */
-  const fetchRecentInvoices = async () => {
-    loadingInvoices.value = true;
-
-    try {
-      const response = await invoiceApi.get({ per_page: 5, sort: '-created_at' }, { showLoading: false, showError: false });
-      recentInvoices.value = response.data || [];
-    } catch (error) {
-      console.error('Error fetching recent invoices:', error);
-      recentInvoices.value = [];
-    } finally {
-      loadingInvoices.value = false;
-    }
-  };
-
-  /**
    * Fetch upcoming payments (due within 5 days)
-   * جلب الدفعات المستحقة خلال 5 أيام
+   * Remains separate as it might not be in the general summary or needs specific filters
    */
   const fetchUpcomingPayments = async () => {
     loadingUpcoming.value = true;
-
     try {
-      // Calculate date range (today to +5 days)
       const today = new Date();
       const fiveDaysLater = new Date();
       fiveDaysLater.setDate(today.getDate() + 5);
 
-      const todayStr = today.toISOString().split('T')[0];
-      const fiveDaysStr = fiveDaysLater.toISOString().split('T')[0];
-
-      // Fetch unpaid/partial invoices with due date in next 5 days
       const response = await invoiceApi.get(
         {
           payment_status: 'unpaid,partial',
-          due_date_from: todayStr,
-          due_date_to: fiveDaysStr,
-          per_page: 10,
-          sort: 'due_date',
+          due_date_from: today.toISOString().split('T')[0],
+          due_date_to: fiveDaysLater.toISOString().split('T')[0],
+          per_page: 5,
         },
-        { showLoading: false, showError: false }
+        { showLoading: false }
       );
-
       upcomingPayments.value = response.data || [];
-    } catch (error) {
-      console.error('Error fetching upcoming payments:', error);
-      upcomingPayments.value = [];
     } finally {
       loadingUpcoming.value = false;
     }
   };
 
   /**
-   * Fetch upcoming installments (due within 5 days)
-   * جلب الأقساط المستحقة خلال 5 أيام
+   * Fetch upcoming installments
    */
   const fetchUpcomingInstallments = async () => {
     loadingInstallments.value = true;
-
     try {
-      // Calculate date range (today to +5 days)
       const today = new Date();
       const fiveDaysLater = new Date();
       fiveDaysLater.setDate(today.getDate() + 5);
 
-      const todayStr = today.toISOString().split('T')[0];
-      const fiveDaysStr = fiveDaysLater.toISOString().split('T')[0];
-
-      // Fetch pending installments with due date in next 5 days
       const response = await installmentApi.get(
         {
           status: 'pending',
-          due_date_from: todayStr,
-          due_date_to: fiveDaysStr,
-          per_page: 10,
-          sort: 'due_date',
+          due_date_from: today.toISOString().split('T')[0],
+          due_date_to: fiveDaysLater.toISOString().split('T')[0],
+          per_page: 5,
         },
-        { showLoading: false, showError: false }
+        { showLoading: false }
       );
-
       upcomingInstallments.value = response.data || [];
-    } catch (error) {
-      console.error('Error fetching upcoming installments:', error);
-      upcomingInstallments.value = [];
     } finally {
       loadingInstallments.value = false;
     }
@@ -167,12 +119,11 @@ export function useDashboardData() {
 
   /**
    * Refresh all dashboard data
-   * تحديث كافة البيانات
    */
   const refreshAll = async () => {
     refreshing.value = true;
     try {
-      await Promise.all([fetchDashboardData(), fetchRecentInvoices(), fetchUpcomingPayments(), fetchUpcomingInstallments()]);
+      await Promise.all([fetchDashboardData(), fetchUpcomingPayments(), fetchUpcomingInstallments()]);
     } finally {
       refreshing.value = false;
     }
@@ -184,15 +135,15 @@ export function useDashboardData() {
     recentInvoices,
     upcomingPayments,
     upcomingInstallments,
+    salesTrend,
+    topProducts,
     loading,
-    loadingInvoices,
     loadingUpcoming,
     loadingInstallments,
     refreshing,
 
     // Methods
     fetchDashboardData,
-    fetchRecentInvoices,
     fetchUpcomingPayments,
     fetchUpcomingInstallments,
     refreshAll,

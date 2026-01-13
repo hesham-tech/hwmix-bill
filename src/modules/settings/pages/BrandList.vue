@@ -6,7 +6,7 @@
         <h1 class="text-h4 font-weight-bold ml-2">العلامات التجارية</h1>
         <p class="text-body-1 text-grey">إدارة وتحليل العلامات التجارية للمنتجات</p>
       </div>
-      <AppButton v-if="canCreate" prepend-icon="ri-add-line" size="large" elevation="2" @click="handleCreate"> علامة جديدة </AppButton>
+      <AppButton v-if="can('brands.create')" prepend-icon="ri-add-line" size="large" elevation="2" @click="handleCreate"> علامة جديدة </AppButton>
     </div>
 
     <!-- Filters & View Toggle -->
@@ -38,7 +38,7 @@
       icon="ri-award-line"
       title="لا توجد علامات تجارية حالياً"
       message="ابدأ بإضافة أول علامة تجارية لنظامك"
-      :show-action="canCreate"
+      :show-action="can('brands.create')"
       action-text="إضافة ماركة"
       @action="handleCreate"
     />
@@ -78,7 +78,7 @@
                   </div>
 
                   <AppSwitch
-                    v-if="canUpdate(brand)"
+                    v-if="can('brands.update_all', { resource: brand })"
                     :model-value="!!brand.active"
                     :loading="togglingId === brand.id"
                     @update:model-value="handleToggleStatus(brand)"
@@ -99,8 +99,20 @@
 
               <template #actions>
                 <v-spacer />
-                <AppButton icon="ri-edit-line" variant="text" color="primary" @click="handleEdit(brand)" />
-                <AppButton v-if="canDelete(brand)" icon="ri-delete-bin-line" variant="text" color="error" @click="handleDelete(brand)" />
+                <AppButton
+                  v-if="can('brands.update_all', { resource: brand })"
+                  icon="ri-edit-line"
+                  variant="text"
+                  color="primary"
+                  @click="handleEdit(brand)"
+                />
+                <AppButton
+                  v-if="can('brands.delete_all', { resource: brand })"
+                  icon="ri-delete-bin-line"
+                  variant="text"
+                  color="error"
+                  @click="handleDelete(brand)"
+                />
               </template>
             </AppCard>
           </v-col>
@@ -120,6 +132,7 @@
         :can-view="false"
         :can-edit="false"
         :can-delete="false"
+        permission-module="brands"
         @update:options="onTableOptionsUpdate"
       >
         <template #[`item.name`]="{ item }">
@@ -146,7 +159,7 @@
               {{ item.active ? 'نشط' : 'معطل' }}
             </span>
             <AppSwitch
-              v-if="canUpdate(item)"
+              v-if="can('brands.update_all', { resource: item })"
               :model-value="!!item.active"
               :loading="togglingId === item.id"
               @update:model-value="handleToggleStatus(item)"
@@ -158,8 +171,22 @@
         </template>
 
         <template #extra-actions="{ item }">
-          <AppButton v-if="canUpdate(item)" icon="ri-edit-line" variant="text" color="primary" size="small" @click="handleEdit(item)" />
-          <AppButton v-if="canDelete(item)" icon="ri-delete-bin-line" variant="text" color="error" size="small" @click="handleDelete(item)" />
+          <AppButton
+            v-if="can('brands.update_all', { resource: item })"
+            icon="ri-edit-line"
+            variant="text"
+            color="primary"
+            size="small"
+            @click="handleEdit(item)"
+          />
+          <AppButton
+            v-if="can('brands.delete_all', { resource: item })"
+            icon="ri-delete-bin-line"
+            variant="text"
+            color="error"
+            size="small"
+            @click="handleDelete(item)"
+          />
         </template>
       </AppDataTable>
 
@@ -252,8 +279,7 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import { useBrandsData } from '../composables/useBrandsData';
 import { useApi } from '@/composables/useApi';
-import { useAuthStore } from '@/stores/auth';
-import { useUserStore } from '@/stores/user';
+import { usePermissions } from '@/composables/usePermissions';
 import MediaGallery from '@/components/common/MediaGallery.vue';
 import AppSwitch from '@/components/common/AppSwitch.vue';
 import AppCard from '@/components/common/AppCard.vue';
@@ -289,6 +315,7 @@ const handleLoadMore = () => {
   page.value++;
   loadData(true);
 };
+const { can } = usePermissions();
 const api = useApi('/api/brands');
 
 const page = ref(1);
@@ -303,50 +330,6 @@ const saving = ref(false);
 const deleting = ref(false);
 const formRef = ref(null);
 const imagePreview = ref(null);
-
-// Permissions
-const authStore = useAuthStore();
-const userStore = useUserStore();
-const isSuperAdmin = computed(() => userStore.hasPermission(PERMISSIONS.ADMIN_SUPER));
-const isCompanyAdmin = computed(() => userStore.hasPermission(PERMISSIONS.ADMIN_COMPANY));
-
-const canCreate = computed(() => {
-  return isSuperAdmin.value || isCompanyAdmin.value || userStore.hasPermission(PERMISSIONS.BRANDS_CREATE);
-});
-
-const canUpdate = item => {
-  if (isSuperAdmin.value || isCompanyAdmin.value) return true;
-  return (
-    userStore.hasPermission(PERMISSIONS.BRANDS_UPDATE_ALL) ||
-    (userStore.hasPermission(PERMISSIONS.BRANDS_UPDATE_SELF) && item.created_by === userStore.currentUser?.id)
-  );
-};
-
-const canUpdateAny = computed(() => {
-  return (
-    isSuperAdmin.value ||
-    isCompanyAdmin.value ||
-    userStore.hasPermission(PERMISSIONS.BRANDS_UPDATE_ALL) ||
-    userStore.hasPermission(PERMISSIONS.BRANDS_UPDATE_SELF)
-  );
-});
-
-const canDelete = item => {
-  if (isSuperAdmin.value || isCompanyAdmin.value) return true;
-  return (
-    userStore.hasPermission(PERMISSIONS.BRANDS_DELETE_ALL) ||
-    (userStore.hasPermission(PERMISSIONS.BRANDS_DELETE_SELF) && item.created_by === userStore.currentUser?.id)
-  );
-};
-
-const canDeleteAny = computed(() => {
-  return (
-    isSuperAdmin.value ||
-    isCompanyAdmin.value ||
-    userStore.hasPermission(PERMISSIONS.BRANDS_DELETE_ALL) ||
-    userStore.hasPermission(PERMISSIONS.BRANDS_DELETE_SELF)
-  );
-});
 
 const formData = ref({ name: '', active: true, description: '', image_id: null });
 const isEdit = computed(() => !!selectedItem.value?.id);

@@ -31,12 +31,49 @@ export const useUserStore = defineStore('user', () => {
   };
 
   // Check if user has a specific permission (can be string or array)
-  const hasPermission = permission => {
+  const hasPermission = (permission, options = {}) => {
+    // 1. Admin Overrides: Check raw permissions directly to avoid recursion
+    const rawPermissions = permissions.value || [];
+    if (rawPermissions.includes(PERMISSIONS.ADMIN_SUPER) || rawPermissions.includes(PERMISSIONS.ADMIN_COMPANY)) return true;
+
     if (!permission) return true;
+
+    // 2. Handle metadata/ownership if provided
+    const { resource = null } = options;
+
+    const checkSingle = p => {
+      // Direct match
+      if (permissions.value.includes(p)) return true;
+
+      // If checking for a "self" permission, also allow if they have the "all" version
+      if (p.endsWith('_self')) {
+        const allPermission = p.replace('_self', '_all');
+        if (permissions.value.includes(allPermission)) return true;
+      }
+
+      // If resource is provided, check ownership for "self" permissions
+      if (resource) {
+        const userId = currentUser.value?.id;
+        const isOwner = resource.created_by === userId || resource.user_id === userId;
+
+        // If user is owner, they can perform "self" level actions
+        if (isOwner) {
+          // If the permission requested is the "all" version, but they only have "self", return true ONLY if owner
+          if (p.endsWith('_all')) {
+            const selfPermission = p.replace('_all', '_self');
+            if (permissions.value.includes(selfPermission)) return true;
+          }
+        }
+      }
+
+      return false;
+    };
+
     if (Array.isArray(permission)) {
-      return permission.some(p => permissions.value.includes(p));
+      return permission.some(p => checkSingle(p));
     }
-    return permissions.value.includes(permission);
+
+    return checkSingle(permission);
   };
 
   // Check if user has ANY of the permissions
@@ -94,13 +131,11 @@ export const useUserStore = defineStore('user', () => {
     if (isAdmin.value || isCompanyAdmin.value) return true;
 
     // Staff patterns: categories where possessing even one permission indicates an employee/admin role
-    const staffActionPatterns = ['.create', '.update', '.delete', '.view_all', '.view_children', '.page'];
-    const isEmp = permissions.value.some(p => {
-      // Check if permission matches any staff action pattern
-      return staffActionPatterns.some(pattern => p.endsWith(pattern) || p.includes(pattern));
-    });
+    const staffActionPatterns = ['.view_all', '.view_children', '.create', '.update', '.delete', '.page'];
 
-    return isEmp;
+    return permissions.value.some(p => {
+      return staffActionPatterns.some(pattern => p.includes(pattern));
+    });
   });
 
   return {

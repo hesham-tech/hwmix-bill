@@ -6,12 +6,14 @@
 
     <v-spacer />
 
-    <AppButton icon variant="text" @click="toggleLanguage" class="mx-2">
-      <v-icon>ri-translate-2</v-icon>
-      <v-tooltip activator="parent" location="bottom">
-        {{ localeStore.locale === 'ar' ? 'English' : 'عربي' }}
-      </v-tooltip>
-    </AppButton>
+    <v-tooltip location="bottom">
+      <template #activator="{ props: tooltipProps }">
+        <AppButton v-bind="tooltipProps" icon variant="text" @click="toggleLanguage" class="mx-2">
+          <v-icon>ri-translate-2</v-icon>
+        </AppButton>
+      </template>
+      {{ localeStore.locale === 'ar' ? 'English' : 'عربي' }}
+    </v-tooltip>
 
     <v-menu>
       <template #activator="{ props }">
@@ -32,7 +34,7 @@
 
   <v-main class="main-content">
     <div class="sticky-breadcrumbs-container border-b">
-      <v-container fluid class="py-1 px-6">
+      <v-container fluid class="py-1 px-1">
         <v-breadcrumbs :items="breadcrumbs" class="pa-0 text-caption">
           <template #divider>
             <v-icon icon="ri-arrow-left-s-line" size="small" />

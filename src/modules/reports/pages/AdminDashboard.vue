@@ -16,6 +16,16 @@
       <StatsCards :stats="stats" />
     </div>
 
+    <!-- Charts Row -->
+    <v-row class="px-6 mx-0 mb-6">
+      <v-col cols="12" lg="8">
+        <SalesTrendChart :data="salesTrend" :loading="loading" />
+      </v-col>
+      <v-col cols="12" lg="4">
+        <TopProductsChart :data="topProducts" :loading="loading" />
+      </v-col>
+    </v-row>
+
     <!-- Quick Actions & Recent Invoices -->
     <v-row class="px-6 mx-0">
       <v-col cols="12" lg="4">
@@ -23,7 +33,7 @@
       </v-col>
 
       <v-col cols="12" lg="8">
-        <RecentInvoices :invoices="recentInvoices" :loading="loadingInvoices" />
+        <RecentInvoices :invoices="recentInvoices" :loading="loading" />
       </v-col>
     </v-row>
 
@@ -50,6 +60,8 @@ import QuickActions from '../components/QuickActions.vue';
 import RecentInvoices from '../components/RecentInvoices.vue';
 import UpcomingPayments from '../components/UpcomingPayments.vue';
 import UpcomingInstallments from '../components/UpcomingInstallments.vue';
+import SalesTrendChart from '../components/SalesTrendChart.vue';
+import TopProductsChart from '../components/TopProductsChart.vue';
 
 const router = useRouter();
 
@@ -59,14 +71,13 @@ const {
   recentInvoices,
   upcomingPayments,
   upcomingInstallments,
+  salesTrend,
+  topProducts,
+  loading,
   loadingUpcoming,
   loadingInstallments,
   refreshing,
-  fetchDashboardData,
   refreshAll,
-  fetchRecentInvoices,
-  fetchUpcomingPayments,
-  fetchUpcomingInstallments,
 } = useDashboardData();
 
 // Quick actions configuration

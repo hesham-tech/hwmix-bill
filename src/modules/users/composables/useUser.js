@@ -80,6 +80,7 @@ export function useUser() {
     openPermissions,
     closePermissions,
     loadUsers,
+    loadMore,
     loadUser,
     saveUser,
     handleDelete,

@@ -112,7 +112,7 @@ const router = createRouter({
         {
           path: 'products/:id/edit',
           name: 'product-edit',
-          component: () => import('@/modules/products/pages/ProductEdit.vue'),
+          component: () => import('@/modules/products/pages/ProductCreate.vue'),
           meta: {
             title: 'تعديل المنتج',
             permission: PERMISSIONS.PRODUCTS_UPDATE_ALL,

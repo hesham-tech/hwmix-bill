@@ -12,7 +12,7 @@
     @update:items-per-page="$emit('update:items-per-page', $event)"
   >
     <template #actions>
-      <AppButton color="primary" prepend-icon="ri-add-line" @click="$emit('create')"> منتج جديد </AppButton>
+      <AppButton v-if="can('products.create')" color="primary" prepend-icon="ri-add-line" @click="$emit('create')"> منتج جديد </AppButton>
     </template>
 
     <template #item.image="{ item }">
@@ -64,17 +64,44 @@
 
     <template #item.actions="{ item }">
       <div class="d-flex justify-end gap-1">
-        <AppButton icon="ri-eye-line" size="x-small" variant="text" color="info" tooltip="عرض" @click="$emit('view', item)" />
-        <AppButton icon="ri-edit-line" size="x-small" variant="text" color="primary" tooltip="تعديل" @click="$emit('edit', item)" />
-        <AppButton icon="ri-delete-bin-line" size="x-small" variant="text" color="error" tooltip="حذف" @click="$emit('delete', item)" />
+        <AppButton
+          v-if="can('products.view_all', { resource: item })"
+          icon="ri-eye-line"
+          size="x-small"
+          variant="text"
+          color="info"
+          tooltip="عرض"
+          @click="$emit('view', item)"
+        />
+        <AppButton
+          v-if="can('products.update_all', { resource: item })"
+          icon="ri-edit-line"
+          size="x-small"
+          variant="text"
+          color="primary"
+          tooltip="تعديل"
+          @click="$emit('edit', item)"
+        />
+        <AppButton
+          v-if="can('products.delete_all', { resource: item })"
+          icon="ri-delete-bin-line"
+          size="x-small"
+          variant="text"
+          color="error"
+          tooltip="حذف"
+          @click="$emit('delete', item)"
+        />
       </div>
     </template>
   </AppDataTable>
 </template>
 
 <script setup>
+import { usePermissions } from '@/composables/usePermissions';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 import AppButton from '@/components/common/AppButton.vue';
+
+const { can } = usePermissions();
 
 defineProps({
   items: {
