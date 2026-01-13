@@ -1,6 +1,5 @@
 <template>
   <v-text-field
-    v-slot="vSlot"
     v-model="inputValue"
     :type="showPassword ? 'text' : 'password'"
     :append-inner-icon="showPassword ? 'ri-eye-off-line' : 'ri-eye-line'"
@@ -10,8 +9,17 @@
     @blur="$emit('blur', $event)"
     @focus="$emit('focus', $event)"
   >
-    <template v-for="(_, name) in $slots" #[name]="slotData">
-      <slot :name="name" v-bind="slotData" />
+    <!-- Basic slots pass-through -->
+    <template v-if="$slots.prependInner" #prepend-inner>
+      <slot name="prepend-inner" />
+    </template>
+
+    <template v-if="$slots.prepend" #prepend>
+      <slot name="prepend" />
+    </template>
+
+    <template v-if="$slots.append" #append>
+      <slot name="append" />
     </template>
   </v-text-field>
 </template>

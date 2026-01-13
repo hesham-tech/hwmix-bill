@@ -48,15 +48,6 @@
               </v-col>
 
               <v-col cols="12">
-                <AppPasswordInput
-                  v-model="form.password_confirmation"
-                  label="تأكيد كلمة المرور *"
-                  :rules="[required, v => v === form.password || 'كلمة المرور غير متطابقة']"
-                  prepend-inner-icon="ri-lock-line"
-                />
-              </v-col>
-
-              <v-col cols="12">
                 <v-checkbox v-model="form.agree" :rules="[v => !!v || 'يجب الموافقة على الشروط']" density="compact">
                   <template #label>
                     <span class="text-body-2">
@@ -101,7 +92,6 @@ const form = ref({
   email: '',
   phone: '',
   password: '',
-  password_confirmation: '',
   agree: false,
 });
 
