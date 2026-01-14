@@ -172,6 +172,20 @@ class BaseService {
   }
 
   /**
+   * CREATE alias for save
+   */
+  async create(data, options = {}) {
+    return this.save(data, null, options);
+  }
+
+  /**
+   * UPDATE alias for save
+   */
+  async update(id, data, options = {}) {
+    return this.save(data, id, options);
+  }
+
+  /**
    * DELETE resource
    * @param {Number|String} id
    * @param {Object} options

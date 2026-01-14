@@ -25,6 +25,10 @@
               </v-col>
 
               <v-col cols="12">
+                <AppInput v-model="form.nickname" label="اللقب / اسم الشهرة *" :rules="[required]" prepend-inner-icon="ri-user-star-line" />
+              </v-col>
+
+              <v-col cols="12">
                 <AppInput
                   v-model="form.email"
                   label="البريد الإلكتروني *"
@@ -89,6 +93,7 @@ const loading = ref(false);
 const form = ref({
   first_name: '',
   last_name: '',
+  nickname: '',
   email: '',
   phone: '',
   password: '',

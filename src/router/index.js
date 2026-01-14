@@ -379,6 +379,28 @@ const router = createRouter({
           component: () => import('@/pages/Forbidden.vue'),
           meta: { title: 'غير مصرح' },
         },
+
+        // ==================== Task Management ====================
+        {
+          path: 'tasks',
+          name: 'tasks',
+          component: () => import('@/modules/tasks/pages/TasksList.vue'),
+          meta: { title: 'المهام' },
+        },
+        {
+          path: 'task-groups',
+          name: 'task-groups',
+          component: () => import('@/modules/tasks/pages/TaskGroups.vue'),
+          meta: { title: 'مجموعات العمل' },
+        },
+
+        // ==================== Dev Tools ====================
+        {
+          path: 'testing-checklist',
+          name: 'testing-checklist',
+          component: () => import('@/modules/dev/pages/TestingChecklist.vue'),
+          meta: { title: 'قائمة فحص النظام' },
+        },
       ],
     },
 

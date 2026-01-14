@@ -16,12 +16,23 @@
       <StatsCards :stats="stats" />
     </div>
 
-    <!-- Charts Row -->
+    <!-- Charts and Tasks Row -->
     <v-row class="px-6 mx-0 mb-6">
       <v-col cols="12" lg="8">
-        <SalesTrendChart :data="salesTrend" :loading="loading" />
+        <v-row>
+          <v-col cols="12">
+            <SalesTrendChart :data="salesTrend" :loading="loading" />
+          </v-col>
+        </v-row>
       </v-col>
       <v-col cols="12" lg="4">
+        <DashboardTasksWidget />
+      </v-col>
+    </v-row>
+
+    <!-- Top Products row -->
+    <v-row class="px-6 mx-0 mb-6">
+      <v-col cols="12">
         <TopProductsChart :data="topProducts" :loading="loading" />
       </v-col>
     </v-row>
@@ -62,6 +73,7 @@ import UpcomingPayments from '../components/UpcomingPayments.vue';
 import UpcomingInstallments from '../components/UpcomingInstallments.vue';
 import SalesTrendChart from '../components/SalesTrendChart.vue';
 import TopProductsChart from '../components/TopProductsChart.vue';
+import DashboardTasksWidget from '@/modules/tasks/components/DashboardTasksWidget.vue';
 
 const router = useRouter();
 

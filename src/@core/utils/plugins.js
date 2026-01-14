@@ -38,8 +38,6 @@
  * app.mount('#app')
  * ```
  */
-import Toastify from 'vue3-toastify';
-import 'vue3-toastify/dist/index.css';
 
 export const registerPlugins = app => {
   const imports = import.meta.glob(['../../plugins/*.{ts,js}', '../../plugins/*/index.{ts,js}'], { eager: true });
@@ -49,25 +47,5 @@ export const registerPlugins = app => {
     const pluginImportModule = imports[path];
 
     pluginImportModule.default?.(app);
-  });
-
-  // Toastify setup
-  const lang = document.documentElement.getAttribute('lang') || 'ar';
-  const isRtl = lang.startsWith('ar') || lang === 'fa' || lang === 'he';
-  app.use(Toastify, {
-    autoClose: 3000,
-    position: isRtl ? 'top-right' : 'top-left',
-    theme: 'colored',
-    toastStyle: {
-      minHeight: '32px',
-      fontSize: '0.95rem',
-      padding: '8px 16px',
-      borderRadius: '6px',
-      maxWidth: '350px',
-    },
-    bodyStyle: {
-      padding: 0,
-      margin: 0,
-    },
   });
 };

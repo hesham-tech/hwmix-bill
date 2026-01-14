@@ -8,6 +8,24 @@ export default [
     to: '/dashboard',
     permission: null,
   },
+  {
+    title: 'المهام',
+    icon: 'ri-list-settings-line',
+    to: '/tasks',
+    permission: null,
+  },
+  {
+    title: 'مجموعات العمل',
+    icon: 'ri-team-line',
+    to: '/task-groups',
+    permission: null,
+  },
+  {
+    title: 'قائمة الاختبار',
+    icon: 'ri-list-check-3',
+    to: '/testing-checklist',
+    permission: PERMISSIONS.ADMIN_SUPER,
+  },
 
   // ==================== Invoices ====================
   {

@@ -104,8 +104,9 @@
               <v-col cols="12" md="4">
                 <AppInput
                   v-model="formData.nickname"
-                  label="الاسم المستعار / اللقب"
+                  label="الاسم المستعار / اللقب *"
                   prepend-inner-icon="ri-user-heart-line"
+                  :rules="[rules.required]"
                   :error-messages="errors.nickname"
                 />
               </v-col>
@@ -123,7 +124,14 @@
               </v-col>
 
               <v-col cols="12" md="6">
-                <AppInput v-model="formData.phone" label="رقم الهاتف" prepend-inner-icon="ri-phone-line" dir="ltr" :error-messages="errors.phone" />
+                <AppInput
+                  v-model="formData.phone"
+                  label="رقم الهاتف *"
+                  prepend-inner-icon="ri-phone-line"
+                  dir="ltr"
+                  :rules="[rules.required]"
+                  :error-messages="errors.phone"
+                />
               </v-col>
             </v-row>
           </AppCard>

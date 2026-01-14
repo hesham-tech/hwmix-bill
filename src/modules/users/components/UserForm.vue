@@ -92,15 +92,15 @@
         </v-col>
 
         <v-col cols="12" md="4">
+          <AppInput v-model="form.nickname" label="الاسم المختصر (اللقب) *" :rules="[required]" prepend-inner-icon="ri-user-star-line" />
+        </v-col>
+
+        <v-col cols="12" md="4">
           <AppInput v-model="form.first_name" label="الاسم الأول *" :rules="[required]" prepend-inner-icon="ri-user-line" />
         </v-col>
 
         <v-col cols="12" md="4">
           <AppInput v-model="form.last_name" label="الاسم الأخير *" :rules="[required]" prepend-inner-icon="ri-user-line" />
-        </v-col>
-
-        <v-col cols="12" md="4">
-          <AppInput v-model="form.nickname" label="الاسم المختصر (اللقب) *" :rules="[required]" prepend-inner-icon="ri-user-star-line" />
         </v-col>
 
         <v-col cols="12" md="6">
@@ -147,6 +147,31 @@
             <AppSwitch v-model="form.is_active" hide-details />
           </v-card>
         </v-col>
+
+        <!-- Company Assignment (Admin/Manager) -->
+        <v-col v-if="canAssignCompanies" cols="12" class="mt-4">
+          <div class="d-flex align-center gap-2 mb-2 text-info font-weight-bold">
+            <v-icon icon="ri-community-line" />
+            <span>ربط الشركات</span>
+          </div>
+          <v-divider class="mb-4" />
+
+          <v-select
+            v-model="form.company_ids"
+            :items="allCompanies"
+            item-title="name"
+            item-value="id"
+            label="الشركات المرتبطة"
+            multiple
+            chips
+            closable-chips
+            variant="outlined"
+            prepend-inner-icon="ri-building-line"
+            :loading="loadingCompanies"
+            hint="يمكن للمسؤول ربط المستخدم بالشركات التي يديرها"
+            persistent-hint
+          />
+        </v-col>
       </v-row>
 
       <!-- Actions -->
@@ -172,8 +197,9 @@ import AppInput from '@/components/common/AppInput.vue';
 import AppPasswordInput from '@/components/common/AppPasswordInput.vue';
 import AppButton from '@/components/common/AppButton.vue';
 import { required, email, phone, minLength } from '@/utils/validators';
-import { PERMISSIONS } from '@/config/permissions';
-import { useUserStore } from '../store/user.store';
+import { useUserStore as useUserManagementStore } from '../store/user.store';
+import { useUserStore as useGlobalUserStore } from '@/stores/user';
+import { companyService } from '@/api';
 
 const props = defineProps({
   modelValue: {
@@ -188,10 +214,13 @@ const props = defineProps({
 
 const emit = defineEmits(['save', 'cancel']);
 
-const store = useUserStore();
+const store = useUserManagementStore();
+const globalUserStore = useGlobalUserStore();
 const formRef = ref(null);
 const loading = ref(false);
+const loadingCompanies = ref(false);
 const showMediaGallery = ref(false);
+const allCompanies = ref([]);
 const imagePreview = ref(props.modelValue?.avatar_url || null);
 
 // Lookup State
@@ -271,12 +300,28 @@ const form = ref({
   address: '',
   notes: '',
   images_ids: [],
+  company_ids: props.modelValue?.companies?.map(c => c.id) || [],
   ...props.modelValue,
 });
 
-onMounted(() => {
+onMounted(async () => {
   store.fetchRoles();
+
+  if (globalUserStore.isAdmin) {
+    loadingCompanies.value = true;
+    try {
+      const response = await companyService.getAll();
+      allCompanies.value = response.data;
+    } finally {
+      loadingCompanies.value = false;
+    }
+  } else if (globalUserStore.isCompanyAdmin) {
+    // Company user sees the companies they belong to
+    allCompanies.value = globalUserStore.companies;
+  }
 });
+
+const canAssignCompanies = computed(() => globalUserStore.isAdmin || globalUserStore.isCompanyAdmin);
 
 const roleOptions = computed(() => {
   return [...store.roles.map(r => ({ title: r.label || r.name, value: r.name })), { title: 'عميل', value: 'customer' }];

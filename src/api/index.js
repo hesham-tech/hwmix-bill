@@ -17,6 +17,9 @@ export { default as stockService } from './services/stock.service';
 export { default as reportService } from './services/report.service';
 export { default as roleService } from './services/role.service';
 export { default as permissionService } from './services/permission.service';
+export { default as taskService } from './services/task.service';
+export { default as taskGroupService } from './services/task-group.service';
+export { default as companyService } from './services/company.service';
 
 // Export axios instance for custom calls
 export { default as apiClient } from './axios.config';
