@@ -272,11 +272,17 @@ export default [
         permission: PERMISSIONS.ADMIN_SUPER,
       },
 
-      // Backup & Restore
       {
         title: 'النسخ الاحتياطي',
         to: '/backups',
         icon: 'ri-database-2-line',
+        permission: PERMISSIONS.ADMIN_SUPER,
+      },
+      // Error Reports
+      {
+        title: 'تقارير الأعطال',
+        to: '/error-reports',
+        icon: 'ri-bug-line',
         permission: PERMISSIONS.ADMIN_SUPER,
       },
     ],
