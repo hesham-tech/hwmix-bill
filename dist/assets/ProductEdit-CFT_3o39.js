@@ -1,1 +1,0 @@
-import r from"./ProductCreate-BLi_KteM.js";import{s as t,o}from"./index-CuR9-sbN.js";import"./useProductsData-BLhB-E08.js";import"./useApi-CjhFmPue.js";import"./_plugin-vue_export-helper-DlAUqK2U.js";const n={__name:"ProductEdit",setup(e){return(c,p)=>(o(),t(r))}};export{n as default};

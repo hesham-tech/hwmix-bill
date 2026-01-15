@@ -21,27 +21,27 @@
           no-data-text="لا يوجد نسخ احتياطية مسجلة"
           loading-text="جاري تحميل البيانات..."
         >
-          <template #[`item.filename`]="{ item }">
+          <template #item.filename="{ item }">
             <div class="font-weight-medium text-primary">
               {{ item.filename }}
             </div>
           </template>
 
-          <template #[`item.size_bytes`]="{ item }">
+          <template #item.size_bytes="{ item }">
             {{ formatSize(item.size_bytes) }}
           </template>
 
-          <template #[`item.status`]="{ item }">
+          <template #item.status="{ item }">
             <v-chip :color="getStatusColor(item.status)" size="small" class="font-weight-bold">
               {{ getStatusText(item.status) }}
             </v-chip>
           </template>
 
-          <template #[`item.completed_at`]="{ item }">
+          <template #item.completed_at="{ item }">
             {{ new Date(item.completed_at).toLocaleString('ar-EG') }}
           </template>
 
-          <template #[`item.actions`]="{ item }">
+          <template #item.actions="{ item }">
             <div class="d-flex justify-end gap-1">
               <v-tooltip text="تحميل">
                 <template #activator="{ props }">

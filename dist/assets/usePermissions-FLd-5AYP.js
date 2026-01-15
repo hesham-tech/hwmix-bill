@@ -1,1 +1,0 @@
-import{v as r}from"./index-CuR9-sbN.js";function i(){const n=r();return{can:s=>n.hasPermission(s),canAny:(...s)=>n.hasAnyPermission(...s),canAll:(...s)=>n.hasAllPermissions(...s),hasRole:s=>n.hasRole(s)}}export{i as u};
