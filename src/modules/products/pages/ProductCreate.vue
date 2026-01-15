@@ -148,6 +148,13 @@ onMounted(async () => {
 
 <style scoped>
 .product-create-container {
-  margin: -24px; /* Offset parent padding for full-width sticky header if needed */
+  /* Offset parent padding for full-width sticky header on desktop */
+  margin: 0;
+}
+
+@media (min-width: 960px) {
+  .product-create-container {
+    margin: -24px;
+  }
 }
 </style>

@@ -1,38 +1,42 @@
 <template>
   <div class="product-form-overhaul">
     <!-- Premium Sticky Header -->
-    <div class="sticky-header pa-4 glass-blur border-b">
-      <div class="container-premium d-flex align-center justify-space-between mx-auto">
-        <div class="d-flex align-center gap-4">
-          <v-btn icon="ri-arrow-right-line" variant="text" @click="$emit('cancel')" />
+    <div class="sticky-header pa-3 pa-md-4 glass-blur border-b">
+      <div class="container-premium d-flex flex-column flex-sm-row align-start align-sm-center justify-space-between mx-auto gap-3">
+        <div class="d-flex align-center gap-2 gap-md-4">
+          <v-btn icon="ri-arrow-right-line" variant="text" size="small" @click="$emit('cancel')" />
           <div>
-            <div class="text-caption text-grey d-flex align-center gap-1">
+            <div class="text-caption text-grey d-none d-sm-flex align-center gap-1">
               <span>المنتجات</span>
               <v-icon icon="ri-arrow-left-s-line" size="14" />
               <span>إضافة منتج جديد</span>
             </div>
-            <h1 class="text-h6 font-weight-black mb-0">
-              {{ localData.name || 'منتج بدون اسم تحليلي' }}
+            <h1 class="text-subtitle-1 text-md-h6 font-weight-black mb-0">
+              {{ localData.name || 'منتج جديد' }}
             </h1>
           </div>
         </div>
 
-        <div class="d-flex align-center gap-3">
-          <v-chip v-if="localData.active" color="success" size="small" variant="flat" class="font-weight-bold">نشط</v-chip>
-          <v-chip v-else color="grey" size="small" variant="flat" class="font-weight-bold">مسودة</v-chip>
-          <v-divider vertical class="mx-2" />
-          <v-btn variant="text" color="grey-darken-1" class="font-weight-bold" @click="$emit('cancel')">تجاهل</v-btn>
-          <v-btn
-            color="primary"
-            size="large"
-            rounded="xl"
-            class="px-8 font-weight-black elevation-4"
-            :loading="loading"
-            prepend-icon="ri-shield-check-line"
-            @click="handleSubmit"
-          >
-            حفظ المنتج النهائي
-          </v-btn>
+        <div class="d-flex align-center justify-space-between justify-sm-end w-100 w-sm-auto gap-2 gap-md-3">
+          <div class="d-flex align-center gap-2">
+            <v-chip v-if="localData.active" color="success" size="x-small" variant="flat" class="font-weight-bold">نشط</v-chip>
+            <v-chip v-else color="grey" size="x-small" variant="flat" class="font-weight-bold">مسودة</v-chip>
+          </div>
+          <div class="d-flex align-center gap-1 gap-md-2">
+            <v-btn variant="text" color="grey-darken-1" size="small" class="font-weight-bold d-none d-sm-flex" @click="$emit('cancel')">تجاهل</v-btn>
+            <v-btn
+              color="primary"
+              :size="$vuetify.display.mobile ? 'default' : 'large'"
+              rounded="xl"
+              class="px-4 px-md-8 font-weight-black elevation-4"
+              :loading="loading"
+              prepend-icon="ri-shield-check-line"
+              @click="handleSubmit"
+            >
+              حفظ
+              <span class="d-none d-md-inline ms-1">المنتج</span>
+            </v-btn>
+          </div>
         </div>
       </div>
     </div>
@@ -48,7 +52,7 @@
               <ProductGeneral v-model="localData" />
 
               <!-- Media Manager -->
-              <v-card variant="flat" class="pa-6 rounded-xl border bg-white">
+              <v-card variant="flat" class="pa-4 pa-md-6 rounded-xl border bg-white">
                 <div class="d-flex align-center gap-3 mb-6">
                   <v-avatar color="secondary-lighten-5" rounded="lg">
                     <v-icon icon="ri-image-2-line" color="secondary" />
@@ -62,7 +66,7 @@
               <ProductPricing v-model="localData" :warehouses="warehouses" />
 
               <!-- Variants Builder -->
-              <v-card variant="flat" class="pa-6 rounded-xl border bg-white mb-6">
+              <v-card variant="flat" class="pa-4 pa-md-6 rounded-xl border bg-white mb-6">
                 <ProductVariants v-model="localData.variants" :available-attributes="availableAttributes" />
               </v-card>
             </div>
@@ -72,7 +76,7 @@
           <v-col cols="12" lg="4">
             <div class="sticky-sidebar d-flex flex-column gap-6">
               <!-- Category & Brand -->
-              <v-card variant="flat" class="pa-6 rounded-xl border bg-white">
+              <v-card variant="flat" class="pa-4 pa-md-6 rounded-xl border bg-white">
                 <h3 class="text-subtitle-1 font-weight-black mb-6">التصنيف والبراند</h3>
                 <v-row dense>
                   <v-col cols="12">
@@ -113,7 +117,7 @@
               </v-card>
 
               <!-- Stats / Visibility -->
-              <v-card variant="flat" class="pa-6 rounded-xl border bg-white">
+              <v-card variant="flat" class="pa-4 pa-md-6 rounded-xl border bg-white">
                 <h3 class="text-subtitle-1 font-weight-black mb-4">الحالة والظهور</h3>
                 <v-list-item class="pa-0">
                   <template v-slot:prepend>
@@ -128,7 +132,7 @@
               </v-card>
 
               <!-- Tags / SEO -->
-              <v-card variant="flat" class="pa-6 rounded-xl border bg-white">
+              <v-card variant="flat" class="pa-4 pa-md-6 rounded-xl border bg-white">
                 <h3 class="text-subtitle-1 font-weight-black mb-1">الكلمات الدلالية</h3>
                 <p class="text-caption text-grey mb-4">تساعد على تسريع البحث داخل النظام</p>
                 <v-combobox
@@ -145,7 +149,7 @@
               </v-card>
 
               <!-- Internal Memo -->
-              <v-card variant="flat" class="pa-6 rounded-xl border bg-white">
+              <v-card variant="flat" class="pa-4 pa-md-6 rounded-xl border bg-white">
                 <h3 class="text-subtitle-1 font-weight-black mb-1">ملاحظات داخلية</h3>
                 <p class="text-caption text-grey mb-4">ملاحظات لا يراها العميل</p>
                 <v-textarea v-model="localData.internal_note" variant="solo" flat bg-color="grey-lighten-4" class="premium-input-field" rows="3" />
@@ -235,7 +239,6 @@ const handleBrandSaved = brand => {
   position: sticky;
   top: 0;
   z-index: 100;
-  height: 80px;
 }
 
 .glass-blur {
@@ -243,9 +246,19 @@ const handleBrandSaved = brand => {
   backdrop-filter: blur(12px) saturate(180%);
 }
 
-.sticky-sidebar {
-  position: sticky;
-  top: 100px;
+.main-content-wrapper {
+  padding: 12px !important;
+}
+
+@media (min-width: 960px) {
+  .main-content-wrapper {
+    padding: 24px !important;
+  }
+
+  .sticky-sidebar {
+    position: sticky;
+    top: 100px;
+  }
 }
 
 .premium-input-field :deep(.v-field) {

@@ -1,6 +1,6 @@
 <template>
   <div class="product-general-info">
-    <v-card variant="flat" class="pa-6 rounded-xl border bg-white mb-6">
+    <v-card variant="flat" class="pa-4 pa-md-6 rounded-xl border bg-white mb-6">
       <div class="d-flex align-center gap-3 mb-6">
         <v-avatar color="info-lighten-5" rounded="lg">
           <v-icon icon="ri-information-line" color="info" />

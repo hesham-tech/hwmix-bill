@@ -3,7 +3,7 @@
     <v-row>
       <!-- Pricing Section -->
       <v-col cols="12" md="6">
-        <v-card variant="flat" class="pa-6 rounded-xl border bg-white h-100">
+        <v-card variant="flat" class="pa-4 pa-md-6 rounded-xl border bg-white h-100">
           <div class="d-flex align-center gap-3 mb-6">
             <v-avatar color="primary-lighten-5" rounded="lg">
               <v-icon icon="ri-money-dollar-circle-line" color="primary" />
@@ -57,7 +57,7 @@
 
       <!-- Inventory Section -->
       <v-col cols="12" md="6">
-        <v-card variant="flat" class="pa-6 rounded-xl border bg-white h-100">
+        <v-card variant="flat" class="pa-4 pa-md-6 rounded-xl border bg-white h-100">
           <div class="d-flex align-center gap-3 mb-6">
             <v-avatar color="warning-lighten-5" rounded="lg">
               <v-icon icon="ri-home-gear-line" color="warning" />

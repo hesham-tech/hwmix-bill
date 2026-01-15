@@ -380,6 +380,15 @@ const router = createRouter({
             permission: PERMISSIONS.ADMIN_SUPER,
           },
         },
+        {
+          path: 'error-reports',
+          name: 'error-reports',
+          component: () => import('@/modules/settings/pages/ErrorReportList.vue'),
+          meta: {
+            title: 'تقارير الأعطال',
+            permission: PERMISSIONS.ADMIN_SUPER,
+          },
+        },
 
         // ==================== Error Pages ====================
         {

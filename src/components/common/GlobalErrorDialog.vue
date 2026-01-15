@@ -1,4 +1,3 @@
-```html
 <template>
   <v-dialog v-model="isVisible" max-width="600px" persistent>
     <v-card border="error md" rounded="xl" class="pa-4">
@@ -21,6 +20,18 @@
           <div class="text-caption font-weight-bold">رسالة الخطأ:</div>
           <div class="text-caption">{{ pendingReport?.message }}</div>
         </v-alert>
+
+        <v-textarea
+          v-if="!isConnectivityError"
+          v-model="userNotes"
+          label="ملاحظات إضافية (اختياري)"
+          placeholder="ماذا كنت تفعل عند حدوث الخطأ؟"
+          variant="outlined"
+          density="comfortable"
+          rows="2"
+          class="mb-4"
+          hide-details
+        />
 
         <v-expansion-panels v-if="!isConnectivityError" variant="accordion" class="mb-4 shadow-0">
           <v-expansion-panel elevation="0">
@@ -61,11 +72,15 @@ import { toast } from 'vue3-toastify';
 
 const appState = useappState();
 const loading = ref(false);
+const userNotes = ref('');
 
 const isVisible = computed({
   get: () => !!appState.pendingReport,
   set: val => {
-    if (!val) appState.pendingReport = null;
+    if (!val) {
+      appState.pendingReport = null;
+      userNotes.value = '';
+    }
   },
 });
 
@@ -75,6 +90,7 @@ const isConnectivityError = computed(() => !!pendingReport.value?.isConnectivity
 
 const close = () => {
   appState.pendingReport = null;
+  userNotes.value = '';
 };
 
 const reloadPage = () => {
@@ -86,7 +102,11 @@ const submitReport = async () => {
 
   loading.value = true;
   try {
-    const success = await errorReportService.submit(appState.pendingReport);
+    const payload = {
+      ...appState.pendingReport,
+      user_notes: userNotes.value,
+    };
+    const success = await errorReportService.submit(payload);
     if (success) {
       toast.success('شكرًا لك! تم إرسال التقرير بنجاح وسيعمل الفريق على حله.');
       close();
