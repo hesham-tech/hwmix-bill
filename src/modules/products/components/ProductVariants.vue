@@ -7,7 +7,11 @@
           <h3 class="text-h6 font-weight-black mb-1">بناء المتغيرات</h3>
           <p class="text-body-2 text-grey-darken-1">أضف سمات مثل (اللون، المقاس، الخامة) لتوليد تشكيلات المنتج</p>
         </div>
-        <v-btn color="primary" prepend-icon="ri-add-line" variant="tonal" rounded="xl" @click="addAttribute"> إضافة سمة </v-btn>
+        <QuickAddAttribute @saved="handleAttributeSaved">
+          <template v-slot:activator="{ props }">
+            <v-btn color="primary" prepend-icon="ri-add-line" variant="tonal" rounded="xl" v-bind="props"> إضافة سمة </v-btn>
+          </template>
+        </QuickAddAttribute>
       </div>
 
       <div v-for="(attr, index) in attributes" :key="index" class="attr-row-glass pa-4 rounded-lg mb-4 bg-white border">
@@ -19,6 +23,7 @@
               item-title="name"
               item-value="id"
               label="السمة"
+              placeholder="اختر السمة..."
               variant="solo"
               flat
               density="comfortable"
@@ -42,6 +47,7 @@
               hide-details
               bg-color="grey-lighten-4"
               placeholder="مثال: أحمر، أخضر، XL..."
+              @update:model-value="handleValueInput(index)"
             />
           </v-col>
           <v-col cols="12" md="2" class="text-end">
@@ -122,7 +128,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, watch } from 'vue';
+import QuickAddAttribute from './QuickAddAttribute.vue';
+import attributeValueService from '@/api/services/attribute-value.service';
 
 const props = defineProps({
   modelValue: {
@@ -135,7 +143,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:modelValue', 'refresh-attributes']);
 
 const attributes = ref([]);
 const variants = ref([...props.modelValue]);
@@ -161,8 +169,37 @@ const handleAttributeSelect = index => {
   }
 };
 
+const handleValueInput = async index => {
+  const attr = attributes.value[index];
+  if (!attr.id) return;
+
+  const lastValue = attr.selectedValues[attr.selectedValues.length - 1];
+
+  // If the last value is a string, it's a new value that needs to be created
+  if (typeof lastValue === 'string') {
+    try {
+      const response = await attributeValueService.create({
+        attribute_id: attr.id,
+        name: lastValue,
+        active: 1,
+      });
+
+      if (response.status) {
+        // Replace the string with the newly created object
+        attr.selectedValues[attr.selectedValues.length - 1] = response.data[0];
+        // Also add to available values to avoid duplicates
+        attr.availableValues.push(response.data[0]);
+      }
+    } catch (error) {
+      console.error('Failed to create attribute value:', error);
+      // Remove the failed value
+      attr.selectedValues.pop();
+    }
+  }
+};
+
 const generateVariants = () => {
-  generating.ref = true;
+  generating.value = true;
   // Simple Cartesian Product Algorithm
   const combinations = attributes.value.reduce((acc, attr) => {
     if (attr.selectedValues.length === 0) return acc;
@@ -201,6 +238,16 @@ const generateVariants = () => {
 const removeGeneratedVariant = index => {
   variants.value.splice(index, 1);
   emit('update:modelValue', variants.value);
+};
+
+const handleAttributeSaved = attribute => {
+  emit('refresh-attributes');
+  // Add a new row with the newly created attribute
+  attributes.value.push({
+    id: attribute.id,
+    selectedValues: [],
+    availableValues: attribute.values || [],
+  });
 };
 </script>
 

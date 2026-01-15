@@ -76,12 +76,16 @@
                 <h3 class="text-subtitle-1 font-weight-black mb-6">التصنيف والبراند</h3>
                 <v-row dense>
                   <v-col cols="12">
+                    <div class="d-flex align-center justify-space-between mb-1">
+                      <label class="text-caption font-weight-bold text-grey-darken-1">الفئة الأساسية</label>
+                      <QuickAddCategory @saved="handleCategorySaved" />
+                    </div>
                     <v-autocomplete
                       v-model="localData.category_id"
                       :items="categories"
                       item-title="name"
                       item-value="id"
-                      label="الفئة الأساسية"
+                      placeholder="اختر الفئة..."
                       variant="solo"
                       flat
                       bg-color="grey-lighten-4"
@@ -89,12 +93,16 @@
                     />
                   </v-col>
                   <v-col cols="12">
+                    <div class="d-flex align-center justify-space-between mb-1">
+                      <label class="text-caption font-weight-bold text-grey-darken-1">العلامة التجارية</label>
+                      <QuickAddBrand @saved="handleBrandSaved" />
+                    </div>
                     <v-autocomplete
                       v-model="localData.brand_id"
                       :items="brands"
                       item-title="name"
                       item-value="id"
-                      label="العلامة التجارية"
+                      placeholder="اختر البراند..."
                       variant="solo"
                       flat
                       bg-color="grey-lighten-4"
@@ -102,6 +110,21 @@
                     />
                   </v-col>
                 </v-row>
+              </v-card>
+
+              <!-- Stats / Visibility -->
+              <v-card variant="flat" class="pa-6 rounded-xl border bg-white">
+                <h3 class="text-subtitle-1 font-weight-black mb-4">الحالة والظهور</h3>
+                <v-list-item class="pa-0">
+                  <template v-slot:prepend>
+                    <v-icon icon="ri-eye-line" color="grey" />
+                  </template>
+                  <v-list-item-title class="text-body-2">ظهور المنتج</v-list-item-title>
+                  <v-list-item-subtitle class="text-caption">تحديد ما إذا كان المنتج متاحاً للعملاء</v-list-item-subtitle>
+                  <template v-slot:append>
+                    <v-switch v-model="localData.active" color="success" hide-details density="compact" />
+                  </template>
+                </v-list-item>
               </v-card>
 
               <!-- Tags / SEO -->
@@ -141,6 +164,8 @@ import ProductGeneral from './ProductGeneral.vue';
 import ProductMedia from './ProductMedia.vue';
 import ProductPricing from './ProductPricing.vue';
 import ProductVariants from './ProductVariants.vue';
+import QuickAddCategory from './QuickAddCategory.vue';
+import QuickAddBrand from './QuickAddBrand.vue';
 
 const props = defineProps({
   modelValue: {
@@ -156,7 +181,7 @@ const props = defineProps({
   isEdit: { type: Boolean, default: false },
 });
 
-const emit = defineEmits(['update:modelValue', 'submit', 'cancel']);
+const emit = defineEmits(['update:modelValue', 'submit', 'cancel', 'refresh-categories', 'refresh-brands']);
 
 const localData = ref({
   ...props.modelValue,
@@ -184,6 +209,16 @@ watch(
 
 const handleSubmit = () => {
   emit('submit', localData.value);
+};
+
+const handleCategorySaved = category => {
+  emit('refresh-categories');
+  localData.value.category_id = category.id;
+};
+
+const handleBrandSaved = brand => {
+  emit('refresh-brands');
+  localData.value.brand_id = brand.id;
 };
 </script>
 

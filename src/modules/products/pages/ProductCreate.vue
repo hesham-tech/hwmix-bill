@@ -11,6 +11,9 @@
       :is-edit="isEdit"
       @submit="handleSubmit"
       @cancel="handleCancel"
+      @refresh-categories="loadCategories"
+      @refresh-brands="loadBrands"
+      @refresh-attributes="loadAttributes"
     />
   </div>
 </template>
@@ -64,19 +67,29 @@ const formData = ref({
 
 const isEdit = computed(() => !!route.params.id);
 
+const loadCategories = async () => {
+  const res = await categoriesApi.get({ per_page: 100 }, { showLoading: false });
+  categories.value = res.data || [];
+};
+
+const loadBrands = async () => {
+  const res = await brandsApi.get({ per_page: 100 }, { showLoading: false });
+  brands.value = res.data || [];
+};
+
+const loadWarehouses = async () => {
+  const res = await warehousesApi.get({ per_page: 100 }, { showLoading: false });
+  warehouses.value = res.data || [];
+};
+
+const loadAttributes = async () => {
+  const res = await attributesApi.get({ per_page: 100 }, { showLoading: false });
+  attributes.value = res.data || [];
+};
+
 const loadInitialData = async () => {
   try {
-    const [catRes, brandRes, whRes, attrRes] = await Promise.all([
-      categoriesApi.get({ per_page: 100 }, { showLoading: false }),
-      brandsApi.get({ per_page: 100 }, { showLoading: false }),
-      warehousesApi.get({ per_page: 100 }, { showLoading: false }),
-      attributesApi.get({ per_page: 100 }, { showLoading: false }),
-    ]);
-
-    categories.value = catRes.data || [];
-    brands.value = brandRes.data || [];
-    warehouses.value = whRes.data || [];
-    attributes.value = attrRes.data || [];
+    await Promise.all([loadCategories(), loadBrands(), loadWarehouses(), loadAttributes()]);
   } catch (error) {
     console.error('Failed to load initial data:', error);
   }

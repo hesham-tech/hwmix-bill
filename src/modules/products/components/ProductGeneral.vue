@@ -67,37 +67,6 @@
         </v-col>
       </v-row>
     </v-card>
-
-    <!-- Additional Options -->
-    <v-row dense>
-      <v-col cols="12" sm="4">
-        <v-card variant="outlined" class="pa-4 rounded-xl d-flex align-center border-dashed">
-          <v-switch v-model="localData.active" color="primary" hide-details />
-          <div class="ms-3">
-            <div class="text-body-2 font-weight-black">حالة المنتج</div>
-            <div class="text-caption text-grey">{{ localData.active ? 'نشط ومعروض' : 'مسودة مخفية' }}</div>
-          </div>
-        </v-card>
-      </v-col>
-      <v-col cols="12" sm="4">
-        <v-card variant="outlined" class="pa-4 rounded-xl d-flex align-center border-dashed">
-          <v-switch v-model="localData.featured" color="warning" hide-details />
-          <div class="ms-3">
-            <div class="text-body-2 font-weight-black">منتج مميز</div>
-            <div class="text-caption text-grey">يظهر في الواجهة الرئيسية</div>
-          </div>
-        </v-card>
-      </v-col>
-      <v-col cols="12" sm="4">
-        <v-card variant="outlined" class="pa-4 rounded-xl d-flex align-center border-dashed">
-          <v-switch v-model="localData.returnable" color="info" hide-details />
-          <div class="ms-3">
-            <div class="text-body-2 font-weight-black">قابل للإرجاع</div>
-            <div class="text-caption text-grey">يخضع لسياسة الاستبدال</div>
-          </div>
-        </v-card>
-      </v-col>
-    </v-row>
   </div>
 </template>
 
