@@ -271,6 +271,14 @@ export default [
         icon: 'ri-history-line',
         permission: PERMISSIONS.ADMIN_SUPER,
       },
+
+      // Backup & Restore
+      {
+        title: 'النسخ الاحتياطي',
+        to: '/backups',
+        icon: 'ri-database-2-line',
+        permission: PERMISSIONS.ADMIN_SUPER,
+      },
     ],
   },
 ];

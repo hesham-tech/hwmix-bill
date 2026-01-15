@@ -85,15 +85,21 @@ const settingCards = computed(() => {
     });
   }
 
-  if (authStore.user?.permissions?.includes(PERMISSIONS.ADMIN_SUPER)) {
-    cards.push({
-      title: 'سجل الأنشطة',
-      description: 'مراقبة كافة العمليات والتغييرات في النظام',
-      icon: 'ri-history-line',
-      color: 'error',
-      to: '/activity-logs',
-    });
-  }
+      cards.push({
+        title: 'سجل الأنشطة',
+        description: 'مراقبة كافة العمليات والتغييرات في النظام',
+        icon: 'ri-history-line',
+        color: 'error',
+        to: '/activity-logs',
+      });
+      cards.push({
+        title: 'النسخ الاحتياطي',
+        description: 'إدارة النسخ الاحتياطية واستعادة النظام والإعدادات',
+        icon: 'ri-database-2-line',
+        color: 'blue-grey',
+        to: '/backups',
+      });
+    }
 
   // Common Settings for modules (even for non-admins if they have modular view perms)
   cards.push(

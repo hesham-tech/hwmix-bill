@@ -371,6 +371,15 @@ const router = createRouter({
           component: () => import('@/modules/settings/pages/Settings.vue'),
           meta: { title: 'الإعدادات' },
         },
+        {
+          path: 'backups',
+          name: 'backups',
+          component: () => import('@/modules/settings/pages/BackupList.vue'),
+          meta: {
+            title: 'النسخ الاحتياطي',
+            permission: PERMISSIONS.ADMIN_SUPER,
+          },
+        },
 
         // ==================== Error Pages ====================
         {
