@@ -1,0 +1,1 @@
+import{y as r}from"./index-B0c0aplS.js";function i(){const n=r();return{can:s=>n.hasPermission(s),canAny:(...s)=>n.hasAnyPermission(...s),canAll:(...s)=>n.hasAllPermissions(...s),hasRole:s=>n.hasRole(s)}}export{i as u};

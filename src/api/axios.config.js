@@ -75,17 +75,25 @@ apiClient.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // 500: Server Error - Offer reporting
-    if (error?.response?.status >= 500) {
+    // 500+ Server Errors OR Connection Failures (status 0)
+    if (error?.response?.status >= 500 || !error.response) {
+      const isConnectivityError = !error.response || error.code === 'ERR_NETWORK' || error.message === 'Network Error';
+
       // Collect technical info and trigger global dialog
       import('@/utils/error-collector').then(module => {
         module
           .collectErrorInfo(error, {
-            type: 'server_error',
+            type: isConnectivityError ? 'connectivity_error' : 'server_error',
+            isConnectivityError,
+            request: {
+              method: error?.config?.method?.toUpperCase(),
+              url: error?.config?.url,
+              params: error?.config?.params,
+              data: error?.config?.data,
+            },
             extraData: {
-              status: error?.response?.status,
-              apiUrl: error?.config?.url,
-              requestData: error?.config?.data,
+              status: error?.response?.status || 0,
+              code: error?.code,
             },
           })
           .then(info => {

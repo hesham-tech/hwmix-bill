@@ -12,6 +12,7 @@ export const collectErrorInfo = async (error, context = {}) => {
     os: getOSInfo(),
     type: context.type || 'error',
     severity: context.severity || 'medium',
+    isConnectivityError: !!context.isConnectivityError,
     payload: {
       timestamp: new Date().toISOString(),
       route: window.location.hash || window.location.pathname,
@@ -19,6 +20,7 @@ export const collectErrorInfo = async (error, context = {}) => {
         width: window.innerWidth,
         height: window.innerHeight,
       },
+      request: context.request || null, // Capture Method, Params, Payload
       ...context.extraData,
     },
   };
