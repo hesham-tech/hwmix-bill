@@ -204,7 +204,17 @@ const localData = ref({
 watch(
   () => props.modelValue,
   newVal => {
-    localData.value = { ...newVal };
+    // Only update localData if the value is functionally different
+    // AND it wasn't just emitted by us (to prevent loops)
+    if (JSON.stringify(newVal) !== JSON.stringify(localData.value)) {
+      localData.value = {
+        ...newVal,
+        images: newVal.images || [],
+        variants: newVal.variants || [],
+        tags: newVal.tags || [],
+        active: newVal.active ?? true,
+      };
+    }
   },
   { deep: true }
 );
@@ -212,7 +222,11 @@ watch(
 watch(
   localData,
   newVal => {
-    emit('update:modelValue', newVal);
+    // Check if the change actually came from user input or local mutation
+    // and is different from current props to avoid cycling
+    if (JSON.stringify(newVal) !== JSON.stringify(props.modelValue)) {
+      emit('update:modelValue', newVal);
+    }
   },
   { deep: true }
 );

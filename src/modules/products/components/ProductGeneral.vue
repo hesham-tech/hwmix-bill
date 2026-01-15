@@ -11,7 +11,8 @@
       <v-row dense>
         <v-col cols="12">
           <v-text-field
-            v-model="localData.name"
+            :model-value="localData.name"
+            @update:model-value="val => updateValue('name', val)"
             label="اسم المنتج"
             placeholder="مثال: آيفون 15 برو ماكس"
             variant="solo"
@@ -25,7 +26,8 @@
 
         <v-col cols="12" md="6">
           <v-text-field
-            v-model="localData.sku"
+            :model-value="localData.sku"
+            @update:model-value="val => updateValue('sku', val)"
             label="SKU (كود المنتج)"
             placeholder="اتركه فارغاً للتوليد التلقائي"
             variant="solo"
@@ -38,7 +40,8 @@
 
         <v-col cols="12" md="6">
           <v-text-field
-            v-model="localData.barcode"
+            :model-value="localData.barcode"
+            @update:model-value="val => updateValue('barcode', val)"
             label="الباركود (Barcode)"
             placeholder="رقم الباركود العالمي"
             variant="solo"
@@ -55,7 +58,8 @@
             <v-chip size="x-small" color="grey" variant="tonal">يدعم التنسيق الغني</v-chip>
           </div>
           <v-textarea
-            v-model="localData.desc"
+            :model-value="localData.desc"
+            @update:model-value="val => updateValue('desc', val)"
             placeholder="اكتب وصفاً جذاباً للمنتج..."
             variant="solo"
             flat
@@ -82,10 +86,19 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue']);
 
+// ProductGeneral acts as a controlled component,
+// its v-model (localData) is linked to the parent's localData.
 const localData = computed({
   get: () => props.modelValue,
   set: val => emit('update:modelValue', val),
 });
+
+const updateValue = (key, value) => {
+  emit('update:modelValue', {
+    ...props.modelValue,
+    [key]: value,
+  });
+};
 </script>
 
 <style scoped>
