@@ -6,7 +6,8 @@ export const useappState = defineStore('appState', {
     isLoader: false,
     errorServer: false,
     loadingApi: false,
-    errorMessag: null,
+    errorMessage: null,
     dialogDelete: false,
+    pendingReport: null, // Holds error info for the global dialog
   }),
 });

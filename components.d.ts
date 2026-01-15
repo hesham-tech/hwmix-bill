@@ -35,6 +35,7 @@ declare module 'vue' {
     FormActions: typeof import('./src/components/forms/FormActions.vue')['default']
     FormField: typeof import('./src/components/forms/FormField.vue')['default']
     FormSection: typeof import('./src/components/forms/FormSection.vue')['default']
+    GlobalErrorDialog: typeof import('./src/components/common/GlobalErrorDialog.vue')['default']
     InventoryForm: typeof import('./src/components/forms/InventoryForm.vue')['default']
     LoadingSpinner: typeof import('./src/components/common/LoadingSpinner.vue')['default']
     MediaGallery: typeof import('./src/components/common/MediaGallery.vue')['default']

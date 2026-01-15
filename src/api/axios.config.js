@@ -75,6 +75,28 @@ apiClient.interceptors.response.use(
       return Promise.reject(error);
     }
 
+    // 500: Server Error - Offer reporting
+    if (error?.response?.status >= 500) {
+      // Collect technical info and trigger global dialog
+      import('@/utils/error-collector').then(module => {
+        module
+          .collectErrorInfo(error, {
+            type: 'server_error',
+            extraData: {
+              status: error?.response?.status,
+              apiUrl: error?.config?.url,
+              requestData: error?.config?.data,
+            },
+          })
+          .then(info => {
+            import('@/stores/appState').then(storeModule => {
+              const appState = storeModule.useappState();
+              appState.pendingReport = info;
+            });
+          });
+      });
+    }
+
     return Promise.reject(error);
   }
 );

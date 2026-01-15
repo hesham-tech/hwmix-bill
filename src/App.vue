@@ -1,11 +1,13 @@
 <template>
   <v-app>
     <router-view />
+    <GlobalErrorDialog />
   </v-app>
 </template>
 
 <script setup>
 import { onMounted, watch } from 'vue';
+import GlobalErrorDialog from '@/components/common/GlobalErrorDialog.vue';
 import { useLocaleStore } from '@/stores/locale';
 import { useUserStore } from '@/stores/user';
 import { useNotifications } from '@/plugins/notification';

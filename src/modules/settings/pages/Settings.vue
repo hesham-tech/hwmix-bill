@@ -100,6 +100,13 @@ const settingCards = computed(() => {
       color: 'blue-grey',
       to: '/backups',
     });
+    cards.push({
+      title: 'تقارير الأعطال',
+      description: 'متابعة المشاكل التقنية التي أبلغ عنها المستخدمون',
+      icon: 'ri-bug-line',
+      color: 'warning',
+      to: '/error-reports',
+    });
   }
 
   // Common Settings for modules (even for non-admins if they have modular view perms)
