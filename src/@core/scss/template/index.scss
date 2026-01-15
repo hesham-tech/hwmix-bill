@@ -1,11 +1,72 @@
-@use "sass:map";
-@use "@core/scss/base";
+@use 'sass:map';
+@use '@core/scss/base';
 
 // layouts
-@use "vertical-nav";
-@use "default-layout-w-vertical-nav";
+@use 'vertical-nav';
+@use 'default-layout-w-vertical-nav';
 
 // Utilities
-@use "utilities";
+@use 'utilities';
 
 @import '../base/_required-star.scss';
+
+// Global Padding Reduction (Compact Mode)
+:root {
+  --v-card-text-padding: 4px !important;
+}
+
+.v-card,
+.v-card-text,
+.v-container,
+.v-list-item,
+.v-row,
+.v-col {
+  padding: 4px !important;
+}
+
+// Override Vuetify spacing utilities
+.pa-0 {
+  padding: 0 !important;
+}
+.pa-1 {
+  padding: 4px !important;
+}
+.pa-2 {
+  padding: 8px !important;
+}
+.pa-3 {
+  padding: 12px !important;
+}
+.pa-4,
+.pa-5,
+.pa-6,
+.pa-7,
+.pa-8,
+.pa-9,
+.pa-10 {
+  padding: 4px !important;
+}
+
+.ma-0 {
+  margin: 0 !important;
+}
+.ma-1 {
+  margin: 4px !important;
+}
+.ma-4,
+.ma-5,
+.ma-6,
+.ma-7,
+.ma-8,
+.ma-9,
+.ma-10 {
+  margin: 4px !important;
+}
+
+// Gap reduction
+.gap-6 {
+  gap: 8px !important;
+}
+.gap-4 {
+  gap: 4px !important;
+}

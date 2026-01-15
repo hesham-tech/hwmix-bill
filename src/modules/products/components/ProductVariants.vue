@@ -1,11 +1,10 @@
 <template>
   <div class="product-variants-builder">
     <!-- Attributes Selector -->
-    <div class="variants-setup-glass pa-4 pa-md-6 rounded-xl border mb-6">
-      <div class="d-flex align-center justify-space-between mb-6">
+    <div class="variants-setup-glass pa-1 rounded-xl border mb-2">
+      <div class="d-flex align-center justify-space-between mb-2">
         <div>
-          <h3 class="text-h6 font-weight-black mb-1">بناء المتغيرات</h3>
-          <p class="text-body-2 text-grey-darken-1">أضف سمات مثل (اللون، المقاس، الخامة) لتوليد تشكيلات المنتج</p>
+          <h3 class="text-subtitle-2 font-weight-black mb-1">بناء المتغيرات</h3>
         </div>
         <QuickAddAttribute @saved="handleAttributeSaved">
           <template v-slot:activator="{ props }">
@@ -14,7 +13,7 @@
         </QuickAddAttribute>
       </div>
 
-      <div v-for="(attr, index) in attributes" :key="index" class="attr-row-glass pa-4 rounded-lg mb-4 bg-white border">
+      <div v-for="(attr, index) in attributes" :key="index" class="attr-row-glass pa-1 rounded-lg mb-2 bg-white border">
         <v-row dense align="center">
           <v-col cols="12" md="3">
             <v-autocomplete
@@ -89,7 +88,7 @@
     <v-expand-transition>
       <div v-if="variants.length > 0" class="variants-matrix mt-8">
         <div class="d-flex align-center justify-space-between mb-4 px-2">
-          <h4 class="text-subtitle-1 font-weight-black">تشكيلات المتغيرات المختارة ({{ variants.length }})</h4>
+          <h5 class="text-subtitle-2 font-weight-black">تشكيلات المتغيرات المختارة ({{ variants.length }})</h5>
           <div class="d-flex gap-2">
             <v-btn size="small" variant="text" color="primary" prepend-icon="ri-edit-line">تعديل جماعي</v-btn>
           </div>

@@ -1,6 +1,6 @@
 <template>
   <div class="product-general-info">
-    <v-card variant="flat" class="pa-4 pa-md-6 rounded-xl border bg-white mb-6">
+    <v-card variant="flat" class="pa-1 rounded-xl border bg-white mb-2">
       <div class="d-flex align-center gap-3 mb-6">
         <v-avatar color="info-lighten-5" rounded="lg">
           <v-icon icon="ri-information-line" color="info" />
@@ -34,6 +34,7 @@
             flat
             bg-color="grey-lighten-5"
             class="premium-input-field"
+            :rules="[v => !v || v.length <= 50 || 'كود المنتج طويل جداً']"
             persistent-placeholder
           />
         </v-col>
@@ -48,6 +49,7 @@
             flat
             bg-color="grey-lighten-5"
             class="premium-input-field"
+            :rules="[v => !v || v.length <= 50 || 'الباركود طويل جداً']"
             persistent-placeholder
           />
         </v-col>

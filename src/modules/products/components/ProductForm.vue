@@ -54,16 +54,16 @@
           <!-- Left Pane (Main Content) -->
           <v-col cols="12" lg="8">
             <div class="d-flex flex-column gap-6">
-              <!-- General Info -->
+              <!-- Individual cards with minimal padding -->
               <ProductGeneral v-model="localData" />
 
               <!-- Media Manager -->
-              <v-card variant="flat" class="pa-4 pa-md-6 rounded-xl border bg-white">
-                <div class="d-flex align-center gap-3 mb-6">
-                  <v-avatar color="secondary-lighten-5" rounded="lg">
-                    <v-icon icon="ri-image-2-line" color="secondary" />
+              <v-card variant="flat" class="pa-1 rounded-xl border bg-white">
+                <div class="d-flex align-center gap-2 mb-2">
+                  <v-avatar color="secondary-lighten-5" rounded="lg" size="32">
+                    <v-icon icon="ri-image-2-line" color="secondary" size="18" />
                   </v-avatar>
-                  <h3 class="text-subtitle-1 font-weight-black">معرض الصور</h3>
+                  <h3 class="text-subtitle-2 font-weight-black">معرض الصور</h3>
                 </div>
                 <ProductMedia v-model="localData.images" />
               </v-card>
@@ -72,7 +72,7 @@
               <ProductPricing v-model="localData" :warehouses="warehouses" />
 
               <!-- Variants Builder -->
-              <v-card variant="flat" class="pa-4 pa-md-6 rounded-xl border bg-white mb-6">
+              <v-card variant="flat" class="pa-1 rounded-xl border bg-white mb-2">
                 <ProductVariants v-model="localData.variants" :available-attributes="availableAttributes" />
               </v-card>
             </div>
@@ -80,10 +80,10 @@
 
           <!-- Right Pane (Sidebar) -->
           <v-col cols="12" lg="4">
-            <div class="sticky-sidebar d-flex flex-column gap-6">
+            <div class="sticky-sidebar d-flex flex-column gap-2">
               <!-- Category & Brand -->
-              <v-card variant="flat" class="pa-4 pa-md-6 rounded-xl border bg-white">
-                <h3 class="text-subtitle-1 font-weight-black mb-6">التصنيف والبراند</h3>
+              <v-card variant="flat" class="pa-1 rounded-xl border bg-white">
+                <h3 class="text-subtitle-2 font-weight-black mb-2">التصنيف والبراند</h3>
                 <v-row dense>
                   <v-col cols="12">
                     <div class="d-flex align-center justify-space-between mb-1">
@@ -123,14 +123,13 @@
               </v-card>
 
               <!-- Stats / Visibility -->
-              <v-card variant="flat" class="pa-4 pa-md-6 rounded-xl border bg-white">
-                <h3 class="text-subtitle-1 font-weight-black mb-4">الحالة والظهور</h3>
+              <v-card variant="flat" class="pa-1 rounded-xl border bg-white">
+                <h3 class="text-subtitle-2 font-weight-black mb-2">الحالة والظهور</h3>
                 <v-list-item class="pa-0">
                   <template v-slot:prepend>
-                    <v-icon icon="ri-eye-line" color="grey" />
+                    <v-icon icon="ri-eye-line" color="grey" size="18" />
                   </template>
-                  <v-list-item-title class="text-body-2">ظهور المنتج</v-list-item-title>
-                  <v-list-item-subtitle class="text-caption">تحديد ما إذا كان المنتج متاحاً للعملاء</v-list-item-subtitle>
+                  <v-list-item-title class="text-caption">ظهور المنتج</v-list-item-title>
                   <template v-slot:append>
                     <v-switch v-model="localData.active" color="success" hide-details density="compact" />
                   </template>
@@ -138,9 +137,8 @@
               </v-card>
 
               <!-- Tags / SEO -->
-              <v-card variant="flat" class="pa-4 pa-md-6 rounded-xl border bg-white">
-                <h3 class="text-subtitle-1 font-weight-black mb-1">الكلمات الدلالية</h3>
-                <p class="text-caption text-grey mb-4">تساعد على تسريع البحث داخل النظام</p>
+              <v-card variant="flat" class="pa-1 rounded-xl border bg-white">
+                <h3 class="text-subtitle-2 font-weight-black mb-1">الكلمات الدلالية</h3>
                 <v-combobox
                   v-model="localData.tags"
                   multiple
@@ -151,14 +149,22 @@
                   bg-color="grey-lighten-4"
                   placeholder="أضف تاجات..."
                   class="premium-input-field"
+                  density="compact"
                 />
               </v-card>
 
               <!-- Internal Memo -->
-              <v-card variant="flat" class="pa-4 pa-md-6 rounded-xl border bg-white">
-                <h3 class="text-subtitle-1 font-weight-black mb-1">ملاحظات داخلية</h3>
-                <p class="text-caption text-grey mb-4">ملاحظات لا يراها العميل</p>
-                <v-textarea v-model="localData.internal_note" variant="solo" flat bg-color="grey-lighten-4" class="premium-input-field" rows="3" />
+              <v-card variant="flat" class="pa-1 rounded-xl border bg-white">
+                <h3 class="text-subtitle-2 font-weight-black mb-1">ملاحظات داخلية</h3>
+                <v-textarea
+                  v-model="localData.internal_note"
+                  variant="solo"
+                  flat
+                  bg-color="grey-lighten-4"
+                  class="premium-input-field"
+                  rows="2"
+                  density="compact"
+                />
               </v-card>
             </div>
           </v-col>
@@ -272,12 +278,12 @@ const handleBrandSaved = brand => {
 
 @media (min-width: 960px) {
   .main-content-wrapper {
-    padding: 24px !important;
+    padding: 4px !important;
   }
 
   .sticky-sidebar {
     position: sticky;
-    top: 100px;
+    top: 60px;
   }
 }
 

@@ -75,6 +75,21 @@ apiClient.interceptors.response.use(
       return Promise.reject(error);
     }
 
+    // 422: Validation Error
+    if (error?.response?.status === 422) {
+      const errors = error.response.data.errors;
+      if (errors) {
+        Object.keys(errors).forEach(key => {
+          errors[key].forEach(msg => {
+            toast.error(msg);
+          });
+        });
+      } else {
+        toast.error(error.response.data.message || 'بيانات المدخلات غير صالحة.');
+      }
+      return Promise.reject(error);
+    }
+
     // 500+ Server Errors OR Connection Failures (status 0)
     if (error?.response?.status >= 500 || !error.response) {
       const isConnectivityError = !error.response || error.code === 'ERR_NETWORK' || error.message === 'Network Error';

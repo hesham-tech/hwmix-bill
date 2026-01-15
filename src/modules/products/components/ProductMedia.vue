@@ -2,7 +2,7 @@
   <div class="product-media-manager overflow-hidden">
     <!-- Drag & Drop Area -->
     <div
-      class="upload-zone pa-4 pa-md-8 rounded-xl border-dashed border-2 text-center transition-all"
+      class="upload-zone pa-2 rounded-xl border-dashed border-2 text-center transition-all"
       :class="{ 'border-primary bg-primary-lighten-5 scale-98': isDragging }"
       @dragover.prevent="isDragging = true"
       @dragleave.prevent="isDragging = false"
@@ -11,10 +11,10 @@
     >
       <input ref="fileInput" type="file" multiple accept="image/*" class="d-none" @change="handleFileSelect" />
 
-      <v-avatar size="64" color="primary-lighten-5" class="mb-4">
-        <v-icon icon="ri-upload-cloud-2-line" color="primary" size="32" />
+      <v-avatar size="32" color="primary-lighten-5" class="mb-2">
+        <v-icon icon="ri-upload-cloud-2-line" color="primary" size="18" />
       </v-avatar>
-      <h3 class="text-h6 font-weight-black mb-1">اسحب وأفلت صور المنتج هنا</h3>
+      <h3 class="text-subtitle-2 font-weight-black mb-1">اسحب وأفلت صور المنتج هنا</h3>
       <p class="text-body-2 text-grey-darken-1">أو اضغط لاختيار ملفات من جهازك (يدعم JPG, PNG, WebP)</p>
       <v-chip size="small" variant="tonal" color="primary" class="mt-2 text-caption"> يسع حتى 10 صور بدقة عالية </v-chip>
     </div>

@@ -3,12 +3,12 @@
     <v-row>
       <!-- Pricing Section -->
       <v-col cols="12" md="6">
-        <v-card variant="flat" class="pa-4 pa-md-6 rounded-xl border bg-white h-100">
-          <div class="d-flex align-center gap-3 mb-6">
-            <v-avatar color="primary-lighten-5" rounded="lg">
-              <v-icon icon="ri-money-dollar-circle-line" color="primary" />
+        <v-card variant="flat" class="pa-1 rounded-xl border bg-white h-100">
+          <div class="d-flex align-center gap-2 mb-2">
+            <v-avatar color="primary-lighten-5" rounded="lg" size="32">
+              <v-icon icon="ri-money-dollar-circle-line" color="primary" size="18" />
             </v-avatar>
-            <h3 class="text-subtitle-1 font-weight-black">إعدادات التسعير</h3>
+            <h3 class="text-subtitle-2 font-weight-black">إعدادات التسعير</h3>
           </div>
 
           <v-row dense>
@@ -22,6 +22,7 @@
                 bg-color="grey-lighten-5"
                 class="premium-input-field"
                 type="number"
+                :rules="[v => !!v || 'سعر البيع مطلوب', v => v >= 0 || 'يجب أن يكون السعر 0 أو أكثر']"
                 persistent-placeholder
               />
             </v-col>
@@ -35,6 +36,7 @@
                 bg-color="grey-lighten-5"
                 class="premium-input-field"
                 type="number"
+                :rules="[v => v === null || v === undefined || v >= 0 || 'يجب أن يكون السعر 0 أو أكثر']"
                 persistent-placeholder
               />
             </v-col>
@@ -57,12 +59,12 @@
 
       <!-- Inventory Section -->
       <v-col cols="12" md="6">
-        <v-card variant="flat" class="pa-4 pa-md-6 rounded-xl border bg-white h-100">
-          <div class="d-flex align-center gap-3 mb-6">
-            <v-avatar color="warning-lighten-5" rounded="lg">
-              <v-icon icon="ri-home-gear-line" color="warning" />
+        <v-card variant="flat" class="pa-1 rounded-xl border bg-white h-100">
+          <div class="d-flex align-center gap-2 mb-2">
+            <v-avatar color="warning-lighten-5" rounded="lg" size="32">
+              <v-icon icon="ri-home-gear-line" color="warning" size="18" />
             </v-avatar>
-            <h3 class="text-subtitle-1 font-weight-black">المخزون واللوجستيات</h3>
+            <h3 class="text-subtitle-2 font-weight-black">المخزون واللوجستيات</h3>
           </div>
 
           <v-row dense>
@@ -88,6 +90,7 @@
                 bg-color="grey-lighten-5"
                 class="premium-input-field"
                 type="number"
+                :rules="[v => v === null || v === undefined || v >= 0 || 'يجب أن تكون الكمية 0 أو أكثر']"
                 hint="تنبيه عند نقص الكمية"
                 container-class="pb-0"
               />
