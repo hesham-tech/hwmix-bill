@@ -182,7 +182,11 @@
 
           <template #[`item.active`]="{ item }">
             <div class="d-flex align-center justify-center">
-              <span v-if="canUpdate(item)" class="text-caption me-2 font-weight-bold" :class="item.active ? 'text-success' : 'text-error'">
+              <span
+                v-if="can('categories.update_all', { resource: item })"
+                class="text-caption me-2 font-weight-bold"
+                :class="item.active ? 'text-success' : 'text-error'"
+              >
                 {{ item.active ? 'نشط' : 'معطل' }}
               </span>
               <AppSwitch

@@ -36,6 +36,9 @@ export const useNotifications = () => {
   };
 
   const setupEchoListeners = user => {
+    // WebSockets disabled due to hosting limitations
+    return;
+
     if (!user || !window.Echo) return;
 
     // Listen on User Channel
