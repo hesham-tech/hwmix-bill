@@ -60,6 +60,46 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import taskService from '@/api/services/task.service';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+const tasks = ref([]);
+const loading = ref(true);
+
+const fetchDashboardTasks = async () => {
+  loading.value = true;
+  try {
+    const response = await taskService.getAll({ status: 'pending', per_page: 5 });
+    tasks.value = response.data || [];
+  } catch (e) {
+    console.error('Error fetching dashboard tasks', e);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const toggleTask = async task => {
+  const newStatus = task.status === 'completed' ? 'pending' : 'completed';
+  try {
+    await taskService.update(task.id, { status: newStatus });
+    fetchDashboardTasks();
+  } catch (e) {
+    console.error('Failed to toggle task', e);
+  }
+};
+
+const goToTask = task => {
+  router.push({ name: 'tasks', query: { taskId: task.id } });
+};
+
+const getPriorityColor = p => {
+  return { urgent: 'error', high: 'warning', medium: 'info', low: 'success' }[p] || 'grey';
+};
+
+const translatePriority = p => {
+  return { urgent: 'عاجل', high: 'عالي', medium: 'متوسط', low: 'منخفض' }[p] || p;
+};
+
 onMounted(() => {
   fetchDashboardTasks();
 });

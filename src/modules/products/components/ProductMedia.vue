@@ -2,7 +2,7 @@
   <div class="product-media-manager overflow-hidden">
     <!-- Drag & Drop Area -->
     <div
-      class="upload-zone pa-8 rounded-xl border-dashed border-2 text-center transition-all"
+      class="upload-zone pa-4 pa-md-8 rounded-xl border-dashed border-2 text-center transition-all"
       :class="{ 'border-primary bg-primary-lighten-5 scale-98': isDragging }"
       @dragover.prevent="isDragging = true"
       @dragleave.prevent="isDragging = false"

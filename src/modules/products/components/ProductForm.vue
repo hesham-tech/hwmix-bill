@@ -11,7 +11,7 @@
               <v-icon icon="ri-arrow-left-s-line" size="14" />
               <span>إضافة منتج جديد</span>
             </div>
-            <h1 class="text-subtitle-1 text-md-h6 font-weight-black mb-0">
+            <h1 class="text-subtitle-1 text-sm-h6 font-weight-black mb-0 truncate-title">
               {{ localData.name || 'منتج جديد' }}
             </h1>
           </div>
@@ -24,17 +24,23 @@
           </div>
           <div class="d-flex align-center gap-1 gap-md-2">
             <v-btn variant="text" color="grey-darken-1" size="small" class="font-weight-bold d-none d-sm-flex" @click="$emit('cancel')">تجاهل</v-btn>
+            <v-btn v-if="$vuetify.display.xs" variant="text" color="grey-darken-1" icon="ri-close-line" @click="$emit('cancel')" />
+
             <v-btn
               color="primary"
               :size="$vuetify.display.mobile ? 'default' : 'large'"
               rounded="xl"
-              class="px-4 px-md-8 font-weight-black elevation-4"
+              :class="{ 'px-1': $vuetify.display.xs, 'px-4 px-md-8': !$vuetify.display.xs }"
+              class="font-weight-black elevation-4"
               :loading="loading"
-              prepend-icon="ri-shield-check-line"
+              :icon="$vuetify.display.xs ? 'ri-save-line' : false"
+              :prepend-icon="!$vuetify.display.xs ? 'ri-shield-check-line' : false"
               @click="handleSubmit"
             >
-              حفظ
-              <span class="d-none d-md-inline ms-1">المنتج</span>
+              <template v-if="!$vuetify.display.xs">
+                حفظ
+                <span class="d-none d-md-inline ms-1">المنتج</span>
+              </template>
             </v-btn>
           </div>
         </div>
@@ -273,5 +279,19 @@ const handleBrandSaved = brand => {
 
 .min-h-screen {
   min-height: 100vh;
+}
+
+.truncate-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  max-width: 150px;
+}
+
+@media (min-width: 600px) {
+  .truncate-title {
+    max-width: 400px;
+  }
 }
 </style>

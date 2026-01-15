@@ -1,1 +1,0 @@
-import{ap as a,aG as s}from"./index-Flp88uEA.js";class r extends a{constructor(){super("tasks")}addComment(t,e){return s.post(`${this.resource}/${t}/comments`,{content:e})}uploadAttachment(t,e){return s.post(`${this.resource}/${t}/attachments`,e,{headers:{"Content-Type":"multipart/form-data"}})}}const c=new r;export{c as t};

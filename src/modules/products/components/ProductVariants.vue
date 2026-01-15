@@ -1,7 +1,7 @@
 <template>
   <div class="product-variants-builder">
     <!-- Attributes Selector -->
-    <div class="variants-setup-glass pa-6 rounded-xl border mb-6">
+    <div class="variants-setup-glass pa-4 pa-md-6 rounded-xl border mb-6">
       <div class="d-flex align-center justify-space-between mb-6">
         <div>
           <h3 class="text-h6 font-weight-black mb-1">بناء المتغيرات</h3>
@@ -59,6 +59,20 @@
       <div v-if="attributes.length > 0" class="text-center mt-6">
         <v-btn
           color="primary"
+          :size="$vuetify.display.smAndDown ? 'default' : 'large'"
+          class="px-8 font-weight-black"
+          rounded="xl"
+          prepend-icon="ri-magic-line"
+          :loading="generating"
+          @click="generateVariants"
+          block
+          v-if="$vuetify.display.smAndDown"
+        >
+          توليد تشكيلات المتغيرات
+        </v-btn>
+        <v-btn
+          v-else
+          color="primary"
           size="large"
           class="px-8 font-weight-black"
           rounded="xl"
@@ -81,7 +95,7 @@
           </div>
         </div>
 
-        <div class="glass-table-wrapper rounded-xl border overflow-hidden">
+        <div class="glass-table-wrapper rounded-xl border overflow-x-auto">
           <v-table density="comfortable" class="premium-table">
             <thead>
               <tr class="bg-grey-lighten-5">

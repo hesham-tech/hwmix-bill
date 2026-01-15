@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="dialog" max-width="500px">
+  <v-dialog v-model="dialog" max-width="500px" :fullscreen="$vuetify.display.smAndDown" transition="dialog-bottom-transition">
     <template v-slot:activator="{ props: activatorProps }">
       <slot name="activator" :props="activatorProps">
         <v-btn icon="ri-add-line" size="small" variant="text" color="primary" v-bind="activatorProps" />
