@@ -23,7 +23,7 @@
             variant="solo-filled"
             flat
             rounded="lg"
-            :rules="[v => !!v || 'الاسم مطلوب']"
+            :rules="[required]"
             autofocus
           />
           <v-text-field
@@ -50,6 +50,7 @@
 
 <script setup>
 import { ref } from 'vue';
+import { required } from '@/utils/validators';
 import brandService from '@/api/services/brand.service';
 
 const emit = defineEmits(['saved']);

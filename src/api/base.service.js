@@ -62,16 +62,17 @@ class BaseService {
     const userStore = useUserStore();
     userStore.loadingApi = false;
 
-    // Ignore 401 errors (handled in interceptor)
-    if (error?.response?.status === 401) {
+    // Ignore 401 & 422 errors (handled in interceptor)
+    if (error?.response?.status === 401 || error?.response?.status === 422) {
       throw error;
     }
 
     let errorMessage = 'حدث خطأ غير متوقع';
 
     if (error.response?.data) {
-      if (error.response.data.errors?.length) {
-        errorMessage = translateErrors(error.response.data.errors);
+      const apiErrors = error.response.data.errors;
+      if (apiErrors && (Array.isArray(apiErrors) ? apiErrors.length : Object.keys(apiErrors).length)) {
+        errorMessage = translateErrors(apiErrors);
       } else if (error.response.data.message) {
         errorMessage = error.response.data.message;
       }

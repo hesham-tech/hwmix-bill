@@ -48,7 +48,7 @@
     </div>
 
     <!-- Main Dual-Pane Content -->
-    <div class="main-content-wrapper pa-6 bg-grey-lighten-5 min-h-screen">
+    <v-form ref="form" @submit.prevent="handleSubmit" class="main-content-wrapper pa-6 bg-grey-lighten-5 min-h-screen">
       <div class="container-premium mx-auto">
         <v-row>
           <!-- Left Pane (Main Content) -->
@@ -100,6 +100,7 @@
                       flat
                       bg-color="grey-lighten-4"
                       class="premium-input-field"
+                      :rules="[required]"
                     />
                   </v-col>
                   <v-col cols="12">
@@ -170,12 +171,13 @@
           </v-col>
         </v-row>
       </div>
-    </div>
+    </v-form>
   </div>
 </template>
 
 <script setup>
 import { ref, watch } from 'vue';
+import { required } from '@/utils/validators';
 import ProductGeneral from './ProductGeneral.vue';
 import ProductMedia from './ProductMedia.vue';
 import ProductPricing from './ProductPricing.vue';
@@ -237,8 +239,19 @@ watch(
   { deep: true }
 );
 
-const handleSubmit = () => {
-  emit('submit', localData.value);
+const form = ref(null);
+
+const handleSubmit = async () => {
+  const { valid } = await form.value.validate();
+  if (valid) {
+    emit('submit', localData.value);
+  } else {
+    // Scroll to first error
+    const firstError = document.querySelector('.v-input--error');
+    if (firstError) {
+      firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
 };
 
 const handleCategorySaved = category => {

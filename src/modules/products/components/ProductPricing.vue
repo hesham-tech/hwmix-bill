@@ -22,7 +22,7 @@
                 bg-color="grey-lighten-5"
                 class="premium-input-field"
                 type="number"
-                :rules="[v => !!v || 'سعر البيع مطلوب', v => v >= 0 || 'يجب أن يكون السعر 0 أو أكثر']"
+                :rules="[required, minValue(0)]"
                 persistent-placeholder
               />
             </v-col>
@@ -36,7 +36,7 @@
                 bg-color="grey-lighten-5"
                 class="premium-input-field"
                 type="number"
-                :rules="[v => v === null || v === undefined || v >= 0 || 'يجب أن يكون السعر 0 أو أكثر']"
+                :rules="[minValue(0)]"
                 persistent-placeholder
               />
             </v-col>
@@ -90,7 +90,7 @@
                 bg-color="grey-lighten-5"
                 class="premium-input-field"
                 type="number"
-                :rules="[v => v === null || v === undefined || v >= 0 || 'يجب أن تكون الكمية 0 أو أكثر']"
+                :rules="[minValue(0)]"
                 hint="تنبيه عند نقص الكمية"
                 container-class="pb-0"
               />
@@ -115,6 +115,7 @@
 
 <script setup>
 import { computed } from 'vue';
+import { required, minValue } from '@/utils/validators';
 
 const props = defineProps({
   modelValue: {

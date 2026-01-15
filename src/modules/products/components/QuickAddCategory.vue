@@ -23,7 +23,7 @@
             variant="solo-filled"
             flat
             rounded="lg"
-            :rules="[v => !!v || 'اسم القسم مطلوب']"
+            :rules="[required]"
             autofocus
           />
           <v-text-field
@@ -50,6 +50,7 @@
 
 <script setup>
 import { ref } from 'vue';
+import { required } from '@/utils/validators';
 import categoryService from '@/api/services/category.service';
 
 const emit = defineEmits(['saved']);

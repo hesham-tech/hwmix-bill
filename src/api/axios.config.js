@@ -3,6 +3,8 @@ import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
 import router from '@/router';
 
+import translateErrors from '@/utils/translateErrors';
+
 /**
  * Axios Instance Configuration
  * مركزي لكل API calls
@@ -12,6 +14,7 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',
+    'Accept-Language': 'ar',
   },
   withCredentials: false,
 });
@@ -78,15 +81,10 @@ apiClient.interceptors.response.use(
     // 422: Validation Error
     if (error?.response?.status === 422) {
       const errors = error.response.data.errors;
-      if (errors) {
-        Object.keys(errors).forEach(key => {
-          errors[key].forEach(msg => {
-            toast.error(msg);
-          });
-        });
-      } else {
-        toast.error(error.response.data.message || 'بيانات المدخلات غير صالحة.');
-      }
+      const message = translateErrors(errors || error.response.data.message);
+
+      toast.error(message, { autoClose: 5000 });
+
       return Promise.reject(error);
     }
 

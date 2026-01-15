@@ -19,7 +19,7 @@
             flat
             bg-color="grey-lighten-5"
             class="premium-input-field"
-            :rules="[v => !!v || 'اسم المنتج مطلوب']"
+            :rules="[required]"
             persistent-placeholder
           />
         </v-col>
@@ -34,7 +34,7 @@
             flat
             bg-color="grey-lighten-5"
             class="premium-input-field"
-            :rules="[v => !v || v.length <= 50 || 'كود المنتج طويل جداً']"
+            :rules="[maxLength(50)]"
             persistent-placeholder
           />
         </v-col>
@@ -49,7 +49,7 @@
             flat
             bg-color="grey-lighten-5"
             class="premium-input-field"
-            :rules="[v => !v || v.length <= 50 || 'الباركود طويل جداً']"
+            :rules="[maxLength(50)]"
             persistent-placeholder
           />
         </v-col>
@@ -78,6 +78,7 @@
 
 <script setup>
 import { computed } from 'vue';
+import { required, maxLength } from '@/utils/validators';
 
 const props = defineProps({
   modelValue: {
