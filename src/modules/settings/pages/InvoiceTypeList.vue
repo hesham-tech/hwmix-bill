@@ -164,7 +164,6 @@ import AppDataTable from '@/components/common/AppDataTable.vue';
 import AppDialog from '@/components/common/AppDialog.vue';
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import EmptyState from '@/components/common/EmptyState.vue';
-import { toast } from 'vue3-toastify';
 
 const { invoiceTypes, loading, fetchInvoiceTypes } = useInvoiceTypesData();
 const api = useApi('/api/invoice-types'); // Added this line
@@ -279,19 +278,15 @@ const toggleStatus = async (type, newStatus) => {
   toggling.value[type.id] = true;
 
   try {
-    await api.update(type.id, { is_active: newStatus }, { showSuccess: false });
+    await api.update(type.id, { is_active: newStatus });
 
     // تحديث الحالة محلياً بدلاً من reload
     const typeIndex = invoiceTypes.value.findIndex(t => t.id === type.id);
     if (typeIndex !== -1) {
       invoiceTypes.value[typeIndex].is_active = newStatus;
     }
-
-    const statusText = newStatus ? 'تم تفعيل' : 'تم تعطيل';
-    toast.success(`${statusText} نوع الفاتورة "${type.name}" بنجاح`);
   } catch (error) {
     console.error('Error toggling invoice type status:', error);
-    toast.error('حدث خطأ أثناء تغيير الحالة');
   } finally {
     toggling.value[type.id] = false;
   }

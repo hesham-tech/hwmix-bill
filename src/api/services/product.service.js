@@ -12,16 +12,12 @@ class ProductService extends BaseService {
   }
 
   /**
-   * Get product variants
+   * Search and Filter products
    */
-  async getVariants(productId, params = {}, options = {}) {
-    const { showToast = false, loading = true } = options;
-    const userStore = useUserStore();
-
-    if (loading) userStore.loadingApi = true;
-
+  async getAll(params = {}, options = {}) {
+    const { showToast = false } = options;
     try {
-      const response = await apiClient.get(`product/${productId}/variants`, { params });
+      const response = await apiClient.get('products', { params });
       return this.handleSuccess(response, showToast);
     } catch (error) {
       return this.handleError(error, showToast);
@@ -29,16 +25,12 @@ class ProductService extends BaseService {
   }
 
   /**
-   * Add variant to product
+   * Get full product details
    */
-  async addVariant(productId, variantData, options = {}) {
-    const { showToast = true, loading = true } = options;
-    const userStore = useUserStore();
-
-    if (loading) userStore.loadingApi = true;
-
+  async getOne(id, options = {}) {
+    const { showToast = false } = options;
     try {
-      const response = await apiClient.post(`product/${productId}/variants`, variantData);
+      const response = await apiClient.get(`products/${id}`);
       return this.handleSuccess(response, showToast);
     } catch (error) {
       return this.handleError(error, showToast);
@@ -46,16 +38,13 @@ class ProductService extends BaseService {
   }
 
   /**
-   * Update variant
+   * Comprehensive Save (Create or Update)
+   * Handles nested variants and stocks
    */
-  async updateVariant(productId, variantId, variantData, options = {}) {
-    const { showToast = true, loading = true } = options;
-    const userStore = useUserStore();
-
-    if (loading) userStore.loadingApi = true;
-
+  async save(data, id = null, options = {}) {
+    const { showToast = true } = options;
     try {
-      const response = await apiClient.put(`product/${productId}/variants/${variantId}`, variantData);
+      const response = id ? await apiClient.put(`products/${id}`, data) : await apiClient.post('products', data);
       return this.handleSuccess(response, showToast);
     } catch (error) {
       return this.handleError(error, showToast);
@@ -63,52 +52,12 @@ class ProductService extends BaseService {
   }
 
   /**
-   * Delete variant
+   * Delete product and all its relations
    */
-  async deleteVariant(productId, variantId, options = {}) {
-    const { showToast = true, loading = true } = options;
-    const userStore = useUserStore();
-
-    if (loading) userStore.loadingApi = true;
-
+  async delete(id, options = {}) {
+    const { showToast = true } = options;
     try {
-      const response = await apiClient.delete(`product/${productId}/variants/${variantId}`);
-      return this.handleSuccess(response, showToast);
-    } catch (error) {
-      return this.handleError(error, showToast);
-    }
-  }
-
-  /**
-   * Get product stock
-   */
-  async getStock(productId, options = {}) {
-    const { showToast = false, loading = true } = options;
-    const userStore = useUserStore();
-
-    if (loading) userStore.loadingApi = true;
-
-    try {
-      const response = await apiClient.get(`product/${productId}/stock`);
-      return this.handleSuccess(response, showToast);
-    } catch (error) {
-      return this.handleError(error, showToast);
-    }
-  }
-
-  /**
-   * Search products by barcode
-   */
-  async searchByBarcode(barcode, options = {}) {
-    const { showToast = false, loading = false } = options;
-    const userStore = useUserStore();
-
-    if (loading) userStore.loadingApi = true;
-
-    try {
-      const response = await apiClient.get('products', {
-        params: { barcode },
-      });
+      const response = await apiClient.delete(`products/${id}`);
       return this.handleSuccess(response, showToast);
     } catch (error) {
       return this.handleError(error, showToast);

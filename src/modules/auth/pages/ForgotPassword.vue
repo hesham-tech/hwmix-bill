@@ -50,7 +50,6 @@
 import { ref } from 'vue';
 import { authService } from '@/api';
 import { required, email } from '@/utils/validators';
-import { toast } from 'vue3-toastify';
 import AppInput from '@/components/common/AppInput.vue';
 import AppButton from '@/components/common/AppButton.vue';
 
@@ -70,9 +69,8 @@ const handleSubmit = async () => {
   try {
     await authService.forgotPassword(form.value);
     sent.value = true;
-    toast.success('تم إرسال رابط الاستعادة');
   } catch (error) {
-    toast.error('فشل إرسال الرابط');
+    // Error is handled in AuthService or skipped if using BaseService (but AuthService doesn't extend BaseService)
   } finally {
     loading.value = false;
   }

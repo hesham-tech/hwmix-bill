@@ -81,7 +81,6 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { authService } from '@/api';
 import { required, email, phone, strongPassword } from '@/utils/validators';
-import { toast } from 'vue3-toastify';
 import AppInput from '@/components/common/AppInput.vue';
 import AppPasswordInput from '@/components/common/AppPasswordInput.vue';
 import AppButton from '@/components/common/AppButton.vue';
@@ -107,10 +106,9 @@ const handleRegister = async () => {
   loading.value = true;
   try {
     await authService.register(form.value);
-    toast.success('تم إنشاء الحساب بنجاح');
     router.push('/login');
   } catch (error) {
-    toast.error('فشل إنشاء الحساب');
+    // Error is handled in AuthService
   } finally {
     loading.value = false;
   }

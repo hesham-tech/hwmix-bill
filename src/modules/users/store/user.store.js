@@ -105,9 +105,9 @@ export const useUserStore = defineStore('userManagement', () => {
     loading.value = true;
     try {
       const response = await userService.save(data);
+      toast.success('تم إنشاء المستخدم بنجاح');
       await fetchUsers();
       await fetchStats();
-      toast.success('تم إنشاء المستخدم بنجاح');
       return response.data[0];
     } catch (error) {
       console.error('Error creating user:', error);
@@ -121,9 +121,9 @@ export const useUserStore = defineStore('userManagement', () => {
     loading.value = true;
     try {
       const response = await userService.update(id, data);
+      toast.success('تم تحديث المستخدم بنجاح');
       await fetchUsers();
       await fetchStats();
-      toast.success('تم تحديث المستخدم بنجاح');
       return response.data[0];
     } catch (error) {
       console.error('Error updating user:', error);
@@ -137,9 +137,9 @@ export const useUserStore = defineStore('userManagement', () => {
     loading.value = true;
     try {
       await userService.delete(id);
+      toast.success('تم حذف المستخدم بنجاح');
       await fetchUsers();
       await fetchStats();
-      toast.success('تم حذف المستخدم بنجاح');
     } catch (error) {
       console.error('Error deleting user:', error);
       throw error;
@@ -152,8 +152,8 @@ export const useUserStore = defineStore('userManagement', () => {
     loading.value = true;
     try {
       await userService.assignRole(userId, roles);
-      await fetchUser(userId);
       toast.success('تم تعيين الدور بنجاح');
+      await fetchUser(userId);
     } catch (error) {
       console.error('Error assigning role:', error);
       throw error;
@@ -191,19 +191,28 @@ export const useUserStore = defineStore('userManagement', () => {
 
   const createRole = async data => {
     const response = await roleService.create(data);
-    if (response) await fetchRoles();
+    if (response) {
+      toast.success('تم إنشاء الدور بنجاح');
+      await fetchRoles();
+    }
     return response;
   };
 
   const updateRole = async (id, data) => {
     const response = await roleService.update(id, data);
-    if (response) await fetchRoles();
+    if (response) {
+      toast.success('تم تحديث الدور بنجاح');
+      await fetchRoles();
+    }
     return response;
   };
 
   const deleteRole = async id => {
     const response = await roleService.delete(id);
-    if (response) await fetchRoles();
+    if (response) {
+      toast.success('تم حذف الدور بنجاح');
+      await fetchRoles();
+    }
     return response;
   };
 

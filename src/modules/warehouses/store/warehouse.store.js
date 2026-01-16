@@ -70,8 +70,8 @@ export const useWarehouseStore = defineStore('warehouse', () => {
         status: data.is_active ? 'active' : 'inactive',
       };
       const response = await warehouseService.save(payload);
-      await fetchWarehouses();
       toast.success('تم إنشاء المخزن بنجاح');
+      await fetchWarehouses();
       return response.data[0];
     } catch (error) {
       console.error('Error creating warehouse:', error);
@@ -89,8 +89,8 @@ export const useWarehouseStore = defineStore('warehouse', () => {
         status: data.is_active ? 'active' : 'inactive',
       };
       const response = await warehouseService.save(payload, id);
-      await fetchWarehouses();
       toast.success('تم تحديث المخزن بنجاح');
+      await fetchWarehouses();
       return response.data[0];
     } catch (error) {
       console.error('Error updating warehouse:', error);
@@ -104,10 +104,24 @@ export const useWarehouseStore = defineStore('warehouse', () => {
     loading.value = true;
     try {
       await warehouseService.delete(id);
-      await fetchWarehouses();
       toast.success('تم حذف المخزن بنجاح');
+      await fetchWarehouses();
     } catch (error) {
       console.error('Error deleting warehouse:', error);
+      throw error;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function setDefaultWarehouse(id) {
+    loading.value = true;
+    try {
+      await warehouseService.setDefault(id);
+      toast.success('تم تعيين المخزن كافتراضي');
+      await fetchWarehouses();
+    } catch (error) {
+      console.error('Error setting default warehouse:', error);
       throw error;
     } finally {
       loading.value = false;
@@ -147,6 +161,7 @@ export const useWarehouseStore = defineStore('warehouse', () => {
     createWarehouse,
     updateWarehouse,
     deleteWarehouse,
+    setDefaultWarehouse,
     getWarehouseStock,
   };
 });

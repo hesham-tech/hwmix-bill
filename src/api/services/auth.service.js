@@ -140,6 +140,36 @@ class AuthService {
   }
 
   /**
+   * Forgot Password
+   * @param {Object} data - { email }
+   */
+  async forgotPassword(data, options = {}) {
+    const { showToast = true, loading = true } = options;
+    const userStore = useUserStore();
+
+    if (loading) userStore.loadingApi = true;
+
+    try {
+      const response = await apiClient.post('forgot-password', data);
+
+      if (showToast) {
+        toast.success(response.data.message || 'تم إرسال رابط الاستعادة');
+      }
+
+      if (loading) userStore.loadingApi = false;
+      return response.data;
+    } catch (error) {
+      if (loading) userStore.loadingApi = false;
+
+      if (showToast) {
+        toast.error(error.response?.data?.message || 'فشل إرسال الرابط');
+      }
+
+      throw error;
+    }
+  }
+
+  /**
    * Get current user
    */
   async getCurrentUser() {

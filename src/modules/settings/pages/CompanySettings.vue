@@ -325,7 +325,6 @@ const loadCompanyData = async () => {
   try {
     const response = await api.getById(companyId, { showLoading: false });
     if (response.data) {
-      const data = response.data;
       formData.value = {
         id: data.id,
         name: data.name || '',
@@ -369,9 +368,7 @@ const handleSave = async () => {
       delete payload.images_ids;
     }
 
-    await api.update(formData.value.id, payload, {
-      successMessage: 'تم تحديث هوية الشركة وبياناتها بنجاح',
-    });
+    await api.update(formData.value.id, payload);
 
     // Refresh user info to update global branding (like sidebar logo)
     await userStore.fetchUser();

@@ -229,9 +229,7 @@ const handleSave = async () => {
       delete payload.images_ids;
     }
 
-    await api.update(formData.id, payload, {
-      successMessage: 'تم تحديث بيانات ملفك الشخصي بنجاح',
-    });
+    await api.update(formData.id, payload);
 
     // Refresh user data in store
     await userStore.fetchUser();

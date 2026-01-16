@@ -1,14 +1,14 @@
 <template>
   <v-autocomplete
     v-model="selectedValue"
-    :items="items"
+    :items="mergedItems"
     :item-title="itemTitle"
     :item-value="itemValue"
     :label="label"
     :rules="computedRules"
     :disabled="disabled"
-    :loading="loading"
-    :search="search"
+    :loading="loading || internalLoading"
+    v-model:search="searchQuery"
     :clearable="clearable"
     :multiple="multiple"
     :chips="chips"
@@ -21,8 +21,23 @@
     :variant="variant"
     v-bind="$attrs"
     @update:model-value="handleChange"
-    @update:search="$emit('update:search', $event)"
   >
+    <template v-if="$slots.noData || canCreate" #no-data>
+      <v-list-item v-if="searchQuery && canCreate" @click="handleCreate">
+        <template #prepend>
+          <v-icon color="primary" icon="ri-add-line" />
+        </template>
+        <v-list-item-title>
+          إضافة "<strong>{{ searchQuery }}</strong
+          >"
+        </v-list-item-title>
+        <template #append>
+          <v-progress-circular v-if="creating" indeterminate size="20" width="2" color="primary" />
+        </template>
+      </v-list-item>
+      <slot v-else name="no-data" />
+    </template>
+
     <template v-if="$slots.item" #item="slotProps">
       <slot name="item" v-bind="slotProps" />
     </template>
@@ -42,7 +57,9 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted, nextTick } from 'vue';
+import apiClient from '@/api/axios.config';
+import { debounce } from '@/utils/helpers';
 
 const props = defineProps({
   modelValue: {
@@ -53,13 +70,25 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  apiEndpoint: {
+    type: String,
+    default: null,
+  },
+  canCreate: {
+    type: Boolean,
+    default: false,
+  },
+  createField: {
+    type: String,
+    default: 'name',
+  },
   itemTitle: {
     type: String,
-    default: 'title',
+    default: 'name',
   },
   itemValue: {
     type: String,
-    default: 'value',
+    default: 'id',
   },
   label: {
     type: String,
@@ -80,10 +109,6 @@ const props = defineProps({
   loading: {
     type: Boolean,
     default: false,
-  },
-  search: {
-    type: String,
-    default: '',
   },
   clearable: {
     type: Boolean,
@@ -127,9 +152,28 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['update:modelValue', 'update:search']);
+const emit = defineEmits(['update:modelValue', 'update:search', 'created']);
 
 const selectedValue = ref(props.modelValue);
+const searchQuery = ref('');
+const internalLoading = ref(false);
+const creating = ref(false);
+const fetchedItems = ref([]);
+
+const mergedItems = computed(() => {
+  if (!props.apiEndpoint) return props.items;
+
+  const all = [...props.items, ...fetchedItems.value];
+  const unique = [];
+  const map = new Map();
+  for (const item of all) {
+    if (!map.has(item[props.itemValue])) {
+      map.set(item[props.itemValue], true);
+      unique.push(item);
+    }
+  }
+  return unique;
+});
 
 const computedRules = computed(() => {
   const rules = [...props.rules];
@@ -146,9 +190,92 @@ const computedRules = computed(() => {
   return rules;
 });
 
+const fetchItems = debounce(async query => {
+  if (!props.apiEndpoint) return;
+
+  internalLoading.value = true;
+  try {
+    const response = await apiClient.get(props.apiEndpoint, {
+      params: { search: query, per_page: 50 },
+    });
+    fetchedItems.value = response.data?.data || response.data || [];
+  } catch (error) {
+    console.error(`Error fetching from ${props.apiEndpoint}:`, error);
+  } finally {
+    internalLoading.value = false;
+  }
+}, 300);
+
+const handleCreate = async () => {
+  if (!searchQuery.value || creating.value || !props.apiEndpoint) return;
+
+  creating.value = true;
+  try {
+    // Extract base endpoint if there's a query param (e.g. for attribute values)
+    const baseEndpoint = props.apiEndpoint.split('?')[0];
+    const payload = { [props.createField]: searchQuery.value };
+
+    // If it's something like attribute-values?attribute_id=X, we need that ID too
+    if (props.apiEndpoint.includes('attribute_id=')) {
+      const match = props.apiEndpoint.match(/attribute_id=(\d+)/);
+      if (match) payload.attribute_id = match[1];
+    }
+
+    const response = await apiClient.post(baseEndpoint, payload);
+    const newItem = response.data?.data || response.data;
+
+    if (!newItem) throw new Error('Failed to retrieve new item data');
+
+    const valueToSelect = newItem[props.itemValue];
+
+    // Clear search first to stop filtering
+    // searchQuery.value = '';
+
+    // Add to items
+    fetchedItems.value.unshift(newItem);
+
+    // Wait for DOM and mergedItems to update
+    await nextTick();
+
+    // Set selection
+    if (props.multiple) {
+      const current = Array.isArray(selectedValue.value) ? selectedValue.value : [];
+      selectedValue.value = [...current, valueToSelect];
+    } else {
+      selectedValue.value = valueToSelect;
+    }
+
+    handleChange(selectedValue.value);
+    emit('created', newItem);
+  } catch (error) {
+    console.error('Error creating new item:', error);
+    // Error is already handled by axios interceptor toast
+  } finally {
+    creating.value = false;
+  }
+};
+
 const handleChange = value => {
   emit('update:modelValue', value);
 };
+
+watch(searchQuery, val => {
+  if (props.apiEndpoint) {
+    fetchItems(val);
+  }
+  emit('update:search', val);
+});
+
+watch(
+  () => props.apiEndpoint,
+  newVal => {
+    if (newVal) {
+      fetchItems(searchQuery.value);
+    } else {
+      fetchedItems.value = [];
+    }
+  }
+);
 
 watch(
   () => props.modelValue,
@@ -156,4 +283,10 @@ watch(
     selectedValue.value = newVal;
   }
 );
+
+onMounted(() => {
+  if (props.apiEndpoint) {
+    fetchItems('');
+  }
+});
 </script>

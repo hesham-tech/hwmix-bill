@@ -222,7 +222,6 @@ import { useApi } from '@/composables/useApi';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
 import AppButton from '@/components/common/AppButton.vue';
-import { toast } from 'vue3-toastify';
 
 const api = useApi('/api/error-reports');
 
@@ -341,11 +340,9 @@ const loadData = async () => {
 const updateStatus = async item => {
   updatingStatusId.value = item.id;
   try {
-    await api.patch(`/${item.id}`, { status: item.status });
-    toast.success('تم تحديث حالة التقرير بنجاح');
+    await api.patch(item.id, { status: item.status });
   } catch (error) {
     console.error('Failed to update status:', error);
-    toast.error('فشل في تحديث الحالة');
     // Revert status on failure?
     loadData();
   } finally {

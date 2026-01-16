@@ -27,6 +27,23 @@ class WarehouseService extends BaseService {
       return this.handleError(error, showToast);
     }
   }
+
+  /**
+   * Set warehouse as default
+   */
+  async setDefault(id, options = {}) {
+    const { showToast = true, loading = true } = options;
+    const userStore = useUserStore();
+
+    if (loading) userStore.loadingApi = true;
+
+    try {
+      const response = await apiClient.patch(`${this.resource}/${id}/set-default`);
+      return this.handleSuccess(response, showToast);
+    } catch (error) {
+      return this.handleError(error, showToast);
+    }
+  }
 }
 
 export default new WarehouseService();

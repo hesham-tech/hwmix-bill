@@ -1,47 +1,49 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import { productService } from '@/api';
+import productService from '@/api/services/product.service';
+import warehouseService from '@/api/services/warehouse.service';
 import { toast } from 'vue3-toastify';
 
 export const useProductStore = defineStore('product', () => {
-  // State
+  // --- State ---
   const products = ref([]);
   const currentProduct = ref(null);
   const loading = ref(false);
   const totalItems = ref(0);
+  const defaultWarehouseId = ref(null);
 
-  // Pagination
+  // Pagination & Filters
   const page = ref(1);
-  const itemsPerPage = ref(10);
+  const itemsPerPage = ref(15);
   const search = ref('');
-  const sortBy = ref([]);
+  const sortBy = ref([{ key: 'created_at', order: 'desc' }]);
+  const filters = ref({
+    category_id: null,
+    brand_id: null,
+    active: null,
+    featured: null,
+  });
 
-  // Filters
-  const categoryFilter = ref(null);
-  const brandFilter = ref(null);
-
-  // Computed
+  // --- Computed ---
   const params = computed(() => ({
     page: page.value,
-    per_page: itemsPerPage.value,
+    per_page: itemsPerPage.value === -1 ? 1000 : itemsPerPage.value,
     search: search.value,
-    category_id: categoryFilter.value,
-    brand_id: brandFilter.value,
-    sort_by: sortBy.value[0]?.key || '',
-    order: sortBy.value[0]?.order || 'desc',
+    sort_by: sortBy.value[0]?.key,
+    sort_order: sortBy.value[0]?.order,
+    ...filters.value,
   }));
 
-  // Actions
+  // --- Actions ---
   async function fetchProducts() {
     loading.value = true;
     try {
-      const response = await productService.getAll(params.value, { showToast: false });
-      products.value = response.data;
-      totalItems.value = response.total;
+      const response = await productService.getAll(params.value);
+      if (response.status) {
+        products.value = response.data;
+        totalItems.value = response.meta?.total || response.data.length;
+      }
       return response;
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      throw error;
     } finally {
       loading.value = false;
     }
@@ -50,42 +52,25 @@ export const useProductStore = defineStore('product', () => {
   async function fetchProduct(id) {
     loading.value = true;
     try {
-      const response = await productService.getOne(id, { full: true });
-      currentProduct.value = response.data[0];
-      return response.data[0];
-    } catch (error) {
-      console.error('Error fetching product:', error);
-      throw error;
+      const response = await productService.getOne(id);
+      if (response.status) {
+        currentProduct.value = response.data;
+      }
+      return response.data;
     } finally {
       loading.value = false;
     }
   }
 
-  async function createProduct(data) {
-    loading.value = true;
-    try {
-      const response = await productService.save(data);
-      await fetchProducts();
-      toast.success('تم إنشاء المنتج بنجاح');
-      return response.data[0];
-    } catch (error) {
-      console.error('Error creating product:', error);
-      throw error;
-    } finally {
-      loading.value = false;
-    }
-  }
-
-  async function updateProduct(id, data) {
+  async function saveProduct(data, id = null) {
     loading.value = true;
     try {
       const response = await productService.save(data, id);
-      await fetchProducts();
-      toast.success('تم تحديث المنتج بنجاح');
-      return response.data[0];
-    } catch (error) {
-      console.error('Error updating product:', error);
-      throw error;
+      if (response.status) {
+        toast.success(id ? 'تم تحديث المنتج بنجاح' : 'تم إنشاء المنتج بنجاح');
+        await fetchProducts();
+      }
+      return response;
     } finally {
       loading.value = false;
     }
@@ -94,46 +79,66 @@ export const useProductStore = defineStore('product', () => {
   async function deleteProduct(id) {
     loading.value = true;
     try {
-      await productService.delete(id);
-      await fetchProducts();
-      toast.success('تم حذف المنتج بنجاح');
-    } catch (error) {
-      console.error('Error deleting product:', error);
-      throw error;
+      const response = await productService.delete(id);
+      if (response.status) {
+        toast.success('تم حذف المنتج بنجاح');
+        await fetchProducts();
+      }
+      return response;
     } finally {
       loading.value = false;
     }
   }
 
+  async function fetchDefaultWarehouse() {
+    if (defaultWarehouseId.value) return defaultWarehouseId.value;
+    try {
+      // First try to get the designated default
+      const response = await warehouseService.getAll({ is_default: 1, per_page: 1 });
+      if (response.status && response.data.length > 0) {
+        defaultWarehouseId.value = response.data[0].id;
+      } else {
+        // Fallback to first available if no default designated
+        const fallback = await warehouseService.getAll({ per_page: 1 });
+        if (fallback.status && fallback.data.length > 0) {
+          defaultWarehouseId.value = fallback.data[0].id;
+        }
+      }
+      return defaultWarehouseId.value;
+    } catch (error) {
+      console.error('Error fetching default warehouse:', error);
+      return null;
+    }
+  }
+
   function resetFilters() {
-    categoryFilter.value = null;
-    brandFilter.value = null;
-    search.value = '';
     page.value = 1;
+    search.value = '';
+    filters.value = {
+      category_id: null,
+      brand_id: null,
+      active: null,
+      featured: null,
+    };
   }
 
   return {
-    // State
     products,
     currentProduct,
     loading,
     totalItems,
+    defaultWarehouseId,
     page,
     itemsPerPage,
     search,
     sortBy,
-    categoryFilter,
-    brandFilter,
-
-    // Computed
+    filters,
     params,
-
-    // Actions
     fetchProducts,
     fetchProduct,
-    createProduct,
-    updateProduct,
+    saveProduct,
     deleteProduct,
+    fetchDefaultWarehouse,
     resetFilters,
   };
 });

@@ -92,7 +92,6 @@
 import { ref, onMounted } from 'vue';
 import taskGroupService from '@/api/services/task-group.service';
 import userService from '@/api/services/user.service';
-import { toast } from 'vue3-toastify';
 
 const groups = ref([]);
 const users = ref([]);
@@ -144,11 +143,10 @@ const saveGroup = async () => {
     } else {
       await taskGroupService.create(formData.value);
     }
-    toast.success('تم الحفظ بنجاح');
     showDialog.value = false;
     fetchData();
   } catch (e) {
-    toast.error('فشل حفظ المجموعة');
+    // Error handled in BaseService
   } finally {
     saving.value = false;
   }
@@ -158,10 +156,9 @@ const deleteGroup = async group => {
   if (confirm('هل أنت متأكد من حذف هذه المجموعة؟')) {
     try {
       await taskGroupService.delete(group.id);
-      toast.success('تم الحذف');
       fetchData();
     } catch (e) {
-      toast.error('فشل الحذف');
+      // Error handled in BaseService
     }
   }
 };

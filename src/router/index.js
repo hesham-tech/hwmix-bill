@@ -94,7 +94,7 @@ const router = createRouter({
         {
           path: 'products/create',
           name: 'product-create',
-          component: () => import('@/modules/products/pages/ProductCreate.vue'),
+          component: () => import('@/modules/products/pages/ProductFormPage.vue'),
           meta: {
             title: 'منتج جديد',
             permission: PERMISSIONS.PRODUCTS_CREATE,
@@ -112,30 +112,10 @@ const router = createRouter({
         {
           path: 'products/:id/edit',
           name: 'product-edit',
-          component: () => import('@/modules/products/pages/ProductCreate.vue'),
+          component: () => import('@/modules/products/pages/ProductFormPage.vue'),
           meta: {
             title: 'تعديل المنتج',
             permission: PERMISSIONS.PRODUCTS_UPDATE_ALL,
-          },
-        },
-        {
-          path: 'stock',
-          name: 'stock',
-          component: () => import('@/modules/products/pages/StockList.vue'),
-          meta: {
-            title: 'المخزون',
-            permission: PERMISSIONS.PRODUCTS_VIEW_ALL,
-          },
-        },
-
-        // ==================== Product Variants ====================
-        {
-          path: 'product-variants',
-          name: 'product-variants',
-          component: () => import('@/modules/products/pages/ProductVariantList.vue'),
-          meta: {
-            title: 'أشكال المنتجات',
-            permission: PERMISSIONS.PRODUCTS_VIEW_ALL,
           },
         },
 

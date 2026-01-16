@@ -75,8 +75,8 @@ export const useInvoiceStore = defineStore('invoice', () => {
     loading.value = true;
     try {
       const response = await invoiceService.save(data);
-      await fetchInvoices(); // Refresh list
       toast.success('تم إنشاء الفاتورة بنجاح');
+      await fetchInvoices(); // Refresh list
       return response.data[0];
     } catch (error) {
       console.error('Error creating invoice:', error);
@@ -90,8 +90,8 @@ export const useInvoiceStore = defineStore('invoice', () => {
     loading.value = true;
     try {
       const response = await invoiceService.save(data, id);
-      await fetchInvoices(); // Refresh list
       toast.success('تم تحديث الفاتورة بنجاح');
+      await fetchInvoices(); // Refresh list
       return response.data[0];
     } catch (error) {
       console.error('Error updating invoice:', error);
@@ -105,8 +105,8 @@ export const useInvoiceStore = defineStore('invoice', () => {
     loading.value = true;
     try {
       await invoiceService.delete(id);
-      await fetchInvoices(); // Refresh list
       toast.success('تم حذف الفاتورة بنجاح');
+      await fetchInvoices(); // Refresh list
     } catch (error) {
       console.error('Error deleting invoice:', error);
       throw error;
@@ -128,7 +128,7 @@ export const useInvoiceStore = defineStore('invoice', () => {
     loading.value = true;
     try {
       await invoiceService.sendEmail(id, emailData);
-      toast.success('تم إرسال الفاتورة بنجاح');
+      toast.success('تم إرسال الفاتورة عبر البريد بنجاح');
     } catch (error) {
       console.error('Error sending email:', error);
       throw error;

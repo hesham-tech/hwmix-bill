@@ -133,7 +133,7 @@ class BaseService {
    * @param {Object} options
    */
   async save(data, id = null, options = {}) {
-    const { showToast = true, loading = true, useFormData = false } = options;
+    const { showToast = false, loading = true, useFormData = false } = options;
     const userStore = useUserStore();
 
     if (loading) userStore.loadingApi = true;
@@ -192,7 +192,7 @@ class BaseService {
    * @param {Object} options
    */
   async delete(id, options = {}) {
-    const { showToast = true, loading = true } = options;
+    const { showToast = false, loading = true } = options;
     const userStore = useUserStore();
 
     if (loading) userStore.loadingApi = true;
@@ -211,7 +211,7 @@ class BaseService {
    * @param {Object} options
    */
   async deleteMany(ids, options = {}) {
-    const { showToast = true, loading = true } = options;
+    const { showToast = false, loading = true } = options;
     const userStore = useUserStore();
 
     if (loading) userStore.loadingApi = true;
@@ -228,7 +228,7 @@ class BaseService {
    * ARCHIVE resource
    */
   async archive(id, options = {}) {
-    const { showToast = true, loading = true } = options;
+    const { showToast = false, loading = true } = options;
     const userStore = useUserStore();
 
     if (loading) userStore.loadingApi = true;
@@ -245,7 +245,7 @@ class BaseService {
    * RESTORE resource
    */
   async restore(id, options = {}) {
-    const { showToast = true, loading = true } = options;
+    const { showToast = false, loading = true } = options;
     const userStore = useUserStore();
 
     if (loading) userStore.loadingApi = true;

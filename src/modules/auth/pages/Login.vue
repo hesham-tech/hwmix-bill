@@ -126,8 +126,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { authService } from '@/api';
-import { required, email } from '@/utils/validators';
-import { toast } from 'vue3-toastify';
+import { required } from '@/utils/validators';
 import AppInput from '@/components/common/AppInput.vue';
 import AppPasswordInput from '@/components/common/AppPasswordInput.vue';
 import AppButton from '@/components/common/AppButton.vue';
@@ -151,10 +150,9 @@ const handleLogin = async () => {
   loading.value = true;
   try {
     await authService.login(form.value);
-    toast.success('تم تسجيل الدخول بنجاح');
     router.push('/dashboard');
   } catch (error) {
-    toast.error('فشل تسجيل الدخول - تحقق من البيانات');
+    // Error is handled in AuthService
   } finally {
     loading.value = false;
   }

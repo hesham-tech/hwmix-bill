@@ -103,7 +103,6 @@ import { ref, computed, onMounted } from 'vue';
 import taskService from '@/api/services/task.service';
 import userService from '@/api/services/user.service';
 import taskGroupService from '@/api/services/task-group.service';
-import { toast } from 'vue3-toastify';
 
 const props = defineProps(['modelValue']);
 const emit = defineEmits(['update:modelValue', 'created']);
@@ -167,12 +166,11 @@ const submit = async () => {
       assignments: selectedAssignees.value.map(a => ({ type: a.type, id: a.id })),
     };
     await taskService.create(payload);
-    toast.success('تم إنشاء المهمة وإسنادها بنجاح');
     emit('created');
     emit('update:modelValue', false);
     reset();
   } catch (e) {
-    toast.error('فشل في إنشاء المهمة');
+    // Error handled in BaseService
   } finally {
     loading.value = false;
   }

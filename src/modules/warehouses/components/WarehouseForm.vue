@@ -29,7 +29,7 @@
       </v-col>
 
       <!-- Active Status -->
-      <v-col cols="12">
+      <v-col cols="12" sm="6">
         <div class="pa-4 border rounded-lg bg-grey-lighten-5 d-flex align-center justify-space-between mb-4">
           <div class="d-flex align-center">
             <v-icon
@@ -38,11 +38,25 @@
               class="me-3"
             />
             <div>
-              <div class="font-weight-bold">حالة المستودع</div>
-              <div class="text-caption text-grey">تحديد ما إذا كان المخزن متاحاً للاستخدام حالياً</div>
+              <div class="font-weight-bold">الحالة</div>
+              <div class="text-caption text-grey">نشط / غير نشط</div>
             </div>
           </div>
           <AppSwitch v-model="form.is_active" hide-details />
+        </div>
+      </v-col>
+
+      <!-- Default Warehouse -->
+      <v-col cols="12" sm="6">
+        <div class="pa-4 border rounded-lg bg-grey-lighten-5 d-flex align-center justify-space-between mb-4">
+          <div class="d-flex align-center">
+            <v-icon :icon="form.is_default ? 'ri-star-fill' : 'ri-star-line'" :color="form.is_default ? 'warning' : 'grey'" class="me-3" />
+            <div>
+              <div class="font-weight-bold">مستودع افتراضي</div>
+              <div class="text-caption text-grey">تعيين كمستودع أساسي للنظام</div>
+            </div>
+          </div>
+          <AppSwitch v-model="form.is_default" hide-details />
         </div>
       </v-col>
     </v-row>
@@ -74,6 +88,7 @@ const form = ref({
   location: '',
   description: '',
   is_active: true,
+  is_default: false,
   ...props.modelValue,
 });
 

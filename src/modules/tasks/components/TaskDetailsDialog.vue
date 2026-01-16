@@ -137,7 +137,6 @@
 import { ref, onMounted, watch } from 'vue';
 import taskService from '@/api/services/task.service';
 import dayjs from 'dayjs';
-import { toast } from 'vue3-toastify';
 
 const props = defineProps(['modelValue', 'taskId']);
 const emit = defineEmits(['update:modelValue', 'updated']);
@@ -176,11 +175,10 @@ const fetchTask = async () => {
 const updateStatus = async newStatus => {
   try {
     await taskService.update(task.value.id, { status: newStatus });
-    toast.success('تم تحديث الحالة');
     fetchTask(); // Refresh for activities
     emit('updated');
   } catch (e) {
-    toast.error('فشل تحديث الحالة');
+    // Error handled in BaseService
   }
 };
 
@@ -189,7 +187,7 @@ const updateProgress = async () => {
     await taskService.update(task.value.id, { progress: task.value.progress });
     emit('updated');
   } catch (e) {
-    toast.error('فشل تحديث التقدم');
+    // Error handled in BaseService
   }
 };
 
@@ -201,7 +199,7 @@ const addComment = async () => {
     newComment.value = '';
     fetchTask();
   } catch (e) {
-    toast.error('فشل إضافة التعليق');
+    // Error handled in BaseService
   } finally {
     commentLoading.value = false;
   }
@@ -214,10 +212,9 @@ const uploadAttachment = async event => {
   formData.append('file', file);
   try {
     await taskService.uploadAttachment(task.value.id, formData);
-    toast.success('تم رفع الملف');
     fetchTask();
   } catch (e) {
-    toast.error('فشل رفع الملف');
+    // Error handled in BaseService
   }
 };
 

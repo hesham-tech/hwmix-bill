@@ -1,6 +1,7 @@
 import { ref } from 'vue';
 import { toast } from 'vue3-toastify';
 import apiClient from '@/api/axios.config';
+import translateErrors from '@/utils/translateErrors';
 
 /**
  * Composable for making API calls with loading states and error handling
@@ -29,7 +30,12 @@ export function useApi(baseUrl) {
       const response = await apiClient.get(resource, { params });
       return response.data;
     } catch (err) {
-      error.value = err.response?.data?.message || err.message || 'حدث خطأ في تحميل البيانات';
+      if (err.response?.data?.errors) {
+        error.value = translateErrors(err.response.data.errors);
+      } else {
+        error.value = err.response?.data?.message || err.message || 'حدث خطأ في تحميل البيانات';
+      }
+
       if (showError) {
         toast.error(error.value);
       }
@@ -52,7 +58,12 @@ export function useApi(baseUrl) {
       const response = await apiClient.get(`${resource}/${id}`);
       return response.data;
     } catch (err) {
-      error.value = err.response?.data?.message || err.message || 'حدث خطأ في تحميل البيانات';
+      if (err.response?.data?.errors) {
+        error.value = translateErrors(err.response.data.errors);
+      } else {
+        error.value = err.response?.data?.message || err.message || 'حدث خطأ في تحميل البيانات';
+      }
+
       if (showError) {
         toast.error(error.value);
       }
@@ -74,11 +85,16 @@ export function useApi(baseUrl) {
     try {
       const response = await apiClient.post(resource, data);
       if (showSuccess) {
-        toast.success(successMessage);
+        toast.success(response.data.message || successMessage);
       }
       return response.data;
     } catch (err) {
-      error.value = err.response?.data?.message || err.message || 'حدث خطأ في الحفظ';
+      if (err.response?.data?.errors) {
+        error.value = translateErrors(err.response.data.errors);
+      } else {
+        error.value = err.response?.data?.message || err.message || 'حدث خطأ في الحفظ';
+      }
+
       if (showError) {
         toast.error(error.value);
       }
@@ -100,11 +116,47 @@ export function useApi(baseUrl) {
     try {
       const response = await apiClient.put(`${resource}/${id}`, data);
       if (showSuccess) {
-        toast.success(successMessage);
+        toast.success(response.data.message || successMessage);
       }
       return response.data;
     } catch (err) {
-      error.value = err.response?.data?.message || err.message || 'حدث خطأ في التحديث';
+      if (err.response?.data?.errors) {
+        error.value = translateErrors(err.response.data.errors);
+      } else {
+        error.value = err.response?.data?.message || err.message || 'حدث خطأ في التحديث';
+      }
+
+      if (showError) {
+        toast.error(error.value);
+      }
+      throw err;
+    } finally {
+      if (showLoading) loading.value = false;
+    }
+  };
+
+  /**
+   * PATCH request
+   */
+  const patch = async (id, data, options = {}) => {
+    const { showLoading = true, showSuccess = true, showError = true, successMessage = 'تم التحديث بنجاح' } = options;
+
+    if (showLoading) loading.value = true;
+    error.value = null;
+
+    try {
+      const response = await apiClient.patch(id ? `${resource}/${id}` : resource, data);
+      if (showSuccess) {
+        toast.success(response.data.message || successMessage);
+      }
+      return response.data;
+    } catch (err) {
+      if (err.response?.data?.errors) {
+        error.value = translateErrors(err.response.data.errors);
+      } else {
+        error.value = err.response?.data?.message || err.message || 'حدث خطأ في التحديث';
+      }
+
       if (showError) {
         toast.error(error.value);
       }
@@ -126,11 +178,16 @@ export function useApi(baseUrl) {
     try {
       const response = await apiClient.delete(`${resource}/${id}`);
       if (showSuccess) {
-        toast.success(successMessage);
+        toast.success(response.data.message || successMessage);
       }
       return response.data;
     } catch (err) {
-      error.value = err.response?.data?.message || err.message || 'حدث خطأ في الحذف';
+      if (err.response?.data?.errors) {
+        error.value = translateErrors(err.response.data.errors);
+      } else {
+        error.value = err.response?.data?.message || err.message || 'حدث خطأ في الحذف';
+      }
+
       if (showError) {
         toast.error(error.value);
       }
@@ -206,6 +263,7 @@ export function useApi(baseUrl) {
     getById,
     create,
     update,
+    patch,
     remove,
     bulkDelete,
     request,

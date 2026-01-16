@@ -64,7 +64,14 @@
             </div>
 
             <v-card-item>
-              <v-card-title class="text-h6 font-weight-bold">{{ warehouse.name }}</v-card-title>
+              <div class="d-flex align-center justify-space-between w-100">
+                <v-card-title class="text-h6 font-weight-bold">{{ warehouse.name }}</v-card-title>
+                <v-tooltip v-if="warehouse.is_default" text="المستودع الافتراضي">
+                  <template #activator="{ props }">
+                    <v-icon v-bind="props" icon="ri-star-fill" color="warning" size="24" />
+                  </template>
+                </v-tooltip>
+              </div>
               <v-card-subtitle class="d-flex align-center mt-1">
                 <v-icon icon="ri-map-pin-line" size="14" class="me-1" color="primary" />
                 {{ warehouse.location || 'عنوان غير محدد' }}
@@ -91,6 +98,14 @@
                 جرد المخزون
               </v-btn>
               <div class="d-flex gap-2">
+                <AppButton
+                  v-if="!warehouse.is_default"
+                  icon="ri-star-line"
+                  variant="text"
+                  color="warning"
+                  @click="handleSetDefault(warehouse)"
+                  title="تعيين كافتراضي"
+                />
                 <AppButton icon="ri-edit-line" variant="text" color="primary" @click="handleEdit(warehouse)" />
                 <AppButton icon="ri-delete-bin-line" variant="text" color="error" @click="handleDelete(warehouse)" />
               </div>
@@ -120,7 +135,14 @@
               <v-icon icon="ri-building-4-line" color="primary" size="small" />
             </v-avatar>
             <div>
-              <div class="font-weight-bold text-body-1">{{ item.name }}</div>
+              <div class="d-flex align-center">
+                <div class="font-weight-bold text-body-1">{{ item.name }}</div>
+                <v-tooltip v-if="item.is_default" text="المستودع الافتراضي">
+                  <template #activator="{ props }">
+                    <v-icon v-bind="props" icon="ri-star-fill" color="warning" size="16" class="ms-2" />
+                  </template>
+                </v-tooltip>
+              </div>
               <div class="text-caption text-grey">{{ item.description || 'بدون وصف' }}</div>
             </div>
           </div>
@@ -142,6 +164,14 @@
         <template #item.actions="{ item }">
           <div class="d-flex gap-2 justify-end">
             <AppButton icon="ri-eye-line" variant="text" color="secondary" @click="handleViewStock(item)" title="جرد المخزون" />
+            <AppButton
+              v-if="!item.is_default"
+              icon="ri-star-line"
+              variant="text"
+              color="warning"
+              @click="handleSetDefault(item)"
+              title="تعيين كافتراضي"
+            />
             <AppButton icon="ri-edit-line" variant="text" color="primary" @click="handleEdit(item)" />
             <AppButton icon="ri-delete-bin-line" variant="text" color="error" @click="handleDelete(item)" />
           </div>
@@ -267,6 +297,12 @@ const handleSave = async data => {
 
 const handleViewStock = warehouse => {
   console.log('View stock for warehouse:', warehouse.id);
+};
+
+const handleSetDefault = async warehouse => {
+  confirm(`هل أنت متأكد من تعيين المخزن "${warehouse.name}" كمخزن افتراضي؟`, async () => {
+    await store.setDefaultWarehouse(warehouse.id);
+  });
 };
 
 onMounted(() => {

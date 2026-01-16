@@ -71,8 +71,8 @@ export const usePaymentStore = defineStore('payment', () => {
     loading.value = true;
     try {
       const response = await paymentService.save(data);
-      await fetchPayments();
       toast.success('تم تسجيل الدفعة بنجاح');
+      await fetchPayments();
       return response.data[0];
     } catch (error) {
       console.error('Error creating payment:', error);
@@ -86,8 +86,8 @@ export const usePaymentStore = defineStore('payment', () => {
     loading.value = true;
     try {
       const response = await paymentService.save(data, id);
-      await fetchPayments();
       toast.success('تم تحديث الدفعة بنجاح');
+      await fetchPayments();
       return response.data[0];
     } catch (error) {
       console.error('Error updating payment:', error);
@@ -101,8 +101,8 @@ export const usePaymentStore = defineStore('payment', () => {
     loading.value = true;
     try {
       await paymentService.delete(id);
-      await fetchPayments();
       toast.success('تم حذف الدفعة بنجاح');
+      await fetchPayments();
     } catch (error) {
       console.error('Error deleting payment:', error);
       throw error;

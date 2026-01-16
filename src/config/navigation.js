@@ -66,12 +66,6 @@ export default [
         icon: 'ri-add-box-line',
         permission: PERMISSIONS.PRODUCTS_CREATE,
       },
-      {
-        title: 'أشكال المنتجات',
-        to: '/product-variants',
-        icon: 'ri-stack-line',
-        permission: PERMISSIONS.PRODUCTS_VIEW_ALL,
-      },
 
       {
         title: 'الأقسام والفئات',
@@ -96,12 +90,6 @@ export default [
         to: '/warehouses',
         icon: 'ri-building-line',
         permission: PERMISSIONS.WAREHOUSES_VIEW_ALL,
-      },
-      {
-        title: 'المخزون',
-        to: '/stock',
-        icon: 'ri-archive-line',
-        permission: PERMISSIONS.PRODUCTS_VIEW_ALL,
       },
     ],
   },

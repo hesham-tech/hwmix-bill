@@ -67,13 +67,11 @@ export const useInstallmentStore = defineStore('installment', () => {
     loading.value = true;
     try {
       const response = await installmentService.createPlan(data);
-      await fetchPlans();
       toast.success('تم إنشاء خطة التقسيط بنجاح');
+      await fetchPlans();
       return response.data[0];
     } catch (error) {
       console.error('Error creating plan:', error);
-      // Note: Backend endpoint may have issues
-      toast.error('فشل إنشاء خطة التقسيط - يرجى التحقق من البيانات');
       throw error;
     } finally {
       loading.value = false;
@@ -84,8 +82,8 @@ export const useInstallmentStore = defineStore('installment', () => {
     loading.value = true;
     try {
       const response = await installmentService.updatePlan(id, data);
-      await fetchPlans();
       toast.success('تم تحديث خطة التقسيط بنجاح');
+      await fetchPlans();
       return response.data[0];
     } catch (error) {
       console.error('Error updating plan:', error);
@@ -99,8 +97,8 @@ export const useInstallmentStore = defineStore('installment', () => {
     loading.value = true;
     try {
       await installmentService.delete(id);
-      await fetchPlans();
       toast.success('تم حذف خطة التقسيط بنجاح');
+      await fetchPlans();
     } catch (error) {
       console.error('Error deleting plan:', error);
       throw error;
@@ -129,7 +127,7 @@ export const useInstallmentStore = defineStore('installment', () => {
     loading.value = true;
     try {
       const response = await installmentService.createPayment(data);
-      toast.success('تم تسجيل الدفعة بنجاح');
+      toast.success('تم تسجيل دفعة التقسيط بنجاح');
       return response.data[0];
     } catch (error) {
       console.error('Error creating payment:', error);
@@ -158,7 +156,7 @@ export const useInstallmentStore = defineStore('installment', () => {
     loading.value = true;
     try {
       const response = await installmentDetailService.createDetail(data);
-      toast.success('تم تسجيل تفاصيل الدفعة بنجاح');
+      toast.success('تم إضافة تفاصيل الدفعة بنجاح');
       return response.data[0];
     } catch (error) {
       console.error('Error creating payment detail:', error);
@@ -177,7 +175,6 @@ export const useInstallmentStore = defineStore('installment', () => {
       toast.success('تم تحديث تفاصيل الدفعة بنجاح');
     } catch (error) {
       console.error('Error updating payment detail:', error);
-      toast.error('فشل التحديث - استخدم حذف وإعادة إنشاء');
       throw error;
     } finally {
       loading.value = false;
