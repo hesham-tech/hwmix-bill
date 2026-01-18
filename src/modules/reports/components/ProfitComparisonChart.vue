@@ -1,17 +1,20 @@
 <template>
-  <v-card variant="flat" border class="chart-card rounded-xl overflow-hidden pa-1">
-    <v-card-text class="pa-4">
-      <div class="d-flex align-center justify-space-between mb-4">
-        <div>
-          <div class="text-caption font-weight-bold text-grey-darken-1 mb-1">تحليل الربحية</div>
-          <h3 class="text-h6 font-weight-black">مقارنة الإيرادات والتكاليف والأرباح</h3>
-        </div>
+  <v-card class="rounded-xl" border flat>
+    <v-card-text class="pa-6">
+      <div v-if="loading" class="text-center py-12">
+        <v-progress-circular indeterminate color="primary" />
       </div>
-
-      <div class="chart-wrapper">
-        <apexchart v-if="!loading" type="bar" height="350" :options="chartOptions" :series="series" />
-        <div v-else class="d-flex align-center justify-center height-350">
-          <v-progress-circular indeterminate color="primary" />
+      <div v-else-if="!data || data.length === 0" class="text-center py-12 text-grey">
+        <v-icon size="64" color="grey-lighten-2">ri-bar-chart-line</v-icon>
+        <p class="text-subtitle-1 mt-4">لا توجد بيانات للعرض</p>
+      </div>
+      <div v-else>
+        <h3 class="text-h6 font-weight-black mb-6">مقارنة الربحية الشهرية</h3>
+        <!-- Placeholder for actual chart - will be implemented with Chart.js -->
+        <div class="chart-placeholder pa-6 bg-grey-lighten-4 rounded-lg text-center">
+          <v-icon size="48" color="primary">ri-line-chart-line</v-icon>
+          <p class="text-body-2 mt-2">الرسم البياني قيد التطوير</p>
+          <p class="text-caption text-grey">البيانات: {{ data.length }} سجل</p>
         </div>
       </div>
     </v-card-text>
@@ -19,9 +22,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
-
-const props = defineProps({
+defineProps({
   data: {
     type: Array,
     default: () => [],
@@ -31,79 +32,14 @@ const props = defineProps({
     default: false,
   },
 });
-
-const series = computed(() => [
-  {
-    name: 'الإيرادات',
-    data: props.data.map(item => item.revenue),
-  },
-  {
-    name: 'التكاليف',
-    data: props.data.map(item => item.costs),
-  },
-  {
-    name: 'الربح',
-    data: props.data.map(item => item.profit),
-  },
-]);
-
-const chartOptions = computed(() => ({
-  chart: {
-    type: 'bar',
-    height: 350,
-    toolbar: { show: false },
-    fontFamily: 'Inter, sans-serif',
-  },
-  plotOptions: {
-    bar: {
-      horizontal: false,
-      columnWidth: '55%',
-      borderRadius: 4,
-    },
-  },
-  dataLabels: { enabled: false },
-  stroke: {
-    show: true,
-    width: 2,
-    colors: ['transparent'],
-  },
-  xaxis: {
-    categories: props.data.map(item => item.month),
-    labels: {
-      style: { colors: '#64748b', fontSize: '12px' },
-    },
-  },
-  yaxis: {
-    labels: {
-      style: { colors: '#64748b', fontSize: '12px' },
-      formatter: val => `${val} ج.م`,
-    },
-  },
-  fill: { opacity: 1 },
-  tooltip: {
-    theme: 'light',
-    y: {
-      formatter: val => `${val} ج.م`,
-    },
-  },
-  legend: {
-    position: 'top',
-    horizontalAlign: 'right',
-    fontFamily: 'Inter, sans-serif',
-  },
-  colors: ['#3b82f6', '#ef4444', '#10b981'], // Revenue(Blue), Cost(Red), Profit(Green)
-  grid: {
-    borderColor: '#f1f5f9',
-    strokeDashArray: 4,
-  },
-}));
 </script>
 
 <style scoped>
-.chart-card {
-  height: 100%;
-}
-.height-350 {
-  height: 350px;
+.chart-placeholder {
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 </style>

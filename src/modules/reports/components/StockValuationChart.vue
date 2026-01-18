@@ -1,17 +1,23 @@
 <template>
-  <v-card variant="flat" border class="chart-card rounded-xl overflow-hidden pa-1">
-    <v-card-text class="pa-4">
-      <div class="d-flex align-center justify-space-between mb-4">
-        <div>
-          <div class="text-caption font-weight-bold text-grey-darken-1 mb-1">توزيع القيمة</div>
-          <h3 class="text-h6 font-weight-black">قيمة التكلفة مقابل الربح التقديري</h3>
-        </div>
+  <v-card class="rounded-xl" border flat>
+    <v-card-text class="pa-6">
+      <div v-if="loading" class="text-center py-12">
+        <v-progress-circular indeterminate color="primary" />
       </div>
-
-      <div class="chart-wrapper d-flex justify-center">
-        <apexchart v-if="!loading" type="donut" width="380" :options="chartOptions" :series="series" />
-        <div v-else class="d-flex align-center justify-center height-300">
-          <v-progress-circular indeterminate color="primary" />
+      <div v-else-if="!summary || summary.total_cost_value === 0" class="text-center py-12 text-grey">
+        <v-icon size="64" color="grey-lighten-2">ri-pie-chart-line</v-icon>
+        <p class="text-subtitle-1 mt-4">لا توجد بيانات للعرض</p>
+      </div>
+      <div v-else>
+        <h3 class="text-h6 font-weight-black mb-6">توزيع قيمة المخزون</h3>
+        <!-- Placeholder for actual chart - will be implemented with Chart.js -->
+        <div class="chart-placeholder pa-6 bg-grey-lighten-4 rounded-lg text-center">
+          <v-icon size="48" color="success">ri-pie-chart-2-line</v-icon>
+          <p class="text-body-2 mt-2">الرسم البياني قيد التطوير</p>
+          <div class="mt-4">
+            <p class="text-caption">قيمة التكلفة: {{ formatCurrency(summary.total_cost_value) }}</p>
+            <p class="text-caption">القيمة البيعية: {{ formatCurrency(summary.total_sale_value) }}</p>
+          </div>
         </div>
       </div>
     </v-card-text>
@@ -19,64 +25,26 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { formatCurrency } from '@/utils/formatters';
 
-const props = defineProps({
+defineProps({
   summary: {
     type: Object,
-    default: () => ({ total_cost_value: 0, potential_profit: 0 }),
+    default: () => ({}),
   },
   loading: {
     type: Boolean,
     default: false,
   },
 });
-
-const series = computed(() => [props.summary.total_cost_value || 0, props.summary.potential_profit || 0]);
-
-const chartOptions = computed(() => ({
-  chart: {
-    type: 'donut',
-    fontFamily: 'Inter, sans-serif',
-  },
-  labels: ['إجمالي التكلفة', 'الربح المتوقع'],
-  colors: ['#3b82f6', '#10b981'],
-  plotOptions: {
-    pie: {
-      donut: {
-        size: '70%',
-        labels: {
-          show: true,
-          total: {
-            show: true,
-            label: 'إجمالي القيمة البيعية',
-            formatter: w => {
-              const total = w.globals.seriesTotals.reduce((a, b) => a + b, 0);
-              return new Intl.NumberFormat('ar-EG', { style: 'currency', currency: 'EGP' }).format(total);
-            },
-          },
-        },
-      },
-    },
-  },
-  legend: {
-    position: 'bottom',
-    fontFamily: 'Inter, sans-serif',
-  },
-  dataLabels: { enabled: false },
-  tooltip: {
-    y: {
-      formatter: val => new Intl.NumberFormat('ar-EG', { style: 'currency', currency: 'EGP' }).format(val),
-    },
-  },
-}));
 </script>
 
 <style scoped>
-.chart-card {
-  height: 100%;
-}
-.height-300 {
-  height: 300px;
+.chart-placeholder {
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 </style>

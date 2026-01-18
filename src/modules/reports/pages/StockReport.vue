@@ -118,6 +118,9 @@ import { ref, onMounted } from 'vue';
 import { usePermissions } from '@/composables/usePermissions';
 import { PERMISSIONS } from '@/config/permissions';
 import { formatCurrency } from '@/utils/formatters';
+import { useApi } from '@/composables/useApi';
+import { usePrintExport } from '@/composables/usePrintExport';
+import StockValuationChart from '../components/StockValuationChart.vue';
 
 const { can } = usePermissions();
 
