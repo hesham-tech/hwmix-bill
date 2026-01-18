@@ -68,6 +68,10 @@ import { PERMISSIONS } from '@/config/permissions';
 import { formatCurrency } from '@/utils/formatters';
 import { useApi } from '@/composables/useApi';
 import { usePrintExport } from '@/composables/usePrintExport';
+import ReportLayout from '../components/ReportLayout.vue';
+import AppButton from '@/components/common/AppButton.vue';
+import AppInput from '@/components/common/AppInput.vue';
+import AppDataTable from '@/components/common/AppDataTable.vue';
 
 const { can } = usePermissions();
 
