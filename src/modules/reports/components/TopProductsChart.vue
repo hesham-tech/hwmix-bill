@@ -36,7 +36,7 @@ const props = defineProps({
 const series = computed(() => [
   {
     name: 'الكمية',
-    data: props.data.map(item => item.total_qty),
+    data: props.data && props.data.length > 0 ? props.data.map(item => item.total_qty || 0) : [],
   },
 ]);
 
@@ -66,7 +66,7 @@ const chartOptions = computed(() => ({
   },
   legend: { show: false },
   xaxis: {
-    categories: props.data.map(item => item.name),
+    categories: props.data && props.data.length > 0 ? props.data.map(item => item.name || '') : [],
     labels: { show: false },
     axisBorder: { show: false },
     axisTicks: { show: false },
