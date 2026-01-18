@@ -52,8 +52,7 @@ import '@layouts/styles/index.scss';
   app.mount('#app');
   console.log('Vue app mounted successfully!');
 })();
-
-// setupAutoSelectOnFocus(); // 👈 تطبيق السلوك على كامل النظام
+setupAutoSelectOnFocus(); // 👈 تطبيق السلوك على كامل النظام
 
 async function getUserApi() {
   const userStore = useUserStore();

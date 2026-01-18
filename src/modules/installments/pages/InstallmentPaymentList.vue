@@ -1,5 +1,5 @@
 <template>
-  <div class="installment-payments-page">
+  <div v-if="can(PERMISSIONS.PAYMENTS_VIEW_ALL)" class="installment-payments-page">
     <div class="px-6 pb-6">
       <AppDataTable
         :headers="headers"
@@ -9,7 +9,9 @@
         icon="ri-money-dollar-box-line"
       >
         <template #actions>
-          <AppButton color="primary" prepend-icon="ri-add-line" @click="handleAddPayment"> تسجيل دفعة جديدة </AppButton>
+          <AppButton v-if="can(PERMISSIONS.PAYMENTS_CREATE)" color="primary" prepend-icon="ri-add-line" @click="handleAddPayment">
+            تسجيل دفعة جديدة
+          </AppButton>
         </template>
 
         <template #item.amount="{ item }">
@@ -113,10 +115,21 @@
       </div>
     </AppDialog>
   </div>
+
+  <!-- Access Denied State -->
+  <div v-else class="pa-12 text-center d-flex flex-column align-center justify-center" style="min-height: 400px">
+    <v-avatar size="100" color="error-lighten-5" class="mb-6">
+      <v-icon icon="ri-lock-2-line" size="48" color="error" />
+    </v-avatar>
+    <h2 class="text-h4 font-weight-bold mb-2">عذراً، لا تملك الصلاحية</h2>
+    <p class="text-body-1 text-grey mb-6">ليس لديك إذن للوصول إلى سجل دفعات الأقساط. يرجى مراجعة المسؤول.</p>
+    <AppButton to="/dashboard" color="primary" variant="tonal" prepend-icon="ri-home-4-line"> العودة للرئيسية </AppButton>
+  </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { usePermissions } from '@/composables/usePermissions';
+import { PERMISSIONS } from '@/config/permissions';
 import { useInstallment } from '../composables/useInstallment';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 import AppButton from '@/components/common/AppButton.vue';
@@ -134,6 +147,7 @@ const props = defineProps({
   },
 });
 
+const { can } = usePermissions();
 const { payments, loading, loadPayments, loadPaymentDetails } = useInstallment();
 
 const headers = [

@@ -1,1 +1,0 @@
-const t=(r,e={})=>{if(!r)return"-";const n={year:"numeric",month:"long",day:"numeric",...e};return new Date(r).toLocaleDateString("ar-EG",n)},a=(r,e="EGP")=>r==null?"-":new Intl.NumberFormat("ar-EG",{style:"currency",currency:e}).format(r);export{t as a,a as f};

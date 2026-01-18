@@ -53,6 +53,7 @@ export const formatCurrency = (amount, currency = 'EGP') => {
   return new Intl.NumberFormat('ar-EG', {
     style: 'currency',
     currency,
+    maximumFractionDigits: 0,
   }).format(amount);
 };
 

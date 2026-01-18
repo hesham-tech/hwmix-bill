@@ -1,5 +1,5 @@
 <template>
-  <div class="activity-log-page">
+  <div v-if="can(PERMISSIONS.ADMIN_SUPER)" class="activity-log-page">
     <div class="page-header mb-6">
       <h1 class="text-h4 font-weight-bold">سجل النشاطات</h1>
       <p class="text-body-1 text-grey">تتبع التغييرات والعمليات المنفذة في النظام</p>
@@ -158,12 +158,25 @@
       </v-card>
     </v-dialog>
   </div>
+
+  <!-- Access Denied State -->
+  <div v-else class="pa-12 text-center d-flex flex-column align-center justify-center" style="min-height: 400px">
+    <v-avatar size="100" color="error-lighten-5" class="mb-6">
+      <v-icon icon="ri-lock-2-line" size="48" color="error" />
+    </v-avatar>
+    <h2 class="text-h4 font-weight-bold mb-2">عذراً، لا تملك الصلاحية</h2>
+    <p class="text-body-1 text-grey mb-6">ليس لديك إذن للوصول إلى سجل النشاطات. يرجى مراجعة المسؤول الأعلى.</p>
+    <AppButton to="/dashboard" color="primary" variant="tonal" prepend-icon="ri-home-4-line"> العودة للرئيسية </AppButton>
+  </div>
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { usePermissions } from '@/composables/usePermissions';
+import { PERMISSIONS } from '@/config/permissions';
 import { useApi } from '@/composables/useApi';
 import AppDataTable from '@/components/common/AppDataTable.vue';
+
+const { can } = usePermissions();
 
 const api = useApi('/api/activity-logs');
 

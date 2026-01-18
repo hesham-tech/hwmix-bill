@@ -97,23 +97,23 @@
     </v-card>
 
     <!-- Internal Confirm Delete Dialog -->
-    <v-dialog v-model="deleteConfirmDialog" max-width="400">
-      <v-card class="rounded-xl">
-        <v-card-title class="text-h6 font-weight-bold pt-4 text-center">حذف الصورة نهائياً؟</v-card-title>
-        <v-card-text class="text-center">سيتم حذف الملف من السيرفر ولا يمكن التراجع عن هذا الإجراء.</v-card-text>
-        <v-card-actions class="pa-4">
-          <v-btn variant="text" @click="deleteConfirmDialog = false">إلغاء</v-btn>
-          <v-spacer />
-          <v-btn color="error" :loading="deleting" class="px-6" @click="doDelete">نعم، حذف</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <AppConfirmDialog
+      v-model="deleteConfirmDialog"
+      title="حذف الصورة نهائياً؟"
+      message="سيتم حذف الملف من السيرفر ولا يمكن التراجع عن هذا الإجراء."
+      confirm-text="نعم، حذف"
+      type="error"
+      :loading="deleting"
+      @confirm="doDelete"
+      @cancel="deleteConfirmDialog = false"
+    />
   </v-dialog>
 </template>
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
 import { useApi } from '@/composables/useApi';
+import AppConfirmDialog from './AppConfirmDialog.vue';
 
 const props = defineProps({
   modelValue: Boolean,

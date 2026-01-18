@@ -1,5 +1,5 @@
 <template>
-  <div class="transactions-page">
+  <div v-if="can(PERMISSIONS.TRANSACTIONS_VIEW_ALL)" class="transactions-page">
     <div class="mb-6 px-6 pt-6">
       <h1 class="text-h4 font-weight-bold">حركات الخزينة</h1>
       <p class="text-body-1 text-grey">سجل وتدقيق جميع المعاملات المالية الصادرة والواردة</p>
@@ -54,14 +54,25 @@
       </AppDataTable>
     </div>
   </div>
+
+  <!-- Access Denied State -->
+  <div v-else class="pa-12 text-center d-flex flex-column align-center justify-center" style="min-height: 400px">
+    <v-avatar size="100" color="error-lighten-5" class="mb-6">
+      <v-icon icon="ri-lock-2-line" size="48" color="error" />
+    </v-avatar>
+    <h2 class="text-h4 font-weight-bold mb-2">عذراً، لا تملك الصلاحية</h2>
+    <p class="text-body-1 text-grey mb-6">ليس لديك إذن للوصول إلى حركات الخزينة. يرجى مراجعة المسؤول.</p>
+    <AppButton to="/dashboard" color="primary" variant="tonal" prepend-icon="ri-home-4-line"> العودة للرئيسية </AppButton>
+  </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useApi } from '@/composables/useApi';
+import { usePermissions } from '@/composables/usePermissions';
+import { PERMISSIONS } from '@/config/permissions';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 import AppCard from '@/components/common/AppCard.vue';
 
+const { can } = usePermissions();
 const api = useApi('/api/transactions');
 
 const transactions = ref([]);

@@ -218,6 +218,8 @@ export const PERMISSIONS = {
   PRODUCTS_DELETE_ALL: 'products.delete_all',
   PRODUCTS_DELETE_CHILDREN: 'products.delete_children',
   PRODUCTS_DELETE_SELF: 'products.delete_self',
+  PRODUCTS_VIEW_WHOLESALE_PRICE: 'products.view_wholesale_price',
+  PRODUCTS_VIEW_PURCHASE_PRICE: 'products.view_purchase_price',
 
   // ==================== Product Variants ====================
   PRODUCT_VARIANTS_PAGE: 'product_variants.page',
@@ -257,6 +259,7 @@ export const PERMISSIONS = {
   STOCKS_DELETE_ALL: 'stocks.delete_all',
   STOCKS_DELETE_CHILDREN: 'stocks.delete_children',
   STOCKS_DELETE_SELF: 'stocks.delete_self',
+  STOCKS_MANUAL_ADJUSTMENT: 'stocks.manual_adjustment',
 
   // ==================== Invoices ====================
   INVOICES_PAGE: 'invoices.page',
@@ -405,8 +408,6 @@ export const PERMISSIONS = {
   // ==================== Reports ====================
   REPORTS_PAGE: 'reports.page',
   REPORTS_VIEW_ALL: 'reports.view_all',
-  REPORTS_VIEW_CHILDREN: 'reports.view_children',
-  REPORTS_VIEW_SELF: 'reports.view_self',
   REPORTS_SALES: 'reports.sales',
   REPORTS_STOCK: 'reports.stock',
   REPORTS_PROFIT: 'reports.profit',

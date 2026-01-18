@@ -1,5 +1,5 @@
 <template>
-  <div class="installments-page">
+  <div v-if="can(PERMISSIONS.PAYMENTS_VIEW_ALL)" class="installments-page">
     <div class="page-header mb-6">
       <h1 class="text-h4 font-weight-bold">الأقساط</h1>
       <p class="text-body-1 text-grey">متابعة جميع الأقساط المستحقة</p>
@@ -46,7 +46,14 @@
           </template>
 
           <template #item.actions="{ item }">
-            <v-btn v-if="item.status === 'pending'" icon="ri-check-line" size="small" variant="text" color="success" @click="markAsPaid(item)" />
+            <v-btn
+              v-if="item.status === 'pending' && can(PERMISSIONS.PAYMENTS_CREATE)"
+              icon="ri-check-line"
+              size="small"
+              variant="text"
+              color="success"
+              @click="markAsPaid(item)"
+            />
           </template>
 
           <template #no-data>
@@ -59,12 +66,23 @@
       </v-card-text>
     </v-card>
   </div>
+
+  <!-- Access Denied State -->
+  <div v-else class="pa-12 text-center d-flex flex-column align-center justify-center" style="min-height: 400px">
+    <v-avatar size="100" color="error-lighten-5" class="mb-6">
+      <v-icon icon="ri-lock-2-line" size="48" color="error" />
+    </v-avatar>
+    <h2 class="text-h4 font-weight-bold mb-2">عذراً، لا تملك الصلاحية</h2>
+    <p class="text-body-1 text-grey mb-6">ليس لديك إذن للوصول إلى الأقساط. يرجى مراجعة المسؤول.</p>
+    <AppButton to="/dashboard" color="primary" variant="tonal" prepend-icon="ri-home-4-line"> العودة للرئيسية </AppButton>
+  </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useApi } from '@/composables/useApi';
+import { usePermissions } from '@/composables/usePermissions';
+import { PERMISSIONS } from '@/config/permissions';
 
+const { can } = usePermissions();
 const api = useApi('/api/installments');
 
 const installments = ref([]);

@@ -91,16 +91,12 @@
           </AppInput>
         </v-col>
 
-        <v-col cols="12" md="4">
+        <v-col cols="12" md="6">
           <AppInput v-model="form.nickname" label="الاسم المختصر (اللقب) *" :rules="[required]" prepend-inner-icon="ri-user-star-line" />
         </v-col>
 
-        <v-col cols="12" md="4">
-          <AppInput v-model="form.first_name" label="الاسم الأول *" :rules="[required]" prepend-inner-icon="ri-user-line" />
-        </v-col>
-
-        <v-col cols="12" md="4">
-          <AppInput v-model="form.last_name" label="الاسم الأخير *" :rules="[required]" prepend-inner-icon="ri-user-line" />
+        <v-col cols="12" md="6">
+          <AppInput v-model="form.full_name" label="الاسم الكامل *" :rules="[required]" prepend-inner-icon="ri-user-line" />
         </v-col>
 
         <v-col cols="12" md="6">
@@ -109,10 +105,13 @@
 
         <v-col cols="12" md="6">
           <v-select
-            v-model="form.role"
-            :items="roleOptions"
-            label="الدور الوظيفي"
-            prepend-inner-icon="ri-shield-user-line"
+            v-model="form.customer_type"
+            :items="[
+              { title: 'قطاعي (تجزئة)', value: 'retail' },
+              { title: 'جملة', value: 'wholesale' },
+            ]"
+            label="نوع العميل"
+            prepend-inner-icon="ri-user-settings-line"
             variant="outlined"
             density="comfortable"
           />
@@ -247,8 +246,7 @@ const handleLookup = async field => {
 
       // Autofill logic
       form.value.id = result.id;
-      form.value.first_name = result.first_name || form.value.first_name;
-      form.value.last_name = result.last_name || form.value.last_name;
+      form.value.full_name = result.full_name || form.value.full_name;
       form.value.nickname = result.nickname || form.value.nickname;
       form.value.username = result.username || form.value.username;
       form.value.email = result.email || form.value.email;
@@ -269,14 +267,13 @@ const handleLookup = async field => {
 
 const resetForm = () => {
   form.value = {
-    first_name: '',
-    last_name: '',
+    full_name: '',
     nickname: '',
     username: '',
     email: '',
     phone: '',
     password: '',
-    role: 'sales',
+    customer_type: 'retail',
     is_active: true,
     address: '',
     notes: '',
@@ -288,14 +285,13 @@ const resetForm = () => {
 };
 
 const form = ref({
-  first_name: '',
-  last_name: '',
+  full_name: '',
   nickname: '',
   username: '',
   email: '',
   phone: '',
   password: '',
-  role: 'sales',
+  customer_type: 'retail',
   is_active: true,
   address: '',
   notes: '',
@@ -304,9 +300,14 @@ const form = ref({
   ...props.modelValue,
 });
 
-onMounted(async () => {
-  store.fetchRoles();
+// Explicitly remove sensitive or redundant data if present initially
+delete form.value.roles;
+delete form.value.permissions;
+delete form.value.direct_permissions;
+delete form.value.first_name;
+delete form.value.last_name;
 
+onMounted(async () => {
   if (globalUserStore.isAdmin) {
     loadingCompanies.value = true;
     try {
@@ -323,10 +324,6 @@ onMounted(async () => {
 
 const canAssignCompanies = computed(() => globalUserStore.isAdmin || globalUserStore.isCompanyAdmin);
 
-const roleOptions = computed(() => {
-  return [...store.roles.map(r => ({ title: r.label || r.name, value: r.name })), { title: 'عميل', value: 'customer' }];
-});
-
 const handleImageSelect = image => {
   form.value.images_ids = [image.id];
   imagePreview.value = image.url;
@@ -340,6 +337,9 @@ const handleSubmit = async () => {
   try {
     const data = { ...form.value };
     data.status = data.is_active ? 'active' : 'inactive';
+
+    // Clean up to avoid validation conflicts
+    delete data.is_active;
 
     if (props.isEditMode && !data.password) {
       delete data.password;
@@ -355,7 +355,14 @@ watch(
   () => props.modelValue,
   newVal => {
     if (newVal) {
-      form.value = { ...form.value, ...newVal };
+      // Sanitize incoming data: remove roles, permissions and legacy name fields
+      const { roles, permissions, direct_permissions, first_name, last_name, ...cleanData } = newVal;
+
+      form.value = {
+        ...form.value,
+        ...cleanData,
+      };
+
       if (newVal.avatar_url) {
         imagePreview.value = newVal.avatar_url;
       }

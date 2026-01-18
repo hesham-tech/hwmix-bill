@@ -1,28 +1,57 @@
 <template>
-  <v-avatar
-    :size="size"
-    :rounded="rounded"
-    :color="imgUrl ? undefined : bgcolor"
-    :class="['app-avatar shadow-sm border', { 'hover-scale': hoverable }, customClass]"
-    v-bind="$attrs"
-  >
-    <!-- Priority 1: Image -->
-    <v-img v-if="imgUrl" :src="imgUrl" cover @error="handleImgError">
-      <template #placeholder>
-        <div class="d-flex align-center justify-center fill-height bg-grey-lighten-4">
-          <v-progress-circular indeterminate size="16" width="2" color="primary" />
-        </div>
-      </template>
-    </v-img>
+  <div class="app-avatar-wrapper d-inline-block">
+    <v-avatar
+      :size="size"
+      :rounded="isStandardRounded ? rounded : undefined"
+      :color="imgUrl ? undefined : bgcolor"
+      :class="['app-avatar shadow-sm border', { 'hover-scale': hoverable, 'cursor-zoom-in': shouldBePreviewable }, customClass]"
+      :style="avatarStyle"
+      v-bind="$attrs"
+      @click="handlePreview"
+    >
+      <!-- Priority 1: Image -->
+      <v-img v-if="imgUrl" :src="imgUrl" cover @error="handleImgError">
+        <template #placeholder>
+          <div class="d-flex align-center justify-center fill-height bg-grey-lighten-4">
+            <v-progress-circular indeterminate size="16" width="2" color="primary" />
+          </div>
+        </template>
+      </v-img>
 
-    <!-- Priority 2: Initials -->
-    <span v-else-if="initials && !hasImgError" :class="['font-weight-bold', textClass]" :style="{ fontSize: initialsFontSize }">
-      {{ initials }}
-    </span>
+      <!-- Priority 2: Initials -->
+      <span v-else-if="initials && !hasImgError" :class="['font-weight-bold', textClass]" :style="{ fontSize: initialsFontSize }">
+        {{ initials }}
+      </span>
 
-    <!-- Priority 3: Fallback Icon -->
-    <v-icon v-else :icon="fallbackIcon" :size="iconSize" :color="iconColor" />
-  </v-avatar>
+      <!-- Priority 3: Fallback Icon -->
+      <v-icon v-else :icon="fallbackIcon" :size="iconSize" :color="iconColor" />
+    </v-avatar>
+
+    <!-- Image Preview Dialog -->
+    <v-dialog v-model="showPreview" max-width="800px" transition="dialog-bottom-transition">
+      <v-card class="preview-dialog-card rounded-xl overflow-visible">
+        <!-- Close Button -->
+        <v-btn icon="ri-close-line" variant="elevated" color="white" size="small" class="preview-close-btn shadow-lg" @click="showPreview = false" />
+
+        <v-card-text
+          class="pa-0 rounded-xl overflow-hidden bg-grey-lighten-4 d-flex align-center justify-center"
+          style="min-height: 300px; min-width: 300px"
+        >
+          <v-img v-if="imgUrl" :src="imgUrl" max-height="80vh" width="100%" class="user-preview-img" @error="hasImgError = true">
+            <template #placeholder>
+              <div class="d-flex align-center justify-center fill-height">
+                <v-progress-circular indeterminate color="primary" width="3" />
+              </div>
+            </template>
+          </v-img>
+          <div v-else class="pa-10 text-center text-grey">
+            <v-icon icon="ri-image-line" size="64" class="mb-2 opacity-50" />
+            <div class="text-h6">تعذر تحميل الصورة</div>
+          </div>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+  </div>
 </template>
 
 <script setup>
@@ -103,6 +132,13 @@ const props = defineProps({
     default: false,
   },
   /**
+   * Whether to show an image preview dialog on click.
+   */
+  previewable: {
+    type: Boolean,
+    default: true,
+  },
+  /**
    * Custom CSS class for the avatar element.
    */
   customClass: {
@@ -112,9 +148,21 @@ const props = defineProps({
 });
 
 const hasImgError = ref(false);
+const showPreview = ref(false);
 
 const handleImgError = () => {
   hasImgError.value = true;
+};
+
+const shouldBePreviewable = computed(() => {
+  return props.previewable && props.imgUrl && typeof props.imgUrl === 'string' && props.imgUrl.trim().length > 0 && !hasImgError.value;
+});
+
+const handlePreview = event => {
+  if (shouldBePreviewable.value) {
+    event.stopPropagation();
+    showPreview.value = true;
+  }
 };
 
 // Map types to default icons
@@ -175,6 +223,18 @@ const iconSize = computed(() => {
   return numSize * 0.5 + 'px';
 });
 
+const isStandardRounded = computed(() => {
+  const standardValues = ['0', 'xs', 'sm', 'md', 'lg', 'xl', 'pill', 'circle'];
+  return standardValues.includes(props.rounded) || !props.rounded;
+});
+
+const avatarStyle = computed(() => {
+  if (isStandardRounded.value) return {};
+  return {
+    borderRadius: props.rounded,
+  };
+});
+
 const initialsFontSize = computed(() => {
   const numSize = parseInt(props.size);
   if (isNaN(numSize)) return '0.875rem';
@@ -196,6 +256,25 @@ const initialsFontSize = computed(() => {
   transform: scale(1.1);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1) !important;
   z-index: 1;
+}
+
+.cursor-zoom-in {
+  cursor: zoom-in !important;
+}
+
+.preview-dialog-card {
+  position: relative;
+}
+
+.preview-close-btn {
+  position: absolute;
+  top: -15px;
+  right: -15px;
+  z-index: 100;
+}
+
+.user-preview-img :deep(.v-img__img) {
+  object-fit: contain;
 }
 
 :deep(.v-img__img) {

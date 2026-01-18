@@ -92,7 +92,7 @@
         />
 
         <v-switch
-          v-if="userStore.isAdmin || can('users.view_all')"
+          v-if="userStore.isAdmin || can(PERMISSIONS.USERS_VIEW_ALL)"
           v-model="store.isGlobalMode"
           label="عرض عالمي"
           color="primary"
@@ -106,7 +106,7 @@
         <v-spacer />
 
         <AppButton
-          v-if="can('users.create')"
+          v-if="can(PERMISSIONS.USERS_CREATE)"
           color="primary"
           prepend-icon="ri-user-add-line"
           class="font-weight-bold rounded-pill"
@@ -141,7 +141,9 @@
           <div class="d-flex align-center py-2">
             <AppAvatar :img-url="item.avatar_url" :name="item.nickname || item.full_name" size="45" class="me-3 border shadow-sm" />
             <div class="d-flex flex-column">
-              <span class="font-weight-bold text-body-1">{{ item.nickname || item.full_name }}</span>
+              <span class="font-weight-bold text-body-1 text-primary cursor-pointer hover-underline" @click="$router.push(`/users/${item.id}`)">
+                {{ item.nickname || item.full_name }}
+              </span>
               <span class="text-caption text-grey d-flex align-center gap-1">
                 <v-icon icon="ri-mail-line" size="12" />
                 {{ item.email || 'لا يوجد بريد' }}
@@ -151,43 +153,48 @@
         </template>
 
         <template #item.phone="{ item }">
-          <div v-if="item.phone" class="d-flex align-center gap-1 text-body-2">
-            <v-icon icon="ri-phone-line" size="14" color="primary" />
-            <span class="text-ltr">{{ item.phone }}</span>
-          </div>
-          <span v-else class="text-caption text-grey italic">لا يوجد</span>
+          <AppPhone :phone="item.phone" />
         </template>
 
         <template #item.roles="{ item }">
           <div class="d-flex flex-wrap gap-1">
-            <v-chip
-              v-for="role in item.roles"
-              :key="role"
-              size="x-small"
-              variant="flat"
-              color="secondary-lighten-5"
-              class="text-secondary font-weight-bold px-2 rounded"
-            >
-              {{ role }}
-            </v-chip>
-            <span v-if="!item.roles?.length" class="text-caption text-grey italic">موظف</span>
+            <template v-if="item.roles?.length">
+              <v-chip
+                v-for="role in item.roles"
+                :key="typeof role === 'object' ? role.id : role"
+                size="x-small"
+                variant="tonal"
+                :color="getRoleColor(role)"
+                class="font-weight-bold px-2 rounded"
+              >
+                {{ typeof role === 'object' ? role.label || role.name : role }}
+              </v-chip>
+            </template>
+            <span v-else class="text-caption text-grey italic">عميل</span>
           </div>
         </template>
 
         <template #item.status="{ item }">
           <v-chip
-            :color="item.status === 'active' || item.status === 1 ? 'success' : 'error'"
+            :color="[1, '1', true, 'active'].includes(item.status) ? 'success' : 'error'"
             size="x-small"
             variant="flat"
             class="font-weight-bold px-2"
           >
-            {{ item.status === 'active' || item.status === 1 ? 'نشط' : 'معطل' }}
+            {{ [1, '1', true, 'active'].includes(item.status) ? 'نشط' : 'معطل' }}
           </v-chip>
         </template>
 
+        <template #item.balance="{ item }">
+          <div :class="['font-weight-bold text-end', item.balance < 0 ? 'text-error' : 'text-success']">
+            {{ formatCurrency(item.balance) }}
+          </div>
+        </template>
+
         <template #extra-actions="{ item }">
+          <v-btn icon="ri-eye-line" size="small" variant="text" color="info" tooltip="عرض التفاصيل" @click="$router.push(`/users/${item.id}`)" />
           <v-btn
-            v-if="can('roles.page')"
+            v-if="can(PERMISSIONS.ROLES_PAGE)"
             icon="ri-shield-user-line"
             size="small"
             variant="text"
@@ -200,7 +207,7 @@
     </AppInfiniteScroll>
 
     <div class="px-6 pb-6">
-      <ConfirmDialog v-model="showConfirm" :message="confirmMessage" @confirm="handleConfirm" @cancel="handleCancel" />
+      <AppConfirmDialog v-model="showConfirm" :message="confirmMessage" @confirm="handleConfirm" @cancel="handleCancel" />
     </div>
 
     <!-- User Form Dialog -->
@@ -233,8 +240,10 @@ import AppDataTable from '@/components/common/AppDataTable.vue';
 import AppButton from '@/components/common/AppButton.vue';
 import AppDialog from '@/components/common/AppDialog.vue';
 import AppInfiniteScroll from '@/components/common/AppInfiniteScroll.vue';
-import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
+import AppConfirmDialog from '@/components/common/AppConfirmDialog.vue';
+import { PERMISSIONS } from '@/config/permissions';
 import { getInitials } from '@/utils/helpers';
+import { formatCurrency } from '@/utils/formatters';
 
 const { can } = usePermissions();
 const store = useUserStore();
@@ -278,14 +287,23 @@ const handleLoadMore = () => {
   loadMore();
 };
 
-const headers = [
-  { title: 'المستخدم', key: 'full_name', sortable: true },
-  { title: 'الهاتف', key: 'phone', sortable: true },
-  { title: 'الأدوار', key: 'roles', sortable: false },
-  { title: 'الحالة', key: 'status', sortable: true },
-  { title: 'تاريخ الإضافة', key: 'created_at', sortable: true },
-  { title: 'الإجراءات', key: 'actions', sortable: false, align: 'end' },
-];
+const headers = computed(() => {
+  const base = [
+    { title: 'المستخدم', key: 'full_name', sortable: true },
+    { title: 'الهاتف', key: 'phone', sortable: true },
+    { title: 'الأدوار', key: 'roles', sortable: false },
+  ];
+
+  if (can(PERMISSIONS.USERS_VIEW_ALL)) {
+    base.push({ title: 'الرصيد', key: 'balance', sortable: true, align: 'end' });
+  }
+
+  base.push({ title: 'الحالة', key: 'status', sortable: true });
+  base.push({ title: 'تاريخ الإضافة', key: 'created_at', sortable: true });
+  base.push({ title: 'الإجراءات', key: 'actions', sortable: false, align: 'end' });
+
+  return base;
+});
 
 const roleOptions = [
   { title: 'الكل', value: null },
@@ -326,6 +344,19 @@ const handleManagePermissions = user => {
   openPermissions(user);
 };
 
+const getRoleColor = role => {
+  const roleName = typeof role === 'object' ? role.name : role;
+  const colors = {
+    'admin.super': '#EE4B2B', // Vivid Red
+    'admin.company': '#1A73E8', // Google Blue
+    manager: '#00BFA5', // Teal
+    sales: '#4CAF50', // Green
+    stock: '#FB8C00', // Orange
+    accountant: '#8E24AA', // Purple
+  };
+  return colors[roleName] || '#78909C';
+};
+
 onMounted(() => {
   store.page = 1;
   loadUsers(false);
@@ -351,4 +382,8 @@ watch(
 );
 </script>
 
-<style scoped></style>
+<style scoped>
+.hover-underline:hover {
+  text-decoration: underline;
+}
+</style>

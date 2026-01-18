@@ -168,3 +168,19 @@ export const getQueryParams = () => {
   const params = new URLSearchParams(window.location.search);
   return Object.fromEntries(params.entries());
 };
+/**
+ * Highlight search text within a string
+ * @param {string} text - The full text to search within
+ * @param {string} search - The search term to highlight
+ * @returns {string} - HTML string with <mark> tags
+ */
+export const highlightText = (text, search) => {
+  if (!search || !text) return text;
+
+  const str = text.toString();
+  const escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp(`(${escapedSearch})`, 'gi');
+
+  // Use a very light yellow highlight that doesn't obscure the text
+  return str.replace(regex, '<mark style="background-color: #fff9c4; color: inherit; font-weight: bold; border-radius: 2px;">$1</mark>');
+};

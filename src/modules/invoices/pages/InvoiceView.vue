@@ -5,7 +5,10 @@
         <AppButton icon="ri-arrow-right-line" variant="text" color="secondary" @click="goBack" class="me-3" />
         <div>
           <h1 class="text-h4 font-weight-bold">الفاتورة #{{ invoice?.invoice_number }}</h1>
-          <p class="text-body-1 text-grey" v-if="invoice">{{ formatDate(invoice.invoice_date) }}</p>
+          <p class="text-body-1 text-grey" v-if="invoice">
+            <v-icon icon="ri-calendar-line" size="small" class="me-1" />
+            {{ formatDate(invoice.issue_date) }}
+          </p>
         </div>
       </div>
       <div class="d-flex gap-2 no-print">
@@ -28,27 +31,34 @@
         <v-col cols="12" md="8">
           <!-- Customer Info -->
           <AppCard title="معلومات العميل" icon="ri-user-line" class="mb-6">
-            <v-row>
-              <v-col cols="12" sm="6">
-                <div class="text-caption text-grey mb-1">الاسم الكامل</div>
-                <div class="font-weight-bold text-h6">{{ invoice.customer?.name }}</div>
-              </v-col>
-              <v-col cols="12" sm="6">
-                <div class="text-caption text-grey mb-1">رقم الهاتف</div>
-                <div class="font-weight-bold text-h6">
-                  <v-icon icon="ri-phone-line" size="small" class="me-1" />
-                  {{ invoice.customer?.phone }}
-                </div>
-              </v-col>
-              <v-col v-if="invoice.customer?.email" cols="12" sm="6">
-                <div class="text-caption text-grey mb-1">البريد الإلكتروني</div>
-                <div class="font-weight-medium">{{ invoice.customer.email }}</div>
-              </v-col>
-              <v-col v-if="invoice.customer?.address" cols="12" sm="6">
-                <div class="text-caption text-grey mb-1">العنوان</div>
-                <div class="font-weight-medium">{{ invoice.customer.address }}</div>
-              </v-col>
-            </v-row>
+            <div class="d-flex align-center py-2" v-if="invoice.user">
+              <AppAvatar
+                :img-url="invoice.user.avatar_url"
+                :name="invoice.user.nickname || invoice.user.full_name"
+                size="64"
+                rounded="circle"
+                class="me-4 border"
+              />
+              <v-row class="flex-grow-1">
+                <v-col cols="12" sm="6">
+                  <div class="text-caption text-grey mb-1">الاسم / اللقب</div>
+                  <div class="font-weight-bold text-h6">{{ invoice.user.nickname || invoice.user.full_name }}</div>
+                </v-col>
+                <v-col cols="12" sm="6">
+                  <div class="text-caption text-grey mb-1">رقم الهاتف</div>
+                  <AppPhone :phone="invoice.user.phone" />
+                </v-col>
+                <v-col v-if="invoice.user.email" cols="12" sm="6">
+                  <div class="text-caption text-grey mb-1">البريد الإلكتروني</div>
+                  <div class="font-weight-medium text-body-1">{{ invoice.user.email }}</div>
+                </v-col>
+                <v-col v-if="invoice.user.position" cols="12" sm="6">
+                  <div class="text-caption text-grey mb-1">المسمى الوظيفي / الموقع</div>
+                  <div class="font-weight-medium text-body-1">{{ invoice.user.position }}</div>
+                </v-col>
+              </v-row>
+            </div>
+            <div v-else class="text-center py-4 text-grey">لا توجد بيانات عميل مرتبطة</div>
           </AppCard>
 
           <!-- Items -->
@@ -58,7 +68,7 @@
                 <tr>
                   <th class="text-right">المنتج</th>
                   <th class="text-center">الكمية</th>
-                  <th class="text-left">السعر</th>
+                  <th class="text-left">سعر الوحدة</th>
                   <th class="text-left">الخصم</th>
                   <th class="text-left font-weight-bold">الإجمالي</th>
                 </tr>
@@ -66,14 +76,30 @@
               <tbody>
                 <tr v-for="item in invoice.items" :key="item.id">
                   <td>
-                    <div class="font-weight-bold">{{ item.product_name }}</div>
-                    <div v-if="item.variant_name" class="text-caption text-grey">{{ item.variant_name }}</div>
+                    <div class="d-flex align-center py-2">
+                      <AppAvatar
+                        v-if="item.primary_image_url"
+                        :img-url="item.primary_image_url"
+                        :name="item.name"
+                        size="40"
+                        rounded="circle"
+                        class="me-3 border"
+                        type="product"
+                      />
+                      <div>
+                        <div class="font-weight-bold">{{ item.name }}</div>
+                        <div v-if="item.product?.code" class="text-caption text-grey">كود: {{ item.product.code }}</div>
+                      </div>
+                    </div>
                   </td>
                   <td class="text-center">
-                    <v-chip size="small" variant="tonal" color="primary">{{ item.quantity }}</v-chip>
+                    <v-chip size="small" variant="tonal" color="primary" class="font-weight-bold">{{ item.quantity }}</v-chip>
                   </td>
                   <td class="text-left text-body-2">{{ formatCurrency(item.unit_price) }}</td>
-                  <td class="text-left text-body-2 text-error">{{ item.discount_percentage }}%</td>
+                  <td class="text-left text-body-2 text-error" v-if="item.discount > 0">
+                    {{ formatCurrency(item.discount) }}
+                  </td>
+                  <td class="text-left text-body-2 text-grey" v-else>-</td>
                   <td class="text-left font-weight-bold text-success">{{ formatCurrency(item.total) }}</td>
                 </tr>
               </tbody>
@@ -124,13 +150,13 @@
               <div>
                 <div class="text-caption text-grey mb-1">حالة الفاتورة العامة</div>
                 <v-chip :color="getStatusColor(invoice.status)" variant="tonal" class="px-4 font-weight-bold">
-                  {{ getStatusLabel(invoice.status) }}
+                  {{ invoice.status_label || getStatusLabel(invoice.status) }}
                 </v-chip>
               </div>
               <div>
                 <div class="text-caption text-grey mb-1">حالة تحصيل المبالغ</div>
                 <v-chip :color="getPaymentStatusColor(invoice.payment_status)" variant="tonal" class="px-4 font-weight-bold">
-                  {{ getPaymentStatusLabel(invoice.payment_status) }}
+                  {{ invoice.payment_status_label || getPaymentStatusLabel(invoice.payment_status) }}
                 </v-chip>
               </div>
 
@@ -154,42 +180,54 @@
           <AppCard title="الملخص المالي" icon="ri-money-dollar-box-line">
             <div class="d-flex flex-column gap-2 mb-4">
               <div class="d-flex justify-space-between text-body-2">
-                <span class="text-grey">المجموع الفرعي:</span>
-                <span class="font-weight-medium">{{ formatCurrency(invoice.subtotal) }}</span>
+                <span class="text-grey">المجموع الإجمالي (قبل الخصم):</span>
+                <span class="font-weight-medium text-body-1">{{ formatCurrency(invoice.gross_amount) }}</span>
               </div>
-              <div v-if="invoice.discount_amount > 0" class="d-flex justify-space-between text-body-2 text-error">
-                <span>إجمالي الخصم:</span>
-                <span>-{{ formatCurrency(invoice.discount_amount) }}</span>
+              <div v-if="invoice.total_discount > 0" class="d-flex justify-space-between text-body-2 text-error italic">
+                <span>إجمالي الخصومات:</span>
+                <span>-{{ formatCurrency(invoice.total_discount) }}</span>
               </div>
-              <div v-if="invoice.tax_amount > 0" class="d-flex justify-space-between text-body-2">
+              <div v-if="invoice.total_tax > 0" class="d-flex justify-space-between text-body-2">
                 <span class="text-grey">إجمالي الضريبة:</span>
-                <span>{{ formatCurrency(invoice.tax_amount) }}</span>
-              </div>
-              <div v-if="invoice.shipping_cost > 0" class="d-flex justify-space-between text-body-2">
-                <span class="text-grey">تكلفة الشحن:</span>
-                <span>{{ formatCurrency(invoice.shipping_cost) }}</span>
+                <span>{{ formatCurrency(invoice.total_tax) }}</span>
               </div>
             </div>
 
             <v-divider class="my-4" />
 
             <div class="d-flex justify-space-between align-center mb-4">
-              <span class="text-h6 font-weight-bold">إجمالي الفاتورة:</span>
-              <span class="text-h5 font-weight-black text-success">{{ formatCurrency(invoice.total) }}</span>
+              <span class="text-h6 font-weight-bold">صافي الفاتورة:</span>
+              <span class="text-h5 font-weight-black text-success">{{ formatCurrency(invoice.total_amount) }}</span>
             </div>
 
             <v-divider class="mb-4" />
 
-            <div class="d-flex flex-column gap-2 p-2 rounded-lg bg-grey-lighten-4">
+            <div class="d-flex flex-column gap-2 p-3 rounded-lg bg-grey-lighten-4 border">
               <div class="d-flex justify-space-between text-body-2">
-                <span class="text-grey">إجمالي المدفوع:</span>
-                <span class="font-weight-bold text-info">{{ formatCurrency(invoice.paid_amount) }}</span>
+                <span class="text-grey">ما تم تحصيله:</span>
+                <span class="font-weight-bold text-info text-body-1">{{ formatCurrency(invoice.paid_amount) }}</span>
               </div>
-              <div v-if="invoice.remaining > 0" class="d-flex justify-space-between text-body-2">
-                <span class="text-grey">المبلغ المتبقي:</span>
-                <span class="font-weight-bold text-error">{{ formatCurrency(invoice.remaining) }}</span>
+              <div v-if="invoice.remaining_amount > 0" class="d-flex justify-space-between text-body-1 pt-1 border-top mt-1">
+                <span class="text-grey font-weight-bold">المبلغ المتبقي:</span>
+                <span class="font-weight-black text-error">{{ formatCurrency(invoice.remaining_amount) }}</span>
               </div>
-              <div v-else class="text-center text-success font-weight-bold py-1">مدفوعة بالكامل</div>
+              <div v-else-if="invoice.remaining_amount < 0" class="text-center text-indigo font-weight-bold py-1">
+                <v-icon icon="ri-add-circle-fill" size="small" class="me-1" />
+                مدفوعة بزيادة
+              </div>
+              <div v-else class="text-center text-success font-weight-bold py-1">
+                <v-icon icon="ri-checkbox-circle-fill" size="small" class="me-1" />
+                مدفوعة بالكامل
+              </div>
+            </div>
+
+            <!-- Installment Plan Context -->
+            <div v-if="invoice.installment_plan" class="mt-4 pa-3 rounded-lg border-primary border-dashed border-sm bg-primary-lighten-5">
+              <div class="text-primary font-weight-bold mb-1 d-flex align-center">
+                <v-icon icon="ri-calendar-todo-line" size="small" class="me-2" />
+                خطة تقسيط نشطة
+              </div>
+              <div class="text-caption text-primary">مبلغ القسط: {{ formatCurrency(invoice.installment_plan.installment_amount) }}</div>
             </div>
           </AppCard>
         </v-col>
@@ -216,16 +254,19 @@ import { useRouter, useRoute } from 'vue-router';
 import { useApi } from '@/composables/useApi';
 import { usePermissions } from '@/composables/usePermissions';
 import { usePrintExport } from '@/composables/usePrintExport';
+import { useUserStore } from '@/stores/user';
 import AppButton from '@/components/common/AppButton.vue';
 import AppCard from '@/components/common/AppCard.vue';
 import AppDialog from '@/components/common/AppDialog.vue';
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
+import AppAvatar from '@/components/common/AppAvatar.vue';
 import { toast } from 'vue3-toastify';
 
 const router = useRouter();
 const route = useRoute();
 const { can } = usePermissions();
 const { printElement } = usePrintExport();
+const userStore = useUserStore();
 
 const invoiceApi = useApi('/api/invoices');
 
@@ -237,9 +278,9 @@ const selectedStatus = ref(null);
 
 const statusOptions = [
   { title: 'مسودة', value: 'draft' },
-  { title: 'قيد الانتظار', value: 'pending' },
-  { title: 'معتمدة', value: 'approved' },
-  { title: 'ملغاة', value: 'cancelled' },
+  { title: 'مؤكدة', value: 'confirmed' },
+  { title: 'مدفوعة', value: 'paid' },
+  { title: 'ملغاة', value: 'canceled' },
 ];
 
 const goBack = () => router.push('/invoices');
@@ -252,6 +293,7 @@ const printInvoice = () => {
 const deleteInvoice = async () => {
   try {
     await invoiceApi.remove(route.params.id, { successMessage: 'تم حذف الفاتورة' });
+    userStore.fetchUser();
     router.push('/invoices');
   } finally {
     showDeleteDialog.value = false;
@@ -262,6 +304,10 @@ const updateStatus = async newStatus => {
   try {
     await invoiceApi.update(route.params.id, { status: newStatus });
     invoice.value.status = newStatus;
+    // Reload data after status change to get updated labels
+    const response = await invoiceApi.getById(route.params.id);
+    invoice.value = response.data;
+    userStore.fetchUser();
   } catch (error) {
     selectedStatus.value = invoice.value.status;
   }
@@ -269,34 +315,56 @@ const updateStatus = async newStatus => {
 
 const formatDate = date => {
   if (!date) return '-';
-  return new Date(date).toLocaleDateString('ar-EG');
+  return new Date(date).toLocaleDateString('ar-EG', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
 };
 
 const formatCurrency = amount => {
-  if (!amount) return '0.00 ج.م';
+  if (!amount) return '0 ج.م';
   return new Intl.NumberFormat('ar-EG', {
     style: 'currency',
     currency: 'EGP',
+    maximumFractionDigits: 0,
   }).format(amount);
 };
 
 const getStatusColor = status => {
-  const colors = { draft: 'grey', pending: 'warning', approved: 'success', cancelled: 'error' };
+  const colors = {
+    draft: 'grey',
+    confirmed: 'primary',
+    paid: 'success',
+    partially_paid: 'warning',
+    canceled: 'error',
+  };
   return colors[status] || 'grey';
 };
 
 const getStatusLabel = status => {
-  const labels = { draft: 'مسودة', pending: 'قيد الانتظار', approved: 'معتمدة', cancelled: 'ملغاة' };
+  const labels = {
+    draft: 'مسودة',
+    confirmed: 'مؤكدة',
+    paid: 'مدفوعة',
+    canceled: 'ملغاة',
+  };
   return labels[status] || status;
 };
 
 const getPaymentStatusColor = status => {
-  const colors = { unpaid: 'error', partial: 'warning', paid: 'success' };
+  const colors = { unpaid: 'error', partial: 'warning', partially_paid: 'warning', paid: 'success', overpaid: 'indigo' };
   return colors[status] || 'grey';
 };
 
 const getPaymentStatusLabel = status => {
-  const labels = { unpaid: 'غير مدفوعة', partial: 'مدفوعة جزئياً', paid: 'مدفوعة بالكامل' };
+  const labels = {
+    unpaid: 'غير مدفوعة',
+    partial: 'مدفوعة جزئياً',
+    partially_paid: 'مدفوعة جزئياً',
+    paid: 'مدفوعة بالكامل',
+    overpaid: 'مدفوعة بزيادة',
+  };
   return labels[status] || status;
 };
 
@@ -310,3 +378,21 @@ onMounted(async () => {
   }
 });
 </script>
+
+<style scoped>
+.gap-2 {
+  gap: 8px;
+}
+.gap-4 {
+  gap: 16px;
+}
+.italic {
+  font-style: italic;
+}
+.border-dashed {
+  border-style: dashed !important;
+}
+.border-sm {
+  border-width: 1px !important;
+}
+</style>

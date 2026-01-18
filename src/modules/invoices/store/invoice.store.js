@@ -17,7 +17,7 @@ export const useInvoiceStore = defineStore('invoice', () => {
   const sortBy = ref([]);
 
   // Filters
-  const typeFilter = ref(null); // 'sale', 'purchase', 'installment_sale'
+  const typeFilter = ref(null); // 'sales', 'purchases', 'installment_sale'
   const statusFilter = ref(null);
   const dateFrom = ref(null);
   const dateTo = ref(null);
@@ -35,11 +35,11 @@ export const useInvoiceStore = defineStore('invoice', () => {
     order: sortBy.value[0]?.order || 'desc',
   }));
 
-  const salesInvoices = computed(() => invoices.value.filter(inv => inv.type === 'sale'));
+  const salesInvoices = computed(() => invoices.value.filter(inv => inv.invoice_type?.context === 'sales'));
 
-  const purchaseInvoices = computed(() => invoices.value.filter(inv => inv.type === 'purchase'));
+  const purchaseInvoices = computed(() => invoices.value.filter(inv => inv.invoice_type?.context === 'purchases'));
 
-  const installmentInvoices = computed(() => invoices.value.filter(inv => inv.type === 'installment_sale'));
+  const installmentInvoices = computed(() => invoices.value.filter(inv => inv.invoice_type?.context === 'installment_sale'));
 
   // Actions
   async function fetchInvoices() {

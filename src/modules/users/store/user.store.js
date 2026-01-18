@@ -36,7 +36,7 @@ export const useUserStore = defineStore('userManagement', () => {
     search: search.value,
     role: roleFilter.value,
     status: statusFilter.value,
-    sort_by: sortBy.value[0]?.key || '',
+    sort_by: sortBy.value[0]?.key || undefined,
     order: sortBy.value[0]?.order || 'desc',
     global: isGlobalMode.value,
   }));

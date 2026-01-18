@@ -12,54 +12,66 @@
   >
     <!-- رقم الفاتورة -->
     <template #item.invoice_number="{ item }">
-      <div class="text-primary font-weight-bold">#{{ item.invoice_number }}</div>
+      <div class="text-primary font-weight-bold cursor-pointer hover-underline" @click="$emit('view', item)">#{{ item.invoice_number }}</div>
+    </template>
+
+    <!-- النوع -->
+    <template #item.invoice_type="{ item }">
+      <v-chip size="x-small" variant="tonal" color="secondary" class="font-weight-medium">
+        {{ item.invoice_type?.name }}
+      </v-chip>
     </template>
 
     <!-- العميل -->
-    <template #item.customer="{ item }">
-      <div class="d-flex align-center py-2">
-        <v-avatar size="36" color="primary-lighten-5" class="me-3 border">
-          <span class="text-primary font-weight-bold">
-            {{ item.customer?.name?.charAt(0).toUpperCase() }}
-          </span>
-        </v-avatar>
+    <template #item.user="{ item }">
+      <div class="d-flex align-center py-2" v-if="item.user">
+        <AppAvatar :img-url="item.user.avatar_url" :name="item.user.nickname || item.user.full_name" size="32" rounded="circle" class="me-2 border" />
         <div class="d-flex flex-column">
-          <span class="font-weight-bold text-body-2">{{ item.customer?.name }}</span>
-          <span class="text-caption text-grey">
-            <v-icon icon="ri-phone-line" size="12" class="me-1" />
-            {{ item.customer?.phone || 'لا يوجد رقم' }}
-          </span>
+          <span class="font-weight-bold text-body-2">{{ item.user.nickname || item.user.full_name }}</span>
+          <AppPhone :phone="item.user.phone" />
+        </div>
+      </div>
+      <span v-else class="text-caption text-grey">بدون عميل</span>
+    </template>
+
+    <!-- التاريخ -->
+    <template #item.issue_date="{ item }">
+      <div class="d-flex flex-column">
+        <div class="d-flex align-center text-body-2">
+          <v-icon icon="ri-calendar-line" size="14" class="me-1 text-grey" />
+          {{ formatDate(item.issue_date) }}
+        </div>
+        <div v-if="item.due_date" class="d-flex align-center text-caption text-error font-weight-medium mt-1">
+          <v-icon icon="ri-time-line" size="12" class="me-1" />
+          {{ formatDate(item.due_date) }}
         </div>
       </div>
     </template>
 
-    <!-- التاريخ -->
-    <template #item.invoice_date="{ item }">
-      <div class="d-flex flex-column">
-        <span class="text-body-2">{{ formatDate(item.invoice_date) }}</span>
-        <span class="text-caption text-error font-weight-medium">
-          <v-icon icon="ri-time-line" size="12" class="me-1" />
-          {{ formatDate(item.due_date) }}
-        </span>
-      </div>
+    <!-- الإجمالي -->
+    <template #item.net_amount="{ item }">
+      <span class="font-weight-bold text-primary">{{ formatCurrency(item.net_amount) }}</span>
     </template>
 
-    <!-- المبلغ -->
-    <template #item.total="{ item }">
-      <div class="d-flex flex-column align-end">
-        <span class="font-weight-bold text-success">{{ formatCurrency(item.total) }}</span>
-        <span class="text-caption text-grey">المدفوع: {{ formatCurrency(item.paid_amount) }}</span>
-      </div>
+    <!-- المدفوع -->
+    <template #item.paid_amount="{ item }">
+      <span class="text-success">{{ formatCurrency(item.paid_amount) }}</span>
+    </template>
+
+    <!-- المتبقي -->
+    <template #item.remaining_amount="{ item }">
+      <span :class="['font-weight-bold', parseFloat(item.remaining_amount) > 0 ? 'text-error' : 'text-grey']">
+        {{ formatCurrency(item.remaining_amount) }}
+      </span>
     </template>
 
     <!-- الحالة -->
     <template #item.status="{ item }">
-      <v-chip :color="getStatusColor(item.status)" size="small" variant="flat" class="font-weight-bold">
+      <v-chip :color="getStatusColor(item.status)" size="small" variant="tonal" class="font-weight-bold">
         {{ getStatusLabel(item.status) }}
       </v-chip>
     </template>
 
-    <!-- حالة الدفع -->
     <template #item.payment_status="{ item }">
       <v-chip :color="getPaymentStatusColor(item.payment_status)" size="small" variant="tonal" class="font-weight-bold">
         <v-icon :icon="getPaymentStatusIcon(item.payment_status)" size="14" class="me-1" />
@@ -70,42 +82,10 @@
     <!-- الإجراءات -->
     <template #item.actions="{ item }">
       <div class="d-flex gap-1 justify-center">
-        <AppButton
-          v-if="can('invoices.view_all', { resource: item })"
-          icon="ri-eye-line"
-          size="x-small"
-          variant="text"
-          color="info"
-          tooltip="عرض"
-          @click="$emit('view', item)"
-        />
-        <AppButton
-          v-if="can('invoices.update_all', { resource: item })"
-          icon="ri-edit-line"
-          size="x-small"
-          variant="text"
-          color="primary"
-          tooltip="تعديل"
-          @click="$emit('edit', item)"
-        />
-        <AppButton
-          v-if="can('invoices.print', { resource: item })"
-          icon="ri-printer-line"
-          size="x-small"
-          variant="text"
-          color="warning"
-          tooltip="طباعة"
-          @click="$emit('print', item)"
-        />
-        <AppButton
-          v-if="can('invoices.delete_all', { resource: item })"
-          icon="ri-delete-bin-line"
-          size="x-small"
-          variant="text"
-          color="error"
-          tooltip="حذف"
-          @click="$emit('delete', item)"
-        />
+        <AppButton icon="ri-eye-line" size="x-small" variant="text" color="info" tooltip="عرض" @click="$emit('view', item)" />
+        <AppButton icon="ri-edit-line" size="x-small" variant="text" color="primary" tooltip="تعديل" @click="$emit('edit', item)" />
+        <AppButton icon="ri-printer-line" size="x-small" variant="text" color="warning" tooltip="طباعة" @click="$emit('print', item)" />
+        <AppButton icon="ri-delete-bin-line" size="x-small" variant="text" color="error" tooltip="حذف" @click="$emit('delete', item)" />
       </div>
     </template>
   </AppDataTable>
@@ -114,8 +94,6 @@
 <script setup>
 import { computed } from 'vue';
 import { usePermissions } from '@/composables/usePermissions';
-import AppDataTable from '@/components/common/AppDataTable.vue';
-import AppButton from '@/components/common/AppButton.vue';
 
 const props = defineProps({
   items: {
@@ -147,11 +125,14 @@ const { can } = usePermissions();
 // Headers
 const headers = [
   { title: 'رقم الفاتورة', key: 'invoice_number', sortable: true },
-  { title: 'العميل', key: 'customer', sortable: false },
-  { title: 'التاريخ', key: 'invoice_date', sortable: true },
-  { title: 'المبلغ', key: 'total', sortable: true, align: 'end' },
+  { title: 'النوع', key: 'invoice_type', sortable: false },
+  { title: 'العميل', key: 'user', sortable: false },
+  { title: 'التاريخ', key: 'issue_date', sortable: true },
+  { title: 'الإجمالي', key: 'net_amount', sortable: true, align: 'end' },
+  { title: 'المدفوع', key: 'paid_amount', sortable: true, align: 'end' },
+  { title: 'المتبقي', key: 'remaining_amount', sortable: true, align: 'end' },
   { title: 'الحالة', key: 'status', sortable: true },
-  { title: 'حالة الدفع', key: 'payment_status', sortable: true },
+  { title: 'حالة الدفع', key: 'payment_status', sortable: false },
   { title: 'الإجراءات', key: 'actions', sortable: false, align: 'center' },
 ];
 
@@ -170,7 +151,12 @@ const handleSort = sortBy => {
 
 const formatDate = date => {
   if (!date) return '-';
-  return new Date(date).toLocaleDateString('ar-EG');
+  return new Date(date).toLocaleDateString('ar-EG', {
+    charSet: 'utf-8',
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
 };
 
 const formatCurrency = amount => {
@@ -184,9 +170,10 @@ const formatCurrency = amount => {
 const getStatusColor = status => {
   const colors = {
     draft: 'grey',
-    pending: 'warning',
-    approved: 'success',
-    cancelled: 'error',
+    confirmed: 'primary',
+    paid: 'success',
+    partially_paid: 'warning',
+    canceled: 'error',
   };
   return colors[status] || 'grey';
 };
@@ -194,9 +181,10 @@ const getStatusColor = status => {
 const getStatusLabel = status => {
   const labels = {
     draft: 'مسودة',
-    pending: 'قيد الانتظار',
-    approved: 'معتمدة',
-    cancelled: 'ملغاة',
+    confirmed: 'مؤكدة',
+    paid: 'مدفوعة',
+    partially_paid: 'مدفوعة جزئياً',
+    canceled: 'ملغاة',
   };
   return labels[status] || status;
 };
@@ -206,6 +194,7 @@ const getPaymentStatusColor = status => {
     unpaid: 'error',
     partial: 'warning',
     paid: 'success',
+    overpaid: 'indigo',
   };
   return colors[status] || 'grey';
 };
@@ -215,6 +204,7 @@ const getPaymentStatusIcon = status => {
     unpaid: 'ri-close-circle-line',
     partial: 'ri-pie-chart-line',
     paid: 'ri-checkbox-circle-line',
+    overpaid: 'ri-add-circle-line',
   };
   return icons[status] || 'ri-question-line';
 };
@@ -224,7 +214,17 @@ const getPaymentStatusLabel = status => {
     unpaid: 'غير مدفوعة',
     partial: 'مدفوعة جزئياً',
     paid: 'مدفوعة بالكامل',
+    overpaid: 'مدفوعة بزيادة',
   };
   return labels[status] || status;
 };
 </script>
+
+<style scoped>
+.hover-underline:hover {
+  text-decoration: underline;
+}
+.gap-1 {
+  gap: 4px;
+}
+</style>

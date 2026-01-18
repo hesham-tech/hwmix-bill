@@ -60,6 +60,10 @@ const router = createRouter({
           meta: {
             title: 'فاتورة جديدة',
             permission: PERMISSIONS.INVOICES_CREATE,
+            breadcrumbs: [
+              { title: 'الفواتير', to: '/invoices' },
+              { title: 'فاتورة جديدة', disabled: true },
+            ],
           },
         },
         {
@@ -69,6 +73,10 @@ const router = createRouter({
           meta: {
             title: 'عرض الفاتورة',
             permission: [PERMISSIONS.INVOICES_VIEW_ALL, 'invoices.view_self'],
+            breadcrumbs: [
+              { title: 'الفواتير', to: '/invoices' },
+              { title: 'عرض الفاتورة', disabled: true },
+            ],
           },
         },
         {
@@ -78,6 +86,10 @@ const router = createRouter({
           meta: {
             title: 'تعديل الفاتورة',
             permission: [PERMISSIONS.INVOICES_UPDATE_ALL, 'invoices.view_self'],
+            breadcrumbs: [
+              { title: 'الفواتير', to: '/invoices' },
+              { title: 'تعديل الفاتورة', disabled: true },
+            ],
           },
         },
 
@@ -98,6 +110,10 @@ const router = createRouter({
           meta: {
             title: 'منتج جديد',
             permission: PERMISSIONS.PRODUCTS_CREATE,
+            breadcrumbs: [
+              { title: 'المنتجات', to: '/products' },
+              { title: 'منتج جديد', disabled: true },
+            ],
           },
         },
         {
@@ -107,6 +123,10 @@ const router = createRouter({
           meta: {
             title: 'عرض المنتج',
             permission: [PERMISSIONS.PRODUCTS_VIEW_ALL, 'products.view_self'],
+            breadcrumbs: [
+              { title: 'المنتجات', to: '/products' },
+              { title: 'عرض المنتج', disabled: true },
+            ],
           },
         },
         {
@@ -116,6 +136,10 @@ const router = createRouter({
           meta: {
             title: 'تعديل المنتج',
             permission: PERMISSIONS.PRODUCTS_UPDATE_ALL,
+            breadcrumbs: [
+              { title: 'المنتجات', to: '/products' },
+              { title: 'تعديل المنتج', disabled: true },
+            ],
           },
         },
 
@@ -237,6 +261,19 @@ const router = createRouter({
           },
         },
         {
+          path: 'users/:id',
+          name: 'user-view',
+          component: () => import('@/modules/users/pages/UserView.vue'),
+          meta: {
+            title: 'عرض المستخدم',
+            permission: PERMISSIONS.USERS_VIEW_ALL,
+            breadcrumbs: [
+              { title: 'المستخدمين', to: '/users' },
+              { title: 'تفاصيل المستخدم', disabled: true },
+            ],
+          },
+        },
+        {
           path: 'roles',
           name: 'roles',
           component: () => import('@/modules/users/pages/RoleManagement.vue'),
@@ -279,18 +316,9 @@ const router = createRouter({
         {
           path: 'attributes',
           name: 'attributes',
-          component: () => import('@/modules/settings/pages/AttributeList.vue'),
+          component: () => import('@/modules/products/pages/AttributeList.vue'),
           meta: {
             title: 'خصائص المنتجات',
-            permission: PERMISSIONS.PRODUCTS_VIEW_ALL,
-          },
-        },
-        {
-          path: 'attributes/:id/values',
-          name: 'attribute-values',
-          component: () => import('@/modules/settings/pages/AttributeValueList.vue'),
-          meta: {
-            title: 'قيم الخاصية',
             permission: PERMISSIONS.PRODUCTS_VIEW_ALL,
           },
         },

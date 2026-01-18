@@ -1,5 +1,6 @@
 <template>
   <ReportLayout
+    v-if="can(PERMISSIONS.REPORTS_CASH_FLOW) || can(PERMISSIONS.TRANSACTIONS_VIEW_ALL)"
     title="تقرير التدفقات النقدية"
     description="تحليل المقبوضات والمدفوعات وحركة السيولة في الصناديق"
     :loading="loading"
@@ -57,18 +58,25 @@
       </AppDataTable>
     </template>
   </ReportLayout>
+
+  <!-- Access Denied State -->
+  <div v-else class="pa-12 text-center d-flex flex-column align-center justify-center" style="min-height: 400px">
+    <v-avatar size="100" color="error-lighten-5" class="mb-6">
+      <v-icon icon="ri-lock-2-line" size="48" color="error" />
+    </v-avatar>
+    <h2 class="text-h4 font-weight-bold mb-2">عذراً، لا تملك الصلاحية</h2>
+    <p class="text-body-1 text-grey mb-6">ليس لديك إذن للوصول إلى تقارير التدفق النقدي. يرجى مراجعة المسؤول.</p>
+    <AppButton to="/dashboard" color="primary" variant="tonal" prepend-icon="ri-home-4-line"> العودة للرئيسية </AppButton>
+  </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useApi } from '@/composables/useApi';
-import { usePrintExport } from '@/composables/usePrintExport';
-import ReportLayout from '../components/ReportLayout.vue';
-import CashFlowChart from '../components/CashFlowChart.vue';
-import AppDataTable from '@/components/common/AppDataTable.vue';
-import AppInput from '@/components/common/AppInput.vue';
-import AppButton from '@/components/common/AppButton.vue';
+import { usePermissions } from '@/composables/usePermissions';
+import { PERMISSIONS } from '@/config/permissions';
 import { formatCurrency } from '@/utils/formatters';
+
+const { can } = usePermissions();
 
 const api = useApi('/api/transactions');
 const { exportToCSV } = usePrintExport();
@@ -115,6 +123,9 @@ const loadReport = async () => {
 };
 
 const handleExport = () => {
+  if (!can(PERMISSIONS.REPORTS_EXPORT)) {
+    return;
+  }
   const data = transactions.value.map(t => ({
     التاريخ: t.transaction_date,
     الخزينة: t.cash_box?.name || '-',

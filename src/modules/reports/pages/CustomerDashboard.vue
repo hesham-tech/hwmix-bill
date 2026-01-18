@@ -119,7 +119,11 @@ const dynamicGreeting = computed(() => {
 });
 
 const formatCurrency = value => {
-  return new Intl.NumberFormat('ar-EG', { style: 'currency', currency: 'EGP' }).format(value || 0);
+  return new Intl.NumberFormat('ar-EG', {
+    style: 'currency',
+    currency: 'EGP',
+    maximumFractionDigits: 0,
+  }).format(value || 0);
 };
 
 const customerActions = [

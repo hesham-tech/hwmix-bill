@@ -22,8 +22,8 @@ export const PAGE_SIZE_OPTIONS = [
 
 // Invoice Types
 export const INVOICE_TYPES = {
-  SALE: 'sale',
-  PURCHASE: 'purchase',
+  SALE: 'sales',
+  PURCHASE: 'purchases',
   INSTALLMENT_SALE: 'installment_sale',
 };
 

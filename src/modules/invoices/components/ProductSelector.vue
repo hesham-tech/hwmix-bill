@@ -1,216 +1,144 @@
 <template>
   <div>
-    <!-- Product autocomplete -->
+    <!-- Variant autocomplete -->
     <AppAutocomplete
-      v-model="selectedProduct"
-      :items="products"
+      v-model="selectedVariant"
+      :items="variants"
       :loading="loading"
       :search="searchQuery"
-      item-title="name"
+      item-title="product_name"
       item-value="id"
-      label="اختر المنتج *"
-      placeholder="ابحث عن المنتج..."
+      label="ابحث عن الصنف (اسم، باركود، SKU) *"
+      placeholder="ابدأ البحث..."
       prepend-inner-icon="ri-search-line"
       clearable
       return-object
+      no-filter
       @update:search="handleSearch"
     >
       <!-- Custom item -->
       <template #item="{ props, item }">
-        <v-list-item v-bind="props">
+        <v-list-item v-bind="props" class="py-2">
           <template #prepend>
-            <v-avatar rounded="lg" color="primary-lighten-5" class="border">
-              <v-img v-if="item.raw.image" :src="item.raw.image" cover />
-              <v-icon v-else icon="ri-product-hunt-line" color="primary" />
-            </v-avatar>
+            <AppAvatar :img-url="item.raw.primary_image_url" :name="item.raw.product_name" size="48" rounded="lg" type="product" border />
           </template>
           <template #title>
-            <span class="font-weight-bold">{{ item.raw.name }}</span>
+            <div class="font-weight-bold text-truncate" v-html="highlightText(item.raw.product_name + ' - ' + item.raw.sku, searchQuery)"></div>
           </template>
           <template #subtitle>
-            <div class="d-flex justify-space-between mt-1">
-              <span class="text-caption">SKU: {{ item.raw.sku }}</span>
-              <span class="text-success font-weight-bold">
-                {{ formatCurrency(item.raw.sell_price) }}
+            <div class="d-flex justify-space-between align-center mt-1">
+              <span class="text-caption text-secondary">
+                الباركود: <span v-html="highlightText(item.raw.barcode || 'N/A', searchQuery)"></span>
               </span>
+              <div class="d-flex align-center gap-2">
+                <span class="text-caption text-info">المخزون: {{ item.raw.quantity ?? 0 }}</span>
+                <span class="text-primary font-weight-bold">
+                  {{ formatCurrency(getVariantPrice(item.raw)) }}
+                </span>
+              </div>
             </div>
           </template>
         </v-list-item>
       </template>
     </AppAutocomplete>
-
-    <!-- Variant selection (if product has variants) -->
-    <v-select
-      v-if="selectedProduct && hasVariants"
-      v-model="selectedVariant"
-      :items="selectedProduct.variants || []"
-      item-title="name"
-      item-value="id"
-      label="اختر الشكل"
-      variant="outlined"
-      density="comfortable"
-      prepend-inner-icon="ri-stack-line"
-      return-object
-      class="mt-4"
-    >
-      <template #item="{ props, item }">
-        <v-list-item v-bind="props">
-          <template #title>
-            <span class="font-weight-medium">{{ item.raw.name }}</span>
-          </template>
-          <template #subtitle>
-            <div class="d-flex justify-space-between mt-1">
-              <span>المخزون: {{ item.raw.stock }}</span>
-              <span class="text-success font-weight-bold">{{ formatCurrency(item.raw.price) }}</span>
-            </div>
-          </template>
-        </v-list-item>
-      </template>
-    </v-select>
-
-    <!-- Quantity & Price -->
-    <v-row v-if="selectedProduct" class="mt-2">
-      <v-col cols="12" md="3">
-        <AppInput
-          v-model.number="quantity"
-          label="الكمية *"
-          type="number"
-          min="1"
-          prepend-inner-icon="ri-add-box-line"
-          :error-messages="quantityError"
-        />
-      </v-col>
-
-      <v-col cols="12" md="3">
-        <AppInput
-          v-model.number="unitPrice"
-          label="سعر الوحدة"
-          type="number"
-          prepend-inner-icon="ri-money-dollar-circle-line"
-          :hint="`السعر الأصلي: ${formatCurrency(originalPrice)}`"
-          persistent-hint
-        />
-      </v-col>
-
-      <v-col cols="12" md="3">
-        <AppInput v-model.number="discount" label="الخصم %" type="number" min="0" max="100" prepend-inner-icon="ri-percent-line" />
-      </v-col>
-
-      <v-col cols="12" md="3">
-        <AppInput :model-value="total" label="المجموع" readonly prepend-inner-icon="ri-calculator-line" class="font-weight-bold" />
-      </v-col>
-    </v-row>
-
-    <!-- Add button -->
-    <AppButton v-if="selectedProduct" block prepend-icon="ri-add-line" :disabled="!canAdd" @click="addProduct" class="mt-4">
-      إضافة المنتج للفاتورة
-    </AppButton>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, watch } from 'vue';
 import { useApi } from '@/composables/useApi';
-import AppAutocomplete from '@/components/common/AppAutocomplete.vue';
-import AppInput from '@/components/common/AppInput.vue';
-import AppButton from '@/components/common/AppButton.vue';
+import { highlightText } from '@/utils/helpers';
+
+const props = defineProps({
+  invoiceType: {
+    type: String,
+    default: 'sales', // 'sales' or 'purchases'
+  },
+  customerType: {
+    type: String,
+    default: 'retail', // 'retail' or 'wholesale'
+  },
+});
 
 const emit = defineEmits(['add']);
 
-// API
-const productApi = useApi('/api/products');
+// API - Using the new variant search endpoint
+const variantApi = useApi('/api/product-variants/search-by-product');
 
 // State
-const products = ref([]);
+const variants = ref([]);
 const loading = ref(false);
 const searchQuery = ref('');
-
-const selectedProduct = ref(null);
 const selectedVariant = ref(null);
-const quantity = ref(1);
-const unitPrice = ref(0);
-const discount = ref(0);
-
-// Computed
-const hasVariants = computed(() => {
-  return selectedProduct.value?.variants && selectedProduct.value.variants.length > 0;
-});
-
-const originalPrice = computed(() => {
-  if (selectedVariant.value) {
-    return selectedVariant.value.price;
-  }
-  return selectedProduct.value?.sell_price || 0;
-});
-
-const total = computed(() => {
-  const subtotal = quantity.value * unitPrice.value;
-  const discountAmount = subtotal * (discount.value / 100);
-  return (subtotal - discountAmount).toFixed(2);
-});
-
-const quantityError = computed(() => {
-  if (quantity.value < 1) {
-    return 'الكمية يجب أن تكون 1 على الأقل';
-  }
-  if (selectedVariant.value && quantity.value > selectedVariant.value.stock) {
-    return `المخزون المتاح: ${selectedVariant.value.stock}`;
-  }
-  if (selectedProduct.value && !hasVariants.value && quantity.value > selectedProduct.value.stock) {
-    return `المخزون المتاح: ${selectedProduct.value.stock}`;
-  }
-  return null;
-});
-
-const canAdd = computed(() => {
-  return selectedProduct.value && quantity.value >= 1 && unitPrice.value > 0 && !quantityError.value && (!hasVariants.value || selectedVariant.value);
-});
 
 // Methods
+const getVariantPrice = variant => {
+  if (props.invoiceType === 'purchases') {
+    return variant.purchase_price || 0;
+  }
+
+  if (props.customerType === 'wholesale') {
+    return variant.wholesale_price || variant.retail_price || 0;
+  }
+
+  return variant.retail_price || variant.price || 0;
+};
+
 let searchTimeout;
 const handleSearch = query => {
   searchQuery.value = query;
   clearTimeout(searchTimeout);
+
+  // Start search after 3 characters or if empty (to reset/most used)
+  if (query && query.length > 0 && query.length < 3) return;
+
   searchTimeout = setTimeout(() => {
-    loadProducts(query);
-  }, 300);
+    loadVariants(query || '');
+  }, 500);
 };
 
-const loadProducts = async (search = '') => {
+const loadVariants = async (search = '') => {
   loading.value = true;
   try {
     const params = search ? { search } : {};
-    const response = await productApi.get(params, { showLoading: false, showError: false });
-    products.value = response.data || [];
+    const response = await variantApi.get(params, { showLoading: false, showError: false });
+    variants.value = response.data || [];
   } catch (error) {
-    console.error('Error loading products:', error);
+    console.error('Error loading variants:', error);
   } finally {
     loading.value = false;
   }
 };
 
-const addProduct = () => {
-  if (!canAdd.value) return;
+const addVariantInstant = variant => {
+  if (!variant) return;
+
+  const attributesText = variant.attributes
+    ?.map(attr => attr.attribute_value?.name)
+    .filter(Boolean)
+    .join(' - ');
 
   const item = {
-    product_id: selectedProduct.value.id,
-    product_name: selectedProduct.value.name,
-    variant_id: selectedVariant.value?.id || null,
-    variant_name: selectedVariant.value?.name || null,
-    quantity: quantity.value,
-    unit_price: unitPrice.value,
-    discount_percentage: discount.value,
-    total: parseFloat(total.value),
+    product_id: variant.product_id,
+    product_name: variant.product_name,
+    name: variant.product_name, // Compatibility with InvoiceForm display
+    variant_id: variant.id,
+    variant_name: variant.sku,
+    attributes_text: attributesText,
+    quantity: 1,
+    unit_price: getVariantPrice(variant),
+    discount_percentage: 0,
+    total: getVariantPrice(variant),
+    primary_image_url: variant.primary_image_url,
   };
 
   emit('add', item);
 
-  // Reset
-  selectedProduct.value = null;
-  selectedVariant.value = null;
-  quantity.value = 1;
-  unitPrice.value = 0;
-  discount.value = 0;
+  // Reset selection and keep search open/reset
+  setTimeout(() => {
+    selectedVariant.value = null;
+    searchQuery.value = '';
+  }, 10);
 };
 
 const formatCurrency = amount => {
@@ -221,20 +149,13 @@ const formatCurrency = amount => {
   }).format(amount);
 };
 
-// Watch product selection
-watch(selectedProduct, product => {
-  if (product) {
-    unitPrice.value = product.sell_price;
-    selectedVariant.value = null;
-  }
-});
-
+// Watch variant selection for instant add
 watch(selectedVariant, variant => {
   if (variant) {
-    unitPrice.value = variant.price;
+    addVariantInstant(variant);
   }
 });
 
-// Load on mount
-loadProducts();
+// Load "most used" on mount
+loadVariants();
 </script>

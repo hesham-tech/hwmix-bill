@@ -138,7 +138,7 @@ class InvoiceService extends BaseService {
 
   /**
    * Get invoices by type
-   * @param {String} type - 'sale', 'purchase', 'installment_sale'
+   * @param {String} type - 'sales', 'purchases', 'installment_sale'
    */
   async getByType(type, params = {}, options = {}) {
     return this.getAll({ ...params, type }, options);
@@ -148,14 +148,14 @@ class InvoiceService extends BaseService {
    * Get sales invoices
    */
   async getSales(params = {}, options = {}) {
-    return this.getByType('sale', params, options);
+    return this.getByType('sales', params, options);
   }
 
   /**
    * Get purchase invoices
    */
   async getPurchases(params = {}, options = {}) {
-    return this.getByType('purchase', params, options);
+    return this.getByType('purchases', params, options);
   }
 
   /**

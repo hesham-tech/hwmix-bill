@@ -48,7 +48,7 @@
           </template>
 
           <template #item.phone="{ item }">
-            {{ item.phone || '-' }}
+            <AppPhone :phone="item.phone" />
           </template>
 
           <template #item.is_active="{ item }">

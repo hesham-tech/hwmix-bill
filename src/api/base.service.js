@@ -35,7 +35,8 @@ class BaseService {
 
     if (resData.hasOwnProperty('total')) {
       // Paginated response
-      normalized.data = resData.data ?? [];
+      const data = resData.data ?? [];
+      normalized.data = Array.isArray(data) ? data : [data];
       normalized.total = resData.total ?? normalized.data.length;
     } else if (Array.isArray(resData.data)) {
       // Array response

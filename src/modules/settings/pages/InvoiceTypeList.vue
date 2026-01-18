@@ -139,16 +139,15 @@
     </template>
 
     <!-- Confirmation Dialog -->
-    <AppDialog
+    <AppConfirmDialog
       v-model="showConfirmDialog"
       :title="confirmDialogTitle"
       icon="ri-question-line"
       confirm-color="primary"
       :confirm-text="confirmText"
+      :message="confirmDialogMessage"
       @confirm="handleConfirmToggle"
-    >
-      {{ confirmDialogMessage }}
-    </AppDialog>
+    />
   </div>
 </template>
 
@@ -161,7 +160,7 @@ import AppSwitch from '@/components/common/AppSwitch.vue';
 import AppButton from '@/components/common/AppButton.vue';
 import AppInput from '@/components/common/AppInput.vue';
 import AppDataTable from '@/components/common/AppDataTable.vue';
-import AppDialog from '@/components/common/AppDialog.vue';
+import AppConfirmDialog from '@/components/common/AppConfirmDialog.vue';
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import EmptyState from '@/components/common/EmptyState.vue';
 

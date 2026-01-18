@@ -22,7 +22,9 @@
             <v-spacer />
 
             <div class="d-flex align-center gap-3">
-              <AppButton v-if="can('cash_boxes.create')" color="primary" prepend-icon="ri-add-line" @click="handleCreate"> خزينة جديدة </AppButton>
+              <AppButton v-if="can(PERMISSIONS.CASH_BOXES_CREATE)" color="primary" prepend-icon="ri-add-line" @click="handleCreate">
+                خزينة جديدة
+              </AppButton>
 
               <v-btn-group variant="outlined" density="comfortable" color="primary" class="bg-white">
                 <AppButton :active="viewMode === 'grid'" icon="ri-grid-fill" @click="viewMode = 'grid'" title="عرض شبكي" />
@@ -82,10 +84,13 @@
                       </div>
                     </v-card-text>
 
-                    <template v-if="can('cash_boxes.update_all', { resource: item }) || can('cash_boxes.delete_all', { resource: item })" #actions>
+                    <template
+                      v-if="can(PERMISSIONS.CASH_BOXES_UPDATE_ALL, { resource: item }) || can(PERMISSIONS.CASH_BOXES_DELETE_ALL, { resource: item })"
+                      #actions
+                    >
                       <v-spacer />
                       <AppButton
-                        v-if="can('cash_boxes.update_all', { resource: item })"
+                        v-if="can(PERMISSIONS.CASH_BOXES_UPDATE_ALL, { resource: item })"
                         icon="ri-edit-line"
                         variant="text"
                         color="primary"
@@ -93,7 +98,7 @@
                         @click="handleEdit(item)"
                       />
                       <AppButton
-                        v-if="can('cash_boxes.delete_all', { resource: item })"
+                        v-if="can(PERMISSIONS.CASH_BOXES_DELETE_ALL, { resource: item })"
                         icon="ri-delete-bin-line"
                         variant="text"
                         color="error"
@@ -149,7 +154,7 @@
               <template #item.actions="{ item }">
                 <div class="d-flex justify-end gap-1">
                   <AppButton
-                    v-if="can('cash_boxes.update_all', { resource: item })"
+                    v-if="can(PERMISSIONS.CASH_BOXES_UPDATE_ALL, { resource: item })"
                     icon="ri-edit-line"
                     size="x-small"
                     variant="text"
@@ -158,7 +163,7 @@
                     @click="handleEdit(item)"
                   />
                   <AppButton
-                    v-if="can('cash_boxes.delete_all', { resource: item })"
+                    v-if="can(PERMISSIONS.CASH_BOXES_DELETE_ALL, { resource: item })"
                     icon="ri-delete-bin-line"
                     size="x-small"
                     variant="text"
@@ -318,7 +323,7 @@ const headers = computed(() => {
     { title: 'الحالة', key: 'is_active', align: 'center', sortable: true },
   ];
 
-  if (can('cash_boxes.update_all') || can('cash_boxes.delete_all')) {
+  if (can(PERMISSIONS.CASH_BOXES_UPDATE_ALL) || can(PERMISSIONS.CASH_BOXES_DELETE_ALL)) {
     baseHeaders.push({ title: 'الإجراءات', key: 'actions', sortable: false, align: 'end', width: '120px' });
   }
 

@@ -128,6 +128,7 @@ const paymentStatusOptions = [
   { label: 'غير مدفوعة', value: 'unpaid' },
   { label: 'مدفوعة جزئياً', value: 'partial' },
   { label: 'مدفوعة بالكامل', value: 'paid' },
+  { label: 'مدفوعة بزيادة', value: 'overpaid' },
 ];
 
 // Check if there are active filters

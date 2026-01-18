@@ -48,7 +48,7 @@ export function useInvoice() {
     open(invoice);
   };
 
-  const handleCreate = (type = 'sale') => {
+  const handleCreate = (type = 'sales') => {
     open({ type });
   };
 

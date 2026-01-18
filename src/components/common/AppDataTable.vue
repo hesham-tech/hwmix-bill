@@ -215,7 +215,17 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['update:page', 'update:itemsPerPage', 'update:sortBy', 'update:search', 'update:options', 'view', 'edit', 'delete']);
+const emit = defineEmits([
+  'update:page',
+  'update:itemsPerPage',
+  'update:sortBy',
+  'update:search',
+  'update:options',
+  'view',
+  'edit',
+  'delete',
+  'click:row',
+]);
 
 // v-model bindings
 const pageModel = computed({
@@ -251,5 +261,10 @@ const handleOptionsUpdate = options => {
 
 .gap-2 {
   gap: 0.5rem;
+}
+
+:deep(th),
+:deep(td) {
+  white-space: nowrap !important;
 }
 </style>

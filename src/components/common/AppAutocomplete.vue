@@ -38,8 +38,13 @@
       <slot v-else name="no-data" />
     </template>
 
-    <template v-if="$slots.item" #item="slotProps">
-      <slot name="item" v-bind="slotProps" />
+    <template #item="{ props, item }">
+      <slot v-if="$slots.item" name="item" v-bind="{ props, item }" />
+      <v-list-item v-else v-bind="props" :title="undefined">
+        <template #title>
+          <div v-html="highlightText(item.title, searchQuery)"></div>
+        </template>
+      </v-list-item>
     </template>
 
     <template v-if="$slots.selection" #selection="slotProps">
@@ -50,8 +55,16 @@
       <slot name="prepend" />
     </template>
 
+    <template v-if="$slots['prepend-inner']" #prepend-inner>
+      <slot name="prepend-inner" />
+    </template>
+
     <template v-if="$slots.append" #append>
       <slot name="append" />
+    </template>
+
+    <template v-if="$slots['append-inner']" #append-inner>
+      <slot name="append-inner" />
     </template>
   </v-autocomplete>
 </template>
@@ -59,7 +72,7 @@
 <script setup>
 import { ref, computed, watch, onMounted, nextTick } from 'vue';
 import apiClient from '@/api/axios.config';
-import { debounce } from '@/utils/helpers';
+import { debounce, highlightText } from '@/utils/helpers';
 
 const props = defineProps({
   modelValue: {
@@ -150,6 +163,14 @@ const props = defineProps({
     type: String,
     default: 'outlined',
   },
+  minChars: {
+    type: Number,
+    default: 3,
+  },
+  highlight: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 const emit = defineEmits(['update:modelValue', 'update:search', 'created']);
@@ -204,7 +225,7 @@ const fetchItems = debounce(async query => {
   } finally {
     internalLoading.value = false;
   }
-}, 300);
+}, 500);
 
 const handleCreate = async () => {
   if (!searchQuery.value || creating.value || !props.apiEndpoint) return;
@@ -261,6 +282,8 @@ const handleChange = value => {
 
 watch(searchQuery, val => {
   if (props.apiEndpoint) {
+    // Only search if 3+ characters or empty (to reset/initial)
+    if (val && val.length > 0 && val.length < props.minChars) return;
     fetchItems(val);
   }
   emit('update:search', val);

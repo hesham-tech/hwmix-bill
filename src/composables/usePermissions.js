@@ -6,7 +6,6 @@ import { useUserStore } from '@/stores/user';
  */
 export function usePermissions() {
   const userStore = useUserStore();
-
   /**
    * Check single permission
    * @param {string} permission - Permission key (e.g., 'invoices.create')

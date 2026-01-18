@@ -59,10 +59,11 @@ const headers = [
 ];
 
 const formatCurrency = amount => {
-  if (!amount) return '0.00 ج.م';
+  if (!amount) return '0 ج.م';
   return new Intl.NumberFormat('ar-EG', {
     style: 'currency',
     currency: 'EGP',
+    maximumFractionDigits: 0,
   }).format(amount);
 };
 

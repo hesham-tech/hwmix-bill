@@ -88,8 +88,8 @@ apiClient.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // 500+ Server Errors OR Connection Failures (status 0)
-    if (error?.response?.status >= 500 || !error.response) {
+    // 500+ Server Errors OR Connection Failures (status 0) OR 404 NotFound (for reporting)
+    if (error?.response?.status >= 500 || error?.response?.status === 404 || !error.response) {
       const isConnectivityError = !error.response || error.code === 'ERR_NETWORK' || error.message === 'Network Error';
 
       // Collect technical info and trigger global dialog

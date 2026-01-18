@@ -1,5 +1,5 @@
 <template>
-  <div class="backup-page">
+  <div v-if="can(PERMISSIONS.ADMIN_SUPER)" class="backup-page">
     <div class="page-header mb-8 d-flex justify-space-between align-center">
       <div>
         <h1 class="text-h3 font-weight-bold primary--text mb-2">النسخ الاحتياطي</h1>
@@ -141,13 +141,26 @@
       </v-card>
     </v-dialog>
   </div>
+
+  <!-- Access Denied State -->
+  <div v-else class="pa-12 text-center d-flex flex-column align-center justify-center" style="min-height: 400px">
+    <v-avatar size="100" color="error-lighten-5" class="mb-6">
+      <v-icon icon="ri-lock-2-line" size="48" color="error" />
+    </v-avatar>
+    <h2 class="text-h4 font-weight-bold mb-2">عذراً، لا تملك الصلاحية</h2>
+    <p class="text-body-1 text-grey mb-6">ليس لديك إذن للوصول إلى إدارة النسخ الاحتياطي. يرجى مراجعة المسؤول الأعلى.</p>
+    <AppButton to="/dashboard" color="primary" variant="tonal" prepend-icon="ri-home-4-line"> العودة للرئيسية </AppButton>
+  </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { usePermissions } from '@/composables/usePermissions';
+import { PERMISSIONS } from '@/config/permissions';
 import backupService from '@/api/services/backup.service';
 import { toast } from 'vue3-toastify';
 
+const { can } = usePermissions();
 const backups = ref([]);
 const loading = ref(false);
 const loadingBackup = ref(false);

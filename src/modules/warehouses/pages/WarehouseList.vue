@@ -207,7 +207,7 @@
     </AppDialog>
 
     <!-- Delete Confirmation -->
-    <ConfirmDialog v-model="showConfirm" :message="confirmMessage" @confirm="handleConfirm" @cancel="handleCancel" />
+    <AppConfirmDialog v-model="showConfirm" :message="confirmMessage" @confirm="handleConfirm" @cancel="handleCancel" />
   </div>
 </template>
 
@@ -223,7 +223,7 @@ import AppCard from '@/components/common/AppCard.vue';
 import AppInput from '@/components/common/AppInput.vue';
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import EmptyState from '@/components/common/EmptyState.vue';
-import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
+import AppConfirmDialog from '@/components/common/AppConfirmDialog.vue';
 import WarehouseForm from '../components/WarehouseForm.vue';
 
 const store = useWarehouseStore();

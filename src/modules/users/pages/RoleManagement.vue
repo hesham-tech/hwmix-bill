@@ -6,7 +6,14 @@
         <h1 class="text-h4 font-weight-black text-primary mb-1">إدارة الأدوار الوظيفية</h1>
         <p class="text-body-1 text-grey-darken-1">عرّف المسميات الوظيفية وصلاحياتها لتنظيم فريق العمل</p>
       </div>
-      <AppButton color="primary" prepend-icon="ri-add-line" size="large" class="px-6 rounded-xl shadow-lg" @click="openRoleDialog()">
+      <AppButton
+        v-if="can(PERMISSIONS.ROLES_CREATE)"
+        color="primary"
+        prepend-icon="ri-add-line"
+        size="large"
+        class="px-6 rounded-xl shadow-lg"
+        @click="openRoleDialog()"
+      >
         إضافة دور جديد
       </AppButton>
     </div>
@@ -40,12 +47,12 @@
                   <v-btn icon="ri-more-2-fill" variant="text" size="small" v-bind="props" />
                 </template>
                 <v-list density="compact" class="rounded-lg">
-                  <v-list-item @click="openRoleDialog(role)">
+                  <v-list-item v-if="can(PERMISSIONS.ROLES_UPDATE_ALL)" @click="openRoleDialog(role)">
                     <template #prepend><v-icon icon="ri-edit-line" size="small" /></template>
                     <v-list-item-title>تعديل الدور</v-list-item-title>
                   </v-list-item>
-                  <v-divider />
-                  <v-list-item color="error" @click="confirmDelete(role)">
+                  <v-divider v-if="can(PERMISSIONS.ROLES_UPDATE_ALL) && can(PERMISSIONS.ROLES_DELETE_ALL)" />
+                  <v-list-item v-if="can(PERMISSIONS.ROLES_DELETE_ALL)" color="error" @click="confirmDelete(role)">
                     <template #prepend><v-icon icon="ri-delete-bin-line" size="small" /></template>
                     <v-list-item-title>حذف الدور</v-list-item-title>
                   </v-list-item>
@@ -119,11 +126,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, reactive } from 'vue';
+import { usePermissions } from '@/composables/usePermissions';
+import { PERMISSIONS } from '@/config/permissions';
 import { useUserStore } from '../store/user.store';
 import AppButton from '@/components/common/AppButton.vue';
 import RoleForm from '../components/RoleForm.vue';
 
+const { can } = usePermissions();
 const store = useUserStore();
 
 const dialog = reactive({
