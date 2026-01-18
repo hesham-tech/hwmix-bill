@@ -1,13 +1,26 @@
 <template>
   <div class="variant-manager">
-    <div class="d-flex align-center justify-space-between mb-4 px-1">
-      <div class="d-flex align-center gap-2">
+    <!-- Header Section - Responsive Layout -->
+    <div class="mb-4 px-1">
+      <!-- Title Row -->
+      <div class="d-flex align-center gap-2 mb-3">
         <v-avatar color="primary-lighten-5" size="32" class="rounded-md">
           <v-icon color="primary" size="small">ri-layout-grid-line</v-icon>
         </v-avatar>
         <h3 class="text-subtitle-1 font-weight-black">أصناف ومتغيرات المنتج</h3>
       </div>
-      <v-btn color="primary" variant="flat" prepend-icon="ri-add-line" class="rounded-md" @click="addVariant"> إضافة متغير جديد </v-btn>
+      
+      <!-- Add Button Row - Full width on mobile, compact on desktop -->
+      <v-btn 
+        color="primary" 
+        variant="flat" 
+        prepend-icon="ri-add-line" 
+        class="rounded-md"
+        :block="$vuetify.display.smAndDown"
+        @click="addVariant"
+      >
+        إضافة متغير جديد
+      </v-btn>
     </div>
 
     <v-expansion-panels v-model="activePanel" multiple class="variant-panels">
