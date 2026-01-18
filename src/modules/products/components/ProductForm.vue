@@ -4,15 +4,23 @@
       <template #prepend>
         <div class="d-flex align-center gap-3">
           <v-btn icon="ri-arrow-right-line" variant="tonal" color="primary" size="small" class="rounded-md" @click="emit('cancel')" />
-          <AppAvatar :img-url="primaryImageUrl" :name="productData.name || 'P'" size="48" rounded="lg" type="product" border />
+          <AppAvatar
+            :img-url="primaryImageUrl"
+            :name="productData.name || 'P'"
+            size="48"
+            rounded="lg"
+            type="product"
+            border
+            class="d-none d-sm-flex"
+          />
         </div>
       </template>
 
       <template #title>
         <div class="d-flex align-center gap-2">
           <span class="text-h6 font-weight-black">{{ isEdit ? 'تعديل المنتج' : 'إضافة منتج' }}</span>
-          <span class="text-h6 font-weight-black line-clamp-1" v-if="productData.name"> : {{ productData.name }} </span>
-          <v-chip v-if="isEdit" :color="productData.active ? 'success' : 'error'" size="x-small" variant="flat" class="px-2">
+          <span class="text-h6 font-weight-black line-clamp-1 d-none d-md-inline" v-if="productData.name"> : {{ productData.name }} </span>
+          <v-chip v-if="isEdit" :color="productData.active ? 'success' : 'error'" size="x-small" variant="flat" class="px-2 d-none d-sm-inline-flex">
             {{ productData.active ? 'نشط' : 'مؤرشف' }}
           </v-chip>
         </div>
@@ -20,16 +28,21 @@
 
       <template #append>
         <div class="d-flex gap-2">
-          <v-btn variant="text" class="rounded-md text-grey-darken-1" @click="emit('cancel')"> إلغاء </v-btn>
+          <!-- Cancel Button - Text only on md+ screens -->
+          <v-btn variant="text" class="rounded-md text-grey-darken-1 d-none d-md-flex" @click="emit('cancel')"> إلغاء </v-btn>
+
+          <!-- Save Button - Responsive -->
           <v-btn
             color="primary"
             type="submit"
             :loading="loading"
             :disabled="!isValid"
-            class="rounded-md px-6 elevation-1"
-            prepend-icon="ri-save-3-line"
+            class="rounded-md elevation-1"
+            :class="{ 'px-6': $vuetify.display.mdAndUp }"
+            :icon="$vuetify.display.smAndDown ? 'ri-save-3-line' : undefined"
+            :prepend-icon="$vuetify.display.mdAndUp ? 'ri-save-3-line' : undefined"
           >
-            حفظ التغييرات
+            <span v-if="$vuetify.display.mdAndUp">حفظ التغييرات</span>
           </v-btn>
         </div>
       </template>
