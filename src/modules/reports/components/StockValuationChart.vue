@@ -10,24 +10,22 @@
       </div>
       <div v-else>
         <h3 class="text-h6 font-weight-black mb-6">توزيع قيمة المخزون</h3>
-        <!-- Placeholder for actual chart - will be implemented with Chart.js -->
-        <div class="chart-placeholder pa-6 bg-grey-lighten-4 rounded-lg text-center">
-          <v-icon size="48" color="success">ri-pie-chart-2-line</v-icon>
-          <p class="text-body-2 mt-2">الرسم البياني قيد التطوير</p>
-          <div class="mt-4">
-            <p class="text-caption">قيمة التكلفة: {{ formatCurrency(summary.total_cost_value) }}</p>
-            <p class="text-caption">القيمة البيعية: {{ formatCurrency(summary.total_sale_value) }}</p>
-          </div>
-        </div>
+        <Doughnut :data="chartData" :options="chartOptions" />
       </div>
     </v-card-text>
   </v-card>
 </template>
 
 <script setup>
+import { computed } from 'vue';
+import { Doughnut } from 'vue-chartjs';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { formatCurrency } from '@/utils/formatters';
 
-defineProps({
+// Register Chart.js components
+ChartJS.register(ArcElement, Tooltip, Legend);
+
+const props = defineProps({
   summary: {
     type: Object,
     default: () => ({}),
@@ -37,14 +35,59 @@ defineProps({
     default: false,
   },
 });
-</script>
 
-<style scoped>
-.chart-placeholder {
-  min-height: 300px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-</style>
+const chartData = computed(() => ({
+  labels: ['قيمة التكلفة', 'هامش الربح المتوقع'],
+  datasets: [
+    {
+      data: [props.summary.total_cost_value || 0, props.summary.potential_profit || 0],
+      backgroundColor: ['#FF9800', '#4CAF50'],
+      borderColor: ['#F57C00', '#388E3C'],
+      borderWidth: 2,
+    },
+  ],
+}));
+
+const chartOptions = {
+  responsive: true,
+  maintainAspectRatio: true,
+  aspectRatio: 1.5,
+  plugins: {
+    legend: {
+      display: true,
+      position: 'bottom',
+      rtl: true,
+      labels: {
+        font: {
+          family: 'Cairo, sans-serif',
+          size: 12,
+        },
+        padding: 15,
+        usePointStyle: true,
+      },
+    },
+    tooltip: {
+      rtl: true,
+      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+      padding: 12,
+      titleFont: {
+        family: 'Cairo, sans-serif',
+        size: 14,
+      },
+      bodyFont: {
+        family: 'Cairo, sans-serif',
+        size: 13,
+      },
+      callbacks: {
+        label: context => {
+          const label = context.label || '';
+          const value = formatCurrency(context.parsed);
+          const total = context.dataset.data.reduce((a, b) => a + b, 0);
+          const percentage = ((context.parsed / total) * 100).toFixed(1);
+          return `${label}: ${value} (${percentage}%)`;
+        },
+      },
+    },
+  },
+};
+</script>

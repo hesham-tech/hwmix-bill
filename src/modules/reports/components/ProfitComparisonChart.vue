@@ -10,19 +10,21 @@
       </div>
       <div v-else>
         <h3 class="text-h6 font-weight-black mb-6">مقارنة الربحية الشهرية</h3>
-        <!-- Placeholder for actual chart - will be implemented with Chart.js -->
-        <div class="chart-placeholder pa-6 bg-grey-lighten-4 rounded-lg text-center">
-          <v-icon size="48" color="primary">ri-line-chart-line</v-icon>
-          <p class="text-body-2 mt-2">الرسم البياني قيد التطوير</p>
-          <p class="text-caption text-grey">البيانات: {{ data.length }} سجل</p>
-        </div>
+        <Line :data="chartData" :options="chartOptions" />
       </div>
     </v-card-text>
   </v-card>
 </template>
 
 <script setup>
-defineProps({
+import { computed } from 'vue';
+import { Line } from 'vue-chartjs';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
+
+// Register Chart.js components
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
+
+const props = defineProps({
   data: {
     type: Array,
     default: () => [],
@@ -32,14 +34,101 @@ defineProps({
     default: false,
   },
 });
-</script>
 
-<style scoped>
-.chart-placeholder {
-  min-height: 300px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-</style>
+const chartData = computed(() => ({
+  labels: props.data.map(item => item.month),
+  datasets: [
+    {
+      label: 'الإيرادات',
+      data: props.data.map(item => item.revenue),
+      borderColor: '#4CAF50',
+      backgroundColor: 'rgba(76, 175, 80, 0.1)',
+      fill: true,
+      tension: 0.4,
+    },
+    {
+      label: 'التكاليف',
+      data: props.data.map(item => item.costs),
+      borderColor: '#F44336',
+      backgroundColor: 'rgba(244, 67, 54, 0.1)',
+      fill: true,
+      tension: 0.4,
+    },
+    {
+      label: 'صافي الربح',
+      data: props.data.map(item => item.profit),
+      borderColor: '#2196F3',
+      backgroundColor: 'rgba(33, 150, 243, 0.1)',
+      fill: true,
+      tension: 0.4,
+    },
+  ],
+}));
+
+const chartOptions = {
+  responsive: true,
+  maintainAspectRatio: true,
+  aspectRatio: 2,
+  plugins: {
+    legend: {
+      display: true,
+      position: 'top',
+      rtl: true,
+      labels: {
+        font: {
+          family: 'Cairo, sans-serif',
+          size: 12,
+        },
+        padding: 15,
+        usePointStyle: true,
+      },
+    },
+    tooltip: {
+      rtl: true,
+      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+      padding: 12,
+      titleFont: {
+        family: 'Cairo, sans-serif',
+        size: 14,
+      },
+      bodyFont: {
+        family: 'Cairo, sans-serif',
+        size: 13,
+      },
+      callbacks: {
+        label: context => {
+          const label = context.dataset.label || '';
+          const value = new Intl.NumberFormat('ar-EG', {
+            style: 'currency',
+            currency: 'EGP',
+          }).format(context.parsed.y);
+          return `${label}: ${value}`;
+        },
+      },
+    },
+  },
+  scales: {
+    y: {
+      beginAtZero: true,
+      ticks: {
+        font: {
+          family: 'Cairo, sans-serif',
+        },
+        callback: value => {
+          return new Intl.NumberFormat('ar-EG', {
+            notation: 'compact',
+            compactDisplay: 'short',
+          }).format(value);
+        },
+      },
+    },
+    x: {
+      ticks: {
+        font: {
+          family: 'Cairo, sans-serif',
+        },
+      },
+    },
+  },
+};
+</script>
