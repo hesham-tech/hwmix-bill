@@ -60,6 +60,7 @@
                 @click.stop="duplicateVariant(vIndex)"
               />
               <v-btn
+                v-if="vIndex > 0"
                 icon="ri-delete-bin-line"
                 size="x-small"
                 variant="tonal"
@@ -78,20 +79,50 @@
             <div class="d-flex align-center gap-2 mb-4">
               <v-icon icon="ri-price-tag-3-line" color="primary" size="small" />
               <span class="text-overline text-primary font-weight-black">الهوية والأسعار</span>
+              <v-chip size="x-small" color="info" variant="tonal" class="px-2">
+                <v-icon icon="ri-information-line" size="x-small" class="me-1" />
+                تحديث تلقائي للربح
+              </v-chip>
             </div>
 
             <v-row>
               <v-col cols="12" md="6">
-                <AppInput v-model="variant.sku" label="SKU (كود الصنف)" placeholder="مثال: APP-IP15-BLK" />
+                <AppInput 
+                  v-model="variant.sku" 
+                  label="SKU (كود الصنف)" 
+                  placeholder="مثال: APP-IP15-BLK"
+                />
               </v-col>
               <v-col cols="12" md="6">
-                <AppInput v-model="variant.barcode" label="الباركود" placeholder="اتركه فارغاً للتوليد التلقائي" />
+                <AppInput 
+                  v-model="variant.barcode" 
+                  label="الباركود" 
+                  placeholder="اتركه فارغاً للتوليد التلقائي"
+                />
               </v-col>
-              <v-col cols="12" md="4" v-if="can(PERMISSIONS.PRODUCTS_VIEW_PURCHASE_PRICE) || can(PERMISSIONS.ADMIN_SUPER) || can(PERMISSIONS.ADMIN_COMPANY)">
-                <AppInput v-model.number="variant.purchase_price" label="سعر الشراء" type="number" prefix="ج.م" class="price-input" />
+            </v-row>
+
+            <!-- Pricing Section with Enhanced UI -->
+            <v-row class="mt-2">
+              <v-col cols="12" md="4" v-if="can(PERMISSIONS.PRODUCTS_VIEW_PURCHASE_PRICE)">
+                <AppInput 
+                  v-model.number="variant.purchase_price" 
+                  label="سعر الشراء" 
+                  type="number" 
+                  prefix="ج.م" 
+                  class="price-input"
+                  hint="أساس حساب الربح"
+                  persistent-hint
+                />
               </v-col>
-              <v-col cols="12" md="4" v-if="can(PERMISSIONS.PRODUCTS_VIEW_WHOLESALE_PRICE) || can(PERMISSIONS.ADMIN_SUPER) || can(PERMISSIONS.ADMIN_COMPANY)">
-                <AppInput v-model.number="variant.wholesale_price" label="سعر الجملة" type="number" prefix="ج.م" class="price-input" />
+              <v-col cols="12" md="4" v-if="can(PERMISSIONS.PRODUCTS_VIEW_WHOLESALE_PRICE)">
+                <AppInput 
+                  v-model.number="variant.wholesale_price" 
+                  label="سعر الجملة" 
+                  type="number" 
+                  prefix="ج.م" 
+                  class="price-input"
+                />
               </v-col>
               <v-col cols="12" md="4">
                 <AppInput
@@ -102,6 +133,76 @@
                   prefix="ج.م"
                   class="price-input font-weight-bold"
                 />
+              </v-col>
+            </v-row>
+
+            <!-- Smart Profit Margin Indicators - Split View -->         
+            <v-row 
+              class="mt-3" 
+              v-if="can(PERMISSIONS.PRODUCTS_VIEW_PURCHASE_PRICE) && variant.purchase_price && (variant.wholesale_price || variant.retail_price)"
+            >
+              <!-- Wholesale Profit Indicator -->
+              <v-col cols="12" md="6" v-if="variant.wholesale_price && can(PERMISSIONS.PRODUCTS_VIEW_WHOLESALE_PRICE)">
+                <v-alert
+                  :color="getProfitColor(variant, 'wholesale')"
+                  variant="tonal"
+                  density="compact"
+                  class="mb-0"
+                  :icon="getProfitIcon(variant, 'wholesale')"
+                >
+                  <div class="d-flex flex-column">
+                    <div class="d-flex align-center justify-space-between mb-1">
+                      <span class="text-caption font-weight-bold">هامش ربح الجملة:</span>
+                      <v-chip size="x-small" :color="getProfitColor(variant, 'wholesale')" class="font-weight-bold" variant="flat">
+                        {{ calculateProfitMargin(variant, 'wholesale') }}%
+                      </v-chip>
+                    </div>
+                    <div class="d-flex align-center justify-space-between">
+                      <span class="text-caption">{{ calculateProfitAmount(variant, 'wholesale') }} ج.م</span>
+                      <span v-if="variant.wholesale_price < variant.purchase_price" class="text-caption text-error">
+                        ⚠️ خسارة!
+                      </span>
+                      <span v-else-if="calculateProfitMargin(variant, 'wholesale') < 10" class="text-caption text-warning-darken-2">
+                        ⚠️ منخفض
+                      </span>
+                      <span v-else-if="calculateProfitMargin(variant, 'wholesale') > 30" class="text-caption text-success-darken-1">
+                        ✓ ممتاز
+                      </span>
+                    </div>
+                  </div>
+                </v-alert>
+              </v-col>
+
+              <!-- Retail Profit Indicator -->
+              <v-col cols="12" md="6" v-if="variant.retail_price">
+                <v-alert
+                  :color="getProfitColor(variant, 'retail')"
+                  variant="tonal"
+                  density="compact"
+                  class="mb-0"
+                  :icon="getProfitIcon(variant, 'retail')"
+                >
+                  <div class="d-flex flex-column">
+                    <div class="d-flex align-center justify-space-between mb-1">
+                      <span class="text-caption font-weight-bold">هامش ربح القطاعي:</span>
+                      <v-chip size="x-small" :color="getProfitColor(variant, 'retail')" class="font-weight-bold" variant="flat">
+                        {{ calculateProfitMargin(variant, 'retail') }}%
+                      </v-chip>
+                    </div>
+                    <div class="d-flex align-center justify-space-between">
+                      <span class="text-caption">{{ calculateProfitAmount(variant, 'retail') }} ج.م</span>
+                      <span v-if="variant.retail_price < variant.purchase_price" class="text-caption text-error">
+                        ⚠️ خسارة!
+                      </span>
+                      <span v-else-if="calculateProfitMargin(variant, 'retail') < 10" class="text-caption text-warning-darken-2">
+                        ⚠️ منخفض
+                      </span>
+                      <span v-else-if="calculateProfitMargin(variant, 'retail') > 30" class="text-caption text-success-darken-1">
+                        ✓ ممتاز
+                      </span>
+                    </div>
+                  </div>
+                </v-alert>
               </v-col>
             </v-row>
 
@@ -276,6 +377,48 @@ const activePanel = ref([0]);
 
 const calculateTotalQty = variant => {
   return variant.stocks?.reduce((acc, s) => acc + (parseInt(s.quantity) || 0), 0) || 0;
+};
+
+// Smart Price Calculations
+const calculateProfitMargin = (variant, priceType = 'retail') => {
+  const purchase = parseFloat(variant.purchase_price) || 0;
+  const salePrice = priceType === 'wholesale' 
+    ? parseFloat(variant.wholesale_price) || 0
+    : parseFloat(variant.retail_price) || 0;
+  if (purchase === 0) return 0;
+  return ((salePrice - purchase) / purchase * 100).toFixed(1);
+};
+
+const calculateProfitAmount = (variant, priceType = 'retail') => {
+  const purchase = parseFloat(variant.purchase_price) || 0;
+  const salePrice = priceType === 'wholesale'
+    ? parseFloat(variant.wholesale_price) || 0
+    : parseFloat(variant.retail_price) || 0;
+  return (salePrice - purchase).toFixed(0);
+};
+
+const getProfitColor = (variant, priceType = 'retail') => {
+  const purchase = parseFloat(variant.purchase_price) || 0;
+  const salePrice = priceType === 'wholesale'
+    ? parseFloat(variant.wholesale_price) || 0
+    : parseFloat(variant.retail_price) || 0;
+  if (salePrice < purchase) return 'error';
+  const margin = calculateProfitMargin(variant, priceType);
+  if (margin < 10) return 'warning';
+  if (margin < 30) return 'info';
+  return 'success';
+};
+
+const getProfitIcon = (variant, priceType = 'retail') => {
+  const purchase = parseFloat(variant.purchase_price) || 0;
+  const salePrice = priceType === 'wholesale'
+    ? parseFloat(variant.wholesale_price) || 0
+    : parseFloat(variant.retail_price) || 0;
+  if (salePrice < purchase) return 'ri-error-warning-line';
+  const margin = calculateProfitMargin(variant, priceType);
+  if (margin >= 30) return 'ri-thumb-up-line';
+  if (margin >= 10) return 'ri-information-line';
+  return 'ri-alert-line';
 };
 
 const addVariant = async () => {

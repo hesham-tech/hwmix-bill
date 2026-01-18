@@ -146,7 +146,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useProductStore } from '../store/product.store';
 import AppInput from '@/components/common/AppInput.vue';
 import AppAutocomplete from '@/components/common/AppAutocomplete.vue';
@@ -230,7 +230,26 @@ const handleSubmit = async () => {
   }
 };
 
+// Keyboard shortcuts handler
+const handleKeyboardShortcuts = e => {
+  // Ctrl+S or Cmd+S -> Save
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+    e.preventDefault();
+    if (isValid.value && !loading.value) {
+      handleSubmit();
+    }
+  }
+  // Escape -> Cancel
+  else if (e.key === 'Escape') {
+    e.preventDefault();
+    emit('cancel');
+  }
+};
+
 onMounted(async () => {
+  // Add keyboard shortcuts
+  window.addEventListener('keydown', handleKeyboardShortcuts);
+
   if (isEdit.value) {
     loading.value = true;
     try {
@@ -269,6 +288,11 @@ onMounted(async () => {
       productData.value.variants[0].attributes = [{ attribute_id: null, attribute_value_id: null }];
     }
   }
+});
+
+onUnmounted(() => {
+  // Clean up keyboard shortcuts
+  window.removeEventListener('keydown', handleKeyboardShortcuts);
 });
 </script>
 
