@@ -58,6 +58,17 @@
         <UpcomingInstallments :installments="upcomingInstallments" :loading="loadingInstallments" />
       </v-col>
     </v-row>
+
+    <!-- Reports Widgets -->
+    <v-row class="px-6 mx-0 pb-6">
+      <v-col cols="12" md="6">
+        <ProfitSummaryWidget />
+      </v-col>
+
+      <v-col cols="12" md="6">
+        <ReportsQuickLinks />
+      </v-col>
+    </v-row>
   </div>
 </template>
 
@@ -74,6 +85,8 @@ import UpcomingInstallments from '../components/UpcomingInstallments.vue';
 import SalesTrendChart from '../components/SalesTrendChart.vue';
 import TopProductsChart from '../components/TopProductsChart.vue';
 import DashboardTasksWidget from '@/modules/tasks/components/DashboardTasksWidget.vue';
+import ProfitSummaryWidget from '../components/ProfitSummaryWidget.vue';
+import ReportsQuickLinks from '../components/ReportsQuickLinks.vue';
 
 const router = useRouter();
 
