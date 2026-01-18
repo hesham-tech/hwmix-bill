@@ -2,7 +2,7 @@
   <div class="product-list-page">
     <AppPageHeader title="قائمة المنتجات" subtitle="إدارة المخزون والمنتجات والمتغيرات">
       <template #controls>
-        <v-col cols="6" md="4" class="d-flex justify-center">
+        <v-col cols="12" class="d-flex justify-center">
           <v-btn
             v-if="can(PERMISSIONS.PRODUCTS_CREATE)"
             color="primary"
@@ -13,18 +13,6 @@
           >
             إضافة منتج
           </v-btn>
-        </v-col>
-        <v-col cols="6" md="8" class="d-flex align-center">
-          <v-text-field
-            v-model="search"
-            placeholder="بحث عن منتج..."
-            prepend-inner-icon="ri-search-2-line"
-            class="pill-search-input w-full"
-            hide-details
-            density="compact"
-            bg-color="slate-50"
-            rounded="pill"
-          />
         </v-col>
       </template>
     </AppPageHeader>
@@ -43,8 +31,6 @@
             v-model:items-per-page="itemsPerPage"
             v-model:sort-by="sortBy"
             v-model:search="search"
-            title="قائمة المنتجات"
-            icon="ri-product-hunt-line"
             :headers="headers"
             :items="products"
             :total-items="totalItems"
@@ -55,17 +41,6 @@
             @delete="confirmDelete"
             @update:options="fetchProducts"
           >
-            <template #actions>
-              <v-btn
-                v-if="can(PERMISSIONS.PRODUCTS_CREATE)"
-                color="primary"
-                prepend-icon="ri-add-line"
-                @click="router.push({ name: 'product-create' })"
-              >
-                إضافة منتج
-              </v-btn>
-            </template>
-
             <template #item.name="{ item }">
               <div @click="viewProduct(item)" class="d-flex align-center gap-3 py-2">
                 <AppAvatar :img-url="item.primary_image_url || item.main_image" :name="item.name" size="44" rounded="lg" type="product" hoverable />

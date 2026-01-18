@@ -26,7 +26,7 @@
       </template>
 
       <template #append>
-        <div class="d-flex gap-2 flex-column flex-sm-row">
+        <div class="d-flex gap-2">
           <v-btn variant="text" class="rounded-md text-grey-darken-1" @click="emit('cancel')"> إلغاء </v-btn>
           <v-btn
             color="primary"
