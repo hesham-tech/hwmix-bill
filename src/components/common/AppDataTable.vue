@@ -1,13 +1,13 @@
 <template>
   <v-card>
     <!-- Header with title and actions -->
-    <v-card-title v-if="title" class="d-flex align-center justify-space-between">
+    <v-card-title v-if="title" class="d-flex flex-wrap align-center justify-space-between gap-2">
       <div class="d-flex align-center gap-2">
         <v-icon v-if="icon" :icon="icon" />
         <span>{{ title }}</span>
       </div>
 
-      <div class="d-flex gap-2">
+      <div class="d-flex flex-wrap gap-2 flex-grow-1 justify-end">
         <slot name="actions" />
 
         <v-text-field
@@ -19,7 +19,7 @@
           variant="outlined"
           hide-details
           clearable
-          style="max-width: 300px"
+          class="search-field"
         />
       </div>
     </v-card-title>
@@ -261,6 +261,19 @@ const handleOptionsUpdate = options => {
 
 .gap-2 {
   gap: 0.5rem;
+}
+
+.search-field {
+  max-width: 300px;
+  min-width: 200px;
+}
+
+@media (max-width: 600px) {
+  .search-field {
+    max-width: 100%;
+    min-width: 100%;
+    flex-basis: 100%;
+  }
 }
 
 :deep(th),
