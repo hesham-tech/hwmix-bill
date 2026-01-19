@@ -29,13 +29,12 @@
       v-model:items-per-page="itemsPerPageModel"
       v-model:page="pageModel"
       v-model:sort-by="sortByModel"
-      :headers="headers"
+      :headers="processedHeaders"
       :items="items"
       :items-length="totalItems"
       :loading="loading"
       :search="searchModel"
       class="elevation-0"
-      :class="{ 'sticky-actions-table': stickyActions }"
       density="comfortable"
       :items-per-page-options="itemsPerPageOptions"
       :no-data-text="emptyText"
@@ -312,6 +311,23 @@ const handleOptionsUpdate = options => {
   emit('update:options', options);
 };
 
+// Process headers to add fixed property to actions column
+const processedHeaders = computed(() => {
+  if (!props.stickyActions || !props.showActions) return props.headers;
+
+  return props.headers.map((header, index) => {
+    // Check if this is the last column (actions column)
+    if (index === props.headers.length - 1 && header.key === 'actions') {
+      return {
+        ...header,
+        fixed: true,
+        width: header.width || '130px',
+      };
+    }
+    return header;
+  });
+});
+
 // --- Context Menu Logic ---
 const menuModel = ref(false);
 const menuProps = reactive({
@@ -360,24 +376,6 @@ const handleContextMenu = (event, { item }) => {
   white-space: nowrap !important;
 }
 
-/* Sticky Actions Column Styles */
-.sticky-actions-table :deep(.v-data-table__table th:last-child),
-.sticky-actions-table :deep(.v-data-table__table td:last-child) {
-  position: sticky !important;
-  right: 0; /* Default LTR */
-  z-index: 2;
-  background: rgb(var(--v-theme-surface)) !important;
-  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.05);
-}
-
-/* RTL Support for Sticky Column */
-[dir='rtl'] .sticky-actions-table :deep(.v-data-table__table th:last-child),
-[dir='rtl'] .sticky-actions-table :deep(.v-data-table__table td:last-child) {
-  right: auto !important;
-  left: 0 !important;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
-}
-
 /* Highlight the row being context-clicked if we wanted to (optional) */
 :deep(.v-data-table__tr:hover) {
   background: rgba(var(--v-theme-primary), 0.02) !important;
@@ -399,12 +397,6 @@ const handleContextMenu = (event, { item }) => {
   font-weight: normal !important;
   box-shadow: none !important;
   background: transparent !important;
-  /* Support for icon + text */
-  display: flex !important;
-  align-items: center !important;
-  gap: 12px;
-  /* Match v-list-item padding */
-  padding-inline-start: 16px !important;
 }
 
 .context-menu-list :deep(.v-btn:hover) {
@@ -412,25 +404,16 @@ const handleContextMenu = (event, { item }) => {
 }
 
 .context-menu-list :deep(.v-btn__content) {
-  width: auto;
-  flex-grow: 1;
+  width: 100%;
   display: flex;
-  align-items: center;
   justify-content: flex-start;
   gap: 12px;
 }
 
-/* Reveal tooltip text inside menu */
-.context-menu-list :deep(.app-button-tooltip-text) {
-  display: inline-block !important;
+/* Add text to buttons in menu if they only have icons */
+.context-menu-list :deep(.v-btn[tooltip]::after) {
+  content: attr(tooltip);
   font-size: 0.875rem;
-  color: inherit;
-}
-
-/* Force icon size to match v-list-item icons */
-.context-menu-list :deep(.v-btn .v-icon) {
-  font-size: 24px !important;
-  --v-icon-size-multiplier: 1;
 }
 
 .border-bottom {

@@ -193,9 +193,18 @@
             </div>
           </template>
 
-          <template #extra-actions="{ item }">
+          <template #extra-actions="{ item, inMenu }">
+            <!-- Use v-list-item in context menu for perfect alignment -->
+            <v-list-item
+              v-if="inMenu && can(PERMISSIONS.ROLES_PAGE)"
+              prepend-icon="ri-shield-user-line"
+              title="إدارة الصلاحيات"
+              class="text-warning"
+              @click="handleManagePermissions(item)"
+            />
+            <!-- Use AppButton in table for icon-only display -->
             <AppButton
-              v-if="can(PERMISSIONS.ROLES_PAGE)"
+              v-else-if="can(PERMISSIONS.ROLES_PAGE)"
               icon="ri-shield-user-line"
               size="small"
               variant="text"
