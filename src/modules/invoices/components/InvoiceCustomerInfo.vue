@@ -57,7 +57,7 @@
             @update:model-value="$emit('update:prop', { key: 'reference_number', value: $event })"
           />
         </v-col>
-        <v-col cols="12" md="4">
+        <v-col cols="12" md="5">
           <AppAutocomplete
             :model-value="modelValue.warehouse_id"
             :items="warehouses"
