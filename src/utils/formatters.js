@@ -45,6 +45,18 @@ export const formatDateTime = date => {
 };
 
 /**
+ * Format time
+ */
+export const formatTime = date => {
+  if (!date) return '';
+
+  return new Date(date).toLocaleTimeString('ar-EG', {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+};
+
+/**
  * Format currency
  */
 export const formatCurrency = (amount, currency = 'EGP') => {

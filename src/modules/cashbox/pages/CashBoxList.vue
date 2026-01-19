@@ -1,183 +1,188 @@
 <template>
   <div class="cashbox-page">
-    <div class="mb-6 px-6 pt-6">
-      <h1 class="text-h4 font-weight-bold">الخزائن</h1>
-      <p class="text-body-1 text-grey">إدارة الخزائن النقدية والأرصدة المتاحة للعمليات</p>
-    </div>
+    <AppPageHeader title="الخزائن" subtitle="إدارة الخزائن النقدية والأرصدة المتاحة للعمليات" icon="ri-safe-2-line" sticky>
+      <template #append>
+        <AppButton
+          v-if="can(PERMISSIONS.CASH_BOXES_CREATE)"
+          color="primary"
+          prepend-icon="ri-add-line"
+          class="font-weight-bold"
+          @click="handleCreate"
+        >
+          خزينة جديدة
+        </AppButton>
+      </template>
 
-    <div class="px-6 pb-6">
-      <div class="px-6 pb-6">
-        <!-- Top Action Bar -->
-        <AppCard class="mb-6">
-          <div class="d-flex align-center flex-wrap gap-4">
+      <template #controls>
+        <v-row align="center" class="w-100 mx-0">
+          <v-col cols="12" md="8">
             <AppInput
               v-model="search"
-              label="بحث عن خزينة..."
+              placeholder="بحث عن خزينة..."
               prepend-inner-icon="ri-search-line"
-              class="max-width-300 flex-grow-1"
+              clearable
               hide-details
+              variant="solo-filled"
+              density="comfortable"
+              flat
+              class="rounded-lg"
               @update:model-value="handleSearch"
             />
+          </v-col>
+          <v-col cols="12" md="4" class="text-end">
+            <v-btn-group variant="tonal" density="comfortable" color="primary" class="rounded-lg bg-primary-lighten-5">
+              <AppButton :active="viewMode === 'grid'" icon="ri-grid-fill" tooltip="عرض شبكي" @click="viewMode = 'grid'" />
+              <AppButton :active="viewMode === 'list'" icon="ri-list-check" tooltip="عرض قائمة" @click="viewMode = 'list'" />
+            </v-btn-group>
+          </v-col>
+        </v-row>
+      </template>
+    </AppPageHeader>
 
-            <v-spacer />
+    <v-container fluid class="pt-0">
+      <LoadingSpinner v-if="loading" />
 
-            <div class="d-flex align-center gap-3">
-              <AppButton v-if="can(PERMISSIONS.CASH_BOXES_CREATE)" color="primary" prepend-icon="ri-add-line" @click="handleCreate">
-                خزينة جديدة
-              </AppButton>
-
-              <v-btn-group variant="outlined" density="comfortable" color="primary" class="bg-white">
-                <AppButton :active="viewMode === 'grid'" icon="ri-grid-fill" @click="viewMode = 'grid'" title="عرض شبكي" />
-                <AppButton :active="viewMode === 'list'" icon="ri-list-check" @click="viewMode = 'list'" title="عرض قائمة" />
-              </v-btn-group>
-            </div>
-          </div>
-        </AppCard>
-
-        <LoadingSpinner v-if="loading" />
+      <template v-else>
+        <EmptyState v-if="cashBoxes.length === 0" icon="ri-safe-2-line" title="لا توجد خزائن" subtitle="لم يتم العثور على أي خزائن مطابقة لبحثك." />
 
         <template v-else>
-          <EmptyState v-if="cashBoxes.length === 0" icon="ri-safe-2-line" title="لا توجد خزائن" subtitle="لم يتم العثور على أي خزائن مطابقة لبحثك." />
+          <!-- Grid View with Infinite Scroll -->
+          <AppInfiniteScroll
+            v-if="viewMode === 'grid'"
+            :loading="loading && cashBoxes.length > 0"
+            :has-more="cashBoxes.length < total"
+            no-more-text="لا يوجد المزيد من الخزائن"
+            @load="handleLoadMore"
+          >
+            <v-row>
+              <v-col v-for="item in cashBoxes" :key="item.id" cols="12" sm="6" md="4" lg="3">
+                <AppCard class="cashbox-card h-100" no-padding>
+                  <div class="cashbox-card-header d-flex align-center justify-center pa-4 bg-grey-lighten-4 position-relative">
+                    <v-avatar size="80" rounded="lg" class="elevation-1 bg-white">
+                      <v-icon icon="ri-safe-2-line" size="40" color="warning" />
+                    </v-avatar>
 
-          <template v-else>
-            <!-- Grid View with Infinite Scroll -->
-            <AppInfiniteScroll
-              v-if="viewMode === 'grid'"
-              :loading="loading && cashBoxes.length > 0"
-              :has-more="cashBoxes.length < total"
-              no-more-text="لا يوجد المزيد من الخزائن"
-              @load="handleLoadMore"
-            >
-              <v-row>
-                <v-col v-for="item in cashBoxes" :key="item.id" cols="12" sm="6" md="4" lg="3">
-                  <AppCard class="cashbox-card h-100" no-padding>
-                    <div class="cashbox-card-header d-flex align-center justify-center pa-4 bg-grey-lighten-4 position-relative">
-                      <v-avatar size="80" rounded="lg" class="elevation-1 bg-white">
-                        <v-icon icon="ri-safe-2-line" size="40" color="warning" />
-                      </v-avatar>
-
-                      <v-chip
-                        :color="item.is_active ? 'success' : 'error'"
-                        size="x-small"
-                        class="position-absolute top-2 right-2 font-weight-bold"
-                        variant="flat"
-                      >
-                        {{ item.is_active ? 'نشط' : 'معطل' }}
-                      </v-chip>
-                    </div>
-
-                    <v-card-item>
-                      <v-card-title class="text-h6 font-weight-bold">{{ item.name }}</v-card-title>
-                      <v-card-subtitle class="d-flex align-center mt-1">
-                        <v-chip v-if="item.type" size="x-small" variant="flat" color="primary-lighten-5" class="text-primary font-weight-bold">
-                          {{ item.type.name }}
-                        </v-chip>
-                      </v-card-subtitle>
-                    </v-card-item>
-
-                    <v-card-text class="pt-0">
-                      <div class="d-flex align-center justify-space-between mt-2">
-                        <span class="text-caption text-grey">الرصيد الحالي</span>
-                        <span class="font-weight-black" :class="item.balance >= 0 ? 'text-success' : 'text-error'">
-                          {{ formatCurrency(item.balance) }}
-                        </span>
-                      </div>
-                    </v-card-text>
-
-                    <template
-                      v-if="can(PERMISSIONS.CASH_BOXES_UPDATE_ALL, { resource: item }) || can(PERMISSIONS.CASH_BOXES_DELETE_ALL, { resource: item })"
-                      #actions
+                    <v-chip
+                      :color="item.is_active ? 'success' : 'error'"
+                      size="x-small"
+                      class="position-absolute top-2 right-2 font-weight-bold"
+                      variant="flat"
                     >
-                      <v-spacer />
-                      <AppButton
-                        v-if="can(PERMISSIONS.CASH_BOXES_UPDATE_ALL, { resource: item })"
-                        icon="ri-edit-line"
-                        variant="text"
-                        color="primary"
-                        tooltip="تعديل"
-                        @click="handleEdit(item)"
-                      />
-                      <AppButton
-                        v-if="can(PERMISSIONS.CASH_BOXES_DELETE_ALL, { resource: item })"
-                        icon="ri-delete-bin-line"
-                        variant="text"
-                        color="error"
-                        tooltip="حذف"
-                        @click="handleDelete(item)"
-                      />
-                    </template>
-                  </AppCard>
-                </v-col>
-              </v-row>
-            </AppInfiniteScroll>
+                      {{ item.is_active ? 'نشط' : 'معطل' }}
+                    </v-chip>
+                  </div>
 
-            <!-- List View -->
-            <AppDataTable
-              v-else
-              :headers="headers"
-              :items="cashBoxes"
-              :loading="loading"
-              :items-length="total"
-              :items-per-page="itemsPerPage"
-              :page="page"
-              title="قائمة الخزائن"
-              icon="ri-safe-2-line"
-              permission-module="cash_boxes"
-              @update:options="onTableOptionsUpdate"
-            >
-              <template #item.name="{ item }">
-                <div class="d-flex align-center">
-                  <v-icon icon="ri-money-dollar-box-line" size="small" color="warning" class="me-2" />
-                  <span class="font-weight-bold">{{ item.name }}</span>
-                </div>
-              </template>
+                  <v-card-item>
+                    <v-card-title class="text-h6 font-weight-bold">{{ item.name }}</v-card-title>
+                    <v-card-subtitle class="d-flex align-center mt-1">
+                      <v-chip v-if="item.type" size="x-small" variant="flat" color="primary-lighten-5" class="text-primary font-weight-bold">
+                        {{ item.type.name }}
+                      </v-chip>
+                    </v-card-subtitle>
+                  </v-card-item>
 
-              <template #item.type="{ item }">
-                <v-chip v-if="item.type" size="small" variant="flat" color="primary-lighten-5" class="text-primary font-weight-bold">
-                  {{ item.type.name }}
-                </v-chip>
-                <span v-else class="text-grey-lighten-1 text-caption">غير محدد</span>
-              </template>
+                  <v-card-text class="pt-0">
+                    <div class="d-flex align-center justify-space-between mt-2">
+                      <span class="text-caption text-grey">الرصيد الحالي</span>
+                      <span class="font-weight-black" :class="item.balance >= 0 ? 'text-success' : 'text-error'">
+                        {{ formatCurrency(item.balance) }}
+                      </span>
+                    </div>
+                  </v-card-text>
 
-              <template #item.balance="{ item }">
-                <div class="text-end font-weight-black" :class="item.balance >= 0 ? 'text-success' : 'text-error'">
-                  {{ formatCurrency(item.balance) }}
-                </div>
-              </template>
+                  <template
+                    v-if="can(PERMISSIONS.CASH_BOXES_UPDATE_ALL, { resource: item }) || can(PERMISSIONS.CASH_BOXES_DELETE_ALL, { resource: item })"
+                    #actions
+                  >
+                    <v-spacer />
+                    <AppButton
+                      v-if="can(PERMISSIONS.CASH_BOXES_UPDATE_ALL, { resource: item })"
+                      icon="ri-edit-line"
+                      variant="text"
+                      color="primary"
+                      tooltip="تعديل"
+                      @click="handleEdit(item)"
+                    />
+                    <AppButton
+                      v-if="can(PERMISSIONS.CASH_BOXES_DELETE_ALL, { resource: item })"
+                      icon="ri-delete-bin-line"
+                      variant="text"
+                      color="error"
+                      tooltip="حذف"
+                      @click="handleDelete(item)"
+                    />
+                  </template>
+                </AppCard>
+              </v-col>
+            </v-row>
+          </AppInfiniteScroll>
 
-              <template #item.is_active="{ item }">
-                <v-chip :color="item.is_active ? 'success' : 'error'" size="small" variant="flat" class="font-weight-bold px-3">
-                  {{ item.is_active ? 'نشط' : 'غير نشط' }}
-                </v-chip>
-              </template>
+          <!-- List View -->
+          <AppDataTable
+            v-else
+            :headers="headers"
+            :items="cashBoxes"
+            :loading="loading"
+            :items-length="total"
+            :items-per-page="itemsPerPage"
+            :page="page"
+            title="قائمة الخزائن"
+            icon="ri-safe-2-line"
+            permission-module="cash_boxes"
+            @update:options="onTableOptionsUpdate"
+          >
+            <template #item.name="{ item }">
+              <div class="d-flex align-center">
+                <v-icon icon="ri-money-dollar-box-line" size="small" color="warning" class="me-2" />
+                <span class="font-weight-bold">{{ item.name }}</span>
+              </div>
+            </template>
 
-              <template #item.actions="{ item }">
-                <div class="d-flex justify-end gap-1">
-                  <AppButton
-                    v-if="can(PERMISSIONS.CASH_BOXES_UPDATE_ALL, { resource: item })"
-                    icon="ri-edit-line"
-                    size="x-small"
-                    variant="text"
-                    color="primary"
-                    tooltip="تعديل"
-                    @click="handleEdit(item)"
-                  />
-                  <AppButton
-                    v-if="can(PERMISSIONS.CASH_BOXES_DELETE_ALL, { resource: item })"
-                    icon="ri-delete-bin-line"
-                    size="x-small"
-                    variant="text"
-                    color="error"
-                    tooltip="حذف"
-                    @click="handleDelete(item)"
-                  />
-                </div>
-              </template>
-            </AppDataTable>
-          </template>
+            <template #item.type="{ item }">
+              <v-chip v-if="item.type" size="small" variant="flat" color="primary-lighten-5" class="text-primary font-weight-bold">
+                {{ item.type.name }}
+              </v-chip>
+              <span v-else class="text-grey-lighten-1 text-caption">غير محدد</span>
+            </template>
+
+            <template #item.balance="{ item }">
+              <div class="text-end font-weight-black" :class="item.balance >= 0 ? 'text-success' : 'text-error'">
+                {{ formatCurrency(item.balance) }}
+              </div>
+            </template>
+
+            <template #item.is_active="{ item }">
+              <v-chip :color="item.is_active ? 'success' : 'error'" size="small" variant="flat" class="font-weight-bold px-3">
+                {{ item.is_active ? 'نشط' : 'غير نشط' }}
+              </v-chip>
+            </template>
+
+            <template #item.actions="{ item }">
+              <div class="d-flex justify-end gap-1">
+                <AppButton
+                  v-if="can(PERMISSIONS.CASH_BOXES_UPDATE_ALL, { resource: item })"
+                  icon="ri-edit-line"
+                  size="x-small"
+                  variant="text"
+                  color="primary"
+                  tooltip="تعديل"
+                  @click="handleEdit(item)"
+                />
+                <AppButton
+                  v-if="can(PERMISSIONS.CASH_BOXES_DELETE_ALL, { resource: item })"
+                  icon="ri-delete-bin-line"
+                  size="x-small"
+                  variant="text"
+                  color="error"
+                  tooltip="حذف"
+                  @click="handleDelete(item)"
+                />
+              </div>
+            </template>
+          </AppDataTable>
         </template>
-      </div>
-    </div>
+      </template>
+    </v-container>
 
     <!-- Form Dialog -->
     <!-- Form Dialog -->
@@ -265,15 +270,16 @@ import { ref, onMounted, computed, watch } from 'vue';
 import { useCashBoxesData } from '../composables/useCashBoxesData';
 import { useApi } from '@/composables/useApi';
 import { usePermissions } from '@/composables/usePermissions';
+import AppPageHeader from '@/components/common/AppPageHeader.vue';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 import AppButton from '@/components/common/AppButton.vue';
 import AppDialog from '@/components/common/AppDialog.vue';
 import AppInput from '@/components/common/AppInput.vue';
 import AppSwitch from '@/components/common/AppSwitch.vue';
 import AppCard from '@/components/common/AppCard.vue';
+import AppInfiniteScroll from '@/components/common/AppInfiniteScroll.vue';
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import EmptyState from '@/components/common/EmptyState.vue';
-import AppInfiniteScroll from '@/components/common/AppInfiniteScroll.vue';
 import { PERMISSIONS } from '@/config/permissions';
 
 // Simple debounce
@@ -314,6 +320,9 @@ const deleting = ref(false);
 const formRef = ref(null);
 const cashBoxTypes = ref([]);
 const loadingTypes = ref(false);
+const formData = ref({ name: '', cash_box_type_id: null, initial_balance: 0, is_active: 1 });
+
+const isEdit = computed(() => !!selectedItem.value);
 
 const headers = computed(() => {
   const baseHeaders = [
@@ -431,4 +440,17 @@ watch(viewMode, () => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.cashbox-page :deep(.v-container) {
+  max-width: 100% !important;
+}
+
+.cashbox-card {
+  transition: all 0.3s ease;
+}
+
+.cashbox-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(var(--v-theme-primary), 0.08) !important;
+}
+</style>

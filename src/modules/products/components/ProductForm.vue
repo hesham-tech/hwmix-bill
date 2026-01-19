@@ -3,7 +3,7 @@
     <AppPageHeader sticky>
       <template #prepend>
         <div class="d-flex align-center gap-3">
-          <v-btn icon="ri-arrow-right-line" variant="tonal" color="primary" size="small" class="rounded-md" @click="emit('cancel')" />
+          <AppButton icon="ri-arrow-right-line" variant="tonal" color="primary" size="small" class="rounded-md" @click="emit('cancel')" />
           <AppAvatar
             :img-url="primaryImageUrl"
             :name="productData.name || 'P'"
@@ -27,17 +27,10 @@
 
       <template #append>
         <div class="d-flex gap-2">
-          <v-btn variant="text" class="rounded-md text-grey-darken-1" @click="emit('cancel')"> إلغاء </v-btn>
-          <v-btn
-            color="primary"
-            type="submit"
-            :loading="loading"
-            :disabled="!isValid"
-            class="rounded-md px-6 elevation-1"
-            prepend-icon="ri-save-3-line"
-          >
+          <AppButton variant="text" color="grey-darken-1" @click="emit('cancel')"> إلغاء </AppButton>
+          <AppButton color="primary" type="submit" :loading="loading" :disabled="!isValid" class="px-6" prepend-icon="ri-save-3-line">
             حفظ التغييرات
-          </v-btn>
+          </AppButton>
         </div>
       </template>
     </AppPageHeader>

@@ -27,13 +27,15 @@
       <v-card-actions v-if="showActions" class="px-6 pb-4">
         <v-spacer />
 
-        <v-btn v-if="showCancel" variant="outlined" color="grey" @click="handleCancel">
-          {{ cancelText }}
-        </v-btn>
+        <template v-if="!hideActions">
+          <v-btn v-if="showCancel" variant="outlined" color="grey" @click="handleCancel">
+            {{ cancelText }}
+          </v-btn>
 
-        <v-btn v-if="showConfirm" variant="elevated" :color="confirmColor" :loading="loading" @click="handleConfirm">
-          {{ confirmText }}
-        </v-btn>
+          <v-btn v-if="showConfirm" variant="elevated" :color="confirmColor" :loading="loading" @click="handleConfirm">
+            {{ confirmText }}
+          </v-btn>
+        </template>
 
         <slot name="actions" />
       </v-card-actions>
@@ -74,6 +76,10 @@ const props = defineProps({
   showActions: {
     type: Boolean,
     default: true,
+  },
+  hideActions: {
+    type: Boolean,
+    default: false,
   },
   showCancel: {
     type: Boolean,

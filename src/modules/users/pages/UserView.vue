@@ -187,7 +187,15 @@
 
     <!-- User Form Dialog -->
     <AppDialog v-model="isOpen" title="تعديل بيانات المستخدم" icon="ri-user-edit-line" max-width="800" hide-actions>
-      <UserForm v-model="formData" :is-edit-mode="true" @save="onSave" @cancel="close" />
+      <UserForm ref="userFormRef" v-model="formData" :is-edit-mode="true" hide-actions @save="onSave" @cancel="close" />
+
+      <template #actions>
+        <AppButton variant="tonal" color="grey" @click="close">إلغاء</AppButton>
+        <AppButton :loading="userFormRef?.loading" color="primary" class="px-8 font-weight-bold rounded-pill" @click="userFormRef?.handleSubmit()">
+          <v-icon :icon="userFormRef?.form?.id ? 'ri-user-received-line' : 'ri-save-line'" class="me-2" />
+          {{ userFormRef?.form?.id ? 'تحديث البيانات' : 'حفظ' }}
+        </AppButton>
+      </template>
     </AppDialog>
 
     <!-- Global Confirm Dialog for Deletion -->
@@ -212,6 +220,7 @@ import AppPhone from '@/components/common/AppPhone.vue';
 const route = useRoute();
 const router = useRouter();
 const { can } = usePermissions();
+const userFormRef = ref(null);
 
 // Use shared logic from composable
 const { formData, isOpen, close, showConfirm, confirmMessage, handleConfirm, handleCancel, loadUser, saveUser, handleDelete, handleEdit } = useUser();

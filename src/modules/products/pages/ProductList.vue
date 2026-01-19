@@ -1,31 +1,57 @@
 <template>
   <div class="product-list-page">
-    <AppPageHeader title="قائمة المنتجات" subtitle="إدارة المخزون والمنتجات والمتغيرات">
+    <AppPageHeader title="قائمة المنتجات" subtitle="إدارة المخزون والمنتجات والمتغيرات" icon="ri-box-3-line">
+      <template #append>
+        <AppButton
+          v-if="can(PERMISSIONS.PRODUCTS_CREATE)"
+          color="primary"
+          prepend-icon="ri-add-line"
+          size="large"
+          class="gradient-add-btn elevation-6"
+          @click="router.push({ name: 'product-create' })"
+        >
+          إضافة منتج
+        </AppButton>
+      </template>
+
       <template #controls>
-        <v-col cols="12" class="d-flex justify-center">
+        <v-col cols="12" md="8">
+          <AppInput
+            v-model="search"
+            placeholder="بحث سريح بالاسم أو الكود..."
+            prepend-inner-icon="ri-search-line"
+            clearable
+            hide-details
+            variant="solo-filled"
+            density="comfortable"
+            flat
+            class="rounded-lg px-0"
+            @update:model-value="debouncedSearch"
+          />
+        </v-col>
+        <v-col cols="12" md="4" class="text-end">
           <v-btn
-            v-if="can(PERMISSIONS.PRODUCTS_CREATE)"
+            variant="tonal"
             color="primary"
-            prepend-icon="ri-add-line"
-            size="large"
-            class="gradient-add-btn elevation-6"
-            @click="router.push({ name: 'product-create' })"
+            prepend-icon="ri-equalizer-line"
+            class="rounded-lg font-weight-bold"
+            @click="showAdvanced = !showAdvanced"
           >
-            إضافة منتج
+            {{ showAdvanced ? 'إخفاء البحث المتقدم' : 'بحث متقدم' }}
           </v-btn>
         </v-col>
       </template>
     </AppPageHeader>
 
     <v-container fluid class="pt-0">
+      <v-expand-transition>
+        <div v-if="showAdvanced" class="mb-6">
+          <ProductFilters @apply="fetchProducts" />
+        </div>
+      </v-expand-transition>
+
       <v-row>
         <v-col cols="12">
-          <v-card class="mb-6 border-slate-50" flat>
-            <v-card-text>
-              <ProductFilters />
-            </v-card-text>
-          </v-card>
-
           <AppDataTable
             v-model:page="page"
             v-model:items-per-page="itemsPerPage"
@@ -146,12 +172,24 @@ const editProduct = item => {
   router.push({ name: 'product-edit', params: { id: item.id } });
 };
 
+// UI State
+const showAdvanced = ref(false);
+
 const confirmDialog = ref(null);
 const confirmDelete = async item => {
   const confirmed = await confirmDialog.value.open();
   if (confirmed) {
     await deleteProduct(item.id);
   }
+};
+
+// Debounce search
+let searchTimeout;
+const debouncedSearch = () => {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    fetchProducts();
+  }, 500);
 };
 
 // Watch for filter changes and reload

@@ -17,7 +17,7 @@
               <span class="text-white text-caption mt-1 font-weight-bold">تغيير الصورة</span>
             </div>
           </v-avatar>
-          <v-btn
+          <AppButton
             icon="ri-gallery-line"
             size="x-small"
             color="primary"
@@ -41,12 +41,12 @@
               <div class="font-weight-bold">تم العثور على مستخدم موجود مسبقاً!</div>
               <div class="text-caption">سيتم ربط هذا المستخدم بالشركة الحالية مع الحفاظ على هويته العالمية.</div>
             </div>
-            <v-btn size="small" variant="text" color="primary" @click="resetForm">مسح البيانات والبدء من جديد</v-btn>
+            <AppButton size="small" variant="text" color="primary" @click="resetForm">مسح البيانات والبدء من جديد</AppButton>
           </div>
         </v-alert>
       </v-expand-transition>
 
-      <v-row>
+      <v-row class="mx-0">
         <!-- Security & Status (Always visible but styled) -->
         <v-col cols="12">
           <div class="d-flex align-center gap-2 mb-2 text-primary font-weight-bold">
@@ -174,7 +174,7 @@
       </v-row>
 
       <!-- Actions -->
-      <div class="d-flex justify-end gap-3 mt-8">
+      <div v-if="!hideActions" class="d-flex justify-end gap-3 mt-8">
         <AppButton variant="tonal" color="grey" @click="$emit('cancel')">إلغاء</AppButton>
         <AppButton :loading="loading" color="primary" class="px-8 font-weight-bold rounded-pill" @click="handleSubmit">
           <v-icon :icon="form.id ? 'ri-user-received-line' : 'ri-save-line'" class="me-2" />
@@ -206,6 +206,10 @@ const props = defineProps({
     default: () => ({}),
   },
   isEditMode: {
+    type: Boolean,
+    default: false,
+  },
+  hideActions: {
     type: Boolean,
     default: false,
   },
@@ -351,6 +355,12 @@ const handleSubmit = async () => {
   }
 };
 
+defineExpose({
+  handleSubmit,
+  loading,
+  form,
+});
+
 watch(
   () => props.modelValue,
   newVal => {
@@ -384,7 +394,7 @@ watch(
 }
 
 .user-form-container {
-  min-height: 400px;
+  min-height: auto;
 }
 
 .avatar-selection-zone .change-overlay {

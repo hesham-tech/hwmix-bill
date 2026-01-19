@@ -1,25 +1,55 @@
 <template>
   <div v-if="can(PERMISSIONS.TRANSACTIONS_VIEW_ALL)" class="transactions-page">
-    <div class="mb-6 px-6 pt-6">
-      <h1 class="text-h4 font-weight-bold">حركات الخزينة</h1>
-      <p class="text-body-1 text-grey">سجل وتدقيق جميع المعاملات المالية الصادرة والواردة</p>
-    </div>
+    <AppPageHeader title="حركات الخزينة" subtitle="سجل وتدقيق جميع المعاملات المالية الصادرة والواردة" icon="ri-exchange-line" sticky>
+      <template #controls>
+        <v-row align="center" class="w-100 mx-0">
+          <v-col cols="12" md="8">
+            <AppInput
+              v-model="search"
+              placeholder="بحث في الحركات..."
+              prepend-inner-icon="ri-search-line"
+              clearable
+              hide-details
+              variant="solo-filled"
+              density="comfortable"
+              flat
+              class="rounded-lg"
+              @update:model-value="debouncedSearch"
+            />
+          </v-col>
+          <v-col cols="12" md="4" class="text-end">
+            <AppButton
+              variant="tonal"
+              color="primary"
+              prepend-icon="ri-equalizer-line"
+              class="rounded-lg font-weight-bold"
+              @click="showAdvanced = !showAdvanced"
+            >
+              {{ showAdvanced ? 'إخفاء البحث المتقدم' : 'بحث متقدم' }}
+            </AppButton>
+          </v-col>
+        </v-row>
+      </template>
+    </AppPageHeader>
 
-    <div class="px-6 pb-6">
+    <v-container fluid class="pt-0">
+      <!-- Advanced Filters -->
+      <v-expand-transition>
+        <div v-if="showAdvanced" class="mb-6">
+          <TransactionFilters v-model="filters" :cash-boxes="cashBoxes" @apply="handleFiltersChange" />
+        </div>
+      </v-expand-transition>
+
       <AppDataTable
         :headers="headers"
         :items="transactions"
         :loading="loading"
         :items-length="total"
-        :items-per-page="itemsPerPage"
-        :page="page"
+        v-model:items-per-page="itemsPerPage"
+        v-model:page="page"
         title="المعاملات المالية الأخيرة"
-        icon="ri-exchange-line"
-        @update:page="
-          page = $event;
-          loadData();
-        "
-        @update:items-per-page="handleItemsPerPageChange"
+        icon="ri-history-line"
+        @update:options="handleOptionsUpdate"
       >
         <template #item.type="{ item }">
           <v-chip :color="item.type === 'income' ? 'success' : 'error'" size="small" variant="flat" class="font-weight-bold px-3">
@@ -29,33 +59,37 @@
         </template>
 
         <template #item.cash_box="{ item }">
-          <div class="d-flex align-center">
-            <v-icon icon="ri-safe-2-line" size="small" color="secondary" class="me-2" />
-            <span class="font-weight-medium text-secondary">{{ item.cash_box?.name || 'خزينة غير محددة' }}</span>
+          <div class="d-flex align-center py-2">
+            <v-avatar color="primary-lighten-5" size="32" rounded="lg" class="me-3">
+              <v-icon icon="ri-safe-2-line" size="18" color="primary" />
+            </v-avatar>
+            <span class="font-weight-bold text-slate-700">{{ item.cash_box?.name || 'خزينة غير محددة' }}</span>
           </div>
         </template>
 
         <template #item.amount="{ item }">
-          <div class="text-end font-weight-black text-h6" :class="item.type === 'income' ? 'text-success' : 'text-error'">
+          <div class="text-end font-weight-black text-body-1" :class="item.type === 'income' ? 'text-success' : 'text-error'">
             {{ item.type === 'income' ? '+' : '-' }} {{ formatCurrency(item.amount) }}
           </div>
         </template>
 
         <template #item.date="{ item }">
-          <div class="d-flex flex-column">
-            <span class="font-weight-medium">{{ formatDate(item.transaction_date) }}</span>
+          <div class="d-flex flex-column py-1">
+            <span class="font-weight-bold text-slate-800">{{ formatDate(item.transaction_date) }}</span>
             <span class="text-caption text-grey">{{ formatTime(item.transaction_date) }}</span>
           </div>
         </template>
 
         <template #item.description="{ item }">
-          <span class="text-body-2 text-wrap" style="max-width: 300px">{{ item.description || 'لا يوجد وصف' }}</span>
+          <span class="text-body-2 text-wrap d-inline-block py-1" style="max-width: 300px; line-height: 1.4">
+            {{ item.description || 'لا يوجد وصف' }}
+          </span>
         </template>
       </AppDataTable>
-    </div>
+    </v-container>
   </div>
 
-  <!-- Access Denied State -->
+  <!-- Access Denied State (Updated with AppButton) -->
   <div v-else class="pa-12 text-center d-flex flex-column align-center justify-center" style="min-height: 400px">
     <v-avatar size="100" color="error-lighten-5" class="mb-6">
       <v-icon icon="ri-lock-2-line" size="48" color="error" />
@@ -67,60 +101,64 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue';
 import { usePermissions } from '@/composables/usePermissions';
+import { useApi } from '@/composables/useApi';
 import { PERMISSIONS } from '@/config/permissions';
+import { formatCurrency, formatDate, formatTime } from '@/utils/formatters';
+import AppPageHeader from '@/components/common/AppPageHeader.vue';
 import AppDataTable from '@/components/common/AppDataTable.vue';
-import AppCard from '@/components/common/AppCard.vue';
+import AppButton from '@/components/common/AppButton.vue';
+import AppInput from '@/components/common/AppInput.vue';
+import TransactionFilters from '../components/TransactionFilters.vue';
 
 const { can } = usePermissions();
 const api = useApi('/api/transactions');
+const cashBoxesApi = useApi('/api/cash-boxes');
 
+// State
 const transactions = ref([]);
+const cashBoxes = ref([]);
 const loading = ref(false);
 const total = ref(0);
 const page = ref(1);
 const itemsPerPage = ref(10);
+const search = ref('');
+const showAdvanced = ref(false);
+const filters = ref({
+  type: null,
+  cash_box_id: null,
+  date_from: null,
+  date_to: null,
+});
 
 const headers = [
-  { title: 'النوع', key: 'type' },
-  { title: 'الخزينة', key: 'cash_box' },
-  { title: 'المبلغ', key: 'amount', align: 'end' },
-  { title: 'التاريخ', key: 'date' },
-  { title: 'الوصف', key: 'description' },
+  { title: 'النوع', key: 'type', sortable: true },
+  { title: 'الخزينة', key: 'cash_box', sortable: true },
+  { title: 'المبلغ', key: 'amount', align: 'end', sortable: true },
+  { title: 'التاريخ', key: 'date', sortable: true },
+  { title: 'الوصف', key: 'description', sortable: false },
 ];
 
-const getCurrencySymbol = () => 'ج.م';
-
-const formatCurrency = amount => {
-  if (!amount) return `0.00 ${getCurrencySymbol()}`;
-  return new Intl.NumberFormat('ar-EG', {
-    style: 'currency',
-    currency: 'EGP',
-    currencyDisplay: 'symbol',
-  }).format(amount);
-};
-
-const formatDate = date => {
-  if (!date) return '-';
-  return new Date(date).toLocaleDateString('ar-EG', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-};
-
-const formatTime = date => {
-  if (!date) return '';
-  return new Date(date).toLocaleTimeString('ar-EG', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+const loadCashBoxes = async () => {
+  try {
+    const response = await cashBoxesApi.get({ per_page: 100 }, { showLoading: false });
+    cashBoxes.value = response.data || [];
+  } catch (error) {
+    console.error('Error loading cashboxes:', error);
+  }
 };
 
 const loadData = async () => {
   loading.value = true;
   try {
-    const response = await api.get({ page: page.value, per_page: itemsPerPage.value }, { showLoading: false });
+    const params = {
+      page: page.value,
+      per_page: itemsPerPage.value,
+      search: search.value,
+      ...filters.value,
+    };
+    const response = await api.get(params, { showLoading: false });
     transactions.value = response.data || [];
     total.value = response.total || 0;
   } finally {
@@ -128,13 +166,42 @@ const loadData = async () => {
   }
 };
 
-const handleItemsPerPageChange = value => {
-  itemsPerPage.value = value;
+const handleOptionsUpdate = options => {
+  page.value = options.page;
+  itemsPerPage.value = options.itemsPerPage;
+  loadData();
+};
+
+const handleFiltersChange = () => {
   page.value = 1;
   loadData();
 };
 
-onMounted(loadData);
+// Debounce search
+let searchTimeout;
+const debouncedSearch = () => {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    page.value = 1;
+    loadData();
+  }, 500);
+};
+
+onMounted(() => {
+  loadData();
+  loadCashBoxes();
+});
 </script>
 
-<style scoped></style>
+<style scoped>
+.transactions-page :deep(.v-container) {
+  max-width: 100% !important;
+}
+
+.text-slate-800 {
+  color: #1e293b !important;
+}
+.text-slate-700 {
+  color: #334155 !important;
+}
+</style>

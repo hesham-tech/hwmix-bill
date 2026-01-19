@@ -1,31 +1,56 @@
 <template>
   <div v-if="can(PERMISSIONS.PAYMENTS_VIEW_ALL)" class="installment-payments-page">
-    <div class="px-6 pb-6">
-      <AppDataTable
-        :headers="headers"
-        :items="payments"
-        :loading="loading"
-        :title="`سجل دفعات الخطة #${planId || 'العامة'}`"
-        icon="ri-money-dollar-box-line"
-      >
-        <template #actions>
-          <AppButton v-if="can(PERMISSIONS.PAYMENTS_CREATE)" color="primary" prepend-icon="ri-add-line" @click="handleAddPayment">
-            تسجيل دفعة جديدة
-          </AppButton>
-        </template>
+    <AppPageHeader
+      :title="`سجل دفعات الخطة #${planId || 'العامة'}`"
+      subtitle="مراجعة عمليات السداد المرتبطة بخطة التقسيط"
+      icon="ri-money-dollar-box-line"
+      sticky
+    >
+      <template #append>
+        <AppButton
+          v-if="can(PERMISSIONS.PAYMENTS_CREATE)"
+          color="primary"
+          prepend-icon="ri-add-line"
+          class="font-weight-bold"
+          @click="handleAddPayment"
+        >
+          تسجيل دفعة جديدة
+        </AppButton>
+      </template>
+      <template #controls>
+        <v-row align="center" class="w-100 mx-0">
+          <v-col cols="12">
+            <AppInput
+              v-model="search"
+              placeholder="بحث في الدفعات..."
+              prepend-inner-icon="ri-search-line"
+              clearable
+              hide-details
+              variant="solo-filled"
+              density="comfortable"
+              flat
+              class="rounded-lg"
+              @update:model-value="debouncedSearch"
+            />
+          </v-col>
+        </v-row>
+      </template>
+    </AppPageHeader>
 
+    <v-container fluid class="pt-0">
+      <AppDataTable :headers="headers" :items="payments" :loading="loading" title="الدفعات المسجلة" icon="ri-history-line">
         <template #item.amount="{ item }">
-          <div class="font-weight-black text-h6 text-success">
+          <div class="font-weight-black text-body-1 text-success">
             {{ formatCurrency(item.amount) }}
           </div>
         </template>
 
         <template #item.date="{ item }">
-          <div class="font-weight-medium text-body-1">{{ formatDate(item.date) }}</div>
+          <div class="font-weight-medium">{{ formatDate(item.date) }}</div>
         </template>
 
         <template #item.method="{ item }">
-          <v-chip size="small" variant="flat" color="primary-lighten-5" class="text-primary font-weight-bold px-3">
+          <v-chip size="small" variant="tonal" color="primary" class="font-weight-bold px-3">
             <v-icon icon="ri-wallet-line" size="14" class="me-1" />
             {{ getMethodLabel(item.method) }}
           </v-chip>
@@ -50,7 +75,7 @@
           </div>
         </template>
       </AppDataTable>
-    </div>
+    </v-container>
 
     <!-- Payment Details Dialog -->
     <AppDialog v-model="showDetails" title="تفاصيل دفعة القسط" icon="ri-information-line" max-width="600" hide-confirm>
@@ -116,7 +141,7 @@
     </AppDialog>
   </div>
 
-  <!-- Access Denied State -->
+  <!-- Access Denied State (Updated with AppButton) -->
   <div v-else class="pa-12 text-center d-flex flex-column align-center justify-center" style="min-height: 400px">
     <v-avatar size="100" color="error-lighten-5" class="mb-6">
       <v-icon icon="ri-lock-2-line" size="48" color="error" />
@@ -128,13 +153,15 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue';
 import { usePermissions } from '@/composables/usePermissions';
 import { PERMISSIONS } from '@/config/permissions';
 import { useInstallment } from '../composables/useInstallment';
+import AppPageHeader from '@/components/common/AppPageHeader.vue';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 import AppButton from '@/components/common/AppButton.vue';
-import AppCard from '@/components/common/AppCard.vue';
 import AppDialog from '@/components/common/AppDialog.vue';
+import AppInput from '@/components/common/AppInput.vue';
 import AppSkeleton from '@/components/common/AppSkeleton.vue';
 import EmptyState from '@/components/common/EmptyState.vue';
 import { formatCurrency, formatDate } from '@/utils/formatters';
@@ -150,18 +177,20 @@ const props = defineProps({
 const { can } = usePermissions();
 const { payments, loading, loadPayments, loadPaymentDetails } = useInstallment();
 
+// State
+const search = ref('');
+const showDetails = ref(false);
+const selectedPayment = ref(null);
+const paymentDetails = ref([]);
+const loadingDetails = ref(false);
+
 const headers = [
   { title: 'المبلغ', key: 'amount', sortable: true },
   { title: 'التاريخ', key: 'date', sortable: true },
   { title: 'الطريقة', key: 'method', sortable: false },
   { title: 'ملاحظات', key: 'notes', sortable: false },
-  { title: 'الإجراءات', key: 'actions', sortable: false },
+  { title: 'الإجراءات', key: 'actions', sortable: false, align: 'end' },
 ];
-
-const showDetails = ref(false);
-const selectedPayment = ref(null);
-const paymentDetails = ref([]);
-const loadingDetails = ref(false);
 
 const getMethodLabel = method => {
   return PAYMENT_METHOD_LABELS[method] || method;
@@ -185,9 +214,22 @@ const handleAddPayment = () => {
   // TODO: Open payment form dialog
 };
 
+// Debounce search
+let searchTimeout;
+const debouncedSearch = () => {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    loadPayments(props.planId, search.value);
+  }, 500);
+};
+
 onMounted(() => {
   loadPayments(props.planId);
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.installment-payments-page :deep(.v-container) {
+  max-width: 100% !important;
+}
+</style>

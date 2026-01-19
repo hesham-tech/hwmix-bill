@@ -1,15 +1,43 @@
 <template>
-  <v-container fluid>
-    <div class="d-flex align-center justify-space-between mb-6">
-      <div>
-        <h1 class="text-h4 font-weight-bold">الفواتير</h1>
-        <p class="text-body-1 text-grey">إدارة جميع الفواتير الصادرة والواردة</p>
-      </div>
+  <AppPageHeader title="الفواتير" subtitle="إدارة جميع الفواتير الصادرة والواردة" icon="ri-file-list-3-line">
+    <template #append>
       <AppButton v-if="can('invoices.create')" prepend-icon="ri-add-line" size="large" @click="navigateToCreate"> فاتورة جديدة </AppButton>
-    </div>
+    </template>
+    <template #controls>
+      <v-col cols="12" md="8">
+        <AppInput
+          v-model="filters.search"
+          placeholder="بحث سريع برقم الفاتورة أو اسم العميل..."
+          prepend-inner-icon="ri-search-line"
+          clearable
+          hide-details
+          variant="solo-filled"
+          density="comfortable"
+          flat
+          class="rounded-lg px-0"
+          @update:model-value="debouncedSearch"
+        />
+      </v-col>
+      <v-col cols="12" md="4" class="text-end">
+        <v-btn
+          variant="tonal"
+          color="primary"
+          prepend-icon="ri-equalizer-line"
+          class="rounded-lg font-weight-bold"
+          @click="showAdvanced = !showAdvanced"
+        >
+          {{ showAdvanced ? 'إخفاء البحث المتقدم' : 'بحث متقدم' }}
+        </v-btn>
+      </v-col>
+    </template>
+  </AppPageHeader>
 
-    <!-- Filters -->
-    <InvoiceFilters v-model="filters" @apply="applyFilters" />
+  <v-container fluid>
+    <v-expand-transition>
+      <div v-if="showAdvanced">
+        <InvoiceFilters v-model="filters" @apply="applyFilters" />
+      </div>
+    </v-expand-transition>
 
     <!-- Bulk Actions -->
     <AppCard v-if="hasSelection" class="mb-4" color="primary" variant="tonal">
@@ -61,6 +89,7 @@ import { useApi } from '@/composables/useApi';
 import { usePermissions } from '@/composables/usePermissions';
 import InvoiceDataTable from '../components/InvoiceDataTable.vue';
 import InvoiceFilters from '../components/InvoiceFilters.vue';
+import AppPageHeader from '@/components/common/AppPageHeader.vue';
 import AppButton from '@/components/common/AppButton.vue';
 import AppCard from '@/components/common/AppCard.vue';
 import AppDialog from '@/components/common/AppDialog.vue';
@@ -98,10 +127,22 @@ const {
   syncWithUrl: true,
 });
 
+// UI State
+const showAdvanced = ref(false);
+
 // Delete state
 const deleteDialog = ref(false);
 const itemToDelete = ref(null);
 const deleting = ref(false);
+
+// Debounce search
+let searchTimeout;
+const debouncedSearch = () => {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    applyFilters();
+  }, 500);
+};
 
 // Navigation
 const navigateToCreate = () => {

@@ -2,9 +2,13 @@
   <header class="app-page-header" :class="{ 'sticky-header': sticky }" :style="sticky ? { top: stickyTop + 'px' } : {}">
     <v-card flat color="transparent" class="px-4 py-3 w-full">
       <v-row align="center" no-gutters>
-        <!-- Prepend Content -->
-        <v-col v-if="$slots.prepend" cols="auto" class="me-3 me-md-4">
-          <slot name="prepend"></slot>
+        <!-- Prepend Content (Icon or custom) -->
+        <v-col v-if="$slots.prepend || icon" cols="auto" class="me-3 me-md-4">
+          <slot name="prepend">
+            <v-avatar color="primary-lighten-5" rounded="lg" size="48" class="elevation-sm">
+              <v-icon :icon="icon" :color="iconColor" size="28" />
+            </v-avatar>
+          </slot>
         </v-col>
 
         <!-- Title & Subtitle Section -->
@@ -53,6 +57,14 @@ defineProps({
   subtitle: {
     type: String,
     default: '',
+  },
+  icon: {
+    type: String,
+    default: '',
+  },
+  iconColor: {
+    type: String,
+    default: 'primary',
   },
   details: {
     type: String,

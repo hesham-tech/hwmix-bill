@@ -1,28 +1,62 @@
 <template>
   <div class="installment-plans-page">
-    <div class="mb-6 px-6 pt-6">
-      <h1 class="text-h4 font-weight-bold">خطط التقسيط</h1>
-      <p class="text-body-1 text-grey">متابعة وإدارة جدول تحصيل الأقساط والمدفوعات الآجلة</p>
-    </div>
+    <AppPageHeader title="خطط التقسيط" subtitle="متابعة وإدارة جدول تحصيل الأقساط والمدفوعات الآجلة" icon="ri-calendar-schedule-line" sticky>
+      <template #controls>
+        <v-row align="center" class="w-100 mx-0">
+          <v-col cols="12" md="8">
+            <AppInput
+              v-model="search"
+              placeholder="بحث في خطط التقسيط..."
+              prepend-inner-icon="ri-search-line"
+              clearable
+              hide-details
+              variant="solo-filled"
+              density="comfortable"
+              flat
+              class="rounded-lg"
+              @update:model-value="debouncedSearch"
+            />
+          </v-col>
+          <v-col cols="12" md="4" class="text-end">
+            <AppButton
+              variant="tonal"
+              color="primary"
+              prepend-icon="ri-equalizer-line"
+              class="rounded-lg font-weight-bold"
+              @click="showAdvanced = !showAdvanced"
+            >
+              {{ showAdvanced ? 'إخفاء البحث المتقدم' : 'بحث متقدم' }}
+            </AppButton>
+          </v-col>
+        </v-row>
+      </template>
+    </AppPageHeader>
 
-    <div class="px-6 pb-6">
+    <v-container fluid class="pt-0">
+      <!-- Advanced Filters (Placeholder for consistency) -->
+      <v-expand-transition>
+        <div v-if="showAdvanced" class="mb-6">
+          <v-card variant="tonal" color="primary" class="pa-4 rounded-xl border-primary bg-primary-lighten-5">
+            <div class="d-flex align-center gap-2">
+              <v-icon icon="ri-information-line" />
+              <span>البحث المتقدم لخطط التقسيط سيتم إضافته قريباً مع خيارات فلترة متقدمة.</span>
+            </div>
+          </v-card>
+        </div>
+      </v-expand-transition>
       <AppDataTable
         :headers="headers"
         :items="plans"
         :loading="loading"
         :items-length="total"
-        :items-per-page="itemsPerPage"
-        :page="page"
+        v-model:items-per-page="itemsPerPage"
+        v-model:page="page"
         title="سجل خطط التقسيط"
-        icon="ri-calendar-schedule-line"
-        @update:page="
-          page = $event;
-          loadData();
-        "
-        @update:items-per-page="handleItemsPerPageChange"
+        icon="ri-calendar-event-line"
+        @update:options="handleOptionsUpdate"
       >
         <template #item.invoice="{ item }">
-          <div v-if="item.invoice" class="d-flex flex-column">
+          <div v-if="item.invoice" class="d-flex flex-column py-2">
             <span class="font-weight-bold text-primary">فاتورة #{{ item.invoice.invoice_number }}</span>
             <span class="text-caption text-grey">العميل: {{ item.invoice.customer?.name || 'غير معروف' }}</span>
           </div>
@@ -30,11 +64,11 @@
         </template>
 
         <template #item.total_amount="{ item }">
-          <div class="font-weight-black text-h6">{{ formatCurrency(item.total_amount) }}</div>
+          <div class="font-weight-black text-body-1">{{ formatCurrency(item.total_amount) }}</div>
         </template>
 
         <template #item.installments_count="{ item }">
-          <v-chip size="small" variant="flat" color="secondary-lighten-5" class="text-secondary font-weight-bold">
+          <v-chip size="small" variant="tonal" color="secondary" class="font-weight-bold">
             <v-icon icon="ri-grid-line" size="14" class="me-1" />
             {{ item.installments_count }} قسط
           </v-chip>
@@ -52,7 +86,7 @@
           </div>
         </template>
       </AppDataTable>
-    </div>
+    </v-container>
   </div>
 </template>
 
@@ -60,18 +94,23 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useApi } from '@/composables/useApi';
+import { formatCurrency } from '@/utils/formatters';
+import AppPageHeader from '@/components/common/AppPageHeader.vue';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 import AppButton from '@/components/common/AppButton.vue';
-import AppCard from '@/components/common/AppCard.vue';
+import AppInput from '@/components/common/AppInput.vue';
 
 const router = useRouter();
 const api = useApi('/api/installment-plans');
 
+// State
 const plans = ref([]);
 const loading = ref(false);
 const total = ref(0);
 const page = ref(1);
 const itemsPerPage = ref(10);
+const search = ref('');
+const showAdvanced = ref(false);
 
 const headers = [
   { title: 'الفاتورة', key: 'invoice' },
@@ -80,11 +119,6 @@ const headers = [
   { title: 'الحالة', key: 'status' },
   { title: 'الإجراءات', key: 'actions', sortable: false, align: 'end' },
 ];
-
-const formatCurrency = amount => {
-  if (!amount) return '0.00 ج.م';
-  return new Intl.NumberFormat('ar-EG', { style: 'currency', currency: 'EGP' }).format(amount);
-};
 
 const getStatusColor = status => {
   const colors = { active: 'success', completed: 'info', cancelled: 'error' };
@@ -103,7 +137,12 @@ const viewPlan = plan => {
 const loadData = async () => {
   loading.value = true;
   try {
-    const response = await api.get({ page: page.value, per_page: itemsPerPage.value }, { showLoading: false });
+    const params = {
+      page: page.value,
+      per_page: itemsPerPage.value,
+      search: search.value,
+    };
+    const response = await api.get(params, { showLoading: false });
     plans.value = response.data || [];
     total.value = response.total || 0;
   } finally {
@@ -111,13 +150,27 @@ const loadData = async () => {
   }
 };
 
-const handleItemsPerPageChange = value => {
-  itemsPerPage.value = value;
-  page.value = 1;
+const handleOptionsUpdate = options => {
+  page.value = options.page;
+  itemsPerPage.value = options.itemsPerPage;
   loadData();
+};
+
+// Debounce search
+let searchTimeout;
+const debouncedSearch = () => {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    page.value = 1;
+    loadData();
+  }, 500);
 };
 
 onMounted(loadData);
 </script>
 
-<style scoped></style>
+<style scoped>
+.installment-plans-page :deep(.v-container) {
+  max-width: 100% !important;
+}
+</style>

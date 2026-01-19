@@ -1,86 +1,94 @@
 <template>
-  <AppCard class="mb-6" title="تصفية الفواتير" icon="ri-filter-3-line">
-    <template #actions>
-      <AppButton v-if="hasActiveFilters" variant="text" color="error" prepend-icon="ri-close-circle-line" @click="resetAllFilters">
-        مسح الكل
-      </AppButton>
-    </template>
+  <AppCard class="mb-6 filter-card">
+    <div class="pa-4 pb-0">
+      <div class="d-flex align-center mb-4">
+        <v-icon icon="ri-equalizer-line" color="primary" class="me-3" />
+        <div class="text-h6 font-weight-bold">بحث متقدم</div>
 
-    <v-row>
-      <!-- البحث -->
-      <v-col cols="12" md="4">
-        <AppInput
-          v-model="localFilters.search"
-          label="بحث..."
-          placeholder="رقم الفاتورة، اسم العميل، رقم الهاتف"
-          prepend-inner-icon="ri-search-line"
-          clearable
-          @update:model-value="debouncedSearch"
-        />
-      </v-col>
+        <v-chip v-if="hasActiveFilters" size="x-small" color="primary" class="ms-3 font-weight-bold"> مرشحات نشطة </v-chip>
 
-      <!-- نوع الفاتورة -->
-      <v-col cols="12" md="4">
-        <v-select
-          v-model="localFilters.invoice_type_id"
-          :items="invoiceTypes"
-          item-title="name"
-          item-value="id"
-          label="نوع الفاتورة"
-          variant="outlined"
-          density="comfortable"
-          prepend-inner-icon="ri-file-copy-line"
-          clearable
-          hide-details
-        />
-      </v-col>
+        <v-spacer />
 
-      <!-- الحالة -->
-      <v-col cols="12" md="4">
-        <v-select
-          v-model="localFilters.status"
-          :items="statusOptions"
-          item-title="label"
-          item-value="value"
-          label="حالة الفاتورة"
-          variant="outlined"
-          density="comfortable"
-          prepend-inner-icon="ri-checkbox-circle-line"
-          clearable
-          hide-details
-        />
-      </v-col>
+        <AppButton
+          v-if="hasActiveFilters"
+          variant="text"
+          color="error"
+          size="small"
+          prepend-icon="ri-close-circle-line"
+          @click.stop="resetAllFilters"
+        >
+          مسح الكل
+        </AppButton>
+      </div>
 
-      <!-- حالة الدفع -->
-      <v-col cols="12" md="4">
-        <v-select
-          v-model="localFilters.payment_status"
-          :items="paymentStatusOptions"
-          item-title="label"
-          item-value="value"
-          label="حالة الدفع"
-          variant="outlined"
-          density="comfortable"
-          prepend-inner-icon="ri-money-dollar-circle-line"
-          clearable
-          hide-details
-        />
-      </v-col>
+      <v-divider class="mb-6" />
 
-      <!-- من تاريخ -->
-      <v-col cols="12" md="4">
-        <AppInput v-model="localFilters.date_from" type="date" label="من تاريخ" prepend-inner-icon="ri-calendar-line" clearable />
-      </v-col>
+      <v-row>
+        <!-- نوع الفاتورة -->
+        <v-col cols="12" sm="6" md="4">
+          <v-select
+            v-model="localFilters.invoice_type_id"
+            :items="invoiceTypes"
+            item-title="name"
+            item-value="id"
+            label="نوع الفاتورة"
+            variant="outlined"
+            density="comfortable"
+            prepend-inner-icon="ri-file-copy-line"
+            clearable
+            hide-details
+          />
+        </v-col>
 
-      <!-- إلى تاريخ -->
-      <v-col cols="12" md="4">
-        <AppInput v-model="localFilters.date_to" type="date" label="إلى تاريخ" prepend-inner-icon="ri-calendar-line" clearable />
-      </v-col>
-    </v-row>
+        <!-- الحالة -->
+        <v-col cols="6" sm="6" md="4">
+          <v-select
+            v-model="localFilters.status"
+            :items="statusOptions"
+            item-title="label"
+            item-value="value"
+            label="حالة الفاتورة"
+            variant="outlined"
+            density="comfortable"
+            prepend-inner-icon="ri-checkbox-circle-line"
+            clearable
+            hide-details
+          />
+        </v-col>
 
-    <div class="d-flex gap-2 mt-4">
-      <AppButton prepend-icon="ri-search-line" @click="applyFilters"> بحث وتصفية </AppButton>
-      <AppButton variant="outlined" color="secondary" prepend-icon="ri-refresh-line" @click="resetAllFilters"> إعادة تعيين </AppButton>
+        <!-- حالة الدفع -->
+        <v-col cols="6" sm="6" md="4">
+          <v-select
+            v-model="localFilters.payment_status"
+            :items="paymentStatusOptions"
+            item-title="label"
+            item-value="value"
+            label="حالة الدفع"
+            variant="outlined"
+            density="comfortable"
+            prepend-inner-icon="ri-money-dollar-circle-line"
+            clearable
+            hide-details
+          />
+        </v-col>
+
+        <!-- من تاريخ -->
+        <v-col cols="6" sm="6" md="4">
+          <AppInput v-model="localFilters.date_from" type="date" label="من تاريخ" prepend-inner-icon="ri-calendar-line" clearable />
+        </v-col>
+
+        <!-- إلى تاريخ -->
+        <v-col cols="6" sm="6" md="4">
+          <AppInput v-model="localFilters.date_to" type="date" label="إلى تاريخ" prepend-inner-icon="ri-calendar-line" clearable />
+        </v-col>
+      </v-row>
+
+      <div class="d-flex flex-wrap gap-2 mt-4 pb-4">
+        <AppButton flex-grow-1 prepend-icon="ri-filter-line" @click="applyFilters" class="flex-grow-1"> تطبيق الفلاتر </AppButton>
+        <AppButton flex-grow-1 variant="outlined" color="secondary" prepend-icon="ri-refresh-line" @click="resetAllFilters" class="flex-grow-1">
+          إعادة تعيين
+        </AppButton>
+      </div>
     </div>
   </AppCard>
 </template>
@@ -103,7 +111,6 @@ const emit = defineEmits(['update:modelValue', 'apply']);
 
 // Local filters state
 const localFilters = ref({
-  search: '',
   invoice_type_id: null,
   status: null,
   payment_status: null,
@@ -133,17 +140,12 @@ const paymentStatusOptions = [
 
 // Check if there are active filters
 const hasActiveFilters = computed(() => {
-  return Object.values(localFilters.value).some(value => value !== null && value !== '');
+  return Object.keys(localFilters.value).some(key => {
+    if (key === 'search') return false;
+    const value = localFilters.value[key];
+    return value !== null && value !== '';
+  });
 });
-
-// Debounce search
-let searchTimeout;
-const debouncedSearch = () => {
-  clearTimeout(searchTimeout);
-  searchTimeout = setTimeout(() => {
-    applyFilters();
-  }, 500);
-};
 
 // Apply filters
 const applyFilters = () => {
@@ -154,7 +156,6 @@ const applyFilters = () => {
 // Reset filters
 const resetAllFilters = () => {
   localFilters.value = {
-    search: '',
     invoice_type_id: null,
     status: null,
     payment_status: null,
@@ -188,3 +189,28 @@ onMounted(() => {
   loadInvoiceTypes();
 });
 </script>
+
+<style scoped>
+.filter-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+
+.filter-header {
+  min-height: 64px;
+  transition: background-color 0.2s ease;
+}
+
+.filter-header:hover {
+  background-color: rgba(var(--v-theme-primary), 0.02);
+}
+
+.is-collapsed {
+  box-shadow: none !important;
+  background-color: #fafafa !important;
+}
+
+.gap-2 {
+  gap: 8px;
+}
+</style>
