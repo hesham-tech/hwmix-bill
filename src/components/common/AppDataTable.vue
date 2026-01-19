@@ -257,7 +257,7 @@ const props = defineProps({
   },
   stickyActions: {
     type: Boolean,
-    default: true,
+    default: false,
   },
 
   // Options
