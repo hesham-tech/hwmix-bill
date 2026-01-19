@@ -54,9 +54,9 @@ export const useProductStore = defineStore('product', () => {
     try {
       const response = await productService.getOne(id);
       if (response.status) {
-        currentProduct.value = response.data;
+        currentProduct.value = Array.isArray(response.data) ? response.data[0] : response.data;
       }
-      return response.data;
+      return currentProduct.value;
     } finally {
       loading.value = false;
     }

@@ -8,7 +8,7 @@
     :items-per-page="perPage"
     @update:page="changePage"
     @update:items-per-page="changePerPage"
-    @update:options="handleSort"
+    @update:sort-by="handleSort"
   >
     <!-- رقم الفاتورة -->
     <template #item.invoice_number="{ item }">

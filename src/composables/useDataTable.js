@@ -147,15 +147,33 @@ export function useDataTable(fetchFunction, options = {}) {
 
   /**
    * تغيير الترتيب
+   * يدعم السلاسل النصية البسيطة أو كائنات Vuetify (sortBy array/options object)
    */
   const changeSort = column => {
-    if (sortBy.value === column) {
-      // عكس الترتيب
-      sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
-    } else {
-      sortBy.value = column;
-      sortOrder.value = 'asc';
+    // 1. إذا كانت مصفوفة (نمط Vuetify 3: [{ key, order }])
+    if (Array.isArray(column) && column.length > 0) {
+      const firstSort = column[0];
+      sortBy.value = firstSort.key;
+      sortOrder.value = firstSort.order || 'asc';
     }
+    // 2. إذا كان كائن الخيارات بالكامل (update:options event)
+    else if (column && typeof column === 'object' && Array.isArray(column.sortBy)) {
+      if (column.sortBy.length > 0) {
+        const firstSort = column.sortBy[0];
+        sortBy.value = firstSort.key;
+        sortOrder.value = firstSort.order || 'asc';
+      }
+    }
+    // 3. إذا كان اسم العمود كسلسلة نصية (النمط الكلاسيكي)
+    else if (typeof column === 'string') {
+      if (sortBy.value === column) {
+        sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
+      } else {
+        sortBy.value = column;
+        sortOrder.value = 'asc';
+      }
+    }
+
     fetchData();
   };
 
