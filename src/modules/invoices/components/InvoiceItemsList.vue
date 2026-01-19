@@ -21,7 +21,7 @@
       <ProductSelector @add="$emit('add', $event)" :warehouse-id="warehouseId" :invoice-type="invoiceType" :customer-type="customerType" />
 
       <!-- Items List (Desktop) -->
-      <v-table class="items-table d-none d-md-table">
+      <v-table class="w-100 items-table d-none d-md-table">
         <thead>
           <tr class="bg-grey-lighten-4">
             <th class="text-right ps-6" style="width: 40%">الصنف</th>
