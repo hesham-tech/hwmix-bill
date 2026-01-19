@@ -251,6 +251,7 @@ import { ref, onMounted, computed, watch } from 'vue';
 import { useCashBoxesData } from '../composables/useCashBoxesData';
 import { useDataTable } from '@/composables/useDataTable';
 import { useApi } from '@/composables/useApi';
+import { useDataTable } from '@/composables/useDataTable';
 import { usePermissions } from '@/composables/usePermissions';
 import AppPageHeader from '@/components/common/AppPageHeader.vue';
 import AppDataTable from '@/components/common/AppDataTable.vue';

@@ -104,6 +104,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { usePermissions } from '@/composables/usePermissions';
+import { useDataTable } from '@/composables/useDataTable';
 import { useApi } from '@/composables/useApi';
 import { PERMISSIONS } from '@/config/permissions';
 import { formatCurrency, formatDate } from '@/utils/formatters';

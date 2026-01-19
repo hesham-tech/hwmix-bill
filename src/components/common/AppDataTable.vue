@@ -35,12 +35,14 @@
       :loading="loading"
       :search="searchModel"
       class="elevation-0"
+      :class="{ 'sticky-actions-table': stickyActions }"
       density="comfortable"
       :items-per-page-options="itemsPerPageOptions"
       :no-data-text="emptyText"
       :hide-default-footer="hidePagination"
       @update:options="handleOptionsUpdate"
       @click:row="(event, { item }) => $emit('click:row', item)"
+      @contextmenu:row="handleContextMenu"
     >
       <!-- Custom slots for columns -->
       <!-- Pass through all slots meant for v-data-table -->
@@ -113,11 +115,52 @@
         </div>
       </template>
     </v-data-table-server>
+
+    <!-- Context Menu -->
+    <v-menu v-model="menuModel" :target="[menuProps.x, menuProps.y]" transition="scale-transition" offset="5">
+      <v-list density="compact" min-width="180" class="rounded-lg border shadow-lg context-menu-list">
+        <div class="px-4 py-2 text-caption text-grey-darken-1 border-bottom d-flex align-center gap-2 bg-grey-lighten-4">
+          <v-icon icon="ri-settings-4-line" size="14" />
+          <span>الاجرائات</span>
+        </div>
+
+        <v-list-item
+          v-if="canView && (!permissionModule || can(`${permissionModule}.view_all`, { resource: menuProps.item }))"
+          prepend-icon="ri-eye-line"
+          title="عرض التفاصيل"
+          @click="$emit('view', menuProps.item)"
+        />
+        <v-list-item
+          v-if="canEdit && (!permissionModule || can(`${permissionModule}.update_all`, { resource: menuProps.item }))"
+          prepend-icon="ri-edit-line"
+          title="تعديل"
+          class="text-primary"
+          @click="$emit('edit', menuProps.item)"
+        />
+
+        <!-- Render Extra Actions in Menu -->
+        <template v-if="$slots['extra-actions']">
+          <div class="extra-actions-container">
+            <slot name="extra-actions" :item="menuProps.item" :in-menu="true" />
+          </div>
+        </template>
+
+        <v-divider v-if="canDelete" />
+
+        <v-list-item
+          v-if="canDelete && (!permissionModule || can(`${permissionModule}.delete_all`, { resource: menuProps.item }))"
+          prepend-icon="ri-delete-bin-line"
+          title="حذف"
+          class="text-error"
+          @click="$emit('delete', menuProps.item)"
+        />
+      </v-list>
+    </v-menu>
   </v-card>
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref, reactive, nextTick } from 'vue';
 import { usePermissions } from '@/composables/usePermissions';
 import AppButton from '@/components/common/AppButton.vue';
 
@@ -213,6 +256,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  stickyActions: {
+    type: Boolean,
+    default: true,
+  },
 
   // Options
   itemsPerPageOptions: {
@@ -264,6 +311,26 @@ const searchModel = computed({
 const handleOptionsUpdate = options => {
   emit('update:options', options);
 };
+
+// --- Context Menu Logic ---
+const menuModel = ref(false);
+const menuProps = reactive({
+  x: 0,
+  y: 0,
+  item: null,
+  activator: null,
+});
+
+const handleContextMenu = (event, { item }) => {
+  event.preventDefault();
+  menuModel.value = false;
+  nextTick(() => {
+    menuProps.x = event.clientX;
+    menuProps.y = event.clientY;
+    menuProps.item = item;
+    menuModel.value = true;
+  });
+};
 </script>
 
 <style scoped>
@@ -291,5 +358,82 @@ const handleOptionsUpdate = options => {
 :deep(th),
 :deep(td) {
   white-space: nowrap !important;
+}
+
+/* Sticky Actions Column Styles */
+.sticky-actions-table :deep(.v-data-table__table th:last-child),
+.sticky-actions-table :deep(.v-data-table__table td:last-child) {
+  position: sticky !important;
+  right: 0; /* Default LTR */
+  z-index: 2;
+  background: rgb(var(--v-theme-surface)) !important;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.05);
+}
+
+/* RTL Support for Sticky Column */
+[dir='rtl'] .sticky-actions-table :deep(.v-data-table__table th:last-child),
+[dir='rtl'] .sticky-actions-table :deep(.v-data-table__table td:last-child) {
+  right: auto !important;
+  left: 0 !important;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+}
+
+/* Highlight the row being context-clicked if we wanted to (optional) */
+:deep(.v-data-table__tr:hover) {
+  background: rgba(var(--v-theme-primary), 0.02) !important;
+}
+
+/* Make AppButtons inside menu look like list items */
+.context-menu-list :deep(.extra-actions-container) {
+  display: flex;
+  flex-direction: column;
+}
+
+.context-menu-list :deep(.v-btn) {
+  width: 100% !important;
+  justify-content: flex-start !important;
+  border-radius: 0 !important;
+  text-transform: none !important;
+  height: 40px !important;
+  padding: 0 16px !important;
+  font-weight: normal !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  /* Support for icon + text */
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px;
+  /* Match v-list-item padding */
+  padding-inline-start: 16px !important;
+}
+
+.context-menu-list :deep(.v-btn:hover) {
+  background: rgba(var(--v-theme-primary), 0.04) !important;
+}
+
+.context-menu-list :deep(.v-btn__content) {
+  width: auto;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+}
+
+/* Reveal tooltip text inside menu */
+.context-menu-list :deep(.app-button-tooltip-text) {
+  display: inline-block !important;
+  font-size: 0.875rem;
+  color: inherit;
+}
+
+/* Force icon size to match v-list-item icons */
+.context-menu-list :deep(.v-btn .v-icon) {
+  font-size: 24px !important;
+  --v-icon-size-multiplier: 1;
+}
+
+.border-bottom {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 </style>

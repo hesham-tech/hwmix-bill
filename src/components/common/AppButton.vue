@@ -13,11 +13,15 @@
     :append-icon="appendIcon"
     v-bind="$attrs"
     @click="$emit('click', $event)"
+    :data-tooltip="tooltip"
   >
     <v-tooltip v-if="tooltip" activator="parent" location="top" open-on-hover open-on-click open-on-focus>
       {{ tooltip }}
     </v-tooltip>
-    <v-icon v-if="icon" :icon="icon" />
+    <template v-if="icon">
+      <v-icon :icon="icon" />
+      <span v-if="tooltip" class="app-button-tooltip-text d-none">{{ tooltip }}</span>
+    </template>
     <slot v-else />
   </v-btn>
 </template>

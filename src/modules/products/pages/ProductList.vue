@@ -132,13 +132,18 @@
 </template>
 
 <script setup>
-import { onMounted, watch } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { useProductStore } from '../store/product.store';
 import { usePermissions } from '@/composables/usePermissions';
+import { useDataTable } from '@/composables/useDataTable';
+import productService from '@/api/services/product.service';
 import { PERMISSIONS } from '@/config/permissions';
 import ProductFilters from '../components/ProductFilters.vue';
+import AppPageHeader from '@/components/common/AppPageHeader.vue';
+import AppButton from '@/components/common/AppButton.vue';
+import AppInput from '@/components/common/AppInput.vue';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
 import AppConfirmDialog from '@/components/common/AppConfirmDialog.vue';
@@ -149,7 +154,7 @@ const { can } = usePermissions();
 
 // API fetch function for useDataTable
 const fetchProductsApi = async params => {
-  return await productStore.productService.getAll(params);
+  return await productService.getAll(params);
 };
 
 // DataTable logic
