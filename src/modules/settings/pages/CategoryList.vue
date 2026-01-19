@@ -298,6 +298,7 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useCategoriesData } from '../composables/useCategoriesData';
+import { useDataTable } from '@/composables/useDataTable';
 import { useApi } from '@/composables/useApi';
 import { usePermissions } from '@/composables/usePermissions';
 import AppDataTable from '@/components/common/AppDataTable.vue';
@@ -312,22 +313,45 @@ import AppInfiniteScroll from '@/components/common/AppInfiniteScroll.vue';
 import CategoryExplorerDialog from '../components/CategoryExplorerDialog.vue';
 import MediaGallery from '@/components/common/MediaGallery.vue';
 import { PERMISSIONS } from '@/config/permissions';
-
-// Simple debounce
-const debounce = (fn, delay) => {
-  let timeoutId;
-  return (...args) => {
-    if (timeoutId) clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => fn(...args), delay);
-  };
-};
-
 const { can } = usePermissions();
 const api = useApi('/api/categories');
+const { deleteCategory } = useCategoriesData();
+const route = useRoute();
+const router = useRouter();
 
-const page = ref(1);
-const itemsPerPage = ref(12);
-const search = ref('');
+// API fetch function for useDataTable
+const fetchCategoriesApi = async params => {
+  // Add special logic for categories (root only if not searching)
+  const finalParams = { ...params };
+  if (!params.search) {
+    finalParams.parent_id = 'null';
+  }
+  return await api.get(finalParams, { showLoading: false });
+};
+
+// DataTable logic
+const {
+  items: categories,
+  loading,
+  currentPage: page,
+  perPage: itemsPerPage,
+  total,
+  search,
+  filters,
+  sortBy,
+  changePage,
+  changePerPage,
+  changeSort,
+  applyFilters,
+  fetchData,
+} = useDataTable(fetchCategoriesApi, {
+  syncWithUrl: true,
+  initialSortBy: 'name',
+  initialSortOrder: 'asc',
+  initialPerPage: 12,
+});
+
+// UI State
 const viewMode = ref('grid');
 const showDialog = ref(false);
 const showDeleteDialog = ref(false);
@@ -398,15 +422,14 @@ const handleToggleStatus = async item => {
   }
 };
 
-const handleSearch = debounce(() => {
-  page.value = 1;
-  loadData();
-}, 500);
+const handleSearch = () => {
+  applyFilters();
+};
 
 const handleLoadMore = () => {
   if (loading.value || categories.value.length >= total.value) return;
   page.value++;
-  loadData(true);
+  fetchData({ append: true });
 };
 
 const handleCategoryClick = category => {
@@ -416,7 +439,7 @@ const handleCategoryClick = category => {
 
 const onTableOptionsUpdate = options => {
   if (viewMode.value === 'list') {
-    loadData();
+    changeSort(options);
   }
 };
 
@@ -432,7 +455,7 @@ const handleSave = async () => {
       await api.create(formData.value, { successMessage: 'تم الإضافة بنجاح' });
     }
     showDialog.value = false;
-    loadData();
+    fetchData();
   } finally {
     saving.value = false;
   }
@@ -443,7 +466,7 @@ const confirmDelete = async () => {
   try {
     await deleteCategory(selectedItem.value.id);
     showDeleteDialog.value = false;
-    loadData();
+    fetchData();
   } finally {
     deleting.value = false;
   }
@@ -452,25 +475,6 @@ const confirmDelete = async () => {
 const handleDelete = item => {
   selectedItem.value = item;
   showDeleteDialog.value = true;
-};
-
-const handleItemsPerPageChange = value => {
-  itemsPerPage.value = value;
-  page.value = 1;
-  loadData();
-};
-
-const loadData = (options = {}) => {
-  const isAppend = options === true;
-  fetchCategories(
-    {
-      page: page.value,
-      per_page: itemsPerPage.value,
-      search: search.value,
-      parent_id: search.value ? null : 'null',
-    },
-    { append: isAppend }
-  );
 };
 
 onMounted(async () => {
@@ -486,7 +490,6 @@ onMounted(async () => {
       router.replace({ query: { ...route.query, category_id: undefined } });
     }
   }
-  loadData();
 });
 
 watch(showExplorer, val => {
@@ -496,22 +499,9 @@ watch(showExplorer, val => {
   }
 });
 
-watch(page, () => {
-  if (viewMode.value === 'list') {
-    loadData();
-  }
-});
-
-watch(itemsPerPage, () => {
-  if (viewMode.value === 'list') {
-    page.value = 1;
-    loadData();
-  }
-});
-
 watch(viewMode, () => {
   page.value = 1;
-  loadData();
+  fetchData();
 });
 </script>
 

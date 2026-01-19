@@ -260,10 +260,8 @@ const { can } = usePermissions();
 const store = useUserStore();
 const userStore = useGlobalUserStore();
 const userFormRef = ref(null);
+
 const {
-  users,
-  loading,
-  totalItems,
   formData,
   isEditMode,
   isOpen,
@@ -276,39 +274,60 @@ const {
   permissionUser,
   openPermissions,
   closePermissions,
-  loadUsers,
-  loadMore,
   saveUser,
   handleDelete,
   handleEdit,
   handleCreate,
 } = useUser();
 
+// API fetch function for useDataTable
+const fetchUsersApi = async params => {
+  // Sync store filters if needed, or use params directly
+  return await store.userService.getAll(params, { showToast: false });
+};
+
+// DataTable Logic
+const {
+  items: users,
+  loading,
+  currentPage: page,
+  perPage: itemsPerPage,
+  total: totalItems,
+  search,
+  filters,
+  sortBy,
+  changePage,
+  changeSort,
+  applyFilters,
+  fetchData,
+} = useDataTable(fetchUsersApi, {
+  syncWithUrl: true,
+  initialSortBy: 'created_at',
+  initialSortOrder: 'desc',
+});
+
 // UI State
 const showAdvanced = ref(false);
 
-// Debounce search
-let searchTimeout;
-const debouncedSearch = () => {
-  clearTimeout(searchTimeout);
-  searchTimeout = setTimeout(() => {
-    loadUsers();
-  }, 500);
+const handleLoadMore = () => {
+  if (loading.value || users.value.length >= totalItems.value) return;
+  page.value++;
+  fetchData({ append: true });
+};
+
+const handleFiltersChange = newFilters => {
+  applyFilters(newFilters);
 };
 
 const handleSave = async data => {
   await saveUser(data);
+  fetchData();
   close();
 };
 
 const onPermissionSaved = async () => {
   closePermissions();
-  await loadUsers();
-};
-
-const handleLoadMore = () => {
-  if (loading.value || !users.value || users.value.length >= (totalItems.value || 0)) return;
-  loadMore();
+  fetchData();
 };
 
 const headers = computed(() => {
@@ -329,40 +348,10 @@ const headers = computed(() => {
   return base;
 });
 
-const roleOptions = [
-  { title: 'الكل', value: null },
-  { title: 'مدير عام', value: 'admin.super' },
-  { title: 'مدير شركة', value: 'admin.company' },
-  { title: 'موظف', value: 'employee' },
-];
-
-const statusOptions = [
-  { title: 'الكل', value: null },
-  { title: 'نشط', value: 'active' },
-  { title: 'معطل', value: 'inactive' },
-];
-
 // Statistics counters
 const activeCount = computed(() => store.stats?.active || 0);
 const adminCount = computed(() => store.stats?.admins || 0);
 const inactiveCount = computed(() => store.stats?.inactive || 0);
-
-const handleFiltersChange = () => {
-  store.page = 1;
-  loadUsers();
-};
-
-const handleSearch = () => {
-  store.page = 1;
-  loadUsers();
-};
-
-const onTableOptionsUpdate = options => {
-  if (JSON.stringify(store.sortBy) !== JSON.stringify(options.sortBy)) {
-    store.sortBy = options.sortBy;
-    loadUsers();
-  }
-};
 
 const handleManagePermissions = user => {
   openPermissions(user);
@@ -382,28 +371,17 @@ const getRoleColor = role => {
 };
 
 onMounted(() => {
-  store.page = 1;
-  loadUsers(false);
   store.fetchStats();
 });
 
-// Watch search to reset page
-watch(
-  () => store.search,
-  () => {
-    store.page = 1;
-    loadUsers(false);
-  }
-);
-
-// Watch itemsPerPage to reset page
-watch(
-  () => store.itemsPerPage,
-  () => {
-    store.page = 1;
-    loadUsers(false);
-  }
-);
+// Debounce search
+let searchTimeout;
+const debouncedSearch = () => {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    applyFilters();
+  }, 500);
+};
 </script>
 
 <style scoped>

@@ -282,6 +282,7 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 import { useBrandsData } from '../composables/useBrandsData';
+import { useDataTable } from '@/composables/useDataTable';
 import { useApi } from '@/composables/useApi';
 import { usePermissions } from '@/composables/usePermissions';
 import MediaGallery from '@/components/common/MediaGallery.vue';
@@ -296,35 +297,37 @@ import EmptyState from '@/components/common/EmptyState.vue';
 import AppInfiniteScroll from '@/components/common/AppInfiniteScroll.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
 import { PERMISSIONS } from '@/config/permissions';
-
-// Simple debounce
-const debounce = (fn, delay) => {
-  let timeoutId;
-  return (...args) => {
-    if (timeoutId) clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => fn(...args), delay);
-  };
-};
-
-const { brands, loading, total, fetchBrands, deleteBrand } = useBrandsData();
-
-const onTableOptionsUpdate = options => {
-  if (viewMode.value === 'list') {
-    loadData();
-  }
-};
-
-const handleLoadMore = () => {
-  if (loading.value || brands.value.length >= total.value) return;
-  page.value++;
-  loadData(true);
-};
 const { can } = usePermissions();
 const api = useApi('/api/brands');
+const { deleteBrand } = useBrandsData();
 
-const page = ref(1);
-const itemsPerPage = ref(12);
-const search = ref('');
+// API fetch function for useDataTable
+const fetchBrandsApi = async params => {
+  return await api.get(params, { showLoading: false });
+};
+
+// DataTable logic
+const {
+  items: brands,
+  loading,
+  currentPage: page,
+  perPage: itemsPerPage,
+  total,
+  search,
+  filters,
+  sortBy,
+  changePage,
+  changeSort,
+  applyFilters,
+  fetchData,
+} = useDataTable(fetchBrandsApi, {
+  syncWithUrl: true,
+  initialSortBy: 'name',
+  initialSortOrder: 'asc',
+  initialPerPage: 12,
+});
+
+// UI State
 const viewMode = ref('list');
 const showDialog = ref(false);
 const showDeleteDialog = ref(false);
@@ -351,8 +354,8 @@ const handleToggleStatus = async item => {
 
 const headers = [
   { title: 'الماركة', key: 'name', sortable: true },
-  { title: 'المنتجات', key: 'products_count', align: 'center' },
-  { title: 'الحالة', key: 'active', align: 'center' },
+  { title: 'المنتجات', key: 'products_count', align: 'center', sortable: true },
+  { title: 'الحالة', key: 'active', align: 'center', sortable: true },
   { title: 'الإجراءات', key: 'actions', sortable: false, align: 'end', width: '120px' },
 ];
 
@@ -363,10 +366,15 @@ const handleImageSelect = image => {
   imagePreview.value = image.url;
 };
 
-const handleSearch = debounce(() => {
-  page.value = 1;
-  loadData();
-}, 500);
+const handleSearch = () => {
+  applyFilters();
+};
+
+const handleLoadMore = () => {
+  if (loading.value || brands.value.length >= total.value) return;
+  page.value++;
+  fetchData({ append: true });
+};
 
 const handleCreate = () => {
   selectedItem.value = null;
@@ -405,7 +413,7 @@ const handleSave = async () => {
       await api.create(formData.value, { successMessage: 'تم إضافة الماركة' });
     }
     showDialog.value = false;
-    loadData();
+    fetchData();
   } finally {
     saving.value = false;
   }
@@ -416,49 +424,26 @@ const confirmDelete = async () => {
   try {
     await deleteBrand(selectedItem.value.id);
     showDeleteDialog.value = false;
-    loadData();
+    fetchData();
   } finally {
     deleting.value = false;
   }
 };
 
-const handleItemsPerPageChange = value => {
-  itemsPerPage.value = value;
-  page.value = 1;
-  loadData();
-};
-
-const loadData = (options = {}) => {
-  const isAppend = options === true;
-  fetchBrands(
-    {
-      page: page.value,
-      per_page: itemsPerPage.value,
-      search: search.value,
-    },
-    { append: isAppend }
-  );
-};
-
-onMounted(loadData);
-
-watch(page, () => {
-  if (viewMode.value === 'list') {
-    loadData();
-  }
-});
-
-watch(itemsPerPage, () => {
-  if (viewMode.value === 'list') {
-    page.value = 1;
-    loadData();
-  }
+onMounted(() => {
+  // Initial load is handled by useDataTable unless specified otherwise
 });
 
 watch(viewMode, () => {
   page.value = 1;
-  loadData();
+  fetchData();
 });
+
+const onTableOptionsUpdate = options => {
+  if (viewMode.value === 'list') {
+    changeSort(options);
+  }
+};
 </script>
 
 <style scoped>

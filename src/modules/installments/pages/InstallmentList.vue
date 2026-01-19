@@ -44,10 +44,10 @@
         :headers="headers"
         :items="installments"
         :loading="loading"
-        :items-length="total"
+        :total-items="total"
         v-model:items-per-page="itemsPerPage"
         v-model:page="page"
-        @update:options="handleOptionsUpdate"
+        @update:options="changeSort"
         title="قائمة الأقساط"
         icon="ri-list-check-line"
       >
@@ -117,25 +117,39 @@ import InstallmentFilters from '../components/InstallmentFilters.vue';
 const { can } = usePermissions();
 const api = useApi('/api/installments');
 
-// State
-const installments = ref([]);
-const loading = ref(false);
-const total = ref(0);
-const page = ref(1);
-const itemsPerPage = ref(10);
-const search = ref('');
-const showAdvanced = ref(false);
-const filters = ref({
-  status: null,
-  date_from: null,
-  date_to: null,
+// API fetch function for useDataTable
+const fetchInstallments = async params => {
+  return await api.get(params, { showLoading: false });
+};
+
+// DataTable logic
+const {
+  items: installments,
+  loading,
+  currentPage: page,
+  perPage: itemsPerPage,
+  total,
+  search,
+  filters,
+  changePage,
+  changePerPage,
+  changeSort,
+  applyFilters,
+  refresh,
+} = useDataTable(fetchInstallments, {
+  syncWithUrl: true,
+  initialSortBy: 'due_date',
+  initialSortOrder: 'asc',
 });
 
+// UI State
+const showAdvanced = ref(false);
+
 const headers = [
-  { title: 'الخطة (الفاتورة)', key: 'plan' },
-  { title: 'المبلغ', key: 'amount', align: 'end' },
-  { title: 'تاريخ الاستحقاق', key: 'due_date' },
-  { title: 'الحالة', key: 'status' },
+  { title: 'الخطة (الفاتورة)', key: 'plan', sortable: false },
+  { title: 'المبلغ', key: 'amount', align: 'end', sortable: true },
+  { title: 'تاريخ الاستحقاق', key: 'due_date', sortable: true },
+  { title: 'الحالة', key: 'status', sortable: true },
   { title: 'الإجراءات', key: 'actions', sortable: false, align: 'end' },
 ];
 
@@ -162,38 +176,14 @@ const getStatusLabel = status => {
 const markAsPaid = async installment => {
   try {
     await api.update(installment.id, { status: 'paid' }, { successMessage: 'تم تسجيل الدفع بنجاح' });
-    loadData();
+    refresh();
   } catch (error) {
     console.error('Error marking installment as paid:', error);
   }
 };
 
-const loadData = async () => {
-  loading.value = true;
-  try {
-    const params = {
-      page: page.value,
-      per_page: itemsPerPage.value,
-      search: search.value,
-      ...filters.value,
-    };
-    const response = await api.get(params, { showLoading: false });
-    installments.value = response.data || [];
-    total.value = response.total || 0;
-  } finally {
-    loading.value = false;
-  }
-};
-
-const handleOptionsUpdate = options => {
-  page.value = options.page;
-  itemsPerPage.value = options.itemsPerPage;
-  loadData();
-};
-
-const handleFiltersChange = () => {
-  page.value = 1;
-  loadData();
+const handleFiltersChange = newFilters => {
+  applyFilters(newFilters);
 };
 
 // Debounce search
@@ -201,12 +191,9 @@ let searchTimeout;
 const debouncedSearch = () => {
   clearTimeout(searchTimeout);
   searchTimeout = setTimeout(() => {
-    page.value = 1;
-    loadData();
+    applyFilters();
   }, 500);
 };
-
-onMounted(loadData);
 </script>
 
 <style scoped>

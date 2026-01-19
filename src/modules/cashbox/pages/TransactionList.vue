@@ -44,12 +44,12 @@
         :headers="headers"
         :items="transactions"
         :loading="loading"
-        :items-length="total"
+        :total-items="total"
         v-model:items-per-page="itemsPerPage"
         v-model:page="page"
         title="المعاملات المالية الأخيرة"
         icon="ri-history-line"
-        @update:options="handleOptionsUpdate"
+        @update:options="changeSort"
       >
         <template #item.type="{ item }">
           <v-chip :color="item.type === 'income' ? 'success' : 'error'" size="small" variant="flat" class="font-weight-bold px-3">
@@ -116,29 +116,33 @@ const { can } = usePermissions();
 const api = useApi('/api/transactions');
 const cashBoxesApi = useApi('/api/cash-boxes');
 
-// State
-const transactions = ref([]);
-const cashBoxes = ref([]);
-const loading = ref(false);
-const total = ref(0);
-const page = ref(1);
-const itemsPerPage = ref(10);
-const search = ref('');
-const showAdvanced = ref(false);
-const filters = ref({
-  type: null,
-  cash_box_id: null,
-  date_from: null,
-  date_to: null,
+// API fetch function for useDataTable
+const fetchTransactions = async params => {
+  return await api.get(params, { showLoading: false });
+};
+
+// DataTable logic
+const {
+  items: transactions,
+  loading,
+  currentPage: page,
+  perPage: itemsPerPage,
+  total,
+  search,
+  filters,
+  changePage,
+  changePerPage,
+  changeSort,
+  applyFilters,
+} = useDataTable(fetchTransactions, {
+  syncWithUrl: true,
+  initialSortBy: 'transaction_date',
+  initialSortOrder: 'desc',
 });
 
-const headers = [
-  { title: 'النوع', key: 'type', sortable: true },
-  { title: 'الخزينة', key: 'cash_box', sortable: true },
-  { title: 'المبلغ', key: 'amount', align: 'end', sortable: true },
-  { title: 'التاريخ', key: 'date', sortable: true },
-  { title: 'الوصف', key: 'description', sortable: false },
-];
+// Extra state
+const cashBoxes = ref([]);
+const showAdvanced = ref(false);
 
 const loadCashBoxes = async () => {
   try {
@@ -149,32 +153,16 @@ const loadCashBoxes = async () => {
   }
 };
 
-const loadData = async () => {
-  loading.value = true;
-  try {
-    const params = {
-      page: page.value,
-      per_page: itemsPerPage.value,
-      search: search.value,
-      ...filters.value,
-    };
-    const response = await api.get(params, { showLoading: false });
-    transactions.value = response.data || [];
-    total.value = response.total || 0;
-  } finally {
-    loading.value = false;
-  }
-};
+const headers = [
+  { title: 'النوع', key: 'type', sortable: true },
+  { title: 'الخزينة', key: 'cash_box', sortable: false },
+  { title: 'المبلغ', key: 'amount', align: 'end', sortable: true },
+  { title: 'التاريخ', key: 'transaction_date', sortable: true },
+  { title: 'الوصف', key: 'description', sortable: false },
+];
 
-const handleOptionsUpdate = options => {
-  page.value = options.page;
-  itemsPerPage.value = options.itemsPerPage;
-  loadData();
-};
-
-const handleFiltersChange = () => {
-  page.value = 1;
-  loadData();
+const handleFiltersChange = newFilters => {
+  applyFilters(newFilters);
 };
 
 // Debounce search
@@ -182,13 +170,11 @@ let searchTimeout;
 const debouncedSearch = () => {
   clearTimeout(searchTimeout);
   searchTimeout = setTimeout(() => {
-    page.value = 1;
-    loadData();
+    applyFilters();
   }, 500);
 };
 
 onMounted(() => {
-  loadData();
   loadCashBoxes();
 });
 </script>

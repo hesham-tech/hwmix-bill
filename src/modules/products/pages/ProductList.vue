@@ -46,7 +46,7 @@
     <v-container fluid class="pt-0">
       <v-expand-transition>
         <div v-if="showAdvanced" class="mb-6">
-          <ProductFilters @apply="fetchProducts" />
+          <ProductFilters @apply="handleFiltersChange" />
         </div>
       </v-expand-transition>
 
@@ -56,7 +56,6 @@
             v-model:page="page"
             v-model:items-per-page="itemsPerPage"
             v-model:sort-by="sortBy"
-            v-model:search="search"
             :headers="headers"
             :items="products"
             :total-items="totalItems"
@@ -65,7 +64,7 @@
             @view="viewProduct"
             @edit="editProduct"
             @delete="confirmDelete"
-            @update:options="fetchProducts"
+            @update:options="changeSort"
           >
             <template #item.name="{ item }">
               <div @click="viewProduct(item)" class="d-flex align-center gap-3 py-2">
@@ -147,8 +146,31 @@ import AppConfirmDialog from '@/components/common/AppConfirmDialog.vue';
 const router = useRouter();
 const productStore = useProductStore();
 const { can } = usePermissions();
-const { products, loading, totalItems, page, itemsPerPage, search, sortBy, filters } = storeToRefs(productStore);
-const { fetchProducts, deleteProduct } = productStore;
+
+// API fetch function for useDataTable
+const fetchProductsApi = async params => {
+  return await productStore.productService.getAll(params);
+};
+
+// DataTable logic
+const {
+  items: products,
+  loading,
+  currentPage: page,
+  perPage: itemsPerPage,
+  total: totalItems,
+  search,
+  filters,
+  sortBy,
+  changePage,
+  changeSort,
+  applyFilters,
+  refresh,
+} = useDataTable(fetchProductsApi, {
+  syncWithUrl: true,
+  initialSortBy: 'created_at',
+  initialSortOrder: 'desc',
+});
 
 const headers = [
   { title: 'المنتج', key: 'name', sortable: true },
@@ -179,7 +201,8 @@ const confirmDialog = ref(null);
 const confirmDelete = async item => {
   const confirmed = await confirmDialog.value.open();
   if (confirmed) {
-    await deleteProduct(item.id);
+    await productStore.deleteProduct(item.id);
+    refresh();
   }
 };
 
@@ -188,23 +211,13 @@ let searchTimeout;
 const debouncedSearch = () => {
   clearTimeout(searchTimeout);
   searchTimeout = setTimeout(() => {
-    fetchProducts();
+    applyFilters();
   }, 500);
 };
 
-// Watch for filter changes and reload
-watch(
-  filters,
-  () => {
-    page.value = 1;
-    fetchProducts();
-  },
-  { deep: true }
-);
-
-onMounted(() => {
-  fetchProducts();
-});
+const handleFiltersChange = newFilters => {
+  applyFilters(newFilters);
+};
 </script>
 
 <style scoped>

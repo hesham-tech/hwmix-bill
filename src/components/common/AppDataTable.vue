@@ -46,42 +46,53 @@
       <!-- Pass through all slots meant for v-data-table -->
       <template v-for="(_, slot) in $slots" #[slot]="scope">
         <slot
-          v-if="slot.startsWith('item.') || slot.startsWith('header.') || ['no-data', 'loading', 'body', 'footer', 'top', 'bottom'].includes(slot)"
+          v-if="
+            (slot.startsWith('item.') && slot !== 'item.actions') ||
+            slot.startsWith('header.') ||
+            ['no-data', 'loading', 'body', 'footer', 'top', 'bottom'].includes(slot)
+          "
           :name="slot"
           v-bind="scope || {}"
         />
       </template>
 
-      <!-- Actions column -->
+      <!-- Actions column (Centralized logic) -->
       <template v-if="showActions" #item.actions="{ item }">
-        <div class="d-flex gap-1">
-          <v-btn
+        <div class="d-flex align-center gap-1">
+          <!-- Default View Button -->
+          <AppButton
             v-if="canView && (!permissionModule || can(`${permissionModule}.view_all`, { resource: item }))"
             icon="ri-eye-line"
             size="small"
             variant="text"
             color="info"
+            tooltip="عرض التفاصيل"
             @click="$emit('view', item)"
           />
 
-          <v-btn
+          <!-- Default Edit Button -->
+          <AppButton
             v-if="canEdit && (!permissionModule || can(`${permissionModule}.update_all`, { resource: item }))"
             icon="ri-edit-line"
             size="small"
             variant="text"
             color="primary"
+            tooltip="تعديل"
             @click="$emit('edit', item)"
           />
 
-          <v-btn
+          <!-- Default Delete Button -->
+          <AppButton
             v-if="canDelete && (!permissionModule || can(`${permissionModule}.delete_all`, { resource: item }))"
             icon="ri-delete-bin-line"
             size="small"
             variant="text"
             color="error"
+            tooltip="حذف"
             @click="$emit('delete', item)"
           />
 
+          <!-- Extra Actions Slot -->
           <slot name="extra-actions" :item="item" />
         </div>
       </template>
@@ -108,6 +119,7 @@
 <script setup>
 import { computed } from 'vue';
 import { usePermissions } from '@/composables/usePermissions';
+import AppButton from '@/components/common/AppButton.vue';
 
 const { can } = usePermissions();
 

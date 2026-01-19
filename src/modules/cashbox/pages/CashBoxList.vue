@@ -268,6 +268,7 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 import { useCashBoxesData } from '../composables/useCashBoxesData';
+import { useDataTable } from '@/composables/useDataTable';
 import { useApi } from '@/composables/useApi';
 import { usePermissions } from '@/composables/usePermissions';
 import AppPageHeader from '@/components/common/AppPageHeader.vue';
@@ -282,36 +283,45 @@ import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import EmptyState from '@/components/common/EmptyState.vue';
 import { PERMISSIONS } from '@/config/permissions';
 
-// Simple debounce
-const debounce = (fn, delay) => {
-  let timeoutId;
-  return (...args) => {
-    if (timeoutId) clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => fn(...args), delay);
-  };
-};
-
-const { cashBoxes, loading, total, fetchCashBoxes, deleteCashBox } = useCashBoxesData();
-
-const onTableOptionsUpdate = options => {
-  if (viewMode.value === 'list') {
-    loadData();
-  }
-};
-
-const handleLoadMore = () => {
-  if (loading.value || cashBoxes.value.length >= total.value) return;
-  page.value++;
-  loadData(true);
-};
 const { can } = usePermissions();
 const api = useApi('/api/cash-boxes');
 const typesApi = useApi('/api/cash-box-types');
+const { deleteCashBox } = useCashBoxesData();
 
-const page = ref(1);
-const itemsPerPage = ref(12);
+// API fetch function for useDataTable
+const fetchCashBoxesApi = async params => {
+  // Map 'search' to 'name' for this API if needed, but useDataTable handles 'search'
+  // If the API specifically needs 'name' instead of 'search':
+  const finalParams = { ...params };
+  if (params.search) {
+    finalParams.name = params.search;
+  }
+  return await api.get(finalParams, { showLoading: false });
+};
+
+// DataTable logic
+const {
+  items: cashBoxes,
+  loading,
+  currentPage: page,
+  perPage: itemsPerPage,
+  total,
+  search,
+  filters,
+  sortBy,
+  changePage,
+  changeSort,
+  applyFilters,
+  fetchData,
+} = useDataTable(fetchCashBoxesApi, {
+  syncWithUrl: true,
+  initialSortBy: 'name',
+  initialSortOrder: 'asc',
+  initialPerPage: 12,
+});
+
+// UI State
 const viewMode = ref('grid');
-const search = ref('');
 const showDialog = ref(false);
 const showDeleteDialog = ref(false);
 const selectedItem = ref(null);
@@ -382,7 +392,7 @@ const handleSave = async () => {
       await api.create(formData.value, { successMessage: 'تم الإضافة بنجاح' });
     }
     showDialog.value = false;
-    loadData();
+    fetchData();
   } finally {
     saving.value = false;
   }
@@ -393,16 +403,10 @@ const confirmDelete = async () => {
   try {
     await deleteCashBox(selectedItem.value.id);
     showDeleteDialog.value = false;
-    loadData();
+    fetchData();
   } finally {
     deleting.value = false;
   }
-};
-
-const handleItemsPerPageChange = value => {
-  itemsPerPage.value = value;
-  page.value = 1;
-  loadData();
 };
 
 const formatCurrency = amount => {
@@ -410,34 +414,41 @@ const formatCurrency = amount => {
   return new Intl.NumberFormat('ar-EG', { style: 'currency', currency: 'EGP' }).format(amount);
 };
 
-const handleSearch = debounce(() => {
-  page.value = 1;
-  loadData();
-}, 500);
-
-const loadData = (options = {}) => {
-  const isAppend = options === true;
-  return fetchCashBoxes({ page: page.value, per_page: itemsPerPage.value, name: search.value }, { append: isAppend });
+const handleSearch = () => {
+  applyFilters();
 };
 
-onMounted(loadData);
-watch(page, () => {
-  if (viewMode.value === 'list') {
-    loadData();
-  }
-});
+const handleLoadMore = () => {
+  if (loading.value || cashBoxes.value.length >= total.value) return;
+  page.value++;
+  fetchData({ append: true });
+};
 
-watch(itemsPerPage, () => {
+const onTableOptionsUpdate = options => {
   if (viewMode.value === 'list') {
-    page.value = 1;
-    loadData();
+    changeSort(options);
   }
+};
+
+onMounted(() => {
+  // Initial load is handled by useDataTable
 });
 
 watch(viewMode, () => {
   page.value = 1;
-  loadData();
+  fetchData();
 });
+
+const togglingId = ref(null);
+const handleToggleStatus = async item => {
+  togglingId.value = item.id;
+  try {
+    await api.update(item.id, { is_active: !item.is_active });
+    item.is_active = !item.is_active;
+  } finally {
+    togglingId.value = null;
+  }
+};
 </script>
 
 <style scoped>

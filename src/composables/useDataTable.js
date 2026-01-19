@@ -61,8 +61,11 @@ export function useDataTable(fetchFunction, options = {}) {
 
   /**
    * جلب البيانات من API
+   * @param {Object} fetchOptions - خيارات إضافية للجلب (مثل append)
    */
-  const fetchData = async () => {
+  const fetchData = async (fetchOptions = {}) => {
+    const { append = false } = fetchOptions;
+
     loading.value = true;
     error.value = null;
 
@@ -89,7 +92,13 @@ export function useDataTable(fetchFunction, options = {}) {
       const response = await fetchFunction(params);
 
       // تحديث البيانات
-      items.value = response.data || [];
+      const newData = response.data || [];
+      if (append) {
+        items.value = [...items.value, ...newData];
+      } else {
+        items.value = newData;
+      }
+
       total.value = response.meta?.total || response.total || 0;
       lastPage.value = response.meta?.last_page || response.last_page || 1;
       currentPage.value = response.meta?.current_page || response.current_page || 1;
