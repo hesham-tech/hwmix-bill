@@ -128,12 +128,13 @@
         :loading="loading"
         v-model:page="page"
         v-model:items-per-page="itemsPerPage"
+        v-model:sort-by="sortByVuetify"
         :searchable="false"
         :can-view="false"
-        :can-edit="false"
-        :can-delete="false"
         permission-module="brands"
         @update:options="onTableOptionsUpdate"
+        @edit="handleEdit"
+        @delete="handleDelete"
       >
         <template #[`item.name`]="{ item }">
           <div class="d-flex align-center py-2">
@@ -172,25 +173,6 @@
               {{ item.active ? 'نشط' : 'معطل' }}
             </v-chip>
           </div>
-        </template>
-
-        <template #extra-actions="{ item }">
-          <AppButton
-            v-if="can('brands.update_all', { resource: item })"
-            icon="ri-edit-line"
-            variant="text"
-            color="primary"
-            size="small"
-            @click="handleEdit(item)"
-          />
-          <AppButton
-            v-if="can('brands.delete_all', { resource: item })"
-            icon="ri-delete-bin-line"
-            variant="text"
-            color="error"
-            size="small"
-            @click="handleDelete(item)"
-          />
         </template>
       </AppDataTable>
 
@@ -316,6 +298,7 @@ const {
   search,
   filters,
   sortBy,
+  sortByVuetify,
   changePage,
   changeSort,
   applyFilters,

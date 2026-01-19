@@ -55,7 +55,7 @@
           <AppDataTable
             v-model:page="page"
             v-model:items-per-page="itemsPerPage"
-            v-model:sort-by="sortBy"
+            v-model:sort-by="sortByVuetify"
             :headers="headers"
             :items="products"
             :total-items="totalItems"
@@ -162,6 +162,7 @@ const {
   search,
   filters,
   sortBy,
+  sortByVuetify,
   changePage,
   changeSort,
   applyFilters,

@@ -27,7 +27,7 @@
         <!-- الأدوار -->
         <v-col cols="6" sm="6" md="6">
           <v-select
-            v-model="store.roleFilter"
+            v-model="filters.role"
             :items="roleOptions"
             label="الدور الوظيفي"
             variant="outlined"
@@ -35,14 +35,14 @@
             prepend-inner-icon="ri-shield-user-line"
             clearable
             hide-details
-            @update:model-value="emit('apply')"
+            @update:model-value="handleApply"
           />
         </v-col>
 
         <!-- الحالة -->
         <v-col cols="6" sm="6" md="6">
           <v-select
-            v-model="store.statusFilter"
+            v-model="filters.status"
             :items="statusOptions"
             label="الحالة"
             variant="outlined"
@@ -50,13 +50,13 @@
             prepend-inner-icon="ri-checkbox-circle-line"
             clearable
             hide-details
-            @update:model-value="emit('apply')"
+            @update:model-value="handleApply"
           />
         </v-col>
       </v-row>
 
       <div class="d-flex flex-wrap gap-2 mt-4 pb-4">
-        <AppButton flex-grow-1 prepend-icon="ri-filter-line" @click="emit('apply')" class="flex-grow-1"> تطبيق الفلاتر </AppButton>
+        <AppButton flex-grow-1 prepend-icon="ri-filter-line" @click="handleApply" class="flex-grow-1"> تطبيق الفلاتر </AppButton>
         <AppButton flex-grow-1 variant="outlined" color="secondary" prepend-icon="ri-refresh-line" @click="resetAllFilters" class="flex-grow-1">
           إعادة تعيين
         </AppButton>
@@ -67,20 +67,27 @@
 
 <script setup>
 import { computed } from 'vue';
-import { useUserStore } from '../store/user.store';
 import { useUserStore as useGlobalUserStore } from '@/stores/user';
 import { usePermissions } from '@/composables/usePermissions';
-import { PERMISSIONS } from '@/config/permissions';
 import AppCard from '@/components/common/AppCard.vue';
 import AppButton from '@/components/common/AppButton.vue';
 
-const emit = defineEmits(['apply']);
+const props = defineProps({
+  modelValue: {
+    type: Object,
+    default: () => ({}),
+  },
+});
 
-const store = useUserStore();
+const emit = defineEmits(['update:modelValue', 'apply']);
+
 const globalUserStore = useGlobalUserStore();
 const { can } = usePermissions();
 
-const isAdmin = computed(() => globalUserStore.isAdmin);
+const filters = computed({
+  get: () => props.modelValue,
+  set: val => emit('update:modelValue', val),
+});
 
 const roleOptions = [
   { title: 'مدير عام', value: 'admin.super' },
@@ -94,14 +101,20 @@ const statusOptions = [
 ];
 
 const hasActiveFilters = computed(() => {
-  return store.roleFilter !== null || store.statusFilter !== null || store.isGlobalMode;
+  return filters.value.role || filters.value.status;
 });
 
 const resetAllFilters = () => {
-  store.roleFilter = null;
-  store.statusFilter = null;
-  store.isGlobalMode = false;
-  emit('apply');
+  filters.value = {
+    ...filters.value,
+    role: null,
+    status: null,
+  };
+  emit('apply', filters.value);
+};
+
+const handleApply = () => {
+  emit('apply', filters.value);
 };
 </script>
 

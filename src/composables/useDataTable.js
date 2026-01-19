@@ -51,6 +51,17 @@ export function useDataTable(fetchFunction, options = {}) {
   const hasSelection = computed(() => selectedIds.value.length > 0);
   const totalPages = computed(() => Math.ceil(total.value / perPage.value));
 
+  // ✅ Vuetify Compatible Sorting (v-model:sort-by)
+  const sortByVuetify = computed({
+    get: () => [{ key: sortBy.value, order: sortOrder.value }],
+    set: val => {
+      if (val && val.length > 0) {
+        sortBy.value = val[0].key;
+        sortOrder.value = val[0].order;
+      }
+    },
+  });
+
   const paginationInfo = computed(() => {
     const from = (currentPage.value - 1) * perPage.value + 1;
     const to = Math.min(currentPage.value * perPage.value, total.value);
@@ -291,6 +302,7 @@ export function useDataTable(fetchFunction, options = {}) {
     lastPage,
     sortBy,
     sortOrder,
+    sortByVuetify,
     search,
     filters,
     selectedIds,

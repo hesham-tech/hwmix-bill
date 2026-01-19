@@ -148,12 +148,13 @@
           :loading="loading"
           v-model:page="page"
           v-model:items-per-page="itemsPerPage"
+          v-model:sort-by="sortByVuetify"
           :searchable="false"
           :can-view="false"
-          :can-edit="false"
-          :can-delete="false"
           permission-module="categories"
           @update:options="onTableOptionsUpdate"
+          @edit="handleEdit"
+          @delete="handleDelete"
         >
           <template #[`item.name`]="{ item }">
             <div class="d-flex align-center py-2 cursor-pointer" @click="handleCategoryClick(item)">
@@ -202,22 +203,14 @@
           </template>
 
           <template #extra-actions="{ item }">
-            <AppButton icon="ri-arrow-right-up-line" variant="text" color="info" size="small" @click="handleCategoryClick(item)" title="دخول القسم" />
             <AppButton
-              v-if="can('categories.update_all', { resource: item })"
-              icon="ri-edit-line"
+              icon="ri-arrow-right-up-line"
               variant="text"
-              color="primary"
+              color="info"
               size="small"
-              @click="handleEdit(item)"
-            />
-            <AppButton
-              v-if="can('categories.delete_all', { resource: item })"
-              icon="ri-delete-bin-line"
-              variant="text"
-              color="error"
-              size="small"
-              @click="handleDelete(item)"
+              @click="handleCategoryClick(item)"
+              title="دخول القسم"
+              tooltip="دخول القسم"
             />
           </template>
         </AppDataTable>
@@ -339,6 +332,7 @@ const {
   search,
   filters,
   sortBy,
+  sortByVuetify,
   changePage,
   changePerPage,
   changeSort,

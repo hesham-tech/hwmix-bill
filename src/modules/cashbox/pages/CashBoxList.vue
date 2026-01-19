@@ -126,10 +126,14 @@
             :items-length="total"
             :items-per-page="itemsPerPage"
             :page="page"
+            v-model:sort-by="sortByVuetify"
             title="قائمة الخزائن"
             icon="ri-safe-2-line"
             permission-module="cash_boxes"
+            :can-view="false"
             @update:options="onTableOptionsUpdate"
+            @edit="handleEdit"
+            @delete="handleDelete"
           >
             <template #item.name="{ item }">
               <div class="d-flex align-center">
@@ -155,29 +159,6 @@
               <v-chip :color="item.is_active ? 'success' : 'error'" size="small" variant="flat" class="font-weight-bold px-3">
                 {{ item.is_active ? 'نشط' : 'غير نشط' }}
               </v-chip>
-            </template>
-
-            <template #item.actions="{ item }">
-              <div class="d-flex justify-end gap-1">
-                <AppButton
-                  v-if="can(PERMISSIONS.CASH_BOXES_UPDATE_ALL, { resource: item })"
-                  icon="ri-edit-line"
-                  size="x-small"
-                  variant="text"
-                  color="primary"
-                  tooltip="تعديل"
-                  @click="handleEdit(item)"
-                />
-                <AppButton
-                  v-if="can(PERMISSIONS.CASH_BOXES_DELETE_ALL, { resource: item })"
-                  icon="ri-delete-bin-line"
-                  size="x-small"
-                  variant="text"
-                  color="error"
-                  tooltip="حذف"
-                  @click="handleDelete(item)"
-                />
-              </div>
             </template>
           </AppDataTable>
         </template>
@@ -309,6 +290,7 @@ const {
   search,
   filters,
   sortBy,
+  sortByVuetify,
   changePage,
   changeSort,
   applyFilters,

@@ -47,6 +47,7 @@
         :total-items="total"
         v-model:items-per-page="itemsPerPage"
         v-model:page="page"
+        v-model:sort-by="sortByVuetify"
         title="المعاملات المالية الأخيرة"
         icon="ri-history-line"
         @update:options="changeSort"
@@ -130,6 +131,8 @@ const {
   total,
   search,
   filters,
+  sortBy,
+  sortByVuetify,
   changePage,
   changePerPage,
   changeSort,

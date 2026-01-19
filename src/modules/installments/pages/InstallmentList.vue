@@ -47,6 +47,7 @@
         :total-items="total"
         v-model:items-per-page="itemsPerPage"
         v-model:page="page"
+        v-model:sort-by="sortByVuetify"
         @update:options="changeSort"
         title="قائمة الأقساط"
         icon="ri-list-check-line"
@@ -74,18 +75,16 @@
           </v-chip>
         </template>
 
-        <template #item.actions="{ item }">
-          <div class="d-flex justify-end">
-            <AppButton
-              v-if="item.status === 'pending' && can(PERMISSIONS.PAYMENTS_CREATE)"
-              icon="ri-check-line"
-              size="x-small"
-              variant="text"
-              color="success"
-              tooltip="تحديد كمدفوع"
-              @click="markAsPaid(item)"
-            />
-          </div>
+        <template #extra-actions="{ item }">
+          <AppButton
+            v-if="item.status === 'pending' && can(PERMISSIONS.PAYMENTS_CREATE)"
+            icon="ri-check-line"
+            size="x-small"
+            variant="text"
+            color="success"
+            tooltip="تحديد كمدفوع"
+            @click="markAsPaid(item)"
+          />
         </template>
       </AppDataTable>
     </v-container>
@@ -131,6 +130,8 @@ const {
   total,
   search,
   filters,
+  sortBy,
+  sortByVuetify,
   changePage,
   changePerPage,
   changeSort,

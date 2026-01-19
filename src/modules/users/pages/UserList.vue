@@ -17,7 +17,7 @@
       <template #controls>
         <v-col cols="12" md="8">
           <AppInput
-            v-model="store.search"
+            v-model="search"
             placeholder="بحث سريح بالاسم، الهاتف، أو البريد..."
             prepend-inner-icon="ri-search-line"
             clearable
@@ -95,7 +95,7 @@
       <!-- Advanced Filters -->
       <v-expand-transition>
         <div v-if="showAdvanced" class="mb-6">
-          <UserFilters @apply="handleFiltersChange" />
+          <UserFilters v-model="filters" @apply="handleFiltersChange" />
         </div>
       </v-expand-transition>
 
@@ -106,13 +106,13 @@
             <v-icon icon="ri-global-line" size="18" />
             <span class="text-caption font-weight-bold">عرض كافة الشركات</span>
             <AppSwitch
-              v-model="store.isGlobalMode"
+              v-model="filters.global"
               color="primary"
               hide-details
               inset
               density="compact"
               class="ms-2"
-              @update:model-value="handleFiltersChange"
+              @update:model-value="applyFilters(filters)"
             />
           </div>
         </v-card>
@@ -125,9 +125,9 @@
         @load="handleLoadMore"
       >
         <AppDataTable
-          v-model:page="store.page"
-          v-model:items-per-page="store.itemsPerPage"
-          v-model:sort-by="store.sortBy"
+          v-model:page="page"
+          v-model:items-per-page="itemsPerPage"
+          v-model:sort-by="sortByVuetify"
           :headers="headers"
           :items="users || []"
           :total-items="totalItems || 0"
@@ -137,6 +137,7 @@
           @update:options="onTableOptionsUpdate"
           @edit="handleEdit"
           @delete="handleDelete"
+          @view="item => $router.push(`/users/${item.id}`)"
         >
           <template #item.full_name="{ item }">
             <div class="d-flex align-center py-2">
@@ -193,13 +194,13 @@
           </template>
 
           <template #extra-actions="{ item }">
-            <AppButton icon="ri-eye-line" size="small" variant="text" color="info" @click="$router.push(`/users/${item.id}`)" />
             <AppButton
               v-if="can(PERMISSIONS.ROLES_PAGE)"
               icon="ri-shield-user-line"
               size="small"
               variant="text"
               color="warning"
+              tooltip="إدارة الصلاحيات"
               @click="handleManagePermissions(item)"
             />
           </template>
@@ -242,6 +243,8 @@ import { ref, onMounted, watch, computed } from 'vue';
 import { useUserStore as useGlobalUserStore } from '@/stores/user';
 import { useUserStore } from '../store/user.store';
 import { usePermissions } from '@/composables/usePermissions';
+import { useDataTable } from '@/composables/useDataTable';
+import { userService } from '@/api';
 import { useUser } from '../composables/useUser';
 import UserForm from '../components/UserForm.vue';
 import UserFilters from '../components/UserFilters.vue';
@@ -260,6 +263,7 @@ const { can } = usePermissions();
 const store = useUserStore();
 const userStore = useGlobalUserStore();
 const userFormRef = ref(null);
+const showAdvanced = ref(false);
 
 const {
   formData,
@@ -282,8 +286,7 @@ const {
 
 // API fetch function for useDataTable
 const fetchUsersApi = async params => {
-  // Sync store filters if needed, or use params directly
-  return await store.userService.getAll(params, { showToast: false });
+  return await userService.getAll(params, { showToast: false });
 };
 
 // DataTable Logic
@@ -296,6 +299,7 @@ const {
   search,
   filters,
   sortBy,
+  sortByVuetify,
   changePage,
   changeSort,
   applyFilters,
@@ -306,13 +310,14 @@ const {
   initialSortOrder: 'desc',
 });
 
-// UI State
-const showAdvanced = ref(false);
-
 const handleLoadMore = () => {
   if (loading.value || users.value.length >= totalItems.value) return;
   page.value++;
   fetchData({ append: true });
+};
+
+const onTableOptionsUpdate = options => {
+  changeSort(options);
 };
 
 const handleFiltersChange = newFilters => {

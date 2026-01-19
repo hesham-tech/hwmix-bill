@@ -14,6 +14,9 @@
     v-bind="$attrs"
     @click="$emit('click', $event)"
   >
+    <v-tooltip v-if="tooltip" activator="parent" location="top" open-on-hover open-on-click open-on-focus>
+      {{ tooltip }}
+    </v-tooltip>
     <v-icon v-if="icon" :icon="icon" />
     <slot v-else />
   </v-btn>
@@ -40,6 +43,10 @@ defineProps({
   disabled: {
     type: Boolean,
     default: false,
+  },
+  tooltip: {
+    type: String,
+    default: '',
   },
   icon: {
     type: String,
