@@ -26,10 +26,10 @@ class UserService extends BaseService {
   /**
    * Get user statistics
    */
-  async getStats(options = {}) {
+  async getStats(params = {}, options = {}) {
     const { showToast = false } = options;
     try {
-      const response = await apiClient.get('users/stats');
+      const response = await apiClient.get('users/stats', { params });
       return this.handleSuccess(response, showToast);
     } catch (error) {
       return this.handleError(error, showToast);

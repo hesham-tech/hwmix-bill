@@ -77,9 +77,9 @@ export const useUserStore = defineStore('userManagement', () => {
     }
   }
 
-  async function fetchStats() {
+  async function fetchStats(params = {}) {
     try {
-      const response = await userService.getStats();
+      const response = await userService.getStats(params);
       stats.value = response.data;
       return response.data;
     } catch (error) {

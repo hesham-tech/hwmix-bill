@@ -99,20 +99,21 @@
         </div>
       </v-expand-transition>
 
-      <!-- Global Mode Switch (Moved here) -->
+      <!-- Mode Switch: Current Company vs Global -->
       <div v-if="userStore.isAdmin || can(PERMISSIONS.USERS_VIEW_ALL)" class="d-flex align-center justify-end mb-4 px-2">
-        <v-card variant="tonal" color="primary" class="rounded-pill px-4 py-1 border-primary">
+        <v-card variant="tonal" :color="currentCompanyOnly ? 'primary' : 'warning'" class="rounded-pill px-4 py-1 border-primary">
           <div class="d-flex align-center gap-2">
-            <v-icon icon="ri-global-line" size="18" />
-            <span class="text-caption font-weight-bold">عرض كافة الشركات</span>
+            <v-icon :icon="currentCompanyOnly ? 'ri-building-line' : 'ri-global-line'" size="18" />
+            <span class="text-caption font-weight-bold">
+              {{ currentCompanyOnly ? 'الشركة الحالية فقط' : 'عرض كافة الشركات' }}
+            </span>
             <AppSwitch
-              v-model="filters.global"
-              color="primary"
+              v-model="currentCompanyOnly"
+              :color="currentCompanyOnly ? 'primary' : 'warning'"
               hide-details
               inset
               density="compact"
               class="ms-2"
-              @update:model-value="applyFilters(filters)"
             />
           </div>
         </v-card>
@@ -320,6 +321,14 @@ const {
   immediate: false,
 });
 
+const currentCompanyOnly = computed({
+  get: () => !filters.value.global,
+  set: val => {
+    filters.value.global = !val;
+    applyFilters(filters.value);
+  },
+});
+
 const handleLoadMore = () => {
   if (loading.value || users.value.length >= totalItems.value) return;
   page.value++;
@@ -385,8 +394,16 @@ const getRoleColor = role => {
   return colors[roleName] || '#78909C';
 };
 
+// Update stats when global filter changes
+watch(
+  () => filters.value.global,
+  newVal => {
+    store.fetchStats({ global: newVal });
+  }
+);
+
 onMounted(() => {
-  store.fetchStats();
+  store.fetchStats({ global: filters.value.global });
 });
 
 // Debounce search
