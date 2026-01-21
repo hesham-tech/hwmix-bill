@@ -105,17 +105,17 @@
             </template>
 
             <template #item.price_range="{ item }">
-              <div class="text-subtitle-2 font-weight-black text-primary">
-                {{ formatPrice(item.min_price || 0) }}
+              <div class="text-caption text-grey">
+                {{ formatCurrency(item.min_price || 0) }}
                 <template v-if="item.min_price !== item.max_price">
-                  <span class="text-caption text-grey font-weight-medium"> - {{ formatPrice(item.max_price) }}</span>
+                  <span class="text-caption text-grey font-weight-medium"> - {{ formatCurrency(item.max_price) }}</span>
                 </template>
               </div>
             </template>
 
             <template #item.created_at="{ item }">
               <div class="text-caption text-grey">
-                {{ new Date(item.created_at).toLocaleDateString('ar-EG') }}
+                {{ new Date(item.created_at).toLocaleDateString('en-US').replace(/,/g, "'") }}
               </div>
             </template>
           </AppDataTable>
@@ -147,6 +147,7 @@ import AppInput from '@/components/common/AppInput.vue';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
 import AppConfirmDialog from '@/components/common/AppConfirmDialog.vue';
+import { formatCurrency } from '@/utils/formatters';
 
 const router = useRouter();
 const productStore = useProductStore();
@@ -176,6 +177,7 @@ const {
   syncWithUrl: true,
   initialSortBy: 'created_at',
   initialSortOrder: 'desc',
+  immediate: false,
 });
 
 const headers = [
@@ -187,10 +189,6 @@ const headers = [
   { title: 'تاريخ الإضافة', key: 'created_at', sortable: true },
   { title: 'الإجراءات', key: 'actions', sortable: false, align: 'end' },
 ];
-
-const formatPrice = price => {
-  return new Intl.NumberFormat('ar-EG', { style: 'currency', currency: 'EGP' }).format(price);
-};
 
 const viewProduct = item => {
   router.push({ name: 'product-view', params: { id: item.id } });

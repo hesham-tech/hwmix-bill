@@ -314,7 +314,7 @@
                   <AppAutocomplete
                     v-model="attr.attribute_id"
                     label="الصفة"
-                    api-endpoint="attributes"
+                    :items="attributeList"
                     item-title="name"
                     item-value="id"
                     density="compact"
@@ -329,7 +329,7 @@
                     v-if="attr.attribute_id"
                     v-model="attr.attribute_value_id"
                     label="القيمة"
-                    :api-endpoint="`attribute-values?attribute_id=${attr.attribute_id}`"
+                    :items="attributeValuesMap[attr.attribute_id] || []"
                     item-title="name"
                     item-value="id"
                     density="compact"
@@ -338,7 +338,26 @@
                     class="attr-fixed-width"
                     can-create
                     create-field="name"
-                  />
+                  >
+                    <template #selection="{ item }">
+                       <v-chip
+                          v-if="item && item.raw && item.raw.color"
+                          size="small"
+                          class="font-weight-bold"
+                          :style="{ backgroundColor: item.raw.color, color: getContrastColor(item.raw.color) }"
+                        >
+                          {{ item.raw.name }}
+                        </v-chip>
+                        <span v-else-if="item && item.raw">{{ item.raw.name }}</span>
+                    </template>
+                    <template #item="{ props, item }">
+                       <v-list-item v-if="item && item.raw" v-bind="props" :style="item.raw.color ? { backgroundColor: item.raw.color, color: getContrastColor(item.raw.color) } : {}">
+                        <template #title>
+                          <span class="font-weight-bold">{{ item.raw.name }}</span>
+                        </template>
+                       </v-list-item>
+                    </template>
+                  </AppAutocomplete>
                   <div v-else class="text-caption text-grey-lighten-1 italic">اختر الصفة أولاً</div>
                 </div>
                 <v-btn icon="ri-close-line" size="x-small" variant="text" color="grey" class="mx-1" @click="removeAttribute(vIndex, aIndex)" />
@@ -365,7 +384,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import AppInput from '@/components/common/AppInput.vue';
 import AppAutocomplete from '@/components/common/AppAutocomplete.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
@@ -373,6 +392,8 @@ import ProductMediaManager from './ProductMediaManager.vue';
 import { usePermissions } from '@/composables/usePermissions';
 import { PERMISSIONS } from '@/config/permissions';
 import { useProductStore } from '../store/product.store';
+import { useApi } from '@/composables/useApi';
+import { getContrastColor } from '@/utils/helpers';
 
 const { can } = usePermissions();
 
@@ -507,18 +528,37 @@ const removeStock = (vIndex, sIndex) => {
   emit('update:modelValue', newVariants);
 };
 
-const addAttribute = vIndex => {
-  const newVariants = [...props.modelValue];
-  if (!newVariants[vIndex].attributes) newVariants[vIndex].attributes = [];
-  newVariants[vIndex].attributes.push({ attribute_id: null, attribute_value_id: null });
-  emit('update:modelValue', newVariants);
+const attributeList = ref([]);
+
+// Fetch attributes once
+const fetchAttributes = async () => {
+    try {
+        const response = await useApi('attributes').get({ per_page: 100 });
+        attributeList.value = response.data || [];
+    } catch (e) {
+        console.error('Failed to fetch attributes', e);
+    }
 };
 
-const removeAttribute = (vIndex, aIndex) => {
-  const newVariants = [...props.modelValue];
-  newVariants[vIndex].attributes.splice(aIndex, 1);
-  emit('update:modelValue', newVariants);
-};
+// Computed map for reactive access to values
+const attributeValuesMap = computed(() => {
+    const map = {};
+    if (attributeList.value && Array.isArray(attributeList.value)) {
+        attributeList.value.forEach(a => {
+            map[a.id] = a.values || [];
+        });
+    }
+    return map;
+});
+
+// ... existing logic ...
+
+onMounted(() => {
+    fetchAttributes();
+});
+
+
+
 </script>
 
 <style scoped>

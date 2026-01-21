@@ -157,6 +157,27 @@ export default [
     ],
   },
 
+  // ==================== Financials ====================
+  {
+    title: 'المالية',
+    icon: 'ri-bank-card-2-line',
+    permission: PERMISSIONS.EXPENSES_PAGE,
+    children: [
+      {
+        title: 'المصاريف',
+        to: '/expenses',
+        icon: 'ri-money-dollar-box-line',
+        permission: PERMISSIONS.EXPENSES_VIEW_ALL,
+      },
+      {
+        title: 'دفتر الأستاذ',
+        to: '/financial-ledger',
+        icon: 'ri-book-open-line',
+        permission: PERMISSIONS.FINANCIAL_LEDGER_PAGE,
+      },
+    ],
+  },
+
   // ==================== Reports ====================
   {
     title: 'التقارير',

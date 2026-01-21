@@ -20,6 +20,7 @@
 import { computed } from 'vue';
 import { Bar } from 'vue-chartjs';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import { formatCurrency, formatNumber } from '@/utils/formatters';
 
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
@@ -35,42 +36,19 @@ const props = defineProps({
   },
 });
 
-// Group data by date
-const groupedData = computed(() => {
-  const groups = {};
-
-  props.data.forEach(transaction => {
-    const date = transaction.transaction_date;
-    if (!groups[date]) {
-      groups[date] = { income: 0, expense: 0 };
-    }
-
-    const amount = Math.abs(parseFloat(transaction.amount || 0));
-    if (transaction.type === 'income') {
-      groups[date].income += amount;
-    } else {
-      groups[date].expense += amount;
-    }
-  });
-
-  return Object.entries(groups)
-    .sort((a, b) => a[0].localeCompare(b[0]))
-    .slice(-10); // Last 10 days
-});
-
 const chartData = computed(() => ({
-  labels: groupedData.value.map(([date]) => date),
+  labels: props.data.map(item => item.period),
   datasets: [
     {
       label: 'المقبوضات',
-      data: groupedData.value.map(([, values]) => values.income),
+      data: props.data.map(item => item.total_in || 0),
       backgroundColor: 'rgba(76, 175, 80, 0.8)',
       borderColor: '#4CAF50',
       borderWidth: 1,
     },
     {
       label: 'المدفوعات',
-      data: groupedData.value.map(([, values]) => values.expense),
+      data: props.data.map(item => item.total_out || 0),
       backgroundColor: 'rgba(244, 67, 54, 0.8)',
       borderColor: '#F44336',
       borderWidth: 1,
@@ -111,10 +89,7 @@ const chartOptions = {
       callbacks: {
         label: context => {
           const label = context.dataset.label || '';
-          const value = new Intl.NumberFormat('ar-EG', {
-            style: 'currency',
-            currency: 'EGP',
-          }).format(context.parsed.y);
+          const value = formatCurrency(context.parsed.y);
           return `${label}: ${value}`;
         },
       },
@@ -128,10 +103,7 @@ const chartOptions = {
           family: 'Cairo, sans-serif',
         },
         callback: value => {
-          return new Intl.NumberFormat('ar-EG', {
-            notation: 'compact',
-            compactDisplay: 'short',
-          }).format(value);
+          return formatNumber(value, 0); // Simplified for y-axis
         },
       },
     },

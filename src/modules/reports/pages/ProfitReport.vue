@@ -45,9 +45,8 @@
       <ProfitComparisonChart :data="comparisonData" :loading="loading" />
     </template>
 
-    <!-- Table -->
     <template #table>
-      <AppDataTable :headers="headers" :items="comparisonData" :loading="loading" title="مقارنة الأداء الشهري" icon="ri-calendar-todo-line">
+      <AppDataTable :headers="headers" :items="tableData" :loading="loading" title="مقارنة الأداء الشهري" icon="ri-calendar-todo-line">
         <template #item.revenue="{ item }">
           <span class="text-primary font-weight-bold">{{ formatCurrency(item.revenue) }}</span>
         </template>
@@ -78,7 +77,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { usePermissions } from '@/composables/usePermissions';
 import { PERMISSIONS } from '@/config/permissions';
 import { formatCurrency } from '@/utils/formatters';
@@ -92,12 +91,12 @@ import AppDataTable from '@/components/common/AppDataTable.vue';
 
 const { can } = usePermissions();
 
-const api = useApi('/api/reports/profit-loss');
+const api = useApi('/api/reports/profit-loss-summary');
 const { exportToCSV } = usePrintExport();
 
 const loading = ref(false);
 const filters = ref({
-  date_from: new Date(new Date().setMonth(new Date().getMonth() - 5)).toISOString().split('T')[0],
+  date_from: new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString().split('T')[0],
   date_to: new Date().toISOString().split('T')[0],
 });
 
@@ -105,36 +104,39 @@ const comparisonData = ref([]);
 const summary = ref({
   total_revenue: 0,
   total_costs: 0,
+  total_expenses: 0,
   net_profit: 0,
 });
 
 const headers = [
-  { title: 'الشهر', key: 'month' },
-  { title: 'الإيرادات', key: 'revenue', align: 'end' },
-  { title: 'التكاليف', key: 'costs', align: 'end' },
-  { title: 'صافي الربح', key: 'profit', align: 'end' },
-  { title: 'الهامش', key: 'margin', align: 'center' },
+  { title: 'التاريخ', key: 'date' },
+  { title: 'المبيعات', key: 'revenue', align: 'end' },
+  { title: 'تكلفة المبيعات', key: 'cost_of_goods_sold', align: 'end' },
+  { title: 'المصروفات', key: 'expenses', align: 'end' },
+  { title: 'صافي الربح', key: 'net_profit', align: 'end' },
 ];
+
+const tableData = computed(() => [...comparisonData.value].reverse());
 
 const loadReport = async () => {
   loading.value = true;
   try {
-    // 1. Fetch Summary for current period
-    const resSummary = await api.get(filters.value, { showLoading: false });
-    summary.value = {
-      total_revenue: resSummary.revenues?.total || 0,
-      total_costs: resSummary.costs?.total || 0,
-      net_profit: resSummary.result?.net_profit || 0,
-    };
-
-    // 2. Fetch Monthly Comparison for Chart & Table
-    const resComp = await useApi('/api/reports/profit-loss/monthly-comparison').get(
-      {
-        months: 6,
-      },
-      { showLoading: false }
-    );
-    comparisonData.value = resComp.comparison || [];
+    const res = await api.get(filters.value, { showLoading: false });
+    if (res.status) {
+      const data = res.data || {};
+      summary.value = {
+        total_revenue: data.summary?.total_revenue || 0,
+        total_costs: data.summary?.total_costs || 0,
+        total_expenses: data.summary?.total_expenses || 0,
+        net_profit: data.summary?.net_profit || 0,
+      };
+      comparisonData.value = (data.details || []).map(item => ({
+        ...item,
+        month: item.date,
+        costs: (item.cost_of_goods_sold || 0) + (item.expenses || 0),
+        profit: item.net_profit,
+      }));
+    }
   } finally {
     loading.value = false;
   }

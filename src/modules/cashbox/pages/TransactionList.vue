@@ -142,6 +142,7 @@ const {
   syncWithUrl: true,
   initialSortBy: 'transaction_date',
   initialSortOrder: 'desc',
+  immediate: false,
 });
 
 // Extra state

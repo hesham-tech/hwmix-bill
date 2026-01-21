@@ -133,6 +133,7 @@
 
 <script setup>
 import CashBoxSelector from './CashBoxSelector.vue';
+import { formatCurrency } from '@/utils/formatters';
 
 const props = defineProps({
   modelValue: {
@@ -150,13 +151,6 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['update:modelValue', 'update:prop']);
-
-const formatCurrency = amount => {
-  return new Intl.NumberFormat('ar-EG', {
-    style: 'currency',
-    currency: 'EGP',
-  }).format(amount || 0);
-};
 </script>
 
 <style scoped>

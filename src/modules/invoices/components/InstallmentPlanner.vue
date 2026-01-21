@@ -94,6 +94,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
+import { formatCurrency, formatDate } from '@/utils/formatters';
 
 const props = defineProps({
   totalAmount: {
@@ -192,17 +193,6 @@ const generateSchedule = () => {
   if (items.length > 0) {
     plan.value.due_date = items[items.length - 1].date.toISOString().split('T')[0];
   }
-};
-
-const formatCurrency = amount => {
-  return new Intl.NumberFormat('ar-EG', {
-    style: 'currency',
-    currency: 'EGP',
-  }).format(amount || 0);
-};
-
-const formatDate = date => {
-  return date.toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
 };
 
 // Initial calculation

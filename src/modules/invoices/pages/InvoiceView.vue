@@ -261,6 +261,7 @@ import AppDialog from '@/components/common/AppDialog.vue';
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
 import { toast } from 'vue3-toastify';
+import { formatCurrency, formatDate } from '@/utils/formatters';
 
 const router = useRouter();
 const route = useRoute();
@@ -311,24 +312,6 @@ const updateStatus = async newStatus => {
   } catch (error) {
     selectedStatus.value = invoice.value.status;
   }
-};
-
-const formatDate = date => {
-  if (!date) return '-';
-  return new Date(date).toLocaleDateString('ar-EG', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-};
-
-const formatCurrency = amount => {
-  if (!amount) return '0 ج.م';
-  return new Intl.NumberFormat('ar-EG', {
-    style: 'currency',
-    currency: 'EGP',
-    maximumFractionDigits: 0,
-  }).format(amount);
 };
 
 const getStatusColor = status => {

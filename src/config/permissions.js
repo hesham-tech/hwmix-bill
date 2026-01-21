@@ -405,12 +405,39 @@ export const PERMISSIONS = {
   SUBSCRIPTIONS_DELETE_CHILDREN: 'subscriptions.delete_children',
   SUBSCRIPTIONS_DELETE_SELF: 'subscriptions.delete_self',
 
+  // ==================== Expenses ====================
+  EXPENSES_PAGE: 'expenses.page',
+  EXPENSES_VIEW_ALL: 'expenses.view_all',
+  EXPENSES_VIEW_CHILDREN: 'expenses.view_children',
+  EXPENSES_VIEW_SELF: 'expenses.view_self',
+  EXPENSES_CREATE: 'expenses.create',
+  EXPENSES_UPDATE_ALL: 'expenses.update_all',
+  EXPENSES_UPDATE_CHILDREN: 'expenses.update_children',
+  EXPENSES_UPDATE_SELF: 'expenses.update_self',
+  EXPENSES_DELETE_ALL: 'expenses.delete_all',
+  EXPENSES_DELETE_CHILDREN: 'expenses.delete_children',
+  EXPENSES_DELETE_SELF: 'expenses.delete_self',
+
+  // ==================== Expense Categories ====================
+  EXPENSE_CATEGORIES_PAGE: 'expense_categories.page',
+  EXPENSE_CATEGORIES_VIEW_ALL: 'expense_categories.view_all',
+  EXPENSE_CATEGORIES_CREATE: 'expense_categories.create',
+  EXPENSE_CATEGORIES_UPDATE_ALL: 'expense_categories.update_all',
+  EXPENSE_CATEGORIES_DELETE_ALL: 'expense_categories.delete_all',
+
+  // ==================== Financial Ledger ====================
+  FINANCIAL_LEDGER_PAGE: 'financial_ledger.page',
+  FINANCIAL_LEDGER_VIEW_ALL: 'financial_ledger.view_all',
+  FINANCIAL_LEDGER_VIEW_SELF: 'financial_ledger.view_self',
+  FINANCIAL_LEDGER_EXPORT: 'financial_ledger.export',
+
   // ==================== Reports ====================
   REPORTS_PAGE: 'reports.page',
   REPORTS_VIEW_ALL: 'reports.view_all',
   REPORTS_SALES: 'reports.sales',
   REPORTS_STOCK: 'reports.stock',
   REPORTS_PROFIT: 'reports.profit',
+  REPORTS_EXPENSES: 'reports.expenses',
   REPORTS_CASH_FLOW: 'reports.cash_flow',
   REPORTS_TAX: 'reports.tax',
   REPORTS_EXPORT: 'reports.export',

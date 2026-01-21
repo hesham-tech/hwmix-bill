@@ -62,11 +62,13 @@ export const formatTime = date => {
 export const formatCurrency = (amount, currency = 'EGP') => {
   if (amount === null || amount === undefined) return '-';
 
-  return new Intl.NumberFormat('ar-EG', {
+  return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency,
     maximumFractionDigits: 0,
-  }).format(amount);
+  })
+    .format(amount)
+    .replace(/,/g, "'");
 };
 
 /**
@@ -75,10 +77,12 @@ export const formatCurrency = (amount, currency = 'EGP') => {
 export const formatNumber = (number, decimals = 2) => {
   if (number === null || number === undefined) return '-';
 
-  return new Intl.NumberFormat('ar-EG', {
+  return new Intl.NumberFormat('en-US', {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
-  }).format(number);
+  })
+    .format(number)
+    .replace(/,/g, "'");
 };
 
 /**

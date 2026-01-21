@@ -262,6 +262,7 @@ import AppCard from '@/components/common/AppCard.vue';
 import AppInfiniteScroll from '@/components/common/AppInfiniteScroll.vue';
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import EmptyState from '@/components/common/EmptyState.vue';
+import { formatCurrency } from '@/utils/formatters';
 import { PERMISSIONS } from '@/config/permissions';
 
 const { can } = usePermissions();
@@ -389,11 +390,6 @@ const confirmDelete = async () => {
   } finally {
     deleting.value = false;
   }
-};
-
-const formatCurrency = amount => {
-  if (amount === undefined || amount === null) return '0.00 ج.م';
-  return new Intl.NumberFormat('ar-EG', { style: 'currency', currency: 'EGP' }).format(amount);
 };
 
 const handleSearch = () => {

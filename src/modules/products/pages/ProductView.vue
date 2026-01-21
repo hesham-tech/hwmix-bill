@@ -406,6 +406,7 @@ import { useApi } from '@/composables/useApi';
 import AppAvatar from '@/components/common/AppAvatar.vue';
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import AppConfirmDialog from '@/components/common/AppConfirmDialog.vue';
+import { formatCurrency, formatDate } from '@/utils/formatters';
 
 const route = useRoute();
 const router = useRouter();
@@ -465,19 +466,6 @@ const averagePrice = computed(() => {
   const sum = product.value.variants.reduce((acc, v) => acc + parseFloat(v.retail_price || 0), 0);
   return sum / product.value.variants.length;
 });
-
-const formatPrice = price => {
-  return new Intl.NumberFormat('ar-EG', { style: 'currency', currency: 'EGP' }).format(price);
-};
-
-const formatDate = date => {
-  if (!date) return '---';
-  return new Date(date).toLocaleDateString('ar-EG', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-};
 
 const getStockColor = qty => {
   if (qty <= 0) return 'error';

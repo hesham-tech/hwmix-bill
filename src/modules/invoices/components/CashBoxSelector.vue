@@ -25,6 +25,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useApi } from '@/composables/useApi';
+import { formatCurrency } from '@/utils/formatters';
 
 const props = defineProps({
   modelValue: {
@@ -78,12 +79,7 @@ const loadCashBoxes = async () => {
   }
 };
 
-const formatCurrency = amount => {
-  return new Intl.NumberFormat('ar-EG', {
-    style: 'currency',
-    currency: 'EGP',
-  }).format(amount || 0);
-};
+onMounted(loadCashBoxes);
 
 onMounted(loadCashBoxes);
 </script>

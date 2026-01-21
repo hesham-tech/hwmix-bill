@@ -20,6 +20,9 @@ export { default as permissionService } from './services/permission.service';
 export { default as taskService } from './services/task.service';
 export { default as taskGroupService } from './services/task-group.service';
 export { default as companyService } from './services/company.service';
+export { default as expenseService } from './services/expense.service';
+export { default as expenseCategoryService } from './services/expense-category.service';
+export { default as financialLedgerService } from './services/financial-ledger.service';
 
 // Export axios instance for custom calls
 export { default as apiClient } from './axios.config';

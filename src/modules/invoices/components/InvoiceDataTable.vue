@@ -94,6 +94,7 @@
 <script setup>
 import { computed } from 'vue';
 import { usePermissions } from '@/composables/usePermissions';
+import { formatCurrency, formatDate } from '@/utils/formatters';
 
 const props = defineProps({
   items: {
@@ -147,24 +148,6 @@ const changePerPage = perPage => {
 
 const handleSort = sortBy => {
   emit('update:sortBy', sortBy);
-};
-
-const formatDate = date => {
-  if (!date) return '-';
-  return new Date(date).toLocaleDateString('ar-EG', {
-    charSet: 'utf-8',
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-};
-
-const formatCurrency = amount => {
-  if (!amount) return '0.00 ج.م';
-  return new Intl.NumberFormat('ar-EG', {
-    style: 'currency',
-    currency: 'EGP',
-  }).format(amount);
 };
 
 const getStatusColor = status => {

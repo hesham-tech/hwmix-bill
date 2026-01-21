@@ -158,7 +158,7 @@ const loadReport = async () => {
   loading.value = true;
   try {
     // 1. Fetch Valuation (Charts & Table Data)
-    const valRes = await useApi('/api/reports/stock/valuation').get({}, { showLoading: false });
+    const valRes = await useApi('/api/reports/stock/valuation').get(filters.value, { showLoading: false });
     valuationData.value = valRes.valuation || [];
     summary.value = valRes.summary || { total_cost_value: 0, total_sale_value: 0, potential_profit: 0 };
 

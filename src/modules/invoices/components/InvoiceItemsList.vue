@@ -206,6 +206,7 @@
 
 <script setup>
 import ProductSelector from './ProductSelector.vue';
+import { formatCurrency } from '@/utils/formatters';
 
 const props = defineProps({
   items: {
@@ -235,13 +236,6 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['update:taxInclusive', 'add', 'calculate', 'remove']);
-
-const formatCurrency = amount => {
-  return new Intl.NumberFormat('ar-EG', {
-    style: 'currency',
-    currency: 'EGP',
-  }).format(amount || 0);
-};
 </script>
 
 <style scoped>

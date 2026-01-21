@@ -48,7 +48,9 @@
         </v-col>
       </v-row>
 
-      <div class="text-center mt-12 text-disable text-caption">طبع بواسطة نظام وجدي العربي للمبيعات - {{ new Date().toLocaleString('ar-EG') }}</div>
+      <div class="text-center mt-12 text-disable text-caption">
+        طبع بواسطة نظام وجدي العربي للمبيعات - {{ new Date().toLocaleString('en-US').replace(/,/g, "'") }}
+      </div>
     </div>
   </div>
 </template>
@@ -60,7 +62,7 @@ import { useApi } from '@/composables/useApi';
 const props = defineProps({
   title: { type: String, default: 'مستند' },
   reference: { type: String, default: '---' },
-  date: { type: String, default: () => new Date().toLocaleDateString('ar-EG') },
+  date: { type: String, default: () => new Date().toLocaleDateString('en-US').replace(/,/g, "'") },
 });
 
 const settingsApi = useApi('/api/settings');

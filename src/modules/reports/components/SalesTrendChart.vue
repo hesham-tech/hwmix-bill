@@ -36,7 +36,7 @@ const props = defineProps({
 const series = computed(() => [
   {
     name: 'المبيعات',
-    data: props.data && props.data.length > 0 ? props.data.map(item => item.total || 0) : [],
+    data: props.data && props.data.length > 0 ? props.data.map(item => item.total_sales || item.total || 0) : [],
   },
 ]);
 
@@ -66,7 +66,7 @@ const chartOptions = computed(() => ({
     },
   },
   xaxis: {
-    categories: props.data && props.data.length > 0 ? props.data.map(item => item.date || '') : [],
+    categories: props.data && props.data.length > 0 ? props.data.map(item => item.period || '') : [],
     labels: {
       style: { colors: '#64748b', fontSize: '12px' },
     },

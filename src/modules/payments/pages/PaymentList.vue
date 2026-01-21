@@ -87,6 +87,7 @@ import AppDataTable from '@/components/common/AppDataTable.vue';
 import AppButton from '@/components/common/AppButton.vue';
 import AppCard from '@/components/common/AppCard.vue';
 import AppDialog from '@/components/common/AppDialog.vue';
+import { formatCurrency, formatDate } from '@/utils/formatters';
 
 const router = useRouter();
 const { payments, loading, total, fetchPayments, deletePayment } = usePaymentsData();
@@ -129,16 +130,6 @@ const handleItemsPerPageChange = value => {
   itemsPerPage.value = value;
   page.value = 1;
   loadData();
-};
-
-const formatCurrency = amount => {
-  if (!amount) return '0.00 ج.م';
-  return new Intl.NumberFormat('ar-EG', { style: 'currency', currency: 'EGP' }).format(amount);
-};
-
-const formatDate = date => {
-  if (!date) return '-';
-  return new Date(date).toLocaleDateString('ar-EG');
 };
 
 const loadData = () => fetchPayments({ page: page.value, per_page: itemsPerPage.value });

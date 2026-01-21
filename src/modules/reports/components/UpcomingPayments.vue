@@ -62,6 +62,7 @@
 <script setup>
 import { computed } from 'vue';
 import AppDataTable from '@/components/common/AppDataTable.vue';
+import { formatCurrency, formatDate } from '@/utils/formatters';
 
 const props = defineProps({
   payments: {
@@ -82,22 +83,6 @@ const headers = [
 ];
 
 const upcomingCount = computed(() => props.payments.length);
-
-const formatDate = date => {
-  if (!date) return '-';
-  return new Date(date).toLocaleDateString('ar-EG', {
-    day: 'numeric',
-    month: 'short',
-  });
-};
-
-const formatCurrency = amount => {
-  if (!amount) return '0.00 ج.م';
-  return new Intl.NumberFormat('ar-EG', {
-    style: 'currency',
-    currency: 'EGP',
-  }).format(amount);
-};
 
 const getDaysLeft = dueDate => {
   if (!dueDate) return '-';

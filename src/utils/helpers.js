@@ -184,3 +184,33 @@ export const highlightText = (text, search) => {
   // Use a very light yellow highlight that doesn't obscure the text
   return str.replace(regex, '<mark style="background-color: #fff9c4; color: inherit; font-weight: bold; border-radius: 2px;">$1</mark>');
 };
+
+/**
+ * Calculate contrast color (black or white) based on background hex
+ */
+export const getContrastColor = hexColor => {
+  if (!hexColor) return 'inherit';
+
+  // Remove hash if present
+  let hex = hexColor.replace('#', '');
+
+  // Handle 3-digit hex
+  if (hex.length === 3) {
+    hex = hex
+      .split('')
+      .map(char => char + char)
+      .join('');
+  }
+
+  if (hex.length !== 6) return 'inherit';
+
+  // Convert to RGB
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+
+  // Calculate luminance (YIQ)
+  const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+
+  return yiq >= 128 ? 'black' : 'white';
+};

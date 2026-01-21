@@ -48,6 +48,7 @@
 import { ref, computed, watch } from 'vue';
 import { useApi } from '@/composables/useApi';
 import { highlightText } from '@/utils/helpers';
+import { formatCurrency } from '@/utils/formatters';
 
 const props = defineProps({
   invoiceType: {
@@ -141,13 +142,7 @@ const addVariantInstant = variant => {
   }, 10);
 };
 
-const formatCurrency = amount => {
-  if (!amount) return '0.00 ج.م';
-  return new Intl.NumberFormat('ar-EG', {
-    style: 'currency',
-    currency: 'EGP',
-  }).format(amount);
-};
+// Watch variant selection for instant add
 
 // Watch variant selection for instant add
 watch(selectedVariant, variant => {

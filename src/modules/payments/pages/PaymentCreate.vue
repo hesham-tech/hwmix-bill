@@ -117,6 +117,7 @@ import AppButton from '@/components/common/AppButton.vue';
 import AppCard from '@/components/common/AppCard.vue';
 import AppInput from '@/components/common/AppInput.vue';
 import AppAutocomplete from '@/components/common/AppAutocomplete.vue';
+import { formatCurrency } from '@/utils/formatters';
 
 const router = useRouter();
 const invoicesApi = useApi('/api/invoices');
@@ -189,9 +190,8 @@ const handleCancel = () => {
   router.push('/payments');
 };
 
-const formatCurrency = amount => {
-  if (!amount) return '0.00 ج.م';
-  return new Intl.NumberFormat('ar-EG', { style: 'currency', currency: 'EGP' }).format(amount);
+const formatCurrencyLocal = amount => {
+  return formatCurrency(amount);
 };
 
 onMounted(() => {

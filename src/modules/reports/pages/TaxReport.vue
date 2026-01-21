@@ -97,22 +97,20 @@ const headers = [
 const loadReport = async () => {
   loading.value = true;
   try {
-    const response = await api.get({ ...filters.value, per_page: 50 }, { showLoading: false });
-    const invoices = response.data || [];
-
-    let salesTax = 0;
-    taxData.value = invoices.map(inv => {
-      const total = parseFloat(inv.total || 0);
-      const tax = total - total / 1.14;
-      salesTax += tax;
-      return { ...inv, tax_amount: tax };
-    });
+    // 1. Fetch Summary (Sales Tax, Purchase Tax, Net)
+    const summaryRes = await useApi('/api/reports/tax').get(filters.value, { showLoading: false });
+    const summaryData = summaryRes.summary || {};
 
     summary.value = {
-      total_sales_tax: salesTax,
-      total_purchase_tax: salesTax * 0.4, // Placeholder estimation
-      net_tax: salesTax * 0.6,
+      total_sales_tax: summaryData.tax_collected || 0,
+      total_purchase_tax: summaryData.tax_paid || 0,
+      net_tax: summaryData.net_tax_payable || 0,
     };
+
+    // 2. Fetch Detailed Data (Collected Tax from Sales)
+    // You can switch this to 'paid' endpoint if you want to show purchase tax details
+    const detailsRes = await useApi('/api/reports/tax/collected').get({ ...filters.value, per_page: 50 }, { showLoading: false });
+    taxData.value = detailsRes.invoices?.data || detailsRes.invoices || [];
   } finally {
     loading.value = false;
   }

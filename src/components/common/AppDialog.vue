@@ -24,20 +24,22 @@
       </v-card-text>
 
       <!-- Dialog Actions -->
-      <v-card-actions v-if="showActions" class="px-6 pb-4">
+      <v-card-actions v-if="showActions" class="px-6 pb-6 pt-0">
         <v-spacer />
 
-        <template v-if="!hideActions">
-          <v-btn v-if="showCancel" variant="outlined" color="grey" @click="handleCancel">
+        <template v-if="!hideActions && !$slots.actions">
+          <v-btn v-if="showCancel" variant="outlined" color="grey" class="px-6" @click="handleCancel">
             {{ cancelText }}
           </v-btn>
 
-          <v-btn v-if="showConfirm" variant="elevated" :color="confirmColor" :loading="loading" @click="handleConfirm">
+          <v-btn v-if="showConfirm" variant="elevated" :color="confirmColor" :loading="loading" class="px-6" @click="handleConfirm">
             {{ confirmText }}
           </v-btn>
         </template>
 
-        <slot name="actions" />
+        <div v-if="$slots.actions" class="w-100">
+          <slot name="actions" />
+        </div>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -123,5 +125,12 @@ const handleConfirm = () => {
 <style scoped>
 .gap-2 {
   gap: 0.5rem;
+}
+.w-100 {
+  width: 100%;
+}
+:deep(.v-card-text),
+:deep(.v-card-actions) {
+  overflow-x: hidden !important;
 }
 </style>

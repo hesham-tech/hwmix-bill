@@ -20,6 +20,7 @@
 import { computed } from 'vue';
 import { Line } from 'vue-chartjs';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
+import { formatCurrency, formatNumber } from '@/utils/formatters';
 
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
@@ -98,10 +99,7 @@ const chartOptions = {
       callbacks: {
         label: context => {
           const label = context.dataset.label || '';
-          const value = new Intl.NumberFormat('ar-EG', {
-            style: 'currency',
-            currency: 'EGP',
-          }).format(context.parsed.y);
+          const value = formatCurrency(context.parsed.y);
           return `${label}: ${value}`;
         },
       },
@@ -115,10 +113,7 @@ const chartOptions = {
           family: 'Cairo, sans-serif',
         },
         callback: value => {
-          return new Intl.NumberFormat('ar-EG', {
-            notation: 'compact',
-            compactDisplay: 'short',
-          }).format(value);
+          return formatNumber(value, 0); // Simplified for y-axis
         },
       },
     },

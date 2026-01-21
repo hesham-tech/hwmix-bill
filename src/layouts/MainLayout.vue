@@ -134,6 +134,7 @@ import Calculator from '@/components/tools/Calculator.vue';
 import InstallmentCalc from '@/components/tools/InstallmentCalc.vue';
 import { toast } from 'vue3-toastify';
 import { useDisplay } from 'vuetify';
+import { formatCurrency } from '@/utils/formatters';
 
 const { xs } = useDisplay();
 const route = useRoute();
@@ -154,15 +155,6 @@ watch(
 );
 
 const userName = computed(() => userStore.currentUser?.full_name || 'المستخدم');
-
-const formatCurrency = amount => {
-  if (amount === undefined || amount === null) return '0 ج.م';
-  return new Intl.NumberFormat('ar-EG', {
-    style: 'currency',
-    currency: 'EGP',
-    maximumFractionDigits: 0,
-  }).format(amount);
-};
 
 const breadcrumbs = computed(() => {
   const items = [{ title: 'الرئيسية', to: '/dashboard', disabled: false }];

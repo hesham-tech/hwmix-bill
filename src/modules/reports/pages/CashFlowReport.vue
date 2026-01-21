@@ -44,7 +44,7 @@
 
     <!-- Charts -->
     <template #charts>
-      <CashFlowChart :data="transactions" :loading="loading" />
+      <CashFlowChart :data="trendData" :loading="loading" />
     </template>
 
     <!-- Table -->
@@ -96,6 +96,7 @@ const filters = ref({
 
 const summary = ref({ total_inflow: 0, total_outflow: 0, net_flow: 0 });
 const transactions = ref([]);
+const trendData = ref([]);
 
 const headers = [
   { title: 'التاريخ', key: 'transaction_date' },
@@ -107,23 +108,29 @@ const headers = [
 const loadReport = async () => {
   loading.value = true;
   try {
-    const response = await api.get({ ...filters.value, per_page: 100 }, { showLoading: false });
-    transactions.value = response.data || [];
+    const response = await useApi('/api/reports/cash-flow').get({ ...filters.value, per_page: 50 }, { showLoading: false });
 
-    let inflow = 0;
-    let outflow = 0;
+    // Bind API response
+    transactions.value = response.transactions?.data || [];
 
-    transactions.value.forEach(t => {
-      const amt = parseFloat(t.amount || 0);
-      if (t.type === 'income') inflow += amt;
-      else outflow += Math.abs(amt);
-    });
-
+    // Map backend breakdown to frontend summary model
+    const breakdown = response.breakdown || {};
     summary.value = {
-      total_inflow: inflow,
-      total_outflow: outflow,
-      net_flow: inflow - outflow,
+      total_inflow: breakdown.deposits || 0,
+      total_outflow: breakdown.withdrawals || 0,
+      net_flow: breakdown.net_cash_flow || 0,
     };
+
+    // 2. Fetch Trend Data
+    const trendRes = await useApi('/api/reports/cash-flow/trend').get(
+      {
+        date_from: filters.value.date_from,
+        date_to: filters.value.date_to,
+        period: 'day',
+      },
+      { showLoading: false }
+    );
+    trendData.value = trendRes.trend || [];
   } finally {
     loading.value = false;
   }

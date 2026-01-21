@@ -101,6 +101,7 @@ import { useUserStore } from '@/stores/user';
 import { useDashboardData } from '../composables/useDashboardData';
 import RecentInvoices from '../components/RecentInvoices.vue';
 import AppButton from '@/components/common/AppButton.vue';
+import { formatCurrency } from '@/utils/formatters';
 
 const userStore = useUserStore();
 const { stats, recentInvoices, upcomingInstallments, loadingInvoices, refreshAll } = useDashboardData();
@@ -117,14 +118,6 @@ const dynamicGreeting = computed(() => {
   if (hour < 18) return 'مساء الخير';
   return 'أهلاً بك';
 });
-
-const formatCurrency = value => {
-  return new Intl.NumberFormat('ar-EG', {
-    style: 'currency',
-    currency: 'EGP',
-    maximumFractionDigits: 0,
-  }).format(value || 0);
-};
 
 const customerActions = [
   { title: 'كشف حسابي', icon: 'ri-file-search-line', props: { to: '/reports/my-statement' } },

@@ -128,7 +128,7 @@ const loadReport = async () => {
     // 1. Fetch Main Report
     const response = await api.get(filters.value, { showLoading: false });
     reportData.value = response.report?.data || response.report || [];
-    summary.value = response.summary || { total_sales: 0, total_invoices: 0 };
+    summary.value = response.summary || { total_sales: 0, total_invoices: 0, total_items_sold: 0 };
 
     // Update headers based on grouping
     if (filters.value.group_by === 'product') {

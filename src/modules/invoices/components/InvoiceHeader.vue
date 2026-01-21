@@ -28,6 +28,8 @@
 </template>
 
 <script setup>
+import { formatCurrency } from '@/utils/formatters';
+
 defineProps({
   isEdit: Boolean,
   invoiceTotal: Number,
@@ -36,13 +38,6 @@ defineProps({
 });
 
 defineEmits(['save', 'cancel']);
-
-const formatCurrency = amount => {
-  return new Intl.NumberFormat('ar-EG', {
-    style: 'currency',
-    currency: 'EGP',
-  }).format(amount || 0);
-};
 </script>
 
 <style scoped>

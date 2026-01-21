@@ -110,6 +110,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
+import { formatCurrency, formatDate } from '@/utils/formatters';
 
 defineEmits(['close']);
 
@@ -212,18 +213,6 @@ const generateSchedule = () => {
   }
 
   schedule.value = items;
-};
-
-const formatCurrency = amount => {
-  return new Intl.NumberFormat('ar-EG', {
-    style: 'currency',
-    currency: 'EGP',
-    maximumFractionDigits: 0,
-  }).format(amount || 0);
-};
-
-const formatDate = date => {
-  return date.toLocaleDateString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric' });
 };
 
 onMounted(() => {

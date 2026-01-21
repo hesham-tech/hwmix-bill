@@ -142,6 +142,25 @@ const router = createRouter({
             ],
           },
         },
+        // ==================== Expenses & Financials ====================
+        {
+          path: 'expenses',
+          name: 'expenses',
+          component: () => import('@/modules/expenses/pages/ExpenseList.vue'),
+          meta: {
+            title: 'المصاريف',
+            permission: PERMISSIONS.EXPENSES_PAGE,
+          },
+        },
+        {
+          path: 'financial-ledger',
+          name: 'financial-ledger',
+          component: () => import('@/modules/expenses/pages/LedgerList.vue'),
+          meta: {
+            title: 'دفتر الأستاذ',
+            permission: PERMISSIONS.FINANCIAL_LEDGER_PAGE,
+          },
+        },
 
         // ==================== Payments ====================
         {

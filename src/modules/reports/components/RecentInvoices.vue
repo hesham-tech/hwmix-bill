@@ -39,6 +39,7 @@
 
 <script setup>
 import AppDataTable from '@/components/common/AppDataTable.vue';
+import { formatCurrency } from '@/utils/formatters';
 
 defineProps({
   invoices: {
@@ -57,15 +58,6 @@ const headers = [
   { title: 'المبلغ', key: 'total', align: 'end' },
   { title: 'الحالة', key: 'status' },
 ];
-
-const formatCurrency = amount => {
-  if (!amount) return '0 ج.م';
-  return new Intl.NumberFormat('ar-EG', {
-    style: 'currency',
-    currency: 'EGP',
-    maximumFractionDigits: 0,
-  }).format(amount);
-};
 
 const getStatusColor = status => {
   const colors = {

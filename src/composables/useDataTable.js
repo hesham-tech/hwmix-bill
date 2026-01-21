@@ -20,6 +20,7 @@ export function useDataTable(fetchFunction, options = {}) {
     initialSortBy = 'id',
     initialSortOrder = 'desc',
     syncWithUrl = true, // مزامنة مع URL query params
+    immediate = true, // جلب البيانات فوراً عند التحميل
   } = options;
 
   // ✅ الحالة (State)
@@ -76,6 +77,12 @@ export function useDataTable(fetchFunction, options = {}) {
    */
   const fetchData = async (fetchOptions = {}) => {
     const { append = false } = fetchOptions;
+
+    // Prevent duplicate calls if already loading
+    if (loading.value && !append) {
+      console.warn('DataTable is already loading, skipping request.');
+      return;
+    }
 
     loading.value = true;
     error.value = null;
@@ -289,7 +296,9 @@ export function useDataTable(fetchFunction, options = {}) {
   watch(selectAll, toggleSelectAll);
 
   // جلب البيانات عند التحميل
-  fetchData();
+  if (immediate) {
+    fetchData();
+  }
 
   return {
     // State
