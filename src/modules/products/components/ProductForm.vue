@@ -3,7 +3,7 @@
     <AppPageHeader sticky>
       <template #prepend>
         <div class="d-flex align-center gap-3">
-          <AppButton icon="ri-arrow-right-line" variant="tonal" color="primary" size="small" class="rounded-md" @click="emit('cancel')" />
+          <AppButton icon="ri-arrow-right-line" variant="tonal" color="primary" size="small" class="" @click="emit('cancel')" />
           <AppAvatar
             :img-url="primaryImageUrl"
             :name="productData.name || 'P'"
@@ -39,27 +39,33 @@
       <!-- Main Form Content -->
       <v-col cols="12" lg="8">
         <!-- Information Card -->
-        <v-card border flat class="rounded-md mb-6 overflow-visible">
-          <div class="pa-4 mb-6 bg-grey-lighten-5 rounded-t-lg border-b d-flex align-center justify-space-between">
+        <v-card border flat class="mb-6 overflow-visible">
+          <div
+            class="pa-4 mb-6 bg-grey-lighten-5 rounded-t-lg border-b d-flex flex-column-reverse flex-md-row align-md-center justify-md-space-between gap-4"
+          >
             <div class="d-flex align-center">
               <v-icon icon="ri-information-line" color="primary" class="me-2" />
               <span class="text-subtitle-2 font-weight-bold">المعلومات الأساسية</span>
             </div>
+
             <!-- Product Type Selection -->
-            <v-btn-toggle
-              v-model="productData.product_type"
-              mandatory
-              variant="tonal"
-              color="primary"
-              density="compact"
-              class="rounded-md"
-              @update:model-value="handleTypeChange"
-            >
-              <v-btn value="physical" size="small" prepend-icon="ri-box-3-line"> مادي </v-btn>
-              <v-btn value="digital" size="small" prepend-icon="ri-download-cloud-2-line"> رقمي </v-btn>
-              <v-btn value="service" size="small" prepend-icon="ri-customer-service-2-line"> خدمة </v-btn>
-              <v-btn value="subscription" size="small" prepend-icon="ri-repeat-line"> اشتراك </v-btn>
-            </v-btn-toggle>
+            <v-item-group v-model="productData.product_type" mandatory class="d-flex flex-wrap gap-2" @update:model-value="handleTypeChange">
+              <v-item v-for="type in productTypes" :key="type.value" :value="type.value">
+                <template #default="{ isSelected, toggle }">
+                  <v-btn
+                    :variant="isSelected ? 'flat' : 'tonal'"
+                    :color="isSelected ? 'primary' : 'grey-lighten-3'"
+                    :class="['rounded-lg', { 'text-primary': !isSelected }]"
+                    class="flex-grow-1 flex-md-grow-0"
+                    size="small"
+                    @click="toggle"
+                    :prepend-icon="type.icon"
+                  >
+                    {{ type.label }}
+                  </v-btn>
+                </template>
+              </v-item>
+            </v-item-group>
           </div>
           <v-card-text class="pa-6">
             <v-row>
@@ -104,7 +110,7 @@
 
         <!-- Digital Product Details (Smart Fields) -->
         <v-expand-transition>
-          <v-card v-if="productData.product_type === 'digital'" border flat class="rounded-md mb-6">
+          <v-card v-if="productData.product_type === 'digital'" border flat class="mb-6">
             <div class="pa-4 mb-6 bg-info-lighten-5 rounded-t-lg border-b d-flex align-center">
               <v-icon icon="ri-download-cloud-2-line" color="info" class="me-2" />
               <span class="text-subtitle-2 font-weight-bold">تفاصيل المنتج الرقمي والتسليم</span>
@@ -166,14 +172,14 @@
       <!-- Sidebar Options -->
       <v-col cols="12" lg="4">
         <!-- Status Card -->
-        <v-card border flat class="rounded-md mb-6">
+        <v-card border flat class="mb-6">
           <div class="pa-4 bg-grey-lighten-5 rounded-t-lg border-b d-flex align-center">
             <v-icon icon="ri-settings-4-line" color="grey-darken-1" class="me-2" />
             <span class="text-subtitle-2 font-weight-bold">حالة العرض والخيارات</span>
           </div>
           <v-card-text class="pa-4">
             <div class="d-flex flex-column gap-2">
-              <div class="d-flex align-center justify-space-between pa-2 rounded-md hover-bg">
+              <div class="d-flex align-center justify-space-between pa-2 hover-bg">
                 <div>
                   <div class="text-body-2 font-weight-bold">متاح للبيع</div>
                   <div class="text-caption text-grey">تفعيل أو تعطيل ظهور المنتج</div>
@@ -183,7 +189,7 @@
 
               <v-divider />
 
-              <div class="d-flex align-center justify-space-between pa-2 rounded-md hover-bg">
+              <div class="d-flex align-center justify-space-between pa-2 hover-bg">
                 <div>
                   <div class="text-body-2 font-weight-bold">منتج مميز</div>
                   <div class="text-caption text-grey">عرض في الصفحة الرئيسية</div>
@@ -193,7 +199,7 @@
 
               <v-divider />
 
-              <div class="d-flex align-center justify-space-between pa-2 rounded-md hover-bg">
+              <div class="d-flex align-center justify-space-between pa-2 hover-bg">
                 <div>
                   <div class="text-body-2 font-weight-bold">قابل للاسترجاع</div>
                   <div class="text-caption text-grey">السماح لطلب استرجاع المنتج</div>
@@ -205,7 +211,7 @@
         </v-card>
 
         <!-- Media Card -->
-        <v-card border flat class="rounded-md pb-4">
+        <v-card border flat class="pb-4">
           <div class="pa-4 bg-grey-lighten-5 rounded-t-lg border-b d-flex align-center">
             <v-icon icon="ri-image-line" color="grey-darken-1" class="me-2" />
             <span class="text-subtitle-2 font-weight-bold">صور المنتج</span>
@@ -228,6 +234,13 @@ import AppTextarea from '@/components/common/AppTextarea.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
 import VariantManager from './VariantManager.vue';
 import ProductMediaManager from './ProductMediaManager.vue';
+
+const productTypes = [
+  { value: 'physical', label: 'مادي', icon: 'ri-box-3-line' },
+  { value: 'digital', label: 'رقمي', icon: 'ri-download-cloud-2-line' },
+  { value: 'service', label: 'خدمة', icon: 'ri-customer-service-2-line' },
+  { value: 'subscription', label: 'اشتراك', icon: 'ri-repeat-line' },
+];
 
 const props = defineProps({
   productId: {
