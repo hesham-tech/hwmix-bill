@@ -52,17 +52,22 @@
             <v-item-group v-model="productData.product_type" mandatory class="d-flex flex-wrap gap-2" @update:model-value="handleTypeChange">
               <v-item v-for="type in productTypes" :key="type.value" :value="type.value">
                 <template #default="{ isSelected, toggle }">
-                  <v-btn
-                    :variant="isSelected ? 'flat' : 'tonal'"
-                    :color="isSelected ? 'primary' : 'grey-lighten-3'"
-                    :class="['rounded-lg', { 'text-primary': !isSelected }]"
-                    class="flex-grow-1 flex-md-grow-0"
-                    size="small"
-                    @click="toggle"
-                    :prepend-icon="type.icon"
-                  >
-                    {{ type.label }}
-                  </v-btn>
+                  <v-tooltip :text="type.description" location="top" open-delay="300">
+                    <template #activator="{ props: tooltipProps }">
+                      <v-btn
+                        v-bind="tooltipProps"
+                        :variant="isSelected ? 'flat' : 'tonal'"
+                        :color="isSelected ? 'primary' : 'grey-lighten-3'"
+                        :class="['rounded-lg', { 'text-primary': !isSelected }]"
+                        class="flex-grow-1 flex-md-grow-0"
+                        size="small"
+                        @click="toggle"
+                        :prepend-icon="type.icon"
+                      >
+                        {{ type.label }}
+                      </v-btn>
+                    </template>
+                  </v-tooltip>
                 </template>
               </v-item>
             </v-item-group>
@@ -236,10 +241,10 @@ import VariantManager from './VariantManager.vue';
 import ProductMediaManager from './ProductMediaManager.vue';
 
 const productTypes = [
-  { value: 'physical', label: 'مادي', icon: 'ri-box-3-line' },
-  { value: 'digital', label: 'رقمي', icon: 'ri-download-cloud-2-line' },
-  { value: 'service', label: 'خدمة', icon: 'ri-customer-service-2-line' },
-  { value: 'subscription', label: 'اشتراك', icon: 'ri-repeat-line' },
+  { value: 'physical', label: 'مادي', icon: 'ri-box-3-line', description: 'منتجات ملموسة تتطلب شحن وإدارة مخزون' },
+  { value: 'digital', label: 'رقمي', icon: 'ri-download-cloud-2-line', description: 'منتجات غير ملموسة يتم تسليمها عبر البريد أو رابط' },
+  { value: 'service', label: 'خدمة', icon: 'ri-customer-service-2-line', description: 'خدمات يتم تقديمها للعملاء (استشارات، صيانة)' },
+  { value: 'subscription', label: 'اشتراك', icon: 'ri-repeat-line', description: 'خدمات دورية متجددة تلقائياً (عضوية، اشتراك)' },
 ];
 
 const props = defineProps({
