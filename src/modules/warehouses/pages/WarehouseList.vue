@@ -208,6 +208,9 @@
 
     <!-- Delete Confirmation -->
     <AppConfirmDialog v-model="showConfirm" :message="confirmMessage" @confirm="handleConfirm" @cancel="handleCancel" />
+
+    <!-- Stock Adjustment Dialog -->
+    <StockAdjustmentDialog v-model="isAdjustmentOpen" :warehouse="selectedWarehouse" @success="loadWarehouses" />
   </div>
 </template>
 
@@ -225,6 +228,7 @@ import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import EmptyState from '@/components/common/EmptyState.vue';
 import AppConfirmDialog from '@/components/common/AppConfirmDialog.vue';
 import WarehouseForm from '../components/WarehouseForm.vue';
+import StockAdjustmentDialog from '../components/StockAdjustmentDialog.vue';
 
 const store = useWarehouseStore();
 const { warehouses, loading, totalItems, page, itemsPerPage, search, sortBy } = storeToRefs(store);
@@ -235,6 +239,9 @@ const { showConfirm, confirmMessage, confirm, handleConfirm, handleCancel } = us
 const warehouseFormRef = ref(null);
 const isSaving = ref(false);
 const viewMode = ref('grid');
+
+const isAdjustmentOpen = ref(false);
+const selectedWarehouse = ref(null);
 
 const headers = [
   { title: 'المخزن', key: 'name', sortable: true },
@@ -296,7 +303,8 @@ const handleSave = async data => {
 };
 
 const handleViewStock = warehouse => {
-  console.log('View stock for warehouse:', warehouse.id);
+  selectedWarehouse.value = warehouse;
+  isAdjustmentOpen.value = true;
 };
 
 const handleSetDefault = async warehouse => {

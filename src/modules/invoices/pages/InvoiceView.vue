@@ -133,7 +133,27 @@
                     {{ formatCurrency(item.discount) }}
                   </td>
                   <td class="text-left text-body-2 text-grey" v-else>-</td>
-                  <td class="text-left font-weight-bold text-success">{{ formatCurrency(item.total) }}</td>
+                  <td class="text-left font-weight-bold text-success">
+                    {{ formatCurrency(item.total) }}
+
+                    <!-- Digital Delivery Info (Desktop) -->
+                    <div v-if="item.digital_deliveries && item.digital_deliveries.length > 0" class="mt-3 no-print">
+                      <div
+                        v-for="delivery in item.digital_deliveries"
+                        :key="delivery.id"
+                        class="digital-delivery-box pa-2 rounded bg-info-lighten-5 border-info border-sm"
+                      >
+                        <div class="d-flex align-center gap-2 mb-1">
+                          <v-icon icon="ri-key-2-line" size="small" color="info" />
+                          <span class="text-caption font-weight-bold text-info">بيانات التفعيل:</span>
+                        </div>
+                        <div class="text-body-2 font-weight-black code-font">{{ delivery.delivery_data?.license_key || '---' }}</div>
+                        <div v-if="delivery.delivery_data?.instructions" class="text-caption text-grey mt-1">
+                          {{ delivery.delivery_data.instructions }}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
                 </tr>
               </tbody>
             </v-table>
@@ -169,6 +189,20 @@
                     <div v-if="item.discount > 0" class="d-flex justify-space-between text-caption text-error">
                       <span>الخصم:</span>
                       <span>-{{ formatCurrency(item.discount) }}</span>
+                    </div>
+                    <!-- Digital Delivery Info (Mobile) -->
+                    <div v-if="item.digital_deliveries && item.digital_deliveries.length > 0" class="mt-2 no-print">
+                      <div
+                        v-for="delivery in item.digital_deliveries"
+                        :key="delivery.id"
+                        class="digital-delivery-box pa-2 rounded bg-info-lighten-5 border-info border-sm"
+                      >
+                        <div class="d-flex align-center gap-2 mb-1">
+                          <v-icon icon="ri-key-2-line" size="small" color="info" />
+                          <span class="text-caption font-weight-bold text-info">بيانات التفعيل:</span>
+                        </div>
+                        <div class="text-body-2 font-weight-black code-font">{{ delivery.delivery_data?.license_key || '---' }}</div>
+                      </div>
                     </div>
                     <div class="d-flex justify-space-between align-center border-top-dotted pt-2 mt-1">
                       <span class="text-subtitle-2 font-weight-bold">الإجمالي:</span>

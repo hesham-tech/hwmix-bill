@@ -66,7 +66,7 @@
                 <!-- Product Type Badge -->
                 <div v-if="item.product_type && item.product_type !== 'physical'" class="mt-1">
                   <v-chip size="x-small" :color="item.product_type === 'digital' ? 'info' : 'secondary'" variant="tonal" label density="compact">
-                    {{ item.product_type === 'digital' ? 'مننتج رقمي' : 'خدمة' }}
+                    {{ item.product_type === 'digital' ? 'منتج رقمي' : 'خدمة' }}
                   </v-chip>
                 </div>
               </v-list-item>
