@@ -64,7 +64,7 @@
           <AppButton
             v-if="canView && (!permissionModule || can(`${permissionModule}.view_all`, { resource: item }))"
             icon="ri-eye-line"
-            size="small"
+            :size="mobile ? 'x-small' : 'small'"
             variant="text"
             color="info"
             tooltip="عرض التفاصيل"
@@ -75,7 +75,7 @@
           <AppButton
             v-if="canEdit && (!permissionModule || can(`${permissionModule}.update_all`, { resource: item }))"
             icon="ri-edit-line"
-            size="small"
+            :size="mobile ? 'x-small' : 'small'"
             variant="text"
             color="primary"
             tooltip="تعديل"
@@ -86,7 +86,7 @@
           <AppButton
             v-if="canDelete && (!permissionModule || can(`${permissionModule}.delete_all`, { resource: item }))"
             icon="ri-delete-bin-line"
-            size="small"
+            :size="mobile ? 'x-small' : 'small'"
             variant="text"
             color="error"
             tooltip="حذف"
@@ -96,6 +96,24 @@
           <!-- Extra Actions Slot -->
           <slot name="extra-actions" :item="item" />
         </div>
+      </template>
+
+      <!-- Mobile Expanded Row -->
+      <template v-if="mobile && enableMobileExpansion" #expanded-row="{ columns, item }">
+        <tr>
+          <td :colspan="columns.length" class="bg-grey-lighten-5 pa-4">
+            <v-row no-gutters class="mx-0">
+              <v-col v-for="header in hiddenHeaders" :key="header.key" cols="6" class="py-2 border-bottom-dotted">
+                <div class="text-caption text-grey-darken-1 font-weight-bold mb-1">{{ header.title }}:</div>
+                <div class="text-body-2">
+                  <slot :name="`item.${header.key}`" :item="item">
+                    {{ item[header.key] || '---' }}
+                  </slot>
+                </div>
+              </v-col>
+            </v-row>
+          </td>
+        </tr>
       </template>
 
       <!-- Loading state -->
@@ -260,6 +278,16 @@ const props = defineProps({
     default: false,
   },
 
+  // Mobile Expansion Settings
+  mobileHeadersCount: {
+    type: Number,
+    default: 3,
+  },
+  enableMobileExpansion: {
+    type: Boolean,
+    default: true,
+  },
+
   // Options
   itemsPerPageOptions: {
     type: Array,
@@ -284,6 +312,46 @@ const emit = defineEmits([
   'delete',
   'click:row',
 ]);
+
+import { useDisplay } from 'vuetify';
+const { mobile } = useDisplay();
+
+// Processed headers for mobile prioritization
+const processedHeaders = computed(() => {
+  let finalHeaders = [...props.headers];
+
+  // 1. Logic for sticky actions (Desktop)
+  if (props.stickyActions && props.showActions && !mobile.value) {
+    finalHeaders = finalHeaders.map((header, index) => {
+      if (index === finalHeaders.length - 1 && header.key === 'actions') {
+        return { ...header, fixed: true, width: header.width || '130px' };
+      }
+      return header;
+    });
+  }
+
+  // 2. Logic for Mobile View
+  if (mobile.value && props.enableMobileExpansion) {
+    // Keep prioritized count + Actions column
+    const visibleCount = props.mobileHeadersCount;
+    const prioritized = finalHeaders.filter((h, i) => i < visibleCount || h.key === 'actions');
+
+    // Add expander column if not already there
+    if (!prioritized.some(h => h.key === 'data-table-expand')) {
+      prioritized.unshift({ title: '', key: 'data-table-expand', align: 'start', sortable: false, width: '48px' });
+    }
+    return prioritized;
+  }
+
+  return finalHeaders;
+});
+
+// Calculate hidden headers for expansion row
+const hiddenHeaders = computed(() => {
+  if (!mobile.value || !props.enableMobileExpansion) return [];
+  const visibleKeys = processedHeaders.value.map(h => h.key);
+  return props.headers.filter(h => !visibleKeys.includes(h.key) && h.key !== 'actions');
+});
 
 // v-model bindings
 const pageModel = computed({
@@ -311,23 +379,6 @@ const handleOptionsUpdate = options => {
   emit('update:options', options);
 };
 
-// Process headers to add fixed property to actions column
-const processedHeaders = computed(() => {
-  if (!props.stickyActions || !props.showActions) return props.headers;
-
-  return props.headers.map((header, index) => {
-    // Check if this is the last column (actions column)
-    if (index === props.headers.length - 1 && header.key === 'actions') {
-      return {
-        ...header,
-        fixed: true,
-        width: header.width || '130px',
-      };
-    }
-    return header;
-  });
-});
-
 // --- Context Menu Logic ---
 const menuModel = ref(false);
 const menuProps = reactive({
@@ -338,6 +389,7 @@ const menuProps = reactive({
 });
 
 const handleContextMenu = (event, { item }) => {
+  if (mobile.value) return; // Disable context menu on mobile, rely on row click or actions
   event.preventDefault();
   menuModel.value = false;
   nextTick(() => {

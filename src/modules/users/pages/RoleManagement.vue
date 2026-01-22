@@ -67,7 +67,9 @@
 
             <div class="d-flex align-center flex-wrap gap-2">
               <v-chip size="x-small" color="primary" variant="tonal" class="font-weight-bold"> {{ role.permissions_count || 0 }} صلاحية </v-chip>
-              <v-chip v-if="role.users_count !== undefined" size="x-small" color="grey" variant="flat"> {{ role.users_count }} مستخدمين </v-chip>
+              <v-chip v-if="role.users_count !== undefined" size="x-small" color="info" variant="tonal" class="font-weight-bold">
+                {{ role.users_count }} مستخدمين
+              </v-chip>
             </div>
           </v-card-text>
         </v-card>

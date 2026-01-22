@@ -217,6 +217,7 @@
 import { ref, onMounted } from 'vue';
 import { useApi } from '@/composables/useApi';
 import { useUserStore } from '@/stores/user';
+import { usePermissions } from '@/composables/usePermissions';
 import MediaGallery from '@/components/common/MediaGallery.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
 import AppCard from '@/components/common/AppCard.vue';
@@ -229,17 +230,15 @@ import { computed } from 'vue';
 
 const userStore = useUserStore();
 const authStore = useAuthStore();
-const api = useApi('/api/company');
+const { can } = usePermissions();
+const api = useApi('/api/companies');
 
 const isSuperAdmin = computed(() => authStore.user?.permissions?.includes(PERMISSIONS.ADMIN_SUPER));
 const isCompanyAdmin = computed(() => authStore.user?.permissions?.includes(PERMISSIONS.ADMIN_COMPANY));
 
 const canUpdate = computed(() => {
   return (
-    isSuperAdmin.value ||
-    isCompanyAdmin.value ||
-    authStore.user?.permissions?.includes(PERMISSIONS.COMPANIES_UPDATE_ALL) ||
-    authStore.user?.permissions?.includes(PERMISSIONS.COMPANIES_UPDATE_SELF)
+    can(PERMISSIONS.ADMIN_SUPER) || can(PERMISSIONS.ADMIN_COMPANY) || can(PERMISSIONS.COMPANIES_UPDATE_ALL) || can(PERMISSIONS.COMPANIES_UPDATE_SELF)
   );
 });
 
@@ -325,6 +324,7 @@ const loadCompanyData = async () => {
   try {
     const response = await api.getById(companyId, { showLoading: false });
     if (response.data) {
+      const data = response.data;
       formData.value = {
         id: data.id,
         name: data.name || '',

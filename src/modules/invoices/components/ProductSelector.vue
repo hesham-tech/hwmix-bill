@@ -131,6 +131,8 @@ const addVariantInstant = variant => {
     discount_percentage: 0,
     total: getVariantPrice(variant),
     primary_image_url: variant.primary_image_url,
+    product_type: variant.product_type,
+    requires_stock: variant.requires_stock,
   };
 
   emit('add', item);

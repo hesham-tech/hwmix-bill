@@ -10,8 +10,11 @@
       </div>
 
       <div class="chart-wrapper">
-        <apexchart v-if="!loading" type="area" height="300" :options="chartOptions" :series="series" />
-        <div v-else class="d-flex align-center justify-center height-300">
+        <div v-show="!loading">
+          <apexchart v-if="data && data.length > 0" type="area" height="300" :options="chartOptions" :series="series" />
+          <div v-else-if="!loading" class="d-flex align-center justify-center height-300 text-grey">لا تتوفر بيانات للعرض</div>
+        </div>
+        <div v-if="loading" class="d-flex align-center justify-center height-300">
           <v-progress-circular indeterminate color="primary" />
         </div>
       </div>

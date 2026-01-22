@@ -55,11 +55,13 @@
                 <span class="text-caption text-grey">السعر</span>
                 <span class="text-caption font-weight-bold text-success">{{ variant.retail_price || 0 }} ج.م</span>
               </div>
-              <v-divider vertical class="mx-1" length="24" />
-              <div class="d-flex flex-column align-end">
-                <span class="text-caption text-grey">المخزون</span>
-                <span class="text-caption font-weight-bold">{{ calculateTotalQty(variant) }} قطعة</span>
-              </div>
+              <template v-if="productType === 'physical'">
+                <v-divider vertical class="mx-1" length="24" />
+                <div class="d-flex flex-column align-end">
+                  <span class="text-caption text-grey">المخزون</span>
+                  <span class="text-caption font-weight-bold">{{ calculateTotalQty(variant) }} قطعة</span>
+                </div>
+              </template>
             </div>
 
             <div class="d-flex gap-1">
@@ -117,7 +119,7 @@
 
             <!-- Pricing Section with Enhanced UI -->
             <v-row class="mt-2">
-              <v-col cols="12" md="4" v-if="can(PERMISSIONS.PRODUCTS_VIEW_PURCHASE_PRICE)">
+              <v-col cols="12" md="3" v-if="can(PERMISSIONS.PRODUCTS_VIEW_PURCHASE_PRICE)">
                 <AppInput 
                   v-model.number="variant.purchase_price" 
                   label="سعر الشراء" 
@@ -126,9 +128,22 @@
                   class="price-input"
                   hint="أساس حساب الربح"
                   persistent-hint
+                  @update:model-value="calculateProfitFromPrices(variant)"
                 />
               </v-col>
-              <v-col cols="12" md="4" v-if="can(PERMISSIONS.PRODUCTS_VIEW_WHOLESALE_PRICE)">
+              <v-col cols="12" md="3">
+                <AppInput 
+                  v-model.number="variant.profit_margin" 
+                  label="هامش الربح (%)" 
+                  type="number" 
+                  prefix="%" 
+                  class="price-input"
+                  hint="نسبة الربح من التكلفة"
+                  persistent-hint
+                  @update:model-value="calculatePriceFromProfit(variant)"
+                />
+              </v-col>
+              <v-col cols="12" md="3" v-if="can(PERMISSIONS.PRODUCTS_VIEW_WHOLESALE_PRICE)">
                 <AppInput 
                   v-model.number="variant.wholesale_price" 
                   label="سعر الجملة" 
@@ -137,7 +152,7 @@
                   class="price-input"
                 />
               </v-col>
-              <v-col cols="12" md="4">
+              <v-col cols="12" md="3">
                 <AppInput
                   v-model.number="variant.retail_price"
                   label="سعر القطاعي"
@@ -145,6 +160,7 @@
                   required
                   prefix="ج.م"
                   class="price-input font-weight-bold"
+                  @update:model-value="calculateProfitFromPrices(variant)"
                 />
               </v-col>
             </v-row>
@@ -221,70 +237,73 @@
 
             <v-divider class="my-6" />
 
-            <!-- Phase 2: Stock Breakdown (Moved Up) -->
-            <div class="d-flex align-center justify-space-between mb-4">
-              <div class="d-flex align-center gap-2">
-                <v-icon icon="ri-store-2-line" color="primary" size="small" />
-                <span class="text-overline text-primary font-weight-black">توزيع المخزون عبر الفروع</span>
+            <!-- Phase 2: Stock Breakdown (Conditional) -->
+            <template v-if="productType === 'physical'">
+              <v-divider class="my-6" />
+              <div class="d-flex align-center justify-space-between mb-4">
+                <div class="d-flex align-center gap-2">
+                  <v-icon icon="ri-store-2-line" color="primary" size="small" />
+                  <span class="text-overline text-primary font-weight-black">توزيع المخزون عبر الفروع</span>
+                </div>
+                <v-btn size="x-small" variant="tonal" color="primary" class="rounded-md" prepend-icon="ri-add-line" @click="addStock(vIndex)">
+                  إضافة فرع
+                </v-btn>
               </div>
-              <v-btn size="x-small" variant="tonal" color="primary" class="rounded-md" prepend-icon="ri-add-line" @click="addStock(vIndex)">
-                إضافة فرع
-              </v-btn>
-            </div>
 
-            <div class="stock-grid">
-              <div v-for="(stock, sIndex) in variant.stocks" :key="sIndex" class="stock-card border rounded-md pa-3 bg-grey-lighten-5 mb-3">
-                <v-row dense align="center">
-                  <v-col cols="12" md="7">
-                    <AppAutocomplete
-                      v-model="stock.warehouse_id"
-                      label="المستودع / الفرع"
-                      api-endpoint="warehouses"
-                      item-title="name"
-                      item-value="id"
-                      density="compact"
-                      variant="outlined"
-                      bg-color="white"
-                      hide-details
-                    />
-                  </v-col>
-                  <v-col cols="8" md="4">
-                      <AppInput
-                        v-model.number="stock.quantity"
-                        label="الكمية المتوفرة"
-                        type="number"
+              <div class="stock-grid">
+                <div v-for="(stock, sIndex) in variant.stocks" :key="sIndex" class="stock-card border rounded-md pa-3 bg-grey-lighten-5 mb-3">
+                  <v-row dense align="center">
+                    <v-col cols="12" md="7">
+                      <AppAutocomplete
+                        v-model="stock.warehouse_id"
+                        label="المستودع / الفرع"
+                        api-endpoint="warehouses"
+                        item-title="name"
+                        item-value="id"
                         density="compact"
                         variant="outlined"
                         bg-color="white"
                         hide-details
-                        placeholder="0"
-                        prepend-inner-icon="ri-stack-line"
-                        :readonly="!can(PERMISSIONS.STOCKS_MANUAL_ADJUSTMENT) && !can(PERMISSIONS.ADMIN_SUPER) && !can(PERMISSIONS.ADMIN_COMPANY)"
-                        :hint="!can(PERMISSIONS.STOCKS_MANUAL_ADJUSTMENT) && !can(PERMISSIONS.ADMIN_SUPER) && !can(PERMISSIONS.ADMIN_COMPANY) ? 'ليس لديك صلاحية تعديل الكمية يدوياً' : ''"
-                        persistent-hint
                       />
-                  </v-col>
-                  <v-col cols="4" md="1" class="d-flex justify-end">
-                    <v-btn
-                      v-if="sIndex !== 0"
-                      icon="ri-delete-bin-7-line"
-                      size="small"
-                      variant="text"
-                      color="error"
-                      class="rounded-md"
-                      :disabled="variant.stocks?.length <= 1"
-                      :title="variant.stocks?.length <= 1 ? 'يجب وجود مستودع واحد على الأقل' : 'حذف المستودع'"
-                      @click="removeStock(vIndex, sIndex)"
-                    />
-                  </v-col>
-                </v-row>
-              </div>
+                    </v-col>
+                    <v-col cols="8" md="4">
+                        <AppInput
+                          v-model.number="stock.quantity"
+                          label="الكمية المتوفرة"
+                          type="number"
+                          density="compact"
+                          variant="outlined"
+                          bg-color="white"
+                          hide-details
+                          placeholder="0"
+                          prepend-inner-icon="ri-stack-line"
+                          :readonly="!can(PERMISSIONS.STOCKS_MANUAL_ADJUSTMENT) && !can(PERMISSIONS.ADMIN_SUPER) && !can(PERMISSIONS.ADMIN_COMPANY)"
+                          :hint="!can(PERMISSIONS.STOCKS_MANUAL_ADJUSTMENT) && !can(PERMISSIONS.ADMIN_SUPER) && !can(PERMISSIONS.ADMIN_COMPANY) ? 'ليس لديك صلاحية تعديل الكمية يدوياً' : ''"
+                          persistent-hint
+                        />
+                    </v-col>
+                    <v-col cols="4" md="1" class="d-flex justify-end">
+                      <v-btn
+                        v-if="sIndex !== 0"
+                        icon="ri-delete-bin-7-line"
+                        size="small"
+                        variant="text"
+                        color="error"
+                        class="rounded-md"
+                        :disabled="variant.stocks?.length <= 1"
+                        :title="variant.stocks?.length <= 1 ? 'يجب وجود مستودع واحد على الأقل' : 'حذف المستودع'"
+                        @click="removeStock(vIndex, sIndex)"
+                      />
+                    </v-col>
+                  </v-row>
+                </div>
 
-              <div v-if="!variant.stocks?.length" class="text-center py-6 border-dashed rounded-md bg-grey-lighten-5 mb-4">
-                <v-icon icon="ri-error-warning-line" color="grey" class="mb-1" />
-                <div class="text-caption text-grey">لم يتم تحديد مخزون لهذا المتغير بعد</div>
+                <div v-if="!variant.stocks?.length" class="text-center py-6 border-dashed rounded-md bg-grey-lighten-5 mb-4">
+                  <v-icon icon="ri-error-warning-line" color="grey" class="mb-1" />
+                  <div class="text-caption text-grey">لم يتم تحديد مخزون لهذا المتغير بعد</div>
+                </div>
               </div>
-            </div>
+            </template>
 
             <v-divider class="my-6" />
 
@@ -402,6 +421,10 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  productType: {
+    type: String,
+    default: 'physical',
+  },
 });
 
 const emit = defineEmits(['update:modelValue']);
@@ -455,6 +478,22 @@ const getProfitIcon = (variant, priceType = 'retail') => {
   return 'ri-alert-line';
 };
 
+const calculatePriceFromProfit = (variant) => {
+  const purchase = parseFloat(variant.purchase_price) || 0;
+  const margin = parseFloat(variant.profit_margin) || 0;
+  if (purchase > 0) {
+    variant.retail_price = parseFloat((purchase * (1 + margin / 100)).toFixed(2));
+  }
+};
+
+const calculateProfitFromPrices = (variant) => {
+  const purchase = parseFloat(variant.purchase_price) || 0;
+  const retail = parseFloat(variant.retail_price) || 0;
+  if (purchase > 0) {
+    variant.profit_margin = parseFloat(((retail - purchase) / purchase * 100).toFixed(2));
+  }
+};
+
 const addVariant = async () => {
   const newVariants = [...props.modelValue];
   const lastVariant = newVariants.length > 0 ? newVariants[newVariants.length - 1] : null;
@@ -477,6 +516,7 @@ const addVariant = async () => {
       purchase_price: 0,
       wholesale_price: 0,
       retail_price: 0,
+      profit_margin: 0,
       sku: '',
       barcode: '',
       stocks: [{ warehouse_id: warehouseId, quantity: 0 }],

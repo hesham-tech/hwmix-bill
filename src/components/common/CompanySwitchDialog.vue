@@ -38,9 +38,9 @@
             >
               <div class="d-flex pa-3 align-start">
                 <!-- Company Logo -->
-                <v-avatar size="64" rounded="lg" color="grey-lighten-4" class="me-4 border-thin">
+                <v-avatar :size="mobile ? 48 : 64" rounded="lg" color="grey-lighten-4" :class="[mobile ? 'me-2' : 'me-4', 'border-thin']">
                   <v-img v-if="company.logo" :src="company.logo" contain />
-                  <v-icon v-else icon="ri-building-line" color="primary" size="32" />
+                  <v-icon v-else icon="ri-building-line" color="primary" :size="mobile ? 24 : 32" />
                 </v-avatar>
 
                 <div class="flex-grow-1">
@@ -108,6 +108,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useUserStore } from '@/stores/user';
+import { useDisplay } from 'vuetify';
 import AppDialog from '@/components/common/AppDialog.vue';
 import { toast } from 'vue3-toastify';
 
@@ -121,6 +122,7 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue']);
 
 const userStore = useUserStore();
+const { mobile } = useDisplay();
 const loadingId = ref(null);
 const search = ref('');
 

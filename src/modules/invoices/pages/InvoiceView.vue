@@ -1,21 +1,53 @@
 <template>
-  <v-container fluid>
-    <div class="d-flex align-center justify-space-between mb-6">
+  <v-container fluid :class="mobile ? 'pa-2' : 'pa-4'">
+    <div class="d-flex align-center justify-space-between mb-4 mb-sm-6 flex-wrap gap-3">
       <div class="d-flex align-center">
-        <AppButton icon="ri-arrow-right-line" variant="text" color="secondary" @click="goBack" class="me-3" />
+        <AppButton
+          icon="ri-arrow-right-line"
+          variant="text"
+          color="secondary"
+          @click="goBack"
+          class="me-2 me-sm-3"
+          :size="mobile ? 'small' : 'default'"
+        />
         <div>
-          <h1 class="text-h4 font-weight-bold">الفاتورة #{{ invoice?.invoice_number }}</h1>
-          <p class="text-body-1 text-grey" v-if="invoice">
+          <h1 :class="[mobile ? 'text-h6' : 'text-h4', 'font-weight-bold']">الفاتورة #{{ invoice?.invoice_number }}</h1>
+          <p :class="[mobile ? 'text-caption' : 'text-body-1', 'text-grey mb-0']" v-if="invoice">
             <v-icon icon="ri-calendar-line" size="small" class="me-1" />
             {{ formatDate(invoice.issue_date) }}
           </p>
         </div>
       </div>
-      <div class="d-flex gap-2 no-print">
-        <AppButton v-if="can('invoices.update_all')" color="primary" prepend-icon="ri-edit-line" @click="editInvoice"> تعديل </AppButton>
-        <AppButton v-if="can('invoices.print')" color="info" prepend-icon="ri-printer-line" @click="printInvoice"> طباعة </AppButton>
-        <AppButton v-if="can('invoices.delete_all')" color="error" prepend-icon="ri-delete-bin-line" @click="showDeleteDialog = true">
-          حذف
+      <div class="d-flex gap-2 no-print flex-grow-1 flex-sm-grow-0 justify-end">
+        <AppButton
+          v-if="can('invoices.update_all')"
+          color="primary"
+          :prepend-icon="!mobile ? 'ri-edit-line' : ''"
+          :icon="mobile ? 'ri-edit-line' : false"
+          :size="mobile ? 'small' : 'default'"
+          @click="editInvoice"
+        >
+          {{ mobile ? '' : 'تعديل' }}
+        </AppButton>
+        <AppButton
+          v-if="can('invoices.print')"
+          color="info"
+          :prepend-icon="!mobile ? 'ri-printer-line' : ''"
+          :icon="mobile ? 'ri-printer-line' : false"
+          :size="mobile ? 'small' : 'default'"
+          @click="printInvoice"
+        >
+          {{ mobile ? '' : 'طباعة' }}
+        </AppButton>
+        <AppButton
+          v-if="can('invoices.delete_all')"
+          color="error"
+          :prepend-icon="!mobile ? 'ri-delete-bin-line' : ''"
+          :icon="mobile ? 'ri-delete-bin-line' : false"
+          :size="mobile ? 'small' : 'default'"
+          @click="showDeleteDialog = true"
+        >
+          {{ mobile ? '' : 'حذف' }}
         </AppButton>
       </div>
     </div>
@@ -30,30 +62,30 @@
         <!-- Invoice Details -->
         <v-col cols="12" md="8">
           <!-- Customer Info -->
-          <AppCard title="معلومات العميل" icon="ri-user-line" class="mb-6">
-            <div class="d-flex align-center py-2" v-if="invoice.user">
+          <AppCard title="معلومات العميل" icon="ri-user-line" class="mb-4 mb-sm-6">
+            <div class="d-flex align-center flex-column flex-sm-row py-2" v-if="invoice.user">
               <AppAvatar
                 :img-url="invoice.user.avatar_url"
                 :name="invoice.user.nickname || invoice.user.full_name"
-                size="64"
+                :size="mobile ? 80 : 64"
                 rounded="circle"
-                class="me-4 border"
+                class="mb-4 mb-sm-0 me-sm-4 border shadow-sm"
               />
-              <v-row class="flex-grow-1">
-                <v-col cols="12" sm="6">
-                  <div class="text-caption text-grey mb-1">الاسم / اللقب</div>
-                  <div class="font-weight-bold text-h6">{{ invoice.user.nickname || invoice.user.full_name }}</div>
+              <v-row class="flex-grow-1 mx-0">
+                <v-col cols="12" sm="6" class="py-1 py-sm-2">
+                  <div class="text-caption text-grey mb-0 mb-sm-1">الاسم / اللقب</div>
+                  <div :class="[mobile ? 'text-body-1' : 'text-h6', 'font-weight-bold']">{{ invoice.user.nickname || invoice.user.full_name }}</div>
                 </v-col>
-                <v-col cols="12" sm="6">
-                  <div class="text-caption text-grey mb-1">رقم الهاتف</div>
+                <v-col cols="12" sm="6" class="py-1 py-sm-2">
+                  <div class="text-caption text-grey mb-0 mb-sm-1">رقم الهاتف</div>
                   <AppPhone :phone="invoice.user.phone" />
                 </v-col>
-                <v-col v-if="invoice.user.email" cols="12" sm="6">
-                  <div class="text-caption text-grey mb-1">البريد الإلكتروني</div>
-                  <div class="font-weight-medium text-body-1">{{ invoice.user.email }}</div>
+                <v-col v-if="invoice.user.email" cols="12" sm="6" class="py-1 py-sm-2">
+                  <div class="text-caption text-grey mb-0 mb-sm-1">البريد الإلكتروني</div>
+                  <div class="font-weight-medium text-body-1">{{ invoice.user.email || '---' }}</div>
                 </v-col>
-                <v-col v-if="invoice.user.position" cols="12" sm="6">
-                  <div class="text-caption text-grey mb-1">المسمى الوظيفي / الموقع</div>
+                <v-col v-if="invoice.user.position" cols="12" sm="6" class="py-1 py-sm-2">
+                  <div class="text-caption text-grey mb-0 mb-sm-1">المسمى الوظيفي / الموقع</div>
                   <div class="font-weight-medium text-body-1">{{ invoice.user.position }}</div>
                 </v-col>
               </v-row>
@@ -62,8 +94,9 @@
           </AppCard>
 
           <!-- Items -->
-          <AppCard title="عناصر الفاتورة" icon="ri-list-check-2" class="mb-6">
-            <v-table>
+          <AppCard title="عناصر الفاتورة" icon="ri-list-check-2" class="mb-4 mb-sm-6" padding="0">
+            <!-- Desktop Table -->
+            <v-table v-if="!mobile" class="invoice-items-table">
               <thead>
                 <tr>
                   <th class="text-right">المنتج</th>
@@ -104,6 +137,47 @@
                 </tr>
               </tbody>
             </v-table>
+
+            <!-- Mobile Cards -->
+            <div v-else class="pa-2">
+              <v-card v-for="item in invoice.items" :key="'m-' + item.id" border flat class="mb-2 rounded-lg bg-grey-lighten-5">
+                <div class="pa-3">
+                  <div class="d-flex align-center gap-2 mb-3">
+                    <AppAvatar
+                      v-if="item.primary_image_url"
+                      :img-url="item.primary_image_url"
+                      :name="item.name"
+                      size="44"
+                      rounded="lg"
+                      class="border"
+                      type="product"
+                    />
+                    <div class="flex-grow-1">
+                      <div class="font-weight-bold text-body-2 line-clamp-1">{{ item.name }}</div>
+                      <div class="text-caption text-grey">كود: {{ item.product?.code || '---' }}</div>
+                    </div>
+                    <v-chip size="x-small" color="primary" variant="flat" class="font-weight-bold"> {{ item.quantity }} قطعة </v-chip>
+                  </div>
+
+                  <v-divider class="mb-3 border-dashed" />
+
+                  <div class="d-flex flex-column gap-2">
+                    <div class="d-flex justify-space-between text-caption">
+                      <span class="text-grey">سعر الوحدة:</span>
+                      <span class="font-weight-medium">{{ formatCurrency(item.unit_price) }}</span>
+                    </div>
+                    <div v-if="item.discount > 0" class="d-flex justify-space-between text-caption text-error">
+                      <span>الخصم:</span>
+                      <span>-{{ formatCurrency(item.discount) }}</span>
+                    </div>
+                    <div class="d-flex justify-space-between align-center border-top-dotted pt-2 mt-1">
+                      <span class="text-subtitle-2 font-weight-bold">الإجمالي:</span>
+                      <span class="text-subtitle-1 font-weight-black text-success">{{ formatCurrency(item.total) }}</span>
+                    </div>
+                  </div>
+                </div>
+              </v-card>
+            </div>
           </AppCard>
 
           <!-- Payment History -->
@@ -251,6 +325,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useDisplay } from 'vuetify';
 import { useApi } from '@/composables/useApi';
 import { usePermissions } from '@/composables/usePermissions';
 import { usePrintExport } from '@/composables/usePrintExport';
@@ -266,6 +341,7 @@ import { formatCurrency, formatDate } from '@/utils/formatters';
 const router = useRouter();
 const route = useRoute();
 const { can } = usePermissions();
+const { mobile } = useDisplay();
 const { printElement } = usePrintExport();
 const userStore = useUserStore();
 

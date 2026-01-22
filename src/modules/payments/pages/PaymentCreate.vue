@@ -157,7 +157,7 @@ const loadInvoices = async () => {
   loadingInvoices.value = true;
   try {
     const response = await invoicesApi.get({ payment_status: 'unpaid,partial', per_page: 100 }, { showLoading: false, showError: false });
-    invoices.value = response.data || [];
+    invoices.value = Array.isArray(response.data) ? response.data : response.data?.data || [];
   } finally {
     loadingInvoices.value = false;
   }
@@ -167,7 +167,7 @@ const loadPaymentMethods = async () => {
   loadingMethods.value = true;
   try {
     const response = await paymentMethodsApi.get({ per_page: 100 }, { showLoading: false, showError: false });
-    paymentMethods.value = response.data || [];
+    paymentMethods.value = Array.isArray(response.data) ? response.data : response.data?.data || [];
   } finally {
     loadingMethods.value = false;
   }

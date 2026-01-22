@@ -107,7 +107,7 @@ export const useUserStore = defineStore('user', () => {
   // Switch Active Company
   const switchCompany = async companyId => {
     try {
-      const response = await apiClient.post(`/users/${currentUser.value.id}/change-company`, {
+      const response = await apiClient.put(`/change-company/${currentUser.value.id}`, {
         company_id: companyId,
       });
 

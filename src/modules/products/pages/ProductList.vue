@@ -18,7 +18,7 @@
         <v-col cols="12" md="8">
           <AppInput
             v-model="search"
-            placeholder="بحث سريح بالاسم أو الكود..."
+            placeholder="بحث سريع بالاسم أو الكود..."
             prepend-inner-icon="ri-search-line"
             clearable
             hide-details
@@ -29,7 +29,12 @@
             @update:model-value="debouncedSearch"
           />
         </v-col>
-        <v-col cols="12" md="4" class="text-end">
+        <v-col cols="12" md="4" class="d-flex align-center justify-end gap-2">
+          <v-btn-toggle v-if="mobile" v-model="viewMode" mandatory color="primary" variant="tonal" density="comfortable" class="rounded-lg">
+            <v-btn value="table" icon="ri-table-line" />
+            <v-btn value="grid" icon="ri-layout-grid-line" />
+          </v-btn-toggle>
+
           <v-btn
             variant="tonal"
             color="primary"
@@ -37,7 +42,7 @@
             class="rounded-lg font-weight-bold"
             @click="showAdvanced = !showAdvanced"
           >
-            {{ showAdvanced ? 'إخفاء البحث المتقدم' : 'بحث متقدم' }}
+            {{ showAdvanced ? 'إخفاء البحث' : 'بحث متقدم' }}
           </v-btn>
         </v-col>
       </template>
@@ -50,7 +55,7 @@
         </div>
       </v-expand-transition>
 
-      <v-row>
+      <v-row v-if="!mobile || viewMode === 'table'">
         <v-col cols="12">
           <AppDataTable
             v-model:page="page"
@@ -66,6 +71,7 @@
             @delete="confirmDelete"
             @update:options="changeSort"
           >
+            <!-- Same table templates as before -->
             <template #item.name="{ item }">
               <div @click="viewProduct(item)" class="d-flex align-center gap-3 py-2">
                 <AppAvatar :img-url="item.primary_image_url || item.main_image" :name="item.name" size="44" rounded="lg" type="product" hoverable />
@@ -94,14 +100,22 @@
             </template>
 
             <template #item.total_available_quantity="{ item }">
-              <v-chip
-                :color="item.total_available_quantity > 10 ? 'success' : item.total_available_quantity > 0 ? 'warning' : 'error'"
-                size="x-small"
-                variant="tonal"
-                class="font-weight-bold"
-              >
-                {{ item.total_available_quantity }}
-              </v-chip>
+              <template v-if="item.product_type === 'physical'">
+                <v-chip
+                  :color="item.total_available_quantity > 10 ? 'success' : item.total_available_quantity > 0 ? 'warning' : 'error'"
+                  size="x-small"
+                  variant="tonal"
+                  class="font-weight-bold"
+                >
+                  {{ item.total_available_quantity }}
+                </v-chip>
+              </template>
+              <template v-else>
+                <v-chip color="info" size="x-small" variant="text" class="font-weight-bold">
+                  <v-icon icon="ri-infinity-line" size="14" class="me-1" />
+                  غير محدود
+                </v-chip>
+              </template>
             </template>
 
             <template #item.price_range="{ item }">
@@ -122,6 +136,39 @@
         </v-col>
       </v-row>
 
+      <!-- Grid View (Mobile Only) -->
+      <v-row v-else class="mx-0">
+        <v-col v-for="item in products" :key="item.id" cols="12" sm="6">
+          <v-card border flat class="rounded-lg overflow-hidden" @click="viewProduct(item)">
+            <div class="d-flex pa-3 gap-3">
+              <AppAvatar :img-url="item.primary_image_url || item.main_image" :name="item.name" size="80" rounded="lg" type="product" />
+              <div class="d-flex flex-column flex-grow-1">
+                <div class="d-flex justify-space-between align-start">
+                  <div class="font-weight-bold text-body-1">{{ item.name }}</div>
+                  <v-chip :color="item.active ? 'success' : 'error'" size="x-small" variant="tonal">{{ item.active ? 'نشط' : 'مؤرشف' }}</v-chip>
+                </div>
+                <div class="text-caption text-grey mb-2">{{ item.category?.name || 'بدون تصنيف' }}</div>
+                <div class="d-flex justify-space-between align-center mt-auto">
+                  <span class="text-primary font-weight-bold">{{ formatCurrency(item.min_price || 0) }}</span>
+                  <v-chip
+                    v-if="item.product_type === 'physical'"
+                    :color="item.total_available_quantity > 10 ? 'success' : 'warning'"
+                    size="x-small"
+                    variant="flat"
+                  >
+                    {{ item.total_available_quantity }} قطعة
+                  </v-chip>
+                  <v-icon v-else icon="ri-infinity-line" color="info" size="18" />
+                </div>
+              </div>
+            </div>
+          </v-card>
+        </v-col>
+        <v-col cols="12">
+          <v-pagination v-model="page" :length="Math.ceil(totalItems / itemsPerPage)" density="comfortable" @update:model-value="refresh" />
+        </v-col>
+      </v-row>
+
       <AppConfirmDialog
         ref="confirmDialog"
         title="حذف المنتج"
@@ -134,6 +181,7 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import { useDisplay } from 'vuetify';
 import { storeToRefs } from 'pinia';
 import { useProductStore } from '../store/product.store';
 import { usePermissions } from '@/composables/usePermissions';
@@ -152,6 +200,9 @@ import { formatCurrency } from '@/utils/formatters';
 const router = useRouter();
 const productStore = useProductStore();
 const { can } = usePermissions();
+const { mobile } = useDisplay();
+
+const viewMode = ref('table');
 
 // API fetch function for useDataTable
 const fetchProductsApi = async params => {

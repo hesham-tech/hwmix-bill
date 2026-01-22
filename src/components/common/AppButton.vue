@@ -12,6 +12,7 @@
     :prepend-icon="prependIcon"
     :append-icon="appendIcon"
     v-bind="$attrs"
+    :class="{ 'mobile-friendly-btn': mobile }"
     @click="$emit('click', $event)"
   >
     <v-tooltip v-if="tooltip" activator="parent" location="top" open-on-hover open-on-click open-on-focus>
@@ -23,55 +24,23 @@
 </template>
 
 <script setup>
+import { useDisplay } from 'vuetify';
+
+const { mobile } = useDisplay();
+
 defineProps({
-  color: {
-    type: String,
-    default: 'primary',
-  },
-  variant: {
-    type: String,
-    default: 'elevated',
-  },
-  size: {
-    type: String,
-    default: 'default',
-  },
-  loading: {
-    type: Boolean,
-    default: false,
-  },
-  disabled: {
-    type: Boolean,
-    default: false,
-  },
-  tooltip: {
-    type: String,
-    default: '',
-  },
-  icon: {
-    type: String,
-    default: '',
-  },
-  block: {
-    type: Boolean,
-    default: false,
-  },
-  rounded: {
-    type: [Boolean, String],
-    default: false,
-  },
-  elevation: {
-    type: [Number, String],
-    default: undefined,
-  },
-  prependIcon: {
-    type: String,
-    default: '',
-  },
-  appendIcon: {
-    type: String,
-    default: '',
-  },
+  color: { type: String, default: 'primary' },
+  variant: { type: String, default: 'elevated' },
+  size: { type: String, default: 'default' },
+  loading: { type: Boolean, default: false },
+  disabled: { type: Boolean, default: false },
+  tooltip: { type: String, default: '' },
+  icon: { type: String, default: '' },
+  block: { type: Boolean, default: false },
+  rounded: { type: [Boolean, String], default: false },
+  elevation: { type: [Number, String], default: undefined },
+  prependIcon: { type: String, default: '' },
+  appendIcon: { type: String, default: '' },
 });
 
 defineEmits(['click']);

@@ -57,6 +57,7 @@
         <v-col cols="12" lg="4">
           <InvoiceFinancials
             v-model="invoiceData"
+            v-model:show-profit="showProfit"
             :financials="financials"
             :errors="errors"
             @update:prop="({ key, value }) => (invoiceData[key] = value)"
@@ -119,6 +120,7 @@ const warehouses = ref([]);
 const errors = ref({});
 const selectedCustomerObj = ref(null);
 const isQuickAddCustomerOpen = ref(false);
+const showProfit = ref(false);
 
 const invoiceData = ref({
   user_id: null,
@@ -152,10 +154,12 @@ const isEdit = computed(() => !!props.invoiceId);
 const financials = computed(() => {
   let gross_amount = 0;
   let total_discount = 0;
+  let total_profit = 0;
 
   invoiceData.value.items.forEach(item => {
     gross_amount += (item.quantity || 0) * (item.unit_price || 0);
     total_discount += item.discount || 0;
+    total_profit += (item.profit_margin || 0) * (item.quantity || 0);
   });
 
   const taxable_amount = gross_amount - total_discount - (invoiceData.value.header_discount || 0);
@@ -181,6 +185,7 @@ const financials = computed(() => {
     total_tax,
     net_amount,
     remaining_amount,
+    total_profit,
   };
 });
 

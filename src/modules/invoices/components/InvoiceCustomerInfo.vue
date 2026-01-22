@@ -1,7 +1,7 @@
 <template>
   <v-card variant="outlined" class="mb-6 rounded-lg bg-card border-dashed">
     <v-card-text>
-      <v-row>
+      <v-row class="mx-0">
         <v-col cols="12" sm="6">
           <CustomerSelector
             :model-value="selectedCustomer"

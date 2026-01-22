@@ -1,6 +1,6 @@
 <template>
   <header class="app-page-header" :class="{ 'sticky-header': sticky }" :style="sticky ? { top: stickyTop + 'px' } : {}">
-    <v-card flat color="transparent" class="px-4 py-3 w-full">
+    <v-card flat color="transparent" :class="[mobile ? 'px-2 py-2' : 'px-4 py-3', 'w-full']">
       <v-row align="center" no-gutters>
         <!-- Prepend Content (Icon or custom) -->
         <v-col v-if="$slots.prepend || icon" cols="auto" class="me-3 me-md-4">
@@ -14,7 +14,7 @@
         <!-- Title & Subtitle Section -->
         <v-col>
           <!-- Title Section -->
-          <v-card-title class="pa-0 text-h5 text-md-h4 font-weight-black text-slate-800 mb-1">
+          <v-card-title class="pa-0 text-h5 font-weight-black text-slate-800 mb-1" :class="mobile ? 'text-subtitle-1' : 'text-md-h4'">
             <slot name="title">{{ title }}</slot>
           </v-card-title>
 
@@ -49,6 +49,8 @@
 </template>
 
 <script setup>
+import { useDisplay } from 'vuetify';
+
 defineProps({
   title: {
     type: String,
@@ -79,6 +81,8 @@ defineProps({
     default: 77,
   },
 });
+
+const { mobile } = useDisplay();
 </script>
 
 <style scoped>

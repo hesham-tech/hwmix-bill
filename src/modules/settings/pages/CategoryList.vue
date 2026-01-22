@@ -280,7 +280,7 @@
     </AppDialog>
 
     <!-- Category Explorer Dialog -->
-    <CategoryExplorerDialog v-model="showExplorer" :initial-category="explorerTarget" @update-root="loadData" />
+    <CategoryExplorerDialog v-model="showExplorer" :initial-category="explorerTarget" @update-root="fetchData" />
 
     <!-- Media Gallery -->
     <MediaGallery v-model="showMediaGallery" type="category" @select="handleImageSelect" />

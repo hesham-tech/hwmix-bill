@@ -48,20 +48,30 @@
                 </v-list-item-subtitle>
 
                 <!-- Stock Warning -->
-                <template #append-inner v-if="item.quantity > (item.max_quantity || 0)">
+                <template #append-inner v-if="item.requires_stock && item.quantity > (item.max_quantity || 0)">
                   <div class="text-caption text-error font-weight-bold ms-2">
                     <v-icon icon="ri-error-warning-line" size="14" class="me-1" />
                     المتوفر: {{ item.max_quantity || 0 }}
                   </div>
                 </template>
 
-                <div v-if="item.quantity > (item.max_quantity || 0)" class="text-caption text-error font-weight-bold mt-1 d-md-none">
+                <div
+                  v-if="item.requires_stock && item.quantity > (item.max_quantity || 0)"
+                  class="text-caption text-error font-weight-bold mt-1 d-md-none"
+                >
                   <v-icon icon="ri-error-warning-line" size="14" class="me-1" />
                   الكمية المطلوبة أكبر من المتوفر ({{ item.max_quantity || 0 }})
                 </div>
+
+                <!-- Product Type Badge -->
+                <div v-if="item.product_type && item.product_type !== 'physical'" class="mt-1">
+                  <v-chip size="x-small" :color="item.product_type === 'digital' ? 'info' : 'secondary'" variant="tonal" label density="compact">
+                    {{ item.product_type === 'digital' ? 'مننتج رقمي' : 'خدمة' }}
+                  </v-chip>
+                </div>
               </v-list-item>
               <!-- Stock Warning (fallback for table cell space) -->
-              <div v-if="item.quantity > (item.max_quantity || 0)" class="text-caption text-error font-weight-bold mt-1">
+              <div v-if="item.requires_stock && item.quantity > (item.max_quantity || 0)" class="text-caption text-error font-weight-bold mt-1">
                 <v-icon icon="ri-error-warning-line" size="14" class="me-1" />
                 تجاوز المخزون ({{ item.max_quantity || 0 }})
               </div>
@@ -130,19 +140,42 @@
             </template>
           </v-card-item>
 
-          <v-row dense>
-            <v-col cols="4">
-              <AppInput
-                v-model.number="item.quantity"
-                label="الكمية"
-                type="number"
-                density="compact"
-                hide-details
-                class="compact-input"
-                @update:model-value="$emit('calculate', item)"
-              />
+          <v-row dense align="center">
+            <v-col cols="12" sm="6">
+              <div class="d-flex align-center gap-2">
+                <v-btn
+                  icon="ri-subtract-line"
+                  size="small"
+                  variant="tonal"
+                  color="primary"
+                  :disabled="item.quantity <= 0.01"
+                  @click="
+                    item.quantity = Math.max(0.01, (item.quantity || 0) - 1);
+                    $emit('calculate', item);
+                  "
+                />
+                <AppInput
+                  v-model.number="item.quantity"
+                  label="الكمية"
+                  type="number"
+                  density="compact"
+                  hide-details
+                  class="compact-input text-center flex-grow-1"
+                  @update:model-value="$emit('calculate', item)"
+                />
+                <v-btn
+                  icon="ri-add-line"
+                  size="small"
+                  variant="tonal"
+                  color="primary"
+                  @click="
+                    item.quantity = (item.quantity || 0) + 1;
+                    $emit('calculate', item);
+                  "
+                />
+              </div>
             </v-col>
-            <v-col cols="4">
+            <v-col cols="6" sm="3">
               <AppInput
                 v-model.number="item.unit_price"
                 label="السعر"
@@ -153,7 +186,7 @@
                 @update:model-value="$emit('calculate', item)"
               />
             </v-col>
-            <v-col cols="4">
+            <v-col cols="6" sm="3">
               <AppInput
                 v-model.number="item.discount"
                 label="الخصم"
@@ -173,7 +206,7 @@
 
           <!-- Mobile Stock Warning -->
           <v-alert
-            v-if="item.quantity > (item.max_quantity || 0)"
+            v-if="item.requires_stock && item.quantity > (item.max_quantity || 0)"
             type="error"
             density="compact"
             variant="tonal"

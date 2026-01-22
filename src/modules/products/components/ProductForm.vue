@@ -40,9 +40,26 @@
       <v-col cols="12" lg="8">
         <!-- Information Card -->
         <v-card border flat class="rounded-md mb-6 overflow-visible">
-          <div class="pa-4 mb-6 bg-grey-lighten-5 rounded-t-lg border-b d-flex align-center">
-            <v-icon icon="ri-information-line" color="primary" class="me-2" />
-            <span class="text-subtitle-2 mb-2 font-weight-bold">المعلومات الأساسية</span>
+          <div class="pa-4 mb-6 bg-grey-lighten-5 rounded-t-lg border-b d-flex align-center justify-space-between">
+            <div class="d-flex align-center">
+              <v-icon icon="ri-information-line" color="primary" class="me-2" />
+              <span class="text-subtitle-2 font-weight-bold">المعلومات الأساسية</span>
+            </div>
+            <!-- Product Type Selection -->
+            <v-btn-toggle
+              v-model="productData.product_type"
+              mandatory
+              variant="tonal"
+              color="primary"
+              density="compact"
+              class="rounded-md"
+              @update:model-value="handleTypeChange"
+            >
+              <v-btn value="physical" size="small" prepend-icon="ri-box-3-line"> مادي </v-btn>
+              <v-btn value="digital" size="small" prepend-icon="ri-download-cloud-2-line"> رقمي </v-btn>
+              <v-btn value="service" size="small" prepend-icon="ri-customer-service-2-line"> خدمة </v-btn>
+              <v-btn value="subscription" size="small" prepend-icon="ri-repeat-line"> اشتراك </v-btn>
+            </v-btn-toggle>
           </div>
           <v-card-text class="pa-6">
             <v-row>
@@ -85,8 +102,65 @@
           </v-card-text>
         </v-card>
 
+        <!-- Digital Product Details (Smart Fields) -->
+        <v-expand-transition>
+          <v-card v-if="productData.product_type === 'digital'" border flat class="rounded-md mb-6">
+            <div class="pa-4 mb-6 bg-info-lighten-5 rounded-t-lg border-b d-flex align-center">
+              <v-icon icon="ri-download-cloud-2-line" color="info" class="me-2" />
+              <span class="text-subtitle-2 font-weight-bold">تفاصيل المنتج الرقمي والتسليم</span>
+            </div>
+            <v-card-text class="pa-6">
+              <v-row>
+                <v-col cols="12" md="6">
+                  <v-switch v-model="productData.is_downloadable" label="قابل للتنزيل المباشر" color="primary" inset hide-details />
+                </v-col>
+                <v-col cols="12" md="6" v-if="productData.is_downloadable">
+                  <AppInput
+                    v-model="productData.download_url"
+                    label="رابط التنزيل"
+                    placeholder="https://example.com/files/..."
+                    prepend-inner-icon="ri-link"
+                  />
+                </v-col>
+                <v-col cols="12" md="6" v-if="productData.is_downloadable">
+                  <AppInput
+                    v-model.number="productData.download_limit"
+                    label="حد مرات التنزيل"
+                    type="number"
+                    placeholder="اتركه فارغاً لعدد غير محدود"
+                  />
+                </v-col>
+                <v-col cols="12" md="6">
+                  <AppInput v-model.number="productData.validity_days" label="مدة الصلاحية (بالأيام)" type="number" placeholder="مثال: 365" />
+                </v-col>
+                <v-col cols="12">
+                  <v-label class="mb-2 font-weight-bold">مفاتيح الترخيص / الأكواد (اختياري)</v-label>
+                  <v-combobox
+                    v-model="productData.license_keys"
+                    multiple
+                    chips
+                    closable-chips
+                    placeholder="اضغط Enter بعد كل مفتاح"
+                    variant="outlined"
+                    hint="سيتم تسليم مفتاح واحد عند كل عملية بيع"
+                    persistent-hint
+                  />
+                </v-col>
+                <v-col cols="12">
+                  <AppTextarea
+                    v-model="productData.delivery_instructions"
+                    label="تعليمات التسليم للمشتري"
+                    placeholder="تظهر للمشتري فوراً بعد الدفع (مثال: طريقة تشغيل الكود)"
+                    rows="3"
+                  />
+                </v-col>
+              </v-row>
+            </v-card-text>
+          </v-card>
+        </v-expand-transition>
+
         <!-- Variant Manager -->
-        <VariantManager v-model="productData.variants" />
+        <VariantManager v-model="productData.variants" :product-type="productData.product_type" />
       </v-col>
 
       <!-- Sidebar Options -->
@@ -182,6 +256,14 @@ const primaryImageUrl = computed(() => {
 
 const productData = ref({
   name: '',
+  product_type: 'physical',
+  require_stock: true,
+  is_downloadable: false,
+  download_url: '',
+  download_limit: null,
+  license_keys: [],
+  validity_days: null,
+  delivery_instructions: '',
   category_id: null,
   brand_id: null,
   desc: '',
@@ -195,6 +277,7 @@ const productData = ref({
       purchase_price: 0,
       wholesale_price: 0,
       retail_price: 0,
+      profit_margin: 0,
       sku: '',
       barcode: '',
       stocks: [{ warehouse_id: null, quantity: 0 }],
@@ -204,6 +287,15 @@ const productData = ref({
     },
   ],
 });
+
+const handleTypeChange = type => {
+  // Logic to handle defaults when switching types
+  if (type === 'digital' || type === 'service' || type === 'subscription') {
+    productData.value.require_stock = false;
+  } else {
+    productData.value.require_stock = true;
+  }
+};
 
 const handleSubmit = async () => {
   if (!isValid.value) return;

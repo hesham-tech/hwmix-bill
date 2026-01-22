@@ -118,6 +118,13 @@
         <InstallmentCalc @close="isInstallmentCalcOpen = false" />
       </div>
     </div>
+    <AppConfirmDialog
+      ref="confirmLogoutDialog"
+      title="تسجيل الخروج"
+      message="هل أنت متأكد أنك تريد تسجيل الخروج؟"
+      confirm-text="خروج"
+      confirm-color="error"
+    />
   </v-main>
 </template>
 
@@ -130,6 +137,7 @@ import { authService } from '@/api';
 import Sidebar from '@/components/layout/Sidebar.vue';
 import AppButton from '@/components/common/AppButton.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
+import AppConfirmDialog from '@/components/common/AppConfirmDialog.vue';
 import Calculator from '@/components/tools/Calculator.vue';
 import InstallmentCalc from '@/components/tools/InstallmentCalc.vue';
 import { toast } from 'vue3-toastify';
@@ -172,6 +180,9 @@ const toggleLanguage = () => {
 };
 
 const handleLogout = async () => {
+  const confirmed = await confirmLogoutDialog.value.open();
+  if (!confirmed) return;
+
   try {
     await authService.logout();
     toast.success('تم تسجيل الخروج بنجاح');
@@ -199,6 +210,8 @@ const openInstallmentCalc = () => {
   isQuickToolsMenuOpen.value = false;
   activeTool.value = 'installment'; // جعله نشطاً عند الفتح
 };
+
+const confirmLogoutDialog = ref(null);
 
 // تعيين التطبيق النشط (للنقر والسحب)
 const setActiveTool = toolId => {

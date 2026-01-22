@@ -70,6 +70,21 @@
 
         <v-divider class="border-opacity-50 my-2" />
 
+        <!-- Profit Margin (Optional) -->
+        <v-col cols="12" class="mb-2">
+          <div class="d-flex justify-space-between align-center">
+            <AppSwitch
+              label="إظهار الربح"
+              color="success"
+              density="compact"
+              hide-details
+              :model-value="showProfit"
+              @update:model-value="$emit('update:showProfit', $event)"
+            />
+            <div v-if="showProfit" class="text-success font-weight-bold">+{{ formatCurrency(financials.total_profit) }}</div>
+          </div>
+        </v-col>
+
         <v-col cols="12">
           <div class="d-flex justify-space-between align-center bg-primary-lighten-5 pa-3 rounded-lg border border-primary-lighten-3">
             <span class="text-subtitle-1 font-weight-bold text-primary">المبلغ الصافي</span>
@@ -85,7 +100,7 @@
         <h3 class="text-h6 font-weight-bold mb-0">بيانات الدفع</h3>
       </div>
 
-      <v-row dense>
+      <v-row dense class="mx-0">
         <v-col cols="12">
           <AppInput
             :model-value="modelValue.paid_amount"
@@ -148,9 +163,13 @@ const props = defineProps({
     type: Object,
     default: () => ({}),
   },
+  showProfit: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-const emit = defineEmits(['update:modelValue', 'update:prop']);
+const emit = defineEmits(['update:modelValue', 'update:prop', 'update:showProfit']);
 </script>
 
 <style scoped>

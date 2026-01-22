@@ -10,7 +10,7 @@
       </div>
       <div v-else>
         <h3 class="text-h6 font-weight-black mb-6">مقارنة الربحية الشهرية</h3>
-        <Line :data="chartData" :options="chartOptions" />
+        <Line :data="chartData" :options="computedOptions" />
       </div>
     </v-card-text>
   </v-card>
@@ -18,9 +18,12 @@
 
 <script setup>
 import { computed } from 'vue';
+import { useDisplay } from 'vuetify';
 import { Line } from 'vue-chartjs';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
 import { formatCurrency, formatNumber } from '@/utils/formatters';
+
+const { mobile } = useDisplay();
 
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
@@ -66,10 +69,21 @@ const chartData = computed(() => ({
   ],
 }));
 
+const computedOptions = computed(() => ({
+  ...chartOptions,
+  aspectRatio: mobile.value ? 1.2 : 2,
+  plugins: {
+    ...chartOptions.plugins,
+    legend: {
+      ...chartOptions.plugins.legend,
+      position: mobile.value ? 'bottom' : 'top',
+    },
+  },
+}));
+
 const chartOptions = {
   responsive: true,
   maintainAspectRatio: true,
-  aspectRatio: 2,
   plugins: {
     legend: {
       display: true,

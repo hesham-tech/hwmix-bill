@@ -2,12 +2,18 @@
   <div class="product-view-page">
     <AppPageHeader sticky>
       <template #prepend>
-        <div class="d-flex align-center gap-4">
-          <v-btn icon="ri-arrow-right-line" variant="tonal" color="primary" @click="router.push({ name: 'products' })" />
+        <div class="d-flex align-center gap-2 gap-sm-4">
+          <v-btn
+            icon="ri-arrow-right-line"
+            :size="mobile ? 'small' : 'default'"
+            variant="tonal"
+            color="primary"
+            @click="router.push({ name: 'products' })"
+          />
           <AppAvatar
             :img-url="product?.primary_image_url || product?.main_image"
             :name="product?.name"
-            size="64"
+            :size="mobile ? 48 : 64"
             rounded="lg"
             type="product"
             border
@@ -17,36 +23,44 @@
 
       <template #title>
         <div v-if="product" class="d-flex align-center gap-2">
-          <h1 class="text-h4 font-weight-black">{{ product.name }}</h1>
-          <v-chip :color="product.active ? 'success' : 'error'" size="small" variant="flat" class="px-3">
+          <h1 :class="[mobile ? 'text-h6' : 'text-h4', 'font-weight-black']">{{ product.name }}</h1>
+          <v-chip :color="product.active ? 'success' : 'error'" :size="mobile ? 'x-small' : 'small'" variant="flat" class="px-2 px-sm-3">
             {{ product.active ? 'نشط' : 'غير نشط' }}
           </v-chip>
         </div>
-        <div v-else class="text-h4 font-weight-black">جاري التحميل...</div>
+        <div v-else :class="[mobile ? 'text-h6' : 'text-h4', 'font-weight-black']">جاري التحميل...</div>
       </template>
 
-      <template #subtitle>
+      <template #subtitle v-if="!mobile">
         <v-breadcrumbs :items="breadcrumbItems" divider="/" class="pa-0 text-caption" />
       </template>
 
       <template #append>
-        <div v-if="product" class="d-flex gap-3">
-          <v-btn
+        <div v-if="product" class="d-flex gap-2">
+          <AppButton
             v-if="can(PERMISSIONS.PRODUCTS_UPDATE_ALL)"
             color="primary"
             variant="flat"
-            prepend-icon="ri-edit-2-line"
-            class="rounded-md px-6"
+            :prepend-icon="!mobile ? 'ri-edit-2-line' : ''"
+            :icon="mobile ? 'ri-edit-2-line' : false"
+            class="rounded-md"
             @click="router.push({ name: 'product-edit', params: { id: product.id } })"
           >
-            تعديل المنتج
-          </v-btn>
-          <v-btn v-if="can(PERMISSIONS.PRODUCTS_DELETE_ALL)" color="error" variant="tonal" icon="ri-delete-bin-line" @click="confirmDelete" />
+            {{ mobile ? '' : 'تعديل المنتج' }}
+          </AppButton>
+          <v-btn
+            v-if="can(PERMISSIONS.PRODUCTS_DELETE_ALL)"
+            color="error"
+            variant="tonal"
+            :size="mobile ? 'small' : 'default'"
+            icon="ri-delete-bin-line"
+            @click="confirmDelete"
+          />
         </div>
       </template>
     </AppPageHeader>
 
-    <v-container fluid class="pa-6">
+    <v-container fluid :class="mobile ? 'pa-2' : 'pa-6'">
       <!-- Loading State -->
       <div v-if="loading" class="d-flex justify-center align-center" style="height: 400px">
         <LoadingSpinner />
@@ -70,40 +84,53 @@
             <!-- Stats Dashboard -->
             <v-row class="mb-4">
               <v-col cols="12" sm="4">
-                <v-card border flat class="rounded-md pa-4 bg-surface">
-                  <div class="d-flex align-center gap-4">
-                    <v-avatar color="primary-lighten-5" rounded="md" size="56">
-                      <v-icon color="primary" icon="ri-database-2-line" size="28" />
+                <v-card border flat class="rounded-md pa-3 pa-sm-4 bg-surface">
+                  <div class="d-flex align-center gap-3 gap-sm-4">
+                    <v-avatar
+                      :color="product.product_type === 'physical' ? 'primary-lighten-5' : 'info-lighten-5'"
+                      rounded="md"
+                      :size="mobile ? 48 : 56"
+                    >
+                      <v-icon
+                        :color="product.product_type === 'physical' ? 'primary' : 'info'"
+                        :icon="product.product_type === 'physical' ? 'ri-database-2-line' : 'ri-shield-user-line'"
+                        :size="mobile ? 24 : 28"
+                      />
                     </v-avatar>
                     <div>
-                      <div class="text-grey-darken-1 text-caption font-weight-bold">إجمالي المخزون</div>
-                      <div class="text-h5 font-weight-black">{{ totalStock }} <span class="text-caption">قطعة</span></div>
+                      <div class="text-grey-darken-1 text-caption font-weight-bold">
+                        {{ product.product_type === 'physical' ? 'إجمالي المخزون' : 'نوع المنتج' }}
+                      </div>
+                      <div :class="[mobile ? 'text-h6' : 'text-h5', 'font-weight-black']">
+                        {{ product.product_type === 'physical' ? totalStock : product.product_type === 'digital' ? 'رقمي' : 'خدمة' }}
+                        <span v-if="product.product_type === 'physical'" class="text-caption">قطعة</span>
+                      </div>
                     </div>
                   </div>
                 </v-card>
               </v-col>
               <v-col cols="12" sm="4">
-                <v-card border flat class="rounded-md pa-4">
-                  <div class="d-flex align-center gap-4">
-                    <v-avatar color="info-lighten-5" rounded="md" size="56">
-                      <v-icon color="info" icon="ri-layout-grid-line" size="28" />
+                <v-card border flat class="rounded-md pa-3 pa-sm-4">
+                  <div class="d-flex align-center gap-3 gap-sm-4">
+                    <v-avatar color="info-lighten-5" rounded="md" :size="mobile ? 48 : 56">
+                      <v-icon color="info" icon="ri-layout-grid-line" :size="mobile ? 24 : 28" />
                     </v-avatar>
                     <div>
                       <div class="text-grey-darken-1 text-caption font-weight-bold">عدد المتغيرات</div>
-                      <div class="text-h5 font-weight-black">{{ product.variants?.length || 0 }}</div>
+                      <div :class="[mobile ? 'text-h6' : 'text-h5', 'font-weight-black']">{{ product.variants?.length || 0 }}</div>
                     </div>
                   </div>
                 </v-card>
               </v-col>
               <v-col cols="12" sm="4">
-                <v-card border flat class="rounded-md pa-4">
-                  <div class="d-flex align-center gap-4">
-                    <v-avatar color="success-lighten-5" rounded="md" size="56">
-                      <v-icon color="success" icon="ri-money-dollar-circle-line" size="28" />
+                <v-card border flat class="rounded-md pa-3 pa-sm-4">
+                  <div class="d-flex align-center gap-3 gap-sm-4">
+                    <v-avatar color="success-lighten-5" rounded="md" :size="mobile ? 48 : 56">
+                      <v-icon color="success" icon="ri-money-dollar-circle-line" :size="mobile ? 24 : 28" />
                     </v-avatar>
                     <div>
                       <div class="text-grey-darken-1 text-caption font-weight-bold">متوسط سعر البيع</div>
-                      <div class="text-h5 font-weight-black text-success">{{ formatCurrency(averagePrice) }}</div>
+                      <div :class="[mobile ? 'text-h6' : 'text-h5', 'font-weight-black text-success']">{{ formatCurrency(averagePrice) }}</div>
                     </div>
                   </div>
                 </v-card>
@@ -112,12 +139,12 @@
 
             <!-- Variants Explorer -->
             <v-card border flat class="rounded-md overflow-hidden">
-              <v-toolbar color="transparent" density="comfortable" class="px-2">
-                <v-toolbar-title class="text-subtitle-1 font-weight-bold">
-                  <v-icon icon="ri-list-settings-line" class="me-2" color="primary" />
+              <v-toolbar color="transparent" density="comfortable" class="px-2 d-flex flex-wrap gap-2 py-2 py-sm-0" height="auto">
+                <v-toolbar-title class="text-subtitle-2 text-sm-subtitle-1 font-weight-bold flex-grow-1">
+                  <v-icon icon="ri-list-settings-line" class="me-1 me-sm-2" color="primary" />
                   مواصفات وباركود المتغيرات
                 </v-toolbar-title>
-                <v-spacer />
+                <v-spacer class="d-none d-sm-block" />
                 <v-text-field
                   v-model="variantSearch"
                   density="compact"
@@ -125,25 +152,31 @@
                   flat
                   hide-details
                   prepend-inner-icon="ri-search-line"
-                  placeholder="بحث في المتغيرات..."
-                  class="max-width-300 me-2"
+                  placeholder="بحث..."
+                  class="search-field flex-grow-1"
+                  style="max-width: 100%; min-width: 150px"
                 />
               </v-toolbar>
 
               <v-divider />
 
-              <v-data-table :headers="variantHeaders" :items="product.variants" :search="variantSearch" class="variant-table" show-expand>
+              <v-data-table :headers="filteredHeaders" :items="product.variants" :search="variantSearch" class="variant-table" show-expand>
                 <!-- SKU & Barcode Column -->
                 <template #item.sku_barcode="{ item }">
                   <div class="d-flex flex-column py-2">
-                    <span class="font-weight-bold text-primary">{{ item.barcode }}</span>
+                    <span class="font-weight-bold text-primary text-body-2">{{ item.barcode }}</span>
                     <span class="text-caption text-grey">{{ item.sku }}</span>
                   </div>
                 </template>
 
                 <!-- Images Column -->
                 <template #item.image="{ item }">
-                  <v-avatar size="40" rounded="md" class="border bg-grey-lighten-4 my-1 cursor-pointer" @click="openLightbox(item.images?.[0]?.url)">
+                  <v-avatar
+                    :size="mobile ? 32 : 40"
+                    rounded="md"
+                    class="border bg-grey-lighten-4 my-1 cursor-pointer"
+                    @click="openLightbox(item.images?.[0]?.url)"
+                  >
                     <v-img v-if="item.images?.[0]?.url" :src="item.images[0].url" cover />
                     <v-icon v-else icon="ri-image-2-line" color="grey-lighten-1" size="small" />
                   </v-avatar>
@@ -161,7 +194,7 @@
 
                 <!-- Prices Column -->
                 <template #item.prices="{ item }">
-                  <div class="d-flex flex-column gap-1 py-1">
+                  <div class="d-flex flex-column gap-1 py-1 min-width-150">
                     <div
                       v-if="
                         item.purchase_price !== undefined &&
@@ -170,7 +203,7 @@
                       class="d-flex justify-space-between align-center gap-6"
                     >
                       <span class="text-caption text-grey">شراء:</span>
-                      <span class="font-weight-medium">{{ formatCurrency(item.purchase_price) }}</span>
+                      <span class="font-weight-medium text-body-2">{{ formatCurrency(item.purchase_price) }}</span>
                     </div>
                     <div
                       v-if="
@@ -180,31 +213,77 @@
                       class="d-flex justify-space-between align-center gap-6"
                     >
                       <span class="text-caption text-grey">جملة:</span>
-                      <span class="font-weight-medium">{{ formatCurrency(item.wholesale_price) }}</span>
+                      <span class="font-weight-medium text-body-2">{{ formatCurrency(item.wholesale_price) }}</span>
                     </div>
-                    <div class="d-flex justify-space-between align-center gap-6">
+                    <div class="d-flex justify-space-between align-center gap-6 border-top-dotted mt-1 pt-1">
                       <span class="text-caption font-weight-bold">قطاعي:</span>
-                      <span class="font-weight-bold text-success">{{ formatCurrency(item.retail_price) }}</span>
+                      <span class="font-weight-bold text-success text-body-2">{{ formatCurrency(item.retail_price) }}</span>
                     </div>
                   </div>
                 </template>
 
                 <!-- Total Stock Column -->
                 <template #item.quantity="{ item }">
-                  <v-chip :color="getStockColor(item.quantity)" size="small" variant="flat" class="font-weight-bold">
-                    {{ item.quantity }} قطعة
+                  <v-chip
+                    v-if="product.product_type === 'physical'"
+                    :color="getStockColor(item.quantity)"
+                    :size="mobile ? 'x-small' : 'small'"
+                    variant="flat"
+                    class="font-weight-bold"
+                  >
+                    {{ item.quantity }}
                   </v-chip>
+                  <v-chip v-else color="info" :size="mobile ? 'x-small' : 'small'" variant="tonal" class="font-weight-bold"> غير محدود </v-chip>
                 </template>
 
-                <!-- Expanded Row: Warehouse Breakdown -->
+                <!-- Expanded Row: Mobile Fields + Warehouse Breakdown -->
                 <template #expanded-row="{ columns, item }">
                   <tr>
                     <td :colspan="columns.length" class="bg-grey-lighten-5 pa-4">
+                      <!-- Render Hidden Table Headers for Mobile -->
+                      <div v-if="mobile" class="mb-4 pb-4 border-bottom">
+                        <div v-for="header in hiddenHeadersOnMobile" :key="header.key" class="mb-4 last-mb-0">
+                          <div class="text-caption font-weight-bold color-primary mb-2 d-flex align-center">
+                            <v-icon :icon="header.key === 'attributes' ? 'ri-focus-3-line' : 'ri-price-tag-3-line'" size="14" class="me-2" />
+                            {{ header.title }}
+                          </div>
+                          <div class="ps-6">
+                            <slot :name="'item.' + header.key" :item="item">
+                              <!-- Falls back to manual template logic if needed, but since we reuse slots -->
+                              <template v-if="header.key === 'attributes'">
+                                <div class="d-flex flex-wrap gap-1">
+                                  <v-chip v-for="attr in item.attributes" :key="attr.id" size="x-small" color="primary" variant="tonal" label>
+                                    {{ attr.attribute?.name }}: {{ attr.attribute_value?.name }}
+                                  </v-chip>
+                                  <span v-if="!item.attributes?.length" class="text-caption text-grey-lighten-1">افتراضي</span>
+                                </div>
+                              </template>
+                              <template v-if="header.key === 'prices'">
+                                <div class="d-flex flex-column gap-2 border pa-3 rounded bg-white max-width-250">
+                                  <div v-if="item.purchase_price !== undefined" class="d-flex justify-space-between align-center">
+                                    <span class="text-caption text-grey">شراء:</span>
+                                    <span class="font-weight-medium">{{ formatCurrency(item.purchase_price) }}</span>
+                                  </div>
+                                  <div v-if="item.wholesale_price !== undefined" class="d-flex justify-space-between align-center">
+                                    <span class="text-caption text-grey">جملة:</span>
+                                    <span class="font-weight-medium">{{ formatCurrency(item.wholesale_price) }}</span>
+                                  </div>
+                                  <div class="d-flex justify-space-between align-center border-top-dotted pt-2">
+                                    <span class="text-caption font-weight-bold">قطاعي:</span>
+                                    <span class="font-weight-bold text-success">{{ formatCurrency(item.retail_price) }}</span>
+                                  </div>
+                                </div>
+                              </template>
+                            </slot>
+                          </div>
+                        </div>
+                      </div>
+
                       <div class="text-subtitle-2 font-weight-bold mb-3 d-flex align-center">
                         <v-icon icon="ri-home-4-line" size="small" class="me-2" color="primary" />
                         توزيع المخزون عبر المستودعات
                       </div>
-                      <v-row dense>
+                      <v-row dense class="mx-0">
                         <v-col v-for="stock in item.stocks" :key="stock.id" cols="12" sm="6" md="4">
                           <v-card border flat class="pa-3 rounded-md bg-white box-shadow-subtle">
                             <div class="d-flex justify-space-between align-center">
@@ -299,13 +378,13 @@
             </v-card>
 
             <!-- Images Gallery Card -->
-            <v-card border flat class="rounded-md pa-4 mb-4" v-if="product.images?.length">
+            <v-card border flat class="rounded-md pa-3 pa-sm-4 mb-4" v-if="product.images?.length">
               <div class="text-subtitle-2 font-weight-bold mb-3 d-flex align-center">
                 <v-icon icon="ri-image-2-line" class="me-2 text-primary" size="small" />
-                صور المنتج
+                صور المنتج ({{ product.images.length }})
               </div>
-              <v-row dense>
-                <v-col v-for="img in product.images" :key="img.id" cols="4" sm="3" md="2">
+              <v-row dense class="mx-0">
+                <v-col v-for="img in product.images" :key="img.id" cols="4" sm="3" md="4">
                   <v-hover v-slot="{ isHovering, props: hoverProps }">
                     <v-card
                       v-bind="hoverProps"
@@ -320,20 +399,16 @@
                         <v-btn
                           :icon="img.is_primary ? 'ri-star-fill' : 'ri-star-line'"
                           :color="img.is_primary ? 'warning' : 'white'"
-                          size="x-small"
+                          :size="mobile ? 'x-small' : 'small'"
                           variant="flat"
                           class="position-absolute"
-                          style="top: 4px; right: 4px; z-index: 2; width: 24px; height: 24px"
+                          style="top: 2px; right: 2px; z-index: 2; width: 22px; height: 22px"
                           @click.stop="setPrimaryImage(img)"
                         />
 
                         <v-fade-transition>
-                          <div
-                            v-if="isHovering"
-                            class="d-flex align-center justify-center fill-height bg-black-opacity-20"
-                            @click="openLightbox(img.url)"
-                          >
-                            <v-icon icon="ri-zoom-in-line" color="white" />
+                          <div v-if="isHovering || mobile" class="d-flex align-center justify-center fill-height bg-black-opacity-20">
+                            <v-icon :icon="mobile ? '' : 'ri-zoom-in-line'" color="white" />
                           </div>
                         </v-fade-transition>
                       </v-img>
@@ -399,6 +474,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useDisplay } from 'vuetify';
 import { useProductStore } from '../store/product.store';
 import { usePermissions } from '@/composables/usePermissions';
 import { PERMISSIONS } from '@/config/permissions';
@@ -412,6 +488,7 @@ const route = useRoute();
 const router = useRouter();
 const productStore = useProductStore();
 const { can } = usePermissions();
+const { mobile } = useDisplay();
 const { fetchProduct, deleteProduct } = productStore;
 
 const product = ref(null);
@@ -426,6 +503,17 @@ const variantHeaders = [
   { title: 'الكمية الإجمالية', key: 'quantity', align: 'center', sortable: true },
   { title: '', key: 'data-table-expand' },
 ];
+
+const filteredHeaders = computed(() => {
+  if (!mobile.value) return variantHeaders;
+  // On mobile: image, sku_barcode, quantity, expand
+  return variantHeaders.filter(h => ['image', 'sku_barcode', 'quantity', 'data-table-expand'].includes(h.key));
+});
+
+const hiddenHeadersOnMobile = computed(() => {
+  if (!mobile.value) return [];
+  return variantHeaders.filter(h => ['attributes', 'prices'].includes(h.key));
+});
 
 const selectedImage = ref(null);
 const lightboxShow = ref(false);
