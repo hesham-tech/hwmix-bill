@@ -103,7 +103,7 @@
                     </v-avatar>
                     <div>
                       <div class="text-grey-darken-1 text-caption font-weight-bold">متوسط سعر البيع</div>
-                      <div class="text-h5 font-weight-black text-success">{{ formatPrice(averagePrice) }}</div>
+                      <div class="text-h5 font-weight-black text-success">{{ formatCurrency(averagePrice) }}</div>
                     </div>
                   </div>
                 </v-card>
@@ -170,7 +170,7 @@
                       class="d-flex justify-space-between align-center gap-6"
                     >
                       <span class="text-caption text-grey">شراء:</span>
-                      <span class="font-weight-medium">{{ formatPrice(item.purchase_price) }}</span>
+                      <span class="font-weight-medium">{{ formatCurrency(item.purchase_price) }}</span>
                     </div>
                     <div
                       v-if="
@@ -180,11 +180,11 @@
                       class="d-flex justify-space-between align-center gap-6"
                     >
                       <span class="text-caption text-grey">جملة:</span>
-                      <span class="font-weight-medium">{{ formatPrice(item.wholesale_price) }}</span>
+                      <span class="font-weight-medium">{{ formatCurrency(item.wholesale_price) }}</span>
                     </div>
                     <div class="d-flex justify-space-between align-center gap-6">
                       <span class="text-caption font-weight-bold">قطاعي:</span>
-                      <span class="font-weight-bold text-success">{{ formatPrice(item.retail_price) }}</span>
+                      <span class="font-weight-bold text-success">{{ formatCurrency(item.retail_price) }}</span>
                     </div>
                   </div>
                 </template>
