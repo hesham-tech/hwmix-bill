@@ -81,23 +81,13 @@
         <v-form ref="formRef" @submit.prevent="handleSave">
           <AppCard title="البيانات الشخصية" icon="ri-profile-line" class="mb-6">
             <v-row>
-              <v-col cols="12" md="4">
+              <v-col cols="12" md="8">
                 <AppInput
-                  v-model="formData.first_name"
-                  label="الاسم الأول *"
+                  v-model="formData.full_name"
+                  label="الاسم الكامل *"
                   prepend-inner-icon="ri-user-line"
                   :rules="[rules.required]"
-                  :error-messages="errors.first_name"
-                />
-              </v-col>
-
-              <v-col cols="12" md="4">
-                <AppInput
-                  v-model="formData.last_name"
-                  label="الاسم الأخير *"
-                  prepend-inner-icon="ri-user-line"
-                  :rules="[rules.required]"
-                  :error-messages="errors.last_name"
+                  :error-messages="errors.full_name"
                 />
               </v-col>
 
@@ -178,8 +168,7 @@ const errors = ref({});
 
 const formData = reactive({
   id: null,
-  first_name: '',
-  last_name: '',
+  full_name: '',
   nickname: '',
   username: '',
   position: '',
@@ -205,8 +194,7 @@ const initForm = () => {
   if (!user) return;
 
   formData.id = user.id;
-  formData.first_name = user.first_name || '';
-  formData.last_name = user.last_name || '';
+  formData.full_name = user.full_name || '';
   formData.nickname = user.nickname || '';
   formData.username = user.username || '';
   formData.position = user.position || '';
