@@ -196,20 +196,14 @@
                 <template #item.prices="{ item }">
                   <div class="d-flex flex-column gap-1 py-1 min-width-150">
                     <div
-                      v-if="
-                        item.purchase_price !== undefined &&
-                        (can(PERMISSIONS.PRODUCTS_VIEW_PURCHASE_PRICE) || can(PERMISSIONS.ADMIN_SUPER) || can(PERMISSIONS.ADMIN_COMPANY))
-                      "
+                      v-if="item.purchase_price !== undefined && can(PERMISSIONS.PRODUCTS_VIEW_PURCHASE_PRICE)"
                       class="d-flex justify-space-between align-center gap-6"
                     >
                       <span class="text-caption text-grey">شراء:</span>
                       <span class="font-weight-medium text-body-2">{{ formatCurrency(item.purchase_price) }}</span>
                     </div>
                     <div
-                      v-if="
-                        item.wholesale_price !== undefined &&
-                        (can(PERMISSIONS.PRODUCTS_VIEW_WHOLESALE_PRICE) || can(PERMISSIONS.ADMIN_SUPER) || can(PERMISSIONS.ADMIN_COMPANY))
-                      "
+                      v-if="item.wholesale_price !== undefined && can(PERMISSIONS.PRODUCTS_VIEW_WHOLESALE_PRICE)"
                       class="d-flex justify-space-between align-center gap-6"
                     >
                       <span class="text-caption text-grey">جملة:</span>
@@ -260,11 +254,17 @@
                               </template>
                               <template v-if="header.key === 'prices'">
                                 <div class="d-flex flex-column gap-2 border pa-3 rounded bg-white max-width-250">
-                                  <div v-if="item.purchase_price !== undefined" class="d-flex justify-space-between align-center">
+                                  <div
+                                    v-if="item.purchase_price !== undefined && can(PERMISSIONS.PRODUCTS_VIEW_PURCHASE_PRICE)"
+                                    class="d-flex justify-space-between align-center"
+                                  >
                                     <span class="text-caption text-grey">شراء:</span>
                                     <span class="font-weight-medium">{{ formatCurrency(item.purchase_price) }}</span>
                                   </div>
-                                  <div v-if="item.wholesale_price !== undefined" class="d-flex justify-space-between align-center">
+                                  <div
+                                    v-if="item.wholesale_price !== undefined && can(PERMISSIONS.PRODUCTS_VIEW_WHOLESALE_PRICE)"
+                                    class="d-flex justify-space-between align-center"
+                                  >
                                     <span class="text-caption text-grey">جملة:</span>
                                     <span class="font-weight-medium">{{ formatCurrency(item.wholesale_price) }}</span>
                                   </div>

@@ -119,11 +119,18 @@
             </template>
 
             <template #item.price_range="{ item }">
-              <div class="text-caption text-grey">
-                {{ formatCurrency(item.min_price || 0) }}
-                <template v-if="item.min_price !== item.max_price">
-                  <span class="text-caption text-grey font-weight-medium"> - {{ formatCurrency(item.max_price) }}</span>
-                </template>
+              <div class="d-flex flex-column">
+                <div v-if="item.min_price && item.max_price && item.min_price !== item.max_price" class="d-flex flex-column">
+                  <span class="text-caption text-grey"
+                    >من: <span class="font-weight-bold text-primary">{{ formatCurrency(item.min_price) }}</span></span
+                  >
+                  <span class="text-caption text-grey"
+                    >إلى: <span class="font-weight-bold text-primary">{{ formatCurrency(item.max_price) }}</span></span
+                  >
+                </div>
+                <div v-else class="text-subtitle-2 font-weight-bold text-primary">
+                  {{ formatCurrency(item.min_price || item.retail_price || 0) }}
+                </div>
               </div>
             </template>
 
