@@ -63,8 +63,8 @@
           <span v-else class="text-grey-lighten-1">غير مرتبط بفاتورة</span>
         </template>
 
-        <template #item.total_amount="{ item }">
-          <div class="font-weight-black text-body-1">{{ formatCurrency(item.total_amount) }}</div>
+        <template #item.net_amount="{ item }">
+          <div class="font-weight-black text-body-1">{{ formatCurrency(item.net_amount) }}</div>
         </template>
 
         <template #item.installments_count="{ item }">
@@ -114,7 +114,7 @@ const showAdvanced = ref(false);
 
 const headers = [
   { title: 'الفاتورة', key: 'invoice' },
-  { title: 'المبلغ الإجمالي', key: 'total_amount', align: 'end' },
+  { title: 'المبلغ الصافي', key: 'net_amount', align: 'end' },
   { title: 'عدد الأقساط', key: 'installments_count' },
   { title: 'الحالة', key: 'status' },
   { title: 'الإجراءات', key: 'actions', sortable: false, align: 'end' },

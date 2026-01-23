@@ -305,7 +305,20 @@
 
             <div class="d-flex justify-space-between align-center mb-4">
               <span class="text-h6 font-weight-bold">صافي الفاتورة:</span>
-              <span class="text-h5 font-weight-black text-success">{{ formatCurrency(invoice.total_amount) }}</span>
+              <span class="text-h5 font-weight-black text-primary">{{ formatCurrency(invoice.net_amount) }}</span>
+            </div>
+
+            <div class="d-flex flex-column gap-2 mb-4 p-3 rounded-lg bg-grey-lighten-4 border-s-dark">
+              <div class="d-flex justify-space-between text-body-2">
+                <span class="text-grey">رصيد سابق:</span>
+                <span :class="parseFloat(invoice.previous_balance) < 0 ? 'text-error' : 'text-success'" class="font-weight-bold">
+                  {{ formatCurrency(invoice.previous_balance) }}
+                </span>
+              </div>
+              <div class="d-flex justify-space-between text-body-1 pt-1 border-top mt-1">
+                <span class="text-grey font-weight-bold">إجمالي المستحق:</span>
+                <span class="font-weight-black">{{ formatCurrency(invoice.total_required) }}</span>
+              </div>
             </div>
 
             <v-divider class="mb-4" />
@@ -315,7 +328,7 @@
                 <span class="text-grey">ما تم تحصيله:</span>
                 <span class="font-weight-bold text-info text-body-1">{{ formatCurrency(invoice.paid_amount) }}</span>
               </div>
-              <div v-if="invoice.remaining_amount > 0" class="d-flex justify-space-between text-body-1 pt-1 border-top mt-1">
+              <div v-if="parseFloat(invoice.remaining_amount) > 0" class="d-flex justify-space-between text-body-1 pt-1 border-top mt-1">
                 <span class="text-grey font-weight-bold">المبلغ المتبقي:</span>
                 <span class="font-weight-black text-error">{{ formatCurrency(invoice.remaining_amount) }}</span>
               </div>

@@ -31,6 +31,7 @@ class BaseService {
       total: 0,
       message: resData.message ?? '',
       status: resData.status ?? true,
+      success: resData.status ?? true,
     };
 
     if (resData.hasOwnProperty('total')) {

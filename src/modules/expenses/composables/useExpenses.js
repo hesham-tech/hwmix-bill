@@ -43,7 +43,7 @@ export function useExpenses() {
       }
       return response;
     } catch (error) {
-      return null;
+      return { success: false };
     } finally {
       loading.value = false;
     }
@@ -58,7 +58,7 @@ export function useExpenses() {
       }
       return response;
     } catch (error) {
-      return null;
+      return { success: false };
     } finally {
       loading.value = false;
     }
@@ -73,7 +73,7 @@ export function useExpenses() {
       }
       return response;
     } catch (error) {
-      return null;
+      return { success: false };
     } finally {
       loading.value = false;
     }

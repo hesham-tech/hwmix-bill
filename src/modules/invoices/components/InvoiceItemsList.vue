@@ -5,21 +5,13 @@
         <span class="font-weight-bold">أصناف الفاتورة</span>
       </template>
       <template #append>
-        <AppSwitch
-          :model-value="taxInclusive"
-          label="الأسعار شاملة الضريبة"
-          hide-details
-          density="compact"
-          color="primary"
-          class="mt-0"
-          @update:model-value="$emit('update:taxInclusive', $event)"
-        />
+        <div style="min-width: 300px; max-width: 450px" class="ms-4">
+          <ProductSelector @add="$emit('add', $event)" :warehouse-id="warehouseId" :invoice-type="invoiceType" :customer-type="customerType" />
+        </div>
       </template>
     </v-card-item>
 
     <v-card-text class="pa-0">
-      <ProductSelector @add="$emit('add', $event)" :warehouse-id="warehouseId" :invoice-type="invoiceType" :customer-type="customerType" />
-
       <!-- Items List (Desktop) -->
       <v-table class="w-100 items-table d-none d-md-table">
         <thead>
@@ -77,17 +69,21 @@
               </div>
             </td>
             <td class="text-center px-2">
-              <div class="d-flex justify-center">
+              <div class="d-flex justify-center position-relative">
                 <AppInput
-                  v-model.number="item.quantity"
+                  :model-value="item.quantity"
                   type="number"
                   density="compact"
                   hide-details
-                  min="0.01"
+                  min="1"
                   style="max-width: 80px"
                   class="centered-input"
-                  @update:model-value="$emit('calculate', item)"
+                  :class="{ 'flash-error': isItemError(item) }"
+                  @update:model-value="val => updateQuantity(item, val)"
                 />
+                <v-tooltip :model-value="isItemError(item)" location="top" activator="parent" content-class="bg-error text-white font-weight-bold">
+                  الكمية المتاحة: {{ item.max_quantity }}
+                </v-tooltip>
               </div>
             </td>
             <td class="text-center px-2">
@@ -149,30 +145,24 @@
                   variant="tonal"
                   color="primary"
                   :disabled="item.quantity <= 0.01"
-                  @click="
-                    item.quantity = Math.max(0.01, (item.quantity || 0) - 1);
-                    $emit('calculate', item);
-                  "
+                  @click="updateQuantity(item, (item.quantity || 0) - 1)"
                 />
-                <AppInput
-                  v-model.number="item.quantity"
-                  label="الكمية"
-                  type="number"
-                  density="compact"
-                  hide-details
-                  class="compact-input text-center flex-grow-1"
-                  @update:model-value="$emit('calculate', item)"
-                />
-                <v-btn
-                  icon="ri-add-line"
-                  size="small"
-                  variant="tonal"
-                  color="primary"
-                  @click="
-                    item.quantity = (item.quantity || 0) + 1;
-                    $emit('calculate', item);
-                  "
-                />
+                <div class="flex-grow-1 position-relative">
+                  <AppInput
+                    :model-value="item.quantity"
+                    label="الكمية"
+                    type="number"
+                    density="compact"
+                    hide-details
+                    class="compact-input text-center w-100"
+                    :class="{ 'flash-error': isItemError(item) }"
+                    @update:model-value="val => updateQuantity(item, val)"
+                  />
+                  <v-tooltip :model-value="isItemError(item)" location="top" activator="parent" content-class="bg-error text-white font-weight-bold">
+                    الكمية المتاحة: {{ item.max_quantity }}
+                  </v-tooltip>
+                </div>
+                <v-btn icon="ri-add-line" size="small" variant="tonal" color="primary" @click="updateQuantity(item, (item.quantity || 0) + 1)" />
               </div>
             </v-col>
             <v-col cols="6" sm="3">
@@ -269,6 +259,44 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['update:taxInclusive', 'add', 'calculate', 'remove']);
+
+import { nextTick, ref } from 'vue';
+
+const stockErrorItems = ref(new Set());
+
+const isItemError = item => stockErrorItems.value.has(item);
+
+const updateQuantity = (item, val) => {
+  let newVal = parseFloat(val);
+  if (isNaN(newVal) || newVal < 0.01) newVal = 0.01;
+
+  if (item.requires_stock && typeof item.max_quantity === 'number') {
+    if (newVal > item.max_quantity) {
+      const maxQty = item.max_quantity;
+
+      // Trigger Visual Flash Effect & Tooltip
+      stockErrorItems.value.add(item);
+      setTimeout(() => {
+        stockErrorItems.value.delete(item);
+      }, 1000);
+
+      // Force Reset to Max (Snapback)
+      if (item.quantity === maxQty) {
+        if (newVal !== maxQty) item.quantity = newVal; // Temporarily set to invalid
+        nextTick(() => {
+          item.quantity = maxQty;
+          emit('calculate', item);
+        });
+        return;
+      }
+
+      newVal = maxQty;
+    }
+  }
+
+  item.quantity = newVal;
+  emit('calculate', item);
+};
 </script>
 
 <style scoped>
@@ -306,5 +334,32 @@ const emit = defineEmits(['update:taxInclusive', 'add', 'calculate', 'remove']);
 
 .mobile-item-card:hover {
   border-color: rgb(var(--v-theme-primary)) !important;
+}
+
+/* Flash Error Animation */
+@keyframes flash-red {
+  0% {
+    transform: scale(1);
+    background-color: transparent;
+  }
+  50% {
+    transform: scale(1.05);
+    background-color: rgba(var(--v-theme-error), 0.15);
+    border-color: rgb(var(--v-theme-error)) !important;
+  }
+  100% {
+    transform: scale(1);
+    background-color: transparent;
+  }
+}
+
+:deep(.flash-error) .v-field {
+  animation: flash-red 0.4s ease-in-out;
+  border-color: rgb(var(--v-theme-error)) !important;
+}
+
+:deep(.flash-error) input {
+  color: rgb(var(--v-theme-error)) !important;
+  font-weight: bold;
 }
 </style>

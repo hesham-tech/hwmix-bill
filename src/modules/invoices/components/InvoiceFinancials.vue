@@ -2,93 +2,96 @@
   <v-card class="rounded-lg sticky-summary pt-4 border-dashed mb-6" prepend-icon="ri-calculator-line" title="ملخص الحسابات">
     <v-card-text>
       <v-row dense>
-        <v-col cols="12" class="d-flex justify-space-between align-center mb-1">
-          <span class="text-secondary text-body-2">المبلغ الإجمالي (قبل الخصم)</span>
-          <span class="font-weight-medium">{{ formatCurrency(financials.gross_amount) }}</span>
+        <!-- Row 1: Gross & Item Discount -->
+        <v-col cols="6" class="mb-1">
+          <div class="d-flex flex-column">
+            <span class="text-secondary text-caption">إجمالي الأصناف</span>
+            <span class="font-weight-medium">{{ formatCurrency(financials.gross_amount) }}</span>
+          </div>
+        </v-col>
+        <v-col cols="6" class="mb-1 text-left">
+          <div class="d-flex flex-column align-end">
+            <span class="text-error text-caption">خصم الأصناف</span>
+            <span class="font-weight-medium text-error">-{{ formatCurrency(financials.total_discount) }}</span>
+          </div>
         </v-col>
 
-        <v-col cols="12" class="d-flex justify-space-between align-center text-error mb-1">
-          <span class="text-body-2">خصم الأصناف</span>
-          <span class="font-weight-medium">-{{ formatCurrency(financials.total_discount) }}</span>
+        <!-- Row 2: Extra Discount -->
+        <v-col cols="12" class="mb-2">
+          <div class="d-flex justify-space-between align-center py-1 px-2 bg-grey-lighten-4 rounded">
+            <span class="text-secondary text-body-2">خصم إضافي</span>
+            <AppInput
+              :model-value="modelValue.header_discount"
+              type="number"
+              density="compact"
+              hide-details
+              style="max-width: 80px"
+              class="centered-input"
+              @update:model-value="$emit('update:prop', { key: 'header_discount', value: $event })"
+            />
+          </div>
         </v-col>
 
-        <v-col cols="12">
+        <v-divider class="border-dashed my-2 w-100" />
+
+        <!-- Row 3: Tax Section (Rate + Switch + Value) -->
+        <v-col cols="12" class="mb-2">
           <v-row dense align="center">
-            <v-col cols="6">
-              <span class="text-secondary text-body-2">خصم إضافي</span>
-            </v-col>
-            <v-col cols="6" class="d-flex justify-end">
-              <AppInput
-                :model-value="modelValue.header_discount"
-                type="number"
-                density="compact"
-                hide-details
-                style="max-width: 90px"
-                class="centered-input"
-                @update:model-value="$emit('update:prop', { key: 'header_discount', value: $event })"
-              />
-            </v-col>
-          </v-row>
-        </v-col>
-
-        <v-col cols="12" class="d-flex justify-space-between align-center text-error mb-2">
-          <span class="text-body-2">إجمالي الخصم</span>
-          <span class="font-weight-bold">-{{ formatCurrency((financials.total_discount || 0) + (modelValue.header_discount || 0)) }}</span>
-        </v-col>
-
-        <v-divider class="border-dashed my-2" />
-
-        <v-col cols="12" class="d-flex justify-space-between align-center mb-1">
-          <span class="text-secondary text-body-2">المبلغ الخاضع للضريبة</span>
-          <span class="font-weight-medium">{{ formatCurrency(financials.taxable_amount) }}</span>
-        </v-col>
-
-        <v-col cols="12">
-          <v-row dense align="center">
-            <v-col cols="6">
-              <span class="text-secondary text-body-2">الضريبة (%)</span>
-            </v-col>
-            <v-col cols="6" class="d-flex justify-end">
+            <v-col cols="4">
               <AppInput
                 :model-value="modelValue.tax_rate"
+                label="الضريبة %"
                 type="number"
                 density="compact"
                 hide-details
-                suffix="%"
                 style="max-width: 80px"
                 class="centered-input"
                 @update:model-value="$emit('update:prop', { key: 'tax_rate', value: $event })"
               />
             </v-col>
+            <v-col cols="4" class="d-flex justify-center">
+              <AppSwitch
+                :model-value="modelValue.tax_inclusive"
+                label="شاملة"
+                hide-details
+                density="compact"
+                color="primary"
+                class="mt-0"
+                @update:model-value="$emit('update:prop', { key: 'tax_inclusive', value: $event })"
+              />
+            </v-col>
+            <v-col cols="4" class="text-left font-weight-medium text-primary">
+              <div class="d-flex flex-column align-end">
+                <span class="text-caption text-secondary">قيمة الضريبة</span>
+                <span>{{ formatCurrency(financials.total_tax) }}</span>
+              </div>
+            </v-col>
           </v-row>
         </v-col>
 
-        <v-col cols="12" class="d-flex justify-space-between align-center text-primary mb-2">
-          <span class="text-body-2">قيمة الضريبة</span>
-          <span class="font-weight-medium">{{ formatCurrency(financials.total_tax) }}</span>
-        </v-col>
+        <v-divider class="border-opacity-50 my-2 w-100" />
 
-        <v-divider class="border-opacity-50 my-2" />
-
-        <!-- Profit Margin (Optional) -->
-        <v-col cols="12" class="mb-2">
-          <div class="d-flex justify-space-between align-center">
-            <AppSwitch
-              label="إظهار الربح"
-              color="success"
-              density="compact"
-              hide-details
-              :model-value="showProfit"
-              @update:model-value="$emit('update:showProfit', $event)"
-            />
-            <div v-if="showProfit" class="text-success font-weight-bold">+{{ formatCurrency(financials.total_profit) }}</div>
+        <!-- Row 4: Net Amount -->
+        <v-col cols="12" class="mb-3">
+          <div class="d-flex justify-space-between align-center bg-primary-lighten-5 pa-3 rounded-lg border border-primary-lighten-3">
+            <span class="text-subtitle-1 font-weight-bold text-primary">صافي الفاتورة</span>
+            <span class="text-h5 font-weight-black text-primary">{{ formatCurrency(financials.net_amount) }}</span>
           </div>
         </v-col>
 
-        <v-col cols="12">
-          <div class="d-flex justify-space-between align-center bg-primary-lighten-5 pa-3 rounded-lg border border-primary-lighten-3">
-            <span class="text-subtitle-1 font-weight-bold text-primary">المبلغ الصافي</span>
-            <span class="text-h5 font-weight-black text-primary">{{ formatCurrency(financials.net_amount) }}</span>
+        <!-- Row 5: Previous Balance & Total Required -->
+        <v-col cols="6" class="mb-1">
+          <div class="d-flex flex-column">
+            <span class="text-secondary text-caption">رصيد سابق</span>
+            <span class="font-weight-medium" :class="financials.previous_balance < 0 ? 'text-error' : 'text-success'">
+              {{ formatCurrency(financials.previous_balance) }}
+            </span>
+          </div>
+        </v-col>
+        <v-col cols="6" class="mb-1 text-left">
+          <div class="d-flex flex-column align-end border-s-dark ps-2">
+            <span class="text-secondary text-caption">إجمالي المستحق</span>
+            <span class="font-weight-black text-body-1">{{ formatCurrency(financials.total_balance) }}</span>
           </div>
         </v-col>
       </v-row>
@@ -114,6 +117,7 @@
         <v-col cols="12" v-if="modelValue.paid_amount > 0">
           <CashBoxSelector
             :model-value="modelValue.cash_box_id"
+            :items="cashBoxes"
             required
             :error-messages="errors.cash_box_id"
             @update:model-value="$emit('update:prop', { key: 'cash_box_id', value: $event })"
@@ -159,6 +163,10 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  cashBoxes: {
+    type: Array,
+    default: () => [],
+  },
   errors: {
     type: Object,
     default: () => ({}),
@@ -184,6 +192,20 @@ const emit = defineEmits(['update:modelValue', 'update:prop', 'update:showProfit
 
 .centered-input :deep(input) {
   text-align: center;
+}
+
+.no-border-input :deep(.v-field__outline) {
+  display: none;
+}
+
+.no-border-input :deep(.v-field__input) {
+  padding-top: 0;
+  padding-bottom: 0;
+  min-height: 32px;
+}
+
+.border-s-dark {
+  border-right: 2px solid rgba(var(--v-theme-primary), 0.2);
 }
 
 @media (max-width: 1264px) {

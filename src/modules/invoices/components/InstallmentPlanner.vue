@@ -97,7 +97,7 @@ import { ref, computed, watch, onMounted } from 'vue';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 
 const props = defineProps({
-  totalAmount: {
+  netAmount: {
     type: Number,
     required: true,
   },
@@ -121,14 +121,14 @@ const plan = ref({
   down_payment: 0,
   number_of_installments: 12,
   installment_amount: 0,
-  total_amount: 0,
+  net_amount: 0,
   round_step: 5,
   start_date: new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString().split('T')[0],
   due_date: null,
 });
 
 const remainingForInstallment = computed(() => {
-  return Math.max(0, props.totalAmount - (plan.value.down_payment || 0));
+  return Math.max(0, props.netAmount - (plan.value.down_payment || 0));
 });
 
 const schedule = ref([]);
@@ -146,7 +146,7 @@ const calculatePlan = () => {
     plan.value.installment_amount = 0;
   }
 
-  plan.value.total_amount = props.totalAmount;
+  plan.value.net_amount = props.netAmount;
 
   // Generate schedule for preview
   generateSchedule();
@@ -202,7 +202,7 @@ onMounted(() => {
 
 // Watch for changes in total amount from parent
 watch(
-  () => props.totalAmount,
+  () => props.netAmount,
   () => {
     calculatePlan();
   }

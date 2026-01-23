@@ -45,7 +45,7 @@
           >
             <template #installment>
               <InstallmentPlanner
-                :total-amount="financials.net_amount"
+                :net-amount="financials.total_balance"
                 v-model="invoiceData.installment_plan"
                 @update:down-payment="val => (invoiceData.paid_amount = val)"
               />
@@ -59,6 +59,7 @@
             v-model="invoiceData"
             v-model:show-profit="showProfit"
             :financials="financials"
+            :cash-boxes="cashBoxes"
             :errors="errors"
             @update:prop="({ key, value }) => (invoiceData[key] = value)"
           />
@@ -110,6 +111,7 @@ const userStore = useUserStore();
 const invoiceApi = useApi('/api/invoices');
 const { get: getInvoiceTypes } = useApi('/api/invoice-types');
 const { get: getWarehouses } = useApi('/api/warehouses');
+const { get: getCashBoxes } = useApi('/api/cash-boxes');
 
 // State
 const loading = ref(false);
@@ -117,6 +119,7 @@ const isFormValid = ref(false);
 const form = ref(null);
 const invoiceTypes = ref([]);
 const warehouses = ref([]);
+const cashBoxes = ref([]);
 const errors = ref({});
 const selectedCustomerObj = ref(null);
 const isQuickAddCustomerOpen = ref(false);
@@ -176,7 +179,9 @@ const financials = computed(() => {
     }
   }
 
-  const remaining_amount = net_amount - (invoiceData.value.paid_amount || 0);
+  const previous_balance = parseFloat(selectedCustomerObj.value?.balance || 0);
+  const total_balance = net_amount - previous_balance;
+  const remaining_amount = total_balance - (invoiceData.value.paid_amount || 0);
 
   return {
     gross_amount,
@@ -184,6 +189,8 @@ const financials = computed(() => {
     taxable_amount,
     total_tax,
     net_amount,
+    previous_balance,
+    total_balance,
     remaining_amount,
     total_profit,
   };
@@ -207,13 +214,30 @@ const addItem = productItem => {
       ...productItem,
       discount: productItem.discount || 0,
       total: productItem.total || 0,
-      max_quantity: productItem.quantity,
+      max_quantity: productItem.max_quantity || 0,
     };
     newItem.quantity = 1;
     calculateItem(newItem);
     invoiceData.value.items.push(newItem);
   }
 };
+
+// Watch for customer changes to update prices dynamically
+watch(
+  () => selectedCustomerObj.value?.customer_type,
+  newType => {
+    if (!newType || (currentContext.value !== 'sale' && currentContext.value !== 'installment_sale')) return;
+
+    invoiceData.value.items.forEach(item => {
+      if (newType === 'wholesale') {
+        item.unit_price = item.wholesale_price || item.retail_price || 0;
+      } else {
+        item.unit_price = item.retail_price || 0;
+      }
+      calculateItem(item);
+    });
+  }
+);
 
 const calculateItem = item => {
   item.total = (item.quantity || 0) * (item.unit_price || 0) - (item.discount || 0);
@@ -252,6 +276,7 @@ const saveInvoice = async () => {
       invoice_number: invoiceData.value.reference_number,
       total_discount: invoiceData.value.header_discount || 0,
       invoice_type_code: currentContext.value,
+      previous_balance: financials.value.previous_balance,
     };
 
     // Only send installment plan if it's an installment sale AND there's actually a remaining balance
@@ -281,19 +306,30 @@ const saveInvoice = async () => {
 
 const loadLookups = async () => {
   try {
-    const [typesRes, whRes] = await Promise.all([getInvoiceTypes(), getWarehouses()]);
+    const [typesRes, whRes, cbRes] = await Promise.all([getInvoiceTypes(), getWarehouses(), getCashBoxes()]);
     invoiceTypes.value = typesRes.data || [];
     warehouses.value = whRes.data || [];
+    cashBoxes.value = cbRes.data || [];
 
     if (!isEdit.value) {
       if (invoiceTypes.value.length > 0) {
         invoiceData.value.invoice_type_id = invoiceTypes.value[0].id;
       }
+
+      // Select default Warehouse
       const defaultWarehouse = warehouses.value.find(w => w.is_default);
       if (defaultWarehouse) {
         invoiceData.value.warehouse_id = defaultWarehouse.id;
       } else if (warehouses.value.length > 0) {
         invoiceData.value.warehouse_id = warehouses.value[0].id;
+      }
+
+      // Select default Cash Box
+      const defaultCashBox = cashBoxes.value.find(cb => cb.is_default);
+      if (defaultCashBox) {
+        invoiceData.value.cash_box_id = defaultCashBox.id;
+      } else if (cashBoxes.value.length > 0) {
+        invoiceData.value.cash_box_id = cashBoxes.value[0].id;
       }
     }
   } catch (error) {
@@ -324,7 +360,12 @@ const fetchInvoice = async () => {
         variant_id: item.variant_id,
         name: item.name,
         quantity: parseFloat(item.quantity),
+        // Map current stock for validation
+        max_quantity: item.quantity || 0,
+        requires_stock: item.requires_stock ?? true,
         unit_price: parseFloat(item.unit_price),
+        retail_price: parseFloat(item.retail_price || item.unit_price),
+        wholesale_price: parseFloat(item.wholesale_price || 0),
         discount: parseFloat(item.discount || 0),
         total: parseFloat(item.total),
         primary_image_url: item.variant?.primary_image_url || item.product?.primary_image_url,

@@ -1,7 +1,7 @@
 <template>
   <AppAutocomplete
     v-model="internalValue"
-    :items="cashBoxes"
+    :items="displayItems"
     item-title="name"
     item-value="id"
     :label="label"
@@ -44,12 +44,16 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  items: {
+    type: Array,
+    default: () => [],
+  },
 });
 
 const emit = defineEmits(['update:modelValue']);
 
 const { get: getCashBoxes } = useApi('/api/cash-boxes');
-const cashBoxes = ref([]);
+const localCashBoxes = ref([]);
 const loading = ref(false);
 
 const internalValue = computed({
@@ -57,19 +61,25 @@ const internalValue = computed({
   set: val => emit('update:modelValue', val),
 });
 
+const displayItems = computed(() => {
+  return props.items.length > 0 ? props.items : localCashBoxes.value;
+});
+
 const rules = computed(() => {
   return props.required ? [v => !!v || 'خانة الخزينة مطلوبة عند الدفع'] : [];
 });
 
 const loadCashBoxes = async () => {
+  if (props.items.length > 0) return; // Don't fetch if items provided props
+
   loading.value = true;
   try {
     const response = await getCashBoxes({ current_user: 1, per_page: 100 });
-    cashBoxes.value = response.data || [];
+    localCashBoxes.value = response.data || [];
 
     // Auto-select default cash box if exists and none selected
-    if (!internalValue.value && cashBoxes.value.length > 0) {
-      const defaultBox = cashBoxes.value.find(b => b.is_default);
+    if (!internalValue.value && localCashBoxes.value.length > 0) {
+      const defaultBox = localCashBoxes.value.find(b => b.is_default);
       if (defaultBox) internalValue.value = defaultBox.id;
     }
   } catch (error) {
@@ -78,8 +88,6 @@ const loadCashBoxes = async () => {
     loading.value = false;
   }
 };
-
-onMounted(loadCashBoxes);
 
 onMounted(loadCashBoxes);
 </script>
