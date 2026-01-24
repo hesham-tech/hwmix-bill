@@ -42,7 +42,7 @@ class ProductService extends BaseService {
    * Handles nested variants and stocks
    */
   async save(data, id = null, options = {}) {
-    const { showToast = true } = options;
+    const { showToast = false } = options;
     try {
       const response = id ? await apiClient.put(`products/${id}`, data) : await apiClient.post('products', data);
       return this.handleSuccess(response, showToast);
@@ -55,7 +55,7 @@ class ProductService extends BaseService {
    * Delete product and all its relations
    */
   async delete(id, options = {}) {
-    const { showToast = true } = options;
+    const { showToast = false } = options;
     try {
       const response = await apiClient.delete(`products/${id}`);
       return this.handleSuccess(response, showToast);

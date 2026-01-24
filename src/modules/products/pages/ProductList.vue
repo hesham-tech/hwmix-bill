@@ -49,130 +49,200 @@
     </AppPageHeader>
 
     <v-container fluid class="pt-0">
-      <v-expand-transition>
-        <div v-if="showAdvanced" class="mb-6">
-          <ProductFilters @apply="handleFiltersChange" />
-        </div>
-      </v-expand-transition>
+      <v-row>
+        <!-- Main Content Column -->
+        <v-col cols="12" lg="9" order="1" order-lg="1">
+          <!-- View Mode Toggle (In Main Content for context) -->
+          <div v-if="!mobile" class="d-flex align-center justify-end mb-4 px-2">
+            <v-card variant="tonal" border class="rounded-pill pa-1 d-flex align-center">
+              <v-btn
+                :variant="viewMode === 'table' ? 'elevated' : 'text'"
+                :color="viewMode === 'table' ? 'primary' : 'grey'"
+                size="small"
+                rounded="pill"
+                class="px-4"
+                prepend-icon="ri-table-line"
+                @click="viewMode = 'table'"
+              >
+                جدول
+              </v-btn>
+              <v-btn
+                :variant="viewMode === 'grid' ? 'elevated' : 'text'"
+                :color="viewMode === 'grid' ? 'primary' : 'grey'"
+                size="small"
+                rounded="pill"
+                class="px-4 ms-1"
+                prepend-icon="ri-layout-grid-line"
+                @click="viewMode = 'grid'"
+              >
+                شبكة
+              </v-btn>
+            </v-card>
+          </div>
 
-      <v-row v-if="!mobile || viewMode === 'table'">
-        <v-col cols="12">
-          <AppDataTable
-            v-model:page="page"
-            v-model:items-per-page="itemsPerPage"
-            v-model:sort-by="sortByVuetify"
-            :headers="headers"
-            :items="products"
-            :total-items="totalItems"
-            :loading="loading"
-            permission-module="products"
-            @view="viewProduct"
-            @edit="editProduct"
-            @delete="confirmDelete"
-            @update:options="changeSort"
-          >
-            <!-- Same table templates as before -->
-            <template #item.name="{ item }">
-              <div @click="viewProduct(item)" class="d-flex align-center gap-3 py-2">
-                <AppAvatar :img-url="item.primary_image_url || item.main_image" :name="item.name" size="44" rounded="lg" type="product" hoverable />
-                <div class="d-flex flex-column">
-                  <div class="d-flex align-center gap-1">
-                    <span class="text-subtitle-2 font-weight-bold">{{ item.name }}</span>
-                    <v-icon v-if="item.featured" icon="ri-star-fill" color="warning" size="14" />
+          <v-card v-if="viewMode === 'table'" rounded="xl" class="border shadow-sm overflow-hidden">
+            <AppDataTable
+              v-model:page="page"
+              v-model:items-per-page="itemsPerPage"
+              v-model:sort-by="sortByVuetify"
+              :headers="headers"
+              :items="products"
+              :total-items="totalItems"
+              :loading="loading"
+              permission-module="products"
+              @view="viewProduct"
+              @edit="editProduct"
+              @delete="confirmDelete"
+              @update:options="changeSort"
+            >
+              <template #item.name="{ item }">
+                <div @click="viewProduct(item)" class="d-flex align-center gap-3 py-2">
+                  <AppAvatar :img-url="item.primary_image_url || item.main_image" :name="item.name" size="44" rounded="lg" type="product" hoverable />
+                  <div class="d-flex flex-column">
+                    <div class="d-flex align-center gap-1">
+                      <span class="text-subtitle-2 font-weight-bold text-primary">{{ item.name }}</span>
+                      <v-icon v-if="item.featured" icon="ri-star-fill" color="warning" size="14" />
+                    </div>
+                    <span class="text-caption text-grey line-clamp-1" v-if="item.desc">{{ item.desc }}</span>
                   </div>
-                  <span class="text-caption text-grey line-clamp-1" v-if="item.desc">{{ item.desc }}</span>
                 </div>
-              </div>
-            </template>
+              </template>
 
-            <template #item.category_brand="{ item }">
-              <div class="d-flex flex-column">
-                <span class="text-caption font-weight-bold" v-if="item.category">{{ item.category.name }}</span>
-                <span class="text-caption text-primary" v-if="item.brand">{{ item.brand.name }}</span>
-                <span class="text-caption text-grey" v-if="!item.category && !item.brand">-</span>
-              </div>
-            </template>
+              <template #item.category_brand="{ item }">
+                <div class="d-flex flex-column">
+                  <span class="text-caption font-weight-bold" v-if="item.category">{{ item.category.name }}</span>
+                  <span class="text-caption text-primary" v-if="item.brand">{{ item.brand.name }}</span>
+                  <span class="text-caption text-grey" v-if="!item.category && !item.brand">-</span>
+                </div>
+              </template>
 
-            <template #item.active="{ item }">
-              <v-chip :color="item.active ? 'success' : 'error'" size="x-small" variant="flat" class="px-2">
-                {{ item.active ? 'نشط' : 'مؤرشف' }}
-              </v-chip>
-            </template>
-
-            <template #item.total_available_quantity="{ item }">
-              <template v-if="item.product_type === 'physical'">
-                <v-chip
-                  :color="item.total_available_quantity > 10 ? 'success' : item.total_available_quantity > 0 ? 'warning' : 'error'"
-                  size="x-small"
-                  variant="tonal"
-                  class="font-weight-bold"
-                >
-                  {{ item.total_available_quantity }}
+              <template #item.active="{ item }">
+                <v-chip :color="item.active ? 'success' : 'error'" size="x-small" variant="flat" class="px-2 font-weight-bold">
+                  {{ item.active ? 'نشط' : 'مؤرشف' }}
                 </v-chip>
               </template>
-              <template v-else>
-                <v-chip color="info" size="x-small" variant="text" class="font-weight-bold">
-                  <v-icon icon="ri-infinity-line" size="14" class="me-1" />
-                  غير محدود
-                </v-chip>
-              </template>
-            </template>
 
-            <template #item.price_range="{ item }">
-              <div class="d-flex flex-column">
-                <div v-if="item.min_price && item.max_price && item.min_price !== item.max_price" class="d-flex flex-column">
-                  <span class="text-caption text-grey"
-                    >من: <span class="font-weight-bold text-primary">{{ formatCurrency(item.min_price) }}</span></span
-                  >
-                  <span class="text-caption text-grey"
-                    >إلى: <span class="font-weight-bold text-primary">{{ formatCurrency(item.max_price) }}</span></span
-                  >
-                </div>
-                <div v-else class="text-subtitle-2 font-weight-bold text-primary">
-                  {{ formatCurrency(item.min_price || item.retail_price || 0) }}
-                </div>
-              </div>
-            </template>
-
-            <template #item.created_at="{ item }">
-              <div class="text-caption text-grey">
-                {{ new Date(item.created_at).toLocaleDateString('en-US').replace(/,/g, "'") }}
-              </div>
-            </template>
-          </AppDataTable>
-        </v-col>
-      </v-row>
-
-      <!-- Grid View (Mobile Only) -->
-      <v-row v-else class="mx-0">
-        <v-col v-for="item in products" :key="item.id" cols="12" sm="6">
-          <v-card border flat class="rounded-lg overflow-hidden" @click="viewProduct(item)">
-            <div class="d-flex pa-3 gap-3">
-              <AppAvatar :img-url="item.primary_image_url || item.main_image" :name="item.name" size="80" rounded="lg" type="product" />
-              <div class="d-flex flex-column flex-grow-1">
-                <div class="d-flex justify-space-between align-start">
-                  <div class="font-weight-bold text-body-1">{{ item.name }}</div>
-                  <v-chip :color="item.active ? 'success' : 'error'" size="x-small" variant="tonal">{{ item.active ? 'نشط' : 'مؤرشف' }}</v-chip>
-                </div>
-                <div class="text-caption text-grey mb-2">{{ item.category?.name || 'بدون تصنيف' }}</div>
-                <div class="d-flex justify-space-between align-center mt-auto">
-                  <span class="text-primary font-weight-bold">{{ formatCurrency(item.min_price || 0) }}</span>
+              <template #item.total_available_quantity="{ item }">
+                <template v-if="item.product_type === 'physical'">
                   <v-chip
-                    v-if="item.product_type === 'physical'"
-                    :color="item.total_available_quantity > 10 ? 'success' : 'warning'"
+                    :color="item.total_available_quantity > 10 ? 'success' : item.total_available_quantity > 0 ? 'warning' : 'error'"
                     size="x-small"
-                    variant="flat"
+                    variant="tonal"
+                    class="font-weight-bold"
                   >
-                    {{ item.total_available_quantity }} قطعة
+                    {{ item.total_available_quantity }}
                   </v-chip>
-                  <v-icon v-else icon="ri-infinity-line" color="info" size="18" />
+                </template>
+                <template v-else>
+                  <v-chip color="info" size="x-small" variant="text" class="font-weight-bold">
+                    <v-icon icon="ri-infinity-line" size="14" class="me-1" />
+                    غير محدود
+                  </v-chip>
+                </template>
+              </template>
+
+              <template #item.price_range="{ item }">
+                <div class="d-flex flex-column">
+                  <div v-if="item.min_price && item.max_price && item.min_price !== item.max_price" class="d-flex flex-column">
+                    <span class="text-caption text-grey"
+                      >من: <span class="font-weight-bold text-primary">{{ formatCurrency(item.min_price) }}</span></span
+                    >
+                    <span class="text-caption text-grey"
+                      >إلى: <span class="font-weight-bold text-primary">{{ formatCurrency(item.max_price) }}</span></span
+                    >
+                  </div>
+                  <div v-else class="text-subtitle-2 font-weight-bold text-primary">
+                    {{ formatCurrency(item.min_price || item.retail_price || 0) }}
+                  </div>
+                </div>
+              </template>
+
+              <template #item.created_at="{ item }">
+                <div class="text-caption text-grey">
+                  {{ new Date(item.created_at).toLocaleDateString('ar-EG') }}
+                </div>
+              </template>
+            </AppDataTable>
+          </v-card>
+
+          <!-- Grid View -->
+          <v-row v-else class="mx-0">
+            <v-col v-for="item in products" :key="item.id" cols="12" sm="6" md="4" lg="4">
+              <v-card border flat class="rounded-xl overflow-hidden hover-shadow transition-swing" @click="viewProduct(item)">
+                <div class="pa-4">
+                  <div class="d-flex gap-4">
+                    <AppAvatar
+                      :img-url="item.primary_image_url || item.main_image"
+                      :name="item.name"
+                      size="100"
+                      rounded="xl"
+                      type="product"
+                      class="border"
+                    />
+                    <div class="d-flex flex-column flex-grow-1 overflow-hidden">
+                      <div class="d-flex justify-space-between align-start mb-1">
+                        <div class="font-weight-bold text-body-1 text-truncate">{{ item.name }}</div>
+                        <v-chip :color="item.active ? 'success' : 'error'" size="x-small" variant="tonal">{{ item.active ? 'نشط' : 'مؤرشف' }}</v-chip>
+                      </div>
+                      <div class="text-caption text-grey mb-2">{{ item.category?.name || 'بدون تصنيف' }}</div>
+
+                      <div class="mt-auto pt-2 border-top d-flex justify-space-between align-center">
+                        <span class="text-primary font-weight-bold">{{ formatCurrency(item.min_price || 0) }}</span>
+                        <v-chip
+                          v-if="item.product_type === 'physical'"
+                          :color="item.total_available_quantity > 10 ? 'success' : 'warning'"
+                          size="x-small"
+                          variant="flat"
+                          class="px-2"
+                        >
+                          {{ item.total_available_quantity }} قطعة
+                        </v-chip>
+                        <v-icon v-else icon="ri-infinity-line" color="info" size="18" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </v-card>
+            </v-col>
+            <v-col cols="12" class="d-flex justify-center mt-4">
+              <v-pagination
+                v-model="page"
+                :length="Math.ceil(totalItems / itemsPerPage)"
+                density="comfortable"
+                rounded="pill"
+                @update:model-value="refresh"
+              />
+            </v-col>
+          </v-row>
+        </v-col>
+
+        <!-- Sidebar Column (Filters) -->
+        <v-col cols="12" lg="3" order="0" order-lg="2">
+          <div class="sticky-sidebar">
+            <div class="d-flex align-center justify-space-between mb-4">
+              <h3 class="text-subtitle-1 font-weight-bold d-flex align-center gap-2">
+                <v-icon icon="ri-filter-3-line" color="primary" />
+                خيارات البحث والتصفية
+              </h3>
+            </div>
+
+            <v-card variant="flat" border class="rounded-xl pa-4 bg-grey-lighten-5">
+              <ProductFilters @apply="handleFiltersChange" />
+            </v-card>
+
+            <!-- Quick Stats in Sidebar -->
+            <v-card variant="flat" border class="rounded-xl pa-4 mt-6 bg-primary-lighten-5 border-primary">
+              <div class="d-flex align-center gap-3">
+                <v-avatar color="primary" rounded="lg" size="40">
+                  <v-icon icon="ri-box-3-line" color="white" />
+                </v-avatar>
+                <div>
+                  <div class="text-caption text-primary-darken-1 font-weight-bold">إجمالي المنتجات</div>
+                  <div class="text-h6 font-weight-black">{{ totalItems }}</div>
                 </div>
               </div>
-            </div>
-          </v-card>
-        </v-col>
-        <v-col cols="12">
-          <v-pagination v-model="page" :length="Math.ceil(totalItems / itemsPerPage)" density="comfortable" @update:model-value="refresh" />
+            </v-card>
+          </div>
         </v-col>
       </v-row>
 
@@ -235,7 +305,7 @@ const {
   syncWithUrl: true,
   initialSortBy: 'created_at',
   initialSortOrder: 'desc',
-  immediate: false,
+  immediate: true,
 });
 
 const headers = [

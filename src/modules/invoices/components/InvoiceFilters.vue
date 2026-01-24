@@ -23,9 +23,9 @@
 
       <v-divider class="mb-6" />
 
-      <v-row>
+      <v-row dense>
         <!-- نوع الفاتورة -->
-        <v-col cols="12" sm="6" md="4">
+        <v-col cols="6" class="mb-2">
           <v-select
             v-model="localFilters.invoice_type_id"
             :items="invoiceTypes"
@@ -33,7 +33,7 @@
             item-value="id"
             label="نوع الفاتورة"
             variant="outlined"
-            density="comfortable"
+            density="compact"
             prepend-inner-icon="ri-file-copy-line"
             clearable
             hide-details
@@ -41,15 +41,15 @@
         </v-col>
 
         <!-- الحالة -->
-        <v-col cols="6" sm="6" md="4">
+        <v-col cols="6" class="mb-2">
           <v-select
             v-model="localFilters.status"
             :items="statusOptions"
             item-title="label"
             item-value="value"
-            label="حالة الفاتورة"
+            label="الحالة"
             variant="outlined"
-            density="comfortable"
+            density="compact"
             prepend-inner-icon="ri-checkbox-circle-line"
             clearable
             hide-details
@@ -57,7 +57,7 @@
         </v-col>
 
         <!-- حالة الدفع -->
-        <v-col cols="6" sm="6" md="4">
+        <v-col cols="12" class="mb-2">
           <v-select
             v-model="localFilters.payment_status"
             :items="paymentStatusOptions"
@@ -65,7 +65,7 @@
             item-value="value"
             label="حالة الدفع"
             variant="outlined"
-            density="comfortable"
+            density="compact"
             prepend-inner-icon="ri-money-dollar-circle-line"
             clearable
             hide-details
@@ -73,13 +73,13 @@
         </v-col>
 
         <!-- من تاريخ -->
-        <v-col cols="6" sm="6" md="4">
-          <AppInput v-model="localFilters.date_from" type="date" label="من تاريخ" prepend-inner-icon="ri-calendar-line" clearable />
+        <v-col cols="6">
+          <AppInput v-model="localFilters.date_from" type="date" label="من" prepend-inner-icon="ri-calendar-line" clearable density="compact" />
         </v-col>
 
         <!-- إلى تاريخ -->
-        <v-col cols="6" sm="6" md="4">
-          <AppInput v-model="localFilters.date_to" type="date" label="إلى تاريخ" prepend-inner-icon="ri-calendar-line" clearable />
+        <v-col cols="6">
+          <AppInput v-model="localFilters.date_to" type="date" label="إلى" prepend-inner-icon="ri-calendar-line" clearable density="compact" />
         </v-col>
       </v-row>
 

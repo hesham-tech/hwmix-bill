@@ -55,7 +55,7 @@ class InvoiceService extends BaseService {
    * @param {Object} emailData - { email, message }
    */
   async sendEmail(id, emailData, options = {}) {
-    const { showToast = true, loading = true } = options;
+    const { showToast = false, loading = true } = options;
     const userStore = useUserStore();
 
     if (loading) userStore.loadingApi = true;
@@ -89,7 +89,7 @@ class InvoiceService extends BaseService {
    * Add item to invoice
    */
   async addItem(id, itemData, options = {}) {
-    const { showToast = true, loading = true } = options;
+    const { showToast = false, loading = true } = options;
     const userStore = useUserStore();
 
     if (loading) userStore.loadingApi = true;
@@ -106,7 +106,7 @@ class InvoiceService extends BaseService {
    * Update invoice item
    */
   async updateItem(invoiceId, itemId, itemData, options = {}) {
-    const { showToast = true, loading = true } = options;
+    const { showToast = false, loading = true } = options;
     const userStore = useUserStore();
 
     if (loading) userStore.loadingApi = true;
@@ -123,7 +123,7 @@ class InvoiceService extends BaseService {
    * Delete invoice item
    */
   async deleteItem(invoiceId, itemId, options = {}) {
-    const { showToast = true, loading = true } = options;
+    const { showToast = false, loading = true } = options;
     const userStore = useUserStore();
 
     if (loading) userStore.loadingApi = true;

@@ -29,7 +29,7 @@ class RoleService extends BaseService {
    * The backend route is Route::post('role/assignRole', [RoleController::class, 'assignRole']);
    */
   async assignToUser(userId, roleNames, options = {}) {
-    const { showToast = true } = options;
+    const { showToast = false } = options;
     try {
       const response = await apiClient.post(`users/${userId}/roles`, { roles: roleNames });
       return this.handleSuccess(response, showToast);
@@ -39,7 +39,7 @@ class RoleService extends BaseService {
   }
 
   async create(data, options = {}) {
-    const { showToast = true } = options;
+    const { showToast = false } = options;
     try {
       const response = await apiClient.post('roles', data);
       return this.handleSuccess(response, showToast);
@@ -49,7 +49,7 @@ class RoleService extends BaseService {
   }
 
   async update(id, data, options = {}) {
-    const { showToast = true } = options;
+    const { showToast = false } = options;
     try {
       const response = await apiClient.put(`roles/${id}`, data);
       return this.handleSuccess(response, showToast);
@@ -59,7 +59,7 @@ class RoleService extends BaseService {
   }
 
   async delete(id, options = {}) {
-    const { showToast = true } = options;
+    const { showToast = false } = options;
     try {
       // Single delete using RESTful DELETE
       const response = await apiClient.delete(`roles/${id}`);
@@ -70,7 +70,7 @@ class RoleService extends BaseService {
   }
 
   async batchDelete(ids, options = {}) {
-    const { showToast = true } = options;
+    const { showToast = false } = options;
     try {
       // Batch delete using POST with item_ids
       const response = await apiClient.post('roles/batch-delete', { item_ids: ids });

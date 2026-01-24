@@ -22,7 +22,7 @@ class StockService extends BaseService {
    * Add stock (إضافة مخزون)
    */
   async addStock(data, options = {}) {
-    const { showToast = true, loading = true } = options;
+    const { showToast = false, loading = true } = options;
     const userStore = useUserStore();
 
     if (loading) userStore.loadingApi = true;
@@ -39,7 +39,7 @@ class StockService extends BaseService {
    * Subtract stock (صرف مخزون)
    */
   async subtractStock(data, options = {}) {
-    const { showToast = true, loading = true } = options;
+    const { showToast = false, loading = true } = options;
     const userStore = useUserStore();
 
     if (loading) userStore.loadingApi = true;
@@ -56,7 +56,7 @@ class StockService extends BaseService {
    * Transfer stock between warehouses
    */
   async transferStock(data, options = {}) {
-    const { showToast = true, loading = true } = options;
+    const { showToast = false, loading = true } = options;
     const userStore = useUserStore();
 
     if (loading) userStore.loadingApi = true;
@@ -73,7 +73,7 @@ class StockService extends BaseService {
    * Adjust stock (تسوية مخزون)
    */
   async adjustStock(data, options = {}) {
-    const { showToast = true, loading = true } = options;
+    const { showToast = false, loading = true } = options;
     const userStore = useUserStore();
 
     if (loading) userStore.loadingApi = true;

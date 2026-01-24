@@ -59,7 +59,7 @@
                 <!-- Selection Overlay (Mobile/Visual) -->
                 <div v-if="isSelected(image.id)" class="selection-overlay" />
 
-                <v-img :src="image.url" aspect-ratio="1" cover class="bg-grey-lighten-3">
+                <v-img :src="image.url" aspect-ratio="1" cover crossorigin="anonymous" class="bg-grey-lighten-3">
                   <template #placeholder>
                     <v-row class="fill-height ma-0" align="center" justify="center">
                       <v-progress-circular indeterminate color="grey-lighten-5" />

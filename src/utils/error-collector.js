@@ -3,9 +3,48 @@
  * يقوم بجمع البيانات التقنية تلقائياً عند حدوث خطأ
  */
 
-export const collectErrorInfo = async (error, context = {}) => {
+export const collectErrorInfo = async (error = null, context = {}) => {
+  let screenCapture = null;
+
+  // Try to capture screen if not disabled in context
+  if (context.captureScreenshot !== false) {
+    try {
+      const { captureElement } = await import('@/utils/capture');
+
+      // Access appState for global capture overlay
+      const { useappState } = await import('@/stores/appState');
+      const appState = useappState();
+
+      appState.isCapturing = true;
+      appState.captureMessage = 'جاري تسجيل لقطة للشاشة للتقرير...';
+
+      // Hide FAB temporarily if it exists
+      const fab = document.querySelector('.global-fab-feedback');
+      if (fab) fab.style.visibility = 'hidden';
+
+      // Wait a bit for the overlay to render in the DOM
+      await new Promise(resolve => setTimeout(resolve, 800));
+
+      // Capture using central utility
+      const blob = await captureElement(document.body, {
+        format: 'blob',
+        backgroundColor: '#f8f9fa',
+        htmlToImageOptions: {
+          pixelRatio: window.devicePixelRatio > 1 ? 1 : 2,
+        },
+      });
+
+      if (fab) fab.style.visibility = 'visible';
+      appState.isCapturing = false;
+
+      screenCapture = new File([blob], `screenshot_${Date.now()}.jpg`, { type: 'image/jpeg' });
+    } catch (e) {
+      console.warn('Silent fail for screenshot capture:', e);
+    }
+  }
+
   const info = {
-    message: error?.message || 'Unknown Error',
+    message: error?.message || context.message || 'Manual Feedback/Report',
     stack_trace: error?.stack || null,
     url: window.location.href,
     browser: getBrowserInfo(),
@@ -13,8 +52,11 @@ export const collectErrorInfo = async (error, context = {}) => {
     type: context.type || 'error',
     severity: context.severity || 'medium',
     isConnectivityError: !!context.isConnectivityError,
+    autoScreenshot: screenCapture || context.screenshot || null, // Priority to auto capture
     payload: {
       timestamp: new Date().toISOString(),
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      locale: document.documentElement.lang || 'ar',
       route: window.location.hash || window.location.pathname,
       screen: {
         width: window.innerWidth,

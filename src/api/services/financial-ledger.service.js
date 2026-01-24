@@ -13,7 +13,7 @@ class FinancialLedgerService extends BaseService {
    * Export ledger to Excel/PDF
    */
   async export(params = {}, options = {}) {
-    const { showToast = true } = options;
+    const { showToast = false } = options;
     try {
       const response = await this.api.get(`${this.endpoint}/export`, {
         params,

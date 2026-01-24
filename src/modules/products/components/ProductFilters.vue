@@ -23,18 +23,36 @@
 
       <v-divider class="mb-6" />
 
-      <v-row>
-        <v-col cols="12" sm="6" md="3">
-          <AppAutocomplete v-model="filters.category_id" label="التصنيف" api-endpoint="categories" item-title="name" item-value="id" clearable />
+      <v-row dense>
+        <v-col cols="6" class="mb-2">
+          <AppAutocomplete
+            v-model="filters.category_id"
+            label="التصنيف"
+            api-endpoint="categories"
+            item-title="name"
+            item-value="id"
+            clearable
+            density="comfortable"
+          />
         </v-col>
-        <v-col cols="12" sm="6" md="3">
-          <AppAutocomplete v-model="filters.brand_id" label="العلامة التجارية" api-endpoint="brands" item-title="name" item-value="id" clearable />
+        <v-col cols="6" class="mb-2">
+          <AppAutocomplete
+            v-model="filters.brand_id"
+            label="العلامة"
+            api-endpoint="brands"
+            item-title="name"
+            item-value="id"
+            clearable
+            density="comfortable"
+          />
         </v-col>
-        <v-col cols="6" sm="6" md="3">
-          <AppSwitch v-model="filters.active" label="نشط فقط" inset />
+        <v-col cols="6" class="d-flex align-center gap-1 mb-1">
+          <AppSwitch v-model="filters.active" label="نشط" inset hide-details density="compact" />
+          <v-icon icon="ri-checkbox-circle-line" :color="filters.active ? 'success' : 'grey'" size="16" />
         </v-col>
-        <v-col cols="6" sm="6" md="3">
-          <AppSwitch v-model="filters.featured" label="المميزة" inset />
+        <v-col cols="6" class="d-flex align-center gap-1 mb-1">
+          <AppSwitch v-model="filters.featured" label="المميزة" inset hide-details density="compact" />
+          <v-icon icon="ri-star-line" :color="filters.featured ? 'warning' : 'grey'" size="16" />
         </v-col>
       </v-row>
 

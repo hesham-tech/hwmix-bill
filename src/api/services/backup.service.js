@@ -14,7 +14,7 @@ class BackupService extends BaseService {
    * Run a manual backup
    */
   async runManual(options = {}) {
-    const { showToast = true, loading = true } = options;
+    const { showToast = false, loading = true } = options;
     try {
       const response = await apiClient.post(`${this.resource}/run`);
       return this.handleSuccess(response, showToast);
@@ -64,7 +64,7 @@ class BackupService extends BaseService {
    * Update backup settings
    */
   async updateSettings(settings, options = {}) {
-    const { showToast = true, loading = true } = options;
+    const { showToast = false, loading = true } = options;
     try {
       const response = await apiClient.put(`${this.resource}/settings`, settings);
       return this.handleSuccess(response, showToast);
@@ -77,7 +77,7 @@ class BackupService extends BaseService {
    * Restore from backup
    */
   async restore(id, token, options = {}) {
-    const { showToast = true, loading = true } = options;
+    const { showToast = false, loading = true } = options;
     try {
       const response = await apiClient.post(`${this.resource}/${id}/restore`, { token });
       return this.handleSuccess(response, showToast);

@@ -32,7 +32,7 @@ class WarehouseService extends BaseService {
    * Set warehouse as default
    */
   async setDefault(id, options = {}) {
-    const { showToast = true, loading = true } = options;
+    const { showToast = false, loading = true } = options;
     const userStore = useUserStore();
 
     if (loading) userStore.loadingApi = true;

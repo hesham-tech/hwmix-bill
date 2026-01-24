@@ -77,7 +77,7 @@ export function useApi(baseUrl) {
    * POST request (Create)
    */
   const create = async (data, options = {}) => {
-    const { showLoading = true, showSuccess = true, showError = true, successMessage = 'تمت الإضافة بنجاح' } = options;
+    const { showLoading = true, showSuccess = true, showError = true, successMessage = 'تمت العملية بنجاح' } = options;
 
     if (showLoading) loading.value = true;
     error.value = null;

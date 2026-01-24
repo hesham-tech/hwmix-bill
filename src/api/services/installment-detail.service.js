@@ -52,7 +52,7 @@ class InstallmentDetailService extends BaseService {
    * Workaround for update: Delete old + Create new
    */
   async replaceDetail(oldId, newData, options = {}) {
-    const { showToast = true, loading = true } = options;
+    const { showToast = false, loading = true } = options;
 
     try {
       // Delete old record

@@ -40,7 +40,7 @@ class UserService extends BaseService {
    * Assign roles to user
    */
   async assignRole(userId, roles, options = {}) {
-    const { showToast = true } = options;
+    const { showToast = false } = options;
     try {
       const response = await apiClient.post('role/assignRole', {
         user_id: userId,
@@ -56,7 +56,7 @@ class UserService extends BaseService {
    * Update user details (includes status and roles)
    */
   async update(userId, data, options = {}) {
-    const { showToast = true } = options;
+    const { showToast = false } = options;
     try {
       const response = await apiClient.put(`users/${userId}`, data);
       return this.handleSuccess(response, showToast);

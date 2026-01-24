@@ -2,22 +2,48 @@
   <v-app>
     <router-view />
     <GlobalErrorDialog />
+    <GlobalCaptureOverlay />
+
+    <!-- Floating Action Button for Manual Reports/Feedback -->
+    <v-tooltip location="top">
+      <template #activator="{ props: tooltipProps }">
+        <v-btn
+          v-bind="tooltipProps"
+          icon="ri-customer-service-2-line"
+          color="error"
+          size="x-large"
+          elevation="24"
+          class="global-fab-feedback"
+          :loading="appState.isCapturing"
+          @click="captureAndReport('feedback')"
+        />
+      </template>
+      الدعم الفني والاقتراحات
+    </v-tooltip>
   </v-app>
 </template>
 
 <script setup>
-import { onMounted, watch } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import GlobalErrorDialog from '@/components/common/GlobalErrorDialog.vue';
 import { useLocaleStore } from '@/stores/locale';
 import { useUserStore } from '@/stores/user';
 import { useNotifications } from '@/plugins/notification';
 import { useLocale, useRtl } from 'vuetify';
+import { useappState } from '@/stores/appState';
 
 const localeStore = useLocaleStore();
 const userStore = useUserStore();
+const appState = useappState();
 const { requestPermission, setupEchoListeners } = useNotifications();
 const { current: currentLocale } = useLocale();
 const { isRtl } = useRtl();
+
+const captureAndReport = async (type = 'feedback') => {
+  if (appState.isCapturing) return;
+  // Note: collectErrorInfo will internally set appState.isCapturing = true/false
+  await appState.triggerManualReport(type);
+};
 
 // ✅ تطبيق اللغة وإعداد الإشعارات عند بدء التطبيق
 onMounted(() => {
@@ -65,5 +91,12 @@ watch(
 <style>
 * {
   font-family: 'Tajawal', sans-serif;
+}
+
+.global-fab-feedback {
+  position: fixed !important;
+  bottom: 24px;
+  inset-inline-start: 24px;
+  z-index: 9999;
 }
 </style>

@@ -177,7 +177,7 @@
                     class="border bg-grey-lighten-4 my-1 cursor-pointer"
                     @click="openLightbox(item.images?.[0]?.url)"
                   >
-                    <v-img v-if="item.images?.[0]?.url" :src="item.images[0].url" cover />
+                    <v-img v-if="item.images?.[0]?.url" :src="item.images[0].url" cover crossorigin="anonymous" />
                     <v-icon v-else icon="ri-image-2-line" color="grey-lighten-1" size="small" />
                   </v-avatar>
                 </template>
@@ -324,7 +324,7 @@
                 <!-- Category -->
                 <div class="d-flex align-center gap-3">
                   <v-avatar color="grey-lighten-4" class="border" rounded="md" size="50">
-                    <v-img v-if="product.category?.image_url" :src="product.category.image_url" cover />
+                    <v-img v-if="product.category?.image_url" :src="product.category.image_url" cover crossorigin="anonymous" />
                     <v-icon v-else icon="ri-folder-line" color="grey" />
                   </v-avatar>
                   <div>
@@ -336,7 +336,7 @@
                 <!-- Brand -->
                 <div class="d-flex align-center gap-3">
                   <v-avatar color="grey-lighten-4" class="border" rounded="md" size="50">
-                    <v-img v-if="product.brand?.image_url" :src="product.brand.image_url" cover />
+                    <v-img v-if="product.brand?.image_url" :src="product.brand.image_url" cover crossorigin="anonymous" />
                     <v-text-field v-else-if="product.brand?.name" :model-value="product.brand.name[0]" readonly class="centered-content" />
                     <v-icon v-else icon="ri-price-tag-3-line" color="grey" />
                   </v-avatar>
@@ -353,7 +353,7 @@
               <div class="text-subtitle-2 font-weight-bold mb-4">بواسطة</div>
               <div class="d-flex align-center gap-3">
                 <v-avatar size="48" class="border">
-                  <v-img :src="product.creator?.avatar_url" cover>
+                  <v-img :src="product.creator?.avatar_url" cover crossorigin="anonymous">
                     <template #placeholder>
                       <div class="d-flex fill-height align-center justify-center bg-grey-lighten-4">
                         <v-icon color="grey" size="small">ri-user-line</v-icon>
@@ -394,7 +394,7 @@
                       :elevation="isHovering ? 4 : 0"
                       @click="openLightbox(img.url)"
                     >
-                      <v-img :src="img.url" cover class="fill-height bg-grey-lighten-4">
+                      <v-img :src="img.url" cover crossorigin="anonymous" class="fill-height bg-grey-lighten-4">
                         <!-- Primary Star (Always visible if primary, or on hover) -->
                         <v-btn
                           :icon="img.is_primary ? 'ri-star-fill' : 'ri-star-line'"

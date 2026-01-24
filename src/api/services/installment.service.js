@@ -23,7 +23,7 @@ class InstallmentService extends BaseService {
    * Note: endpoint has known issues - use workaround
    */
   async createPlan(planData, options = {}) {
-    const { showToast = true, loading = true } = options;
+    const { showToast = false, loading = true } = options;
     const userStore = useUserStore();
 
     if (loading) userStore.loadingApi = true;
@@ -73,7 +73,7 @@ class InstallmentService extends BaseService {
    * Create installment payment
    */
   async createPayment(paymentData, options = {}) {
-    const { showToast = true, loading = true } = options;
+    const { showToast = false, loading = true } = options;
     const userStore = useUserStore();
 
     if (loading) userStore.loadingApi = true;

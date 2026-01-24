@@ -33,39 +33,72 @@
       </template>
     </AppPageHeader>
 
-    <v-container fluid>
-      <v-expand-transition>
-        <div v-if="showAdvanced">
-          <InvoiceFilters v-model="filters" @apply="applyFilters" />
-        </div>
-      </v-expand-transition>
+    <v-container fluid class="pt-0">
+      <v-row>
+        <!-- Main Content Column -->
+        <v-col cols="12" lg="9" order="1" order-lg="1">
+          <!-- Bulk Actions -->
+          <AppCard v-if="hasSelection" class="mb-4" color="primary" variant="tonal">
+            <div class="d-flex align-center px-4 py-2">
+              <div class="text-primary font-weight-bold">تم تحديد {{ selectedIds.length }} فاتورة</div>
+              <v-spacer />
+              <AppButton
+                v-if="can('invoices.delete_all')"
+                variant="outlined"
+                color="error"
+                prepend-icon="ri-delete-bin-line"
+                @click="confirmBulkDelete"
+              >
+                حذف المحدد
+              </AppButton>
+            </div>
+          </AppCard>
 
-      <!-- Bulk Actions -->
-      <AppCard v-if="hasSelection" class="mb-4" color="primary" variant="tonal">
-        <div class="d-flex align-center px-4 py-2">
-          <div class="text-primary font-weight-bold">تم تحديد {{ selectedIds.length }} فاتورة</div>
-          <v-spacer />
-          <AppButton v-if="can('invoices.delete_all')" variant="outlined" color="error" prepend-icon="ri-delete-bin-line" @click="confirmBulkDelete">
-            حذف المحدد
-          </AppButton>
-        </div>
-      </AppCard>
+          <v-card rounded="xl" class="border shadow-sm overflow-hidden">
+            <InvoiceDataTable
+              :items="items"
+              :loading="loading"
+              :total="total"
+              :current-page="currentPage"
+              :per-page="perPage"
+              @view="viewInvoice"
+              @edit="editInvoice"
+              @print="printInvoice"
+              @delete="confirmDelete"
+              @update:page="changePage"
+              @update:per-page="changePerPage"
+              @update:sort-by="changeSort"
+            />
+          </v-card>
+        </v-col>
 
-      <!-- Data Table -->
-      <InvoiceDataTable
-        :items="items"
-        :loading="loading"
-        :total="total"
-        :current-page="currentPage"
-        :per-page="perPage"
-        @view="viewInvoice"
-        @edit="editInvoice"
-        @print="printInvoice"
-        @delete="confirmDelete"
-        @update:page="changePage"
-        @update:per-page="changePerPage"
-        @update:sort-by="changeSort"
-      />
+        <!-- Sidebar Column (Filters) -->
+        <v-col cols="12" lg="3" order="0" order-lg="2">
+          <div class="sticky-sidebar">
+            <h3 class="text-subtitle-1 font-weight-bold mb-4 d-flex align-center gap-2">
+              <v-icon icon="ri-filter-3-line" color="primary" />
+              تصفية الفواتير
+            </h3>
+
+            <v-card variant="flat" border class="rounded-xl pa-4 bg-grey-lighten-5">
+              <InvoiceFilters v-model="filters" @apply="applyFilters" />
+            </v-card>
+
+            <!-- Quick Sidebar Card -->
+            <v-card variant="flat" border class="rounded-xl pa-4 mt-6 bg-primary-lighten-5 border-primary">
+              <div class="d-flex align-center gap-3">
+                <v-avatar color="primary" rounded="lg" size="40">
+                  <v-icon icon="ri-file-list-3-line" color="white" />
+                </v-avatar>
+                <div>
+                  <div class="text-caption text-primary-darken-1 font-weight-bold">إجمالي الفواتير</div>
+                  <div class="text-h6 font-weight-black">{{ total }}</div>
+                </div>
+              </div>
+            </v-card>
+          </div>
+        </v-col>
+      </v-row>
 
       <!-- Delete Confirmation Dialog -->
       <AppDialog
@@ -127,7 +160,7 @@ const {
 } = useDataTable(fetchInvoices, {
   initialPerPage: 10,
   syncWithUrl: true,
-  immediate: false,
+  immediate: true,
 });
 
 // UI State

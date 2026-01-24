@@ -8,6 +8,18 @@ export const useappState = defineStore('appState', {
     loadingApi: false,
     errorMessage: null,
     dialogDelete: false,
-    pendingReport: null, // Holds error info for the global dialog
+    pendingReport: null,
+    isCapturing: false,
+    captureMessage: 'جاري التقاط لقطة للشاشة...',
   }),
+  actions: {
+    async triggerManualReport(type = 'feedback') {
+      const { collectErrorInfo } = await import('@/utils/error-collector');
+      this.pendingReport = await collectErrorInfo(null, {
+        type,
+        severity: 'info',
+        message: type === 'suggestion' ? 'اقتراح جديد' : 'بلاغ عن مشكلة',
+      });
+    },
+  },
 });

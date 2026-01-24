@@ -10,7 +10,7 @@
       @click="handlePreview"
     >
       <!-- Priority 1: Image -->
-      <v-img v-if="imgUrl" :src="imgUrl" cover @error="handleImgError">
+      <v-img v-if="imgUrl" :src="imgUrl" cover crossorigin="anonymous" @error="handleImgError">
         <template #placeholder>
           <div class="d-flex align-center justify-center fill-height bg-grey-lighten-4">
             <v-progress-circular indeterminate size="16" width="2" color="primary" />
@@ -37,7 +37,15 @@
           class="pa-0 rounded-xl overflow-hidden bg-grey-lighten-4 d-flex align-center justify-center"
           style="min-height: 300px; min-width: 300px"
         >
-          <v-img v-if="imgUrl" :src="imgUrl" max-height="80vh" width="100%" class="user-preview-img" @error="hasImgError = true">
+          <v-img
+            v-if="imgUrl"
+            :src="imgUrl"
+            max-height="80vh"
+            width="100%"
+            crossorigin="anonymous"
+            class="user-preview-img"
+            @error="hasImgError = true"
+          >
             <template #placeholder>
               <div class="d-flex align-center justify-center fill-height">
                 <v-progress-circular indeterminate color="primary" width="3" />

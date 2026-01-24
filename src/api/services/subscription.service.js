@@ -20,7 +20,7 @@ class SubscriptionService extends BaseService {
    * Renew subscription
    */
   async renew(id, options = {}) {
-    const { showToast = true, loading = true } = options;
+    const { showToast = false, loading = true } = options;
     const userStore = useUserStore();
 
     if (loading) userStore.loadingApi = true;
@@ -37,7 +37,7 @@ class SubscriptionService extends BaseService {
    * Cancel subscription
    */
   async cancel(id, options = {}) {
-    const { showToast = true, loading = true } = options;
+    const { showToast = false, loading = true } = options;
     const userStore = useUserStore();
 
     if (loading) userStore.loadingApi = true;

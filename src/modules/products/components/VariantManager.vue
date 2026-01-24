@@ -131,18 +131,7 @@
                   @update:model-value="calculateProfitFromPrices(variant)"
                 />
               </v-col>
-              <v-col cols="12" md="3">
-                <AppInput 
-                  v-model.number="variant.profit_margin" 
-                  label="هامش الربح (%)" 
-                  type="number" 
-                  prefix="%" 
-                  class="price-input"
-                  hint="نسبة الربح من التكلفة"
-                  persistent-hint
-                  @update:model-value="calculatePriceFromProfit(variant)"
-                />
-              </v-col>
+
               <v-col cols="12" md="3" v-if="can(PERMISSIONS.PRODUCTS_VIEW_WHOLESALE_PRICE)">
                 <AppInput 
                   v-model.number="variant.wholesale_price" 
@@ -161,6 +150,18 @@
                   prefix="ج.م"
                   class="price-input font-weight-bold"
                   @update:model-value="calculateProfitFromPrices(variant)"
+                />
+              </v-col>
+              <v-col cols="12" md="3">
+                <AppInput 
+                  v-model.number="variant.profit_margin" 
+                  label="هامش الربح (%)" 
+                  type="number" 
+                  prefix="%" 
+                  class="price-input"
+                  hint="نسبة الربح من التكلفة"
+                  persistent-hint
+                  @update:model-value="calculatePriceFromProfit(variant)"
                 />
               </v-col>
             </v-row>
@@ -483,6 +484,7 @@ const calculatePriceFromProfit = (variant) => {
   const margin = parseFloat(variant.profit_margin) || 0;
   if (purchase > 0) {
     variant.retail_price = parseFloat((purchase * (1 + margin / 100)).toFixed(2));
+    variant.wholesale_price = parseFloat((purchase * (1 + (margin /2) / 100)).toFixed(2));
   }
 };
 

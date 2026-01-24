@@ -32,7 +32,7 @@
     <v-row v-if="images.length" dense>
       <v-col v-for="(img, index) in images" :key="img.id || index" cols="4" class="relative">
         <v-card border flat class="rounded-md overflow-hidden aspect-square group">
-          <v-img :src="img.url" cover class="fill-height bg-grey-lighten-4">
+          <v-img :src="img.url" cover crossorigin="anonymous" class="fill-height bg-grey-lighten-4">
             <template #placeholder>
               <div class="d-flex align-center justify-center fill-height">
                 <v-progress-circular indeterminate color="grey-lighten-4" size="20" />

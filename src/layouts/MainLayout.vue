@@ -18,6 +18,20 @@
 
     <v-tooltip location="bottom">
       <template #activator="{ props: tooltipProps }">
+        <v-btn
+          v-bind="tooltipProps"
+          icon="ri-customer-service-2-line"
+          variant="text"
+          color="error"
+          class="mx-1"
+          @click="appState.triggerManualReport('feedback')"
+        />
+      </template>
+      الدعم الفني والاقتراحات
+    </v-tooltip>
+
+    <v-tooltip location="bottom">
+      <template #activator="{ props: tooltipProps }">
         <AppButton v-bind="tooltipProps" icon variant="text" @click="toggleLanguage" class="mx-1">
           <v-icon>ri-translate-2</v-icon>
         </AppButton>
@@ -133,6 +147,7 @@ import { ref, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 import { useLocaleStore } from '@/stores/locale';
+import { useappState } from '@/stores/appState';
 import { authService } from '@/api';
 import Sidebar from '@/components/layout/Sidebar.vue';
 import AppButton from '@/components/common/AppButton.vue';
@@ -149,6 +164,7 @@ const route = useRoute();
 const router = useRouter();
 const userStore = useUserStore();
 const localeStore = useLocaleStore();
+const appState = useappState();
 
 // نجعل القائمة مغلقة افتراضياً في الجوال ومفتوحة في الحاسوب
 const drawer = ref(!xs.value);
