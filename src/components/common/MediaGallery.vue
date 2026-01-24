@@ -109,7 +109,13 @@
     />
 
     <!-- Image Cropper Dialog -->
-    <AppImageCropper v-model="showCropper" :image-src="cropperImageSrc" :crop-type="cropperType" @cropped="handleCroppedImage" />
+    <AppImageCropper
+      v-model="showCropper"
+      :image-src="cropperImageSrc"
+      :crop-type="cropperType"
+      @cropped="handleCroppedImage"
+      @skip="handleSkipCropping"
+    />
   </v-dialog>
 </template>
 
