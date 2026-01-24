@@ -93,7 +93,7 @@ apiClient.interceptors.response.use(
       const isConnectivityError = !error.response || error.code === 'ERR_NETWORK' || error.message === 'Network Error';
 
       // Collect technical info and trigger global dialog
-      import('@/utils/error-collector').then(module => {
+      import('@/modules/support/services/error-collector').then(module => {
         module
           .collectErrorInfo(error, {
             type: isConnectivityError ? 'connectivity_error' : 'server_error',

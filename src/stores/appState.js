@@ -13,9 +13,9 @@ export const useappState = defineStore('appState', {
     captureMessage: 'جاري اخذ لقطة للشاشة...',
   }),
   actions: {
-    async triggerManualReport(type = 'feedback') {
-      const { collectErrorInfo } = await import('@/modules/support/services/error-collector');
-      this.pendingReport = await collectErrorInfo(null, {
+    async triggerManualReport(type = 'feedback', collector = null) {
+      if (!collector) return;
+      this.pendingReport = await collector(null, {
         type,
         severity: 'info',
         message: type === 'suggestion' ? 'اقتراح جديد' : 'بلاغ عن مشكلة',

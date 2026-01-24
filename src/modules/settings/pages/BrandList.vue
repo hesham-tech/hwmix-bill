@@ -308,6 +308,7 @@ const {
   initialSortBy: 'name',
   initialSortOrder: 'asc',
   initialPerPage: 12,
+  immediate: false,
 });
 
 // UI State

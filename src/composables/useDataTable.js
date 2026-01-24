@@ -80,7 +80,7 @@ export function useDataTable(fetchFunction, options = {}) {
 
     // Prevent duplicate calls if already loading
     if (loading.value && !append) {
-      console.warn('DataTable is already loading, skipping request.');
+      console.debug('DataTable is already loading, skipping request.');
       return;
     }
 

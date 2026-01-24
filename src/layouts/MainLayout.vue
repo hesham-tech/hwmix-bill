@@ -24,7 +24,7 @@
           variant="text"
           color="error"
           class="mx-1"
-          @click="appState.triggerManualReport('feedback')"
+          @click="handleManualReport('feedback')"
         />
       </template>
       الدعم الفني والاقتراحات
@@ -189,6 +189,21 @@ const breadcrumbs = computed(() => {
   }
   return items;
 });
+
+const handleManualReport = async (type = 'feedback') => {
+  const { collectErrorInfo } = await import('@/modules/support/services/error-collector');
+  await appState.triggerManualReport(type, (error, context) => {
+    return collectErrorInfo(error, {
+      ...context,
+      onCaptureStart: () => {
+        appState.isCapturing = true;
+      },
+      onCaptureEnd: () => {
+        appState.isCapturing = false;
+      },
+    });
+  });
+};
 
 const toggleLanguage = () => {
   localeStore.toggleLocale();

@@ -42,8 +42,19 @@ const { isRtl } = useRtl();
 
 const captureAndReport = async (type = 'feedback') => {
   if (appState.isCapturing) return;
-  // Note: collectErrorInfo will internally set appState.isCapturing = true/false
-  await appState.triggerManualReport(type);
+  const { collectErrorInfo } = await import('@/modules/support/services/error-collector');
+
+  await appState.triggerManualReport(type, (error, context) => {
+    return collectErrorInfo(error, {
+      ...context,
+      onCaptureStart: () => {
+        appState.isCapturing = true;
+      },
+      onCaptureEnd: () => {
+        appState.isCapturing = false;
+      },
+    });
+  });
 };
 
 // ✅ تطبيق اللغة وإعداد الإشعارات عند بدء التطبيق

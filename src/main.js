@@ -29,7 +29,7 @@ import '@layouts/styles/index.scss';
   // Error Handling
   app.config.errorHandler = (err, instance, info) => {
     console.error('Vue Error:', err, info);
-    import('@/utils/error-collector').then(m => {
+    import('@/modules/support/services/error-collector').then(m => {
       m.collectErrorInfo(err, { type: 'vue_error', extraData: { info } }).then(report => {
         import('@/stores/appState').then(s => {
           s.useappState().pendingReport = report;
@@ -40,7 +40,7 @@ import '@layouts/styles/index.scss';
 
   window.onerror = (message, source, lineno, colno, error) => {
     if (error) {
-      import('@/utils/error-collector').then(m => {
+      import('@/modules/support/services/error-collector').then(m => {
         m.collectErrorInfo(error, { type: 'runtime_error' }).then(report => {
           import('@/stores/appState').then(s => {
             s.useappState().pendingReport = report;

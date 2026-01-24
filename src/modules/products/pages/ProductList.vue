@@ -305,7 +305,7 @@ const {
   syncWithUrl: true,
   initialSortBy: 'created_at',
   initialSortOrder: 'desc',
-  immediate: true,
+  immediate: false,
 });
 
 const headers = [

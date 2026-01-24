@@ -11,12 +11,8 @@ export const collectErrorInfo = async (error = null, context = {}) => {
     try {
       const { captureElement } = await import('@/modules/capture/utils/capture');
 
-      // Access appState for global capture overlay
-      const { useappState } = await import('@/stores/appState');
-      const appState = useappState();
-
-      appState.isCapturing = true;
-      appState.captureMessage = 'جاري تسجيل لقطة للشاشة ...';
+      // Use callbacks from context instead of direct store access
+      if (context.onCaptureStart) context.onCaptureStart();
 
       // Hide FAB temporarily if it exists
       const fab = document.querySelector('.global-fab-feedback');
@@ -33,8 +29,9 @@ export const collectErrorInfo = async (error = null, context = {}) => {
         pixelRatio: 2,
       });
 
-      if (fab) fab.style.visibility = 'visible';
-      appState.isCapturing = false;
+      const fabElement = document.querySelector('.global-fab-feedback');
+      if (fabElement) fabElement.style.visibility = 'visible';
+      if (context.onCaptureEnd) context.onCaptureEnd();
 
       screenCapture = new File([blob], `screenshot_${Date.now()}.jpg`, { type: 'image/jpeg' });
     } catch (e) {
