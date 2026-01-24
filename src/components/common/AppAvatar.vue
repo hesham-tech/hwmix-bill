@@ -58,29 +58,16 @@
     </v-avatar>
 
     <!-- Image Preview Dialog -->
-    <v-dialog v-model="showPreview" max-width="800px" transition="dialog-bottom-transition">
-      <v-card class="preview-dialog-card rounded-lg overflow-visible">
+    <v-dialog v-model="showPreview" max-width="600px" transition="dialog-bottom-transition">
+      <v-card class="preview-dialog-card rounded-lg overflow-hidden position-relative">
         <!-- Close Button -->
         <v-btn icon="ri-close-line" variant="elevated" color="white" size="small" class="preview-close-btn shadow-lg" @click="showPreview = false" />
 
-        <!-- Dialog Actions Overlay -->
-        <div v-if="editable" class="preview-actions-bar pa-2 d-flex justify-center ga-4">
-          <v-btn prepend-icon="ri-camera-switch-line" variant="elevated" color="primary" rounded="pill" elevation="8" @click="handleEditClick">
-            تغيير الصورة
-          </v-btn>
-          <v-btn v-if="imgUrl" prepend-icon="ri-crop-2-line" variant="elevated" color="success" rounded="pill" elevation="8" @click="handleCropClick">
-            قص الصورة
-          </v-btn>
-        </div>
-
-        <v-card-text
-          class="pa-0 rounded-lg overflow-hidden bg-grey-lighten-4 d-flex align-center justify-center"
-          style="min-height: 300px; min-width: 300px"
-        >
+        <v-card-text class="pa-0 bg-grey-lighten-4 d-flex align-center justify-center position-relative" style="min-height: 300px">
           <v-img
             v-if="imgUrl"
             :src="imgUrl"
-            max-height="80vh"
+            max-height="70vh"
             width="100%"
             crossorigin="anonymous"
             class="user-preview-img"
@@ -95,6 +82,24 @@
           <div v-else class="pa-10 text-center text-grey">
             <v-icon icon="ri-image-line" size="64" class="mb-2 opacity-50" />
             <div class="text-h6">تعذر تحميل الصورة</div>
+          </div>
+
+          <!-- Dialog Actions Overlay (Moved inside card-text for better positioning) -->
+          <div v-if="editable" class="preview-actions-bar pa-4 d-flex justify-center ga-3 w-100">
+            <v-btn prepend-icon="ri-camera-switch-line" variant="elevated" color="primary" rounded="pill" elevation="8" @click="handleEditClick">
+              تغيير الصورة
+            </v-btn>
+            <v-btn
+              v-if="imgUrl"
+              prepend-icon="ri-crop-2-line"
+              variant="elevated"
+              color="success"
+              rounded="pill"
+              elevation="8"
+              @click="handleCropClick"
+            >
+              قص الصورة
+            </v-btn>
           </div>
         </v-card-text>
       </v-card>
@@ -310,6 +315,11 @@ const initialsFontSize = computed(() => {
 </script>
 
 <style scoped>
+.app-avatar-wrapper {
+  position: relative;
+  line-height: 0;
+}
+
 .app-avatar {
   transition: all 0.2s ease;
   flex-shrink: 0;
@@ -377,25 +387,19 @@ const initialsFontSize = computed(() => {
 
 .preview-actions-bar {
   position: absolute;
-  bottom: 0;
+  bottom: 0px;
   left: 0;
   right: 0;
   background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
-  padding: 40px 20px 20px !important;
+  padding: 60px 20px 20px !important;
   z-index: 110;
-}
-
-@media (max-width: 600px) {
-  .preview-actions-bar {
-    padding-bottom: 24px !important;
-  }
 }
 
 .preview-close-btn {
   position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 110;
+  top: 15px;
+  right: 15px;
+  z-index: 120;
 }
 
 .user-preview-img :deep(.v-img__img) {
