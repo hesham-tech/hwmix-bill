@@ -36,7 +36,7 @@
       <!-- Advanced Filters (Placeholder for consistency) -->
       <v-expand-transition>
         <div v-if="showAdvanced" class="mb-6">
-          <v-card variant="tonal" color="primary" class="pa-4 rounded-xl border-primary bg-primary-lighten-5">
+          <v-card variant="tonal" color="primary" class="pa-4 rounded-lg border-primary bg-primary-lighten-5">
             <div class="d-flex align-center gap-2">
               <v-icon icon="ri-information-line" />
               <span>البحث المتقدم لخطط التقسيط سيتم إضافته قريباً مع خيارات فلترة متقدمة.</span>

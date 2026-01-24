@@ -93,7 +93,7 @@
       </v-row>
 
       <!-- List View -->
-      <v-card v-else class="rounded-xl border overflow-hidden flat">
+      <v-card v-else class="rounded-lg border overflow-hidden flat">
         <AppDataTable
           :headers="headers"
           :items="attributes"

@@ -7,7 +7,7 @@
     width="100%"
     max-width="1200"
   >
-    <v-card class="attribute-values-dialog bg-slate-50 rounded-xl overflow-hidden">
+    <v-card class="attribute-values-dialog bg-slate-50 rounded-lg overflow-hidden">
       <AppPageHeader :title="attribute?.name" stickyTop="0" class="bg-white border-b">
         <template #prepend>
           <v-avatar color="primary-lighten-5" size="48" class="border-primary-10 ms-4">
@@ -108,7 +108,7 @@
             </v-row>
 
             <!-- List View -->
-            <v-card v-else class="rounded-xl border overflow-hidden flat">
+            <v-card v-else class="rounded-lg border overflow-hidden flat">
               <AppDataTable
                 :headers="headers"
                 :items="filteredValues"
@@ -161,7 +161,7 @@
     >
       <v-form ref="formRef" class="pt-2">
         <!-- Visual Preview Cell -->
-        <div class="preview-cell mb-6 rounded-xl pa-4 bg-slate-50 border border-dashed">
+        <div class="preview-cell mb-6 rounded-lg pa-4 bg-slate-50 border border-dashed">
           <div class="d-flex align-center mb-4">
             <div class="text-caption font-weight-black text-slate-400">معاينة القيمة</div>
             <v-spacer />

@@ -18,6 +18,13 @@ export const captureElement = async (element, options = {}) => {
     backgroundColor,
     pixelRatio,
     quality,
+    filter: node => {
+      // Exclude the diagnostic overlay and any element with data-capture-ignore
+      if (node.id === 'global-capture-overlay' || (node.dataset && node.dataset.captureIgnore !== undefined)) {
+        return false;
+      }
+      return true;
+    },
     ...options.htmlToImageOptions,
   };
 

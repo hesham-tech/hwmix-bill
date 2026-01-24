@@ -1,6 +1,6 @@
 <template>
   <v-dialog :model-value="modelValue" max-width="1200" @update:model-value="$emit('update:modelValue', $event)" scrollable>
-    <v-card class="explorer-dialog-card rounded-xl">
+    <v-card class="explorer-dialog-card rounded-lg">
       <!-- Header -->
       <v-card-title class="pa-4 bg-primary d-flex align-center justify-space-between">
         <div class="d-flex align-center gap-3">
@@ -34,7 +34,7 @@
         </div>
 
         <!-- Row 2: Current Category Details Card -->
-        <div v-if="currentCategory && !search" class="mb-4 bg-white rounded-xl border border-primary-lighten-4 overflow-hidden elevation-sm">
+        <div v-if="currentCategory && !search" class="mb-4 bg-white rounded-lg border border-primary-lighten-4 overflow-hidden elevation-sm">
           <div class="pa-4 d-flex align-sm-center flex-column flex-sm-row gap-4">
             <v-avatar size="100" rounded="lg" color="primary-lighten-5" class="border">
               <v-img v-if="currentCategory.image_url" :src="currentCategory.image_url" cover />
@@ -261,7 +261,7 @@
                 <v-img v-if="imagePreview" :src="imagePreview" cover />
                 <v-icon v-else icon="ri-image-add-line" size="32" color="grey-lighten-1" />
 
-                <div class="change-overlay d-flex flex-column align-center justify-center rounded-xl">
+                <div class="change-overlay d-flex flex-column align-center justify-center rounded-lg">
                   <v-icon icon="ri-exchange-line" color="white" size="20" />
                   <span class="text-white text-caption mt-1 font-weight-bold">تغيير الصورة</span>
                 </div>

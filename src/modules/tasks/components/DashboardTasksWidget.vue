@@ -1,5 +1,5 @@
 <template>
-  <v-card class="rounded-xl border-grey-lighten-4 h-100" variant="flat" border>
+  <v-card class="rounded-lg border-grey-lighten-4 h-100" variant="flat" border>
     <v-card-title class="pa-5 d-flex align-center gap-3">
       <v-icon icon="ri-list-check-line" color="primary" />
       <span class="text-h6 font-weight-bold">مهامي اليوم</span>

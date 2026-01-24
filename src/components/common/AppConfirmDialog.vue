@@ -1,6 +1,6 @@
 <template>
   <v-dialog :model-value="modelValue || internalModelValue" max-width="450" persistent @update:model-value="$emit('update:modelValue', $event)">
-    <v-card class="confirm-dialog rounded-xl overflow-hidden border">
+    <v-card class="confirm-dialog rounded-lg overflow-hidden border">
       <div class="pa-6 text-center">
         <v-avatar :color="type === 'error' ? 'error-lighten-5' : 'primary-lighten-5'" size="64" class="mb-4">
           <v-icon

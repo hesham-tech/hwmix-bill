@@ -20,7 +20,7 @@
                 <v-icon v-else icon="ri-building-line" size="64" color="grey-lighten-2" />
 
                 <!-- Hover Overlay -->
-                <div v-if="canUpdate" class="change-overlay d-flex flex-column align-center justify-center rounded-xl">
+                <div v-if="canUpdate" class="change-overlay d-flex flex-column align-center justify-center rounded-lg">
                   <v-icon icon="ri-camera-switch-line" color="white" size="32" />
                   <span class="text-white text-subtitle-2 mt-2 font-weight-bold">تغيير الشعار</span>
                 </div>

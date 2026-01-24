@@ -9,14 +9,14 @@ export const collectErrorInfo = async (error = null, context = {}) => {
   // Try to capture screen if not disabled in context
   if (context.captureScreenshot !== false) {
     try {
-      const { captureElement } = await import('@/utils/capture');
+      const { captureElement } = await import('@/modules/capture/utils/capture');
 
       // Access appState for global capture overlay
       const { useappState } = await import('@/stores/appState');
       const appState = useappState();
 
       appState.isCapturing = true;
-      appState.captureMessage = 'جاري تسجيل لقطة للشاشة للتقرير...';
+      appState.captureMessage = 'جاري تسجيل لقطة للشاشة ...';
 
       // Hide FAB temporarily if it exists
       const fab = document.querySelector('.global-fab-feedback');
@@ -29,9 +29,8 @@ export const collectErrorInfo = async (error = null, context = {}) => {
       const blob = await captureElement(document.body, {
         format: 'blob',
         backgroundColor: '#f8f9fa',
-        htmlToImageOptions: {
-          pixelRatio: window.devicePixelRatio > 1 ? 1 : 2,
-        },
+        quality: 0.95,
+        pixelRatio: 2,
       });
 
       if (fab) fab.style.visibility = 'visible';

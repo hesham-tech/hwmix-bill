@@ -27,7 +27,7 @@
             :active="tab === nav.value"
             :color="tab === nav.value ? 'primary' : 'grey-darken-1'"
             variant="text"
-            class="nav-item-premium py-8 rounded-xl"
+            class="nav-item-premium py-8 rounded-lg"
             block
             @click="tab = nav.value"
           >
@@ -47,7 +47,7 @@
           <v-window-item value="roles" class="h-100">
             <div class="d-flex flex-column h-100">
               <div class="flex-grow-1 overflow-y-auto pa-6">
-                <div class="section-banner pa-6 rounded-xl mb-6 elevation-1 overflow-hidden">
+                <div class="section-banner pa-6 rounded-lg mb-6 elevation-1 overflow-hidden">
                   <div class="d-flex align-center justify-space-between relative-z">
                     <div>
                       <h3 class="text-h6 font-weight-black primary--text mb-1">الأدوار الوظيفية</h3>
@@ -136,7 +136,7 @@
                     type="info"
                     variant="tonal"
                     density="compact"
-                    class="mt-4 rounded-xl text-caption border-none glass-alert-info"
+                    class="mt-4 rounded-lg text-caption border-none glass-alert-info"
                   >
                     <v-icon icon="ri-shield-flash-line" size="16" class="me-2" />
                     <strong>وضع الخبير نشط:</strong> يظهر الصلاحيات الموروثة من الأدوار لتمكين المراجعة الشاملة.
@@ -146,7 +146,7 @@
                     type="success"
                     variant="tonal"
                     density="compact"
-                    class="mt-4 rounded-xl text-caption border-none glass-alert-success"
+                    class="mt-4 rounded-lg text-caption border-none glass-alert-success"
                   >
                     <v-icon icon="ri-checkbox-circle-line" size="16" class="me-2" />
                     لديك <strong>{{ selectedPermissions.length }}</strong> صلاحية مباشرة مخصصة لهذا المستخدم.
@@ -158,7 +158,7 @@
               <div class="flex-grow-1 overflow-y-auto pa-6">
                 <v-row v-if="Object.keys(filteredPermissions).length">
                   <v-col v-for="(group, key) in filteredPermissions" :key="key" cols="12">
-                    <div class="permission-group-premium rounded-xl overflow-hidden elevation-1 bg-white mb-6">
+                    <div class="permission-group-premium rounded-lg overflow-hidden elevation-1 bg-white mb-6">
                       <div class="group-header pa-4 d-flex align-center justify-space-between border-b bg-grey-lighten-5">
                         <div class="d-flex align-center gap-3">
                           <v-avatar color="primary" variant="tonal" size="36">

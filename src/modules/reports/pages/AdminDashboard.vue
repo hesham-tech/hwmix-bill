@@ -1,16 +1,13 @@
 <template>
   <div class="admin-dashboard">
-    <AppShareView file-name="dashboard-summary" background-color="#f8f9fa">
-      <div class="mb-6 px-6 pt-6 d-flex align-center justify-space-between">
-        <div>
-          <h1 class="text-h4 font-weight-bold">لوحة التحكم الإحصائية</h1>
-          <p class="text-body-1 text-grey">تحليل أداء النظام، الفواتير، وحركات المخزون في مكان واحد</p>
-        </div>
-        <AppButton color="primary" prepend-icon="ri-refresh-line" variant="tonal" :loading="refreshing" @click="refreshAll">
-          تحديث البيانات
-        </AppButton>
+    <div class="mb-6 px-6 pt-6 d-flex align-center justify-space-between">
+      <div>
+        <h1 class="text-h4 font-weight-bold">لوحة التحكم الإحصائية</h1>
+        <p class="text-body-1 text-grey">تحليل أداء النظام، الفواتير، وحركات المخزون في مكان واحد</p>
       </div>
-
+      <AppButton color="primary" prepend-icon="ri-refresh-line" variant="tonal" :loading="refreshing" @click="refreshAll"> تحديث البيانات </AppButton>
+    </div>
+    <ShareView file-name="dashboard-summary" background-color="#f8f9fa" top="0px" left="0px" :quality="0.5">
       <div class="px-6 mb-6">
         <!-- Loading State -->
         <v-progress-linear v-if="loading" indeterminate color="primary" class="rounded-t" />
@@ -18,7 +15,7 @@
         <!-- Statistics Cards -->
         <StatsCards :stats="stats" />
       </div>
-    </AppShareView>
+    </ShareView>
 
     <!-- Charts and Tasks Row -->
     <v-row class="px-6 mx-0 mb-6">
@@ -81,7 +78,7 @@ import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useDashboardData } from '../composables/useDashboardData';
 import AppButton from '@/components/common/AppButton.vue';
-import AppShareView from '@/components/common/AppShareView.vue';
+import ShareView from '@/modules/capture/components/ShareView.vue';
 import StatsCards from '../components/StatsCards.vue';
 import QuickActions from '../components/QuickActions.vue';
 import RecentInvoices from '../components/RecentInvoices.vue';

@@ -80,12 +80,12 @@
               تصفية الفواتير
             </h3>
 
-            <v-card variant="flat" border class="rounded-xl pa-4 bg-grey-lighten-5">
+            <v-card variant="flat" border class="rounded-lg pa-4 bg-grey-lighten-5">
               <InvoiceFilters v-model="filters" @apply="applyFilters" />
             </v-card>
 
             <!-- Quick Sidebar Card -->
-            <v-card variant="flat" border class="rounded-xl pa-4 mt-6 bg-primary-lighten-5 border-primary">
+            <v-card variant="flat" border class="rounded-lg pa-4 mt-6 bg-primary-lighten-5 border-primary">
               <div class="d-flex align-center gap-3">
                 <v-avatar color="primary" rounded="lg" size="40">
                   <v-icon icon="ri-file-list-3-line" color="white" />

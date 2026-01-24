@@ -9,7 +9,9 @@
         left: 0 !important;
         width: 100vw !important;
         height: 100vh !important;
-        background: rgba(0, 0, 0, 0.95) !important;
+        background: rgba(0, 0, 0, 0.4) !important;
+        backdrop-filter: blur(8px) !important;
+        -webkit-backdrop-filter: blur(8px) !important;
         z-index: 2147483647 !important;
         display: flex !important;
         align-items: center !important;
@@ -19,14 +21,15 @@
     >
       <div
         style="
-          background: #ffffff !important;
+          background: rgba(255, 255, 255, 0.9) !important;
+          backdrop-filter: blur(10px) !important;
           color: #000000 !important;
           padding: 50px !important;
           border-radius: 30px !important;
           text-align: center !important;
-          box-shadow: 0 0 50px rgba(0, 0, 0, 0.5) !important;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
           max-width: 90% !important;
-          border: 5px solid #2196f3 !important;
+          border: 1px solid rgba(255, 255, 255, 0.18) !important;
         "
       >
         <div

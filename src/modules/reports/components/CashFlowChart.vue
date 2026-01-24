@@ -1,5 +1,5 @@
 <template>
-  <v-card class="rounded-xl" border flat>
+  <v-card class="rounded-lg" border flat>
     <v-card-text class="pa-6">
       <div v-if="loading" class="text-center py-12">
         <v-progress-circular indeterminate color="primary" />

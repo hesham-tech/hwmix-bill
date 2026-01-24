@@ -11,7 +11,7 @@
         color="primary"
         prepend-icon="ri-add-line"
         size="large"
-        class="px-6 rounded-xl shadow-lg"
+        class="px-6 rounded-lg shadow-lg"
         @click="openRoleDialog()"
       >
         إضافة دور جديد
@@ -21,7 +21,7 @@
     <!-- Stats Row -->
     <v-row class="mb-6">
       <v-col cols="12" sm="4">
-        <v-card variant="flat" border class="pa-4 rounded-xl bg-primary-lighten-5 border-primary">
+        <v-card variant="flat" border class="pa-4 rounded-lg bg-primary-lighten-5 border-primary">
           <div class="d-flex align-center gap-4">
             <v-avatar color="primary" variant="tonal" size="48">
               <v-icon icon="ri-shield-user-line" color="primary" />
@@ -77,7 +77,7 @@
 
       <!-- Empty State -->
       <v-col v-if="store.roles.length === 0" cols="12">
-        <div class="text-center pa-12 bg-grey-lighten-5 rounded-xl border-dashed">
+        <div class="text-center pa-12 bg-grey-lighten-5 rounded-lg border-dashed">
           <v-icon icon="ri-shield-flash-line" size="64" color="grey-lighten-2" />
           <div class="text-h6 text-grey mt-4">لا يوجد أدوار مسجلة حالياً</div>
           <p class="text-caption text-grey-darken-1 mb-6">ابدأ بإنشاء أول دور وظيفي لفريق عملك</p>
@@ -107,7 +107,7 @@
 
     <!-- Delete Confirmation -->
     <v-dialog v-model="deleteDialog.isOpen" max-width="400">
-      <v-card class="rounded-xl pa-4">
+      <v-card class="rounded-lg pa-4">
         <v-card-text class="text-center pt-6">
           <v-avatar color="error-lighten-5" size="72" class="mb-4">
             <v-icon icon="ri-error-warning-line" color="error" size="40" />

@@ -20,7 +20,7 @@
               <v-img v-if="imagePreview" :src="imagePreview" cover />
               <v-icon v-else icon="ri-image-add-line" size="40" color="grey-lighten-1" />
 
-              <div class="change-overlay d-flex flex-column align-center justify-center rounded-xl">
+              <div class="change-overlay d-flex flex-column align-center justify-center rounded-lg">
                 <v-icon icon="ri-exchange-line" color="white" size="24" />
                 <span class="text-white text-caption mt-1 font-weight-bold">تغيير الشعار</span>
               </div>

@@ -29,12 +29,12 @@
 
     <!-- Image Preview Dialog -->
     <v-dialog v-model="showPreview" max-width="800px" transition="dialog-bottom-transition">
-      <v-card class="preview-dialog-card rounded-xl overflow-visible">
+      <v-card class="preview-dialog-card rounded-lg overflow-visible">
         <!-- Close Button -->
         <v-btn icon="ri-close-line" variant="elevated" color="white" size="small" class="preview-close-btn shadow-lg" @click="showPreview = false" />
 
         <v-card-text
-          class="pa-0 rounded-xl overflow-hidden bg-grey-lighten-4 d-flex align-center justify-center"
+          class="pa-0 rounded-lg overflow-hidden bg-grey-lighten-4 d-flex align-center justify-center"
           style="min-height: 300px; min-width: 300px"
         >
           <v-img

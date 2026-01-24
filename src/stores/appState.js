@@ -10,11 +10,11 @@ export const useappState = defineStore('appState', {
     dialogDelete: false,
     pendingReport: null,
     isCapturing: false,
-    captureMessage: 'جاري التقاط لقطة للشاشة...',
+    captureMessage: 'جاري اخذ لقطة للشاشة...',
   }),
   actions: {
     async triggerManualReport(type = 'feedback') {
-      const { collectErrorInfo } = await import('@/utils/error-collector');
+      const { collectErrorInfo } = await import('@/modules/support/services/error-collector');
       this.pendingReport = await collectErrorInfo(null, {
         type,
         severity: 'info',

@@ -31,19 +31,19 @@
     <template #summary>
       <v-row dense>
         <v-col cols="12" sm="4">
-          <v-card border flat class="rounded-xl pa-4 bg-primary-lighten-5 border-primary">
+          <v-card border flat class="rounded-lg pa-4 bg-primary-lighten-5 border-primary">
             <div class="text-caption font-weight-bold text-primary">إجمالي قيمة التكلفة</div>
             <div class="text-h4 font-weight-black text-primary">{{ formatCurrency(summary.total_cost_value) }}</div>
           </v-card>
         </v-col>
         <v-col cols="12" sm="4">
-          <v-card border flat class="rounded-xl pa-4 bg-success-lighten-5 border-success">
+          <v-card border flat class="rounded-lg pa-4 bg-success-lighten-5 border-success">
             <div class="text-caption font-weight-bold text-success">القيمة البيعية المتوقعة</div>
             <div class="text-h4 font-weight-black text-success">{{ formatCurrency(summary.total_sale_value) }}</div>
           </v-card>
         </v-col>
         <v-col cols="12" sm="4">
-          <v-card border flat class="rounded-xl pa-4 bg-info-lighten-5 border-info">
+          <v-card border flat class="rounded-lg pa-4 bg-info-lighten-5 border-info">
             <div class="text-caption font-weight-bold text-info">الربح التقديري المحتمل</div>
             <div class="text-h4 font-weight-black text-info">{{ formatCurrency(summary.potential_profit) }}</div>
           </v-card>
@@ -58,7 +58,7 @@
           <StockValuationChart :summary="summary" :loading="loading" />
         </v-col>
         <v-col cols="12" md="6">
-          <v-card border flat class="rounded-xl pa-4 fill-height">
+          <v-card border flat class="rounded-lg pa-4 fill-height">
             <h3 class="text-h6 font-weight-black mb-4">تنبيهات حالة المخزون</h3>
             <v-list density="compact">
               <v-list-item

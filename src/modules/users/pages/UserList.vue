@@ -182,7 +182,7 @@
             <!-- Statistics Grid in Sidebar -->
             <v-row dense>
               <v-col cols="6" lg="12">
-                <div class="pa-4 d-flex align-center gap-3 rounded-xl border bg-white shadow-sm mb-lg-3">
+                <div class="pa-4 d-flex align-center gap-3 rounded-lg border bg-white shadow-sm mb-lg-3">
                   <v-avatar color="primary-lighten-5" rounded="lg" size="42">
                     <v-icon icon="ri-team-line" color="primary" size="20" />
                   </v-avatar>
@@ -193,7 +193,7 @@
                 </div>
               </v-col>
               <v-col cols="6" lg="12">
-                <div class="pa-4 d-flex align-center gap-3 rounded-xl border bg-white shadow-sm mb-lg-3">
+                <div class="pa-4 d-flex align-center gap-3 rounded-lg border bg-white shadow-sm mb-lg-3">
                   <v-avatar color="success-lighten-5" rounded="lg" size="42">
                     <v-icon icon="ri-user-follow-line" color="success" size="20" />
                   </v-avatar>
@@ -204,7 +204,7 @@
                 </div>
               </v-col>
               <v-col cols="6" lg="12">
-                <div class="pa-4 d-flex align-center gap-3 rounded-xl border bg-white shadow-sm mb-lg-3">
+                <div class="pa-4 d-flex align-center gap-3 rounded-lg border bg-white shadow-sm mb-lg-3">
                   <v-avatar color="warning-lighten-5" rounded="lg" size="42">
                     <v-icon icon="ri-admin-line" color="warning" size="20" />
                   </v-avatar>
@@ -215,7 +215,7 @@
                 </div>
               </v-col>
               <v-col cols="6" lg="12">
-                <div class="pa-4 d-flex align-center gap-3 rounded-xl border bg-white shadow-sm mb-lg-3">
+                <div class="pa-4 d-flex align-center gap-3 rounded-lg border bg-white shadow-sm mb-lg-3">
                   <v-avatar color="error-lighten-5" rounded="lg" size="42">
                     <v-icon icon="ri-user-forbid-line" color="error" size="20" />
                   </v-avatar>
@@ -234,7 +234,7 @@
                 تصفية النتائج
               </h3>
 
-              <v-card variant="flat" border class="rounded-xl pa-4 bg-grey-lighten-5">
+              <v-card variant="flat" border class="rounded-lg pa-4 bg-grey-lighten-5">
                 <UserFilters v-model="filters" @apply="handleFiltersChange" />
               </v-card>
             </div>

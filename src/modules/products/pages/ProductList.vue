@@ -168,7 +168,7 @@
           <!-- Grid View -->
           <v-row v-else class="mx-0">
             <v-col v-for="item in products" :key="item.id" cols="12" sm="6" md="4" lg="4">
-              <v-card border flat class="rounded-xl overflow-hidden hover-shadow transition-swing" @click="viewProduct(item)">
+              <v-card border flat class="rounded-lg overflow-hidden hover-shadow transition-swing" @click="viewProduct(item)">
                 <div class="pa-4">
                   <div class="d-flex gap-4">
                     <AppAvatar
@@ -226,12 +226,12 @@
               </h3>
             </div>
 
-            <v-card variant="flat" border class="rounded-xl pa-4 bg-grey-lighten-5">
+            <v-card variant="flat" border class="rounded-lg pa-4 bg-grey-lighten-5">
               <ProductFilters @apply="handleFiltersChange" />
             </v-card>
 
             <!-- Quick Stats in Sidebar -->
-            <v-card variant="flat" border class="rounded-xl pa-4 mt-6 bg-primary-lighten-5 border-primary">
+            <v-card variant="flat" border class="rounded-lg pa-4 mt-6 bg-primary-lighten-5 border-primary">
               <div class="d-flex align-center gap-3">
                 <v-avatar color="primary" rounded="lg" size="40">
                   <v-icon icon="ri-box-3-line" color="white" />

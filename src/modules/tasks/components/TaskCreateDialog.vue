@@ -1,6 +1,6 @@
 <template>
   <v-dialog v-model="internalValue" max-width="600px">
-    <v-card class="rounded-xl overflow-hidden">
+    <v-card class="rounded-lg overflow-hidden">
       <v-card-title class="pa-6 bg-primary text-white d-flex align-center gap-3">
         <v-icon icon="ri-add-circle-line" size="28" />
         <span class="text-h5 font-weight-bold">إسناد مهمة جديدة</span>

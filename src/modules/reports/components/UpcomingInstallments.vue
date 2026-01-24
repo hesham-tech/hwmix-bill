@@ -6,6 +6,7 @@
     title="الأقساط المستحقة قريباً"
     icon="ri-calendar-schedule-line"
     hide-footer
+    class="rounded-lg overflow-hidden border"
     :items-per-page="5"
   >
     <template #actions>

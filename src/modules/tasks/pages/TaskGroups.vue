@@ -12,7 +12,7 @@
 
     <v-row v-if="!loading">
       <v-col v-for="group in groups" :key="group.id" cols="12" md="4">
-        <v-card class="group-card rounded-xl border-grey-lighten-4" variant="flat" border>
+        <v-card class="group-card rounded-lg border-grey-lighten-4" variant="flat" border>
           <v-card-text class="pa-5">
             <div class="d-flex align-center justify-space-between mb-4">
               <div class="d-flex align-center gap-3">
@@ -58,7 +58,7 @@
 
     <!-- Create/Edit Dialog -->
     <v-dialog v-model="showDialog" max-width="500px">
-      <v-card class="rounded-xl overflow-hidden">
+      <v-card class="rounded-lg overflow-hidden">
         <v-card-title class="pa-6 bg-primary text-white font-weight-bold">
           {{ editingGroup ? 'تعديل مجموعة' : 'مجموعة عمل جديدة' }}
         </v-card-title>

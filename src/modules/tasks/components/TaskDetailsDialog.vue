@@ -1,6 +1,6 @@
 <template>
   <v-dialog v-model="internalValue" max-width="800px">
-    <v-card v-if="task" class="rounded-xl overflow-hidden">
+    <v-card v-if="task" class="rounded-lg overflow-hidden">
       <v-card-title class="pa-6 bg-grey-lighten-5 d-flex align-center gap-3">
         <v-chip :color="getStatusColor(task.status)" variant="flat" size="small">
           {{ translateStatus(task.status) }}
@@ -127,7 +127,7 @@
         </v-row>
       </v-card-text>
     </v-card>
-    <v-card v-else class="rounded-xl pa-12 text-center">
+    <v-card v-else class="rounded-lg pa-12 text-center">
       <v-progress-circular indeterminate color="primary" />
     </v-card>
   </v-dialog>

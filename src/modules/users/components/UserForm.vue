@@ -33,7 +33,7 @@
           v-if="lookupResult && !isEditMode"
           type="info"
           variant="tonal"
-          class="mb-6 rounded-xl border-primary animate__animated animate__fadeIn"
+          class="mb-6 rounded-lg border-primary animate__animated animate__fadeIn"
           prepend-icon="ri-user-shared-line"
         >
           <div class="d-flex align-center justify-space-between flex-wrap gap-2">

@@ -6,6 +6,7 @@
     title="الفواتير المستحقة قريباً"
     icon="ri-calendar-todo-line"
     hide-footer
+    class="rounded-lg overflow-hidden border"
     :items-per-page="5"
   >
     <template #actions>

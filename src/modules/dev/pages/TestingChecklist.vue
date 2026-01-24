@@ -1,6 +1,6 @@
 <template>
   <v-container fluid class="pa-6">
-    <v-card class="rounded-xl border border-grey-lighten-4 elevation-sm overflow-hidden">
+    <v-card class="rounded-lg border border-grey-lighten-4 elevation-sm overflow-hidden">
       <v-card-title class="pa-6 d-flex align-center gap-3 bg-grey-lighten-5">
         <v-icon icon="ri-checkbox-multiple-line" color="primary" size="28" />
         <div>
@@ -160,7 +160,7 @@
 
     <!-- Note Dialog -->
     <v-dialog v-model="noteDialog.show" max-width="500px">
-      <v-card class="rounded-xl overflow-hidden">
+      <v-card class="rounded-lg overflow-hidden">
         <v-card-title class="pa-4 bg-primary text-white d-flex align-center gap-2">
           <v-icon icon="ri-sticky-note-line" />
           ملاحظات: {{ noteDialog.title }}

@@ -1,5 +1,5 @@
 <template>
-  <v-card class="rounded-xl" border flat>
+  <v-card class="rounded-lg" border flat>
     <v-card-text class="pa-6">
       <h3 class="text-h6 font-weight-bold mb-4">التقارير المالية</h3>
 

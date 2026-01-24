@@ -1,7 +1,7 @@
 <template>
   <v-row dense>
     <v-col cols="12" sm="6" md="3">
-      <v-card border flat class="rounded-xl overflow-hidden pa-1">
+      <v-card border flat class="rounded-lg overflow-hidden pa-1">
         <v-card-text class="pa-4 bg-success-lighten-5">
           <div class="d-flex align-center justify-space-between">
             <div>
@@ -18,7 +18,7 @@
     </v-col>
 
     <v-col cols="12" sm="6" md="3">
-      <v-card border flat class="rounded-xl overflow-hidden pa-1">
+      <v-card border flat class="rounded-lg overflow-hidden pa-1">
         <v-card-text class="pa-4 bg-primary-lighten-5">
           <div class="d-flex align-center justify-space-between">
             <div>
@@ -35,7 +35,7 @@
     </v-col>
 
     <v-col cols="12" sm="6" md="3">
-      <v-card border flat class="rounded-xl overflow-hidden pa-1">
+      <v-card border flat class="rounded-lg overflow-hidden pa-1">
         <v-card-text class="pa-4 bg-error-lighten-5">
           <div class="d-flex align-center justify-space-between">
             <div>
@@ -52,7 +52,7 @@
     </v-col>
 
     <v-col cols="12" sm="6" md="3">
-      <v-card border flat class="rounded-xl overflow-hidden pa-1">
+      <v-card border flat class="rounded-lg overflow-hidden pa-1">
         <v-card-text class="pa-4 bg-info-lighten-5">
           <div class="d-flex align-center justify-space-between">
             <div>
