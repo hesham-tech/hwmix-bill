@@ -14,25 +14,17 @@
         <AppCard title="الهوية البصرية" icon="ri-magic-line" class="mb-6" no-padding>
           <v-card-text class="pa-8 text-center bg-grey-lighten-5">
             <!-- Professional Logo Preview (Standardized with Brands) -->
-            <div class="logo-preview-zone mx-auto mb-6" :class="{ 'cursor-pointer': canUpdate }" @click="canUpdate && (showMediaGallery = true)">
-              <v-avatar size="180" rounded="xl" color="white" class="border-2 border-dashed elevation-3 hover-scale overflow-hidden">
-                <v-img v-if="formData.logo" :src="formData.logo" cover />
-                <v-icon v-else icon="ri-building-line" size="64" color="grey-lighten-2" />
-
-                <!-- Hover Overlay -->
-                <div v-if="canUpdate" class="change-overlay d-flex flex-column align-center justify-center rounded-lg">
-                  <v-icon icon="ri-camera-switch-line" color="white" size="32" />
-                  <span class="text-white text-subtitle-2 mt-2 font-weight-bold">تغيير الشعار</span>
-                </div>
-              </v-avatar>
-
-              <!-- Floating Badge -->
-              <AppButton
-                v-if="canUpdate"
-                icon="ri-gallery-upload-line"
-                size="small"
-                class="position-absolute bottom-0 right-0 elevation-6"
-                @click.stop="showMediaGallery = true"
+            <div class="logo-preview-zone mx-auto mb-6 cursor-pointer">
+              <AppAvatar
+                :img-url="formData.logo"
+                :name="formData.name"
+                size="180"
+                type="company"
+                :editable="canUpdate"
+                rounded="xl"
+                class="border-2 border-dashed elevation-3 hover-scale overflow-hidden"
+                @edit="showMediaGallery = true"
+                @crop="handleCurrentCrop"
               />
             </div>
 
@@ -210,6 +202,9 @@
 
     <!-- Professional Media Gallery Component (Standardized) -->
     <MediaGallery v-model="showMediaGallery" type="logo" @select="handleImageSelect" />
+
+    <!-- Image Cropper for existing images -->
+    <AppImageCropper v-model="showCropper" :image-src="cropperImageSrc" @cropped="handleCroppedImage" />
   </div>
 </template>
 
@@ -220,6 +215,7 @@ import { useUserStore } from '@/stores/user';
 import { usePermissions } from '@/composables/usePermissions';
 import MediaGallery from '@/components/common/MediaGallery.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
+import AppImageCropper from '@/components/common/AppImageCropper.vue';
 import AppCard from '@/components/common/AppCard.vue';
 import AppInput from '@/components/common/AppInput.vue';
 import AppButton from '@/components/common/AppButton.vue';
@@ -247,6 +243,8 @@ const saving = ref(false);
 const showMediaGallery = ref(false);
 const formRef = ref(null);
 const errors = ref({});
+const showCropper = ref(false);
+const cropperImageSrc = ref('');
 
 const formData = ref({
   id: null,
@@ -314,6 +312,37 @@ const handleImageSelect = image => {
   formData.value.logo = image.url;
   formData.value.images_ids = [image.id];
   toast.success('تم اختيار الشعار بنجاح، يرجى الحفظ لاعتماد التغييرات');
+};
+
+const handleCurrentCrop = () => {
+  if (!formData.value.logo) return;
+  cropperImageSrc.value = formData.value.logo;
+  showCropper.value = true;
+};
+
+const handleCroppedImage = async blob => {
+  saving.value = true;
+  const imageApi = useApi('/api/images');
+  const uploadData = new FormData();
+  const file = new File([blob], `logo_cropped_${Date.now()}.jpg`, { type: 'image/jpeg' });
+  uploadData.append('images[]', file);
+  uploadData.append('type', 'logo');
+
+  try {
+    const res = await imageApi.create(uploadData, { showLoading: false });
+    if (res.data && res.data.length > 0) {
+      const newImage = res.data[0];
+      formData.value.logo = newImage.url;
+      formData.value.images_ids = [newImage.id];
+      // Save settings immediately
+      await handleSave();
+    }
+  } catch (error) {
+    console.error('Logo crop save failed:', error);
+  } finally {
+    saving.value = false;
+    showCropper.value = false;
+  }
 };
 
 const loadCompanyData = async () => {

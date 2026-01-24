@@ -25,6 +25,33 @@
 
       <!-- Priority 3: Fallback Icon -->
       <v-icon v-else :icon="fallbackIcon" :size="iconSize" :color="iconColor" />
+
+      <!-- Hover Edit Overlay (Outside) -->
+      <div v-if="editable" class="avatar-edit-overlay d-flex align-center justify-center">
+        <div class="d-flex ga-2">
+          <v-btn icon="ri-camera-switch-line" size="x-small" color="white" variant="tonal" class="bg-white-o-20" @click.stop="handleEditClick" />
+          <v-btn
+            v-if="imgUrl"
+            icon="ri-crop-2-line"
+            size="x-small"
+            color="white"
+            variant="tonal"
+            class="bg-white-o-20"
+            @click.stop="handleCropClick"
+          />
+        </div>
+      </div>
+
+      <!-- Permanent Edit Button for Mobile/Touch -->
+      <v-btn
+        v-if="editable"
+        icon="ri-pencil-line"
+        size="x-small"
+        color="primary"
+        elevation="4"
+        class="avatar-trigger-btn d-md-none shadow-lg"
+        @click.stop="handlePreview"
+      />
     </v-avatar>
 
     <!-- Image Preview Dialog -->
@@ -32,6 +59,16 @@
       <v-card class="preview-dialog-card rounded-lg overflow-visible">
         <!-- Close Button -->
         <v-btn icon="ri-close-line" variant="elevated" color="white" size="small" class="preview-close-btn shadow-lg" @click="showPreview = false" />
+
+        <!-- Dialog Actions Overlay -->
+        <div v-if="editable" class="preview-actions-bar pa-2 d-flex justify-center ga-4">
+          <v-btn prepend-icon="ri-camera-switch-line" variant="elevated" color="primary" rounded="pill" elevation="8" @click="handleEditClick">
+            تغيير الصورة
+          </v-btn>
+          <v-btn v-if="imgUrl" prepend-icon="ri-crop-2-line" variant="elevated" color="success" rounded="pill" elevation="8" @click="handleCropClick">
+            قص الصورة
+          </v-btn>
+        </div>
 
         <v-card-text
           class="pa-0 rounded-lg overflow-hidden bg-grey-lighten-4 d-flex align-center justify-center"
@@ -153,10 +190,19 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  /**
+   * Whether to show an edit button in the preview dialog.
+   */
+  editable: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const hasImgError = ref(false);
 const showPreview = ref(false);
+
+const emit = defineEmits(['edit', 'crop']);
 
 const handleImgError = () => {
   hasImgError.value = true;
@@ -171,6 +217,16 @@ const handlePreview = event => {
     event.stopPropagation();
     showPreview.value = true;
   }
+};
+
+const handleEditClick = () => {
+  showPreview.value = false;
+  emit('edit');
+};
+
+const handleCropClick = () => {
+  showPreview.value = false;
+  emit('crop');
 };
 
 // Map types to default icons
@@ -270,15 +326,54 @@ const initialsFontSize = computed(() => {
   cursor: zoom-in !important;
 }
 
-.preview-dialog-card {
-  position: relative;
+.avatar-edit-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 5;
+}
+
+.app-avatar:hover .avatar-edit-overlay {
+  opacity: 1;
+}
+
+.bg-white-o-20 {
+  background: rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(4px);
+}
+
+.preview-actions-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+  z-index: 100;
+}
+
+.avatar-trigger-btn {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  z-index: 10;
+}
+
+@media (max-width: 600px) {
+  .preview-actions-bar {
+    padding-bottom: 24px !important;
+  }
 }
 
 .preview-close-btn {
   position: absolute;
-  top: -15px;
-  right: -15px;
-  z-index: 100;
+  top: 10px;
+  left: 10px;
+  z-index: 110;
 }
 
 .user-preview-img :deep(.v-img__img) {

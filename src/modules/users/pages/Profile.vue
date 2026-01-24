@@ -10,30 +10,16 @@
       <v-col cols="12" lg="4">
         <AppCard title="الصورة الشخصية" icon="ri-user-smile-line" class="mb-6" no-padding>
           <v-card-text class="pa-8 text-center bg-grey-lighten-5">
-            <div class="avatar-preview-zone mx-auto mb-6 cursor-pointer" @click="showMediaGallery = true">
-              <AppAvatar
-                :img-url="formData.avatar_url"
-                :name="formData.nickname || formData.full_name"
-                size="180"
-                type="user"
-                class="border-2 border-dashed elevation-3 hover-scale overflow-hidden"
-              />
-
-              <!-- Hover Overlay -->
-              <div class="change-overlay d-flex flex-column align-center justify-center">
-                <v-icon icon="ri-camera-switch-line" color="white" size="32" />
-                <span class="text-white text-subtitle-2 mt-2 font-weight-bold">تغيير الصورة</span>
-              </div>
-
-              <!-- Floating Action Button -->
-              <v-btn
-                icon="ri-gallery-upload-line"
-                size="small"
-                color="primary"
-                class="position-absolute bottom-0 right-0 elevation-6"
-                @click.stop="showMediaGallery = true"
-              />
-            </div>
+            <AppAvatar
+              :img-url="formData.avatar_url"
+              :name="formData.nickname || formData.full_name"
+              size="180"
+              type="user"
+              editable
+              class="border-2 border-dashed elevation-3 hover-scale overflow-hidden"
+              @edit="showMediaGallery = true"
+              @crop="handleCurrentCrop"
+            />
 
             <h3 class="text-h6 font-weight-bold mb-1">{{ userStore.currentUser?.nickname || userStore.currentUser?.full_name }}</h3>
             <v-chip color="primary" variant="tonal" size="small" class="mb-4">
@@ -145,6 +131,9 @@
 
     <!-- Professional Media Gallery Component -->
     <MediaGallery v-model="showMediaGallery" type="avatar" @select="handleImageSelect" />
+
+    <!-- Image Cropper for existing images -->
+    <AppImageCropper v-model="showCropper" :image-src="cropperImageSrc" crop-type="circle" @cropped="handleCroppedImage" />
   </div>
 </template>
 
@@ -158,6 +147,7 @@ import AppInput from '@/components/common/AppInput.vue';
 import AppButton from '@/components/common/AppButton.vue';
 import MediaGallery from '@/components/common/MediaGallery.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
+import AppImageCropper from '@/components/common/AppImageCropper.vue';
 
 const userStore = useUserStore();
 const api = useApi('/api/users');
@@ -178,6 +168,9 @@ const formData = reactive({
   images_ids: [],
 });
 
+const showCropper = ref(false);
+const cropperImageSrc = ref('');
+
 const rules = {
   required: v => !!v || 'هذا الحقل مطلوب',
   email: v => /.+@.+\..+/.test(v) || 'يرجى إدخال بريد إلكتروني صحيح',
@@ -187,6 +180,37 @@ const handleImageSelect = image => {
   formData.avatar_url = image.url;
   formData.images_ids = [image.id];
   toast.success('تم اختيار الصورة بنجاح');
+};
+
+const handleCurrentCrop = () => {
+  if (!formData.avatar_url) return;
+  cropperImageSrc.value = formData.avatar_url;
+  showCropper.value = true;
+};
+
+const handleCroppedImage = async blob => {
+  saving.value = true;
+  const imageApi = useApi('/api/images');
+  const uploadData = new FormData();
+  const file = new File([blob], `avatar_cropped_${Date.now()}.jpg`, { type: 'image/jpeg' });
+  uploadData.append('images[]', file);
+  uploadData.append('type', 'avatar');
+
+  try {
+    const res = await imageApi.create(uploadData, { showLoading: false });
+    if (res.data && res.data.length > 0) {
+      const newImage = res.data[0];
+      formData.avatar_url = newImage.url;
+      formData.images_ids = [newImage.id];
+      // Save profile immediately
+      await handleSave();
+    }
+  } catch (error) {
+    console.error('Crop save failed:', error);
+  } finally {
+    saving.value = false;
+    showCropper.value = false;
+  }
 };
 
 const initForm = () => {
