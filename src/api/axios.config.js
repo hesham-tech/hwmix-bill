@@ -5,6 +5,10 @@ import router from '@/router';
 
 import translateErrors from '@/utils/translateErrors';
 
+// Preventing multiple 401 notices
+let last401Time = 0;
+const DEBOUNCE_TIME = 3000; // 3 seconds
+
 /**
  * Axios Instance Configuration
  * مركزي لكل API calls
@@ -63,11 +67,26 @@ apiClient.interceptors.response.use(
   error => {
     // 401: Unauthorized - Token expired
     if (error?.response?.status === 401 || error?.response?.data?.message === 'Unauthenticated.') {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      // Avoid spamming notifications
+      const now = Date.now();
+      if (now - last401Time > DEBOUNCE_TIME) {
+        last401Time = now;
+        toast.warning('جلستك انتهت. من فضلك سجل دخول مرة أخرى.');
+      }
 
-      toast.warning('جلستك انتهت. من فضلك سجل دخول مرة أخرى.');
-      router.push({ name: 'login', query: { sessionExpired: '1' } });
+      // Use authStore.logout for centralized cleanup
+      import('@/stores/auth')
+        .then(m => {
+          const authStore = m.useStore ? m.useStore() : m.useAuthStore();
+          if (authStore && authStore.logout) {
+            authStore.logout();
+          }
+        })
+        .catch(() => {
+          // Fallback if store import fails
+          localStorage.removeItem('token');
+          window.location.href = '/login?sessionExpired=1';
+        });
 
       return Promise.reject(error);
     }

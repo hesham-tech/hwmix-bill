@@ -15,7 +15,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function logout() {
-    // Clear stores
+    // Clear stores reactive state
     token.value = null;
     user.value = null;
 
@@ -23,14 +23,15 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
 
-    // Clear axios headers
-    const apiClient = (await import('@/api/axios.config')).default;
-    delete apiClient.defaults.headers.common['Authorization'];
-
     // Clear user store
     const { useUserStore } = await import('@/stores/user');
     const userStore = useUserStore();
     userStore.clearUser();
+
+    // Redirect to login if not already there
+    if (window.location.pathname !== '/login') {
+      window.location.href = '/login?sessionExpired=1';
+    }
   }
 
   async function fetchUser() {
