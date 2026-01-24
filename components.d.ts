@@ -15,6 +15,7 @@ declare module 'vue' {
     AppDataTable: typeof import('./src/components/common/AppDataTable.vue')['default']
     AppDatePicker: typeof import('./src/components/common/AppDatePicker.vue')['default']
     AppDialog: typeof import('./src/components/common/AppDialog.vue')['default']
+    AppImageCropper: typeof import('./src/components/common/AppImageCropper.vue')['default']
     AppInfiniteScroll: typeof import('./src/components/common/AppInfiniteScroll.vue')['default']
     AppInput: typeof import('./src/components/common/AppInput.vue')['default']
     AppPageHeader: typeof import('./src/components/common/AppPageHeader.vue')['default']

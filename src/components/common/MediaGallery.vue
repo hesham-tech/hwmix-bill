@@ -107,6 +107,9 @@
       @confirm="doDelete"
       @cancel="deleteConfirmDialog = false"
     />
+
+    <!-- Image Cropper Dialog -->
+    <AppImageCropper v-model="showCropper" :image-src="cropperImageSrc" :crop-type="cropperType" @cropped="handleCroppedImage" />
   </v-dialog>
 </template>
 
@@ -114,6 +117,7 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import { useApi } from '@/composables/useApi';
 import AppConfirmDialog from './AppConfirmDialog.vue';
+import AppImageCropper from './AppImageCropper.vue';
 
 const props = defineProps({
   modelValue: Boolean,
@@ -138,6 +142,12 @@ const search = ref('');
 const selectedIds = ref([]); // Now an array
 const deleteConfirmDialog = ref(false);
 const imageToDelete = ref(null);
+
+// Cropper State
+const showCropper = ref(false);
+const cropperImageSrc = ref('');
+const originalFile = ref(null);
+const cropperType = computed(() => (props.type === 'avatar' ? 'circle' : 'square'));
 
 const show = computed({
   get: () => props.modelValue,
@@ -167,6 +177,21 @@ const handleFileUpload = async event => {
   const files = event.target.files;
   if (!files.length) return;
 
+  // For single uploads (like profile/avatar), show cropper first
+  if (!props.multiple && files.length === 1) {
+    originalFile.value = files[0];
+    const reader = new FileReader();
+    reader.onload = e => {
+      cropperImageSrc.value = e.target.result;
+      showCropper.value = true;
+    };
+    reader.readAsDataURL(files[0]);
+    // Reset input so same file can be selected again if needed
+    event.target.value = '';
+    return;
+  }
+
+  // Fallback for multiple files or if skipping cropper
   uploading.value = true;
   const formData = new FormData();
   for (let i = 0; i < files.length; i++) {
@@ -176,12 +201,62 @@ const handleFileUpload = async event => {
 
   try {
     await api.create(formData, { showSuccessMessage: true });
-    await fetchImages(); // Refresh
+    await fetchImages();
   } catch (error) {
     console.error('Upload failed:', error);
   } finally {
     uploading.value = false;
-    event.target.value = ''; // Reset input
+    event.target.value = '';
+  }
+};
+
+const handleCroppedImage = async blob => {
+  uploading.value = true;
+  const formData = new FormData();
+  const file = new File([blob], `cropped_${Date.now()}.jpg`, { type: 'image/jpeg' });
+  formData.append('images[]', file);
+  formData.append('type', props.type);
+
+  try {
+    const res = await api.create(formData, { showSuccessMessage: true });
+    await fetchImages();
+    // Auto-select the newly uploaded image if it's a single select gallery
+    if (!props.multiple && res.data && res.data.length > 0) {
+      const newImage = res.data[0];
+      selectedIds.value = [newImage.id];
+      // Automatically confirm selection for better UX in profile
+      confirmSelection();
+    }
+  } catch (error) {
+    console.error('Cropped upload failed:', error);
+  } finally {
+    uploading.value = false;
+    showCropper.value = false;
+  }
+};
+
+const handleSkipCropping = async () => {
+  if (!originalFile.value) return;
+
+  uploading.value = true;
+  const formData = new FormData();
+  formData.append('images[]', originalFile.value);
+  formData.append('type', props.type);
+
+  try {
+    const res = await api.create(formData, { showSuccessMessage: true });
+    await fetchImages();
+    if (!props.multiple && res.data && res.data.length > 0) {
+      const newImage = res.data[0];
+      selectedIds.value = [newImage.id];
+      confirmSelection();
+    }
+  } catch (error) {
+    console.error('Skip cropping upload failed:', error);
+  } finally {
+    uploading.value = false;
+    showCropper.value = false;
+    originalFile.value = null;
   }
 };
 
