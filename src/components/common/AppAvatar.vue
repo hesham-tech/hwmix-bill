@@ -26,32 +26,35 @@
       <!-- Priority 3: Fallback Icon -->
       <v-icon v-else :icon="fallbackIcon" :size="iconSize" :color="iconColor" />
 
-      <!-- Hover Edit Overlay (Outside) -->
-      <div v-if="editable" class="avatar-edit-overlay d-flex align-center justify-center">
+      <!-- Edit Overlay (Desktop Hover) -->
+      <div v-if="editable" class="avatar-edit-overlay d-none d-sm-flex align-center justify-center">
         <div class="d-flex ga-2">
-          <v-btn icon="ri-camera-switch-line" size="x-small" color="white" variant="tonal" class="bg-white-o-20" @click.stop="handleEditClick" />
+          <v-btn
+            icon="ri-camera-switch-line"
+            size="x-small"
+            color="white"
+            variant="elevated"
+            class="edit-btn shadow-md"
+            title="تغير الصورة"
+            @click.stop="handleEditClick"
+          />
           <v-btn
             v-if="imgUrl"
             icon="ri-crop-2-line"
             size="x-small"
             color="white"
-            variant="tonal"
-            class="bg-white-o-20"
+            variant="elevated"
+            class="edit-btn shadow-md"
+            title="قص الصورة"
             @click.stop="handleCropClick"
           />
         </div>
       </div>
 
-      <!-- Permanent Edit Button for Mobile/Touch -->
-      <v-btn
-        v-if="editable"
-        icon="ri-pencil-line"
-        size="x-small"
-        color="primary"
-        elevation="4"
-        class="avatar-trigger-btn d-md-none shadow-lg"
-        @click.stop="handlePreview"
-      />
+      <!-- Persistent Edit Badge (Always Visible for Editability) -->
+      <div v-if="editable" class="edit-badge-permanent shadow-lg" @click.stop="handlePreview">
+        <v-icon icon="ri-pencil-fill" size="12" color="white" />
+      </div>
     </v-avatar>
 
     <!-- Image Preview Dialog -->
@@ -332,19 +335,44 @@ const initialsFontSize = computed(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.2);
   opacity: 0;
-  transition: opacity 0.3s ease;
-  z-index: 5;
+  transition: all 0.3s ease;
+  z-index: 10;
 }
 
 .app-avatar:hover .avatar-edit-overlay {
   opacity: 1;
 }
 
-.bg-white-o-20 {
-  background: rgba(255, 255, 255, 0.2) !important;
-  backdrop-filter: blur(4px);
+.edit-btn {
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+}
+
+.app-avatar:hover .edit-btn {
+  transform: translateY(0);
+}
+
+.edit-badge-permanent {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgb(var(--v-theme-primary));
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid white;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  z-index: 15;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.edit-badge-permanent:hover {
+  transform: scale(1.1);
 }
 
 .preview-actions-bar {
@@ -352,15 +380,9 @@ const initialsFontSize = computed(() => {
   bottom: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
-  z-index: 100;
-}
-
-.avatar-trigger-btn {
-  position: absolute;
-  bottom: 4px;
-  right: 4px;
-  z-index: 10;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+  padding: 40px 20px 20px !important;
+  z-index: 110;
 }
 
 @media (max-width: 600px) {
