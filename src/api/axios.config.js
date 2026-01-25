@@ -115,6 +115,7 @@ apiClient.interceptors.response.use(
       Promise.all([import('@/modules/support/services/error-collector'), import('@/stores/appState')]).then(([module, storeModule]) => {
         const appState = storeModule.useappState();
 
+        console.log('[AxiosInterceptor] Error detected, triggering capture UI');
         // Trigger capture indication
         appState.isCapturing = true;
 
@@ -134,10 +135,12 @@ apiClient.interceptors.response.use(
             },
           })
           .then(info => {
+            console.log('[AxiosInterceptor] Capture finished, showing ErrorDialog');
             appState.pendingReport = info;
             appState.isCapturing = false;
           })
-          .catch(() => {
+          .catch(err => {
+            console.error('[AxiosInterceptor] Capture flow error:', err);
             appState.isCapturing = false;
           });
       });

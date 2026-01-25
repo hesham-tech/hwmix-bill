@@ -8,20 +8,26 @@ export const collectErrorInfo = async (error = null, context = {}) => {
 
   // Try to capture screen if not disabled in context
   if (context.captureScreenshot !== false) {
+    console.log('[ErrorCollector] Starting screenshot capture...');
     try {
       const { captureElement } = await import('@/modules/capture/utils/capture');
 
       // Use callbacks from context instead of direct store access
-      if (context.onCaptureStart) context.onCaptureStart();
+      if (context.onCaptureStart) {
+        console.log('[ErrorCollector] Triggering onCaptureStart callback');
+        context.onCaptureStart();
+      }
 
       // Hide FAB temporarily if it exists
       const fab = document.querySelector('.global-fab-feedback');
       if (fab) fab.style.visibility = 'hidden';
 
+      console.log('[ErrorCollector] Waiting for DOM stabilization (800ms)...');
       // Wait a bit for the overlay to render in the DOM
       await new Promise(resolve => setTimeout(resolve, 800));
 
       // Capture using central utility
+      console.log('[ErrorCollector] Calling captureElement...');
       const blob = await captureElement(document.body, {
         format: 'blob',
         backgroundColor: '#f8f9fa',
@@ -29,13 +35,20 @@ export const collectErrorInfo = async (error = null, context = {}) => {
         pixelRatio: 2,
       });
 
+      console.log('[ErrorCollector] Capture successful, blob size:', blob.size);
+
       const fabElement = document.querySelector('.global-fab-feedback');
       if (fabElement) fabElement.style.visibility = 'visible';
-      if (context.onCaptureEnd) context.onCaptureEnd();
+
+      if (context.onCaptureEnd) {
+        console.log('[ErrorCollector] Triggering onCaptureEnd callback');
+        context.onCaptureEnd();
+      }
 
       screenCapture = new File([blob], `screenshot_${Date.now()}.jpg`, { type: 'image/jpeg' });
     } catch (e) {
-      console.warn('Silent fail for screenshot capture:', e);
+      console.error('[ErrorCollector] Capture failed:', e);
+      if (context.onCaptureEnd) context.onCaptureEnd();
     }
   }
 
