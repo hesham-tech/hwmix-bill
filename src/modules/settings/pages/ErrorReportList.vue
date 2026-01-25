@@ -181,6 +181,29 @@
               </v-row>
             </v-col>
 
+            <!-- Screenshot Section -->
+            <v-col cols="12" v-if="selectedReport.screenshot_url">
+              <h3 class="text-subtitle-1 font-weight-bold mb-3 d-flex align-center">
+                <v-icon icon="ri-image-line" class="me-2" size="20" />
+                لقطة الشاشة (Screenshot)
+              </h3>
+              <v-card border rounded="lg" class="pa-2 bg-grey-lighten-4">
+                <v-img
+                  :src="selectedReport.screenshot_url"
+                  max-height="400"
+                  width="100%"
+                  class="rounded cursor-pointer shadow-sm"
+                  @click="openFullScreenshot(selectedReport.screenshot_url)"
+                >
+                  <template #placeholder>
+                    <v-row class="fill-height ma-0" align="center" justify="center">
+                      <v-progress-circular indeterminate color="primary" />
+                    </v-row>
+                  </template>
+                </v-img>
+              </v-card>
+            </v-col>
+
             <!-- Stack Trace -->
             <v-col cols="12" v-if="selectedReport.stack_trace">
               <h3 class="text-subtitle-1 font-weight-bold mb-3 d-flex align-center">
@@ -213,6 +236,20 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- Full Image Preview Dialog -->
+    <v-dialog v-model="screenshotPreviewDialog" max-width="95%">
+      <v-card class="pa-2 overflow-hidden shadow-24" rounded="xl">
+        <div class="d-flex justify-end pa-2">
+          <v-btn icon="ri-close-line" variant="text" @click="screenshotPreviewDialog = false" />
+        </div>
+        <v-img :src="previewImageUrl" width="100%" height="auto" class="rounded-lg" />
+        <v-card-actions class="justify-center pa-4">
+          <v-btn color="primary" variant="tonal" prepend-icon="ri-download-line" :href="previewImageUrl" download> تحميل الصورة </v-btn>
+          <v-btn color="grey" variant="text" @click="screenshotPreviewDialog = false"> إغلاق </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -232,9 +269,16 @@ const page = ref(1);
 const itemsPerPage = ref(15);
 const search = ref('');
 const updatingStatusId = ref(null);
-
 const detailsDialog = ref(false);
 const selectedReport = ref(null);
+
+const screenshotPreviewDialog = ref(false);
+const previewImageUrl = ref('');
+
+const openFullScreenshot = url => {
+  previewImageUrl.value = url;
+  screenshotPreviewDialog.value = true;
+};
 
 const headers = [
   { title: 'الأهمية', key: 'severity', width: '100px' },

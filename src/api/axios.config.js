@@ -112,7 +112,12 @@ apiClient.interceptors.response.use(
       const isConnectivityError = !error.response || error.code === 'ERR_NETWORK' || error.message === 'Network Error';
 
       // Collect technical info and trigger global dialog
-      import('@/modules/support/services/error-collector').then(module => {
+      Promise.all([import('@/modules/support/services/error-collector'), import('@/stores/appState')]).then(([module, storeModule]) => {
+        const appState = storeModule.useappState();
+
+        // Trigger capture indication
+        appState.isCapturing = true;
+
         module
           .collectErrorInfo(error, {
             type: isConnectivityError ? 'connectivity_error' : 'server_error',
@@ -129,10 +134,11 @@ apiClient.interceptors.response.use(
             },
           })
           .then(info => {
-            import('@/stores/appState').then(storeModule => {
-              const appState = storeModule.useappState();
-              appState.pendingReport = info;
-            });
+            appState.pendingReport = info;
+            appState.isCapturing = false;
+          })
+          .catch(() => {
+            appState.isCapturing = false;
           });
       });
     }

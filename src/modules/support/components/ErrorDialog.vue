@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="isVisible" max-width="600px" persistent>
+  <v-dialog v-model="isVisible" max-width="600px" persistent scrollable>
     <v-card :border="(isManualReport ? 'primary' : isConnectivityError ? 'warning' : 'error') + ' md'" rounded="xl" class="pa-4">
       <v-card-title class="d-flex align-center" :class="titleColor">
         <v-icon :icon="titleIcon" size="32" class="me-3" />
@@ -81,10 +81,19 @@
 
         <!-- Full Size Preview Dialog -->
         <v-dialog v-model="toggleFullPreview" max-width="90%">
-          <v-card class="pa-2 overflow-hidden">
+          <v-card class="pa-2 overflow-hidden position-relative" rounded="xl">
+            <v-btn
+              icon="ri-close-line"
+              size="small"
+              variant="elevated"
+              color="white"
+              class="position-absolute shadow-lg"
+              style="top: 10px; right: 10px; z-index: 10"
+              @click="toggleFullPreview = false"
+            />
             <v-img :src="screenshotUrl" width="100%" height="auto" class="rounded" />
             <v-card-actions class="justify-center">
-              <v-btn color="primary" @click="toggleFullPreview = false"> إغلاق المعاينة </v-btn>
+              <v-btn color="primary" variant="text" @click="toggleFullPreview = false"> إغلاق </v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -109,22 +118,19 @@
 
       <v-divider />
 
-      <v-card-actions class="pa-4">
+      <v-card-actions class="pa-4 bg-white border-top sticky-bottom">
         <v-btn color="grey-darken-1" variant="text" @click="close"> إغلاق </v-btn>
         <v-spacer />
-        <v-btn v-if="isConnectivityError" color="primary" variant="tonal" prepend-icon="ri-refresh-line" @click="reloadPage">
-          إعادة تحميل الصفحة
-        </v-btn>
+        <v-btn v-if="isConnectivityError" color="primary" variant="tonal" prepend-icon="ri-refresh-line" @click="reloadPage"> إعادة تحميل </v-btn>
         <v-btn
           v-else
           :color="isManualReport ? 'primary' : 'error'"
           variant="flat"
-          :prepend-icon="isManualReport ? 'ri-send-plane-2-fill' : 'ri-send-plane-fill'"
           :loading="loading"
           :disabled="isManualReport && !userNotes"
           @click="submitReport"
         >
-          {{ isManualReport ? 'إرسال الآن' : 'إرسال تقرير بالخطأ' }}
+          {{ isManualReport ? 'إرسال' : 'إرسال التقرير' }}
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -286,5 +292,11 @@ watch(screenshot, newFile => {
 .screenshot-preview-img:hover {
   transform: scale(1.02);
   filter: brightness(0.95);
+}
+
+.sticky-bottom {
+  position: sticky !important;
+  bottom: 0;
+  z-index: 10;
 }
 </style>

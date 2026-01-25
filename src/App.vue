@@ -11,7 +11,7 @@
           v-bind="tooltipProps"
           icon="ri-customer-service-2-line"
           color="error"
-          size="x-large"
+          size="large"
           elevation="24"
           class="global-fab-feedback"
           :loading="appState.isCapturing"
@@ -107,8 +107,9 @@ watch(
 
 .global-fab-feedback {
   position: fixed !important;
-  bottom: 24px;
-  inset-inline-start: 24px;
+  bottom: 16px;
+  inset-inline-start: 16px;
   z-index: 9999;
+  padding: 0 !important;
 }
 </style>
