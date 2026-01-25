@@ -22,9 +22,9 @@ export const collectErrorInfo = async (error = null, context = {}) => {
       const fab = document.querySelector('.global-fab-feedback');
       if (fab) fab.style.visibility = 'hidden';
 
-      console.log('[ErrorCollector] Waiting for DOM stabilization (800ms)...');
-      // Wait a bit for the overlay to render in the DOM
-      await new Promise(resolve => setTimeout(resolve, 800));
+      console.log('[ErrorCollector] Waiting for UI stabilization (200ms)...');
+      // Reduced delay to improve perceived speed
+      await new Promise(resolve => setTimeout(resolve, 200));
 
       // Capture using central utility
       console.log('[ErrorCollector] Calling captureElement...');

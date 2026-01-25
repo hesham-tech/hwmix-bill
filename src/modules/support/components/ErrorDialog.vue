@@ -210,30 +210,28 @@ const submitReport = async () => {
       ...appState.pendingReport,
       user_notes: userNotes.value,
       type: isManualReport.value ? reportType.value : appState.pendingReport.type,
+      screenshot: screenshot.value, // Attach manually uploaded screenshot
     };
 
-    // Use FormData to support file upload
-    const formData = new FormData();
-    Object.keys(payload).forEach(key => {
-      if (key === 'payload') {
-        formData.append(key, JSON.stringify(payload[key]));
-      } else if (payload[key] !== null && payload[key] !== undefined) {
-        formData.append(key, payload[key]);
-      }
+    console.log('[ErrorDialog] Submitting report with payload:', {
+      message: payload.message,
+      hasAutoScreenshot: !!payload.autoScreenshot,
+      hasManualScreenshot: !!payload.screenshot,
+      type: payload.type,
     });
 
-    if (screenshot.value) {
-      formData.append('screenshot', Array.isArray(screenshot.value) ? screenshot.value[0] : screenshot.value);
-    }
+    // Use the optimized submit method
+    const result = await errorReportService.submit(payload);
 
-    const success = await errorReportService.create(formData, { showToast: true, useFormData: true });
-
-    if (success) {
+    if (result) {
       toast.success(isManualReport.value ? 'نشكرك على تواصلك! تم استلام بلاغك بنجاح.' : 'شكرًا لك! تم إرسال التقرير بنجاح.');
       close();
+    } else {
+      toast.error('عذراً، حدث خطأ أثناء إرسال التقرير. يرجى المحاولة مرة أخرى.');
     }
   } catch (error) {
-    console.error('Submit report error:', error);
+    console.error('[ErrorDialog] Submit report error:', error);
+    toast.error('فشل إرسال التقرير: ' + (error.response?.data?.message || error.message || 'خطأ غير معروف'));
   } finally {
     loading.value = false;
   }

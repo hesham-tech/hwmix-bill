@@ -42,15 +42,19 @@ const { isRtl } = useRtl();
 
 const captureAndReport = async (type = 'feedback') => {
   if (appState.isCapturing) return;
+  console.log('[App] Starting captureAndReport flow for type:', type);
   const { collectErrorInfo } = await import('@/modules/support/services/error-collector');
 
   await appState.triggerManualReport(type, (error, context) => {
+    console.log('[App] Collector callback triggered');
     return collectErrorInfo(error, {
       ...context,
       onCaptureStart: () => {
+        console.log('[App] UI: isCapturing -> true');
         appState.isCapturing = true;
       },
       onCaptureEnd: () => {
+        console.log('[App] UI: isCapturing -> false');
         appState.isCapturing = false;
       },
     });
