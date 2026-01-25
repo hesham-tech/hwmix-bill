@@ -111,38 +111,46 @@ apiClient.interceptors.response.use(
     if (error?.response?.status >= 500 || error?.response?.status === 404 || !error.response) {
       const isConnectivityError = !error.response || error.code === 'ERR_NETWORK' || error.message === 'Network Error';
 
-      // Collect technical info and trigger global dialog
-      Promise.all([import('@/modules/support/services/error-collector'), import('@/stores/appState')]).then(([module, storeModule]) => {
+      // Use a more direct approach to avoid dynamic import delays for UI
+      import('@/stores/appState').then(storeModule => {
         const appState = storeModule.useappState();
 
         console.log('[AxiosInterceptor] Error detected, triggering capture UI');
-        // Trigger capture indication
         appState.isCapturing = true;
 
-        module
-          .collectErrorInfo(error, {
-            type: isConnectivityError ? 'connectivity_error' : 'server_error',
-            isConnectivityError,
-            request: {
-              method: error?.config?.method?.toUpperCase(),
-              url: error?.config?.url,
-              params: error?.config?.params,
-              data: error?.config?.data,
-            },
-            extraData: {
-              status: error?.response?.status || 0,
-              code: error?.code,
-            },
-          })
-          .then(info => {
-            console.log('[AxiosInterceptor] Capture finished, showing ErrorDialog');
-            appState.pendingReport = info;
-            appState.isCapturing = false;
-          })
-          .catch(err => {
-            console.error('[AxiosInterceptor] Capture flow error:', err);
-            appState.isCapturing = false;
-          });
+        import('@/modules/support/services/error-collector').then(module => {
+          module
+            .collectErrorInfo(error, {
+              type: isConnectivityError ? 'connectivity_error' : 'server_error',
+              isConnectivityError,
+              request: {
+                method: error?.config?.method?.toUpperCase(),
+                url: error?.config?.url,
+                params: error?.config?.params,
+                data: error?.config?.data,
+              },
+              extraData: {
+                status: error?.response?.status || 0,
+                code: error?.code,
+              },
+              // Pass callbacks to sync with appState
+              onCaptureStart: () => {
+                appState.isCapturing = true;
+              },
+              onCaptureEnd: () => {
+                appState.isCapturing = false;
+              },
+            })
+            .then(info => {
+              console.log('[AxiosInterceptor] Capture finished, showing ErrorDialog');
+              appState.pendingReport = info;
+              appState.isCapturing = false;
+            })
+            .catch(err => {
+              console.error('[AxiosInterceptor] Capture flow error:', err);
+              appState.isCapturing = false;
+            });
+        });
       });
     }
 
