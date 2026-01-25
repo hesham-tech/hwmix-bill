@@ -7,7 +7,7 @@
       :class="['app-avatar shadow-sm border', { 'hover-scale': hoverable, 'cursor-zoom-in': shouldBePreviewable }, customClass]"
       :style="avatarStyle"
       v-bind="$attrs"
-      @click="handlePreview"
+      @click="editable ? handleEditClick() : handlePreview($event)"
     >
       <!-- Priority 1: Image -->
       <v-img v-if="imgUrl" :src="imgUrl" cover crossorigin="anonymous" @error="handleImgError">
@@ -25,24 +25,27 @@
 
       <!-- Priority 3: Fallback Icon -->
       <v-icon v-else :icon="fallbackIcon" :size="iconSize" :color="iconColor" />
+    </v-avatar>
 
-      <!-- Edit Overlay (Desktop Hover) -->
-      <div v-if="editable" class="avatar-edit-overlay d-none d-sm-flex align-center justify-center">
+    <!-- Edit Controls (Outside v-avatar for visibility) -->
+    <template v-if="editable">
+      <!-- Desktop Hover Overlay -->
+      <div class="avatar-edit-overlay d-none d-sm-flex align-center justify-center">
         <div class="d-flex ga-2">
           <v-btn
             icon="ri-camera-switch-line"
             size="x-small"
-            color="white"
+            color="primary"
             variant="elevated"
             class="edit-btn shadow-md"
-            title="تغير الصورة"
+            title="تغيير الصورة"
             @click.stop="handleEditClick"
           />
           <v-btn
             v-if="imgUrl"
             icon="ri-crop-2-line"
             size="x-small"
-            color="white"
+            color="success"
             variant="elevated"
             class="edit-btn shadow-md"
             title="قص الصورة"
@@ -51,11 +54,11 @@
         </div>
       </div>
 
-      <!-- Persistent Edit Badge (Always Visible for Editability) -->
-      <div v-if="editable" class="edit-badge-permanent shadow-lg" @click.stop="handlePreview">
+      <!-- Persistent Badge (Pencil) -> Direct Crop -->
+      <div class="edit-badge-permanent shadow-lg d-flex align-center justify-center" @click.stop="handleCropClick">
         <v-icon icon="ri-pencil-fill" size="12" color="white" />
       </div>
-    </v-avatar>
+    </template>
 
     <!-- Image Preview Dialog -->
     <v-dialog v-model="showPreview" max-width="600px" transition="dialog-bottom-transition">
@@ -318,6 +321,7 @@ const initialsFontSize = computed(() => {
 .app-avatar-wrapper {
   position: relative;
   line-height: 0;
+  cursor: pointer;
 }
 
 .app-avatar {
@@ -345,14 +349,18 @@ const initialsFontSize = computed(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.4);
   opacity: 0;
   transition: all 0.3s ease;
-  z-index: 10;
+  z-index: 100;
+  pointer-events: none;
+  border-radius: inherit;
 }
 
-.app-avatar:hover .avatar-edit-overlay {
+.app-avatar-wrapper:hover .avatar-edit-overlay {
   opacity: 1;
+  pointer-events: auto;
+  cursor: pointer;
 }
 
 .edit-btn {
@@ -360,14 +368,14 @@ const initialsFontSize = computed(() => {
   transition: all 0.3s ease;
 }
 
-.app-avatar:hover .edit-btn {
+.app-avatar-wrapper:hover .edit-btn {
   transform: translateY(0);
 }
 
 .edit-badge-permanent {
   position: absolute;
-  bottom: 8px;
-  right: 8px;
+  bottom: 4px;
+  right: 4px;
   background: rgb(var(--v-theme-primary));
   width: 28px;
   height: 28px;
@@ -376,13 +384,15 @@ const initialsFontSize = computed(() => {
   display: flex !important;
   align-items: center;
   justify-content: center;
-  z-index: 15;
+  z-index: 110;
   cursor: pointer;
   transition: transform 0.2s;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .edit-badge-permanent:hover {
   transform: scale(1.1);
+  background: rgb(var(--v-theme-primary-darken-1));
 }
 
 .preview-actions-bar {
