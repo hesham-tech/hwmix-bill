@@ -223,7 +223,7 @@
                 prepend-icon="ri-add-line"
                 size="small"
                 class="no-print"
-                @click="showPaymentDialog = true"
+                @click="router.push({ path: '/payments/create', query: { invoice_id: invoice.id } })"
               >
                 إضافة دفعة
               </AppButton>
@@ -339,6 +339,19 @@
               <div v-else class="text-center text-success font-weight-bold py-1">
                 <v-icon icon="ri-checkbox-circle-fill" size="small" class="me-1" />
                 مدفوعة بالكامل
+              </div>
+            </div>
+
+            <!-- Initial Snapshot (Read Only) -->
+            <div class="mt-4 p-3 rounded-lg bg-blue-grey-lighten-5">
+              <div class="text-caption text-grey mb-1 font-weight-bold">حالة الفاتورة عند الإنشاء</div>
+              <div class="d-flex justify-space-between text-caption border-bottom pb-1 mb-1">
+                <span>المدفوع الابتدائي:</span>
+                <span>{{ formatCurrency(invoice.initial_paid_amount) }}</span>
+              </div>
+              <div class="d-flex justify-space-between text-caption">
+                <span>المتبقي الابتدائي:</span>
+                <span>{{ formatCurrency(invoice.initial_remaining_amount) }}</span>
               </div>
             </div>
 

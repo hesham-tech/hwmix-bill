@@ -160,7 +160,7 @@ const {
 } = useDataTable(fetchInvoices, {
   initialPerPage: 10,
   syncWithUrl: true,
-  immediate: false,
+  immediate: true,
 });
 
 // UI State

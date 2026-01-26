@@ -19,6 +19,7 @@
     :persistent-hint="persistentHint"
     :density="density"
     :variant="variant"
+    :no-filter="!!apiEndpoint || noFilter"
     v-bind="$attrs"
     @update:model-value="handleChange"
   >
@@ -170,6 +171,10 @@ const props = defineProps({
   highlight: {
     type: Boolean,
     default: true,
+  },
+  noFilter: {
+    type: Boolean,
+    default: false,
   },
 });
 

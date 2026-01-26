@@ -50,7 +50,7 @@ const router = createRouter({
           component: () => import('@/modules/invoices/pages/InvoiceList.vue'),
           meta: {
             title: 'الفواتير',
-            permission: [PERMISSIONS.INVOICES_VIEW_ALL, 'invoices.view_self'],
+            permission: [PERMISSIONS.INVOICES_VIEW_ALL, PERMISSIONS.INVOICES_VIEW_SELF, 'invoices.view_self'],
           },
         },
         {
@@ -169,7 +169,7 @@ const router = createRouter({
           component: () => import('@/modules/payments/pages/PaymentList.vue'),
           meta: {
             title: 'المدفوعات',
-            permission: [PERMISSIONS.PAYMENTS_VIEW_ALL, 'payments.view_self'],
+            permission: [PERMISSIONS.PAYMENTS_VIEW_ALL, 'payments.view_self', 'transactions.view_self'],
           },
         },
         {
@@ -189,7 +189,7 @@ const router = createRouter({
           component: () => import('@/modules/installments/pages/InstallmentPlanList.vue'),
           meta: {
             title: 'خطط التقسيط',
-            permission: [PERMISSIONS.PAYMENTS_VIEW_ALL, 'payments.view_self'],
+            permission: [PERMISSIONS.PAYMENTS_VIEW_ALL, 'payments.view_self', 'installment_plans.view_self'],
           },
         },
         {
@@ -198,7 +198,7 @@ const router = createRouter({
           component: () => import('@/modules/installments/pages/InstallmentPaymentList.vue'),
           meta: {
             title: 'دفعات الأقساط',
-            permission: [PERMISSIONS.PAYMENTS_VIEW_ALL, 'payments.view_self'],
+            permission: [PERMISSIONS.PAYMENTS_VIEW_ALL, 'payments.view_self', 'installment_payments.view_self'],
           },
         },
 

@@ -170,18 +170,20 @@ class AuthService {
   }
 
   /**
-   * Get current user
+   * Get current user (alias for me)
    */
   async getCurrentUser() {
-    const userStore = useUserStore();
-    userStore.loadingApi = true;
+    return this.me();
+  }
 
+  /**
+   * Get current user profile
+   */
+  async me() {
     try {
-      const response = await apiClient.get('user');
-      userStore.loadingApi = false;
-      return response.data.data;
+      const response = await apiClient.get('/me');
+      return response.data;
     } catch (error) {
-      userStore.loadingApi = false;
       throw error;
     }
   }

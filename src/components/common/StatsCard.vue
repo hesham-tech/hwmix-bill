@@ -41,7 +41,7 @@ const props = defineProps({
     required: true,
   },
   icon: {
-    type: String,
+    type: [String, Boolean],
     required: true,
   },
   color: {

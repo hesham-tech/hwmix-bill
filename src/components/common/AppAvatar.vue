@@ -169,7 +169,7 @@ const props = defineProps({
    * Fallback icon when no image or initials are available.
    */
   icon: {
-    type: String,
+    type: [String, Boolean],
     default: 'ri-user-line',
   },
   /**

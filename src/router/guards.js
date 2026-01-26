@@ -43,8 +43,8 @@ export const permissionGuard = async (to, from, next) => {
 
   const requiredPermission = to.meta.permission;
 
-  // No permission required
-  if (!requiredPermission) {
+  // No permission required or User is NOT staff (Customer)
+  if (!requiredPermission || !userStore.isStaff) {
     return next();
   }
 

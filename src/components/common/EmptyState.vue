@@ -18,7 +18,7 @@
 <script setup>
 defineProps({
   icon: {
-    type: String,
+    type: [String, Boolean],
     default: 'ri-inbox-line',
   },
   iconSize: {

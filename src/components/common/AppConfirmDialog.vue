@@ -78,7 +78,7 @@ const props = defineProps({
     default: 'primary', // 'primary', 'error'
   },
   icon: {
-    type: String,
+    type: [String, Boolean],
     default: '',
   },
   loading: {

@@ -147,6 +147,24 @@
                 </template>
 
                 <template #extra-actions="{ item, inMenu }">
+                  <!-- Record Payment Action -->
+                  <v-list-item
+                    v-if="inMenu && can(PERMISSIONS.PAYMENTS_CREATE)"
+                    prepend-icon="ri-money-dollar-circle-line"
+                    title="سداد دفعة"
+                    class="text-success"
+                    @click="$router.push(`/payments/create?user_id=${item.id}`)"
+                  />
+                  <AppButton
+                    v-else-if="can(PERMISSIONS.PAYMENTS_CREATE)"
+                    icon="ri-money-dollar-circle-line"
+                    size="small"
+                    variant="text"
+                    color="success"
+                    tooltip="سداد دفعة"
+                    @click="$router.push(`/payments/create?user_id=${item.id}`)"
+                  />
+
                   <!-- Use v-list-item in context menu for perfect alignment -->
                   <v-list-item
                     v-if="inMenu && can(PERMISSIONS.ROLES_PAGE)"

@@ -39,9 +39,10 @@ export const useAuthStore = defineStore('auth', () => {
 
     try {
       const response = await authService.me();
-      user.value = response.user;
+      user.value = response.data; // الاستجابة مغلفة في data
     } catch (error) {
-      logout();
+      console.error('Fetch user failed:', error);
+      // لا تقم بعمل logout هنا لتجنب اللوب اللانهائية إذا كان الخطأ مؤقتاً
     }
   }
 

@@ -30,10 +30,12 @@ export function useDashboardData() {
   });
 
   const recentInvoices = ref([]);
+  const recentPayments = ref([]);
   const upcomingPayments = ref([]);
   const upcomingInstallments = ref([]);
   const salesTrend = ref([]);
   const topProducts = ref([]);
+  const dashboardRole = ref('admin');
 
   /**
    * Fetch dashboard core summary
@@ -45,19 +47,32 @@ export function useDashboardData() {
       const data = response.data;
 
       if (data) {
-        // Map backend KPIs
-        stats.value = {
-          totalSales: data.kpis?.total_sales || 0,
-          monthlySales: data.kpis?.monthly_sales || 0,
-          pendingPayments: data.kpis?.pending_payments || 0,
-          totalCustomers: data.kpis?.total_customers || 0,
-          totalProducts: data.kpis?.total_products || 0,
-          totalInvoices: data.recent_invoices?.length || 0, // Fallback if no specific count
-        };
+        dashboardRole.value = data.role || 'admin';
 
-        salesTrend.value = data.sales_trend || [];
+        // Map backend KPIs
+        if (dashboardRole.value === 'customer') {
+          stats.value = {
+            totalInvoices: data.kpis?.total_invoices || 0,
+            totalPaid: data.kpis?.total_paid || 0,
+            remainingBalance: data.kpis?.remaining_balance || 0,
+            upcomingInstallmentsCount: data.kpis?.upcoming_installments_count || 0,
+          };
+          recentPayments.value = data.recent_payments || [];
+          upcomingInstallments.value = data.upcoming_installments || [];
+        } else {
+          stats.value = {
+            totalSales: data.kpis?.total_sales || 0,
+            monthlySales: data.kpis?.monthly_sales || 0,
+            pendingPayments: data.kpis?.pending_payments || 0,
+            totalCustomers: data.kpis?.total_customers || 0,
+            totalProducts: data.kpis?.total_products || 0,
+            totalInvoices: data.recent_invoices?.length || 0,
+          };
+          salesTrend.value = data.sales_trend || [];
+          topProducts.value = data.top_products || [];
+        }
+
         recentInvoices.value = data.recent_invoices || [];
-        topProducts.value = data.top_products || [];
       }
     } catch (error) {
       console.error('Error fetching dashboard summary:', error);
@@ -133,10 +148,12 @@ export function useDashboardData() {
     // State
     stats,
     recentInvoices,
+    recentPayments,
     upcomingPayments,
     upcomingInstallments,
     salesTrend,
     topProducts,
+    dashboardRole,
     loading,
     loadingUpcoming,
     loadingInstallments,

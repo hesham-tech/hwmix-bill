@@ -6,8 +6,8 @@
 export const collectErrorInfo = async (error = null, context = {}) => {
   let screenCapture = null;
 
-  // Try to capture screen if not disabled in context
-  if (context.captureScreenshot !== false) {
+  // Capture screen only if explicitly requested in context
+  if (context.captureScreenshot === true) {
     console.log('[ErrorCollector] Starting screenshot capture...');
     try {
       const { captureElement } = await import('@/modules/capture/utils/capture');

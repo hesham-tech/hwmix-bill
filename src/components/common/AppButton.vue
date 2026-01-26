@@ -35,12 +35,12 @@ defineProps({
   loading: { type: Boolean, default: false },
   disabled: { type: Boolean, default: false },
   tooltip: { type: String, default: '' },
-  icon: { type: String, default: '' },
+  icon: { type: [String, Boolean], default: '' },
   block: { type: Boolean, default: false },
   rounded: { type: [Boolean, String], default: false },
   elevation: { type: [Number, String], default: undefined },
-  prependIcon: { type: String, default: '' },
-  appendIcon: { type: String, default: '' },
+  prependIcon: { type: [String, Boolean], default: '' },
+  appendIcon: { type: [String, Boolean], default: '' },
 });
 
 defineEmits(['click']);
