@@ -119,7 +119,7 @@
           </p>
         </v-card-text>
         <v-card-actions class="gap-3 pt-4 px-4 pb-4">
-          <v-btn.variant="tonal" block class="flex-grow-1" @click="deleteDialog.isOpen = false">إلغاء</v-btn>
+          <v-btn variant="tonal" block class="flex-grow-1" @click="deleteDialog.isOpen = false">إلغاء</v-btn>
           <v-btn color="error" variant="flat" block class="flex-grow-1" :loading="deleteDialog.loading" @click="deleteRole"> تأكيد الحذف </v-btn>
         </v-card-actions>
       </v-card>
