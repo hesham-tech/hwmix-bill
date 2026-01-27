@@ -4,7 +4,9 @@
       <template #append>
         <div class="d-flex ga-2">
           <AppButton v-if="canCreate" prepend-icon="ri-add-line" color="primary" @click="openAddDialog"> تسجيل مصروف </AppButton>
-          <AppButton variant="outlined" prepend-icon="ri-price-tag-3-line" @click="showCategoryDialog = true"> الفئات </AppButton>
+          <AppButton v-if="canManageCategories" variant="outlined" prepend-icon="ri-price-tag-3-line" @click="showCategoryDialog = true">
+            الفئات
+          </AppButton>
         </div>
       </template>
 
@@ -169,6 +171,7 @@ const activeFiltersCount = computed(() => {
 });
 
 const canCreate = computed(() => userStore.hasPermission(PERMISSIONS.EXPENSES_CREATE));
+const canManageCategories = computed(() => userStore.hasPermission(PERMISSIONS.EXPENSE_CATEGORIES_PAGE));
 const canUpdate = item =>
   userStore.hasPermission(PERMISSIONS.EXPENSES_UPDATE_ALL) ||
   (userStore.hasPermission(PERMISSIONS.EXPENSES_UPDATE_SELF) && item.created_by === userStore.currentUser.id);

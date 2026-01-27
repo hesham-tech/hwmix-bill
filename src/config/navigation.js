@@ -12,13 +12,13 @@ export default [
     title: 'المهام',
     icon: 'ri-list-settings-line',
     to: '/app/tasks',
-    permission: null,
+    permission: PERMISSIONS.ADMIN_SUPER,
   },
   {
     title: 'مجموعات العمل',
     icon: 'ri-team-line',
     to: '/app/task-groups',
-    permission: null,
+    permission: PERMISSIONS.ADMIN_SUPER,
   },
   {
     title: 'قائمة الاختبار',
@@ -71,13 +71,13 @@ export default [
         title: 'الأقسام والفئات',
         to: '/app/categories',
         icon: 'ri-organization-chart',
-        permission: PERMISSIONS.CATEGORIES_VIEW_ALL,
+        permission: PERMISSIONS.CATEGORIES_PAGE,
       },
       {
         title: 'العلامات التجارية',
         to: '/app/brands',
         icon: 'ri-price-tag-3-line',
-        permission: PERMISSIONS.BRANDS_VIEW_ALL,
+        permission: PERMISSIONS.BRANDS_PAGE,
       },
       {
         title: 'خصائص المنتج',
@@ -89,7 +89,7 @@ export default [
         title: 'المخازن',
         to: '/app/warehouses',
         icon: 'ri-building-line',
-        permission: PERMISSIONS.WAREHOUSES_VIEW_ALL,
+        permission: PERMISSIONS.WAREHOUSES_PAGE,
       },
     ],
   },
@@ -140,19 +140,19 @@ export default [
   {
     title: 'الخزائن',
     icon: 'ri-safe-line',
-    permission: PERMISSIONS.ADMIN_COMPANY,
+    permission: PERMISSIONS.CASH_BOXES_PAGE,
     children: [
       {
         title: 'قائمة الخزائن',
         to: '/app/cashboxes',
         icon: 'ri-inbox-line',
-        permission: PERMISSIONS.ADMIN_COMPANY,
+        permission: PERMISSIONS.CASH_BOXES_PAGE,
       },
       {
         title: 'التحويلات',
         to: '/app/transactions',
         icon: 'ri-exchange-line',
-        permission: PERMISSIONS.ADMIN_COMPANY,
+        permission: PERMISSIONS.TRANSACTIONS_PAGE,
       },
     ],
   },
@@ -182,7 +182,7 @@ export default [
   {
     title: 'التقارير',
     icon: 'ri-line-chart-line',
-    permission: null,
+    permission: PERMISSIONS.REPORTS_PAGE,
     children: [
       {
         title: 'تقرير المبيعات',
@@ -221,7 +221,7 @@ export default [
   {
     title: 'المستخدمين',
     icon: 'ri-user-line',
-    permission: PERMISSIONS.USERS_VIEW_ALL,
+    permission: PERMISSIONS.USERS_PAGE,
     children: [
       {
         title: 'قائمة المستخدمين',
@@ -249,14 +249,14 @@ export default [
         title: 'بيانات الشركة',
         to: '/app/company',
         icon: 'ri-building-2-line',
-        permission: PERMISSIONS.ADMIN_COMPANY,
+        permission: PERMISSIONS.COMPANIES_PAGE,
       },
       // Payment Methods
       {
         title: 'طرق الدفع',
         to: '/app/payment-methods',
         icon: 'ri-bank-card-line',
-        permission: PERMISSIONS.PAYMENT_METHODS_VIEW_ALL,
+        permission: PERMISSIONS.PAYMENT_METHODS_PAGE,
       },
       // Session Management
       {
@@ -277,7 +277,7 @@ export default [
         title: 'أنواع الخزائن',
         to: '/app/cashbox-types',
         icon: 'ri-safe-2-line',
-        permission: PERMISSIONS.ADMIN_COMPANY,
+        permission: PERMISSIONS.CASH_BOX_TYPES_PAGE,
       },
 
       // Activity Logs
@@ -285,7 +285,7 @@ export default [
         title: 'سجل الأنشطة',
         to: '/app/activity-logs',
         icon: 'ri-history-line',
-        permission: PERMISSIONS.ADMIN_SUPER,
+        permission: PERMISSIONS.ACTIVITY_LOGS_PAGE,
       },
 
       {

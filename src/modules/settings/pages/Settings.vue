@@ -40,9 +40,11 @@
 <script setup>
 import { computed } from 'vue';
 import { useAuthStore } from '@/stores/auth';
+import { usePermissions } from '@/composables/usePermissions';
 import { PERMISSIONS } from '@/config/permissions';
 
 const authStore = useAuthStore();
+const { can } = usePermissions();
 
 const settingCards = computed(() => {
   const cards = [
@@ -51,81 +53,87 @@ const settingCards = computed(() => {
       description: 'إدارة بياناتك الشخصية وصورة الحساب',
       icon: 'ri-user-settings-line',
       color: 'primary',
-      to: '/profile',
+      to: '/app/profile',
     },
   ];
 
-  if (authStore.user?.permissions?.includes(PERMISSIONS.ADMIN_COMPANY)) {
+  if (can(PERMISSIONS.COMPANIES_PAGE)) {
     cards.push({
       title: 'بيانات الشركة',
       description: 'تحديث هوية الشركة، الشعار، وقنوات التواصل',
       icon: 'ri-building-line',
       color: 'success',
-      to: '/company',
+      to: '/app/company',
     });
   }
 
-  if (authStore.user?.permissions?.includes(PERMISSIONS.ROLES_VIEW_ALL)) {
+  if (can(PERMISSIONS.ROLES_PAGE)) {
     cards.push({
       title: 'الأدوار والصلاحيات',
       description: 'إدارة أدوار المستخدمين ومنح الصلاحيات',
       icon: 'ri-shield-keyhole-line',
       color: 'warning',
-      to: '/roles',
+      to: '/app/roles',
     });
   }
 
-  if (authStore.user?.permissions?.includes(PERMISSIONS.USERS_VIEW_ALL)) {
+  if (can(PERMISSIONS.USERS_PAGE)) {
     cards.push({
       title: 'فريق العمل',
       description: 'إضافة وإدارة مستخدمي وموظفي الشركة',
       icon: 'ri-group-line',
       color: 'info',
-      to: '/users',
+      to: '/app/users',
     });
   }
 
-  if (authStore.user?.permissions?.includes(PERMISSIONS.ADMIN_SUPER)) {
+  if (can(PERMISSIONS.ACTIVITY_LOGS_PAGE)) {
     cards.push({
       title: 'سجل الأنشطة',
       description: 'مراقبة كافة العمليات والتغييرات في النظام',
       icon: 'ri-history-line',
       color: 'error',
-      to: '/activity-logs',
+      to: '/app/activity-logs',
     });
+  }
+
+  if (can(PERMISSIONS.ADMIN_SUPER)) {
     cards.push({
       title: 'النسخ الاحتياطي',
       description: 'إدارة النسخ الاحتياطية واستعادة النظام والإعدادات',
       icon: 'ri-database-2-line',
       color: 'blue-grey',
-      to: '/backups',
+      to: '/app/backups',
     });
     cards.push({
       title: 'تقارير الأعطال',
       description: 'متابعة المشاكل التقنية التي أبلغ عنها المستخدمون',
       icon: 'ri-bug-line',
       color: 'warning',
-      to: '/error-reports',
+      to: '/app/error-reports',
     });
   }
 
-  // Common Settings for modules (even for non-admins if they have modular view perms)
-  cards.push(
-    {
+  // Common Settings for modules (only if they have modular view perms)
+  if (can(PERMISSIONS.PAYMENT_METHODS_PAGE)) {
+    cards.push({
       title: 'طرق الدفع',
       description: 'إدارة وسائل الدفع وقنوات استلام النقدية',
       icon: 'ri-bank-card-line',
       color: 'deep-purple',
-      to: '/payment-methods',
-    },
-    {
+      to: '/app/payment-methods',
+    });
+  }
+
+  if (can(PERMISSIONS.CASH_BOX_TYPES_PAGE)) {
+    cards.push({
       title: 'أنواع الخزائن',
       description: 'تصنيف وإدارة أنواع صناديق النقدية',
       icon: 'ri-safe-2-line',
       color: 'teal',
-      to: '/cashbox-types',
-    }
-  );
+      to: '/app/cashbox-types',
+    });
+  }
 
   return cards;
 });

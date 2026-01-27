@@ -82,7 +82,15 @@
 
         <template #item.actions="{ item }">
           <div class="d-flex justify-end">
-            <AppButton icon="ri-eye-line" size="x-small" variant="text" color="info" tooltip="عرض التفاصيل" @click="viewPlan(item)" />
+            <AppButton
+              v-if="can(PERMISSIONS.INSTALLMENTS_PAGE)"
+              icon="ri-eye-line"
+              size="x-small"
+              variant="text"
+              color="info"
+              tooltip="عرض التفاصيل"
+              @click="viewPlan(item)"
+            />
           </div>
         </template>
       </AppDataTable>
@@ -94,11 +102,15 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useApi } from '@/composables/useApi';
+import { usePermissions } from '@/composables/usePermissions';
+import { PERMISSIONS } from '@/config/permissions';
 import { formatCurrency } from '@/utils/formatters';
 import AppPageHeader from '@/components/common/AppPageHeader.vue';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 import AppButton from '@/components/common/AppButton.vue';
 import AppInput from '@/components/common/AppInput.vue';
+
+const { can } = usePermissions();
 
 const router = useRouter();
 const api = useApi('/api/installment-plans');

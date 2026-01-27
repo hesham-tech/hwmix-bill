@@ -1,5 +1,5 @@
 <template>
-  <div class="error-reports-page">
+  <div v-if="can(PERMISSIONS.ADMIN_SUPER)" class="error-reports-page">
     <div class="page-header mb-6">
       <h1 class="text-h4 font-weight-bold ml-2">تقارير الأعطال</h1>
       <p class="text-body-1 text-grey">متابعة وتحليل المشاكل التقنية التي واجهها المستخدمون</p>
@@ -251,16 +251,22 @@
       </v-card>
     </v-dialog>
   </div>
+  <div v-else class="d-flex align-center justify-center pa-12">
+    <v-alert type="error" title="وصول غير مسموح" text="عذراً، لا تملك الصلاحيات الكافية للوصول إلى هذه الصفحة." variant="tonal" class="rounded-xl" />
+  </div>
 </template>
 
 <script setup>
 import { ref, onMounted, watch } from 'vue';
 import { useApi } from '@/composables/useApi';
+import { usePermissions } from '@/composables/usePermissions';
+import { PERMISSIONS } from '@/config/permissions';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
 import AppButton from '@/components/common/AppButton.vue';
 
 const api = useApi('/api/error-reports');
+const { can } = usePermissions();
 
 const reports = ref([]);
 const loading = ref(false);

@@ -6,7 +6,9 @@
         <h1 class="text-h4 font-weight-bold ml-2">المخازن</h1>
         <p class="text-body-1 text-grey">إدارة ومتابعة المخازن والمخزون الخاص بكل منها</p>
       </div>
-      <AppButton prepend-icon="ri-add-line" size="large" elevation="2" @click="handleCreate"> مخزن جديد </AppButton>
+      <AppButton v-if="can(PERMISSIONS.WAREHOUSES_CREATE)" prepend-icon="ri-add-line" size="large" elevation="2" @click="handleCreate">
+        مخزن جديد
+      </AppButton>
     </div>
 
     <!-- Filters & View Toggle -->
@@ -88,6 +90,7 @@
 
             <div class="pa-3 d-flex align-center justify-space-between">
               <v-btn
+                v-if="can(PERMISSIONS.STOCKS_VIEW_ALL)"
                 variant="tonal"
                 color="secondary"
                 size="small"
@@ -99,15 +102,27 @@
               </v-btn>
               <div class="d-flex gap-2">
                 <AppButton
-                  v-if="!warehouse.is_default"
+                  v-if="!warehouse.is_default && can(PERMISSIONS.WAREHOUSES_UPDATE_ALL)"
                   icon="ri-star-line"
                   variant="text"
                   color="warning"
                   @click="handleSetDefault(warehouse)"
                   title="تعيين كافتراضي"
                 />
-                <AppButton icon="ri-edit-line" variant="text" color="primary" @click="handleEdit(warehouse)" />
-                <AppButton icon="ri-delete-bin-line" variant="text" color="error" @click="handleDelete(warehouse)" />
+                <AppButton
+                  v-if="can(PERMISSIONS.WAREHOUSES_UPDATE_ALL)"
+                  icon="ri-edit-line"
+                  variant="text"
+                  color="primary"
+                  @click="handleEdit(warehouse)"
+                />
+                <AppButton
+                  v-if="can(PERMISSIONS.WAREHOUSES_DELETE_ALL)"
+                  icon="ri-delete-bin-line"
+                  variant="text"
+                  color="error"
+                  @click="handleDelete(warehouse)"
+                />
               </div>
             </div>
           </AppCard>
@@ -163,17 +178,30 @@
 
         <template #item.actions="{ item }">
           <div class="d-flex gap-2 justify-end">
-            <AppButton icon="ri-eye-line" variant="text" color="secondary" @click="handleViewStock(item)" title="جرد المخزون" />
             <AppButton
-              v-if="!item.is_default"
+              v-if="can(PERMISSIONS.STOCKS_VIEW_ALL)"
+              icon="ri-eye-line"
+              variant="text"
+              color="secondary"
+              @click="handleViewStock(item)"
+              title="جرد المخزون"
+            />
+            <AppButton
+              v-if="!item.is_default && can(PERMISSIONS.WAREHOUSES_UPDATE_ALL)"
               icon="ri-star-line"
               variant="text"
               color="warning"
               @click="handleSetDefault(item)"
               title="تعيين كافتراضي"
             />
-            <AppButton icon="ri-edit-line" variant="text" color="primary" @click="handleEdit(item)" />
-            <AppButton icon="ri-delete-bin-line" variant="text" color="error" @click="handleDelete(item)" />
+            <AppButton v-if="can(PERMISSIONS.WAREHOUSES_UPDATE_ALL)" icon="ri-edit-line" variant="text" color="primary" @click="handleEdit(item)" />
+            <AppButton
+              v-if="can(PERMISSIONS.WAREHOUSES_DELETE_ALL)"
+              icon="ri-delete-bin-line"
+              variant="text"
+              color="error"
+              @click="handleDelete(item)"
+            />
           </div>
         </template>
       </AppDataTable>
@@ -219,6 +247,8 @@ import { ref, onMounted, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useWarehouseStore } from '../store/warehouse.store';
 import { useDialog, useConfirm } from '@/composables';
+import { usePermissions } from '@/composables/usePermissions';
+import { PERMISSIONS } from '@/config/permissions';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 import AppDialog from '@/components/common/AppDialog.vue';
 import AppButton from '@/components/common/AppButton.vue';
@@ -235,6 +265,7 @@ const { warehouses, loading, totalItems, page, itemsPerPage, search, sortBy } = 
 
 const { isOpen, formData, isEditMode, open, close } = useDialog();
 const { showConfirm, confirmMessage, confirm, handleConfirm, handleCancel } = useConfirm();
+const { can } = usePermissions();
 
 const warehouseFormRef = ref(null);
 const isSaving = ref(false);

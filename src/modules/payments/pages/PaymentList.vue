@@ -22,7 +22,9 @@
         @update:items-per-page="handleItemsPerPageChange"
       >
         <template #actions>
-          <AppButton color="primary" prepend-icon="ri-add-line" @click="handleCreate"> تسجيل تحصيل </AppButton>
+          <AppButton v-if="can(PERMISSIONS.PAYMENTS_CREATE)" color="primary" prepend-icon="ri-add-line" @click="handleCreate">
+            تسجيل تحصيل
+          </AppButton>
         </template>
 
         <template #item.invoice="{ item }">
@@ -53,7 +55,15 @@
 
         <template #item.actions="{ item }">
           <div class="d-flex justify-end">
-            <AppButton icon="ri-delete-bin-line" size="x-small" variant="text" color="error" tooltip="حذف الدفعة" @click="handleDelete(item)" />
+            <AppButton
+              v-if="can(PERMISSIONS.PAYMENTS_DELETE_ALL)"
+              icon="ri-delete-bin-line"
+              size="x-small"
+              variant="text"
+              color="error"
+              tooltip="حذف الدفعة"
+              @click="handleDelete(item)"
+            />
           </div>
         </template>
       </AppDataTable>
@@ -83,11 +93,15 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { usePaymentsData } from '../composables/usePaymentsData';
+import { usePermissions } from '@/composables/usePermissions';
+import { PERMISSIONS } from '@/config/permissions';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 import AppButton from '@/components/common/AppButton.vue';
 import AppCard from '@/components/common/AppCard.vue';
 import AppDialog from '@/components/common/AppDialog.vue';
 import { formatCurrency, formatDate } from '@/utils/formatters';
+
+const { can } = usePermissions();
 
 const router = useRouter();
 const { payments, loading, total, fetchPayments, deletePayment } = usePaymentsData();

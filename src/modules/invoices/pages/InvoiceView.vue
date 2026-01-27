@@ -218,7 +218,7 @@
           <AppCard title="سجل المدفوعات" icon="ri-history-line">
             <template #actions>
               <AppButton
-                v-if="invoice.payment_status !== 'paid'"
+                v-if="invoice.payment_status !== 'paid' && can(PERMISSIONS.PAYMENTS_CREATE)"
                 variant="outlined"
                 prepend-icon="ri-add-line"
                 size="small"

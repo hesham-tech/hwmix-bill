@@ -272,8 +272,8 @@ export const PERMISSIONS = {
   INVOICES_UPDATE_SELF: 'invoices.update_self',
   INVOICES_DELETE_ALL: 'invoices.delete_all',
   INVOICES_DELETE_CHILDREN: 'invoices.delete_children',
-  INVOICES_VIEW_SELF: 'invoices.view_self',
   INVOICES_DELETE_SELF: 'invoices.delete_self',
+  INVOICES_PRINT: 'invoices.print',
 
   // ==================== Installment Plans ====================
   INSTALLMENT_PLANS_PAGE: 'installment_plans.page',

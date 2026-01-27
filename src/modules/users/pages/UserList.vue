@@ -290,7 +290,29 @@
       </AppDialog>
 
       <!-- Permission Management Dialog -->
-      <AppDialog v-model="isPermissionOpen" title="إدارة الصلاحيات" icon="ri-shield-user-line" max-width="900" hide-actions>
+      <AppDialog v-model="isPermissionOpen" variant="purple" max-width="900" hide-actions>
+        <template #header>
+          <header class="dialog-premium-header variant-purple pa-5 d-flex align-center justify-space-between text-white">
+            <div class="d-flex align-center gap-4">
+              <AppAvatar
+                :img-url="permissionUser?.avatar_url"
+                :name="permissionUser?.nickname || permissionUser?.full_name"
+                size="56"
+                class="border shadow-sm avatar-white-border"
+              />
+              <div class="header-text">
+                <span class="text-h6 font-weight-black d-block title-text">إدارة صلاحيات الوصول</span>
+                <div class="d-flex align-center gap-2">
+                  <v-icon icon="ri-user-smile-line" size="14" color="white" class="opacity-80" />
+                  <span class="text-caption text-white opacity-90 font-weight-medium">
+                    {{ permissionUser?.nickname || permissionUser?.full_name || permissionUser?.username }}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <v-btn icon="ri-close-line" variant="tonal" color="white" class="close-btn-hover" @click="closePermissions" />
+          </header>
+        </template>
         <UserPermissionManager v-if="isPermissionOpen" :user="permissionUser" @save="onPermissionSaved" @cancel="closePermissions" />
       </AppDialog>
     </v-container>

@@ -83,9 +83,33 @@
     <template #item.actions="{ item }">
       <div class="d-flex gap-1 justify-center">
         <AppButton icon="ri-eye-line" size="x-small" variant="text" color="info" tooltip="عرض" @click="$emit('view', item)" />
-        <AppButton icon="ri-edit-line" size="x-small" variant="text" color="primary" tooltip="تعديل" @click="$emit('edit', item)" />
-        <AppButton icon="ri-printer-line" size="x-small" variant="text" color="warning" tooltip="طباعة" @click="$emit('print', item)" />
-        <AppButton icon="ri-delete-bin-line" size="x-small" variant="text" color="error" tooltip="حذف" @click="$emit('delete', item)" />
+        <AppButton
+          v-if="can(PERMISSIONS.INVOICES_UPDATE_ALL)"
+          icon="ri-edit-line"
+          size="x-small"
+          variant="text"
+          color="primary"
+          tooltip="تعديل"
+          @click="$emit('edit', item)"
+        />
+        <AppButton
+          v-if="can(PERMISSIONS.INVOICES_PRINT)"
+          icon="ri-printer-line"
+          size="x-small"
+          variant="text"
+          color="warning"
+          tooltip="طباعة"
+          @click="$emit('print', item)"
+        />
+        <AppButton
+          v-if="can(PERMISSIONS.INVOICES_DELETE_ALL)"
+          icon="ri-delete-bin-line"
+          size="x-small"
+          variant="text"
+          color="error"
+          tooltip="حذف"
+          @click="$emit('delete', item)"
+        />
       </div>
     </template>
   </AppDataTable>
@@ -95,6 +119,7 @@
 import { computed } from 'vue';
 import { usePermissions } from '@/composables/usePermissions';
 import { formatCurrency, formatDate } from '@/utils/formatters';
+import { PERMISSIONS } from '@/config/permissions';
 
 const props = defineProps({
   items: {

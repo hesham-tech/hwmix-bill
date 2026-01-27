@@ -1,22 +1,5 @@
 <template>
   <v-card class="user-permission-manager-premium overflow-hidden" elevation="0">
-    <!-- Premium Glassmorphic Header -->
-    <div class="glass-header d-flex align-center justify-space-between pa-6">
-      <div class="d-flex align-center gap-4">
-        <v-avatar size="64" class="avatar-gradient elevation-4">
-          <span class="text-h5 font-weight-bold text-white">{{ getUserInitials() }}</span>
-        </v-avatar>
-        <div class="header-text">
-          <h2 class="text-h5 font-weight-black text-white mb-0">إدارة صلاحيات الوصول</h2>
-          <div class="d-flex align-center gap-2 mt-1">
-            <v-icon icon="ri-user-smile-line" size="16" color="white" class="opacity-80" />
-            <span class="text-subtitle-1 text-white opacity-90">{{ user.full_name || user.username }}</span>
-          </div>
-        </div>
-      </div>
-      <v-btn icon="ri-close-line" variant="tonal" color="white" class="close-btn-hover" @click="$emit('cancel')" />
-    </div>
-
     <div class="main-layout-wrapper d-flex">
       <!-- Vertical Premium Navigation Rail -->
       <div class="nav-rail-glass py-6">
@@ -439,23 +422,6 @@ const handleSave = async () => {
   background-color: #f8fafc;
   display: flex;
   flex-direction: column;
-}
-
-/* Glass Header */
-.glass-header {
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-  position: relative;
-  z-index: 20;
-}
-
-.avatar-gradient {
-  background: rgba(255, 255, 255, 0.2);
-  border: 2px solid rgba(255, 255, 255, 0.4);
-}
-
-.close-btn-hover:hover {
-  background-color: rgba(255, 255, 255, 0.2) !important;
-  transform: rotate(90deg);
 }
 
 /* Main Layout */

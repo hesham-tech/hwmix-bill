@@ -9,19 +9,21 @@
   >
     <v-card class="app-dialog-card overflow-hidden">
       <!-- Premium Dialog Header -->
-      <header class="dialog-premium-header pa-5 d-flex align-center justify-space-between text-white">
-        <div class="d-flex align-center gap-3">
-          <div v-if="icon" class="header-icon-wrapper d-flex align-center justify-center rounded-xl shadow-lg">
-            <v-icon :icon="icon" color="white" size="24" />
+      <slot name="header">
+        <header :class="['dialog-premium-header pa-5 d-flex align-center justify-space-between text-white', `variant-${variant}`]">
+          <div class="d-flex align-center gap-3">
+            <div v-if="icon" class="header-icon-wrapper d-flex align-center justify-center rounded-xl shadow-lg">
+              <v-icon :icon="icon" color="white" size="24" />
+            </div>
+            <div class="header-text-container">
+              <span class="text-h6 font-weight-black d-block title-text">{{ title }}</span>
+              <span v-if="subtitle" class="text-caption d-block opacity-80 subtitle-text">{{ subtitle }}</span>
+            </div>
           </div>
-          <div class="header-text-container">
-            <span class="text-h6 font-weight-black d-block title-text">{{ title }}</span>
-            <span v-if="subtitle" class="text-caption d-block opacity-80 subtitle-text">{{ subtitle }}</span>
-          </div>
-        </div>
 
-        <v-btn icon="ri-close-line" variant="tonal" color="white" class="close-btn-hover" density="comfortable" @click="handleClose" />
-      </header>
+          <v-btn icon="ri-close-line" variant="tonal" color="white" class="close-btn-hover" density="comfortable" @click="handleClose" />
+        </header>
+      </slot>
 
       <!-- Dialog Content -->
       <v-card-text class="pa-0 dialog-content">
@@ -121,6 +123,10 @@ const props = defineProps({
     type: String,
     default: 'primary',
   },
+  variant: {
+    type: String,
+    default: 'blue', // 'blue' or 'purple'
+  },
 });
 
 const emit = defineEmits(['update:modelValue', 'close', 'cancel', 'confirm']);
@@ -146,8 +152,15 @@ const handleConfirm = () => {
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
 }
 
-.dialog-premium-header {
+.dialog-premium-header.variant-blue {
   background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+}
+
+.dialog-premium-header.variant-purple {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+}
+
+.dialog-premium-header {
   position: relative;
   border-bottom: 2px solid rgba(255, 255, 255, 0.1);
 }
@@ -176,6 +189,10 @@ const handleConfirm = () => {
 .close-btn-hover:hover {
   background-color: rgba(239, 68, 68, 0.8) !important; /* Soft Red on hover */
   transform: rotate(90deg) scale(1.1);
+}
+
+.avatar-white-border {
+  border: 2px solid rgba(255, 255, 255, 0.4) !important;
 }
 
 .dialog-content {
