@@ -1,0 +1,141 @@
+<template>
+  <AppDataTable
+    :headers="headers"
+    :items="items"
+    :loading="loading"
+    :total-items="total"
+    :page="currentPage"
+    :items-per-page="perPage"
+    @update:page="changePage"
+    @update:items-per-page="changePerPage"
+    @update:sort-by="handleSort"
+  >
+    <!-- رقم الفاتورة -->
+    <template #item.invoice_number="{ item }">
+      <div class="text-primary font-weight-bold cursor-pointer hover-underline" @click="$emit('view', item)">#{{ item.invoice_number }}</div>
+    </template>
+
+    <!-- النوع -->
+    <template #item.invoice_type="{ item }">
+      <v-chip size="x-small" variant="tonal" color="secondary" class="font-weight-medium">
+        {{ item.invoice_type?.name }}
+      </v-chip>
+    </template>
+
+    <!-- التاريخ -->
+    <template #item.issue_date="{ item }">
+      <div class="d-flex align-center text-body-2">
+        <v-icon icon="ri-calendar-line" size="14" class="me-1 text-grey" />
+        {{ formatDate(item.issue_date) }}
+      </div>
+    </template>
+
+    <!-- الإجمالي -->
+    <template #item.net_amount="{ item }">
+      <span class="font-weight-bold text-primary">{{ formatCurrency(item.net_amount) }}</span>
+    </template>
+
+    <!-- المدفوع -->
+    <template #item.paid_amount="{ item }">
+      <span class="text-success">{{ formatCurrency(item.paid_amount) }}</span>
+    </template>
+
+    <!-- المتبقي -->
+    <template #item.remaining_amount="{ item }">
+      <span :class="['font-weight-bold', parseFloat(item.remaining_amount) > 0 ? 'text-error' : 'text-grey']">
+        {{ formatCurrency(item.remaining_amount) }}
+      </span>
+    </template>
+
+    <!-- الحالة -->
+    <template #item.status="{ item }">
+      <v-chip :color="getStatusColor(item.status)" size="small" variant="tonal" class="font-weight-bold">
+        {{ getStatusLabel(item.status) }}
+      </v-chip>
+    </template>
+
+    <!-- الإجراءات -->
+    <template #item.actions="{ item }">
+      <div class="d-flex gap-1 justify-center">
+        <AppButton icon="ri-eye-line" size="x-small" variant="text" color="info" tooltip="عرض" @click="$emit('view', item)" />
+        <AppButton icon="ri-printer-line" size="x-small" variant="text" color="warning" tooltip="طباعة" @click="$emit('print', item)" />
+      </div>
+    </template>
+  </AppDataTable>
+</template>
+
+<script setup>
+import { formatCurrency, formatDate } from '@/utils/formatters';
+
+const props = defineProps({
+  items: {
+    type: Array,
+    default: () => [],
+  },
+  loading: {
+    type: Boolean,
+    default: false,
+  },
+  total: {
+    type: Number,
+    default: 0,
+  },
+  currentPage: {
+    type: Number,
+    default: 1,
+  },
+  perPage: {
+    type: Number,
+    default: 10,
+  },
+});
+
+const emit = defineEmits(['view', 'print', 'update:page', 'update:perPage', 'update:sortBy']);
+
+// Headers - Restricted for Customer
+const headers = [
+  { title: 'رقم الفاتورة', key: 'invoice_number', sortable: true },
+  { title: 'النوع', key: 'invoice_type', sortable: false },
+  { title: 'التاريخ', key: 'issue_date', sortable: true },
+  { title: 'الإجمالي', key: 'net_amount', sortable: true, align: 'end' },
+  { title: 'المدفوع', key: 'paid_amount', sortable: true, align: 'end' },
+  { title: 'المتبقي', key: 'remaining_amount', sortable: true, align: 'end' },
+  { title: 'الحالة', key: 'status', sortable: true },
+  { title: 'الإجراءات', key: 'actions', sortable: false, align: 'center' },
+];
+
+const changePage = page => emit('update:page', page);
+const changePerPage = perPage => emit('update:perPage', perPage);
+const handleSort = sortBy => emit('update:sortBy', sortBy);
+
+const getStatusColor = status => {
+  const colors = {
+    draft: 'grey',
+    confirmed: 'primary',
+    paid: 'success',
+    partially_paid: 'warning',
+    canceled: 'error',
+  };
+  return colors[status] || 'grey';
+};
+
+const getStatusLabel = status => {
+  const labels = {
+    draft: 'مسودة',
+    confirmed: 'مؤكدة',
+    paid: 'مدفوعة',
+    partially_paid: 'مدفوعة جزئياً',
+    canceled: 'ملغاة',
+  };
+  return labels[status] || status;
+};
+</script>
+
+<style scoped>
+.hover-underline:hover {
+  text-decoration: underline;
+}
+.gap-1 {
+  gap: 4px;
+}
+</style>

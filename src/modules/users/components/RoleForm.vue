@@ -1,8 +1,8 @@
 <template>
   <v-card class="role-form-card" flat>
-    <v-card-text class="pa-6">
+    <v-card-text class="pa-0">
       <v-form ref="formRef" v-model="isValid">
-        <v-row>
+        <v-row class="mx-0">
           <v-col cols="12" md="6">
             <AppInput
               v-model="form.label"
@@ -26,7 +26,7 @@
           </v-col>
         </v-row>
 
-        <div class="mt-8">
+        <div class="mt-8 px-4">
           <div class="d-flex align-center justify-space-between mb-4">
             <div>
               <h3 class="text-h6 font-weight-bold">صلاحيات الدور</h3>
@@ -39,16 +39,6 @@
         </div>
       </v-form>
     </v-card-text>
-
-    <v-divider />
-
-    <v-card-actions class="pa-6 bg-grey-lighten-5 rounded-b-xl">
-      <v-spacer />
-      <AppButton variant="tonal" color="grey" @click="$emit('cancel')">إلغاء</AppButton>
-      <AppButton color="primary" :loading="loading" :disabled="!isValid" class="px-8" @click="handleSubmit">
-        {{ isEditMode ? 'تحديث الدور' : 'إنشاء الدور' }}
-      </AppButton>
-    </v-card-actions>
   </v-card>
 </template>
 
@@ -64,7 +54,7 @@ const props = defineProps({
     default: () => ({}),
   },
   availablePermissions: {
-    type: Object,
+    type: [Object, Array],
     required: true,
   },
   isEditMode: {
@@ -86,7 +76,7 @@ const form = ref({
   name: props.role.name || '',
   label: props.role.label || '',
   description: props.role.description || '',
-  permissions: props.role.permissions?.map(p => p.name) || [],
+  permissions: props.role.permissions?.map(p => (typeof p === 'object' ? p.name : p)) || [],
 });
 
 const handleSubmit = async () => {
@@ -95,6 +85,11 @@ const handleSubmit = async () => {
     emit('save', { ...form.value });
   }
 };
+
+defineExpose({
+  handleSubmit,
+  form,
+});
 </script>
 
 <style scoped>

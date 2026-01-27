@@ -74,8 +74,9 @@
         </AppButton>
       </template>
       <v-list density="compact">
-        <v-list-item prepend-icon="ri-user-settings-line" title="الملف الشخصي" to="/profile" />
-        <v-list-item prepend-icon="ri-settings-3-line" title="الإعدادات" to="/settings" />
+        <v-list-item prepend-icon="ri-user-settings-line" title="الملف الشخصي" to="/app/profile" />
+        <v-list-item prepend-icon="ri-device-line" title="إدارة الأجهزة" to="/app/sessions" />
+        <v-list-item prepend-icon="ri-settings-3-line" title="الإعدادات" to="/app/settings" />
         <v-divider class="my-1" />
         <v-list-item prepend-icon="ri-logout-box-line" title="تسجيل الخروج" @click="handleLogout" class="text-error" />
       </v-list>
@@ -181,7 +182,9 @@ watch(
 const userName = computed(() => userStore.currentUser?.full_name || 'المستخدم');
 
 const breadcrumbs = computed(() => {
-  const items = [{ title: 'الرئيسية', to: '/dashboard', disabled: false }];
+  const homePath = userStore.isStaff ? '/app/admin/dashboard' : '/app/portal';
+  const items = [{ title: 'الرئيسية', to: homePath, disabled: false }];
+
   if (route.meta.breadcrumbs) {
     items.push(...route.meta.breadcrumbs);
   } else if (route.meta.title) {

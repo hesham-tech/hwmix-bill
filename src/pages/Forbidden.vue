@@ -30,7 +30,7 @@ const goBack = () => {
 };
 
 const goHome = () => {
-  router.push('/dashboard');
+  router.push('/app');
 };
 </script>
 

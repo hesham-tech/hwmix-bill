@@ -138,6 +138,8 @@ export const useUserStore = defineStore('user', () => {
     });
   });
 
+  const hasInstallments = computed(() => !!currentUser.value?.has_installments);
+
   return {
     currentUser,
     permissions,
@@ -146,6 +148,7 @@ export const useUserStore = defineStore('user', () => {
     isAdmin,
     isCompanyAdmin,
     isStaff,
+    hasInstallments,
     fetchUser,
     switchCompany,
     hasPermission,

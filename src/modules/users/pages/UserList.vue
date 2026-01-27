@@ -267,7 +267,8 @@
       <!-- User Form Dialog -->
       <AppDialog
         v-model="isOpen"
-        :title="isEditMode ? 'تعديل بيانات المستخدم' : 'إضافة مستخدم جديد'"
+        :title="isEditMode ? `تعديل بيانات: ${formData.nickname || formData.full_name || ''}` : 'إضافة مستخدم جديد'"
+        :subtitle="isEditMode ? 'تحديث المعلومات الأساسية وصلاحيات الوصول' : 'إنشاء حساب مستخدم جديد وتحديد صلاحياته'"
         :icon="isEditMode ? 'ri-user-edit-line' : 'ri-user-add-line'"
         max-width="800"
         hide-actions
@@ -276,7 +277,12 @@
 
         <template #actions>
           <AppButton variant="tonal" color="grey" @click="close">إلغاء</AppButton>
-          <AppButton :loading="userFormRef?.loading" color="primary" class="px-8 font-weight-bold rounded-pill" @click="userFormRef?.handleSubmit()">
+          <AppButton
+            :loading="userFormRef?.loading"
+            color="primary"
+            class="px-8 font-weight-bold rounded-pill shadow-md"
+            @click="userFormRef?.handleSubmit()"
+          >
             <v-icon :icon="userFormRef?.form?.id ? 'ri-user-received-line' : 'ri-save-line'" class="me-2" />
             {{ isEditMode ? 'تحديث البيانات' : userFormRef?.form?.id ? 'ربط الحساب' : 'إنشاء المستخدم' }}
           </AppButton>

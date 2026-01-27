@@ -7,6 +7,12 @@ const router = createRouter({
   routes: [
     // ==================== Public Routes ====================
     {
+      path: '/',
+      name: 'landing',
+      component: () => import('@/pages/LandingPage.vue'),
+      meta: { title: 'مرحباً بكم', public: true },
+    },
+    {
       path: '/login',
       name: 'login',
       component: () => import('@/modules/auth/pages/Login.vue'),
@@ -27,20 +33,81 @@ const router = createRouter({
 
     // ==================== Protected Routes (With MainLayout) ====================
     {
-      path: '/',
+      path: '/app',
       component: () => import('@/layouts/MainLayout.vue'),
       meta: { requiresAuth: true },
       children: [
-        // Dashboard
+        // Role-based redirection entry point
         {
           path: '',
-          redirect: '/dashboard',
+          name: 'app-home',
+          redirect: to => {
+            const userStr = localStorage.getItem('user') || sessionStorage.getItem('user');
+            if (userStr) {
+              const user = JSON.parse(userStr);
+              // Simple check for staff vs customer logic (matches stores/user.js)
+              const permissions = user.permissions || [];
+              const isStaff = permissions.some(p => p.includes('.view_all') || p.includes('.page') || p.includes('admin.'));
+
+              return isStaff ? '/app/admin/dashboard' : '/app/portal';
+            }
+            return '/login';
+          },
         },
+        // Dashboard
         {
-          path: 'dashboard',
-          name: 'dashboard',
+          path: 'admin/dashboard',
+          name: 'admin-dashboard',
           component: () => import('@/modules/reports/pages/Dashboard.vue'),
           meta: { title: 'لوحة التحكم' },
+        },
+
+        // ==================== Customer Routes ====================
+        {
+          path: 'portal',
+          name: 'portal',
+          component: () => import('@/customer/modules/dashboard/pages/CustomerDashboard.vue'),
+          meta: { title: 'بوابة العميل' },
+        },
+        {
+          path: 'purchases',
+          name: 'purchases',
+          component: () => import('@/customer/modules/purchases/pages/Purchases.vue'),
+          meta: {
+            title: 'مشترياتي',
+            permission: ['invoices.view_self', PERMISSIONS.INVOICES_VIEW_ALL],
+          },
+        },
+        {
+          path: 'purchases/:id',
+          name: 'purchase-view',
+          component: () => import('@/customer/modules/purchases/pages/PurchaseView.vue'),
+          meta: {
+            title: 'عرض الفاتورة',
+            permission: ['invoices.view_self', PERMISSIONS.INVOICES_VIEW_ALL],
+            breadcrumbs: [
+              { title: 'مشترياتي', to: '/app/purchases' },
+              { title: 'عرض الفاتورة', disabled: true },
+            ],
+          },
+        },
+        {
+          path: 'customer-installments',
+          name: 'customer-installments',
+          component: () => import('@/customer/modules/installments/pages/Installments.vue'),
+          meta: {
+            title: 'خطط التقسيط',
+            permission: ['payments.view_self', PERMISSIONS.PAYMENTS_VIEW_ALL],
+          },
+        },
+        {
+          path: 'customer-payments',
+          name: 'customer-payments',
+          component: () => import('@/customer/modules/payments/pages/Payments.vue'),
+          meta: {
+            title: 'مدفوعاتي',
+            permission: ['payments.view_self', PERMISSIONS.PAYMENTS_VIEW_ALL],
+          },
         },
 
         // ==================== Invoices ====================
@@ -61,7 +128,7 @@ const router = createRouter({
             title: 'فاتورة جديدة',
             permission: PERMISSIONS.INVOICES_CREATE,
             breadcrumbs: [
-              { title: 'الفواتير', to: '/invoices' },
+              { title: 'الفواتير', to: '/app/invoices' },
               { title: 'فاتورة جديدة', disabled: true },
             ],
           },
@@ -74,7 +141,7 @@ const router = createRouter({
             title: 'عرض الفاتورة',
             permission: [PERMISSIONS.INVOICES_VIEW_ALL, 'invoices.view_self'],
             breadcrumbs: [
-              { title: 'الفواتير', to: '/invoices' },
+              { title: 'الفواتير', to: '/app/invoices' },
               { title: 'عرض الفاتورة', disabled: true },
             ],
           },
@@ -87,7 +154,7 @@ const router = createRouter({
             title: 'تعديل الفاتورة',
             permission: [PERMISSIONS.INVOICES_UPDATE_ALL, 'invoices.view_self'],
             breadcrumbs: [
-              { title: 'الفواتير', to: '/invoices' },
+              { title: 'الفواتير', to: '/app/invoices' },
               { title: 'تعديل الفاتورة', disabled: true },
             ],
           },
@@ -111,7 +178,7 @@ const router = createRouter({
             title: 'منتج جديد',
             permission: PERMISSIONS.PRODUCTS_CREATE,
             breadcrumbs: [
-              { title: 'المنتجات', to: '/products' },
+              { title: 'المنتجات', to: '/app/products' },
               { title: 'منتج جديد', disabled: true },
             ],
           },
@@ -124,7 +191,7 @@ const router = createRouter({
             title: 'عرض المنتج',
             permission: [PERMISSIONS.PRODUCTS_VIEW_ALL, 'products.view_self'],
             breadcrumbs: [
-              { title: 'المنتجات', to: '/products' },
+              { title: 'المنتجات', to: '/app/products' },
               { title: 'عرض المنتج', disabled: true },
             ],
           },
@@ -137,7 +204,7 @@ const router = createRouter({
             title: 'تعديل المنتج',
             permission: PERMISSIONS.PRODUCTS_UPDATE_ALL,
             breadcrumbs: [
-              { title: 'المنتجات', to: '/products' },
+              { title: 'المنتجات', to: '/app/products' },
               { title: 'تعديل المنتج', disabled: true },
             ],
           },
@@ -287,7 +354,7 @@ const router = createRouter({
             title: 'عرض المستخدم',
             permission: PERMISSIONS.USERS_VIEW_ALL,
             breadcrumbs: [
-              { title: 'المستخدمين', to: '/users' },
+              { title: 'المستخدمين', to: '/app/users' },
               { title: 'تفاصيل المستخدم', disabled: true },
             ],
           },
@@ -385,6 +452,12 @@ const router = createRouter({
             title: 'بيانات الشركة',
             permission: PERMISSIONS.ADMIN_COMPANY,
           },
+        },
+        {
+          path: 'sessions',
+          name: 'sessions',
+          component: () => import('@/modules/users/pages/SessionManagement.vue'),
+          meta: { title: 'إدارة الأجهزة' },
         },
         {
           path: 'profile',

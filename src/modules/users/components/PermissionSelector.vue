@@ -60,8 +60,15 @@
       </div>
 
       <div v-if="Object.keys(filteredPermissions).length === 0" class="text-center pa-12">
-        <v-icon icon="ri-search-eye-line" size="48" color="grey-lighten-2" />
-        <div class="text-body-1 text-grey mt-2">لا يوجد نتائج تطابق بحثك</div>
+        <template v-if="search">
+          <v-icon icon="ri-search-eye-line" size="48" color="grey-lighten-2" />
+          <div class="text-body-1 text-grey mt-2">لا يوجد نتائج تطابق بحثك</div>
+        </template>
+        <template v-else>
+          <v-icon icon="ri-shield-user-line" size="48" color="grey-lighten-2" />
+          <div class="text-body-1 text-grey mt-2">لا يوجد صلاحيات متاحة للعرض</div>
+          <div class="text-caption text-grey-lighten-1">يتم عرض الصلاحيات التي تمتلكها فقط لتقوم بمنحها</div>
+        </template>
       </div>
     </div>
   </div>
@@ -77,7 +84,7 @@ const props = defineProps({
     default: () => [],
   },
   availablePermissions: {
-    type: Object,
+    type: [Object, Array],
     required: true,
   },
   inheritedPermissions: {
@@ -115,18 +122,44 @@ const filteredPermissions = computed(() => {
   const result = {};
   const query = search.value.toLowerCase();
 
-  Object.entries(props.availablePermissions).forEach(([groupKey, group]) => {
+  // Robust unwrap of availablePermissions
+  let permissionsSource = props.availablePermissions;
+
+  // If it's an array, check if it's the "wrapped object" format from BaseService.handleSuccess
+  if (Array.isArray(permissionsSource)) {
+    if (permissionsSource.length === 1) {
+      const item = permissionsSource[0];
+      // If the first item is an object and DOES NOT have its own 'name' property,
+      // then it's likely the container object holding grouped permissions (admin, users, etc.)
+      if (item && typeof item === 'object' && !item.name && !item.key) {
+        permissionsSource = item;
+      }
+    } else if (permissionsSource.length === 0) {
+      return result;
+    }
+  }
+
+  if (!permissionsSource || typeof permissionsSource !== 'object') return result;
+
+  Object.entries(permissionsSource).forEach(([groupKey, group]) => {
+    // Basic defensive check: skip if group is null/undefined or doesn't have a name
+    // A valid group object must have a 'name' property (which is an object with 'key' and 'label')
+    if (!group || typeof group !== 'object' || !group.name) return;
+
     const filteredGroup = { name: group.name };
     let hasMatch = false;
 
-    if (group.name.label.toLowerCase().includes(query)) {
+    // Search in group label
+    const groupLabel = group.name.label || '';
+    if (groupLabel.toLowerCase().includes(query)) {
       hasMatch = true;
       Object.entries(group).forEach(([pKey, p]) => {
-        if (pKey !== 'name') filteredGroup[pKey] = p;
+        if (pKey !== 'name' && p && typeof p === 'object') filteredGroup[pKey] = p;
       });
     } else {
+      // Search in permission labels and keys
       Object.entries(group).forEach(([pKey, p]) => {
-        if (pKey !== 'name' && (p.label.toLowerCase().includes(query) || p.key.toLowerCase().includes(query))) {
+        if (pKey !== 'name' && p && typeof p === 'object' && (p.label?.toLowerCase().includes(query) || p.key?.toLowerCase().includes(query))) {
           filteredGroup[pKey] = p;
           hasMatch = true;
         }
@@ -157,9 +190,9 @@ const getGroupIcon = groupKey => {
 
 const allInGroupSelected = group => {
   const perms = Object.entries(group)
-    .filter(([k]) => k !== 'name')
+    .filter(([k, p]) => k !== 'name' && p && p.key)
     .map(([, p]) => p.key);
-  return perms.every(p => isSelected(p) || isInherited(p));
+  return perms.length > 0 && perms.every(p => isSelected(p) || isInherited(p));
 };
 
 const toggleGroup = group => {
@@ -171,11 +204,11 @@ const toggleGroup = group => {
   let newValue = [...props.modelValue];
 
   perms.forEach(p => {
-    if (isInherited(p)) return;
+    if (!p || isInherited(p)) return;
 
     const index = newValue.indexOf(p);
     if (allSelected) {
-      if (index > -1) newValue.splice(newValue.indexOf(p), 1);
+      if (index > -1) newValue.splice(index, 1);
     } else {
       if (index === -1) newValue.push(p);
     }

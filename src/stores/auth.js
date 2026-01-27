@@ -3,15 +3,19 @@ import { ref, computed } from 'vue';
 import authService from '@/api/services/auth.service';
 
 export const useAuthStore = defineStore('auth', () => {
-  const user = ref(null);
-  const token = ref(localStorage.getItem('token') || null);
+  const user = ref(JSON.parse(sessionStorage.getItem('user') || localStorage.getItem('user') || 'null'));
+  const token = ref(sessionStorage.getItem('token') || localStorage.getItem('token') || null);
   const isAuthenticated = computed(() => !!token.value);
 
-  async function login(credentials) {
-    const response = await authService.login(credentials);
-    token.value = response.token;
-    user.value = response.user;
-    localStorage.setItem('token', response.token);
+  function saveLoginData(data, remember = false) {
+    const { user: userData, token: tokenData } = data;
+
+    token.value = tokenData;
+    user.value = userData;
+
+    const storage = remember ? localStorage : sessionStorage;
+    storage.setItem('token', tokenData);
+    storage.setItem('user', JSON.stringify(userData));
   }
 
   async function logout() {
@@ -19,9 +23,11 @@ export const useAuthStore = defineStore('auth', () => {
     token.value = null;
     user.value = null;
 
-    // Clear localStorage
+    // Clear both storages
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
 
     // Clear user store
     const { useUserStore } = await import('@/stores/user');
@@ -39,23 +45,23 @@ export const useAuthStore = defineStore('auth', () => {
 
     try {
       const response = await authService.me();
-      user.value = response.data; // الاستجابة مغلفة في data
+      user.value = response.data;
     } catch (error) {
       console.error('Fetch user failed:', error);
-      // لا تقم بعمل logout هنا لتجنب اللوب اللانهائية إذا كان الخطأ مؤقتاً
     }
   }
 
-  function setToken(newToken) {
+  function setToken(newToken, remember = false) {
     token.value = newToken;
-    localStorage.setItem('token', newToken);
+    const storage = remember ? localStorage : sessionStorage;
+    storage.setItem('token', newToken);
   }
 
   return {
     user,
     token,
     isAuthenticated,
-    login,
+    saveLoginData,
     logout,
     fetchUser,
     setToken,

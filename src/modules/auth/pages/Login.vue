@@ -1,5 +1,5 @@
 <template>
-  <div class="login-page">
+  <div class="login-page" :class="`mode-${loginMode}`">
     <!-- Background Animation -->
     <div class="background-animation">
       <div class="shape shape-1"></div>
@@ -12,20 +12,20 @@
         <v-col cols="12">
           <v-card class="login-card elevation-24" rounded="xl">
             <v-row no-gutters>
-              <!-- Left Side - Branding -->
-              <v-col cols="12" md="6" class="brand-side">
+              <!-- Left Side - Branding (Changes based on mode) -->
+              <v-col cols="12" md="6" class="brand-side transition-all">
                 <div class="brand-content">
                   <div class="logo-container">
                     <div class="logo-circle">
-                      <v-icon icon="ri-building-line" size="48" color="white" />
+                      <v-icon :icon="modeConfig.icon" size="48" color="white" />
                     </div>
                   </div>
 
-                  <h1 class="brand-title">hwmix-bill</h1>
-                  <p class="brand-subtitle">نظام إدارة الفواتير الاحترافي</p>
+                  <h1 class="brand-title">{{ modeConfig.brandTitle }}</h1>
+                  <p class="brand-subtitle">{{ modeConfig.brandSubtitle }}</p>
 
                   <div class="features-list">
-                    <div class="feature-item" v-for="(feature, i) in features" :key="i">
+                    <div class="feature-item" v-for="(feature, i) in modeConfig.features" :key="i">
                       <v-icon icon="ri-checkbox-circle-fill" color="white" class="feature-icon" />
                       <span>{{ feature }}</span>
                     </div>
@@ -42,13 +42,30 @@
               <!-- Right Side - Login Form -->
               <v-col cols="12" md="6" class="form-side">
                 <div class="form-container">
+                  <!-- Mode Switcher Tabs -->
+                  <div class="mode-tabs mb-8 pa-1 bg-grey-lighten-4 rounded-xl d-flex">
+                    <div
+                      class="mode-tab flex-1 py-2 text-center cursor-pointer transition-all rounded-lg font-weight-bold"
+                      :class="{ 'active elevation-2 bg-white primary--text': loginMode === 'customer' }"
+                      @click="setMode('customer')"
+                    >
+                      دخول العملاء
+                    </div>
+                    <div
+                      class="mode-tab flex-1 py-2 text-center cursor-pointer transition-all rounded-lg font-weight-bold"
+                      :class="{ 'active elevation-2 bg-white primary--text': loginMode === 'staff' }"
+                      @click="setMode('staff')"
+                    >
+                      دخول الموظفين
+                    </div>
+                  </div>
+
                   <div class="form-header">
-                    <h2 class="welcome-title">مرحباً بك 👋</h2>
-                    <p class="welcome-subtitle">قم بتسجيل الدخول لمتابعة العمل</p>
+                    <h2 class="welcome-title">{{ modeConfig.formTitle }} 👋</h2>
+                    <p class="welcome-subtitle">{{ modeConfig.formSubtitle }}</p>
                   </div>
 
                   <v-form ref="formRef" @submit.prevent="handleLogin" class="login-form">
-                    <!-- Login Input -->
                     <div class="input-group">
                       <label class="input-label">البريد الإلكتروني أو اسم المستخدم</label>
                       <AppInput
@@ -60,7 +77,6 @@
                       />
                     </div>
 
-                    <!-- Password Input -->
                     <div class="input-group">
                       <label class="input-label">كلمة المرور</label>
                       <AppPasswordInput
@@ -72,44 +88,19 @@
                       />
                     </div>
 
-                    <!-- Remember & Forgot -->
                     <div class="form-options">
                       <v-checkbox v-model="form.remember" label="تذكرني" density="compact" color="primary" hide-details />
-
                       <router-link to="/forgot-password" class="forgot-link"> نسيت كلمة المرور؟ </router-link>
                     </div>
 
-                    <!-- Login Button -->
                     <AppButton type="submit" color="primary" block :loading="loading" class="login-btn mb-6" size="large">
                       <v-icon icon="ri-login-box-line" start />
-                      تسجيل الدخول للنظام
+                      {{ modeConfig.btnText }}
                     </AppButton>
 
-                    <!-- Register Link -->
                     <div class="register-section">
                       <span class="register-text">ليس لديك حساب؟</span>
                       <router-link to="/register" class="register-link"> إنشاء حساب جديد </router-link>
-                    </div>
-                    <!-- Divider -->
-                    <div class="divider-section">
-                      <div class="divider-line"></div>
-                      <span class="divider-text">أو</span>
-                      <div class="divider-line"></div>
-                    </div>
-
-                    <!-- Social Login -->
-                    <div class="social-login">
-                      <AppButton variant="tonal" color="error" class="social-btn" @click="handleGoogleLogin">
-                        <v-icon icon="ri-google-fill" />
-                      </AppButton>
-
-                      <AppButton variant="tonal" color="primary" class="social-btn" @click="handleFacebookLogin">
-                        <v-icon icon="ri-facebook-fill" />
-                      </AppButton>
-
-                      <AppButton variant="tonal" color="info" class="social-btn" @click="handleTwitterLogin">
-                        <v-icon icon="ri-twitter-fill" />
-                      </AppButton>
                     </div>
                   </v-form>
                 </div>
@@ -123,8 +114,8 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed, onMounted, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { authService } from '@/api';
 import { required } from '@/utils/validators';
 import AppInput from '@/components/common/AppInput.vue';
@@ -132,8 +123,11 @@ import AppPasswordInput from '@/components/common/AppPasswordInput.vue';
 import AppButton from '@/components/common/AppButton.vue';
 
 const router = useRouter();
+const route = useRoute();
 const formRef = ref(null);
 const loading = ref(false);
+
+const loginMode = ref('customer'); // default mode
 
 const form = ref({
   login: '',
@@ -141,7 +135,33 @@ const form = ref({
   remember: false,
 });
 
-const features = ['إدارة شاملة للفواتير', 'تقارير مفصلة واحترافية', 'واجهة سهلة الاستخدام'];
+const configs = {
+  staff: {
+    brandTitle: 'hwmix-bill',
+    brandSubtitle: 'نظام الإدارة والعمليات المركزية',
+    icon: 'ri-building-line',
+    features: ['إدارة الفواتير والمخازن', 'تقارير مالية وتدفقات نقدية', 'صلاحيات وصول متقدمة'],
+    formTitle: 'دخول الموظفين',
+    formSubtitle: 'قم بتسجيل الدخول لمتابعة سير العمل اليومي',
+    btnText: 'دخول الموظفين',
+  },
+  customer: {
+    brandTitle: 'بوابة العميل',
+    brandSubtitle: 'مساحتك الخاصة لمتابعة معاملاتك المالية',
+    icon: 'ri-user-star-line',
+    features: ['متابعة المشتريات والديون', 'جدول تقسيط واضح ومنظم', 'تنبيهات بمواعيد الاستحقاق'],
+    formTitle: 'مرحباً بك',
+    formSubtitle: 'سجل دخولك لمراجعة فواتيرك ومدفوعاتك',
+    btnText: 'دخول بوابة العميل',
+  },
+};
+
+const modeConfig = computed(() => configs[loginMode.value]);
+
+const setMode = mode => {
+  loginMode.value = mode;
+  router.replace({ query: { ...route.query, type: mode } });
+};
 
 const handleLogin = async () => {
   const { valid } = await formRef.value.validate();
@@ -149,36 +169,63 @@ const handleLogin = async () => {
 
   loading.value = true;
   try {
+    const { useUserStore } = await import('@/stores/user');
+    const userStore = useUserStore();
+
     await authService.login(form.value);
-    router.push('/dashboard');
+    await userStore.fetchUser();
+
+    if (userStore.isStaff) {
+      router.push('/app/admin/dashboard');
+    } else {
+      router.push('/app/portal');
+    }
   } catch (error) {
-    // Error is handled in AuthService
+    // Error handled in AuthService
   } finally {
     loading.value = false;
   }
 };
 
-const handleGoogleLogin = () => {
-  toast.info('Google login - قريباً');
-};
+onMounted(() => {
+  if (route.query.type && configs[route.query.type]) {
+    loginMode.value = route.query.type;
+  }
+});
 
-const handleFacebookLogin = () => {
-  toast.info('Facebook login - قريباً');
-};
-
-const handleTwitterLogin = () => {
-  toast.info('Twitter login - قريباً');
-};
+watch(
+  () => route.query.type,
+  newType => {
+    if (newType && configs[newType]) {
+      loginMode.value = newType;
+    }
+  }
+);
 </script>
 
 <style scoped>
 .login-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   position: relative;
   overflow: hidden;
   display: flex;
   align-items: center;
+  transition: background 0.5s ease;
+}
+
+/* Dynamic Gradients based on mode */
+.mode-staff {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+.mode-customer {
+  background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+}
+
+.mode-staff .brand-side {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+.mode-customer .brand-side {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
 }
 
 /* Background Animation */
@@ -202,9 +249,7 @@ const handleTwitterLogin = () => {
   height: 300px;
   top: 10%;
   left: 10%;
-  animation-delay: 0s;
 }
-
 .shape-2 {
   width: 200px;
   height: 200px;
@@ -212,7 +257,6 @@ const handleTwitterLogin = () => {
   right: 20%;
   animation-delay: 5s;
 }
-
 .shape-3 {
   width: 150px;
   height: 150px;
@@ -235,11 +279,11 @@ const handleTwitterLogin = () => {
 }
 
 .login-container {
-  position: relative;
   z-index: 1;
-  padding: 24px;
-  max-width: 100%;
-  height: 100%;
+  position: relative;
+  max-width: 1100px !important;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .login-card {
@@ -247,20 +291,14 @@ const handleTwitterLogin = () => {
   backdrop-filter: blur(20px);
   background: rgba(255, 255, 255, 0.98) !important;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  max-width: 1100px !important;
-  margin: 0 auto;
-  width: 100%;
 }
 
-/* Brand Side */
 .brand-side {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   padding: 48px 32px;
   position: relative;
   overflow: hidden;
 }
-
 .brand-content {
   position: relative;
   z-index: 2;
@@ -268,10 +306,6 @@ const handleTwitterLogin = () => {
   display: flex;
   flex-direction: column;
   justify-content: center;
-}
-
-.logo-container {
-  margin-bottom: 24px;
 }
 
 .logo-circle {
@@ -283,7 +317,7 @@ const handleTwitterLogin = () => {
   align-items: center;
   justify-content: center;
   backdrop-filter: blur(10px);
-  margin: 0 auto;
+  margin: 0 auto 24px;
   animation: pulse 2s infinite;
 }
 
@@ -304,13 +338,11 @@ const handleTwitterLogin = () => {
   font-weight: 700;
   text-align: center;
   margin-bottom: 8px;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
-
 .brand-subtitle {
   font-size: 1.1rem;
   text-align: center;
-  opacity: 0.95;
+  opacity: 0.9;
   margin-bottom: 40px;
 }
 
@@ -319,75 +351,33 @@ const handleTwitterLogin = () => {
   max-width: 320px;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
   gap: 4px;
 }
-
 .feature-item {
   display: flex;
   align-items: center;
   gap: 12px;
   margin-bottom: 16px;
   font-size: 1.05rem;
-  animation: slideInRight 0.5s ease-out;
-  animation-fill-mode: both;
-  width: 100%;
 }
 
-.feature-item:nth-child(1) {
-  animation-delay: 0.1s;
-}
-.feature-item:nth-child(2) {
-  animation-delay: 0.2s;
-}
-.feature-item:nth-child(3) {
-  animation-delay: 0.3s;
-}
-
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.feature-icon {
-  font-size: 20px !important;
-}
-
-.decorative-circles {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  z-index: 1;
-}
-
-.circle {
+.decorative-circles .circle {
   position: absolute;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.05);
 }
-
 .circle-1 {
   width: 400px;
   height: 400px;
   top: -200px;
   right: -200px;
 }
-
 .circle-2 {
   width: 300px;
   height: 300px;
   bottom: -150px;
   left: -150px;
 }
-
 .circle-3 {
   width: 150px;
   height: 150px;
@@ -395,264 +385,93 @@ const handleTwitterLogin = () => {
   left: -75px;
 }
 
-/* Form Side */
 .form-side {
-  padding: 56px 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding: 40px;
 }
-
 .form-container {
   max-width: 450px;
   width: 100%;
-  padding: 24px;
   margin: 0 auto;
 }
 
-.form-header {
-  margin-bottom: 40px;
-  animation: fadeInDown 0.6s ease-out;
-  text-align: center;
+.mode-tabs {
+  border: 1px solid #ebebeb;
 }
-
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.mode-tab {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+.mode-tab.active {
+  color: #2563eb !important;
 }
 
 .welcome-title {
   font-size: 2.2rem;
   font-weight: 700;
-  color: #2c3e50;
+  color: #1e293b;
   margin-bottom: 12px;
-  line-height: 1.2;
 }
-
 .welcome-subtitle {
   font-size: 1.05rem;
-  color: #7f8c8d;
-  line-height: 1.5;
-}
-
-.login-form {
-  animation: fadeIn 0.8s ease-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.input-group {
-  margin-bottom: 28px;
+  color: #64748b;
+  margin-bottom: 32px;
 }
 
 .input-label {
   display: block;
   font-size: 0.95rem;
   font-weight: 600;
-  color: #2c3e50;
-  margin-bottom: 10px;
-  letter-spacing: 0.01em;
+  color: #1e293b;
+  margin-bottom: 8px;
 }
-
 .modern-input :deep(.v-field) {
   border-radius: 12px;
-  font-size: 1rem;
-  min-height: 56px;
-}
-
-.modern-input :deep(.v-field--focused) {
-  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-}
-
-.modern-input :deep(.v-field__input) {
-  padding: 16px 12px;
+  background: #f8fafc !important;
 }
 
 .form-options {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 28px;
-  margin-top: -4px;
+  margin: 24px 0;
 }
-
 .forgot-link {
-  color: #667eea;
+  color: #2563eb;
   text-decoration: none;
   font-size: 0.9rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.forgot-link:hover {
-  color: #764ba2;
-  text-decoration: underline;
+  font-weight: 600;
 }
 
 .login-btn {
   border-radius: 14px !important;
-  font-size: 1.05rem !important;
-  font-weight: 600 !important;
-  text-transform: none !important;
-  letter-spacing: 0.02em !important;
   height: 56px !important;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-  transition: all 0.3s ease !important;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25) !important;
-}
-
-.login-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4) !important;
-}
-
-.divider-section {
-  display: flex;
-  align-items: center;
-  margin: 36px 0;
-}
-
-.divider-line {
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(to right, transparent, #e0e0e0, transparent);
-}
-
-.divider-text {
-  padding: 0 20px;
-  color: #95a5a6;
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.social-login {
-  display: flex;
-  gap: 14px;
-  justify-content: center;
-  margin-bottom: 32px;
-}
-
-.social-btn {
-  flex: 1;
-  border-radius: 12px !important;
-  border: 2px solid #e0e0e0 !important;
-  transition: all 0.3s ease !important;
-  height: 52px !important;
-  padding: 15px;
-}
-
-.social-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
-  border-color: #667eea !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2) !important;
 }
 
 .register-section {
   text-align: center;
-  margin-top: 28px;
-  padding-top: 8px;
-}
-
-.register-text {
-  color: #7f8c8d;
-  margin-left: 8px;
+  margin-top: 24px;
+  color: #64748b;
   font-size: 0.95rem;
 }
-
 .register-link {
-  color: #667eea;
+  color: #2563eb;
+  font-weight: 700;
   text-decoration: none;
-  font-weight: 600;
-  font-size: 0.95rem;
-  transition: all 0.3s ease;
+  margin-inline-start: 4px;
 }
 
-.register-link:hover {
-  color: #764ba2;
-  text-decoration: underline;
+.transition-all {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Responsive */
 @media (max-width: 960px) {
   .brand-side {
-    padding: 48px 32px;
-    text-align: center;
+    display: none;
   }
-
-  .brand-title {
-    font-size: 2rem;
-  }
-
-  .form-side {
-    padding: 40px 24px;
-  }
-
-  .welcome-title {
-    font-size: 1.75rem;
-  }
-
-  .form-container {
-    padding: 16px;
-  }
-}
-
-@media (max-width: 600px) {
-  .login-card {
-    border-radius: 0 !important;
-  }
-
-  .brand-side {
-    padding: 56px 24px 40px;
-    min-height: 400px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .logo-container {
-    margin-bottom: 32px;
-  }
-
-  .brand-content {
-    padding-top: 24px;
-  }
-
   .form-side {
     padding: 32px 20px;
-  }
-
-  .form-container {
-    padding: 12px;
-  }
-
-  .welcome-title {
-    font-size: 1.6rem;
-  }
-
-  .input-group {
-    margin-bottom: 20px;
-  }
-
-  .social-login {
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .social-btn {
-    width: 100%;
   }
 }
 </style>

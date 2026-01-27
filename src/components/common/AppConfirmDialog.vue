@@ -1,32 +1,30 @@
 <template>
-  <v-dialog :model-value="modelValue || internalModelValue" max-width="450" persistent @update:model-value="$emit('update:modelValue', $event)">
-    <v-card class="confirm-dialog rounded-lg overflow-hidden border">
-      <div class="pa-6 text-center">
-        <v-avatar :color="type === 'error' ? 'error-lighten-5' : 'primary-lighten-5'" size="64" class="mb-4">
-          <v-icon
-            :icon="icon || (type === 'error' ? 'ri-error-warning-line' : 'ri-question-line')"
-            :color="type === 'error' ? 'error' : 'primary'"
-            size="32"
-          />
+  <v-dialog :model-value="modelValue || internalModelValue" max-width="480" persistent @update:model-value="$emit('update:modelValue', $event)">
+    <v-card class="confirm-dialog rounded-xl overflow-hidden shadow-xl border-0">
+      <div class="pa-8 text-center position-relative">
+        <!-- Abstract background pattern -->
+        <div class="abstract-bg" :class="type === 'error' ? 'bg-error-light' : 'bg-primary-light'"></div>
+
+        <v-avatar :color="type === 'error' ? 'error' : 'primary'" size="80" class="mb-6 elevation-4 relative-z">
+          <v-icon :icon="icon || (type === 'error' ? 'ri-error-warning-fill' : 'ri-question-fill')" color="white" size="40" />
         </v-avatar>
 
-        <h3 class="text-h5 font-weight-bold mb-2">{{ title }}</h3>
-        <p class="text-body-1 text-grey-darken-1 mb-0">{{ message || subtitle }}</p>
+        <h3 class="text-h5 font-weight-black mb-3 relative-z">{{ title }}</h3>
+        <p class="text-body-1 text-grey-darken-2 mb-0 relative-z">{{ message || subtitle }}</p>
       </div>
 
-      <v-divider />
+      <v-divider class="opacity-10" />
 
-      <v-card-actions class="pa-4 bg-grey-lighten-5 d-flex gap-3">
-        <v-btn block variant="tonal" :color="cancelColor" class="flex-grow-1 font-weight-bold" height="44" @click="handleCancel">
+      <v-card-actions class="pa-6 bg-grey-lighten-5 d-flex gap-4">
+        <v-btn variant="tonal" :color="cancelColor" class="flex-grow-1 font-weight-bold rounded-pill" height="48" @click="handleCancel">
           {{ cancelText }}
         </v-btn>
 
         <v-btn
-          block
-          variant="elevated"
+          variant="flat"
           :color="type === 'error' ? 'error' : confirmColor"
-          class="flex-grow-1 font-weight-bold elevation-2"
-          height="44"
+          class="flex-grow-1 font-weight-black elevation-2 rounded-pill shadow-md"
+          height="48"
           :loading="loading"
           @click="handleConfirm"
         >
@@ -120,15 +118,38 @@ defineExpose({ open });
   background-color: white !important;
 }
 
-.gap-3 {
-  gap: 12px;
+.relative-z {
+  position: relative;
+  z-index: 2;
 }
 
-.error-lighten-5 {
-  background-color: #fff5f5 !important;
+.abstract-bg {
+  position: absolute;
+  top: -100px;
+  right: -100px;
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.15;
+  z-index: 1;
 }
 
-.primary-lighten-5 {
-  background-color: #f0f7ff !important;
+.bg-error-light {
+  background-color: #ff5252;
+}
+
+.bg-primary-light {
+  background-color: #1e88e5;
+}
+
+.gap-4 {
+  gap: 16px;
+}
+
+.shadow-md {
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.1),
+    0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
 }
 </style>

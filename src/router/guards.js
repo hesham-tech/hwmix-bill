@@ -11,6 +11,7 @@ import { useAuthStore } from '@/stores/auth';
  */
 export const authGuard = async (to, from, next) => {
   const authStore = useAuthStore();
+  const userStore = useUserStore();
   const isPublic = to.meta.public;
 
   if (!isPublic && !authStore.isAuthenticated) {
@@ -18,7 +19,17 @@ export const authGuard = async (to, from, next) => {
   }
 
   if (isPublic && authStore.isAuthenticated) {
-    return next({ name: 'dashboard' });
+    // If user is already logged in and tries to access a public page (like Login or Landing)
+    // We redirect them to their respective dashboard
+    if (!userStore.currentUser) {
+      await userStore.fetchUser();
+    }
+
+    if (userStore.isStaff) {
+      return next({ name: 'admin-dashboard' });
+    } else {
+      return next({ name: 'portal' });
+    }
   }
 
   next();

@@ -7,39 +7,53 @@
     scrollable
     @update:model-value="$emit('update:modelValue', $event)"
   >
-    <v-card>
-      <!-- Dialog Header -->
-      <v-card-title class="d-flex align-center justify-space-between bg-primary">
-        <div class="d-flex align-center gap-2">
-          <v-icon v-if="icon" :icon="icon" color="white" />
-          <span class="text-white">{{ title }}</span>
+    <v-card class="app-dialog-card overflow-hidden">
+      <!-- Premium Dialog Header -->
+      <header class="dialog-premium-header pa-5 d-flex align-center justify-space-between text-white">
+        <div class="d-flex align-center gap-3">
+          <div v-if="icon" class="header-icon-wrapper d-flex align-center justify-center rounded-xl shadow-lg">
+            <v-icon :icon="icon" color="white" size="24" />
+          </div>
+          <div class="header-text-container">
+            <span class="text-h6 font-weight-black d-block title-text">{{ title }}</span>
+            <span v-if="subtitle" class="text-caption d-block opacity-80 subtitle-text">{{ subtitle }}</span>
+          </div>
         </div>
 
-        <v-btn icon="ri-close-line" variant="text" color="white" @click="handleClose" />
-      </v-card-title>
+        <v-btn icon="ri-close-line" variant="tonal" color="white" class="close-btn-hover" density="comfortable" @click="handleClose" />
+      </header>
 
       <!-- Dialog Content -->
-      <v-card-text class="pa-6">
-        <slot />
+      <v-card-text class="pa-0 dialog-content">
+        <div class="pa-6">
+          <slot />
+        </div>
       </v-card-text>
 
       <!-- Dialog Actions -->
-      <v-card-actions v-if="showActions" class="px-6 pb-6 pt-0">
+      <v-card-actions v-if="showActions" class="dialog-actions pa-5 bg-grey-lighten-5 border-t">
         <v-spacer />
 
-        <template v-if="!hideActions && !$slots.actions">
-          <v-btn v-if="showCancel" variant="outlined" color="grey" class="px-6" @click="handleCancel">
+        <div v-if="$slots.actions" class="w-100 d-flex justify-end gap-3">
+          <slot name="actions" />
+        </div>
+        <template v-else-if="!hideActions">
+          <v-btn v-if="showCancel" variant="tonal" color="grey-darken-1" class="px-6 font-weight-bold rounded-pill" @click="handleCancel">
             {{ cancelText }}
           </v-btn>
 
-          <v-btn v-if="showConfirm" variant="elevated" :color="confirmColor" :loading="loading" class="px-6" @click="handleConfirm">
+          <v-btn
+            v-if="showConfirm"
+            variant="flat"
+            :color="confirmColor"
+            :loading="loading"
+            class="px-8 font-weight-black rounded-pill shadow-md"
+            @click="handleConfirm"
+          >
+            <v-icon v-if="!loading" icon="ri-checkbox-circle-line" class="me-2" />
             {{ confirmText }}
           </v-btn>
         </template>
-
-        <div v-if="$slots.actions" class="w-100">
-          <slot name="actions" />
-        </div>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -55,13 +69,17 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  subtitle: {
+    type: String,
+    default: '',
+  },
   icon: {
     type: [String, Boolean],
     default: '',
   },
   maxWidth: {
     type: [String, Number],
-    default: 600,
+    default: 800,
   },
   persistent: {
     type: Boolean,
@@ -97,7 +115,7 @@ const props = defineProps({
   },
   confirmText: {
     type: String,
-    default: 'حفظ',
+    default: 'تأكيد وحفظ',
   },
   confirmColor: {
     type: String,
@@ -123,14 +141,72 @@ const handleConfirm = () => {
 </script>
 
 <style scoped>
-.gap-2 {
-  gap: 0.5rem;
+.app-dialog-card {
+  border-radius: 28px !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
 }
+
+.dialog-premium-header {
+  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+  position: relative;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.header-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.title-text {
+  letter-spacing: -0.5px !important;
+  line-height: 1.2 !important;
+}
+
+.subtitle-text {
+  font-weight: 500;
+}
+
+.close-btn-hover {
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.close-btn-hover:hover {
+  background-color: rgba(239, 68, 68, 0.8) !important; /* Soft Red on hover */
+  transform: rotate(90deg) scale(1.1);
+}
+
+.dialog-content {
+  background-color: #fff;
+}
+
+.dialog-actions {
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.gap-3 {
+  gap: 12px;
+}
+
 .w-100 {
   width: 100%;
 }
-:deep(.v-card-text),
-:deep(.v-card-actions) {
+
+.shadow-md {
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.1),
+    0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
+}
+
+:deep(.v-card-text) {
   overflow-x: hidden !important;
+}
+
+/* Ensure form rows inside dialog don't cause horizontal scroll */
+:deep(.v-row) {
+  margin-left: 0;
+  margin-right: 0;
 }
 </style>

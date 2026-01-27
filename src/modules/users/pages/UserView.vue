@@ -186,12 +186,24 @@
     </div>
 
     <!-- User Form Dialog -->
-    <AppDialog v-model="isOpen" title="تعديل بيانات المستخدم" icon="ri-user-edit-line" max-width="800" hide-actions>
+    <AppDialog
+      v-model="isOpen"
+      :title="`تعديل بيانات: ${formData.nickname || formData.full_name || ''}`"
+      subtitle="تحديث المعلومات الأساسية وصلاحيات الوصول"
+      icon="ri-user-edit-line"
+      max-width="800"
+      hide-actions
+    >
       <UserForm ref="userFormRef" v-model="formData" :is-edit-mode="true" hide-actions @save="onSave" @cancel="close" />
 
       <template #actions>
         <AppButton variant="tonal" color="grey" @click="close">إلغاء</AppButton>
-        <AppButton :loading="userFormRef?.loading" color="primary" class="px-8 font-weight-bold rounded-pill" @click="userFormRef?.handleSubmit()">
+        <AppButton
+          :loading="userFormRef?.loading"
+          color="primary"
+          class="px-8 font-weight-bold rounded-pill shadow-md"
+          @click="userFormRef?.handleSubmit()"
+        >
           <v-icon :icon="userFormRef?.form?.id ? 'ri-user-received-line' : 'ri-save-line'" class="me-2" />
           {{ userFormRef?.form?.id ? 'تحديث البيانات' : 'حفظ' }}
         </AppButton>

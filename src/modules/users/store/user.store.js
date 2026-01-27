@@ -175,8 +175,17 @@ export const useUserStore = defineStore('userManagement', () => {
   async function fetchAvailablePermissions() {
     try {
       const response = await permissionService.getAll();
-      availablePermissions.value = response.data;
-      return response.data;
+      let data = response?.data;
+
+      if (!data) return availablePermissions.value;
+
+      // Handle BaseService wrapping (unpaginated object wrapped in single-item array)
+      if (Array.isArray(data) && data.length === 1 && data[0] && typeof data[0] === 'object' && !data[0].name && !data[0].key) {
+        data = data[0];
+      }
+
+      availablePermissions.value = data && typeof data === 'object' ? data : {};
+      return availablePermissions.value;
     } catch (error) {
       console.error('Error fetching permissions:', error);
     }

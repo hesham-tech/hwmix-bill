@@ -293,8 +293,8 @@ onMounted(async () => {
   store.loading = true;
   try {
     await Promise.all([store.fetchRoles(), store.fetchAvailablePermissions()]);
-    selectedRoles.value = props.user.roles || [];
-    selectedPermissions.value = props.user.direct_permissions || [];
+    selectedRoles.value = props.user.roles?.map(r => (typeof r === 'object' ? r.name : r)) || [];
+    selectedPermissions.value = props.user.direct_permissions?.map(p => (typeof p === 'object' ? p.name : p)) || [];
   } finally {
     store.loading = false;
   }
@@ -337,18 +337,28 @@ const filteredPermissions = computed(() => {
   const result = {};
   const query = permissionSearch.value.toLowerCase();
 
-  Object.entries(store.availablePermissions).forEach(([groupKey, group]) => {
+  let permissionsSource = store.availablePermissions;
+  // Unwrap if it's the BaseService array wrapper
+  if (Array.isArray(permissionsSource) && permissionsSource.length === 1 && !permissionsSource[0].name) {
+    permissionsSource = permissionsSource[0];
+  }
+
+  if (!permissionsSource || typeof permissionsSource !== 'object') return result;
+
+  Object.entries(permissionsSource).forEach(([groupKey, group]) => {
+    if (!group || typeof group !== 'object' || !group.name) return;
+
     const filteredGroup = { name: group.name };
     let hasMatch = false;
 
     if (group.name?.label?.toLowerCase().includes(query)) {
       hasMatch = true;
       Object.entries(group).forEach(([pKey, p]) => {
-        if (pKey !== 'name') filteredGroup[pKey] = p;
+        if (pKey !== 'name' && p && typeof p === 'object') filteredGroup[pKey] = p;
       });
     } else {
       Object.entries(group).forEach(([pKey, p]) => {
-        if (pKey !== 'name' && (p.label.toLowerCase().includes(query) || p.key.toLowerCase().includes(query))) {
+        if (pKey !== 'name' && p && typeof p === 'object' && (p.label?.toLowerCase().includes(query) || p.key?.toLowerCase().includes(query))) {
           filteredGroup[pKey] = p;
           hasMatch = true;
         }
@@ -378,20 +388,22 @@ const getGroupIcon = groupKey => {
 };
 
 const allInGroupSelected = group => {
+  if (!group || typeof group !== 'object') return false;
   const perms = Object.entries(group)
-    .filter(([k]) => k !== 'name')
+    .filter(([k, p]) => k !== 'name' && p && p.key)
     .map(([, p]) => p.key);
-  return perms.every(p => selectedPermissions.value.includes(p) || isPermissionInherited(p));
+  return perms.length > 0 && perms.every(p => selectedPermissions.value.includes(p) || isPermissionInherited(p));
 };
 
 const toggleGroup = group => {
+  if (!group || typeof group !== 'object') return;
   const perms = Object.entries(group)
-    .filter(([k]) => k !== 'name')
+    .filter(([k, p]) => k !== 'name' && p && p.key)
     .map(([, p]) => p.key);
   const allSelected = allInGroupSelected(group);
 
   perms.forEach(p => {
-    if (isPermissionInherited(p)) return;
+    if (!p || isPermissionInherited(p)) return;
 
     const index = selectedPermissions.value.indexOf(p);
     if (allSelected) {
@@ -577,6 +589,7 @@ const handleSave = async () => {
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

@@ -217,7 +217,17 @@ watch(() => route.path, scrollToActive);
 
 const filteredMenu = computed(() => {
   const menuSource = userStore.isStaff ? navigationMenu : CUSTOMER_MENU;
-  return menuSource.filter(item => canAccess(item.permission));
+  return menuSource.filter(item => {
+    // Check permission
+    if (!canAccess(item.permission)) return false;
+
+    // Check installment requirement for customers
+    if (!userStore.isStaff && item.requiresInstallments && !userStore.hasInstallments) {
+      return false;
+    }
+
+    return true;
+  });
 });
 
 const canAccess = permission => {

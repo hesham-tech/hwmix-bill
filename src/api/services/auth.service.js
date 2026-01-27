@@ -23,19 +23,11 @@ class AuthService {
       const response = await apiClient.post('login', credentials);
       const data = response.data.data;
 
-      // Save token
-      const token = data.token;
-      localStorage.setItem('token', token);
-      authStore.setToken(token);
-
-      // Save user data
-      if (data.user) {
-        localStorage.setItem('user', JSON.stringify(data.user));
-        authStore.user = data.user;
-      }
+      // Delegate storage to authStore.saveLoginData
+      authStore.saveLoginData(data, credentials.remember);
 
       // Set axios authorization header
-      apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      apiClient.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
 
       // Fetch complete user data with permissions
       await userStore.fetchUser();
@@ -114,6 +106,8 @@ class AuthService {
       // Clear storage
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('user');
       localStorage.removeItem('products');
 
       delete apiClient.defaults.headers.common['Authorization'];
@@ -192,22 +186,40 @@ class AuthService {
    * Check if user is authenticated
    */
   isAuthenticated() {
-    return !!localStorage.getItem('token');
+    return !!(sessionStorage.getItem('token') || localStorage.getItem('token'));
   }
 
   /**
    * Get stored token
    */
   getToken() {
-    return localStorage.getItem('token');
+    return sessionStorage.getItem('token') || localStorage.getItem('token');
   }
 
   /**
    * Get stored user
    */
   getStoredUser() {
-    const userStr = localStorage.getItem('user');
+    const userStr = sessionStorage.getItem('user') || localStorage.getItem('user');
     return userStr ? JSON.parse(userStr) : null;
+  }
+
+  /**
+   * Session Management
+   */
+  async getSessions() {
+    const response = await apiClient.get('auth/sessions');
+    return response.data.data;
+  }
+
+  async revokeSession(id) {
+    const response = await apiClient.delete(`auth/sessions/${id}`);
+    return response.data;
+  }
+
+  async revokeOtherSessions() {
+    const response = await apiClient.delete('auth/sessions-others');
+    return response.data;
   }
 }
 

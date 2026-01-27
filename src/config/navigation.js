@@ -5,25 +5,25 @@ export default [
   {
     title: 'لوحة التحكم',
     icon: 'ri-dashboard-line',
-    to: '/dashboard',
+    to: '/app/admin/dashboard',
     permission: null,
   },
   {
     title: 'المهام',
     icon: 'ri-list-settings-line',
-    to: '/tasks',
+    to: '/app/tasks',
     permission: null,
   },
   {
     title: 'مجموعات العمل',
     icon: 'ri-team-line',
-    to: '/task-groups',
+    to: '/app/task-groups',
     permission: null,
   },
   {
     title: 'قائمة الاختبار',
     icon: 'ri-list-check-3',
-    to: '/testing-checklist',
+    to: '/app/testing-checklist',
     permission: PERMISSIONS.ADMIN_SUPER,
   },
 
@@ -35,13 +35,13 @@ export default [
     children: [
       {
         title: 'قائمة الفواتير',
-        to: '/invoices',
+        to: '/app/invoices',
         icon: 'ri-file-list-line',
         permission: PERMISSIONS.INVOICES_VIEW_ALL,
       },
       {
         title: 'فاتورة جديدة',
-        to: '/invoices/create',
+        to: '/app/invoices/create',
         icon: 'ri-file-add-line',
         permission: PERMISSIONS.INVOICES_CREATE,
       },
@@ -56,38 +56,38 @@ export default [
     children: [
       {
         title: 'قائمة المنتجات',
-        to: '/products',
+        to: '/app/products',
         icon: 'ri-list-check',
         permission: PERMISSIONS.PRODUCTS_VIEW_ALL,
       },
       {
         title: 'منتج جديد',
-        to: '/products/create',
+        to: '/app/products/create',
         icon: 'ri-add-box-line',
         permission: PERMISSIONS.PRODUCTS_CREATE,
       },
 
       {
         title: 'الأقسام والفئات',
-        to: '/categories',
+        to: '/app/categories',
         icon: 'ri-organization-chart',
         permission: PERMISSIONS.CATEGORIES_VIEW_ALL,
       },
       {
         title: 'العلامات التجارية',
-        to: '/brands',
+        to: '/app/brands',
         icon: 'ri-price-tag-3-line',
         permission: PERMISSIONS.BRANDS_VIEW_ALL,
       },
       {
         title: 'خصائص المنتج',
-        to: '/attributes',
+        to: '/app/attributes',
         icon: 'ri-list-settings-line',
         permission: PERMISSIONS.PRODUCTS_VIEW_ALL,
       },
       {
         title: 'المخازن',
-        to: '/warehouses',
+        to: '/app/warehouses',
         icon: 'ri-building-line',
         permission: PERMISSIONS.WAREHOUSES_VIEW_ALL,
       },
@@ -102,13 +102,13 @@ export default [
     children: [
       {
         title: 'قائمة المدفوعات',
-        to: '/payments',
+        to: '/app/payments',
         icon: 'ri-list-check-2',
         permission: PERMISSIONS.PAYMENTS_VIEW_ALL,
       },
       {
         title: 'إضافة دفعة',
-        to: '/payments/create',
+        to: '/app/payments/create',
         icon: 'ri-add-circle-line',
         permission: PERMISSIONS.PAYMENTS_CREATE,
       },
@@ -123,13 +123,13 @@ export default [
     children: [
       {
         title: 'خطط التقسيط',
-        to: '/installment-plans',
+        to: '/app/installment-plans',
         icon: 'ri-calendar-check-line',
         permission: PERMISSIONS.PAYMENTS_VIEW_ALL,
       },
       {
         title: 'دفعات الأقساط',
-        to: '/installment-payments',
+        to: '/app/installment-payments',
         icon: 'ri-money-dollar-box-line',
         permission: PERMISSIONS.PAYMENTS_VIEW_ALL,
       },
@@ -144,13 +144,13 @@ export default [
     children: [
       {
         title: 'قائمة الخزائن',
-        to: '/cashboxes',
+        to: '/app/cashboxes',
         icon: 'ri-inbox-line',
         permission: PERMISSIONS.ADMIN_COMPANY,
       },
       {
         title: 'التحويلات',
-        to: '/transactions',
+        to: '/app/transactions',
         icon: 'ri-exchange-line',
         permission: PERMISSIONS.ADMIN_COMPANY,
       },
@@ -165,13 +165,13 @@ export default [
     children: [
       {
         title: 'المصاريف',
-        to: '/expenses',
+        to: '/app/expenses',
         icon: 'ri-money-dollar-box-line',
         permission: PERMISSIONS.EXPENSES_VIEW_ALL,
       },
       {
         title: 'دفتر الأستاذ',
-        to: '/financial-ledger',
+        to: '/app/financial-ledger',
         icon: 'ri-book-open-line',
         permission: PERMISSIONS.FINANCIAL_LEDGER_PAGE,
       },
@@ -186,31 +186,31 @@ export default [
     children: [
       {
         title: 'تقرير المبيعات',
-        to: '/reports/sales',
+        to: '/app/reports/sales',
         icon: 'ri-bar-chart-box-line',
         permission: PERMISSIONS.REPORTS_SALES,
       },
       {
         title: 'تقرير المخزون',
-        to: '/reports/stock',
+        to: '/app/reports/stock',
         icon: 'ri-database-2-line',
         permission: PERMISSIONS.REPORTS_STOCK,
       },
       {
         title: 'تقرير الأرباح',
-        to: '/reports/profit',
+        to: '/app/reports/profit',
         icon: 'ri-funds-line',
         permission: PERMISSIONS.REPORTS_PROFIT,
       },
       {
         title: 'التدفق النقدي',
-        to: '/reports/cash-flow',
+        to: '/app/reports/cash-flow',
         icon: 'ri-exchange-funds-line',
         permission: PERMISSIONS.REPORTS_CASH_FLOW,
       },
       {
         title: 'تقرير الضرائب',
-        to: '/reports/tax',
+        to: '/app/reports/tax',
         icon: 'ri-percent-line',
         permission: PERMISSIONS.REPORTS_TAX,
       },
@@ -225,13 +225,13 @@ export default [
     children: [
       {
         title: 'قائمة المستخدمين',
-        to: '/users',
+        to: '/app/users',
         icon: 'ri-group-line',
         permission: PERMISSIONS.USERS_VIEW_ALL,
       },
       {
         title: 'الأدوار والصلاحيات',
-        to: '/roles',
+        to: '/app/roles',
         icon: 'ri-shield-user-line',
         permission: PERMISSIONS.ROLES_VIEW_ALL,
       },
@@ -247,28 +247,35 @@ export default [
       // Company Settings
       {
         title: 'بيانات الشركة',
-        to: '/company',
+        to: '/app/company',
         icon: 'ri-building-2-line',
         permission: PERMISSIONS.ADMIN_COMPANY,
       },
       // Payment Methods
       {
         title: 'طرق الدفع',
-        to: '/payment-methods',
+        to: '/app/payment-methods',
         icon: 'ri-bank-card-line',
         permission: PERMISSIONS.PAYMENT_METHODS_VIEW_ALL,
+      },
+      // Session Management
+      {
+        title: 'إدارة الأجهزة',
+        to: '/app/sessions',
+        icon: 'ri-device-line',
+        permission: null,
       },
 
       // Invoice & CashBox Types
       {
         title: 'أنواع الفواتير',
-        to: '/invoice-types',
+        to: '/app/invoice-types',
         icon: 'ri-file-copy-line',
         permission: PERMISSIONS.INVOICES_VIEW_ALL,
       },
       {
         title: 'أنواع الخزائن',
-        to: '/cashbox-types',
+        to: '/app/cashbox-types',
         icon: 'ri-safe-2-line',
         permission: PERMISSIONS.ADMIN_COMPANY,
       },
@@ -276,21 +283,21 @@ export default [
       // Activity Logs
       {
         title: 'سجل الأنشطة',
-        to: '/activity-logs',
+        to: '/app/activity-logs',
         icon: 'ri-history-line',
         permission: PERMISSIONS.ADMIN_SUPER,
       },
 
       {
         title: 'النسخ الاحتياطي',
-        to: '/backups',
+        to: '/app/backups',
         icon: 'ri-database-2-line',
         permission: PERMISSIONS.ADMIN_SUPER,
       },
       // Error Reports
       {
         title: 'تقارير الأعطال',
-        to: '/error-reports',
+        to: '/app/error-reports',
         icon: 'ri-bug-line',
         permission: PERMISSIONS.ADMIN_SUPER,
       },
@@ -302,21 +309,27 @@ export const CUSTOMER_MENU = [
   {
     title: 'لوحة التحكم',
     icon: 'ri-dashboard-3-line',
-    to: '/dashboard',
+    to: '/app/portal',
   },
   {
     title: 'مشترياتي',
     icon: 'ri-bill-line',
-    to: '/invoices',
+    to: '/app/purchases',
   },
   {
     title: 'خطط التقسيط',
     icon: 'ri-calendar-todo-line',
-    to: '/installment-plans',
+    to: '/app/customer-installments',
+    requiresInstallments: true,
   },
   {
     title: 'مدفوعاتي',
     icon: 'ri-money-dollar-circle-line',
-    to: '/payments',
+    to: '/app/customer-payments',
+  },
+  {
+    title: 'إدارة الأجهزة',
+    icon: 'ri-device-line',
+    to: '/app/sessions',
   },
 ];

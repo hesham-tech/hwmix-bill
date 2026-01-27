@@ -29,7 +29,8 @@ const apiClient = axios.create({
  */
 apiClient.interceptors.request.use(
   async config => {
-    const token = localStorage.getItem('token');
+    // Check both storage options
+    const token = sessionStorage.getItem('token') || localStorage.getItem('token');
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -84,6 +85,7 @@ apiClient.interceptors.response.use(
         })
         .catch(() => {
           // Fallback if store import fails
+          sessionStorage.removeItem('token');
           localStorage.removeItem('token');
           window.location.href = '/login?sessionExpired=1';
         });

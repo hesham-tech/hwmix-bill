@@ -92,10 +92,18 @@
       <div class="mt-4 text-grey">جاري تحميل الأدوار...</div>
     </div>
 
-    <!-- Role Dialog -->
-    <v-dialog v-model="dialog.isOpen" max-width="800" persistent scrollable>
+    <AppDialog
+      v-model="dialog.isOpen"
+      :title="dialog.isEdit ? `تعديل دور: ${dialog.data?.label || ''}` : 'إنشاء دور وظيفي جديد'"
+      :subtitle="dialog.isEdit ? 'تعديل الصلاحيات والمسميات الوظيفية' : 'إضافة مسمى وظيفي جديد مع تحديد صلاحياته'"
+      :icon="dialog.isEdit ? 'ri-shield-keyhole-line' : 'ri-shield-plus-line'"
+      max-width="800"
+      hide-actions
+      persistent
+    >
       <RoleForm
         v-if="dialog.isOpen"
+        ref="roleFormRef"
         :role="dialog.data"
         :is-edit-mode="dialog.isEdit"
         :available-permissions="store.availablePermissions"
@@ -103,38 +111,40 @@
         @save="handleSaveRole"
         @cancel="dialog.isOpen = false"
       />
-    </v-dialog>
+
+      <template #actions>
+        <AppButton variant="tonal" color="grey" @click="dialog.isOpen = false">إلغاء</AppButton>
+        <AppButton :loading="dialog.loading" color="primary" class="px-8 font-weight-bold rounded-pill shadow-md" @click="handleSaveRoleInDialog">
+          <v-icon icon="ri-checkbox-circle-line" class="me-2" />
+          {{ dialog.isEdit ? 'تحديث البيانات' : 'إنشاء الدور' }}
+        </AppButton>
+      </template>
+    </AppDialog>
 
     <!-- Delete Confirmation -->
-    <v-dialog v-model="deleteDialog.isOpen" max-width="400">
-      <v-card class="rounded-lg pa-4">
-        <v-card-text class="text-center pt-6">
-          <v-avatar color="error-lighten-5" size="72" class="mb-4">
-            <v-icon icon="ri-error-warning-line" color="error" size="40" />
-          </v-avatar>
-          <div class="text-h6 font-weight-bold mb-2">هل أنت متأكد من الحذف؟</div>
-          <p class="text-body-2 text-grey-darken-1">
-            سيتم حذف الدور <span class="font-weight-bold text-error">"{{ deleteDialog.data?.label }}"</span> نهائياً. هذا الإجراء قد يؤثر على وصول
-            المستخدمين المرتبطين بهذا الدور.
-          </p>
-        </v-card-text>
-        <v-card-actions class="gap-3 pt-4 px-4 pb-4">
-          <v-btn variant="tonal" block class="flex-grow-1" @click="deleteDialog.isOpen = false">إلغاء</v-btn>
-          <v-btn color="error" variant="flat" block class="flex-grow-1" :loading="deleteDialog.loading" @click="deleteRole"> تأكيد الحذف </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <AppConfirmDialog
+      v-model="deleteDialog.isOpen"
+      title="هل أنت متأكد من الحذف؟"
+      :message="`سيتم حذف الدور '${deleteDialog.data?.label}' نهائياً. هذا الإجراء قد يؤثر على وصول المستخدمين المرتبطين بهذا الدور.`"
+      type="error"
+      confirm-text="تأكيد الحذف"
+      :loading="deleteDialog.loading"
+      @confirm="deleteRole"
+    />
   </div>
 </template>
 
 <script setup>
-import { reactive, onMounted } from 'vue';
+import { reactive, onMounted, ref } from 'vue';
 import { usePermissions } from '@/composables/usePermissions';
 import { PERMISSIONS } from '@/config/permissions';
 import { useUserStore } from '../store/user.store';
 import AppButton from '@/components/common/AppButton.vue';
+import AppDialog from '@/components/common/AppDialog.vue';
+import AppConfirmDialog from '@/components/common/AppConfirmDialog.vue';
 import RoleForm from '../components/RoleForm.vue';
 
+const roleFormRef = ref(null);
 const { can } = usePermissions();
 const store = useUserStore();
 
@@ -159,6 +169,10 @@ const openRoleDialog = (role = null) => {
   dialog.isEdit = !!role;
   dialog.data = role ? { ...role } : { permissions: [] };
   dialog.isOpen = true;
+};
+
+const handleSaveRoleInDialog = () => {
+  roleFormRef.value?.handleSubmit();
 };
 
 const handleSaveRole = async formData => {
@@ -218,6 +232,7 @@ const getRoleIcon = name => {
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
