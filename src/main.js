@@ -26,29 +26,14 @@ import '@layouts/styles/index.scss';
   console.log('Executing pre-mount operations...');
   //   await getUserApi();
 
-  // Error Handling
-  app.config.errorHandler = (err, instance, info) => {
-    console.error('Vue Error:', err, info);
-    import('@/modules/support/services/error-collector').then(m => {
-      m.collectErrorInfo(err, { type: 'vue_error', extraData: { info } }).then(report => {
-        import('@/stores/appState').then(s => {
-          s.useappState().pendingReport = report;
-        });
-      });
-    });
-  };
-
-  window.onerror = (message, source, lineno, colno, error) => {
-    if (error) {
-      import('@/modules/support/services/error-collector').then(m => {
-        m.collectErrorInfo(error, { type: 'runtime_error' }).then(report => {
-          import('@/stores/appState').then(s => {
-            s.useappState().pendingReport = report;
-          });
-        });
-      });
-    }
-  };
+  // Global Error Logging System
+  try {
+    const logger = (await import('@/utils/logger')).default;
+    app.use(logger);
+    console.log('Error logging system initialized.');
+  } catch (e) {
+    console.warn('Failed to initialize logger:', e);
+  }
 
   // Mount vue app
   app.mount('#app');

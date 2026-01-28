@@ -342,7 +342,7 @@ import AppConfirmDialog from '@/components/common/AppConfirmDialog.vue';
 import AttributeValuesDialog from '../components/AttributeValuesDialog.vue';
 
 const { attributes, loading, total, fetchAttributes, deleteAttribute } = useAttributesData();
-const { can } = usePermissions();
+const { can, canAny } = usePermissions();
 const api = useApi('/api/attributes');
 
 const page = ref(1);

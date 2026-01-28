@@ -134,7 +134,7 @@ import AppDialog from '@/components/common/AppDialog.vue';
 import { toast } from 'vue3-toastify';
 
 const router = useRouter();
-const { can } = usePermissions();
+const { can, canAny } = usePermissions();
 
 // API
 const invoiceApi = useApi('/api/invoices');

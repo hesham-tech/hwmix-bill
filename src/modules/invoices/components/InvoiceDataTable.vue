@@ -154,7 +154,7 @@ const props = defineProps({
 
 const emit = defineEmits(['view', 'edit', 'print', 'delete', 'update:page', 'update:perPage', 'update:sortBy']);
 
-const { can } = usePermissions();
+const { can, canAny } = usePermissions();
 
 // Headers
 const headers = [

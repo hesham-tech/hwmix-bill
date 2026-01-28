@@ -328,7 +328,7 @@ import AppInfiniteScroll from '@/components/common/AppInfiniteScroll.vue';
 import CategoryExplorerDialog from '../components/CategoryExplorerDialog.vue';
 import MediaGallery from '@/components/common/MediaGallery.vue';
 import { PERMISSIONS } from '@/config/permissions';
-const { can } = usePermissions();
+const { can, canAny } = usePermissions();
 const api = useApi('/api/categories');
 const { deleteCategory } = useCategoriesData();
 const route = useRoute();

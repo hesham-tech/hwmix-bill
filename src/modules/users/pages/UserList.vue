@@ -293,7 +293,7 @@
       </AppDialog>
 
       <!-- Permission Management Dialog -->
-      <AppDialog v-model="isPermissionOpen" variant="purple" max-width="900" hide-actions>
+      <AppDialog v-model="isPermissionOpen" title="إدارة صلاحيات الوصول" variant="purple" max-width="900" hide-actions>
         <template #header>
           <header class="dialog-premium-header variant-purple pa-5 d-flex align-center justify-space-between text-white">
             <div class="d-flex align-center gap-4">
@@ -343,7 +343,7 @@ import { PERMISSIONS } from '@/config/permissions';
 import { getInitials } from '@/utils/helpers';
 import { formatCurrency } from '@/utils/formatters';
 
-const { can } = usePermissions();
+const { can, canAny } = usePermissions();
 const store = useUserStore();
 const userStore = useGlobalUserStore();
 const userFormRef = ref(null);

@@ -287,7 +287,7 @@ import EmptyState from '@/components/common/EmptyState.vue';
 import AppInfiniteScroll from '@/components/common/AppInfiniteScroll.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
 import { PERMISSIONS } from '@/config/permissions';
-const { can } = usePermissions();
+const { can, canAny } = usePermissions();
 const api = useApi('/api/brands');
 const { deleteBrand } = useBrandsData();
 
