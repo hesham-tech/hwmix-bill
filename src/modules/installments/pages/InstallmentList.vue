@@ -1,5 +1,8 @@
 <template>
-  <div v-if="can(PERMISSIONS.PAYMENTS_VIEW_ALL)" class="installments-page">
+  <div
+    v-if="canAny(PERMISSIONS.INSTALLMENT_PLANS_VIEW_ALL, PERMISSIONS.INSTALLMENT_PLANS_VIEW_CHILDREN, PERMISSIONS.INSTALLMENT_PLANS_VIEW_SELF)"
+    class="installments-page"
+  >
     <AppPageHeader title="الأقساط" subtitle="متابعة جميع الأقساط المستحقة والتحصيلات" icon="ri-calendar-todo-line" sticky>
       <template #controls>
         <v-row align="center" class="w-100 mx-0">
@@ -77,7 +80,7 @@
 
         <template #extra-actions="{ item }">
           <AppButton
-            v-if="item.status === 'pending' && can(PERMISSIONS.PAYMENTS_CREATE)"
+            v-if="item.status === 'pending' && canAny(PERMISSIONS.PAYMENTS_CREATE)"
             icon="ri-check-line"
             size="x-small"
             variant="text"
@@ -114,7 +117,7 @@ import AppButton from '@/components/common/AppButton.vue';
 import AppInput from '@/components/common/AppInput.vue';
 import InstallmentFilters from '../components/InstallmentFilters.vue';
 
-const { can } = usePermissions();
+const { can, canAny } = usePermissions();
 const api = useApi('/api/installments');
 
 // API fetch function for useDataTable

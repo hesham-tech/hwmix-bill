@@ -1,6 +1,9 @@
 <template>
   <ReportLayout
-    v-if="can(PERMISSIONS.REPORTS_CASH_FLOW) || can(PERMISSIONS.TRANSACTIONS_VIEW_ALL)"
+    v-if="
+      canAny(PERMISSIONS.REPORTS_CASH_FLOW, PERMISSIONS.REPORTS_VIEW_ALL, PERMISSIONS.REPORTS_VIEW_CHILDREN, PERMISSIONS.REPORTS_VIEW_SELF) ||
+      canAny(PERMISSIONS.TRANSACTIONS_VIEW_ALL, PERMISSIONS.TRANSACTIONS_VIEW_CHILDREN, PERMISSIONS.TRANSACTIONS_VIEW_SELF)
+    "
     title="تقرير التدفقات النقدية"
     description="تحليل المقبوضات والمدفوعات وحركة السيولة في الصناديق"
     :loading="loading"
@@ -83,7 +86,7 @@ import AppButton from '@/components/common/AppButton.vue';
 import AppInput from '@/components/common/AppInput.vue';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 
-const { can } = usePermissions();
+const { can, canAny } = usePermissions();
 
 const api = useApi('/api/transactions');
 const { exportToCSV } = usePrintExport();

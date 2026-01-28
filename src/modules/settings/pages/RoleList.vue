@@ -10,7 +10,7 @@
         <v-icon icon="ri-shield-user-line" class="me-2" />
         الأدوار
         <v-spacer />
-        <v-btn color="primary" prepend-icon="ri-add-line" @click="handleCreate"> دور جديد </v-btn>
+        <v-btn v-if="can(PERMISSIONS.ROLES_CREATE)" color="primary" prepend-icon="ri-add-line" @click="handleCreate"> دور جديد </v-btn>
       </v-card-title>
 
       <v-card-text>
@@ -41,8 +41,16 @@
 
           <template #item.actions="{ item }">
             <div class="d-flex gap-2">
-              <v-btn icon="ri-edit-line" size="small" variant="text" color="primary" @click="handleEdit(item)" />
               <v-btn
+                v-if="canAny(PERMISSIONS.ROLES_UPDATE_ALL, PERMISSIONS.ROLES_UPDATE_CHILDREN, PERMISSIONS.ROLES_UPDATE_SELF, { resource: item })"
+                icon="ri-edit-line"
+                size="small"
+                variant="text"
+                color="primary"
+                @click="handleEdit(item)"
+              />
+              <v-btn
+                v-if="canAny(PERMISSIONS.ROLES_DELETE_ALL, PERMISSIONS.ROLES_DELETE_CHILDREN, PERMISSIONS.ROLES_DELETE_SELF, { resource: item })"
                 icon="ri-delete-bin-line"
                 size="small"
                 variant="text"
@@ -100,10 +108,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
 import { useRolesData } from '../composables/useRolesData';
 import { useApi } from '@/composables/useApi';
+import { usePermissions } from '@/composables/usePermissions';
+import { PERMISSIONS } from '@/config/permissions';
 
+const { can, canAny } = usePermissions();
 const { roles, loading, total, fetchRoles, deleteRole } = useRolesData();
 const api = useApi('/api/roles');
 

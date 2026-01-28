@@ -44,7 +44,7 @@ import { usePermissions } from '@/composables/usePermissions';
 import { PERMISSIONS } from '@/config/permissions';
 
 const authStore = useAuthStore();
-const { can } = usePermissions();
+const { can, canAny } = usePermissions();
 
 const settingCards = computed(() => {
   const cards = [
@@ -57,7 +57,7 @@ const settingCards = computed(() => {
     },
   ];
 
-  if (can(PERMISSIONS.COMPANIES_PAGE)) {
+  if (canAny(PERMISSIONS.COMPANIES_VIEW_ALL, PERMISSIONS.COMPANIES_VIEW_CHILDREN, PERMISSIONS.COMPANIES_VIEW_SELF)) {
     cards.push({
       title: 'بيانات الشركة',
       description: 'تحديث هوية الشركة، الشعار، وقنوات التواصل',
@@ -67,7 +67,7 @@ const settingCards = computed(() => {
     });
   }
 
-  if (can(PERMISSIONS.ROLES_PAGE)) {
+  if (canAny(PERMISSIONS.ROLES_VIEW_ALL, PERMISSIONS.ROLES_VIEW_CHILDREN, PERMISSIONS.ROLES_VIEW_SELF)) {
     cards.push({
       title: 'الأدوار والصلاحيات',
       description: 'إدارة أدوار المستخدمين ومنح الصلاحيات',
@@ -77,7 +77,7 @@ const settingCards = computed(() => {
     });
   }
 
-  if (can(PERMISSIONS.USERS_PAGE)) {
+  if (canAny(PERMISSIONS.USERS_VIEW_ALL, PERMISSIONS.USERS_VIEW_CHILDREN, PERMISSIONS.USERS_VIEW_SELF)) {
     cards.push({
       title: 'فريق العمل',
       description: 'إضافة وإدارة مستخدمي وموظفي الشركة',
@@ -87,7 +87,7 @@ const settingCards = computed(() => {
     });
   }
 
-  if (can(PERMISSIONS.ACTIVITY_LOGS_PAGE)) {
+  if (canAny(PERMISSIONS.ACTIVITY_LOGS_VIEW_ALL, PERMISSIONS.ACTIVITY_LOGS_VIEW_CHILDREN, PERMISSIONS.ACTIVITY_LOGS_VIEW_SELF)) {
     cards.push({
       title: 'سجل الأنشطة',
       description: 'مراقبة كافة العمليات والتغييرات في النظام',
@@ -115,7 +115,7 @@ const settingCards = computed(() => {
   }
 
   // Common Settings for modules (only if they have modular view perms)
-  if (can(PERMISSIONS.PAYMENT_METHODS_PAGE)) {
+  if (canAny(PERMISSIONS.PAYMENT_METHODS_VIEW_ALL, PERMISSIONS.PAYMENT_METHODS_VIEW_CHILDREN, PERMISSIONS.PAYMENT_METHODS_VIEW_SELF)) {
     cards.push({
       title: 'طرق الدفع',
       description: 'إدارة وسائل الدفع وقنوات استلام النقدية',
@@ -125,7 +125,7 @@ const settingCards = computed(() => {
     });
   }
 
-  if (can(PERMISSIONS.CASH_BOX_TYPES_PAGE)) {
+  if (canAny(PERMISSIONS.CASH_BOX_TYPES_VIEW_ALL, PERMISSIONS.CASH_BOX_TYPES_VIEW_CHILDREN, PERMISSIONS.CASH_BOX_TYPES_VIEW_SELF)) {
     cards.push({
       title: 'أنواع الخزائن',
       description: 'تصنيف وإدارة أنواع صناديق النقدية',

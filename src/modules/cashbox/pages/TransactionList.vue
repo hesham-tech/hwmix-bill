@@ -1,5 +1,8 @@
 <template>
-  <div v-if="can(PERMISSIONS.TRANSACTIONS_VIEW_ALL)" class="transactions-page">
+  <div
+    v-if="canAny(PERMISSIONS.TRANSACTIONS_VIEW_ALL, PERMISSIONS.TRANSACTIONS_VIEW_CHILDREN, PERMISSIONS.TRANSACTIONS_VIEW_SELF)"
+    class="transactions-page"
+  >
     <AppPageHeader title="حركات الخزينة" subtitle="سجل وتدقيق جميع المعاملات المالية الصادرة والواردة" icon="ri-exchange-line" sticky>
       <template #controls>
         <v-row align="center" class="w-100 mx-0">
@@ -114,7 +117,7 @@ import AppButton from '@/components/common/AppButton.vue';
 import AppInput from '@/components/common/AppInput.vue';
 import TransactionFilters from '../components/TransactionFilters.vue';
 
-const { can } = usePermissions();
+const { can, canAny } = usePermissions();
 const api = useApi('/api/transactions');
 const cashBoxesApi = useApi('/api/cash-boxes');
 

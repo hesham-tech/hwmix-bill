@@ -3,7 +3,7 @@
     <AppPageHeader title="قائمة المنتجات" subtitle="إدارة المخزون والمنتجات والمتغيرات" icon="ri-box-3-line">
       <template #append>
         <AppButton
-          v-if="can(PERMISSIONS.PRODUCTS_CREATE)"
+          v-if="canAny(PERMISSIONS.PRODUCTS_CREATE)"
           color="primary"
           prepend-icon="ri-add-line"
           size="large"
@@ -276,7 +276,7 @@ import { formatCurrency } from '@/utils/formatters';
 
 const router = useRouter();
 const productStore = useProductStore();
-const { can } = usePermissions();
+const { can, canAny } = usePermissions();
 const { mobile } = useDisplay();
 
 const viewMode = ref('table');

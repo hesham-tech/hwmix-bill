@@ -71,6 +71,11 @@
             <template #actions>
               <v-spacer />
               <AppSwitch
+                v-if="
+                  canAny(PERMISSIONS.INVOICE_TYPES_UPDATE_ALL, PERMISSIONS.INVOICE_TYPES_UPDATE_CHILDREN, PERMISSIONS.INVOICE_TYPES_UPDATE_SELF, {
+                    resource: type,
+                  })
+                "
                 v-model="type.is_active"
                 hide-details
                 :loading="toggling[type.id]"
@@ -123,6 +128,11 @@
 
         <template #extra-actions="{ item }">
           <AppSwitch
+            v-if="
+              canAny(PERMISSIONS.INVOICE_TYPES_UPDATE_ALL, PERMISSIONS.INVOICE_TYPES_UPDATE_CHILDREN, PERMISSIONS.INVOICE_TYPES_UPDATE_SELF, {
+                resource: item,
+              })
+            "
             v-model="item.is_active"
             hide-details
             :loading="toggling[item.id]"
@@ -163,7 +173,10 @@ import AppDataTable from '@/components/common/AppDataTable.vue';
 import AppConfirmDialog from '@/components/common/AppConfirmDialog.vue';
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import EmptyState from '@/components/common/EmptyState.vue';
+import { usePermissions } from '@/composables/usePermissions';
+import { PERMISSIONS } from '@/config/permissions';
 
+const { canAny } = usePermissions();
 const { invoiceTypes, loading, fetchInvoiceTypes } = useInvoiceTypesData();
 const api = useApi('/api/invoice-types'); // Added this line
 

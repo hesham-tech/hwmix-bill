@@ -82,9 +82,17 @@
     <!-- الإجراءات -->
     <template #item.actions="{ item }">
       <div class="d-flex gap-1 justify-center">
-        <AppButton icon="ri-eye-line" size="x-small" variant="text" color="info" tooltip="عرض" @click="$emit('view', item)" />
         <AppButton
-          v-if="can(PERMISSIONS.INVOICES_UPDATE_ALL)"
+          v-if="canAny(PERMISSIONS.INVOICES_VIEW_ALL, PERMISSIONS.INVOICES_VIEW_CHILDREN, PERMISSIONS.INVOICES_VIEW_SELF)"
+          icon="ri-eye-line"
+          size="x-small"
+          variant="text"
+          color="info"
+          tooltip="عرض"
+          @click="$emit('view', item)"
+        />
+        <AppButton
+          v-if="canAny(PERMISSIONS.INVOICES_UPDATE_ALL, PERMISSIONS.INVOICES_UPDATE_CHILDREN, PERMISSIONS.INVOICES_UPDATE_SELF)"
           icon="ri-edit-line"
           size="x-small"
           variant="text"
@@ -102,7 +110,7 @@
           @click="$emit('print', item)"
         />
         <AppButton
-          v-if="can(PERMISSIONS.INVOICES_DELETE_ALL)"
+          v-if="canAny(PERMISSIONS.INVOICES_DELETE_ALL, PERMISSIONS.INVOICES_DELETE_CHILDREN, PERMISSIONS.INVOICES_DELETE_SELF)"
           icon="ri-delete-bin-line"
           size="x-small"
           variant="text"

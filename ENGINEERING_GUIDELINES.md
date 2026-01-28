@@ -1,53 +1,75 @@
-# دليل الهندسة وقواعد التصميم (Engineering & UI/UX Guidelines)
+# Engineering Guidelines - Permission System
 
-هذا الملف يمثل الذاكرة التقنية والتصميمية للمشروع. يجب الالتزام بهذه القواعد في جميع الموديولات لضمان تجربة مستخدم موحدة واحترافية.
+## Overview
 
----
+The HWMix Bill permission system is designed to provide granular access control (All, Self, Children) for all business entities. Every module must follow a standardized set of permission keys to ensure consistency and modularity.
 
-## 0. المبادئ الأساسية (Core Principles)
-*   **المكونات العالمية أولاً**: قبل كتابة أي كود واجهة، يجب التحقق من المكونات الموجودة في `src/components/common` واستخدامها (مثل `AppButton`, `AppInput`, `AppDialog`). يمنع تكرار منطق موجود مسبقاً.
-*   **سيادة Vuetify**: الأولوية القصوى دائماً لمكونات Vuetify (`v-`) وكلاسات المتريال ديزاين الخاصة بها. 
-*   **تجنب الـ Custom CSS**: يمنع استخدام عناصر HTML الخام أو كتابة تنسيقات CSS يدوية إلا في حالات نادرة جداً لا تغطيها فئات Vuetify الجاهزة (Utility Classes مثل `ma-`, `pa-`, `d-flex`, `align-center`).
-*   **التناسق البصري**: أي عنصر يتم إنشاؤه يجب أن يتبع روح التصميم العام للمشروع من حيث الألوان، الحواف المستديرة، والظلال.
+## Standard Permission Pattern
 
----
+For any entity (e.g., `Users`, `Invoices`, `Products`), the following keys must be defined in `src/config/permissions.js`:
 
-## 1. ترويسة الصفحات (Page Headers)
-*   **المكون**: `AppPageHeader`.
-*   **التثبيت (Sticky)**: يجب أن يكون الهيدر ثابتاً (`sticky`) دائماً لسهولة الوصول للأدوات.
-*   **البحث السريع**: يوضع حقل البحث الرئيسي في الـ `controls` slot الخاص بالهيدر ليكون متاحاً أثناء التمرير.
-*   **الأيقونات**: يفضل تمرير أيقونة تعبيرية لكل صفحة عبر خاصية `icon`.
+| Key Suffix | Description |
+| :--- | :--- |
+| `_PAGE` | Access to the main module page/route. |
+| `_VIEW_ALL` | Ability to view ALL records of this entity. |
+| `_VIEW_CHILDREN` | Ability to view records created by subordinates/sub-companies. |
+| `_VIEW_SELF` | Ability to view only own records. |
+| `_CREATE` | Ability to create a new record. |
+| `_UPDATE_ALL` | Ability to edit ALL records. |
+| `_UPDATE_CHILDREN` | Ability to edit records of subordinates. |
+| `_UPDATE_SELF` | Ability to edit only own records. |
+| `_DELETE_ALL` | Ability to delete ANY record. |
+| `_DELETE_CHILDREN` | Ability to delete records of subordinates. |
+| `_DELETE_SELF` | Ability to delete only own records. |
 
-## 2. البحث المتقدم (Advanced Search)
-*   **المسمى**: يُسمى دائماً **"بحث متقدم"**.
-*   **السلوك**: يكون مخفياً افتراضياً وقابلاً للطي والتمدد (`v-expand-transition`).
-*   **التحكم**: يتم التحكم في فتحه وإغلاقه عبر زر في الهيدر الثابت.
-*   **المؤشرات**: يجب إظهار `v-chip` توضح وجود فلاتر نشطة حتى لو كان القسم مغلقاً.
+## Implementation in Vue Components
 
-## 3. التصميم المتجاوب (Mobile Responsiveness)
-*   **قاعدة الـ 50%**: الحقول التي لا تطلب نصاً طويلاً (مثل الحالة، التاريخ، نعم/لا) يجب أن تظهر بجانب بعضها في الجوال (`cols="6"` / `sm="6"`) لتوفير المساحة الرأسية.
-*   **الحقول الطويلة**: الحقول مثل الأسماء أو الملاحظات تأخذ العرض الكامل (`cols="12"`).
+### 1. Using the `can()` helper
+Use the `usePermissions` composable to check permissions in templates or scripts.
 
-## 4. النوافذ المنبثقة (Dialogs & Forms)
-*   **الترتيب**: يتم فصل الأزرار الأساسية (حفظ، تعديل، إغلاق) عن المحتوى القابل للتمرير.
-*   **الفوتر الثابت (Fixed Footer)**:
-    *   استخدام `hide-actions` في `AppDialog`.
-    *   وضع الأزرار في `template #actions`.
-    *   يمنع تكرار الأزرار داخل الفورم (`hideActions` prop).
-*   **الاتصال**: يتم استخدام `defineExpose` في مكون الفورم لتصدير دالة الحفظ وحالة التحميل (`loading`).
+```vue
+<script setup>
+import { usePermissions } from '@/composables/usePermissions';
+import { PERMISSIONS } from '@/config/permissions';
 
-## 5. الأزرار (Buttons)
-*   **التوزيع في الجوال**: الأزرار في أسفل النماذج يجب أن تستخدم `flex-grow-1` و `flex-wrap` لتأخذ عرض الشاشة بالتساوي في الجوال.
+const { can } = usePermissions();
+</script>
 
-## 6. قواعد المنطق البرمجي (Backend - Laravel)
-*   **إدارة العلاقات**: عند الربط بين مستخدم وشركة، يجب استخدام `updateOrCreate` بدلاً من `create` المباشر لتجنب أخطاء التعارض (409 Conflict).
-*   **التدقيق**: يجب إجراء فحص الـ `Conflict` فقط بعد التأكد من وجود السجل، لضمان استقرار عملية الإدخال.
+<template>
+  <!-- Gating an entire section -->
+  <div v-if="can(PERMISSIONS.INVOICES_VIEW_ALL)">
+    <!-- Admin view -->
+  </div>
 
-## 7. حلول تقنية شائعة (Common UI Fixes)
-*   **التمرير الأفقي (Horizontal Scroll)**: لمنع ظهور شريط تمرير أفقي داخل الـ `v-row` في النوافذ المنبثقة، يجب دائماً إضافة كلاس `mx-0`.
-*   **عناصر الإدخال**: يفضل استخدام `density="comfortable"` و `variant="outlined"` لجميع عناصر الإدخال لضمان مظهر موحد واحترافي.
+  <!-- Gating an action button -->
+  <AppButton 
+    v-if="can(PERMISSIONS.WAREHOUSES_CREATE)"
+    @click="handleCreate"
+  >
+    Add Warehouse
+  </AppButton>
+</template>
+```
 
----
+### 2. Using `AppDataTable`
+`AppDataTable` handles standard actions (View, Edit, Delete) automatically and INCLUSIVELY if you provide the `permission-module`.
 
-> [!TIP]
-> **التحديث المستمر**: هذا الملف ينمو مع المشروع. أي قاعدة يتم استنتاجها من النقاش تضاف هنا فوراً.
+```vue
+<AppDataTable
+  permission-module="users"
+  @view="handleView"
+  @edit="handleEdit"
+  @delete="handleDelete"
+/>
+```
+
+**How it works:**
+The component automatically constructs the granular keys based on the `permission-module` prop:
+*   **View Action**: Checks `canAny('users.view_all', 'users.view_children', 'users.view_self')`.
+*   **Edit Action**: Checks `canAny('users.update_all', 'users.update_children', 'users.update_self')`.
+*   **Delete Action**: Checks `canAny('users.delete_all', 'users.delete_children', 'users.delete_self')`.
+
+This ensures that any user with access to the data (at any level) can also use the corresponding action buttons if their permissions allow.
+
+## Backend Sync
+Every key added to `src/config/permissions.js` **MUST** have a corresponding key in the Laravel backend (`config/permissions_keys.php`) to ensure that API requests are also properly authorized.

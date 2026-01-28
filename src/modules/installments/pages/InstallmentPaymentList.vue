@@ -1,5 +1,8 @@
 <template>
-  <div v-if="can(PERMISSIONS.PAYMENTS_VIEW_ALL)" class="installment-payments-page">
+  <div
+    v-if="canAny(PERMISSIONS.PAYMENTS_VIEW_ALL, PERMISSIONS.PAYMENTS_VIEW_CHILDREN, PERMISSIONS.PAYMENTS_VIEW_SELF)"
+    class="installment-payments-page"
+  >
     <AppPageHeader
       :title="`سجل دفعات الخطة #${planId || 'العامة'}`"
       subtitle="مراجعة عمليات السداد المرتبطة بخطة التقسيط"
@@ -65,6 +68,7 @@
         <template #item.actions="{ item }">
           <div class="d-flex justify-end">
             <AppButton
+              v-if="canAny(PERMISSIONS.PAYMENTS_VIEW_ALL, PERMISSIONS.PAYMENTS_VIEW_CHILDREN, PERMISSIONS.PAYMENTS_VIEW_SELF)"
               icon="ri-eye-line"
               size="x-small"
               variant="text"

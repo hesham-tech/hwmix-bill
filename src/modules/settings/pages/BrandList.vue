@@ -6,7 +6,9 @@
         <h1 class="text-h4 font-weight-bold ml-2">العلامات التجارية</h1>
         <p class="text-body-1 text-grey">إدارة وتحليل العلامات التجارية للمنتجات</p>
       </div>
-      <AppButton v-if="can('brands.create')" prepend-icon="ri-add-line" size="large" elevation="2" @click="handleCreate"> علامة جديدة </AppButton>
+      <AppButton v-if="can(PERMISSIONS.BRANDS_CREATE)" prepend-icon="ri-add-line" size="large" elevation="2" @click="handleCreate">
+        علامة جديدة
+      </AppButton>
     </div>
 
     <!-- Filters & View Toggle -->
@@ -38,7 +40,7 @@
       icon="ri-award-line"
       title="لا توجد علامات تجارية حالياً"
       message="ابدأ بإضافة أول علامة تجارية لنظامك"
-      :show-action="can('brands.create')"
+      :show-action="can(PERMISSIONS.BRANDS_CREATE)"
       action-text="إضافة ماركة"
       @action="handleCreate"
     />
@@ -78,7 +80,9 @@
                   </div>
 
                   <AppSwitch
-                    v-if="can('brands.update_all', { resource: brand })"
+                    v-if="
+                      canAny(PERMISSIONS.BRANDS_UPDATE_ALL, PERMISSIONS.BRANDS_UPDATE_CHILDREN, PERMISSIONS.BRANDS_UPDATE_SELF, { resource: brand })
+                    "
                     :model-value="!!brand.active"
                     :loading="togglingId === brand.id"
                     @update:model-value="handleToggleStatus(brand)"
@@ -100,14 +104,18 @@
               <template #actions>
                 <v-spacer />
                 <AppButton
-                  v-if="can('brands.update_all', { resource: brand })"
+                  v-if="
+                    canAny(PERMISSIONS.BRANDS_UPDATE_ALL, PERMISSIONS.BRANDS_UPDATE_CHILDREN, PERMISSIONS.BRANDS_UPDATE_SELF, { resource: brand })
+                  "
                   icon="ri-edit-line"
                   variant="text"
                   color="primary"
                   @click="handleEdit(brand)"
                 />
                 <AppButton
-                  v-if="can('brands.delete_all', { resource: brand })"
+                  v-if="
+                    canAny(PERMISSIONS.BRANDS_DELETE_ALL, PERMISSIONS.BRANDS_DELETE_CHILDREN, PERMISSIONS.BRANDS_DELETE_SELF, { resource: brand })
+                  "
                   icon="ri-delete-bin-line"
                   variant="text"
                   color="error"
@@ -157,14 +165,14 @@
         <template #[`item.active`]="{ item }">
           <div class="d-flex align-center justify-center">
             <span
-              v-if="can('brands.update_all', { resource: item })"
+              v-if="canAny(PERMISSIONS.BRANDS_UPDATE_ALL, PERMISSIONS.BRANDS_UPDATE_CHILDREN, PERMISSIONS.BRANDS_UPDATE_SELF, { resource: item })"
               class="text-caption me-2 font-weight-bold"
               :class="item.active ? 'text-success' : 'text-error'"
             >
               {{ item.active ? 'نشط' : 'معطل' }}
             </span>
             <AppSwitch
-              v-if="can('brands.update_all', { resource: item })"
+              v-if="canAny(PERMISSIONS.BRANDS_UPDATE_ALL, PERMISSIONS.BRANDS_UPDATE_CHILDREN, PERMISSIONS.BRANDS_UPDATE_SELF, { resource: item })"
               :model-value="!!item.active"
               :loading="togglingId === item.id"
               @update:model-value="handleToggleStatus(item)"

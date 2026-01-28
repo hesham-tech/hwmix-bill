@@ -4,7 +4,13 @@
       <template #controls>
         <!-- Add Button -->
         <v-col cols="6" md="4" class="d-flex justify-center">
-          <v-btn v-if="can('attributes.create')" prepend-icon="ri-add-line" size="large" class="gradient-add-btn elevation-6" @click="handleCreate">
+          <v-btn
+            v-if="can(PERMISSIONS.ATTRIBUTES_CREATE)"
+            prepend-icon="ri-add-line"
+            size="large"
+            class="gradient-add-btn elevation-6"
+            @click="handleCreate"
+          >
             خاصية جديدة
           </v-btn>
         </v-col>
@@ -48,7 +54,7 @@
       icon="ri-paint-brush-line"
       title="لا توجد خصائص حالياً"
       message="ابدأ بإضافة أول خاصية لنظامك (مثل: اللون، المقاس)"
-      :show-action="can('attributes.create')"
+      :show-action="can(PERMISSIONS.ATTRIBUTES_CREATE)"
       action-text="إضافة خاصية"
       @action="handleCreate"
     />
@@ -78,7 +84,11 @@
             <!-- Fast Action Toggle -->
             <v-card-actions class="card-quick-actions pa-3 d-flex align-center border-t border-slate-50">
               <AppSwitch
-                v-if="can('attributes.update_all', { resource: attribute })"
+                v-if="
+                  canAny(PERMISSIONS.ATTRIBUTES_UPDATE_ALL, PERMISSIONS.ATTRIBUTES_UPDATE_CHILDREN, PERMISSIONS.ATTRIBUTES_UPDATE_SELF, {
+                    resource: attribute,
+                  })
+                "
                 v-model="attribute.active"
                 :loading="togglingId === attribute.id"
                 @update:model-value="() => handleToggleStatus(attribute)"
@@ -150,7 +160,11 @@
 
           <template #[`item.active`]="{ item }">
             <AppSwitch
-              v-if="can('attributes.update_all', { resource: item })"
+              v-if="
+                canAny(PERMISSIONS.ATTRIBUTES_UPDATE_ALL, PERMISSIONS.ATTRIBUTES_UPDATE_CHILDREN, PERMISSIONS.ATTRIBUTES_UPDATE_SELF, {
+                  resource: item,
+                })
+              "
               v-model="item.active"
               :loading="togglingId === item.id"
               @update:model-value="() => handleToggleStatus(item)"
@@ -161,7 +175,11 @@
             <div class="d-flex align-center">
               <v-btn variant="text" icon="ri-list-settings-line" color="info" size="small" @click="openValuesDialog(item)" />
               <v-btn
-                v-if="can('attributes.update_all', { resource: item })"
+                v-if="
+                  canAny(PERMISSIONS.ATTRIBUTES_UPDATE_ALL, PERMISSIONS.ATTRIBUTES_UPDATE_CHILDREN, PERMISSIONS.ATTMISSIONS_UPDATE_SELF, {
+                    resource: item,
+                  })
+                "
                 icon="ri-edit-2-line"
                 variant="text"
                 color="primary"
@@ -169,7 +187,11 @@
                 @click="handleEdit(item)"
               />
               <v-btn
-                v-if="can('attributes.delete_all', { resource: item })"
+                v-if="
+                  canAny(PERMISSIONS.ATTRIBUTES_DELETE_ALL, PERMISSIONS.ATTRIBUTES_DELETE_CHILDREN, PERMISSIONS.ATTRIBUTES_DELETE_SELF, {
+                    resource: item,
+                  })
+                "
                 icon="ri-delete-bin-6-line"
                 variant="text"
                 color="error"

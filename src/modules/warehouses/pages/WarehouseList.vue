@@ -6,7 +6,7 @@
         <h1 class="text-h4 font-weight-bold ml-2">المخازن</h1>
         <p class="text-body-1 text-grey">إدارة ومتابعة المخازن والمخزون الخاص بكل منها</p>
       </div>
-      <AppButton v-if="can(PERMISSIONS.WAREHOUSES_CREATE)" prepend-icon="ri-add-line" size="large" elevation="2" @click="handleCreate">
+      <AppButton v-if="canAny(PERMISSIONS.WAREHOUSES_CREATE)" prepend-icon="ri-add-line" size="large" elevation="2" @click="handleCreate">
         مخزن جديد
       </AppButton>
     </div>
@@ -90,7 +90,7 @@
 
             <div class="pa-3 d-flex align-center justify-space-between">
               <v-btn
-                v-if="can(PERMISSIONS.STOCKS_VIEW_ALL)"
+                v-if="canAny(PERMISSIONS.STOCKS_VIEW_ALL, PERMISSIONS.STOCKS_VIEW_CHILDREN, PERMISSIONS.STOCKS_VIEW_SELF)"
                 variant="tonal"
                 color="secondary"
                 size="small"
@@ -102,7 +102,10 @@
               </v-btn>
               <div class="d-flex gap-2">
                 <AppButton
-                  v-if="!warehouse.is_default && can(PERMISSIONS.WAREHOUSES_UPDATE_ALL)"
+                  v-if="
+                    !warehouse.is_default &&
+                    canAny(PERMISSIONS.WAREHOUSES_UPDATE_ALL, PERMISSIONS.WAREHOUSES_UPDATE_CHILDREN, PERMISSIONS.WAREHOUSES_UPDATE_SELF)
+                  "
                   icon="ri-star-line"
                   variant="text"
                   color="warning"
@@ -110,14 +113,14 @@
                   title="تعيين كافتراضي"
                 />
                 <AppButton
-                  v-if="can(PERMISSIONS.WAREHOUSES_UPDATE_ALL)"
+                  v-if="canAny(PERMISSIONS.WAREHOUSES_UPDATE_ALL, PERMISSIONS.WAREHOUSES_UPDATE_CHILDREN, PERMISSIONS.WAREHOUSES_UPDATE_SELF)"
                   icon="ri-edit-line"
                   variant="text"
                   color="primary"
                   @click="handleEdit(warehouse)"
                 />
                 <AppButton
-                  v-if="can(PERMISSIONS.WAREHOUSES_DELETE_ALL)"
+                  v-if="canAny(PERMISSIONS.WAREHOUSES_DELETE_ALL, PERMISSIONS.WAREHOUSES_DELETE_CHILDREN, PERMISSIONS.WAREHOUSES_DELETE_SELF)"
                   icon="ri-delete-bin-line"
                   variant="text"
                   color="error"
@@ -179,7 +182,7 @@
         <template #item.actions="{ item }">
           <div class="d-flex gap-2 justify-end">
             <AppButton
-              v-if="can(PERMISSIONS.STOCKS_VIEW_ALL)"
+              v-if="canAny(PERMISSIONS.STOCKS_VIEW_ALL, PERMISSIONS.STOCKS_VIEW_CHILDREN, PERMISSIONS.STOCKS_VIEW_SELF)"
               icon="ri-eye-line"
               variant="text"
               color="secondary"
@@ -187,16 +190,25 @@
               title="جرد المخزون"
             />
             <AppButton
-              v-if="!item.is_default && can(PERMISSIONS.WAREHOUSES_UPDATE_ALL)"
+              v-if="
+                !item.is_default &&
+                canAny(PERMISSIONS.WAREHOUSES_UPDATE_ALL, PERMISSIONS.WAREHOUSES_UPDATE_CHILDREN, PERMISSIONS.WAREHOUSES_UPDATE_SELF)
+              "
               icon="ri-star-line"
               variant="text"
               color="warning"
               @click="handleSetDefault(item)"
               title="تعيين كافتراضي"
             />
-            <AppButton v-if="can(PERMISSIONS.WAREHOUSES_UPDATE_ALL)" icon="ri-edit-line" variant="text" color="primary" @click="handleEdit(item)" />
             <AppButton
-              v-if="can(PERMISSIONS.WAREHOUSES_DELETE_ALL)"
+              v-if="canAny(PERMISSIONS.WAREHOUSES_UPDATE_ALL, PERMISSIONS.WAREHOUSES_UPDATE_CHILDREN, PERMISSIONS.WAREHOUSES_UPDATE_SELF)"
+              icon="ri-edit-line"
+              variant="text"
+              color="primary"
+              @click="handleEdit(item)"
+            />
+            <AppButton
+              v-if="canAny(PERMISSIONS.WAREHOUSES_DELETE_ALL, PERMISSIONS.WAREHOUSES_DELETE_CHILDREN, PERMISSIONS.WAREHOUSES_DELETE_SELF)"
               icon="ri-delete-bin-line"
               variant="text"
               color="error"
@@ -265,7 +277,7 @@ const { warehouses, loading, totalItems, page, itemsPerPage, search, sortBy } = 
 
 const { isOpen, formData, isEditMode, open, close } = useDialog();
 const { showConfirm, confirmMessage, confirm, handleConfirm, handleCancel } = useConfirm();
-const { can } = usePermissions();
+const { can, canAny } = usePermissions();
 
 const warehouseFormRef = ref(null);
 const isSaving = ref(false);

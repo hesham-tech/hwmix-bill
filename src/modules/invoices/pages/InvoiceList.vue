@@ -2,7 +2,9 @@
   <div class="invoice-list-wrapper">
     <AppPageHeader title="الفواتير" subtitle="إدارة جميع الفواتير الصادرة والواردة" icon="ri-file-list-3-line">
       <template #append>
-        <AppButton v-if="can('invoices.create')" prepend-icon="ri-add-line" size="large" @click="navigateToCreate"> فاتورة جديدة </AppButton>
+        <AppButton v-if="can(PERMISSIONS.INVOICES_CREATE)" prepend-icon="ri-add-line" size="large" @click="navigateToCreate">
+          فاتورة جديدة
+        </AppButton>
       </template>
       <template #controls>
         <v-col cols="12" md="8">
@@ -43,7 +45,7 @@
               <div class="text-primary font-weight-bold">تم تحديد {{ selectedIds.length }} فاتورة</div>
               <v-spacer />
               <AppButton
-                v-if="can('invoices.delete_all')"
+                v-if="canAny(PERMISSIONS.INVOICES_DELETE_ALL, PERMISSIONS.INVOICES_DELETE_CHILDREN, PERMISSIONS.INVOICES_DELETE_SELF)"
                 variant="outlined"
                 color="error"
                 prepend-icon="ri-delete-bin-line"
@@ -122,6 +124,7 @@ import { useRouter } from 'vue-router';
 import { useDataTable } from '@/composables/useDataTable';
 import { useApi } from '@/composables/useApi';
 import { usePermissions } from '@/composables/usePermissions';
+import { PERMISSIONS } from '@/config/permissions';
 import InvoiceDataTable from '../components/InvoiceDataTable.vue';
 import InvoiceFilters from '../components/InvoiceFilters.vue';
 import AppPageHeader from '@/components/common/AppPageHeader.vue';

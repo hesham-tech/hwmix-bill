@@ -47,7 +47,7 @@ const router = createRouter({
               const user = JSON.parse(userStr);
               // Simple check for staff vs customer logic (matches stores/user.js)
               const permissions = user.permissions || [];
-              const isStaff = permissions.some(p => p.includes('.view_all') || p.includes('.page') || p.includes('admin.'));
+              const isStaff = permissions.some(p => p.includes('.view_') || p.includes('.page') || p.includes('admin.'));
 
               return isStaff ? '/app/admin/dashboard' : '/app/portal';
             }
@@ -117,7 +117,7 @@ const router = createRouter({
           component: () => import('@/modules/invoices/pages/InvoiceList.vue'),
           meta: {
             title: 'الفواتير',
-            permission: PERMISSIONS.INVOICES_PAGE,
+            permission: [PERMISSIONS.INVOICES_VIEW_ALL, PERMISSIONS.INVOICES_VIEW_CHILDREN, PERMISSIONS.INVOICES_VIEW_SELF],
           },
         },
         {
@@ -139,7 +139,7 @@ const router = createRouter({
           component: () => import('@/modules/invoices/pages/InvoiceView.vue'),
           meta: {
             title: 'عرض الفاتورة',
-            permission: [PERMISSIONS.INVOICES_VIEW_ALL, 'invoices.view_self'],
+            permission: [PERMISSIONS.INVOICES_VIEW_ALL, PERMISSIONS.INVOICES_VIEW_CHILDREN, PERMISSIONS.INVOICES_VIEW_SELF],
             breadcrumbs: [
               { title: 'الفواتير', to: '/app/invoices' },
               { title: 'عرض الفاتورة', disabled: true },
@@ -152,7 +152,7 @@ const router = createRouter({
           component: () => import('@/modules/invoices/pages/InvoiceEdit.vue'),
           meta: {
             title: 'تعديل الفاتورة',
-            permission: [PERMISSIONS.INVOICES_UPDATE_ALL, 'invoices.view_self'],
+            permission: [PERMISSIONS.INVOICES_UPDATE_ALL, PERMISSIONS.INVOICES_UPDATE_CHILDREN, PERMISSIONS.INVOICES_UPDATE_SELF],
             breadcrumbs: [
               { title: 'الفواتير', to: '/app/invoices' },
               { title: 'تعديل الفاتورة', disabled: true },
@@ -167,7 +167,7 @@ const router = createRouter({
           component: () => import('@/modules/products/pages/ProductList.vue'),
           meta: {
             title: 'المنتجات',
-            permission: PERMISSIONS.PRODUCTS_PAGE,
+            permission: [PERMISSIONS.PRODUCTS_VIEW_ALL, PERMISSIONS.PRODUCTS_VIEW_CHILDREN, PERMISSIONS.PRODUCTS_VIEW_SELF],
           },
         },
         {
@@ -189,7 +189,7 @@ const router = createRouter({
           component: () => import('@/modules/products/pages/ProductView.vue'),
           meta: {
             title: 'عرض المنتج',
-            permission: [PERMISSIONS.PRODUCTS_VIEW_ALL, 'products.view_self'],
+            permission: [PERMISSIONS.PRODUCTS_VIEW_ALL, PERMISSIONS.PRODUCTS_VIEW_CHILDREN, PERMISSIONS.PRODUCTS_VIEW_SELF],
             breadcrumbs: [
               { title: 'المنتجات', to: '/app/products' },
               { title: 'عرض المنتج', disabled: true },
@@ -216,7 +216,7 @@ const router = createRouter({
           component: () => import('@/modules/expenses/pages/ExpenseList.vue'),
           meta: {
             title: 'المصاريف',
-            permission: PERMISSIONS.EXPENSES_PAGE,
+            permission: [PERMISSIONS.EXPENSES_VIEW_ALL, PERMISSIONS.EXPENSES_VIEW_CHILDREN, PERMISSIONS.EXPENSES_VIEW_SELF],
           },
         },
         {
@@ -225,7 +225,7 @@ const router = createRouter({
           component: () => import('@/modules/expenses/pages/LedgerList.vue'),
           meta: {
             title: 'دفتر الأستاذ',
-            permission: PERMISSIONS.FINANCIAL_LEDGER_PAGE,
+            permission: [PERMISSIONS.FINANCIAL_LEDGER_VIEW_ALL, PERMISSIONS.FINANCIAL_LEDGER_VIEW_CHILDREN, PERMISSIONS.FINANCIAL_LEDGER_VIEW_SELF],
           },
         },
 
@@ -236,7 +236,7 @@ const router = createRouter({
           component: () => import('@/modules/payments/pages/PaymentList.vue'),
           meta: {
             title: 'المدفوعات',
-            permission: PERMISSIONS.PAYMENTS_PAGE,
+            permission: [PERMISSIONS.PAYMENTS_VIEW_ALL, PERMISSIONS.PAYMENTS_VIEW_CHILDREN, PERMISSIONS.PAYMENTS_VIEW_SELF],
           },
         },
         {
@@ -256,7 +256,11 @@ const router = createRouter({
           component: () => import('@/modules/installments/pages/InstallmentPlanList.vue'),
           meta: {
             title: 'خطط التقسيط',
-            permission: PERMISSIONS.INSTALLMENT_PLANS_PAGE,
+            permission: [
+              PERMISSIONS.INSTALLMENT_PLANS_VIEW_ALL,
+              PERMISSIONS.INSTALLMENT_PLANS_VIEW_CHILDREN,
+              PERMISSIONS.INSTALLMENT_PLANS_VIEW_SELF,
+            ],
           },
         },
         {
@@ -265,7 +269,11 @@ const router = createRouter({
           component: () => import('@/modules/installments/pages/InstallmentPaymentList.vue'),
           meta: {
             title: 'دفعات الأقساط',
-            permission: PERMISSIONS.INSTALLMENT_PAYMENTS_PAGE,
+            permission: [
+              PERMISSIONS.INSTALLMENT_PAYMENTS_VIEW_ALL,
+              PERMISSIONS.INSTALLMENT_PAYMENTS_VIEW_CHILDREN,
+              PERMISSIONS.INSTALLMENT_PAYMENTS_VIEW_SELF,
+            ],
           },
         },
 
@@ -276,7 +284,7 @@ const router = createRouter({
           component: () => import('@/modules/cashbox/pages/CashBoxList.vue'),
           meta: {
             title: 'الخزائن',
-            permission: PERMISSIONS.CASH_BOXES_PAGE,
+            permission: [PERMISSIONS.CASH_BOXES_VIEW_ALL, PERMISSIONS.CASH_BOXES_VIEW_CHILDREN, PERMISSIONS.CASH_BOXES_VIEW_SELF],
           },
         },
         {
@@ -285,7 +293,7 @@ const router = createRouter({
           component: () => import('@/modules/cashbox/pages/TransactionList.vue'),
           meta: {
             title: 'التحويلات',
-            permission: PERMISSIONS.TRANSACTIONS_PAGE,
+            permission: [PERMISSIONS.TRANSACTIONS_VIEW_ALL, PERMISSIONS.TRANSACTIONS_VIEW_CHILDREN, PERMISSIONS.TRANSACTIONS_VIEW_SELF],
           },
         },
 
@@ -343,7 +351,7 @@ const router = createRouter({
           component: () => import('@/modules/users/pages/UserList.vue'),
           meta: {
             title: 'المستخدمين',
-            permission: PERMISSIONS.USERS_PAGE,
+            permission: [PERMISSIONS.USERS_VIEW_ALL, PERMISSIONS.USERS_VIEW_CHILDREN, PERMISSIONS.USERS_VIEW_SELF],
           },
         },
         {
@@ -365,7 +373,7 @@ const router = createRouter({
           component: () => import('@/modules/users/pages/RoleManagement.vue'),
           meta: {
             title: 'الأدوار والصلاحيات',
-            permission: PERMISSIONS.ROLES_PAGE,
+            permission: [PERMISSIONS.ROLES_VIEW_ALL, PERMISSIONS.ROLES_VIEW_CHILDREN, PERMISSIONS.ROLES_VIEW_SELF],
           },
         },
 
@@ -376,7 +384,7 @@ const router = createRouter({
           component: () => import('@/modules/warehouses/pages/WarehouseList.vue'),
           meta: {
             title: 'المخازن',
-            permission: PERMISSIONS.WAREHOUSES_PAGE,
+            permission: [PERMISSIONS.WAREHOUSES_VIEW_ALL, PERMISSIONS.WAREHOUSES_VIEW_CHILDREN, PERMISSIONS.WAREHOUSES_VIEW_SELF],
           },
         },
 
@@ -387,7 +395,7 @@ const router = createRouter({
           component: () => import('@/modules/settings/pages/CategoryList.vue'),
           meta: {
             title: 'الفئات',
-            permission: PERMISSIONS.CATEGORIES_PAGE,
+            permission: [PERMISSIONS.CATEGORIES_VIEW_ALL, PERMISSIONS.CATEGORIES_VIEW_CHILDREN, PERMISSIONS.CATEGORIES_VIEW_SELF],
           },
         },
         {
@@ -396,7 +404,7 @@ const router = createRouter({
           component: () => import('@/modules/settings/pages/BrandList.vue'),
           meta: {
             title: 'العلامات التجارية',
-            permission: PERMISSIONS.BRANDS_PAGE,
+            permission: [PERMISSIONS.BRANDS_VIEW_ALL, PERMISSIONS.BRANDS_VIEW_CHILDREN, PERMISSIONS.BRANDS_VIEW_SELF],
           },
         },
         {
@@ -405,7 +413,7 @@ const router = createRouter({
           component: () => import('@/modules/products/pages/AttributeList.vue'),
           meta: {
             title: 'خصائص المنتجات',
-            permission: PERMISSIONS.PRODUCTS_PAGE,
+            permission: [PERMISSIONS.ATTRIBUTES_VIEW_ALL, PERMISSIONS.ATTRIBUTES_VIEW_CHILDREN, PERMISSIONS.ATTRIBUTES_VIEW_SELF],
           },
         },
         {
@@ -414,7 +422,7 @@ const router = createRouter({
           component: () => import('@/modules/settings/pages/PaymentMethodList.vue'),
           meta: {
             title: 'طرق الدفع',
-            permission: PERMISSIONS.PAYMENT_METHODS_PAGE,
+            permission: [PERMISSIONS.PAYMENT_METHODS_VIEW_ALL, PERMISSIONS.PAYMENT_METHODS_VIEW_CHILDREN, PERMISSIONS.PAYMENT_METHODS_VIEW_SELF],
           },
         },
         {
@@ -423,7 +431,7 @@ const router = createRouter({
           component: () => import('@/modules/settings/pages/InvoiceTypeList.vue'),
           meta: {
             title: 'أنواع الفواتير',
-            permission: PERMISSIONS.INVOICES_PAGE,
+            permission: [PERMISSIONS.INVOICE_TYPES_VIEW_ALL, PERMISSIONS.INVOICE_TYPES_VIEW_CHILDREN, PERMISSIONS.INVOICE_TYPES_VIEW_SELF],
           },
         },
         {
@@ -432,7 +440,7 @@ const router = createRouter({
           component: () => import('@/modules/settings/pages/CashBoxTypeList.vue'),
           meta: {
             title: 'أنواع الخزائن',
-            permission: PERMISSIONS.CASH_BOX_TYPES_PAGE,
+            permission: [PERMISSIONS.CASH_BOX_TYPES_VIEW_ALL, PERMISSIONS.CASH_BOX_TYPES_VIEW_CHILDREN, PERMISSIONS.CASH_BOX_TYPES_VIEW_SELF],
           },
         },
         {
@@ -441,7 +449,7 @@ const router = createRouter({
           component: () => import('@/modules/settings/pages/ActivityLogList.vue'),
           meta: {
             title: 'سجل الأنشطة',
-            permission: PERMISSIONS.ACTIVITY_LOGS_PAGE,
+            permission: [PERMISSIONS.ACTIVITY_LOGS_VIEW_ALL, PERMISSIONS.ACTIVITY_LOGS_VIEW_CHILDREN, PERMISSIONS.ACTIVITY_LOGS_VIEW_SELF],
           },
         },
         {
@@ -450,7 +458,7 @@ const router = createRouter({
           component: () => import('@/modules/settings/pages/CompanySettings.vue'),
           meta: {
             title: 'بيانات الشركة',
-            permission: PERMISSIONS.COMPANIES_PAGE,
+            permission: [PERMISSIONS.COMPANIES_VIEW_ALL, PERMISSIONS.COMPANIES_VIEW_CHILDREN, PERMISSIONS.COMPANIES_VIEW_SELF],
           },
         },
         {

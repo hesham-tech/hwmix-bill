@@ -97,7 +97,20 @@
 
               <template #actions>
                 <v-spacer />
-                <AppButton icon="ri-edit-line" variant="text" color="primary" @click="handleEdit(item)" />
+                <AppButton
+                  v-if="
+                    canAny(
+                      PERMISSIONS.CASH_BOX_TYPES_UPDATE_ALL,
+                      PERMISSIONS.CASH_BOX_TYPES_UPDATE_CHILDREN,
+                      PERMISSIONS.CASH_BOX_TYPES_UPDATE_SELF,
+                      { resource: item }
+                    )
+                  "
+                  icon="ri-edit-line"
+                  variant="text"
+                  color="primary"
+                  @click="handleEdit(item)"
+                />
                 <AppButton v-if="canDelete(item)" icon="ri-delete-bin-line" variant="text" color="error" @click="handleDelete(item)" />
               </template>
             </AppCard>
@@ -198,6 +211,9 @@ import AppInfiniteScroll from '@/components/common/AppInfiniteScroll.vue';
 import { PERMISSIONS } from '@/config/permissions';
 import { useApi } from '@/composables/useApi';
 import { useUserStore } from '@/stores/user';
+import { usePermissions } from '@/composables/usePermissions';
+
+const { can, canAny } = usePermissions();
 
 // Simple debounce
 const debounce = (fn, delay) => {
@@ -216,19 +232,21 @@ const isSuperAdmin = computed(() => userStore.isAdmin);
 const isCompanyAdmin = computed(() => userStore.isCompanyAdmin);
 
 const canCreate = computed(() => {
-  return isSuperAdmin.value || isCompanyAdmin.value || userStore.hasPermission(PERMISSIONS.CASH_BOX_TYPES_CREATE);
+  return canAny(PERMISSIONS.CASH_BOX_TYPES_CREATE);
 });
 
 const canDelete = item => {
-  if (isSuperAdmin.value) return true;
-  if (item.is_system) return false;
-  return isCompanyAdmin.value || userStore.hasPermission(PERMISSIONS.CASH_BOX_TYPES_DELETE_ALL);
+  if (item.is_system && !isSuperAdmin.value) return false;
+  return canAny(PERMISSIONS.CASH_BOX_TYPES_DELETE_ALL, PERMISSIONS.CASH_BOX_TYPES_DELETE_CHILDREN, PERMISSIONS.CASH_BOX_TYPES_DELETE_SELF, {
+    resource: item,
+  });
 };
 
 const canToggle = item => {
-  if (isSuperAdmin.value) return true;
-  if (item.is_system) return false;
-  return isCompanyAdmin.value || userStore.hasPermission(PERMISSIONS.CASH_BOX_TYPES_UPDATE_ALL);
+  if (item.is_system && !isSuperAdmin.value) return false;
+  return canAny(PERMISSIONS.CASH_BOX_TYPES_UPDATE_ALL, PERMISSIONS.CASH_BOX_TYPES_UPDATE_CHILDREN, PERMISSIONS.CASH_BOX_TYPES_UPDATE_SELF, {
+    resource: item,
+  });
 };
 
 const typeApi = useApi('/api/cash-box-types');

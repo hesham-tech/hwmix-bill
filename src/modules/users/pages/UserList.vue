@@ -48,7 +48,10 @@
         <!-- Main Content Column -->
         <v-col cols="12" lg="9" order="1" order-lg="1">
           <!-- Mode Switch: Current Company vs Global -->
-          <div v-if="userStore.isAdmin || can(PERMISSIONS.USERS_VIEW_ALL)" class="d-flex align-center justify-end mb-4 px-2">
+          <div
+            v-if="userStore.isAdmin || canAny(PERMISSIONS.USERS_VIEW_ALL, PERMISSIONS.USERS_VIEW_CHILDREN, PERMISSIONS.USERS_VIEW_SELF)"
+            class="d-flex align-center justify-end mb-4 px-2"
+          >
             <v-card variant="tonal" :color="currentCompanyOnly ? 'primary' : 'warning'" class="rounded-pill px-4 py-1 border-primary">
               <div class="d-flex align-center gap-2">
                 <v-icon :icon="currentCompanyOnly ? 'ri-building-line' : 'ri-global-line'" size="18" />
@@ -432,7 +435,7 @@ const headers = computed(() => {
     { title: 'الأدوار', key: 'roles', sortable: false },
   ];
 
-  if (can(PERMISSIONS.USERS_VIEW_ALL)) {
+  if (canAny(PERMISSIONS.USERS_VIEW_ALL, PERMISSIONS.USERS_VIEW_CHILDREN, PERMISSIONS.USERS_VIEW_SELF)) {
     base.push({ title: 'الرصيد', key: 'balance', sortable: true, align: 'end' });
   }
 

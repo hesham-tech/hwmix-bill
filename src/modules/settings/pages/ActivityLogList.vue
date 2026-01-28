@@ -1,5 +1,8 @@
 <template>
-  <div v-if="can(PERMISSIONS.ADMIN_SUPER)" class="activity-log-page">
+  <div
+    v-if="canAny(PERMISSIONS.ACTIVITY_LOGS_VIEW_ALL, PERMISSIONS.ACTIVITY_LOGS_VIEW_CHILDREN, PERMISSIONS.ACTIVITY_LOGS_VIEW_SELF)"
+    class="activity-log-page"
+  >
     <div class="page-header mb-6">
       <h1 class="text-h4 font-weight-bold">سجل النشاطات</h1>
       <p class="text-body-1 text-grey">تتبع التغييرات والعمليات المنفذة في النظام</p>
@@ -176,7 +179,7 @@ import { PERMISSIONS } from '@/config/permissions';
 import { useApi } from '@/composables/useApi';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 
-const { can } = usePermissions();
+const { can, canAny } = usePermissions();
 
 const api = useApi('/api/activity-logs');
 

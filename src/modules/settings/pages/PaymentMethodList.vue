@@ -215,6 +215,7 @@ const { paymentMethods, loading, total, fetchPaymentMethods, deletePaymentMethod
 
 // Check for permissions
 import { useAuthStore } from '@/stores/auth';
+const { can, canAny } = usePermissions();
 const authStore = useAuthStore();
 const userStore = useUserStore();
 
@@ -222,19 +223,21 @@ const isSuperAdmin = computed(() => userStore.hasPermission(PERMISSIONS.ADMIN_SU
 const isCompanyAdmin = computed(() => userStore.hasPermission(PERMISSIONS.ADMIN_COMPANY));
 
 const canCreate = computed(() => {
-  return isSuperAdmin.value || isCompanyAdmin.value || userStore.hasPermission(PERMISSIONS.PAYMENT_METHODS_CREATE);
+  return canAny(PERMISSIONS.PAYMENT_METHODS_CREATE);
 });
 
 const canDelete = item => {
-  if (isSuperAdmin.value) return true;
-  if (item.is_system) return false;
-  return isCompanyAdmin.value || userStore.hasPermission(PERMISSIONS.PAYMENT_METHODS_DELETE);
+  if (item.is_system && !isSuperAdmin.value) return false;
+  return canAny(PERMISSIONS.PAYMENT_METHODS_DELETE_ALL, PERMISSIONS.PAYMENT_METHODS_DELETE_CHILDREN, PERMISSIONS.PAYMENT_METHODS_DELETE_SELF, {
+    resource: item,
+  });
 };
 
 const canToggle = item => {
-  if (isSuperAdmin.value) return true;
-  if (item.is_system) return false;
-  return isCompanyAdmin.value || userStore.hasPermission(PERMISSIONS.PAYMENT_METHODS_UPDATE_ALL);
+  if (item.is_system && !isSuperAdmin.value) return false;
+  return canAny(PERMISSIONS.PAYMENT_METHODS_UPDATE_ALL, PERMISSIONS.PAYMENT_METHODS_UPDATE_CHILDREN, PERMISSIONS.PAYMENT_METHODS_UPDATE_SELF, {
+    resource: item,
+  });
 };
 
 const methodApi = useApi('/api/payment-methods');

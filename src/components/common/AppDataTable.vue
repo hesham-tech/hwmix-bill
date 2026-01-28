@@ -62,7 +62,10 @@
         <div class="d-flex align-center gap-1">
           <!-- Default View Button -->
           <AppButton
-            v-if="canView && (!permissionModule || can(`${permissionModule}.view_all`, { resource: item }))"
+            v-if="
+              canView &&
+              (!permissionModule || canAny(`${permissionModule}.view_all`, `${permissionModule}.view_children`, `${permissionModule}.view_self`))
+            "
             icon="ri-eye-line"
             :size="mobile ? 'x-small' : 'small'"
             variant="text"
@@ -73,7 +76,11 @@
 
           <!-- Default Edit Button -->
           <AppButton
-            v-if="canEdit && (!permissionModule || can(`${permissionModule}.update_all`, { resource: item }))"
+            v-if="
+              canEdit &&
+              (!permissionModule ||
+                canAny(`${permissionModule}.update_all`, `${permissionModule}.update_children`, `${permissionModule}.update_self`))
+            "
             icon="ri-edit-line"
             :size="mobile ? 'x-small' : 'small'"
             variant="text"
@@ -84,7 +91,11 @@
 
           <!-- Default Delete Button -->
           <AppButton
-            v-if="canDelete && (!permissionModule || can(`${permissionModule}.delete_all`, { resource: item }))"
+            v-if="
+              canDelete &&
+              (!permissionModule ||
+                canAny(`${permissionModule}.delete_all`, `${permissionModule}.delete_children`, `${permissionModule}.delete_self`))
+            "
             icon="ri-delete-bin-line"
             :size="mobile ? 'x-small' : 'small'"
             variant="text"
@@ -142,13 +153,19 @@
         </div>
 
         <v-list-item
-          v-if="canView && (!permissionModule || can(`${permissionModule}.view_all`, { resource: menuProps.item }))"
+          v-if="
+            canView &&
+            (!permissionModule || canAny(`${permissionModule}.view_all`, `${permissionModule}.view_children`, `${permissionModule}.view_self`))
+          "
           prepend-icon="ri-eye-line"
           title="عرض التفاصيل"
           @click="$emit('view', menuProps.item)"
         />
         <v-list-item
-          v-if="canEdit && (!permissionModule || can(`${permissionModule}.update_all`, { resource: menuProps.item }))"
+          v-if="
+            canEdit &&
+            (!permissionModule || canAny(`${permissionModule}.update_all`, `${permissionModule}.update_children`, `${permissionModule}.update_self`))
+          "
           prepend-icon="ri-edit-line"
           title="تعديل"
           class="text-primary"
@@ -165,7 +182,10 @@
         <v-divider v-if="canDelete" />
 
         <v-list-item
-          v-if="canDelete && (!permissionModule || can(`${permissionModule}.delete_all`, { resource: menuProps.item }))"
+          v-if="
+            canDelete &&
+            (!permissionModule || canAny(`${permissionModule}.delete_all`, `${permissionModule}.delete_children`, `${permissionModule}.delete_self`))
+          "
           prepend-icon="ri-delete-bin-line"
           title="حذف"
           class="text-error"
@@ -181,7 +201,7 @@ import { computed, ref, reactive, nextTick } from 'vue';
 import { usePermissions } from '@/composables/usePermissions';
 import AppButton from '@/components/common/AppButton.vue';
 
-const { can } = usePermissions();
+const { can, canAny } = usePermissions();
 
 const props = defineProps({
   // Table data

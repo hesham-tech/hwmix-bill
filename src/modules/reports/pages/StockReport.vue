@@ -1,6 +1,6 @@
 <template>
   <ReportLayout
-    v-if="can(PERMISSIONS.REPORTS_STOCK)"
+    v-if="canAny(PERMISSIONS.REPORTS_STOCK, PERMISSIONS.REPORTS_VIEW_ALL, PERMISSIONS.REPORTS_VIEW_CHILDREN, PERMISSIONS.REPORTS_VIEW_SELF)"
     title="تقرير تقييم المخزون"
     description="تحليل قيمة البضاعة المتوفرة، هوامش الربح المتوقعة، وتنبيهات النواقص"
     :loading="loading"
@@ -126,7 +126,7 @@ import AppButton from '@/components/common/AppButton.vue';
 import AppInput from '@/components/common/AppInput.vue';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 
-const { can } = usePermissions();
+const { can, canAny } = usePermissions();
 
 const api = useApi('/api/reports/stock');
 const { exportToCSV } = usePrintExport();

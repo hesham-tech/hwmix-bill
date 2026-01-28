@@ -83,7 +83,9 @@
         <template #item.actions="{ item }">
           <div class="d-flex justify-end">
             <AppButton
-              v-if="can(PERMISSIONS.INSTALLMENTS_PAGE)"
+              v-if="
+                canAny(PERMISSIONS.INSTALLMENT_PLANS_VIEW_ALL, PERMISSIONS.INSTALLMENT_PLANS_VIEW_CHILDREN, PERMISSIONS.INSTALLMENT_PLANS_VIEW_SELF)
+              "
               icon="ri-eye-line"
               size="x-small"
               variant="text"

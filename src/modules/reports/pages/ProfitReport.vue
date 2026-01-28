@@ -1,6 +1,9 @@
 <template>
   <ReportLayout
-    v-if="can(PERMISSIONS.REPORTS_PROFIT) || can(PERMISSIONS.PROFITS_VIEW_ALL)"
+    v-if="
+      canAny(PERMISSIONS.REPORTS_PROFIT, PERMISSIONS.REPORTS_VIEW_ALL, PERMISSIONS.REPORTS_VIEW_CHILDREN, PERMISSIONS.REPORTS_VIEW_SELF) ||
+      canAny(PERMISSIONS.PROFITS_VIEW_ALL, PERMISSIONS.PROFITS_VIEW_CHILDREN, PERMISSIONS.PROFITS_VIEW_SELF)
+    "
     title="تحليل الأرباح والخسائر"
     description="نظرة شاملة على الربحية، الهوامش، ومقارنة الأداء المالي"
     :loading="loading"
@@ -89,7 +92,7 @@ import AppButton from '@/components/common/AppButton.vue';
 import AppInput from '@/components/common/AppInput.vue';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 
-const { can } = usePermissions();
+const { can, canAny } = usePermissions();
 
 const api = useApi('/api/reports/profit-loss-summary');
 const { exportToCSV } = usePrintExport();
