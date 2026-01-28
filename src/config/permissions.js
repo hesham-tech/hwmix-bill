@@ -464,7 +464,7 @@ export const PERMISSIONS = {
 };
 
 /**
- * Permission Groups
+ * HWNiX Bill Permission System
  * مجموعات الصلاحيات للتحقق السريع
  */
 export const PERMISSION_GROUPS = {

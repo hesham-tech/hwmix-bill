@@ -55,7 +55,7 @@ server {
     
     # Frontend (Vue)
     location / {
-        root /var/www/hwmix-bill/dist;
+        root /var/www/hwnix-bill/dist;
         try_files $uri $uri/ /index.html;
     }
     
@@ -78,7 +78,7 @@ VITE_API_BASE_URL=/api
 server {
     listen 80;
     server_name api.yourdomain.com;
-    root /var/www/hwmix-bill-api/public;
+    root /var/www/hwnix-bill-api/public;
     # Laravel config...
 }
 
@@ -86,7 +86,7 @@ server {
 server {
     listen 80;
     server_name yourdomain.com;
-    root /var/www/hwmix-bill/dist;
+    root /var/www/hwnix-bill/dist;
     # Vue config...
 }
 ```

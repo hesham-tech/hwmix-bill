@@ -2,7 +2,7 @@
 
 ## Overview
 
-The HWMix Bill permission system is designed to provide granular access control (All, Self, Children) for all business entities. Every module must follow a standardized set of permission keys to ensure consistency and modularity.
+The HWNiX Bill permission system is designed to provide granular access control (All, Self, Children) for all business entities. Every module must follow a standardized set of permission keys to ensure consistency and modularity.
 
 ## Standard Permission Pattern
 

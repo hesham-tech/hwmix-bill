@@ -122,6 +122,6 @@ export const combineGuards = (...guards) => {
  * Default Guard - Set page title
  */
 export const defaultGuard = (to, from, next) => {
-  document.title = to.meta.title ? `${to.meta.title} - hwmix-bill` : 'hwmix-bill';
+  document.title = to.meta.title ? `${to.meta.title} - hwnix-bill` : 'hwnix-bill';
   next();
 };

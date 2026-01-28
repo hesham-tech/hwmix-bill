@@ -22,7 +22,7 @@
 
 ### 1. ملف مركزي للصلاحيات
 
-**الملف:** [`src/config/permissions.js`](file:///D:/Dev/projects/hwmix-bill/src/config/permissions.js)
+**الملف:** [`src/config/permissions.js`](file:///D:/Dev/projects/hwnix-bill/src/config/permissions.js)
 
 ```javascript
 export const PERMISSIONS = {
