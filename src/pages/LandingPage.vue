@@ -17,19 +17,56 @@
         <router-link to="/saas" class="nav-link gold-text font-weight-black">نظام الإدارة</router-link>
       </div>
 
-      <div class="d-flex align-center gap-3">
-        <v-btn variant="text" color="primary" class="font-weight-bold d-none d-sm-flex" to="/register">إنشاء حساب</v-btn>
-        <v-btn
-          prepend-icon="ri-login-box-line"
-          color="primary"
-          variant="elevated"
-          class="rounded-pill px-6 font-weight-bold"
-          to="/login?type=customer"
-        >
-          دخول
-        </v-btn>
+      <div class="d-flex align-center gap-2">
+        <div class="d-none d-sm-flex gap-2">
+          <v-btn variant="text" color="primary" class="font-weight-bold" to="/register">إنشاء حساب</v-btn>
+          <v-btn
+            prepend-icon="ri-login-box-line"
+            color="primary"
+            variant="elevated"
+            class="rounded-pill px-6 font-weight-bold"
+            to="/login?type=customer"
+          >
+            دخول
+          </v-btn>
+        </div>
+
+        <!-- Mobile Menu Toggle -->
+        <v-btn icon="ri-menu-line" variant="text" color="primary" class="d-flex d-md-none" @click="mobileDrawer = !mobileDrawer" />
       </div>
     </nav>
+
+    <!-- Mobile Navigation Drawer -->
+    <v-navigation-drawer v-model="mobileDrawer" location="right" temporary class="pa-4">
+      <div class="d-flex flex-column gap-4 mt-4">
+        <div class="d-flex align-center gap-2 mb-6 px-2">
+          <v-avatar color="primary" rounded="lg" size="32">
+            <v-icon icon="ri-building-line" color="white" size="18" />
+          </v-avatar>
+          <span class="text-subtitle-1 font-weight-black text-primary">hwmix-bill</span>
+        </div>
+
+        <router-link
+          to="/saas"
+          class="nav-link gold-text font-weight-black text-h6 px-2 py-2 rounded-lg bg-amber-lighten-5 d-flex align-center gap-2"
+          @click="mobileDrawer = false"
+        >
+          <v-icon icon="ri-shield-flash-line" color="amber-darken-3" />
+          نظام الإدارة
+        </router-link>
+
+        <v-divider />
+
+        <a href="#features" class="nav-link px-2 py-2" @click="mobileDrawer = false">المميزات</a>
+        <a href="#categories" class="nav-link px-2 py-2" @click="mobileDrawer = false">الأقسام</a>
+        <a href="#products" class="nav-link px-2 py-2" @click="mobileDrawer = false">المنتجات</a>
+
+        <v-divider />
+
+        <v-btn color="primary" block variant="elevated" class="rounded-lg mt-4" to="/login?type=customer">دخول</v-btn>
+        <v-btn color="primary" block variant="outlined" class="rounded-lg" to="/register">إنشاء حساب</v-btn>
+      </div>
+    </v-navigation-drawer>
 
     <!-- Hero Section -->
     <section class="hero-section d-flex align-center justify-center text-center">
@@ -216,6 +253,8 @@
 </template>
 
 <script setup>
+const mobileDrawer = ref(false);
+
 const categories = [
   { name: 'موبايلات', count: 125, icon: 'ri-smartphone-line', color: 'primary' },
   { name: 'إكسسوارات', count: 86, icon: 'ri-headphone-line', color: 'orange' },

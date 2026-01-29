@@ -1,226 +1,205 @@
 <template>
-  <div class="saas-container">
-    <!-- Navbar -->
-    <nav class="saas-nav glass">
-      <div class="nav-content d-flex align-center justify-space-between">
-        <div class="logo d-flex align-center gap-2">
-          <v-avatar color="amber" rounded="lg" size="40">
-            <v-icon icon="ri-shield-flash-line" color="black" />
+  <div class="saas-redesign">
+    <!-- Clean Navbar -->
+    <nav class="saas-nav border-b">
+      <v-container class="py-2 d-flex align-center justify-space-between">
+        <div class="d-flex align-center gap-3">
+          <v-avatar color="indigo-darken-4" rounded="lg" size="40">
+            <v-icon icon="ri-shield-flash-line" color="white" />
           </v-avatar>
-          <span class="text-h6 font-weight-black gold-text">HWNix SaaS</span>
+          <span class="text-h6 font-weight-black text-indigo-darken-4">HWNix Solutions</span>
         </div>
-        <div class="nav-actions d-flex align-center gap-4">
-          <router-link to="/" class="nav-link">المتجر</router-link>
-          <v-btn color="amber" variant="elevated" class="rounded-pill font-weight-bold" to="/login">ابدأ الآن</v-btn>
+        <div class="d-flex align-center gap-6">
+          <router-link to="/" class="nav-link text-indigo-darken-2">المتجر الرئيسي</router-link>
+          <v-btn color="indigo-darken-4" variant="elevated" class="rounded-lg px-6 font-weight-bold" to="/login"> تسجيل الدخول </v-btn>
         </div>
-      </div>
+      </v-container>
     </nav>
 
-    <!-- Hero Section -->
-    <header class="saas-hero">
-      <div class="hero-glow"></div>
+    <!-- Professional Hero -->
+    <section class="hero-section bg-indigo-darken-4 text-white text-right py-16">
       <v-container>
         <v-row align="center">
-          <v-col cols="12" md="6" class="text-right">
-            <v-chip color="amber" variant="outlined" class="mb-4 glow-border">نظام الإدارة المتكامل</v-chip>
-            <h1 class="text-h2 font-weight-black mb-6 main-title">
-              أدر تجارتك <span class="gold-text">بذكاء</span> <br />
-              وتوسع بلا حدود
+          <v-col cols="12" md="7">
+            <v-chip color="amber-lighten-3" variant="tonal" class="mb-4 font-weight-bold px-4"> نظام إدارة متكامل للمؤسسات والشركات </v-chip>
+            <h1 class="text-h2 font-weight-black mb-6 main-title leading-tight">
+              اجعل إدارة أعمالك <br />
+              <span class="text-amber-lighten-2">أكثر سهولة ودقة</span>
             </h1>
-            <p class="text-h6 text-grey-lighten-1 mb-8 leading-relaxed">
-              HWNix يوفر لك كل ما تحتاجه لإدارة المحاسبة، المخازن، والتقسيط في منصة واحدة قوية وآمنة.
+            <p class="text-h6 opacity-90 mb-10 leading-relaxed font-weight-medium">
+              نظام HWNix (SaaS) هو شريكك التقني لإدارة الفواتير، الحسابات، المخازن، والتقسيط بذكاء وأمان فائق.
             </p>
             <div class="d-flex gap-4 justify-end flex-wrap">
-              <v-btn size="x-large" color="amber" class="rounded-xl px-12 font-weight-black" to="/register">احصل على نسخة تجريبية</v-btn>
-              <v-btn size="x-large" variant="outlined" color="white" class="rounded-xl px-12 font-weight-black">شاهد العرض</v-btn>
+              <v-btn size="x-large" color="amber-darken-2" class="rounded-lg px-10 font-weight-black" to="/register" height="56">
+                ابدأ تجربتك المجانية
+              </v-btn>
+              <v-btn size="x-large" variant="outlined" color="white" class="rounded-lg px-10 font-weight-black" height="56">
+                تعرف على المميزات
+              </v-btn>
             </div>
           </v-col>
-          <v-col cols="12" md="6" class="d-none d-md-flex justify-center position-relative">
-            <div class="dashboard-preview glass">
-              <v-img src="https://api.placeholder.com/600/400" class="rounded-lg shadow-2xl" cover></v-img>
-            </div>
-          </v-col>
-        </v-row>
-      </v-container>
-    </header>
-
-    <!-- Stats -->
-    <section class="stats-section py-16">
-      <v-container>
-        <v-row>
-          <v-col v-for="(stat, i) in stats" :key="i" cols="6" md="3">
-            <div class="stat-card glass text-center pa-8">
-              <div class="text-h4 font-weight-black mb-1 gold-text">{{ stat.value }}</div>
-              <div class="text-caption text-grey-lighten-1">{{ stat.label }}</div>
+          <v-col cols="12" md="5" class="d-none d-md-flex">
+            <div class="hero-image-vibe pa-4 bg-white rounded-xl shadow-2xl border-4 border-indigo-lighten-4">
+              <v-icon icon="ri-dashboard-3-line" size="200" color="indigo-lighten-4" />
             </div>
           </v-col>
         </v-row>
       </v-container>
     </section>
 
-    <!-- Features -->
-    <section class="features-section py-16" id="features">
+    <!-- High Contrast Features -->
+    <section class="py-16 bg-grey-lighten-5">
       <v-container>
-        <h2 class="text-h3 font-weight-black text-center mb-16 white--text">حلول متكاملة لنمو أعمالك</h2>
+        <div class="text-center mb-16">
+          <h2 class="text-h3 font-weight-black text-indigo-darken-4 mb-4">لماذا تختار HWNix؟</h2>
+          <p class="text-h6 text-grey-darken-2">حلول ذكية صممت لتلبي تطلعاتك وتدفع أعمالك للأمام</p>
+        </div>
+
         <v-row>
           <v-col v-for="(feature, i) in features" :key="i" cols="12" md="4">
-            <v-card class="feature-card glass pa-8 h-100" variant="flat">
-              <v-avatar :color="feature.color" rounded="lg" size="60" class="mb-6 elevation-4">
-                <v-icon :icon="feature.icon" color="white" size="32" />
+            <v-card class="feature-card pa-8 rounded-xl h-100 border" elevation="0">
+              <v-avatar :color="feature.color + '-lighten-5'" rounded="lg" size="64" class="mb-6">
+                <v-icon :icon="feature.icon" :color="feature.color" size="32" />
               </v-avatar>
-              <h3 class="text-h5 font-weight-bold mb-4 white--text">{{ feature.title }}</h3>
-              <p class="text-body-1 text-grey-lighten-1 leading-relaxed">{{ feature.desc }}</p>
+              <h3 class="text-h5 font-weight-black text-indigo-darken-4 mb-4">{{ feature.title }}</h3>
+              <p class="text-body-1 text-grey-darken-2 leading-relaxed font-weight-medium">
+                {{ feature.desc }}
+              </p>
             </v-card>
           </v-col>
         </v-row>
       </v-container>
     </section>
 
-    <!-- CTA -->
-    <section class="cta-section py-16 text-center">
-      <div class="cta-bg-glow"></div>
+    <!-- Stats with Solid Backgrounds -->
+    <section class="py-16 bg-white border-y">
       <v-container>
-        <div class="glass-panel pa-12 rounded-xl border-amber">
-          <h2 class="text-h4 font-weight-black mb-6 white--text">هل أنت جاهز للتحول الرقمي؟</h2>
-          <p class="text-h6 text-grey-lighten-1 mb-10 max-w-700 mx-auto">
-            انضم إلى مئات الشركات التي تثق في HWNix لإدارة عملياتها اليومية وتأمين مستقبلها المالي.
-          </p>
-          <v-btn size="x-large" color="amber" class="rounded-xl px-12 font-weight-black" to="/register">ابدأ الآن مجاناً</v-btn>
-        </div>
+        <v-row class="text-center">
+          <v-col v-for="(stat, i) in stats" :key="i" cols="12" sm="6" md="3">
+            <div class="pa-8">
+              <div class="text-h2 font-weight-black text-indigo-darken-4 mb-2">{{ stat.value }}</div>
+              <div class="text-h6 text-grey-darken-1">{{ stat.label }}</div>
+            </div>
+          </v-col>
+        </v-row>
       </v-container>
     </section>
 
-    <footer class="saas-footer py-12 border-t">
+    <!-- Clear Call to Action -->
+    <section class="py-16 bg-white">
+      <v-container>
+        <v-card color="indigo-darken-4" class="rounded-xl pa-12 text-center shadow-xl overflow-hidden" elevation="10">
+          <div class="cta-pattern"></div>
+          <h2 class="text-h3 font-weight-black mb-6 text-white position-relative">ابدأ تحويل أعمالك اليوم</h2>
+          <p class="text-h6 opacity-90 mb-10 position-relative max-w-700 mx-auto">
+            انضم إلى شبكة عملاء HWNix واحصل على نظام إدارة متكامل يضمن لك الكفاءة والأمان.
+          </p>
+          <v-btn size="x-large" color="amber-darken-2" class="rounded-lg px-12 font-weight-black position-relative" height="60" to="/register">
+            سجل حسابك مجاناً
+          </v-btn>
+        </v-card>
+      </v-container>
+    </section>
+
+    <!-- Simple Footer -->
+    <footer class="bg-grey-lighten-4 py-8 border-t">
       <v-container class="text-center">
-        <div class="text-caption text-grey-lighten-1">جميع الحقوق محفوظة © {{ new Date().getFullYear() }} - HWNix Solutions</div>
+        <div class="text-body-2 text-indigo-darken-3 font-weight-bold mb-2">HWNix Solutions &copy; {{ new Date().getFullYear() }}</div>
+        <div class="text-caption text-grey-darken-1">نظام إدارة المحتوى والمبيعات الأكثر موثوقية</div>
       </v-container>
     </footer>
   </div>
 </template>
 
 <script setup>
-const stats = [
-  { value: '+50K', label: 'عملية ناجحة' },
-  { value: '+1.2M', label: 'فاتورة مصدرة' },
-  { value: '+120', label: 'علامة تجارية' },
-  { value: '99.9%', label: 'استقرار النظام' },
-];
-
 const features = [
   {
-    title: 'الفواتير الذكية',
-    desc: 'إصدار فواتير احترافية بضغطة زر واحدة مع دعم كامل لضريبة القيمة المضافة.',
+    title: 'نظام فواتير ذكي',
+    desc: 'إصدار فواتير ضريبية نظامية بضغطة زر واحدة، مع دعم كود QR والباركود، وإدارة كاملة للمبيعات والمشتريات.',
     icon: 'ri-bill-line',
-    color: 'blue-darken-3',
+    color: 'indigo',
   },
   {
-    title: 'إدارة التقسيط',
-    desc: 'نظام آلي لمتابعة الأقساط والتنبيهات المتأخرة وجدولة المدفوعات.',
+    title: 'إدارة التقسيط الآلي',
+    desc: 'جدولة الأقساط بشكل آلي، تنبيهات بمواعيد التحصيل، وتقارير دورية عن حالة العملاء المالية والتعثّر.',
     icon: 'ri-calendar-check-line',
-    color: 'amber-darken-3',
+    color: 'amber-darken-2',
   },
   {
-    title: 'تقارير مالية',
-    desc: 'تحليل لحظي للأرباح والخسائر والتدفق النقدي بتقارير بيانية تفصيلية.',
+    title: 'تقارير مالية شاملة',
+    desc: 'لوحات تحكم تفاعلية توضح التدفق النقدي، صافي الأرباح، حركة المخازن، والضرائب بدقة متناهية.',
     icon: 'ri-pie-chart-2-line',
-    color: 'teal-darken-2',
+    color: 'teal',
   },
+];
+
+const stats = [
+  { value: '24/7', label: 'دعم فني متميز' },
+  { value: '+100', label: 'عميل مشترك' },
+  { value: '+1M', label: 'عملية محاسبية' },
+  { value: '100%', label: 'دقة البيانات' },
 ];
 </script>
 
 <style scoped>
-.saas-container {
-  background-color: #0f172a;
-  color: white;
-  min-height: 100vh;
-  font-family: 'Cairo', sans-serif;
-  overflow-x: hidden;
-}
-
-.glass {
-  background: rgba(255, 255, 255, 0.03) !important;
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+.saas-redesign {
+  font-family: 'Cairo', 'Inter', sans-serif;
+  color: #1e293b;
+  direction: rtl;
 }
 
 .saas-nav {
-  position: fixed;
+  position: sticky;
   top: 0;
-  width: 100%;
-  z-index: 1000;
-  padding: 1rem 2rem;
+  background: white;
+  z-index: 100;
 }
 
 .nav-link {
-  color: #94a3b8;
   text-decoration: none;
-  font-weight: 600;
-  transition: color 0.3s;
+  font-weight: 700;
+  font-size: 0.95rem;
+  transition: all 0.2s;
 }
 .nav-link:hover {
-  color: #fbbf24;
-}
-
-.gold-text {
-  background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.saas-hero {
-  padding-top: 180px;
-  padding-bottom: 100px;
-  position: relative;
-}
-
-.hero-glow {
-  position: absolute;
-  top: -200px;
-  right: -200px;
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, rgba(251, 191, 36, 0.08) 0%, transparent 70%);
-  filter: blur(60px);
+  color: #fbbf24 !important;
 }
 
 .main-title {
-  line-height: 1.2;
+  line-height: 1.1;
+  letter-spacing: -1px;
 }
 
-.dashboard-preview {
-  padding: 20px;
-  border-radius: 20px;
-  transform: rotate(-2deg) scale(1.05);
-  box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.5);
+.leading-relaxed {
+  line-height: 1.8;
 }
 
 .feature-card {
-  transition:
-    transform 0.3s ease,
-    border-color 0.3s ease;
+  transition: all 0.3s ease;
+  background: white;
 }
 .feature-card:hover {
-  transform: translateY(-10px);
-  border-color: rgba(251, 191, 36, 0.3) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05) !important;
+  transform: translateY(-5px);
+  border-color: #312e81 !important;
 }
 
-.cta-section {
-  position: relative;
-}
-
-.cta-bg-glow {
+.cta-pattern {
   position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 0;
+  left: 0;
   width: 100%;
-  height: 300px;
-  background: radial-gradient(circle, rgba(251, 191, 36, 0.05) 0%, transparent 70%);
+  height: 100%;
+  background-image: radial-gradient(#ffffff08 1px, transparent 1px);
+  background-size: 20px 20px;
 }
 
-.border-amber {
-  border: 1px solid rgba(251, 191, 36, 0.2) !important;
+.hero-image-vibe {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
 }
 
 .max-w-700 {
@@ -228,11 +207,8 @@ const features = [
 }
 
 @media (max-width: 960px) {
-  .saas-hero {
-    text-align: center;
-  }
-  .main-title {
-    font-size: 2.5rem !important;
+  .text-h2 {
+    font-size: 2.8rem !important;
   }
 }
 </style>
