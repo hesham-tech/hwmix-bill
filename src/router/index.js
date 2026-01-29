@@ -13,6 +13,12 @@ const router = createRouter({
       meta: { title: 'مرحباً بكم', public: true },
     },
     {
+      path: '/saas',
+      name: 'saas-landing',
+      component: () => import('@/pages/SaasLanding.vue'),
+      meta: { title: 'نظام الإدارة HWNix', public: true },
+    },
+    {
       path: '/login',
       name: 'login',
       component: () => import('@/modules/auth/pages/Login.vue'),

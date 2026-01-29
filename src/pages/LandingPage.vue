@@ -14,6 +14,7 @@
         <a href="#features" class="nav-link">المميزات</a>
         <a href="#categories" class="nav-link">الأقسام</a>
         <a href="#products" class="nav-link">المنتجات</a>
+        <router-link to="/saas" class="nav-link gold-text font-weight-black">نظام الإدارة</router-link>
       </div>
 
       <div class="d-flex align-center gap-3">
@@ -162,6 +163,7 @@
             <h4 class="text-h6 font-weight-bold mb-6">المتجر</h4>
             <div class="d-flex flex-column gap-3">
               <router-link to="/" class="footer-link">الرئيسية</router-link>
+              <router-link to="/saas" class="footer-link gold-text">نظام HWNix (SaaS)</router-link>
               <router-link to="/products" class="footer-link">المنتجات</router-link>
               <router-link to="/categories" class="footer-link">الأقسام</router-link>
               <router-link to="/brands" class="footer-link">العلامات التجارية</router-link>
