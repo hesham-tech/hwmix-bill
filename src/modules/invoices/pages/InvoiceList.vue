@@ -136,6 +136,7 @@ import AppButton from '@/components/common/AppButton.vue';
 import AppCard from '@/components/common/AppCard.vue';
 import AppDialog from '@/components/common/AppDialog.vue';
 import { toast } from 'vue3-toastify';
+import { usePrint } from '@/modules/print/composables/usePrint';
 
 const router = useRouter();
 const { can, canAny } = usePermissions();
@@ -202,11 +203,14 @@ const editInvoice = invoice => {
 };
 
 const printInvoice = async invoice => {
+  const { printInvoice: print } = usePrint();
+
   try {
-    // TODO: Implement PDF generation
-    toast.info('جاري تجهيز الفاتورة للطباعة...');
-    window.open(`/api/invoice/${invoice.id}/pdf`, '_blank');
+    await print({
+      invoice: invoice,
+    });
   } catch (error) {
+    console.error('[InvoiceList] Print error:', error);
     toast.error('فشل في طباعة الفاتورة');
   }
 };

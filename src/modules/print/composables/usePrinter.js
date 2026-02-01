@@ -1,6 +1,11 @@
 import { ref } from 'vue';
 import { useUserStore } from '@/stores/user';
 
+/**
+ * @deprecated Use usePrint() from '@/modules/print/composables/usePrint' instead
+ * This composable is kept for backward compatibility
+ */
+
 const isPrinting = ref(false);
 const printData = ref(null);
 const printType = ref('thermal'); // 'thermal', 'a4', 'a5', 'sticker'

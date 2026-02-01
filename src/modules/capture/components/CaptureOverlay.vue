@@ -67,7 +67,7 @@ import { useappState } from '@/stores/appState';
 const appState = useappState();
 
 onMounted(() => {
-  console.log('GlobalCaptureOverlay mounted and ready');
+  // Component ready
 });
 
 watch(

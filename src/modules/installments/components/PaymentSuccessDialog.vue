@@ -8,21 +8,6 @@
     hide-actions
     persistent
   >
-    <div id="receipt-print-area" class="d-none">
-      <AppReceipt
-        id="receipt-print-area-content"
-        :payment-data="paymentData"
-        :customer-name="customerName"
-        :amount-paid="amountPaid"
-        :paid-installments="paidInstallments"
-        :remaining-amount="remainingAmount"
-        :payment-method-name="paymentMethodName"
-        :company-name="companyName"
-        :company-logo="companyLogo"
-        :print-format="printFormat"
-      />
-    </div>
-
     <div class="success-content py-4 no-print">
       <!-- Premium Success Header -->
       <div class="text-center">
@@ -152,10 +137,7 @@
 import { computed } from 'vue';
 import { AppDialog } from '@/components';
 import { formatCurrency, formatDate } from '@/utils/formatters';
-import { useUserStore } from '@/stores/user';
-import { usePrinter } from '@/modules/print/composables/usePrinter';
-import { receiptStyles } from '../styles/receiptStyles';
-import AppReceipt from './AppReceipt.vue';
+import { usePrint } from '@/modules/print/composables/usePrint';
 
 const props = defineProps({
   modelValue: Boolean,
@@ -167,8 +149,7 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'close']);
 
-const printer = usePrinter();
-const userStore = useUserStore();
+const { printInstallment } = usePrint();
 
 const internalValue = computed({
   get: () => props.modelValue,
@@ -240,27 +221,19 @@ const close = () => {
   emit('close');
 };
 
-const handlePrint = () => {
-  console.log('[PaymentSuccessDialog] Print triggered');
-  console.log('[PaymentSuccessDialog] printFormat:', printFormat.value);
-  const el = document.getElementById('receipt-print-area-content');
-  if (el) {
-    console.log('[PaymentSuccessDialog] Content found, starting printer...');
-    console.log('[PaymentSuccessDialog] CSS length:', receiptStyles.length);
-    console.log('[PaymentSuccessDialog] CSS sample:', receiptStyles.substring(0, 500));
-    printer.print(
-      {
-        html: el.outerHTML, // Changed from innerHTML to outerHTML
-        css: receiptStyles,
-      },
-      printFormat.value
-    );
-    // Give printer a moment to react before closing
-    setTimeout(() => {
-      close();
-    }, 300);
-  } else {
-    console.error('[PaymentSuccessDialog] Print content not found!');
+const handlePrint = async () => {
+  try {
+    await printInstallment({
+      payment: paymentData.value,
+      customer: { name: customerName.value },
+      installments: paidInstallments.value,
+      plan: { remaining_amount: remainingAmount.value },
+    });
+
+    // Close dialog after print
+    setTimeout(() => close(), 300);
+  } catch (error) {
+    console.error('[PaymentSuccessDialog] Print error:', error);
   }
 };
 </script>

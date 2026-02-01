@@ -94,11 +94,6 @@
       </div>
     </v-container>
 
-    <!-- Hidden Receipt for Direct Printing -->
-    <div v-if="receiptProps" class="d-none">
-      <AppReceipt v-bind="receiptProps" />
-    </div>
-
     <!-- Payment Dialog -->
     <InstallmentPaymentDialog v-model="showPaymentDialog" :installment="selectedInstallment" @success="handlePaySuccess" />
 
@@ -133,19 +128,14 @@ import InstallmentFilters from '../components/InstallmentFilters.vue';
 import InstallmentPaymentDialog from '../components/InstallmentPaymentDialog.vue';
 import InstallmentDetailsDialog from '../components/InstallmentDetailsDialog.vue';
 import InstallmentsTable from '../components/InstallmentsTable.vue';
-import installmentService from '@/api/services/installment.service';
-import { usePrinter } from '@/modules/print/composables/usePrinter';
-import { useNotifications } from '@/plugins/notification';
-import { useUserStore } from '@/stores/user';
-import { receiptStyles } from '../styles/receiptStyles';
-import AppReceipt from '../components/AppReceipt.vue';
 import PaymentSuccessDialog from '../components/PaymentSuccessDialog.vue';
-import { nextTick } from 'vue';
+import installmentService from '@/api/services/installment.service';
+import { usePrint } from '@/modules/print/composables/usePrint';
+import { useNotifications } from '@/plugins/notification';
 
 const { can, canAny } = usePermissions();
 const { notify } = useNotifications();
-const userStore = useUserStore();
-const printer = usePrinter();
+const { printInstallment } = usePrint();
 const api = useApi('/api/installments');
 const router = useRouter();
 
@@ -187,9 +177,7 @@ const getRowProps = ({ item }) => {
   return {};
 };
 
-onMounted(() => {
-  userStore.fetchUser();
-});
+// onMounted removed - no initialization needed
 
 const getDueDateClass = (dueDate, status) => {
   if (status === 'paid') return 'text-success';
@@ -273,15 +261,12 @@ const handleView = item => {
 };
 
 const handlePrintReceipt = async installment => {
-  console.log('[InstallmentList] Manual print triggered for installment:', installment.id);
   notify('جاري جلب بيانات السداد لطباعة الإيصال...', { type: 'info' });
 
   try {
     const response = await installmentService.getPaymentDetails({ installment_id: installment.id });
 
     if (response.data && response.data.length > 0) {
-      console.log('[InstallmentList] Payment details fetched successfully');
-
       const data = {
         payment_record: response.data[0].installment_payment,
         paid_installments: response.data.map(d => d.installment),
@@ -289,36 +274,19 @@ const handlePrintReceipt = async installment => {
         next_installment: null,
       };
 
-      // Set props for the hidden receipt component
-      // نمرر القسط الأصلي كخيار أخير للحصول على بيانات العميل
-      receiptProps.value = {
-        ...prepareReceiptProps(data),
-        customerName:
-          prepareReceiptProps(data).customerName !== 'عميل غير معروف'
-            ? prepareReceiptProps(data).customerName
-            : installment.customer?.name || installment.user?.name || 'عميل غير معروف',
-        printFormat: userStore.currentCompany?.print_settings?.print_format || 'thermal',
-      };
+      // Use new print system
+      await printInstallment({
+        payment: data.payment_record,
+        customer: {
+          name: installment.customer?.name || installment.user?.name || 'عميل غير معروف',
+        },
+        installments: data.paid_installments,
+        plan: {
+          remaining_amount: installment.installment_plan?.remaining_amount || 0,
+        },
+      });
 
-      // Wait for DOM to update then print
-      await nextTick();
-      setTimeout(() => {
-        const el = document.getElementById('receipt-print-area-content');
-        if (el) {
-          printer.print(
-            {
-              html: el.outerHTML, // Changed from innerHTML to outerHTML
-              css: receiptStyles,
-            },
-            receiptProps.value.printFormat
-          );
-          notify('تم إرسال المستند للطابعة بنجاح.', { type: 'success' });
-          receiptProps.value = null; // Clean up
-        } else {
-          console.error('[InstallmentList] Receipt element not found for printing');
-          notify('خطأ في إعداد مستند الطباعة.', { type: 'error' });
-        }
-      }, 500);
+      notify('تم إرسال المستند للطابعة بنجاح.', { type: 'success' });
     } else {
       console.warn('[InstallmentList] No payment details found for this installment');
       notify('عذراً، لم يتم العثور على سجلات سداد لهذا القسط.', { type: 'warning' });

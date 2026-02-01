@@ -5,7 +5,7 @@
 </template>
 
 <script setup>
-import { ref, watch, nextTick } from 'vue';
+import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue';
 import { usePrinter } from '../composables/usePrinter';
 
 const { isPrinting, printData, printType, closePrinter } = usePrinter();
@@ -15,6 +15,7 @@ const onIframeLoad = () => {
   // Resetting iframe content if needed
 };
 
+// Watch for old usePrinter system
 watch(isPrinting, async newVal => {
   if (newVal && printData.value) {
     await nextTick();
@@ -22,9 +23,52 @@ watch(isPrinting, async newVal => {
   }
 });
 
+// Listen for new PrintService custom events
+const handlePrintEvent = event => {
+  console.log('[PrintDriver] 📨 Received trigger-print event:', event.detail);
+
+  if (event.detail && event.detail.data) {
+    const { data } = event.detail;
+
+    console.log('[PrintDriver] 📋 Setting print data:', {
+      htmlLength: data.html?.length,
+      cssLength: data.css?.length,
+      format: data.format,
+    });
+
+    // Set data for legacy system
+    printData.value = {
+      html: data.html,
+      css: data.css,
+    };
+    printType.value = data.format || 'thermal';
+
+    console.log('[PrintDriver] 🖨️ Triggering print...');
+    // Trigger print immediately
+    nextTick(() => triggerPrint());
+  } else {
+    console.warn('[PrintDriver] ⚠️ Received event without data!');
+  }
+};
+
+onMounted(() => {
+  console.log('[PrintDriver] 🎧 Mounted - listening for trigger-print events');
+  window.addEventListener('trigger-print', handlePrintEvent);
+});
+
+onUnmounted(() => {
+  console.log('[PrintDriver] 👋 Unmounted - removing listener');
+  window.removeEventListener('trigger-print', handlePrintEvent);
+});
+
 const triggerPrint = () => {
+  console.log('[PrintDriver] 🚀 triggerPrint() called');
+
   const iframe = printIframe.value;
-  if (!iframe) return;
+  if (!iframe) {
+    console.error('[PrintDriver] ❌ No iframe reference!');
+    return;
+  }
 
   const doc = iframe.contentWindow.document;
 
@@ -61,12 +105,6 @@ const triggerPrint = () => {
   }
 
   // Build Document
-  console.log('[PrintDriver] Building document for type:', printType.value);
-  console.log('[PrintDriver] CSS length:', printData.value.css?.length || 0);
-  console.log('[PrintDriver] CSS sample (first 500 chars):', printData.value.css?.substring(0, 500));
-  console.log('[PrintDriver] HTML sample (first 800 chars):', printData.value.html?.substring(0, 800));
-  console.log('[PrintDriver] typeStyles:', typeStyles);
-
   doc.open();
   doc.write(`
     <!DOCTYPE html>

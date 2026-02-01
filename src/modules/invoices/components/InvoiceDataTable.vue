@@ -6,20 +6,26 @@
     :total-items="total"
     :page="currentPage"
     :items-per-page="perPage"
+    permission-module="invoices"
+    :show-actions="true"
+    :can-view="true"
+    :can-edit="true"
+    :can-delete="true"
     @update:page="changePage"
     @update:items-per-page="changePerPage"
     @update:sort-by="handleSort"
+    @view="$emit('view', $event)"
+    @edit="$emit('edit', $event)"
+    @delete="$emit('delete', $event)"
   >
-    <!-- رقم الفاتورة -->
+    <!-- الفاتورة (رقم + نوع) -->
     <template #item.invoice_number="{ item }">
-      <div class="text-primary font-weight-bold cursor-pointer hover-underline" @click="$emit('view', item)">#{{ item.invoice_number }}</div>
-    </template>
-
-    <!-- النوع -->
-    <template #item.invoice_type="{ item }">
-      <v-chip size="x-small" variant="tonal" color="secondary" class="font-weight-medium">
-        {{ item.invoice_type?.name }}
-      </v-chip>
+      <div>
+        <div class="text-primary font-weight-bold cursor-pointer hover-underline mb-1" @click="$emit('view', item)">#{{ item.invoice_number }}</div>
+        <v-chip size="x-small" variant="tonal" color="secondary" class="font-weight-medium">
+          {{ item.invoice_type?.name }}
+        </v-chip>
+      </div>
     </template>
 
     <!-- العميل -->
@@ -54,77 +60,47 @@
       </div>
     </template>
 
-    <!-- الإجمالي -->
-    <template #item.net_amount="{ item }">
-      <span class="font-weight-bold text-primary">{{ formatCurrency(item.net_amount) }}</span>
-    </template>
+    <!-- المالية (إجمالي + مدفوع + متبقي) -->
+    <template #item.financials="{ item }">
+      <div class="financial-compact py-1">
+        <div class="d-flex align-center justify-space-between mb-1">
+          <span class="text-grey-darken-1 text-caption">الإجمالي:</span>
+          <span class="font-weight-bold text-primary">{{ formatCurrency(item.net_amount) }}</span>
+        </div>
 
-    <!-- المدفوع -->
-    <template #item.paid_amount="{ item }">
-      <span class="text-success">{{ formatCurrency(item.paid_amount) }}</span>
-    </template>
+        <div class="d-flex align-center justify-space-between mb-1">
+          <span class="text-grey-darken-1 text-caption">المدفوع:</span>
+          <span class="text-success font-weight-medium">{{ formatCurrency(item.paid_amount) }}</span>
+        </div>
 
-    <!-- المتبقي -->
-    <template #item.remaining_amount="{ item }">
-      <span :class="['font-weight-bold', parseFloat(item.remaining_amount) > 0 ? 'text-error' : 'text-grey']">
-        {{ formatCurrency(item.remaining_amount) }}
-      </span>
-    </template>
-
-    <!-- الحالة -->
-    <template #item.status="{ item }">
-      <v-chip :color="getStatusColor(item.status)" size="small" variant="tonal" class="font-weight-bold">
-        {{ getStatusLabel(item.status) }}
-      </v-chip>
-    </template>
-
-    <template #item.payment_status="{ item }">
-      <v-chip :color="getPaymentStatusColor(item.payment_status)" size="small" variant="tonal" class="font-weight-bold">
-        <v-icon :icon="getPaymentStatusIcon(item.payment_status)" size="14" class="me-1" />
-        {{ getPaymentStatusLabel(item.payment_status) }}
-      </v-chip>
-    </template>
-
-    <!-- الإجراءات -->
-    <template #item.actions="{ item }">
-      <div class="d-flex gap-1 justify-center">
-        <AppButton
-          v-if="canAny(PERMISSIONS.INVOICES_VIEW_ALL, PERMISSIONS.INVOICES_VIEW_CHILDREN, PERMISSIONS.INVOICES_VIEW_SELF)"
-          icon="ri-eye-line"
-          size="x-small"
-          variant="text"
-          color="info"
-          tooltip="عرض"
-          @click="$emit('view', item)"
-        />
-        <AppButton
-          v-if="canAny(PERMISSIONS.INVOICES_UPDATE_ALL, PERMISSIONS.INVOICES_UPDATE_CHILDREN, PERMISSIONS.INVOICES_UPDATE_SELF)"
-          icon="ri-edit-line"
-          size="x-small"
-          variant="text"
-          color="primary"
-          tooltip="تعديل"
-          @click="$emit('edit', item)"
-        />
-        <AppButton
-          v-if="can(PERMISSIONS.INVOICES_PRINT)"
-          icon="ri-printer-line"
-          size="x-small"
-          variant="text"
-          color="warning"
-          tooltip="طباعة"
-          @click="$emit('print', item)"
-        />
-        <AppButton
-          v-if="canAny(PERMISSIONS.INVOICES_DELETE_ALL, PERMISSIONS.INVOICES_DELETE_CHILDREN, PERMISSIONS.INVOICES_DELETE_SELF)"
-          icon="ri-delete-bin-line"
-          size="x-small"
-          variant="text"
-          color="error"
-          tooltip="حذف"
-          @click="$emit('delete', item)"
-        />
+        <div class="d-flex align-center justify-space-between">
+          <span class="text-grey-darken-1 text-caption">المتبقي:</span>
+          <span :class="['font-weight-bold', parseFloat(item.remaining_amount) > 0 ? 'text-error' : 'text-grey-darken-1']">
+            {{ formatCurrency(item.remaining_amount) }}
+          </span>
+        </div>
       </div>
+    </template>
+
+    <!-- الحالة (حالة مع حالة الدفع) -->
+    <template #item.status="{ item }">
+      <div class="d-flex flex-column gap-1">
+        <v-chip :color="getStatusColor(item.status)" size="small" variant="tonal" class="font-weight-bold">
+          {{ getStatusLabel(item.status) }}
+        </v-chip>
+        <v-chip :color="getPaymentStatusColor(item.payment_status)" size="x-small" variant="outlined" class="font-weight-medium">
+          <v-icon :icon="getPaymentStatusIcon(item.payment_status)" size="12" class="me-1" />
+          {{ getPaymentStatusLabel(item.payment_status) }}
+        </v-chip>
+      </div>
+    </template>
+
+    <!-- الإجراءات الإضافية (Extra Actions) -->
+    <template #extra-actions="{ item }">
+      <AppButton size="x-small" variant="text" color="warning" tooltip="طباعة الفاتورة" @click.stop="$emit('print', item)">
+        <v-icon size="16" class="me-1">ri-printer-line</v-icon>
+        <span>طباعة</span>
+      </AppButton>
     </template>
   </AppDataTable>
 </template>
@@ -162,18 +138,14 @@ const emit = defineEmits(['view', 'edit', 'print', 'delete', 'update:page', 'upd
 
 const { can, canAny } = usePermissions();
 
-// Headers
+// Headers - Optimized from 10 to 6 columns
 const headers = [
-  { title: 'رقم الفاتورة', key: 'invoice_number', sortable: true },
-  { title: 'النوع', key: 'invoice_type', sortable: false },
-  { title: 'العميل', key: 'customer', sortable: false },
-  { title: 'التاريخ', key: 'issue_date', sortable: true },
-  { title: 'الإجمالي', key: 'net_amount', sortable: true, align: 'end' },
-  { title: 'المدفوع', key: 'paid_amount', sortable: true, align: 'end' },
-  { title: 'المتبقي', key: 'remaining_amount', sortable: true, align: 'end' },
-  { title: 'الحالة', key: 'status', sortable: true },
-  { title: 'حالة الدفع', key: 'payment_status', sortable: false },
-  { title: 'الإجراءات', key: 'actions', sortable: false, align: 'center' },
+  { title: 'الفاتورة', key: 'invoice_number', sortable: true, width: '200px' },
+  { title: 'العميل', key: 'customer', sortable: false, width: '180px' },
+  { title: 'التاريخ', key: 'issue_date', sortable: true, width: '140px' },
+  { title: 'المالية', key: 'financials', sortable: false, width: '200px', align: 'end' },
+  { title: 'الحالة', key: 'status', sortable: true, width: '160px' },
+  { title: 'الإجراءات', key: 'actions', sortable: false, align: 'center', width: '120px' },
 ];
 
 // Methods
@@ -215,6 +187,7 @@ const getPaymentStatusColor = status => {
   const colors = {
     unpaid: 'error',
     partial: 'warning',
+    partially_paid: 'warning',
     paid: 'success',
     overpaid: 'indigo',
   };
@@ -225,6 +198,7 @@ const getPaymentStatusIcon = status => {
   const icons = {
     unpaid: 'ri-close-circle-line',
     partial: 'ri-pie-chart-line',
+    partially_paid: 'ri-pie-chart-line',
     paid: 'ri-checkbox-circle-line',
     overpaid: 'ri-add-circle-line',
   };
@@ -235,6 +209,7 @@ const getPaymentStatusLabel = status => {
   const labels = {
     unpaid: 'غير مدفوعة',
     partial: 'مدفوعة جزئياً',
+    partially_paid: 'مدفوعة جزئياً',
     paid: 'مدفوعة بالكامل',
     overpaid: 'مدفوعة بزيادة',
   };
@@ -248,5 +223,12 @@ const getPaymentStatusLabel = status => {
 }
 .gap-1 {
   gap: 4px;
+}
+.financial-compact {
+  min-width: 170px;
+  max-width: 220px;
+}
+.financial-compact .d-flex {
+  width: 100%;
 }
 </style>

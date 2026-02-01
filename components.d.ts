@@ -21,7 +21,6 @@ declare module 'vue' {
     AppPageHeader: typeof import('./src/components/common/AppPageHeader.vue')['default']
     AppPasswordInput: typeof import('./src/components/common/AppPasswordInput.vue')['default']
     AppPhone: typeof import('./src/components/common/AppPhone.vue')['default']
-    AppPrinter: typeof import('./src/components/common/AppPrinter.vue')['default']
     AppSkeleton: typeof import('./src/components/common/AppSkeleton.vue')['default']
     AppSwitch: typeof import('./src/components/common/AppSwitch.vue')['default']
     AppTextarea: typeof import('./src/components/common/AppTextarea.vue')['default']

@@ -1,0 +1,213 @@
+export const invoiceStyles = `
+/* بيانات الطباعة الأساسية - تصميم أكثر رقة واحترافية */
+.invoice-print {
+  direction: rtl;
+  font-family: 'Arial', sans-serif;
+  color: #000 !important;
+  padding: 10px;
+  background: white !important;
+  width: 100%;
+  font-weight: normal !important;
+}
+
+.invoice-header {
+  text-align: center;
+  margin-bottom: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.company-logo-container {
+  margin-bottom: 2px;
+  width: 100% !important;
+  text-align: center !important;
+  display: flex !important;
+  justify-content: center !important;
+}
+
+.company-logo {
+  max-width: 70px !important;
+  max-height: 50px !important;
+  width: auto !important;
+  height: auto !important;
+  object-fit: contain !important;
+  display: inline-block !important;
+}
+
+.company-name {
+  font-size: 13px !important;
+  font-weight: bold !important;
+  margin-bottom: 2px !important;
+  text-align: center !important;
+  width: 100% !important;
+}
+
+.invoice-title-box {
+  font-size: 12px;
+  margin: 2px 0;
+  border-bottom: 1.5px solid #000;
+  display: inline-block;
+  padding: 1px 12px;
+  font-weight: bold;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 5px;
+}
+
+.data-table td {
+  padding: 2px 5px;
+  border-bottom: 1px solid #666;
+  font-weight: normal !important;
+  font-size: 10px;
+}
+
+.data-table .label {
+  width: 50%;
+  color: #000;
+  white-space: nowrap;
+}
+
+.data-table .value {
+  text-align: left;
+  font-weight: bold !important;
+}
+
+.hero-row td {
+  background-color: #f5f5f5 !important;
+  border-bottom: 1.5px solid #000 !important;
+}
+
+.section-title {
+  font-weight: bold !important;
+  margin: 10px 0 2px 0;
+  text-decoration: underline;
+  font-size: 11px;
+}
+
+.items-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 10px;
+}
+
+.items-table th {
+  background: #f0f0f0;
+  padding: 4px;
+  text-align: right;
+  border: 1px solid #000;
+  font-weight: bold !important;
+  font-size: 10px;
+}
+
+.items-table td {
+  padding: 4px;
+  border: 0.5px solid #000;
+  font-weight: normal !important;
+  font-size: 9px;
+}
+
+.font-bold {
+  font-weight: bold !important;
+}
+
+.signature-section {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.signature-box {
+  width: 45%;
+  text-align: center;
+}
+
+.signature-box p {
+  font-weight: bold !important;
+  margin-bottom: 20px;
+  font-size: 11px;
+}
+
+.sig-line {
+  border-top: 1px solid #000;
+}
+
+.footer-note {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.footer-note p {
+  font-weight: normal !important;
+  font-size: 11px;
+  margin: 1px 0;
+}
+
+.print-date {
+  font-size: 9px;
+  margin-top: 5px;
+  color: #666;
+}
+
+/* التنسيق للورق العادي A4 / A5 / Standard */
+.invoice-print.format-a4,
+.invoice-print.format-a5,
+.invoice-print.format-standard {
+  max-width: 800px;
+  margin: 0 auto;
+  border: 1px solid #eee;
+  padding: 30px !important;
+  min-height: 297mm;
+}
+
+.invoice-print.format-a4 .company-logo,
+.invoice-print.format-a5 .company-logo,
+.invoice-print.format-standard .company-logo {
+  max-width: 150px !important;
+  max-height: 80px !important;
+}
+
+.invoice-print.format-a4 .company-name,
+.invoice-print.format-a5 .company-name,
+.invoice-print.format-standard .company-name {
+  font-size: 22px !important;
+}
+
+.invoice-print.format-a4 .invoice-title-box,
+.invoice-print.format-a5 .invoice-title-box,
+.invoice-print.format-standard .invoice-title-box {
+  font-size: 18px;
+  padding: 4px 30px;
+}
+
+.invoice-print.format-a4 .data-table td,
+.invoice-print.format-a5 .data-table td,
+.invoice-print.format-standard .data-table td {
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+.invoice-print.format-a4 .items-table th,
+.invoice-print.format-a5 .items-table th,
+.invoice-print.format-standard .items-table th {
+  font-size: 14px;
+}
+
+.invoice-print.format-a4 .items-table td,
+.invoice-print.format-a5 .items-table td,
+.invoice-print.format-standard .items-table td {
+  font-size: 13px;
+}
+
+@media print {
+  .invoice-print {
+    padding: 0 !important;
+    border: none !important;
+    width: 100% !important;
+  }
+}
+`;

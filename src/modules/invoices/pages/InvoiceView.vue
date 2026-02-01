@@ -30,7 +30,6 @@
           {{ mobile ? '' : 'تعديل' }}
         </AppButton>
         <AppButton
-          v-if="can('invoices.print')"
           color="info"
           :prepend-icon="!mobile ? 'ri-printer-line' : ''"
           :icon="mobile ? 'ri-printer-line' : false"
@@ -332,18 +331,20 @@
                 <span class="text-grey">إجمالي الضريبة:</span>
                 <span>{{ formatCurrency(invoice.total_tax) }}</span>
               </div>
+
+              <v-divider class="my-2" />
+
+              <div class="d-flex justify-space-between align-center">
+                <span class="text-h6 font-weight-bold">صافي الفاتورة:</span>
+                <span class="text-h5 font-weight-black text-primary">{{ formatCurrency(invoice.net_amount) }}</span>
+              </div>
             </div>
 
             <v-divider class="my-4" />
 
-            <div class="d-flex justify-space-between align-center mb-4">
-              <span class="text-h6 font-weight-bold">صافي الفاتورة:</span>
-              <span class="text-h5 font-weight-black text-primary">{{ formatCurrency(invoice.net_amount) }}</span>
-            </div>
-
             <div class="d-flex flex-column gap-2 mb-4 p-3 rounded-md bg-grey-lighten-4 border-s-dark">
               <div class="d-flex justify-space-between text-body-2">
-                <span class="text-grey">رصيد سابق:</span>
+                <span class="text-grey">رصيد العميل قبل:</span>
                 <span :class="parseFloat(invoice.previous_balance) < 0 ? 'text-error' : 'text-success'" class="font-weight-bold">
                   {{ formatCurrency(invoice.previous_balance) }}
                 </span>
@@ -372,6 +373,13 @@
               <div v-else class="text-center text-success font-weight-bold py-1">
                 <v-icon icon="ri-checkbox-circle-fill" size="small" class="me-1" />
                 مدفوعة بالكامل
+              </div>
+
+              <v-divider class="my-2" />
+
+              <div class="d-flex justify-space-between text-body-1">
+                <span class="text-grey font-weight-bold">رصيد العميل بعد:</span>
+                <span class="font-weight-black text-primary">{{ formatCurrency(invoice.user_balance_after || 0) }}</span>
               </div>
             </div>
 
@@ -421,18 +429,18 @@ import { useRouter, useRoute } from 'vue-router';
 import { useDisplay } from 'vuetify';
 import { useApi } from '@/composables/useApi';
 import { usePermissions } from '@/composables/usePermissions';
-import { usePrintExport } from '@/composables/usePrintExport';
 import { useUserStore } from '@/stores/user';
 import AppAvatar from '@/components/common/AppAvatar.vue';
 import InstallmentsTable from '@/modules/installments/components/InstallmentsTable.vue';
 import { toast } from 'vue3-toastify';
 import { formatCurrency, formatDate } from '@/utils/formatters';
+import { usePrint } from '@/modules/print/composables/usePrint';
+import { PERMISSIONS } from '@/config/permissions';
 
 const router = useRouter();
 const route = useRoute();
 const { can, canAny } = usePermissions();
 const { mobile } = useDisplay();
-const { printElement } = usePrintExport();
 const userStore = useUserStore();
 
 const invoiceApi = useApi('/api/invoices');
@@ -453,8 +461,17 @@ const statusOptions = [
 const goBack = () => router.push('/app/invoices');
 const editInvoice = () => router.push(`/app/invoices/${route.params.id}/edit`);
 
-const printInvoice = () => {
-  printElement('invoice-content', `فاتورة #${invoice.value?.invoice_number}`);
+const printInvoice = async () => {
+  const { printInvoice: print } = usePrint();
+
+  try {
+    await print({
+      invoice: invoice.value,
+    });
+  } catch (error) {
+    console.error('[InvoiceView] Print error:', error);
+    toast.error('فشل في طباعة الفاتورة');
+  }
 };
 
 const deleteInvoice = async () => {

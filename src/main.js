@@ -10,6 +10,9 @@ import setupAutoSelectOnFocus from './utils/auto-select-on-focus';
 import '@core/scss/template/index.scss';
 import '@layouts/styles/index.scss';
 
+// Initialize print system (register templates)
+import '@/modules/print';
+
 // // Create vue app
 // const app = createApp(App);
 // // Register plugins
@@ -21,16 +24,20 @@ import '@layouts/styles/index.scss';
   // Create vue app
   const app = createApp(App);
 
+  // Suppress Suspense experimental warning
+  app.config.warnHandler = msg => {
+    if (msg.includes('Suspense is an experimental feature')) return;
+    console.warn(msg);
+  };
+
   await registerPlugins(app);
 
-  console.log('Executing pre-mount operations...');
   //   await getUserApi();
 
   // Global Error Logging System
   try {
     const logger = (await import('@/utils/logger')).default;
     app.use(logger);
-    console.log('Error logging system initialized.');
   } catch (e) {
     console.warn('Failed to initialize logger:', e);
   }
@@ -39,14 +46,12 @@ import '@layouts/styles/index.scss';
   try {
     const draggable = (await import('@/directives/draggable')).default;
     app.directive('draggable', draggable);
-    console.log('Draggable directive registered.');
   } catch (e) {
     console.warn('Failed to register draggable directive:', e);
   }
 
   // Mount vue app
   app.mount('#app');
-  console.log('Vue app mounted successfully!');
 })();
 setupAutoSelectOnFocus(); // 👈 تطبيق السلوك على كامل النظام
 
