@@ -91,6 +91,29 @@ export interface InstallmentReceiptData {
 }
 
 /**
+ * General payment receipt data structure
+ */
+export interface PaymentReceiptData {
+    payment?: {
+        id: number;
+        amount: number;
+        payment_date?: string;
+        created_at?: string;
+        reference_number?: string;
+        payment_method?: {
+            name: string;
+        };
+    };
+    customer?: {
+        name: string;
+    };
+    invoice?: {
+        invoice_number: string;
+        remaining_amount: number;
+    };
+}
+
+/**
  * Invoice data structure
  */
 export interface InvoiceData {

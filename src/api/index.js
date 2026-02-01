@@ -23,6 +23,8 @@ export { default as companyService } from './services/company.service';
 export { default as expenseService } from './services/expense.service';
 export { default as expenseCategoryService } from './services/expense-category.service';
 export { default as financialLedgerService } from './services/financial-ledger.service';
+export { default as serviceApiService } from './services/service.service';
+export { default as subscriptionApiService } from './services/subscription.service';
 
 // Export axios instance for custom calls
 export { default as apiClient } from './axios.config';

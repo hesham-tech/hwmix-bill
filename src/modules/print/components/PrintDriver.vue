@@ -82,10 +82,15 @@ const triggerPrint = () => {
   `;
 
   let typeStyles = '';
-  if (printType.value === 'thermal') {
+  if (printType.value === 'thermal' || printType.value === 'thermal_80') {
     typeStyles = `
       body { width: 80mm; padding: 2mm; margin: 0 auto; }
       @page { margin: 0; size: 80mm auto; }
+    `;
+  } else if (printType.value === 'thermal_58') {
+    typeStyles = `
+      body { width: 58mm; padding: 1mm; margin: 0 auto; }
+      @page { margin: 0; size: 58mm auto; }
     `;
   } else if (printType.value === 'sticker') {
     typeStyles = `

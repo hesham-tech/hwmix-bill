@@ -94,6 +94,27 @@ export default [
     ],
   },
 
+  // ==================== Services & Subscriptions ====================
+  {
+    title: 'الخدمات والاشتراكات',
+    icon: 'ri-customer-service-2-line',
+    permission: PERMISSIONS.PRODUCTS_PAGE,
+    children: [
+      {
+        title: 'قائمة الخدمات',
+        to: '/app/services',
+        icon: 'ri-settings-5-line',
+        permission: [PERMISSIONS.PRODUCTS_VIEW_ALL],
+      },
+      {
+        title: 'الاشتراكات الجارية',
+        to: '/app/subscriptions',
+        icon: 'ri-repeat-2-line',
+        permission: [PERMISSIONS.PRODUCTS_VIEW_ALL],
+      },
+    ],
+  },
+
   // ==================== Payments ====================
   {
     title: 'المدفوعات',

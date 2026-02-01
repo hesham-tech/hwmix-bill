@@ -6,7 +6,13 @@
       </template>
       <template #append>
         <div style="min-width: 300px; max-width: 450px" class="ms-4">
-          <ProductSelector @add="$emit('add', $event)" :warehouse-id="warehouseId" :invoice-type="invoiceType" :customer-type="customerType" />
+          <ProductSelector
+            @add="$emit('add', $event)"
+            @create-product="$emit('create-product')"
+            :warehouse-id="warehouseId"
+            :invoice-type="invoiceType"
+            :customer-type="customerType"
+          />
         </div>
       </template>
     </v-card-item>
@@ -260,7 +266,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['update:taxInclusive', 'add', 'calculate', 'remove']);
+const emit = defineEmits(['update:taxInclusive', 'add', 'calculate', 'remove', 'create-product']);
 
 import { nextTick, ref } from 'vue';
 

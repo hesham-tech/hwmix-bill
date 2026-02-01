@@ -241,10 +241,13 @@ import VariantManager from './VariantManager.vue';
 import ProductMediaManager from './ProductMediaManager.vue';
 
 const productTypes = [
-  { value: 'physical', label: 'مادي', icon: 'ri-box-3-line', description: 'منتجات ملموسة تتطلب شحن وإدارة مخزون' },
-  { value: 'digital', label: 'رقمي', icon: 'ri-download-cloud-2-line', description: 'منتجات غير ملموسة يتم تسليمها عبر البريد أو رابط' },
-  { value: 'service', label: 'خدمة', icon: 'ri-customer-service-2-line', description: 'خدمات يتم تقديمها للعملاء (استشارات، صيانة)' },
-  { value: 'subscription', label: 'اشتراك', icon: 'ri-repeat-line', description: 'خدمات دورية متجددة تلقائياً (عضوية، اشتراك)' },
+  { label: 'منتج مادي (مخزني)', value: 'physical', icon: 'ri-archive-line', description: 'منتجات ملموسة تتطلب شحن وإدارة مخزون' },
+  {
+    label: 'منتج رقمي (غير مخزني)',
+    value: 'digital',
+    icon: 'ri-file-download-line',
+    description: 'منتجات غير ملموسة يتم تسليمها عبر البريد أو رابط',
+  },
 ];
 
 const props = defineProps({

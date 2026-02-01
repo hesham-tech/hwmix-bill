@@ -59,7 +59,8 @@
         </template>
 
         <template #item.actions="{ item }">
-          <div class="d-flex justify-end">
+          <div class="d-flex justify-end gap-1">
+            <AppButton icon="ri-printer-line" size="x-small" variant="text" color="primary" tooltip="طباعة إيصال" @click="handlePrint(item)" />
             <AppButton
               v-if="can(PERMISSIONS.PAYMENTS_DELETE_ALL)"
               icon="ri-delete-bin-line"
@@ -104,11 +105,13 @@ import AppDataTable from '@/components/common/AppDataTable.vue';
 import AppButton from '@/components/common/AppButton.vue';
 import AppCard from '@/components/common/AppCard.vue';
 import AppDialog from '@/components/common/AppDialog.vue';
+import { usePrint } from '@/modules/print/composables/usePrint';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 
 const { can } = usePermissions();
 
 const router = useRouter();
+const { print } = usePrint();
 const { payments, loading, total, fetchPayments, deletePayment } = usePaymentsData();
 
 const page = ref(1);
@@ -143,6 +146,10 @@ const confirmDelete = async () => {
   } finally {
     deleting.value = false;
   }
+};
+
+const handlePrint = async item => {
+  await print('payment', item);
 };
 
 const handleItemsPerPageChange = value => {

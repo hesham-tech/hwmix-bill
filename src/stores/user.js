@@ -12,7 +12,7 @@ export const useUserStore = defineStore('user', () => {
   // Fetch current user data from backend
   const fetchUser = async () => {
     try {
-      const response = await apiClient.get('/me');
+      const response = await apiClient.get('me');
       const data = response.data;
 
       currentUser.value = data.data;
@@ -107,7 +107,7 @@ export const useUserStore = defineStore('user', () => {
   // Switch Active Company
   const switchCompany = async companyId => {
     try {
-      const response = await apiClient.put(`/change-company/${currentUser.value.id}`, {
+      const response = await apiClient.put(`change-company/${currentUser.value.id}`, {
         company_id: companyId,
       });
 
@@ -153,7 +153,7 @@ export const useUserStore = defineStore('user', () => {
       const settings = currentCompany.value.settings || {};
       const print_settings = settings.print_settings || {};
 
-      const response = await apiClient.put(`/api/companies/${companyId}`, {
+      const response = await apiClient.put(`companies/${companyId}`, {
         settings: {
           ...settings,
           print_settings: {

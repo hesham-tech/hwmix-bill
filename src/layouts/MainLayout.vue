@@ -32,15 +32,32 @@
         الدعم الفني والاقتراحات
       </v-tooltip>
 
-      <!-- Print Format Toggle -->
-      <v-tooltip location="bottom">
-        <template #activator="{ props: tooltipProps }">
-          <AppButton v-bind="tooltipProps" icon variant="text" @click="togglePrintFormat" class="mx-1 d-none d-sm-flex" :loading="isUpdatingPrint">
-            <v-icon>{{ userStore.currentCompany?.print_settings?.print_format === 'thermal' ? 'ri-ticket-2-line' : 'ri-printer-line' }}</v-icon>
-          </AppButton>
+      <!-- Print Format Selection Menu -->
+      <v-menu location="bottom end">
+        <template #activator="{ props }">
+          <v-tooltip location="bottom">
+            <template #activator="{ props: tooltipProps }">
+              <AppButton v-bind="{ ...props, ...tooltipProps }" icon variant="text" class="mx-1 d-none d-sm-flex" :loading="isUpdatingPrint">
+                <v-icon>{{ getPrintFormatIcon(userStore.currentCompany?.print_settings?.print_format) }}</v-icon>
+              </AppButton>
+            </template>
+            إعدادات الطباعة: {{ getPrintFormatLabel(userStore.currentCompany?.print_settings?.print_format) }}
+          </v-tooltip>
         </template>
-        {{ userStore.currentCompany?.print_settings?.print_format === 'thermal' ? 'التحويل للطباعة العادية (A4)' : 'التحويل للطباعة الحرارية' }}
-      </v-tooltip>
+        <v-list density="compact" min-width="180">
+          <v-list-item
+            v-for="format in printFormats"
+            :key="format.id"
+            :active="userStore.currentCompany?.print_settings?.print_format === format.id"
+            @click="handlePrintFormatChange(format.id)"
+          >
+            <template #prepend>
+              <v-icon :icon="format.icon" size="small" class="me-2" />
+            </template>
+            <v-list-item-title>{{ format.title }}</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
 
       <v-tooltip location="bottom">
         <template #activator="{ props: tooltipProps }">
@@ -104,6 +121,25 @@
           <!-- أدوات تظهر فقط على الموبايل في القائمة -->
           <template v-if="xs">
             <v-divider class="my-1" />
+
+            <!-- Print Formats Group for Mobile -->
+            <v-list-group value="print_formats" fluid :indent-strategy="'none'">
+              <template #activator="{ props }">
+                <v-list-item v-bind="props" prepend-icon="ri-printer-line" title="تنسيق الطباعة" />
+              </template>
+
+              <v-list-item
+                v-for="format in printFormats"
+                :key="format.id"
+                :title="format.title"
+                :prepend-icon="format.icon"
+                :active="userStore.currentCompany?.print_settings?.print_format === format.id"
+                @click="handlePrintFormatChange(format.id)"
+                size="small"
+                class="ps-0"
+              />
+            </v-list-group>
+
             <v-list-item prepend-icon="ri-translate-2" :title="localeStore.locale === 'ar' ? 'English' : 'عربي'" @click="toggleLanguage" />
             <v-list-item prepend-icon="ri-customer-service-2-line" title="الدعم الفني" @click="handleManualReport('feedback')" />
             <v-list-item prepend-icon="ri-calculator-line" title="آلة حاسبة" @click="appState.openCalculator()" />
@@ -281,14 +317,26 @@ const toggleLanguage = () => {
 };
 
 const isUpdatingPrint = ref(false);
-const togglePrintFormat = async () => {
+const printFormats = [
+  { id: 'standard', title: 'A4 (قياسي)', icon: 'ri-file-text-line' },
+  { id: 'a5', title: 'A5 (صغير)', icon: 'ri-file-list-2-line' },
+  { id: 'thermal', title: 'حراري (80mm)', icon: 'ri-ticket-2-line' },
+  { id: 'thermal_58', title: 'حراري (58mm)', icon: 'ri-ticket-line' },
+];
+
+const getPrintFormatIcon = formatId => {
+  return printFormats.find(f => f.id === formatId)?.icon || 'ri-printer-line';
+};
+
+const getPrintFormatLabel = formatId => {
+  return printFormats.find(f => f.id === formatId)?.title || 'A4';
+};
+
+const handlePrintFormatChange = async format => {
   try {
     isUpdatingPrint.value = true;
-    const currentFormat = userStore.currentCompany?.print_settings?.print_format || 'thermal';
-    const newFormat = currentFormat === 'thermal' ? 'standard' : 'thermal';
-
-    await userStore.updatePrintFormat(newFormat);
-    toast.success(newFormat === 'thermal' ? 'تم التبديل للطباعة الحرارية' : 'تم التبديل للطباعة العادية (A4)');
+    await userStore.updatePrintFormat(format);
+    toast.success(`تم التغيير إلى ${getPrintFormatLabel(format)}`);
   } catch (error) {
     toast.error('فشل تحديث إعدادات الطباعة');
   } finally {

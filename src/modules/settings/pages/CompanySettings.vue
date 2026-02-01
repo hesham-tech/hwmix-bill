@@ -183,9 +183,10 @@
                   <v-select
                     v-model="formData.print_settings.print_format"
                     :items="[
+                      { title: 'A4 (قياسي)', value: 'standard' },
+                      { title: 'A5 (صغير)', value: 'a5' },
                       { title: 'حراري (80mm)', value: 'thermal' },
-                      { title: 'قياسي (A4)', value: 'a4' },
-                      { title: 'مدمج (A5)', value: 'a5' },
+                      { title: 'حراري (58mm)', value: 'thermal_58' },
                     ]"
                     label="تنسيق الطباعة المفضل"
                     prepend-inner-icon="ri-layout-grid-line"

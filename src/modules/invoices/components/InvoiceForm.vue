@@ -42,6 +42,7 @@
             @add="addItem"
             @calculate="calculateItem"
             @remove="removeItem"
+            @create-product="isQuickAddProductOpen = true"
           >
             <template #installment>
               <div class="d-none d-sm-block">
@@ -73,6 +74,19 @@
     <AppDialog v-model="isQuickAddCustomerOpen" title="إضافة عميل جديد سريع" icon="ri-user-add-line" max-width="800" hide-actions draggable>
       <UserForm :model-value="{ role: 'customer' }" @save="handleQuickCustomerSave" @cancel="isQuickAddCustomerOpen = false" />
     </AppDialog>
+
+    <!-- Quick Add Product Dialog -->
+    <AppDialog
+      v-model="isQuickAddProductOpen"
+      title="إضافة منتج جديد سريع"
+      icon="ri-shopping-bag-3-line"
+      max-width="1000"
+      hide-actions
+      draggable
+      no-padding
+    >
+      <ProductForm v-if="isQuickAddProductOpen" @success="handleQuickProductSave" @cancel="isQuickAddProductOpen = false" />
+    </AppDialog>
   </div>
 </template>
 
@@ -89,6 +103,7 @@ import InvoiceItemsList from './InvoiceItemsList.vue';
 import InvoiceFinancials from './InvoiceFinancials.vue';
 import InstallmentPlanner from './InstallmentPlanner.vue';
 import UserForm from '@/modules/users/components/UserForm.vue';
+import ProductForm from '@/modules/products/components/ProductForm.vue';
 
 // Stores & Composables
 import { useappState } from '@/stores/appState';
@@ -127,6 +142,7 @@ const cashBoxes = ref([]);
 const errors = ref({});
 const selectedCustomerObj = ref(null);
 const isQuickAddCustomerOpen = ref(false);
+const isQuickAddProductOpen = ref(false);
 const showProfit = ref(false);
 
 const invoiceData = ref({
@@ -228,10 +244,56 @@ const addItem = productItem => {
       total: productItem.total || 0,
       max_quantity: productItem.max_quantity || 0,
     };
-    newItem.quantity = 1;
+
+    // Use purchase_price if it's a purchase invoice
+    if (currentContext.value === 'purchases') {
+      newItem.unit_price = newItem.purchase_price || 0;
+    }
+
+    newItem.quantity = productItem.quantity || 1;
     calculateItem(newItem);
     invoiceData.value.items.push(newItem);
   }
+};
+
+const handleQuickProductSave = product => {
+  // If product has variants, add the first one by default for quick add
+  if (product && product.variants?.length > 0) {
+    const variant = product.variants[0];
+    const item = {
+      product_id: product.id,
+      product_name: product.name,
+      name: product.name,
+      variant_id: variant.id,
+      variant_name: variant.sku,
+      attributes_text: variant.attributes
+        ?.map(attr => attr.attribute_value?.name || attr.value?.name)
+        .filter(Boolean)
+        .join(' - '),
+      quantity: 1,
+      max_quantity: variant.quantity || 0,
+      unit_price: currentContext.value === 'purchases' ? variant.purchase_price : variant.retail_price,
+      retail_price: variant.retail_price || 0,
+      wholesale_price: variant.wholesale_price || 0,
+      purchase_price: variant.purchase_price || 0,
+      discount: 0,
+      primary_image_url: variant.primary_image_url || product.primary_image_url,
+      product_type: product.product_type,
+      requires_stock: product.require_stock,
+    };
+    addItem(item);
+  } else if (product) {
+    // Fallback for simple product structure if any
+    const item = {
+      product_id: product.id,
+      name: product.name,
+      quantity: 1,
+      unit_price: currentContext.value === 'purchases' ? product.purchase_price : product.retail_price,
+      product_type: product.product_type,
+    };
+    addItem(item);
+  }
+  isQuickAddProductOpen.value = false;
 };
 
 // Watch for customer changes to update prices dynamically
