@@ -5,7 +5,7 @@
     :size="size"
     :loading="loading"
     :disabled="disabled"
-    :icon="icon ? true : false"
+    :icon="!!(icon && !$slots.default)"
     :block="block"
     :rounded="rounded"
     :elevation="elevation"
@@ -18,8 +18,12 @@
     <v-tooltip v-if="tooltip" activator="parent" location="top" open-on-hover open-on-click open-on-focus>
       {{ tooltip }}
     </v-tooltip>
-    <v-icon v-if="icon" :icon="icon" />
-    <slot v-else />
+    <!-- For icon-only buttons (icon prop without content) -->
+    <v-icon v-if="icon && !$slots.default" :icon="icon" />
+    <!-- For buttons with prepend-icon or append-icon + content -->
+    <template v-else>
+      <slot />
+    </template>
   </v-btn>
 </template>
 

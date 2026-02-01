@@ -1,5 +1,5 @@
 <template>
-  <v-card variant="flat" border class="purchase-card rounded-lg overflow-hidden hover-shadow transition-all mb-4">
+  <v-card variant="flat" border class="purchase-card rounded-md overflow-hidden hover-shadow transition-all mb-4">
     <div class="pa-4">
       <div class="d-flex justify-space-between align-center mb-4">
         <div>
@@ -23,7 +23,7 @@
         </v-col>
       </v-row>
 
-      <v-card variant="flat" class="bg-grey-lighten-4 rounded-lg pa-3 mb-4">
+      <v-card variant="flat" class="bg-grey-lighten-4 rounded-md pa-3 mb-4">
         <div class="d-flex justify-space-between align-center mb-2">
           <span class="text-caption text-grey">الإجمالي</span>
           <span class="text-subtitle-1 font-weight-bold">{{ formatCurrency(purchase.net_amount) }}</span>

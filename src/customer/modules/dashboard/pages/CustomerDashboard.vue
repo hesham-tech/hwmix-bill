@@ -10,7 +10,7 @@
         prepend-icon="ri-refresh-line"
         variant="tonal"
         color="primary"
-        class="rounded-lg font-weight-bold"
+        class="rounded-md font-weight-bold"
         height="48"
         :loading="refreshing"
         @click="refreshAll"
@@ -21,21 +21,21 @@
 
     <!-- Stats Grid -->
     <v-row class="mb-8">
-      <v-col cols="12" md="4">
+      <v-col cols="12">
         <v-card variant="flat" border class="stats-card pa-6 text-center h-100 bg-primary-lighten-5 border-primary">
           <v-icon icon="ri-wallet-3-line" size="48" color="primary" class="mb-3" />
-          <div class="text-body-2 text-primary-darken-2 font-weight-bold mb-1">المبلغ المطلوب سداده</div>
+          <div class="text-body-2 text-primary-darken-2 font-weight-bold mb-1">رصيدك</div>
           <div class="text-h4 font-weight-black text-primary-darken-4">{{ formatCurrency(stats.remainingBalance) }}</div>
         </v-card>
       </v-col>
 
-      <v-col cols="12" md="4">
+      <!-- <v-col cols="12" md="4">
         <v-card variant="flat" border class="stats-card pa-6 text-center h-100 bg-success-lighten-5 border-success">
           <v-icon icon="ri-checkbox-circle-line" size="48" color="success" class="mb-3" />
           <div class="text-body-2 text-success-darken-2 font-weight-bold mb-1">إجمالي ما تم سداده</div>
           <div class="text-h4 font-weight-black text-success-darken-4">{{ formatCurrency(stats.totalPaid) }}</div>
         </v-card>
-      </v-col>
+      </v-col> -->
 
       <v-col v-if="userStore.hasInstallments" cols="12" md="4">
         <v-card variant="flat" border class="stats-card pa-6 text-center h-100 bg-orange-lighten-5 border-orange">
@@ -64,7 +64,7 @@
           <v-progress-circular indeterminate color="primary" size="48" />
         </div>
 
-        <div v-else-if="recentInvoices.length === 0" class="empty-state text-center py-12 border rounded-lg bg-grey-lighten-5 border-dashed">
+        <div v-else-if="recentInvoices.length === 0" class="empty-state text-center py-12 border rounded-md bg-grey-lighten-5 border-dashed">
           <v-icon icon="ri-inbox-line" size="48" color="grey" class="mb-2 opacity-50" />
           <div class="text-grey font-weight-bold">لا يوجد مشتريات حديثة</div>
         </div>
@@ -78,7 +78,7 @@
 
       <!-- Sidebar: Quick Actions & Alerts -->
       <v-col cols="12" lg="4">
-        <v-card variant="flat" border class="pa-4 rounded-lg mb-6">
+        <v-card variant="flat" border class="pa-4 rounded-md mb-6">
           <h3 class="text-h6 font-weight-bold mb-4 d-flex align-center gap-2">
             <v-icon icon="ri-flashlight-line" color="warning" />
             إجراءات سريعة
@@ -91,7 +91,7 @@
               prepend-icon="ri-file-search-line"
               to="/app/purchases"
               height="48"
-              class="font-weight-bold justify-start rounded-lg"
+              class="font-weight-bold justify-start rounded-md"
             >
               البحث عن فاتورة
             </v-btn>
@@ -103,7 +103,7 @@
               prepend-icon="ri-calendar-check-line"
               to="/app/customer-installments"
               height="48"
-              class="font-weight-bold justify-start rounded-lg"
+              class="font-weight-bold justify-start rounded-md"
             >
               متابعة الأقساط
             </v-btn>
@@ -114,7 +114,7 @@
               prepend-icon="ri-money-dollar-circle-line"
               to="/app/customer-payments"
               height="48"
-              class="font-weight-bold justify-start rounded-lg"
+              class="font-weight-bold justify-start rounded-md"
             >
               سجل مدفوعاتي
             </v-btn>
@@ -122,13 +122,13 @@
         </v-card>
 
         <!-- Upcoming Installments Alert if any -->
-        <v-card v-if="upcomingInstallments.length > 0" variant="flat" border color="error" class="bg-error-lighten-5 pa-4 rounded-lg">
+        <v-card v-if="upcomingInstallments.length > 0" variant="flat" border color="error" class="bg-error-lighten-5 pa-4 rounded-md">
           <div class="d-flex align-start gap-3">
             <v-icon icon="ri-error-warning-fill" size="24" color="error" />
             <div>
               <div class="text-subtitle-2 font-weight-black text-error mb-1">تنبيه أقساط قادمة</div>
               <div class="text-body-2 text-error-darken-1 mb-3">لديك أقساط تستحق السداد قريباً، يرجى مراجعة الجدول.</div>
-              <v-btn size="small" color="error" variant="flat" to="/app/customer-installments" class="font-weight-bold rounded-lg px-4">
+              <v-btn size="small" color="error" variant="flat" to="/app/customer-installments" class="font-weight-bold rounded-md px-4">
                 مراجعة الآن
               </v-btn>
             </div>

@@ -13,7 +13,7 @@
             :elevation="isHovering ? 8 : 2"
             class="setting-card h-100 transition-swing cursor-pointer"
             :to="card.to"
-            rounded="xl"
+            rounded="md"
           >
             <v-card-text class="pa-6 d-flex flex-column align-center text-center">
               <v-avatar :color="card.color" size="72" variant="tonal" class="mb-4">

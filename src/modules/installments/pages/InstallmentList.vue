@@ -3,94 +3,110 @@
     v-if="canAny(PERMISSIONS.INSTALLMENT_PLANS_VIEW_ALL, PERMISSIONS.INSTALLMENT_PLANS_VIEW_CHILDREN, PERMISSIONS.INSTALLMENT_PLANS_VIEW_SELF)"
     class="installments-page"
   >
-    <AppPageHeader title="الأقساط" subtitle="متابعة جميع الأقساط المستحقة والتحصيلات" icon="ri-calendar-todo-line" sticky>
+    <AppPageHeader title="جدول الأقساط" subtitle="متابعة جميع الأقساط المستحقة والتحصيلات" icon="ri-calendar-todo-line" sticky>
       <template #controls>
-        <v-row align="center" class="w-100 mx-0">
-          <v-col cols="12" md="8">
-            <AppInput
-              v-model="search"
-              placeholder="بحث في الأقساط..."
-              prepend-inner-icon="ri-search-line"
-              clearable
-              hide-details
-              variant="solo-filled"
-              density="comfortable"
-              flat
-              class="rounded-lg"
-              @update:model-value="debouncedSearch"
-            />
-          </v-col>
-          <v-col cols="12" md="4" class="text-end">
-            <AppButton
-              variant="tonal"
-              color="primary"
-              prepend-icon="ri-equalizer-line"
-              class="rounded-lg font-weight-bold"
-              @click="showAdvanced = !showAdvanced"
-            >
-              {{ showAdvanced ? 'إخفاء البحث المتقدم' : 'بحث متقدم' }}
-            </AppButton>
-          </v-col>
-        </v-row>
+        <v-col cols="12" md="8" class="pa-0">
+          <AppInput
+            v-model="search"
+            placeholder="بحث في الأقساط..."
+            prepend-inner-icon="ri-search-line"
+            clearable
+            hide-details
+            variant="solo-filled"
+            density="comfortable"
+            flat
+            class="rounded-md"
+            @update:model-value="debouncedSearch"
+          />
+        </v-col>
+        <v-col cols="12" md="4" class="text-end d-md-none">
+          <AppButton
+            variant="tonal"
+            color="primary"
+            prepend-icon="ri-equalizer-line"
+            class="rounded-md font-weight-bold"
+            @click="showAdvanced = !showAdvanced"
+          >
+            {{ showAdvanced ? 'إخفاء البحث المتقدم' : 'بحث متقدم' }}
+          </AppButton>
+        </v-col>
       </template>
     </AppPageHeader>
 
-    <v-container fluid class="pt-0">
-      <!-- Advanced Filters -->
-      <v-expand-transition>
-        <div v-if="showAdvanced" class="mb-6">
-          <InstallmentFilters v-model="filters" @apply="handleFiltersChange" />
-        </div>
-      </v-expand-transition>
-
-      <AppDataTable
-        :headers="headers"
-        :items="installments"
-        :loading="loading"
-        :total-items="total"
-        v-model:items-per-page="itemsPerPage"
-        v-model:page="page"
-        v-model:sort-by="sortByVuetify"
-        @update:options="changeSort"
-        title="قائمة الأقساط"
-        icon="ri-list-check-line"
-      >
-        <template #item.plan="{ item }">
-          <div v-if="item.plan?.invoice" class="py-2">
-            <div class="font-weight-bold text-primary">فاتورة #{{ item.plan.invoice.invoice_number }}</div>
-            <div class="text-caption text-grey">{{ item.plan.invoice.customer?.name }}</div>
+    <v-container fluid class="pa-0">
+      <!-- Mobile: Expandable Filters -->
+      <div class="d-md-none">
+        <v-expand-transition>
+          <div v-if="showAdvanced" class="mb-4">
+            <InstallmentFilters v-model="filters" @apply="handleFiltersChange" />
           </div>
-        </template>
+        </v-expand-transition>
+      </div>
 
-        <template #item.amount="{ item }">
-          <div class="font-weight-black text-body-1">{{ formatCurrency(item.amount) }}</div>
-        </template>
+      <!-- Desktop: Side-by-side Layout -->
+      <v-row class="d-none d-md-flex ma-0">
+        <!-- Table Column (8/12) - Shows first (left in RTL) -->
+        <v-col cols="12" md="8" class="pa-0">
+          <v-card rounded="md" class="border shadow-sm">
+            <InstallmentsTable
+              :items="installments"
+              :loading="loading"
+              :total-items="total"
+              v-model:items-per-page="itemsPerPage"
+              v-model:page="page"
+              v-model:sort-by="sortByVuetify"
+              :row-props="getRowProps"
+              :can-pay="canAny(PERMISSIONS.PAYMENTS_CREATE)"
+              @update:options="changeSort"
+              @view="handleView"
+              @pay="handlePay"
+              @print-receipt="handlePrintReceipt"
+            />
+          </v-card>
+        </v-col>
 
-        <template #item.due_date="{ item }">
-          <div :class="[getDueDateClass(item.due_date, item.status), 'font-weight-medium']">
-            {{ formatDate(item.due_date) }}
+        <!-- Filters Column (4/12) - Shows second (right in RTL) -->
+        <v-col cols="12" md="4" class="pa-0">
+          <div class="sticky-filters">
+            <InstallmentFilters v-model="filters" @apply="handleFiltersChange" />
           </div>
-        </template>
+        </v-col>
+      </v-row>
 
-        <template #item.status="{ item }">
-          <v-chip :color="getStatusColor(item.status)" size="small" variant="flat" class="font-weight-bold px-3">
-            {{ getStatusLabel(item.status) }}
-          </v-chip>
-        </template>
-
-        <template #extra-actions="{ item }">
-          <AppButton
-            v-if="item.status === 'pending' && canAny(PERMISSIONS.PAYMENTS_CREATE)"
-            icon="ri-check-line"
-            size="x-small"
-            variant="text"
-            color="success"
-            tooltip="تحديد كمدفوع"
-            @click="markAsPaid(item)"
+      <!-- Mobile: Full-width Table -->
+      <div class="d-md-none">
+        <v-card rounded="md" class="border shadow-sm overflow-hidden mb-6">
+          <InstallmentsTable
+            :items="installments"
+            :loading="loading"
+            :total-items="total"
+            v-model:items-per-page="itemsPerPage"
+            v-model:page="page"
+            v-model:sort-by="sortByVuetify"
+            :row-props="getRowProps"
+            :can-pay="canAny(PERMISSIONS.PAYMENTS_CREATE)"
+            @update:options="changeSort"
+            @view="handleView"
+            @pay="handlePay"
+            @print-receipt="handlePrintReceipt"
           />
-        </template>
-      </AppDataTable>
+        </v-card>
+      </div>
     </v-container>
+
+    <!-- Hidden Receipt for Direct Printing -->
+    <div v-if="receiptProps" class="d-none">
+      <AppReceipt v-bind="receiptProps" />
+    </div>
+
+    <!-- Payment Dialog -->
+    <InstallmentPaymentDialog v-model="showPaymentDialog" :installment="selectedInstallment" @success="handlePaySuccess" />
+
+    <!-- Success Dialog -->
+    <PaymentSuccessDialog v-model="showSuccessDialog" :payment-details="paymentResult" @close="refresh" />
+
+    <!-- Details Dialog -->
+    <InstallmentDetailsDialog v-model="showDetailsDialog" :installment="selectedInstallment" />
   </div>
 
   <!-- Access Denied State (Updated with AppButton) -->
@@ -100,25 +116,38 @@
     </v-avatar>
     <h2 class="text-h4 font-weight-bold mb-2">عذراً، لا تملك الصلاحية</h2>
     <p class="text-body-1 text-grey mb-6">ليس لديك إذن للوصول إلى الأقساط. يرجى مراجعة المسؤول.</p>
-    <AppButton to="/dashboard" color="primary" variant="tonal" prepend-icon="ri-home-4-line"> العودة للرئيسية </AppButton>
+    <AppButton to="/app/admin/dashboard" color="primary" variant="tonal" prepend-icon="ri-home-4-line"> العودة للرئيسية </AppButton>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { usePermissions } from '@/composables/usePermissions';
 import { useDataTable } from '@/composables/useDataTable';
 import { useApi } from '@/composables/useApi';
 import { PERMISSIONS } from '@/config/permissions';
 import { formatCurrency, formatDate } from '@/utils/formatters';
-import AppPageHeader from '@/components/common/AppPageHeader.vue';
-import AppDataTable from '@/components/common/AppDataTable.vue';
-import AppButton from '@/components/common/AppButton.vue';
-import AppInput from '@/components/common/AppInput.vue';
+import { AppPageHeader, AppButton, AppInput, AppAvatar, AppPhone } from '@/components';
 import InstallmentFilters from '../components/InstallmentFilters.vue';
+import InstallmentPaymentDialog from '../components/InstallmentPaymentDialog.vue';
+import InstallmentDetailsDialog from '../components/InstallmentDetailsDialog.vue';
+import InstallmentsTable from '../components/InstallmentsTable.vue';
+import installmentService from '@/api/services/installment.service';
+import { usePrinter } from '@/modules/print/composables/usePrinter';
+import { useNotifications } from '@/plugins/notification';
+import { useUserStore } from '@/stores/user';
+import { receiptStyles } from '../styles/receiptStyles';
+import AppReceipt from '../components/AppReceipt.vue';
+import PaymentSuccessDialog from '../components/PaymentSuccessDialog.vue';
+import { nextTick } from 'vue';
 
 const { can, canAny } = usePermissions();
+const { notify } = useNotifications();
+const userStore = useUserStore();
+const printer = usePrinter();
 const api = useApi('/api/installments');
+const router = useRouter();
 
 // API fetch function for useDataTable
 const fetchInstallments = async params => {
@@ -151,13 +180,16 @@ const {
 // UI State
 const showAdvanced = ref(false);
 
-const headers = [
-  { title: 'الخطة (الفاتورة)', key: 'plan', sortable: false },
-  { title: 'المبلغ', key: 'amount', align: 'end', sortable: true },
-  { title: 'تاريخ الاستحقاق', key: 'due_date', sortable: true },
-  { title: 'الحالة', key: 'status', sortable: true },
-  { title: 'الإجراءات', key: 'actions', sortable: false, align: 'end' },
-];
+const getRowProps = ({ item }) => {
+  if (item.status === 'pending' || item.status === 'overdue') {
+    return { class: 'bg-error-lighten-5' };
+  }
+  return {};
+};
+
+onMounted(() => {
+  userStore.fetchUser();
+});
 
 const getDueDateClass = (dueDate, status) => {
   if (status === 'paid') return 'text-success';
@@ -170,21 +202,130 @@ const getDueDateClass = (dueDate, status) => {
 };
 
 const getStatusColor = status => {
-  const colors = { pending: 'warning', paid: 'success', overdue: 'error', cancelled: 'grey' };
+  const colors = {
+    pending: 'warning',
+    paid: 'success',
+    overdue: 'error',
+    canceled: 'grey',
+    partially_paid: 'info',
+  };
   return colors[status] || 'grey';
 };
 
 const getStatusLabel = status => {
-  const labels = { pending: 'معلق', paid: 'مدفوع', overdue: 'متأخر', cancelled: 'ملغي' };
+  const labels = {
+    pending: 'معلق',
+    paid: 'مدفوع',
+    overdue: 'متأخر',
+    canceled: 'ملغي',
+    partially_paid: 'مدفوع جزئياً',
+  };
   return labels[status] || status;
 };
 
-const markAsPaid = async installment => {
+// State
+const showPaymentDialog = ref(false);
+const showDetailsDialog = ref(false);
+const showSuccessDialog = ref(false);
+const selectedInstallment = ref(null);
+const paymentResult = ref(null);
+const receiptProps = ref(null);
+
+const prepareReceiptProps = details => {
+  // الدفاعية في جلب البيانات
+  const record = details?.payment_record?.data || details?.payment_record || details || {};
+  const paidInsts = details?.paid_installments || [];
+
+  // محاولة جلب العميل من عدة أماكن
+  const customer = record?.customer || record?.plan?.customer || record?.plan?.invoice?.customer || record?.invoice?.customer;
+
+  // محاولة جلب بيانات الشركة
+  const company = userStore.currentCompany || record?.plan?.invoice?.company || record?.invoice?.company || record?.company;
+
+  console.log('[InstallmentList] Preparing receipt with:', { record, customer, company });
+
+  return {
+    paymentData: record,
+    customerName: customer?.name || customer?.full_name || 'عميل غير معروف',
+    amountPaid: record?.amount_paid || record?.amount || 0,
+    paidInstallments: paidInsts,
+    remainingAmount: record?.plan?.remaining_amount || 0,
+    paymentMethodName: record?.payment_method?.name || record?.payment_method || 'نقدي',
+    companyName: company?.name || 'المتجر الإلكتروني',
+    companyLogo: company?.logo || company?.logo_url || userStore.currentUser?.company_logo,
+    printFormat: company?.print_settings?.print_format || 'thermal',
+  };
+};
+
+const handlePaySuccess = data => {
+  paymentResult.value = data;
+  showSuccessDialog.value = true;
+};
+
+const handlePay = item => {
+  selectedInstallment.value = item;
+  showPaymentDialog.value = true;
+};
+
+const handleView = item => {
+  selectedInstallment.value = item;
+  showDetailsDialog.value = true;
+};
+
+const handlePrintReceipt = async installment => {
+  console.log('[InstallmentList] Manual print triggered for installment:', installment.id);
+  notify('جاري جلب بيانات السداد لطباعة الإيصال...', { type: 'info' });
+
   try {
-    await api.update(installment.id, { status: 'paid' }, { successMessage: 'تم تسجيل الدفع بنجاح' });
-    refresh();
+    const response = await installmentService.getPaymentDetails({ installment_id: installment.id });
+
+    if (response.data && response.data.length > 0) {
+      console.log('[InstallmentList] Payment details fetched successfully');
+
+      const data = {
+        payment_record: response.data[0].installment_payment,
+        paid_installments: response.data.map(d => d.installment),
+        excess_amount: 0,
+        next_installment: null,
+      };
+
+      // Set props for the hidden receipt component
+      // نمرر القسط الأصلي كخيار أخير للحصول على بيانات العميل
+      receiptProps.value = {
+        ...prepareReceiptProps(data),
+        customerName:
+          prepareReceiptProps(data).customerName !== 'عميل غير معروف'
+            ? prepareReceiptProps(data).customerName
+            : installment.customer?.name || installment.user?.name || 'عميل غير معروف',
+        printFormat: userStore.currentCompany?.print_settings?.print_format || 'thermal',
+      };
+
+      // Wait for DOM to update then print
+      await nextTick();
+      setTimeout(() => {
+        const el = document.getElementById('receipt-print-area-content');
+        if (el) {
+          printer.print(
+            {
+              html: el.outerHTML, // Changed from innerHTML to outerHTML
+              css: receiptStyles,
+            },
+            receiptProps.value.printFormat
+          );
+          notify('تم إرسال المستند للطابعة بنجاح.', { type: 'success' });
+          receiptProps.value = null; // Clean up
+        } else {
+          console.error('[InstallmentList] Receipt element not found for printing');
+          notify('خطأ في إعداد مستند الطباعة.', { type: 'error' });
+        }
+      }, 500);
+    } else {
+      console.warn('[InstallmentList] No payment details found for this installment');
+      notify('عذراً، لم يتم العثور على سجلات سداد لهذا القسط.', { type: 'warning' });
+    }
   } catch (error) {
-    console.error('Error marking installment as paid:', error);
+    console.error('Error fetching payment details for print:', error);
+    notify('حدث خطأ أثناء تحميل بيانات السداد.', { type: 'error' });
   }
 };
 

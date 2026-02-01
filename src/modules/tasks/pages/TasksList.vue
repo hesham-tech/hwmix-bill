@@ -7,11 +7,11 @@
         <p class="text-subtitle-1 text-grey-darken-1 mb-0">تابع مهامك ومهام الفريق لحظياً</p>
       </div>
       <v-spacer />
-      <v-btn color="primary" prepend-icon="ri-add-line" class="px-6 rounded-lg" @click="openCreateDialog"> مهمة جديدة </v-btn>
+      <v-btn color="primary" prepend-icon="ri-add-line" class="px-6 rounded-md" @click="openCreateDialog"> مهمة جديدة </v-btn>
     </div>
 
     <!-- Filters -->
-    <v-card class="mb-6 rounded-lg border-grey-lighten-4" variant="flat" border>
+    <v-card class="mb-6 rounded-md border-grey-lighten-4" variant="flat" border>
       <v-card-text class="pa-4">
         <v-row dense>
           <v-col cols="12" md="3">
@@ -48,7 +48,7 @@
     <!-- Tasks List -->
     <v-row v-if="!loading">
       <v-col v-for="task in tasks" :key="task.id" cols="12" md="6" lg="4">
-        <v-card class="task-card rounded-lg border-grey-lighten-4 transition-all" variant="flat" border @click="openTaskDetails(task)">
+        <v-card class="task-card rounded-md border-grey-lighten-4 transition-all" variant="flat" border @click="openTaskDetails(task)">
           <v-card-text class="pa-5">
             <div class="d-flex justify-space-between align-start mb-3">
               <v-chip :color="getPriorityColor(task.priority)" size="x-small" variant="flat" class="font-weight-bold">

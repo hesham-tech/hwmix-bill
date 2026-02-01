@@ -162,7 +162,7 @@ defineExpose({
 
     <!-- Preview Dialog -->
     <v-dialog v-model="showPreview" max-width="900" class="preview-dialog-wrapper">
-      <v-card class="preview-card bg-glass pa-2 rounded-lg border-light">
+      <v-card class="preview-card bg-glass pa-2 rounded-md border-light">
         <v-card-title class="d-flex align-center justify-space-between pb-2 border-b">
           <div class="d-flex align-center">
             <v-icon icon="ri-image-edit-line" color="primary" class="me-2" />
@@ -171,7 +171,7 @@ defineExpose({
           <v-btn icon="ri-close-line" variant="text" size="small" @click="closePreview" />
         </v-card-title>
 
-        <v-card-text class="pa-4 bg-grey-lighten-4 rounded-lg mt-4 overflow-hidden">
+        <v-card-text class="pa-4 bg-grey-lighten-4 rounded-md mt-4 overflow-hidden">
           <v-img :src="capturedImageUrl" width="100%" class="rounded shadow-md preview-img-content" cover />
         </v-card-text>
 

@@ -6,12 +6,12 @@
     <div class="bg-orb orb-3"></div>
 
     <v-container class="fill-height d-flex align-center justify-center pa-4">
-      <div class="glass-login-card elevation-24 pa-4 pa-md-6">
+      <div class="glass-login-card elevation-24 pa-3 pa-md-4">
         <v-row class="fill-height justify-center" align="stretch">
           <!-- Left Side: Visual/Branding -->
-          <v-col cols="12" md="5" class="d-none d-md-flex">
+          <v-col cols="12" md="7" class="d-none d-md-flex">
             <div class="visual-card-premium h-100 w-100 d-flex align-center justify-center">
-              <div class="brand-content text-center pa-10">
+              <div class="brand-content text-center pa-6 pa-md-8">
                 <div class="logo-orb-premium mb-8">
                   <v-icon icon="ri-shield-keyhole-fill" size="56" color="white" />
                 </div>
@@ -35,8 +35,8 @@
           </v-col>
 
           <!-- Right Side: Login Form -->
-          <v-col cols="12" md="7" class="d-flex">
-            <div class="form-card-premium h-100 pa-8 pa-md-12 pa-lg-15 w-100 d-flex flex-column justify-center">
+          <v-col cols="12" md="5" class="d-flex">
+            <div class="form-card-premium h-100 pa-6 pa-md-10 w-100 d-flex flex-column justify-center">
               <div class="form-content-wrapper">
                 <div class="form-header mb-8">
                   <h2 class="text-h4 font-weight-black text-slate-900 mb-2">تسجيل الدخول <span class="wave-emoji">👋</span></h2>
@@ -164,10 +164,14 @@ const handleLogin = async () => {
   backdrop-filter: blur(25px);
   -webkit-backdrop-filter: blur(25px);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 24px;
+  border-radius: 16px;
   width: 100%;
-  max-width: 1100px;
-  min-height: 700px;
+  max-width: 1200px;
+  height: auto;
+  max-height: 95vh;
+  min-height: 500px;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   z-index: 2;
   box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.5) !important;
@@ -179,7 +183,7 @@ const handleLogin = async () => {
   color: white;
   overflow: hidden;
   /* Removed transition */
-  border-radius: 20px;
+  border-radius: 12px;
   /* Hardcoded background */
   background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
 }
@@ -187,7 +191,7 @@ const handleLogin = async () => {
 /* Form Card */
 .form-card-premium {
   background: white;
-  border-radius: 20px;
+  border-radius: 12px;
   border: 1px solid #e2e8f0;
 }
 
@@ -195,7 +199,7 @@ const handleLogin = async () => {
   width: 110px;
   height: 110px;
   background: rgba(255, 255, 255, 0.15);
-  border-radius: 30px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -255,7 +259,7 @@ const handleLogin = async () => {
 
 .login-submit-btn {
   height: 64px !important;
-  border-radius: 14px !important;
+  border-radius: 12px !important;
   font-weight: 800 !important;
   font-size: 1.1rem !important;
   box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.3) !important;

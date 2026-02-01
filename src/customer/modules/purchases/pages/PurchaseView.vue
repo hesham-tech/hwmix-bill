@@ -28,7 +28,7 @@
           <!-- Company Info (Vendor) -->
           <v-card variant="flat" border class="pa-4 mb-6 bg-grey-lighten-5">
             <div class="d-flex align-center mb-4">
-              <v-avatar color="primary" rounded="lg" size="48" class="me-3">
+              <v-avatar color="primary" rounded="md" size="48" class="me-3">
                 <v-icon icon="ri-building-2-line" color="white" />
               </v-avatar>
               <div>
@@ -77,7 +77,7 @@
               </div>
             </div>
 
-            <div v-if="invoice.installment_plan" class="mt-4 pa-3 rounded-lg border-primary border-dashed border-sm bg-blue-lighten-5">
+            <div v-if="invoice.installment_plan" class="mt-4 pa-3 rounded-md border-primary border-dashed border-sm bg-blue-lighten-5">
               <div class="text-primary font-weight-bold mb-1 d-flex align-center">
                 <v-icon icon="ri-calendar-todo-line" size="small" class="me-2" />
                 تحت التقسيط
@@ -110,11 +110,11 @@
                         :img-url="item.primary_image_url"
                         :name="item.name"
                         size="48"
-                        rounded="lg"
+                        rounded="md"
                         class="me-3 border shadow-sm"
                         type="product"
                       />
-                      <v-avatar v-else color="grey-lighten-4" size="48" rounded="lg" class="me-3 border">
+                      <v-avatar v-else color="grey-lighten-4" size="48" rounded="md" class="me-3 border">
                         <v-icon icon="ri-image-line" color="grey" />
                       </v-avatar>
                       <div>
@@ -133,14 +133,14 @@
 
             <!-- Mobile View -->
             <div v-else class="pa-2">
-              <v-card v-for="item in invoice.items" :key="'m-' + item.id" border flat class="mb-3 rounded-lg overflow-hidden">
+              <v-card v-for="item in invoice.items" :key="'m-' + item.id" border flat class="mb-3 rounded-md overflow-hidden">
                 <div class="d-flex pa-3 align-center">
                   <AppAvatar
                     v-if="item.primary_image_url"
                     :img-url="item.primary_image_url"
                     :name="item.name"
                     size="60"
-                    rounded="lg"
+                    rounded="md"
                     class="me-3 border"
                     type="product"
                   />

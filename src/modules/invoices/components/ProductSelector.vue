@@ -14,7 +14,7 @@
       clearable
       return-object
       no-filter
-      rounded="xl"
+      rounded="md"
       variant="outlined"
       density="comfortable"
       @update:search="handleSearch"
@@ -28,7 +28,7 @@
           :style="item.raw.requires_stock && item.raw.quantity <= 0 ? 'opacity: 0.6; pointer-events: none;' : ''"
         >
           <template #prepend>
-            <AppAvatar :img-url="item.raw.primary_image_url" :name="item.raw.product_name" size="44" rounded="lg" type="product" border />
+            <AppAvatar :img-url="item.raw.primary_image_url" :name="item.raw.product_name" size="44" rounded="md" type="product" border />
           </template>
           <template #title>
             <div

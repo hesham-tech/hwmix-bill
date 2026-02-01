@@ -1,5 +1,5 @@
 <template>
-  <v-card class="rounded-lg" border flat>
+  <v-card class="rounded-md" border flat>
     <v-card-text class="pa-6">
       <div class="d-flex align-center justify-space-between mb-4">
         <div>

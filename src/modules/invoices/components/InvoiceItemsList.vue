@@ -1,5 +1,5 @@
 <template>
-  <v-card class="rounded-lg border-dashed mb-6">
+  <v-card class="rounded-md border-dashed mb-6">
     <v-card-item class="py-4 px-6 border-bottom" prepend-icon="ri-list-settings-line">
       <template #title>
         <span class="font-weight-bold">أصناف الفاتورة</span>
@@ -30,7 +30,7 @@
               <td class="ps-6 py-2">
                 <v-list-item class="pa-0">
                   <template #prepend>
-                    <AppAvatar :img-url="item.primary_image_url" :name="item.name" size="40" rounded="lg" class="me-3 border" />
+                    <AppAvatar :img-url="item.primary_image_url" :name="item.name" size="40" rounded="md" class="me-3 border" />
                   </template>
 
                   <v-list-item-title class="font-weight-bold">{{ item.name }}</v-list-item-title>
@@ -129,7 +129,7 @@
         <v-card v-for="(item, index) in items" :key="'mob-' + index" variant="flat" border class="mobile-item-card pa-3 mb-3 bg-white">
           <v-card-item class="pa-0 mb-3" prepend-icon="ri-shopping-bag-line">
             <template #prepend>
-              <AppAvatar :img-url="item.primary_image_url" :name="item.name" size="48" rounded="lg" class="me-2 border" />
+              <AppAvatar :img-url="item.primary_image_url" :name="item.name" size="48" rounded="md" class="me-2 border" />
             </template>
             <v-card-title class="text-body-2 font-weight-bold ps-0">{{ item.name }}</v-card-title>
             <v-card-subtitle v-if="item.variant_name" class="ps-0">{{ item.variant_name }}</v-card-subtitle>

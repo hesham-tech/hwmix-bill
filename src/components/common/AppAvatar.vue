@@ -1,5 +1,5 @@
 <template>
-  <div class="app-avatar-wrapper d-inline-block">
+  <div :class="['app-avatar-wrapper d-inline-block', { 'cursor-pointer': previewable || editable }]">
     <v-avatar
       :size="size"
       :rounded="isStandardRounded ? rounded : undefined"
@@ -62,7 +62,7 @@
 
     <!-- Image Preview Dialog -->
     <v-dialog v-model="showPreview" max-width="600px" transition="dialog-bottom-transition">
-      <v-card class="preview-dialog-card rounded-lg overflow-hidden position-relative">
+      <v-card class="preview-dialog-card rounded-md overflow-hidden position-relative">
         <!-- Close Button -->
         <v-btn icon="ri-close-line" variant="elevated" color="white" size="small" class="preview-close-btn shadow-lg" @click="showPreview = false" />
 
@@ -321,6 +321,9 @@ const initialsFontSize = computed(() => {
 .app-avatar-wrapper {
   position: relative;
   line-height: 0;
+}
+
+.cursor-pointer {
   cursor: pointer;
 }
 

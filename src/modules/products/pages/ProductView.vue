@@ -14,7 +14,7 @@
             :img-url="product?.primary_image_url || product?.main_image"
             :name="product?.name"
             :size="mobile ? 48 : 64"
-            rounded="lg"
+            rounded="md"
             type="product"
             border
           />
@@ -464,7 +464,7 @@
       <v-dialog v-model="lightboxShow" max-width="800" class="image-lightbox">
         <v-card flat class="bg-transparent text-center overflow-visible">
           <v-btn icon="ri-close-line" variant="flat" color="white" class="close-btn" @click="lightboxShow = false" />
-          <img :src="selectedImage" class="lightbox-img rounded-lg elevation-24" />
+          <img :src="selectedImage" class="lightbox-img rounded-md elevation-24" />
         </v-card>
       </v-dialog>
     </v-container>

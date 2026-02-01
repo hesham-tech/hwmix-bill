@@ -44,11 +44,13 @@
             @remove="removeItem"
           >
             <template #installment>
-              <InstallmentPlanner
-                :net-amount="financials.total_balance"
-                v-model="invoiceData.installment_plan"
-                @update:down-payment="val => (invoiceData.paid_amount = val)"
-              />
+              <div class="d-none d-sm-block">
+                <InstallmentPlanner
+                  :net-amount="financials.total_balance"
+                  v-model="invoiceData.installment_plan"
+                  @update:down-payment="val => (invoiceData.paid_amount = val)"
+                />
+              </div>
             </template>
           </InvoiceItemsList>
         </v-col>
@@ -68,14 +70,14 @@
     </v-form>
 
     <!-- Quick Add Customer Dialog -->
-    <AppDialog v-model="isQuickAddCustomerOpen" title="إضافة عميل جديد سريع" icon="ri-user-add-line" max-width="800" hide-actions>
+    <AppDialog v-model="isQuickAddCustomerOpen" title="إضافة عميل جديد سريع" icon="ri-user-add-line" max-width="800" hide-actions draggable>
       <UserForm :model-value="{ role: 'customer' }" @save="handleQuickCustomerSave" @cancel="isQuickAddCustomerOpen = false" />
     </AppDialog>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useApi } from '@/composables/useApi';
 
 // Global Components
@@ -89,6 +91,7 @@ import InstallmentPlanner from './InstallmentPlanner.vue';
 import UserForm from '@/modules/users/components/UserForm.vue';
 
 // Stores & Composables
+import { useappState } from '@/stores/appState';
 import { useUserStore as useUserManagementStore } from '@/modules/users/store/user.store';
 import { useUserStore } from '@/stores/user';
 
@@ -106,6 +109,7 @@ const props = defineProps({
 const emit = defineEmits(['success', 'cancel']);
 
 // API
+const appState = useappState();
 const userManagementStore = useUserManagementStore();
 const userStore = useUserStore();
 const invoiceApi = useApi('/api/invoices');
@@ -141,6 +145,14 @@ const invoiceData = ref({
   items: [],
   installment_plan: null,
 });
+
+const isInstallmentFinalized = ref(false);
+
+const handleInstallmentConfirmation = data => {
+  invoiceData.value.installment_plan = data;
+  isInstallmentFinalized.value = true;
+  saveInvoice();
+};
 
 // Computed properties
 const currentInvoiceType = computed(() => {
@@ -239,6 +251,16 @@ watch(
   }
 );
 
+// Sync installment calculator total if it's open
+watch(
+  () => financials.value.total_balance,
+  newTotal => {
+    if (appState.installmentCalc.isOpen && appState.installmentCalc.mode === 'invoice') {
+      appState.installmentCalc.initialTotal = newTotal;
+    }
+  }
+);
+
 const calculateItem = item => {
   item.total = (item.quantity || 0) * (item.unit_price || 0) - (item.discount || 0);
 };
@@ -280,6 +302,16 @@ const saveInvoice = async () => {
     };
 
     // Only send installment plan if it's an installment sale AND there's actually a remaining balance
+    if (currentContext.value === 'installment_sale' && financials.value.remaining_amount > 0 && !isInstallmentFinalized.value) {
+      appState.openInstallmentCalc({
+        mode: 'invoice',
+        initialTotal: financials.value.total_balance,
+        onSave: handleInstallmentConfirmation,
+      });
+      loading.value = false;
+      return;
+    }
+
     if (currentContext.value !== 'installment_sale' || financials.value.remaining_amount <= 0) {
       delete payload.installment_plan;
     }

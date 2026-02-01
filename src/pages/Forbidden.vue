@@ -21,7 +21,7 @@
 
         <!-- Dynamic Message from Server (Optional) -->
         <v-slide-y-transition>
-          <div v-if="serverMsg" class="server-error-banner mb-8 pa-4 rounded-lg d-flex align-center gap-3">
+          <div v-if="serverMsg" class="server-error-banner mb-8 pa-4 rounded-md d-flex align-center gap-3">
             <v-icon icon="ri-error-warning-line" color="warning" size="20" />
             <span class="text-body-2 font-weight-medium text-white">{{ serverMsg }}</span>
           </div>
@@ -33,7 +33,7 @@
             color="white"
             variant="flat"
             size="x-large"
-            rounded="xl"
+            rounded="md"
             prepend-icon="ri-arrow-right-up-line"
             class="action-btn px-8"
             @click="goBack"
@@ -45,7 +45,7 @@
             color="white"
             variant="outlined"
             size="x-large"
-            rounded="xl"
+            rounded="md"
             prepend-icon="ri-home-4-line"
             class="action-btn home-btn px-8"
             @click="goHome"

@@ -30,7 +30,7 @@
 
       <!-- Active Status -->
       <v-col cols="12" sm="6">
-        <div class="pa-4 border rounded-lg bg-grey-lighten-5 d-flex align-center justify-space-between mb-4">
+        <div class="pa-4 border rounded-md bg-grey-lighten-5 d-flex align-center justify-space-between mb-4">
           <div class="d-flex align-center">
             <v-icon
               :icon="form.is_active ? 'ri-checkbox-circle-line' : 'ri-close-circle-line'"
@@ -48,7 +48,7 @@
 
       <!-- Default Warehouse -->
       <v-col cols="12" sm="6">
-        <div class="pa-4 border rounded-lg bg-grey-lighten-5 d-flex align-center justify-space-between mb-4">
+        <div class="pa-4 border rounded-md bg-grey-lighten-5 d-flex align-center justify-space-between mb-4">
           <div class="d-flex align-center">
             <v-icon :icon="form.is_default ? 'ri-star-fill' : 'ri-star-line'" :color="form.is_default ? 'warning' : 'grey'" class="me-3" />
             <div>

@@ -104,7 +104,7 @@
 
     <!-- Details Dialog -->
     <v-dialog v-model="detailsDialog" max-width="900px" scrollable>
-      <v-card v-if="selectedReport" rounded="xl">
+      <v-card v-if="selectedReport" rounded="md">
         <v-card-title class="d-flex justify-space-between align-center border-bottom pa-4">
           <div class="d-flex align-center">
             <v-icon icon="ri-bug-line" class="me-2 text-error" />
@@ -187,7 +187,7 @@
                 <v-icon icon="ri-image-line" class="me-2" size="20" />
                 لقطة الشاشة (Screenshot)
               </h3>
-              <v-card border rounded="lg" class="pa-2 bg-grey-lighten-4">
+              <v-card border rounded="md" class="pa-2 bg-grey-lighten-4">
                 <v-img
                   :src="selectedReport.screenshot_url"
                   max-height="400"
@@ -210,7 +210,7 @@
                 <v-icon icon="ri-code-line" class="me-2" size="20" />
                 تتبع الخطأ (Stack Trace)
               </h3>
-              <v-sheet dark class="bg-grey-darken-4 pa-4 rounded-lg overflow-x-auto">
+              <v-sheet dark class="bg-grey-darken-4 pa-4 rounded-md overflow-x-auto">
                 <pre class="text-caption text-white ltr">{{ selectedReport.stack_trace }}</pre>
               </v-sheet>
             </v-col>
@@ -239,11 +239,11 @@
 
     <!-- Full Image Preview Dialog -->
     <v-dialog v-model="screenshotPreviewDialog" max-width="95%">
-      <v-card class="pa-2 overflow-hidden shadow-24" rounded="xl">
+      <v-card class="pa-2 overflow-hidden shadow-24" rounded="md">
         <div class="d-flex justify-end pa-2">
           <v-btn icon="ri-close-line" variant="text" @click="screenshotPreviewDialog = false" />
         </div>
-        <v-img :src="previewImageUrl" width="100%" height="auto" class="rounded-lg" />
+        <v-img :src="previewImageUrl" width="100%" height="auto" class="rounded-md" />
         <v-card-actions class="justify-center pa-4">
           <v-btn color="primary" variant="tonal" prepend-icon="ri-download-line" :href="previewImageUrl" download> تحميل الصورة </v-btn>
           <v-btn color="grey" variant="text" @click="screenshotPreviewDialog = false"> إغلاق </v-btn>
@@ -252,7 +252,7 @@
     </v-dialog>
   </div>
   <div v-else class="d-flex align-center justify-center pa-12">
-    <v-alert type="error" title="وصول غير مسموح" text="عذراً، لا تملك الصلاحيات الكافية للوصول إلى هذه الصفحة." variant="tonal" class="rounded-xl" />
+    <v-alert type="error" title="وصول غير مسموح" text="عذراً، لا تملك الصلاحيات الكافية للوصول إلى هذه الصفحة." variant="tonal" class="rounded-md" />
   </div>
 </template>
 

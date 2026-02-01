@@ -1,15 +1,8 @@
 <template>
   <div class="users-page">
-    <AppPageHeader title="إدارة المستخدمين" subtitle="إدارة أعضاء الفريق، الصلاحيات، وحسابات العملاء" icon="ri-group-line">
+    <AppPageHeader title="إدارة المستخدمين" subtitle="إدارة أعضاء الفريق، الصلاحيات، وحسابات العملاء" icon="ri-group-line" sticky>
       <template #append>
-        <AppButton
-          v-if="can(PERMISSIONS.USERS_CREATE)"
-          color="primary"
-          prepend-icon="ri-user-add-line"
-          size="large"
-          class="font-weight-bold rounded-pill shadow-sm"
-          @click="handleCreate"
-        >
+        <AppButton v-if="can(PERMISSIONS.USERS_CREATE)" color="primary" prepend-icon="ri-user-add-line" size="large" @click="handleCreate">
           مستخدم جديد
         </AppButton>
       </template>
@@ -25,28 +18,30 @@
             variant="solo-filled"
             density="comfortable"
             flat
-            class="rounded-lg px-0"
+            class="rounded-md"
             @update:model-value="debouncedSearch"
           />
         </v-col>
-        <v-col cols="12" md="4" class="text-end">
-          <AppButton
-            variant="tonal"
-            color="primary"
-            prepend-icon="ri-equalizer-line"
-            class="rounded-lg font-weight-bold"
-            @click="showAdvanced = !showAdvanced"
-          >
-            {{ showAdvanced ? 'إخفاء البحث المتقدم' : 'بحث متقدم' }}
-          </AppButton>
+        <v-col cols="auto" class="d-md-none">
+          <AppButton icon="ri-filter-line" color="primary" @click="showAdvanced = !showAdvanced" />
         </v-col>
       </template>
     </AppPageHeader>
 
-    <v-container fluid class="pt-0">
-      <v-row>
-        <!-- Main Content Column -->
-        <v-col cols="12" lg="9" order="1" order-lg="1">
+    <v-container fluid class="pa-0">
+      <!-- Mobile Expandable Filters -->
+      <div>
+        <v-expand-transition>
+          <div v-show="showAdvanced" class="d-md-none">
+            <UserFilters v-model="filters" @apply="handleFiltersChange" />
+          </div>
+        </v-expand-transition>
+      </div>
+
+      <!-- Desktop Layout (8/4) -->
+      <v-row class="d-none d-md-flex ma-0">
+        <!-- Table Column (8/12) -->
+        <v-col cols="12" md="8" class="pa-0">
           <!-- Mode Switch: Current Company vs Global -->
           <div
             v-if="userStore.isAdmin || canAny(PERMISSIONS.USERS_VIEW_ALL, PERMISSIONS.USERS_VIEW_CHILDREN, PERMISSIONS.USERS_VIEW_SELF)"
@@ -70,7 +65,7 @@
             </v-card>
           </div>
 
-          <v-card rounded="xl" class="border shadow-sm overflow-hidden">
+          <v-card rounded="md" class="border shadow-sm">
             <AppInfiniteScroll
               :loading="loading && users?.length > 0"
               :has-more="(users?.length || 0) < (totalItems || 0)"
@@ -85,6 +80,7 @@
                 :items="users || []"
                 :total-items="totalItems || 0"
                 :loading="loading"
+                :table-height="'calc(100vh - 350px)'"
                 hide-pagination
                 permission-module="users"
                 @update:options="onTableOptionsUpdate"
@@ -192,76 +188,186 @@
           </v-card>
         </v-col>
 
-        <!-- Sidebar Column (Stats & Filters) -->
-        <v-col cols="12" lg="3" order="0" order-lg="2">
-          <div class="sticky-sidebar">
-            <h3 class="text-subtitle-1 font-weight-bold mb-4 d-flex align-center gap-2">
-              <v-icon icon="ri-pie-chart-line" color="primary" />
+        <!-- Filters Column (4/12) -->
+        <v-col cols="12" md="4" class="pa-0">
+          <div class="sticky-filters">
+            <h3 class="text-body-2 font-weight-bold mb-2 px-2">
+              <v-icon icon="ri-pie-chart-line" color="primary" size="small" class="me-1" />
               نظرة عامة
             </h3>
 
-            <!-- Statistics Grid in Sidebar -->
-            <v-row dense>
-              <v-col cols="6" lg="12">
-                <div class="pa-4 d-flex align-center gap-3 rounded-lg border bg-white shadow-sm mb-lg-3">
-                  <v-avatar color="primary-lighten-5" rounded="lg" size="42">
-                    <v-icon icon="ri-team-line" color="primary" size="20" />
+            <!-- Statistics Grid -->
+            <v-row dense class="mb-3">
+              <v-col cols="6" md="6">
+                <div class="pa-2 d-flex align-center gap-2 rounded-md border bg-white shadow-sm">
+                  <v-avatar color="primary-lighten-5" rounded="md" size="32">
+                    <v-icon icon="ri-team-line" color="primary" size="16" />
                   </v-avatar>
                   <div class="overflow-hidden">
-                    <div class="text-caption text-grey-darken-1 font-weight-medium text-truncate">إجمالي المستخدمين</div>
-                    <div class="text-h6 font-weight-bold">{{ totalItems || 0 }}</div>
+                    <div class="text-caption text-grey-darken-1 text-truncate" style="font-size: 0.65rem">إجمالي</div>
+                    <div class="text-subtitle-2 font-weight-bold">{{ totalItems || 0 }}</div>
                   </div>
                 </div>
               </v-col>
-              <v-col cols="6" lg="12">
-                <div class="pa-4 d-flex align-center gap-3 rounded-lg border bg-white shadow-sm mb-lg-3">
-                  <v-avatar color="success-lighten-5" rounded="lg" size="42">
-                    <v-icon icon="ri-user-follow-line" color="success" size="20" />
+              <v-col cols="6" md="6">
+                <div class="pa-2 d-flex align-center gap-2 rounded-md border bg-white shadow-sm">
+                  <v-avatar color="success-lighten-5" rounded="md" size="32">
+                    <v-icon icon="ri-user-follow-line" color="success" size="16" />
                   </v-avatar>
                   <div class="overflow-hidden">
-                    <div class="text-caption text-grey-darken-1 font-weight-medium text-truncate">نشطين الآن</div>
-                    <div class="text-h6 font-weight-bold text-success">{{ activeCount }}</div>
+                    <div class="text-caption text-grey-darken-1 text-truncate" style="font-size: 0.65rem">نشطين</div>
+                    <div class="text-subtitle-2 font-weight-bold text-success">{{ activeCount }}</div>
                   </div>
                 </div>
               </v-col>
-              <v-col cols="6" lg="12">
-                <div class="pa-4 d-flex align-center gap-3 rounded-lg border bg-white shadow-sm mb-lg-3">
-                  <v-avatar color="warning-lighten-5" rounded="lg" size="42">
-                    <v-icon icon="ri-admin-line" color="warning" size="20" />
+              <v-col cols="6" md="6">
+                <div class="pa-2 d-flex align-center gap-2 rounded-md border bg-white shadow-sm">
+                  <v-avatar color="warning-lighten-5" rounded="md" size="32">
+                    <v-icon icon="ri-admin-line" color="warning" size="16" />
                   </v-avatar>
                   <div class="overflow-hidden">
-                    <div class="text-caption text-grey-darken-1 font-weight-medium text-truncate">المدراء</div>
-                    <div class="text-h6 font-weight-bold text-warning">{{ adminCount }}</div>
+                    <div class="text-caption text-grey-darken-1 text-truncate" style="font-size: 0.65rem">المدراء</div>
+                    <div class="text-subtitle-2 font-weight-bold text-warning">{{ adminCount }}</div>
                   </div>
                 </div>
               </v-col>
-              <v-col cols="6" lg="12">
-                <div class="pa-4 d-flex align-center gap-3 rounded-lg border bg-white shadow-sm mb-lg-3">
-                  <v-avatar color="error-lighten-5" rounded="lg" size="42">
-                    <v-icon icon="ri-user-forbid-line" color="error" size="20" />
+              <v-col cols="6" md="6">
+                <div class="pa-2 d-flex align-center gap-2 rounded-md border bg-white shadow-sm">
+                  <v-avatar color="error-lighten-5" rounded="md" size="32">
+                    <v-icon icon="ri-user-forbid-line" color="error" size="16" />
                   </v-avatar>
                   <div class="overflow-hidden">
-                    <div class="text-caption text-grey-darken-1 font-weight-medium text-truncate">معطلين</div>
-                    <div class="text-h6 font-weight-bold text-error">{{ inactiveCount }}</div>
+                    <div class="text-caption text-grey-darken-1 text-truncate" style="font-size: 0.65rem">معطلين</div>
+                    <div class="text-subtitle-2 font-weight-bold text-error">{{ inactiveCount }}</div>
                   </div>
                 </div>
               </v-col>
             </v-row>
 
             <!-- Filters Section -->
-            <div class="mt-6">
-              <h3 class="text-subtitle-1 font-weight-bold mb-4 d-flex align-center gap-2">
-                <v-icon icon="ri-filter-3-line" color="primary" />
-                تصفية النتائج
-              </h3>
-
-              <v-card variant="flat" border class="rounded-lg pa-4 bg-grey-lighten-5">
-                <UserFilters v-model="filters" @apply="handleFiltersChange" />
-              </v-card>
-            </div>
+            <UserFilters v-model="filters" @apply="handleFiltersChange" />
           </div>
         </v-col>
       </v-row>
+
+      <!-- Mobile: Full Width Table -->
+      <div class="d-md-none">
+        <v-card rounded="md" class="border shadow-sm">
+          <AppInfiniteScroll
+            :loading="loading && users?.length > 0"
+            :has-more="(users?.length || 0) < (totalItems || 0)"
+            no-more-text="لا يوجد المزيد"
+            @load="handleLoadMore"
+          >
+            <AppDataTable
+              v-model:page="page"
+              v-model:items-per-page="itemsPerPage"
+              v-model:sort-by="sortByVuetify"
+              :headers="headers"
+              :items="users || []"
+              :total-items="totalItems || 0"
+              :table-height="'calc(100vh - 350px)'"
+              :loading="loading"
+              hide-pagination
+              permission-module="users"
+              @update:options="onTableOptionsUpdate"
+              @edit="handleEdit"
+              @delete="handleDelete"
+              @view="item => $router.push(`/users/${item.id}`)"
+            >
+              <template #item.full_name="{ item }">
+                <div class="d-flex align-center py-2">
+                  <AppAvatar :img-url="item.avatar_url" :name="item.nickname || item.full_name" size="45" class="me-3 border shadow-sm" />
+                  <div class="d-flex flex-column">
+                    <span class="font-weight-bold text-body-1 text-primary cursor-pointer hover-underline" @click="$router.push(`/users/${item.id}`)">
+                      {{ item.nickname || item.full_name }}
+                    </span>
+                    <span class="text-caption text-grey d-flex align-center gap-1">
+                      <v-icon icon="ri-mail-line" size="12" />
+                      {{ item.email || 'لا يوجد بريد' }}
+                    </span>
+                  </div>
+                </div>
+              </template>
+
+              <template #item.phone="{ item }">
+                <AppPhone :phone="item.phone" />
+              </template>
+
+              <template #item.roles="{ item }">
+                <div class="d-flex flex-wrap gap-1">
+                  <template v-if="item.roles?.length">
+                    <v-chip
+                      v-for="role in item.roles"
+                      :key="typeof role === 'object' ? role.id : role"
+                      size="x-small"
+                      variant="tonal"
+                      :color="getRoleColor(role)"
+                      class="font-weight-bold px-2 rounded"
+                    >
+                      {{ typeof role === 'object' ? role.label || role.name : role }}
+                    </v-chip>
+                  </template>
+                  <span v-else class="text-caption text-grey italic">عميل</span>
+                </div>
+              </template>
+
+              <template #item.status="{ item }">
+                <v-chip
+                  :color="[1, '1', true, 'active'].includes(item.status) ? 'success' : 'error'"
+                  size="x-small"
+                  variant="flat"
+                  class="font-weight-bold px-2"
+                >
+                  {{ [1, '1', true, 'active'].includes(item.status) ? 'نشط' : 'معطل' }}
+                </v-chip>
+              </template>
+
+              <template #item.balance="{ item }">
+                <div :class="['font-weight-bold text-end', item.balance < 0 ? 'text-error' : 'text-success']">
+                  {{ formatCurrency(item.balance) }}
+                </div>
+              </template>
+
+              <template #extra-actions="{ item, inMenu }">
+                <v-list-item
+                  v-if="inMenu && can(PERMISSIONS.PAYMENTS_CREATE)"
+                  prepend-icon="ri-money-dollar-circle-line"
+                  title="سداد دفعة"
+                  class="text-success"
+                  @click="$router.push(`/payments/create?user_id=${item.id}`)"
+                />
+                <AppButton
+                  v-else-if="can(PERMISSIONS.PAYMENTS_CREATE)"
+                  icon="ri-money-dollar-circle-line"
+                  size="small"
+                  variant="text"
+                  color="success"
+                  tooltip="سداد"
+                  @click="$router.push(`/payments/create?user_id=${item.id}`)"
+                />
+
+                <v-list-item
+                  v-if="inMenu && can(PERMISSIONS.ROLES_PAGE)"
+                  prepend-icon="ri-shield-user-line"
+                  title="إدارة الصلاحيات"
+                  class="text-warning"
+                  @click="handleManagePermissions(item)"
+                />
+                <AppButton
+                  v-else-if="can(PERMISSIONS.ROLES_PAGE)"
+                  icon="ri-shield-user-line"
+                  size="small"
+                  variant="text"
+                  color="warning"
+                  tooltip="صلاحيات"
+                  @click="handleManagePermissions(item)"
+                />
+              </template>
+            </AppDataTable>
+          </AppInfiniteScroll>
+        </v-card>
+      </div>
 
       <div class="px-6 pb-6">
         <AppConfirmDialog v-model="showConfirm" :message="confirmMessage" @confirm="handleConfirm" @cancel="handleCancel" />
@@ -339,6 +445,8 @@ import AppDialog from '@/components/common/AppDialog.vue';
 import AppInfiniteScroll from '@/components/common/AppInfiniteScroll.vue';
 import AppConfirmDialog from '@/components/common/AppConfirmDialog.vue';
 import AppSwitch from '@/components/common/AppSwitch.vue';
+import AppAvatar from '@/components/common/AppAvatar.vue';
+import AppPhone from '@/components/common/AppPhone.vue';
 import { PERMISSIONS } from '@/config/permissions';
 import { getInitials } from '@/utils/helpers';
 import { formatCurrency } from '@/utils/formatters';
@@ -491,6 +599,10 @@ const debouncedSearch = () => {
 </script>
 
 <style scoped>
+.users-page :deep(.v-container) {
+  max-width: 100% !important;
+}
+
 .hover-underline:hover {
   text-decoration: underline;
 }

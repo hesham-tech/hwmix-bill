@@ -1,5 +1,5 @@
 <template>
-  <v-card class="rounded-lg" border flat>
+  <v-card class="rounded-md" border flat>
     <v-card-text class="pa-6">
       <h3 class="text-h6 font-weight-bold mb-4">التقارير المالية</h3>
 
@@ -8,7 +8,7 @@
           v-for="report in reports"
           :key="report.route"
           :to="report.route"
-          class="rounded-lg mb-2"
+          class="rounded-md mb-2"
           :prepend-icon="report.icon"
           :base-color="report.color"
         >

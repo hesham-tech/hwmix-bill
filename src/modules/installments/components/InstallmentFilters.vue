@@ -1,73 +1,69 @@
 <template>
   <AppCard class="filter-card">
-    <div class="pa-4 pb-0">
-      <div class="d-flex align-center mb-4">
-        <v-icon icon="ri-equalizer-line" color="primary" class="me-3" />
-        <div class="text-h6 font-weight-bold">بحث متقدم</div>
+    <div class="pa-2 pb-0">
+      <div class="d-flex align-center mb-2">
+        <v-icon icon="ri-equalizer-line" color="primary" class="me-2" size="small" />
+        <div class="text-subtitle-1 font-weight-bold">بحث متقدم</div>
 
-        <v-chip v-if="hasActiveFilters" size="x-small" color="primary" class="ms-3 font-weight-bold"> مرشحات نشطة </v-chip>
+        <v-chip v-if="hasActiveFilters" size="x-small" color="primary" class="ms-2">نشط</v-chip>
 
         <v-spacer />
 
-        <AppButton
-          v-if="hasActiveFilters"
-          variant="text"
-          color="error"
-          size="small"
-          prepend-icon="ri-close-circle-line"
-          @click.stop="resetAllFilters"
-        >
-          مسح الكل
-        </AppButton>
+        <AppButton v-if="hasActiveFilters" icon="ri-close-circle-line" variant="text" color="error" size="small" @click.stop="resetAllFilters" />
       </div>
 
-      <v-divider class="mb-6" />
+      <v-divider class="mb-3" />
 
-      <v-row>
-        <!-- الحالة -->
-        <v-col cols="12" sm="6" md="4">
+      <v-row dense>
+        <!-- حقول التاريخ في صف واحد -->
+        <v-col cols="6">
+          <AppInput
+            v-model="filters.date_from"
+            type="date"
+            label="من تاريخ"
+            density="compact"
+            prepend-inner-icon="ri-calendar-line"
+            @update:model-value="emit('apply')"
+          />
+        </v-col>
+
+        <v-col cols="6">
+          <AppInput
+            v-model="filters.date_to"
+            type="date"
+            label="إلى تاريخ"
+            density="compact"
+            prepend-inner-icon="ri-calendar-line"
+            @update:model-value="emit('apply')"
+          />
+        </v-col>
+
+        <!-- الحالة في صف منفصل -->
+        <v-col cols="12">
           <v-select
             v-model="filters.status"
             :items="statusOptions"
             label="حالة القسط"
             variant="outlined"
-            density="comfortable"
+            density="compact"
             prepend-inner-icon="ri-checkbox-circle-line"
             clearable
             hide-details
             @update:model-value="emit('apply')"
           />
         </v-col>
-
-        <!-- من تاريخ -->
-        <v-col cols="6" sm="6" md="4">
-          <AppInput
-            v-model="filters.date_from"
-            type="date"
-            label="من تاريخ استحقاق"
-            prepend-inner-icon="ri-calendar-line"
-            @update:model-value="emit('apply')"
-          />
-        </v-col>
-
-        <!-- إلى تاريخ -->
-        <v-col cols="6" sm="6" md="4">
-          <AppInput
-            v-model="filters.date_to"
-            type="date"
-            label="إلى تاريخ استحقاق"
-            prepend-inner-icon="ri-calendar-line"
-            @update:model-value="emit('apply')"
-          />
-        </v-col>
       </v-row>
 
-      <div class="d-flex flex-wrap gap-2 mt-4 pb-4">
-        <AppButton flex-grow-1 prepend-icon="ri-filter-line" @click="emit('apply')" class="flex-grow-1"> تطبيق الفلاتر </AppButton>
-        <AppButton flex-grow-1 variant="outlined" color="secondary" prepend-icon="ri-refresh-line" @click="resetAllFilters" class="flex-grow-1">
-          إعادة تعيين
-        </AppButton>
-      </div>
+      <v-row dense class="mt-2 pb-2">
+        <v-col cols="6">
+          <AppButton block prepend-icon="ri-filter-line" size="small" color="primary" @click="emit('apply')">تطبيق</AppButton>
+        </v-col>
+        <v-col cols="6">
+          <AppButton block prepend-icon="ri-refresh-line" size="small" variant="outlined" color="secondary" @click="resetAllFilters">
+            إعادة
+          </AppButton>
+        </v-col>
+      </v-row>
     </div>
   </AppCard>
 </template>

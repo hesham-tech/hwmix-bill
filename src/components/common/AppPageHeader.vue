@@ -5,14 +5,14 @@
         <!-- Prepend Content (Icon or custom) -->
         <v-col v-if="$slots.prepend || icon" cols="auto" class="me-3 me-md-4">
           <slot name="prepend">
-            <v-avatar color="primary-lighten-5" rounded="lg" size="48" class="elevation-sm">
+            <v-avatar color="primary-lighten-5" rounded="md" size="48" class="elevation-sm">
               <v-icon :icon="icon" :color="iconColor" size="28" />
             </v-avatar>
           </slot>
         </v-col>
 
         <!-- Title & Subtitle Section -->
-        <v-col>
+        <v-col cols="auto">
           <!-- Title Section -->
           <v-card-title class="pa-0 text-h5 font-weight-black text-slate-800 mb-1" :class="mobile ? 'text-subtitle-1' : 'text-md-h4'">
             <slot name="title">{{ title }}</slot>
@@ -40,7 +40,7 @@
     </v-card>
 
     <!-- Controls Section (Optional) -->
-    <v-card v-if="$slots.controls" class="mx-4 mb-4 pa-3 border-slate-50" density="comfortable" flat>
+    <v-card v-if="$slots.controls" color="transparent" flat>
       <v-row align="center" no-gutters>
         <slot name="controls"></slot>
       </v-row>

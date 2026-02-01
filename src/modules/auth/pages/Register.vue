@@ -6,12 +6,12 @@
     <div class="bg-shape shape-3"></div>
 
     <v-container class="fill-height d-flex align-center justify-center pa-4">
-      <div class="glass-container elevation-24 pa-4 pa-md-6">
+      <div class="glass-container elevation-24 pa-3 pa-md-4">
         <v-row class="fill-height justify-center" align="stretch">
           <!-- Left Side: Visual/Branding -->
-          <v-col cols="12" md="5" class="d-none d-md-flex">
+          <v-col cols="12" md="6" class="d-none d-md-flex">
             <div class="visual-card h-100 w-100 d-flex align-center justify-center">
-              <div class="visual-content text-center pa-10">
+              <div class="visual-content text-center pa-6 pa-md-8">
                 <div class="icon-orb mb-6">
                   <v-icon icon="ri-shield-user-fill" size="64" color="white" />
                 </div>
@@ -32,14 +32,14 @@
           </v-col>
 
           <!-- Right Side: Form -->
-          <v-col cols="12" md="7">
-            <div class="form-card h-100 pa-8 pa-md-10">
+          <v-col cols="12" md="6" class="d-flex">
+            <div class="form-card h-100 pa-6 pa-md-8 w-100 d-flex flex-column justify-center">
               <div class="d-flex align-center justify-space-between mb-8">
                 <div>
                   <h2 class="text-h4 font-weight-black text-slate-900 mb-1">تسجيل جديد</h2>
                   <p class="text-body-1 text-slate-500">من فضلك قم بملء البيانات التالية بدقة</p>
                 </div>
-                <v-btn icon="ri-arrow-left-line" variant="tonal" color="primary" rounded="lg" to="/login" />
+                <v-btn icon="ri-arrow-left-line" variant="tonal" color="primary" rounded="md" to="/login" />
               </div>
 
               <v-form ref="formRef" @submit.prevent="handleRegister" class="register-form">
@@ -186,10 +186,14 @@ const handleRegister = async () => {
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.4);
-  border-radius: 24px;
+  border-radius: 16px;
   width: 100%;
-  max-width: 1100px;
-  min-height: 650px;
+  max-width: 1200px;
+  height: auto;
+  max-height: 95vh;
+  min-height: 500px;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   z-index: 2;
   box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.15) !important;
@@ -200,7 +204,7 @@ const handleRegister = async () => {
   background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
   position: relative;
   color: white;
-  border-radius: 20px;
+  border-radius: 12px;
   overflow: hidden;
 }
 
@@ -275,7 +279,7 @@ const handleRegister = async () => {
 
 .submit-btn {
   height: 64px !important;
-  border-radius: 14px !important;
+  border-radius: 12px !important;
   font-weight: 800 !important;
   font-size: 1.1rem !important;
   letter-spacing: 0;

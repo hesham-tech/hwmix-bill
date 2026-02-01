@@ -3,7 +3,7 @@
     <!-- Navigation Bar -->
     <nav class="landing-nav pa-4 d-flex align-center justify-space-between glass-effect">
       <div class="d-flex align-center gap-2">
-        <v-avatar color="primary" rounded="lg" size="40">
+        <v-avatar color="primary" rounded="md" size="40">
           <v-icon icon="ri-building-line" color="white" />
         </v-avatar>
         <span class="text-h6 font-weight-black text-primary">hwmix-bill</span>
@@ -40,7 +40,7 @@
     <v-navigation-drawer v-model="mobileDrawer" location="right" temporary class="pa-4">
       <div class="d-flex flex-column gap-4 mt-4">
         <div class="d-flex align-center gap-2 mb-6 px-2">
-          <v-avatar color="primary" rounded="lg" size="32">
+          <v-avatar color="primary" rounded="md" size="32">
             <v-icon icon="ri-building-line" color="white" size="18" />
           </v-avatar>
           <span class="text-subtitle-1 font-weight-black text-primary">hwmix-bill</span>
@@ -48,7 +48,7 @@
 
         <router-link
           to="/saas"
-          class="nav-link gold-text font-weight-black text-h6 px-2 py-2 rounded-lg bg-amber-lighten-5 d-flex align-center gap-2"
+          class="nav-link gold-text font-weight-black text-h6 px-2 py-2 rounded-md bg-amber-lighten-5 d-flex align-center gap-2"
           @click="mobileDrawer = false"
         >
           <v-icon icon="ri-shield-flash-line" color="amber-darken-3" />
@@ -63,192 +63,194 @@
 
         <v-divider />
 
-        <v-btn color="primary" block variant="elevated" class="rounded-lg mt-4" to="/login?type=customer">دخول</v-btn>
-        <v-btn color="primary" block variant="outlined" class="rounded-lg" to="/register">إنشاء حساب</v-btn>
+        <v-btn color="primary" block variant="elevated" class="rounded-md mt-4" to="/login?type=customer">دخول</v-btn>
+        <v-btn color="primary" block variant="outlined" class="rounded-md" to="/register">إنشاء حساب</v-btn>
       </div>
     </v-navigation-drawer>
 
-    <!-- Hero Section -->
-    <section class="hero-section d-flex align-center justify-center text-center">
-      <div class="content-wrapper">
-        <div class="vibrant-bg"></div>
-        <v-chip color="primary" variant="tonal" class="mb-4 font-weight-bold py-4 px-6 border slide-up">
-          تسوق بذكاء وقم بإدارة فواتيرك في مكان واحد
-        </v-chip>
-        <h1 class="text-h2 font-weight-black mb-6 hero-title slide-up-delay-1">
-          تجربة تسوق <span class="primary-gradient-text">فريدة</span> <br />
-          وإدارة مالية متكاملة.
-        </h1>
-        <p class="text-h6 text-grey-darken-1 mb-10 max-w-700 mx-auto leading-relaxed slide-up-delay-2">
-          اكتشف أحدث المنتجات من أفضل العلامات التجارية، واستمتع بنظام تقسيط مرن وواجهة إدارة فواتير احترافية مصممة خصيصاً لراحتك.
-        </p>
-        <div class="d-flex gap-4 justify-center flex-wrap slide-up-delay-3">
-          <v-btn size="x-large" color="primary" class="rounded-xl px-12 font-weight-black elevation-8" to="/login?type=customer" height="56">
-            تصفح المتجر الآن
-          </v-btn>
-          <v-btn size="x-large" variant="outlined" color="primary" class="rounded-xl px-12 font-weight-black" height="56" to="/register">
-            إنشاء حساب جديد
-          </v-btn>
-        </div>
-      </div>
-    </section>
-
-    <!-- Category Section -->
-    <section id="categories" class="py-16 bg-white">
-      <v-container>
-        <div class="d-flex align-center justify-space-between mb-10">
-          <div>
-            <h2 class="text-h4 font-weight-black mb-2">تسوق حسب القسم</h2>
-            <p class="text-grey">اختر ما يناسبك من بين تشكيلاتنا الواسعة</p>
+    <v-main>
+      <!-- Hero Section -->
+      <section class="hero-section d-flex align-center justify-center text-center">
+        <div class="content-wrapper">
+          <div class="vibrant-bg"></div>
+          <v-chip color="primary" variant="tonal" class="mb-4 font-weight-bold py-4 px-6 border slide-up">
+            تسوق بذكاء وقم بإدارة فواتيرك في مكان واحد
+          </v-chip>
+          <h1 class="text-h2 font-weight-black mb-6 hero-title slide-up-delay-1">
+            تجربة تسوق <span class="primary-gradient-text">فريدة</span> <br />
+            وإدارة مالية متكاملة.
+          </h1>
+          <p class="text-h6 text-grey-darken-1 mb-10 max-w-700 mx-auto leading-relaxed slide-up-delay-2">
+            اكتشف أحدث المنتجات من أفضل العلامات التجارية، واستمتع بنظام تقسيط مرن وواجهة إدارة فواتير احترافية مصممة خصيصاً لراحتك.
+          </p>
+          <div class="d-flex gap-4 justify-center flex-wrap slide-up-delay-3">
+            <v-btn size="x-large" color="primary" class="rounded-md px-12 font-weight-black elevation-8" to="/login?type=customer" height="56">
+              تصفح المتجر الآن
+            </v-btn>
+            <v-btn size="x-large" variant="outlined" color="primary" class="rounded-md px-12 font-weight-black" height="56" to="/register">
+              إنشاء حساب جديد
+            </v-btn>
           </div>
-          <v-btn variant="text" color="primary" append-icon="ri-arrow-left-line">عرض الكل</v-btn>
         </div>
+      </section>
 
-        <v-row>
-          <v-col v-for="(cat, i) in categories" :key="i" cols="6" md="3">
-            <v-card variant="flat" border class="category-card rounded-xl text-center pa-6 hover-lift-up">
-              <v-avatar :color="cat.color + '-lighten-5'" rounded="circle" size="80" class="mb-4">
-                <v-icon :icon="cat.icon" :color="cat.color" size="40" />
-              </v-avatar>
-              <h3 class="text-h6 font-weight-bold">{{ cat.name }}</h3>
-              <p class="text-caption text-grey">{{ cat.count }} منتج</p>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-container>
-    </section>
+      <!-- Category Section -->
+      <section id="categories" class="py-16 bg-white">
+        <v-container>
+          <div class="d-flex align-center justify-space-between mb-10">
+            <div>
+              <h2 class="text-h4 font-weight-black mb-2">تسوق حسب القسم</h2>
+              <p class="text-grey">اختر ما يناسبك من بين تشكيلاتنا الواسعة</p>
+            </div>
+            <v-btn variant="text" color="primary" append-icon="ri-arrow-left-line">عرض الكل</v-btn>
+          </div>
 
-    <!-- Featured Products Section -->
-    <section id="products" class="py-16 bg-grey-lighten-5">
-      <v-container>
-        <h2 class="text-h4 font-weight-black text-center mb-12">المنتجات الأكثر مبيعاً</h2>
+          <v-row>
+            <v-col v-for="(cat, i) in categories" :key="i" cols="6" md="3">
+              <v-card variant="flat" border class="category-card rounded-md text-center pa-6 hover-lift-up">
+                <v-avatar :color="cat.color + '-lighten-5'" rounded="circle" size="80" class="mb-4">
+                  <v-icon :icon="cat.icon" :color="cat.color" size="40" />
+                </v-avatar>
+                <h3 class="text-h6 font-weight-bold">{{ cat.name }}</h3>
+                <p class="text-caption text-grey">{{ cat.count }} منتج</p>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-container>
+      </section>
 
-        <v-row>
-          <v-col v-for="(prod, i) in featuredProducts" :key="i" cols="12" sm="6" md="3">
-            <v-card variant="flat" border class="product-card rounded-xl overflow-hidden hover-lift h-100">
-              <div class="product-image-container pa-4 bg-white d-flex align-center justify-center">
-                <v-icon :icon="prod.icon" size="100" class="text-grey-lighten-2" />
-                <v-chip color="error" class="product-badge" size="small" v-if="prod.discount">خصم {{ prod.discount }}%</v-chip>
-              </div>
-              <v-card-text class="pa-4">
-                <div class="d-flex justify-space-between align-center mb-1">
-                  <span class="text-caption text-grey">{{ prod.category }}</span>
-                  <div class="d-flex align-center">
-                    <v-icon icon="ri-star-fill" color="orange" size="14" />
-                    <span class="text-caption ms-1 text-grey">{{ prod.rating }}</span>
+      <!-- Featured Products Section -->
+      <section id="products" class="py-16 bg-grey-lighten-5">
+        <v-container>
+          <h2 class="text-h4 font-weight-black text-center mb-12">المنتجات الأكثر مبيعاً</h2>
+
+          <v-row>
+            <v-col v-for="(prod, i) in featuredProducts" :key="i" cols="12" sm="6" md="3">
+              <v-card variant="flat" border class="product-card rounded-md overflow-hidden hover-lift h-100">
+                <div class="product-image-container pa-4 bg-white d-flex align-center justify-center">
+                  <v-icon :icon="prod.icon" size="100" class="text-grey-lighten-2" />
+                  <v-chip color="error" class="product-badge" size="small" v-if="prod.discount">خصم {{ prod.discount }}%</v-chip>
+                </div>
+                <v-card-text class="pa-4">
+                  <div class="d-flex justify-space-between align-center mb-1">
+                    <span class="text-caption text-grey">{{ prod.category }}</span>
+                    <div class="d-flex align-center">
+                      <v-icon icon="ri-star-fill" color="orange" size="14" />
+                      <span class="text-caption ms-1 text-grey">{{ prod.rating }}</span>
+                    </div>
                   </div>
-                </div>
-                <h3 class="text-body-1 font-weight-bold mb-3 line-clamp-1">{{ prod.name }}</h3>
-                <div class="d-flex align-center gap-2">
-                  <span class="text-h6 font-weight-black text-primary">{{ prod.price }} ج.م</span>
-                  <span class="text-caption text-grey text-decoration-line-through" v-if="prod.oldPrice"> {{ prod.oldPrice }} ج.م </span>
-                </div>
-              </v-card-text>
-              <v-divider class="mx-4" />
-              <v-card-actions class="pa-4">
-                <v-btn color="primary" variant="flat" block class="rounded-lg font-weight-bold" prepend-icon="ri-shopping-cart-line">
-                  أضف للسلة
-                </v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-container>
-    </section>
+                  <h3 class="text-body-1 font-weight-bold mb-3 line-clamp-1">{{ prod.name }}</h3>
+                  <div class="d-flex align-center gap-2">
+                    <span class="text-h6 font-weight-black text-primary">{{ prod.price }} ج.م</span>
+                    <span class="text-caption text-grey text-decoration-line-through" v-if="prod.oldPrice"> {{ prod.oldPrice }} ج.م </span>
+                  </div>
+                </v-card-text>
+                <v-divider class="mx-4" />
+                <v-card-actions class="pa-4">
+                  <v-btn color="primary" variant="flat" block class="rounded-md font-weight-bold" prepend-icon="ri-shopping-cart-line">
+                    أضف للسلة
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-container>
+      </section>
 
-    <!-- Why Us Section -->
-    <section class="py-16 bg-white border-y">
-      <v-container>
-        <v-row>
-          <v-col v-for="(item, i) in trustBadges" :key="i" cols="12" sm="6" md="3">
-            <div class="d-flex align-start gap-4">
-              <v-avatar color="primary-lighten-5" rounded="lg" size="48">
-                <v-icon :icon="item.icon" color="primary" />
-              </v-avatar>
-              <div>
-                <h4 class="text-body-1 font-weight-bold mb-1">{{ item.title }}</h4>
-                <p class="text-caption text-grey">{{ item.desc }}</p>
+      <!-- Why Us Section -->
+      <section class="py-16 bg-white border-y">
+        <v-container>
+          <v-row>
+            <v-col v-for="(item, i) in trustBadges" :key="i" cols="12" sm="6" md="3">
+              <div class="d-flex align-start gap-4">
+                <v-avatar color="primary-lighten-5" rounded="md" size="48">
+                  <v-icon :icon="item.icon" color="primary" />
+                </v-avatar>
+                <div>
+                  <h4 class="text-body-1 font-weight-bold mb-1">{{ item.title }}</h4>
+                  <p class="text-caption text-grey">{{ item.desc }}</p>
+                </div>
               </div>
-            </div>
-          </v-col>
-        </v-row>
-      </v-container>
-    </section>
+            </v-col>
+          </v-row>
+        </v-container>
+      </section>
 
-    <!-- Footer -->
-    <footer class="footer pa-12 bg-grey-darken-4 text-white">
-      <v-container>
-        <v-row>
-          <v-col cols="12" md="4" class="mb-8 mb-md-0">
-            <div class="d-flex align-center gap-2 mb-6">
-              <v-avatar color="primary" rounded="lg" size="40">
-                <v-icon icon="ri-building-line" color="white" />
-              </v-avatar>
-              <span class="text-h5 font-weight-black">hwmix-bill</span>
-            </div>
-            <p class="text-body-2 text-grey-lighten-1 mb-6 leading-relaxed">
-              نحن نوفر لك أفضل المنتجات الإلكترونية بأعلى جودة، مع نظام إدارة مالية وتقسيط يضمن لك راحة البال والتحكم الكامل في ميزانيتك.
-            </p>
-            <div class="d-flex gap-4">
-              <v-btn icon="ri-facebook-fill" variant="text" color="white" />
-              <v-btn icon="ri-twitter-fill" variant="text" color="white" />
-              <v-btn icon="ri-instagram-line" variant="text" color="white" />
-            </div>
-          </v-col>
+      <!-- Footer -->
+      <footer class="footer pa-12 bg-grey-darken-4 text-white">
+        <v-container>
+          <v-row>
+            <v-col cols="12" md="4" class="mb-8 mb-md-0">
+              <div class="d-flex align-center gap-2 mb-6">
+                <v-avatar color="primary" rounded="md" size="40">
+                  <v-icon icon="ri-building-line" color="white" />
+                </v-avatar>
+                <span class="text-h5 font-weight-black">hwmix-bill</span>
+              </div>
+              <p class="text-body-2 text-grey-lighten-1 mb-6 leading-relaxed">
+                نحن نوفر لك أفضل المنتجات الإلكترونية بأعلى جودة، مع نظام إدارة مالية وتقسيط يضمن لك راحة البال والتحكم الكامل في ميزانيتك.
+              </p>
+              <div class="d-flex gap-4">
+                <v-btn icon="ri-facebook-fill" variant="text" color="white" />
+                <v-btn icon="ri-twitter-fill" variant="text" color="white" />
+                <v-btn icon="ri-instagram-line" variant="text" color="white" />
+              </div>
+            </v-col>
 
-          <v-col cols="12" sm="6" md="2" class="mb-8 mb-md-0">
-            <h4 class="text-h6 font-weight-bold mb-6">المتجر</h4>
-            <div class="d-flex flex-column gap-3">
-              <router-link to="/" class="footer-link">الرئيسية</router-link>
-              <router-link to="/saas" class="footer-link gold-text">نظام HWNix (SaaS)</router-link>
-              <router-link to="/products" class="footer-link">المنتجات</router-link>
-              <router-link to="/categories" class="footer-link">الأقسام</router-link>
-              <router-link to="/brands" class="footer-link">العلامات التجارية</router-link>
-            </div>
-          </v-col>
+            <v-col cols="12" sm="6" md="2" class="mb-8 mb-md-0">
+              <h4 class="text-h6 font-weight-bold mb-6">المتجر</h4>
+              <div class="d-flex flex-column gap-3">
+                <router-link to="/" class="footer-link">الرئيسية</router-link>
+                <router-link to="/saas" class="footer-link gold-text">نظام HWNix (SaaS)</router-link>
+                <router-link to="/products" class="footer-link">المنتجات</router-link>
+                <router-link to="/categories" class="footer-link">الأقسام</router-link>
+                <router-link to="/brands" class="footer-link">العلامات التجارية</router-link>
+              </div>
+            </v-col>
 
-          <v-col cols="12" sm="6" md="2" class="mb-8 mb-md-0">
-            <h4 class="text-h6 font-weight-bold mb-6">الدعم</h4>
-            <div class="d-flex flex-column gap-3">
-              <a href="#" class="footer-link">الأسئلة الشائعة</a>
-              <a href="#" class="footer-link">سياسة الاسترجاع</a>
-              <a href="#" class="footer-link">طرق الدفع</a>
-              <a href="#" class="footer-link">تواصل معنا</a>
-            </div>
-          </v-col>
+            <v-col cols="12" sm="6" md="2" class="mb-8 mb-md-0">
+              <h4 class="text-h6 font-weight-bold mb-6">الدعم</h4>
+              <div class="d-flex flex-column gap-3">
+                <a href="#" class="footer-link">الأسئلة الشائعة</a>
+                <a href="#" class="footer-link">سياسة الاسترجاع</a>
+                <a href="#" class="footer-link">طرق الدفع</a>
+                <a href="#" class="footer-link">تواصل معنا</a>
+              </div>
+            </v-col>
 
-          <v-col cols="12" md="4">
-            <h4 class="text-h6 font-weight-bold mb-6">النشرة البريدية</h4>
-            <p class="text-body-2 text-grey-lighten-1 mb-4">احصل على أحدث العروض والخصومات مباشرة في بريدك.</p>
-            <div class="d-flex gap-2">
-              <v-text-field
-                placeholder="بريدك الإلكتروني"
-                variant="solo-filled"
-                density="comfortable"
-                hide-details
-                bg-color="grey-darken-3"
-                class="rounded-lg"
-              />
-              <v-btn color="primary" height="48" class="px-6 rounded-lg font-weight-bold">اشترك</v-btn>
-            </div>
-            <div class="mt-8 text-caption text-grey-lighten-2 d-flex align-center gap-2">
-              <v-icon icon="ri-admin-line" size="14" />
-              <router-link to="/login?type=staff" class="text-grey-lighten-2 text-decoration-none hover-primary">دخول الموظفين</router-link>
-            </div>
-          </v-col>
-        </v-row>
+            <v-col cols="12" md="4">
+              <h4 class="text-h6 font-weight-bold mb-6">النشرة البريدية</h4>
+              <p class="text-body-2 text-grey-lighten-1 mb-4">احصل على أحدث العروض والخصومات مباشرة في بريدك.</p>
+              <div class="d-flex gap-2">
+                <v-text-field
+                  placeholder="بريدك الإلكتروني"
+                  variant="solo-filled"
+                  density="comfortable"
+                  hide-details
+                  bg-color="grey-darken-3"
+                  class="rounded-md"
+                />
+                <v-btn color="primary" height="48" class="px-6 rounded-md font-weight-bold">اشترك</v-btn>
+              </div>
+              <div class="mt-8 text-caption text-grey-lighten-2 d-flex align-center gap-2">
+                <v-icon icon="ri-admin-line" size="14" />
+                <router-link to="/login?type=staff" class="text-grey-lighten-2 text-decoration-none hover-primary">دخول الموظفين</router-link>
+              </div>
+            </v-col>
+          </v-row>
 
-        <v-divider class="my-10 border-grey-darken-3" />
+          <v-divider class="my-10 border-grey-darken-3" />
 
-        <div class="d-flex flex-column flex-md-row justify-space-between align-center gap-4">
-          <div class="text-caption text-grey-lighten-1">جميع الحقوق محفوظة © {{ new Date().getFullYear() }} - hwmix-bill</div>
-          <div class="d-flex gap-6 text-caption text-grey-lighten-1">
-            <a href="#" class="text-decoration-none text-inherit">سياسة الخصوصية</a>
-            <a href="#" class="text-decoration-none text-inherit">شروط الخدمة</a>
+          <div class="d-flex flex-column flex-md-row justify-space-between align-center gap-4">
+            <div class="text-caption text-grey-lighten-1">جميع الحقوق محفوظة © {{ new Date().getFullYear() }} - hwmix-bill</div>
+            <div class="d-flex gap-6 text-caption text-grey-lighten-1">
+              <a href="#" class="text-decoration-none text-inherit">سياسة الخصوصية</a>
+              <a href="#" class="text-decoration-none text-inherit">شروط الخدمة</a>
+            </div>
           </div>
-        </div>
-      </v-container>
-    </footer>
+        </v-container>
+      </footer>
+    </v-main>
   </div>
 </template>
 
@@ -305,6 +307,7 @@ const scrollToFeatures = () => {
 .landing-page {
   font-family: 'Cairo', 'Inter', sans-serif;
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 .landing-nav {

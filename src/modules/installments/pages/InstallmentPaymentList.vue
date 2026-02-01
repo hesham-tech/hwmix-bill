@@ -32,7 +32,7 @@
               variant="solo-filled"
               density="comfortable"
               flat
-              class="rounded-lg"
+              class="rounded-md"
               @update:model-value="debouncedSearch"
             />
           </v-col>
@@ -42,6 +42,27 @@
 
     <v-container fluid class="pt-0">
       <AppDataTable :headers="headers" :items="payments" :loading="loading" title="الدفعات المسجلة" icon="ri-history-line">
+        <template #item.customer="{ item }">
+          <div class="py-1">
+            <div class="font-weight-bold">
+              {{ item.customer?.nickname || item.customer?.full_name || item.plan?.customer?.nickname || item.plan?.customer?.full_name || '---' }}
+            </div>
+            <div class="text-caption text-grey">هاتف: {{ item.customer?.phone || item.plan?.customer?.phone || '---' }}</div>
+          </div>
+        </template>
+
+        <template #item.products="{ item }">
+          <div v-if="item.plan?.invoice?.items?.length" class="text-truncate" style="max-width: 200px">
+            <span class="text-body-2">
+              {{ item.plan.invoice.items[0].variant?.product?.name || item.plan.invoice.items[0].product_name }}
+            </span>
+            <v-chip v-if="item.plan.invoice.items.length > 1" size="x-small" color="primary" variant="tonal" class="ms-1 font-weight-bold">
+              + {{ item.plan.invoice.items.length - 1 }} آخرين
+            </v-chip>
+          </div>
+          <span v-else class="text-grey">---</span>
+        </template>
+
         <template #item.amount="{ item }">
           <div class="font-weight-black text-body-1 text-success">
             {{ formatCurrency(item.amount) }}
@@ -64,41 +85,27 @@
             {{ item.notes || '---' }}
           </span>
         </template>
-
-        <template #item.actions="{ item }">
-          <div class="d-flex justify-end">
-            <AppButton
-              v-if="canAny(PERMISSIONS.PAYMENTS_VIEW_ALL, PERMISSIONS.PAYMENTS_VIEW_CHILDREN, PERMISSIONS.PAYMENTS_VIEW_SELF)"
-              icon="ri-eye-line"
-              size="x-small"
-              variant="text"
-              color="info"
-              tooltip="عرض التفاصيل الكاملة"
-              @click="handleViewDetails(item)"
-            />
-          </div>
-        </template>
       </AppDataTable>
     </v-container>
 
     <!-- Payment Details Dialog -->
-    <AppDialog v-model="showDetails" title="تفاصيل دفعة القسط" icon="ri-information-line" max-width="600" hide-confirm>
+    <AppDialog v-model="showDetails" title="تفاصيل دفعة القسط" icon="ri-information-line" max-width="600" :show-confirm="false">
       <div v-if="selectedPayment">
         <v-row dense>
           <v-col cols="12" sm="6">
-            <div class="pa-3 border rounded-lg bg-grey-lighten-5 mb-2">
+            <div class="pa-3 border rounded-md bg-grey-lighten-5 mb-2">
               <div class="text-caption text-grey mb-1">قيمة الدفعة</div>
               <div class="text-h5 font-weight-black text-success">{{ formatCurrency(selectedPayment.amount) }}</div>
             </div>
           </v-col>
           <v-col cols="12" sm="6">
-            <div class="pa-3 border rounded-lg bg-grey-lighten-5 mb-2">
+            <div class="pa-3 border rounded-md bg-grey-lighten-5 mb-2">
               <div class="text-caption text-grey mb-1">تاريخ العملية</div>
               <div class="text-h6 font-weight-bold">{{ formatDate(selectedPayment.date) }}</div>
             </div>
           </v-col>
           <v-col cols="12">
-            <div class="pa-3 border rounded-lg bg-grey-lighten-5 mb-4">
+            <div class="pa-3 border rounded-md bg-grey-lighten-5 mb-4">
               <div class="text-caption text-grey mb-1">طريقة الدفع</div>
               <div class="d-flex align-center">
                 <v-icon icon="ri-wallet-line" size="small" class="me-2" />
@@ -107,7 +114,7 @@
             </div>
           </v-col>
           <v-col v-if="selectedPayment.notes" cols="12">
-            <div class="pa-3 border rounded-lg bg-grey-lighten-5 mb-4">
+            <div class="pa-3 border rounded-md bg-grey-lighten-5 mb-4">
               <div class="text-caption text-grey mb-1">ملاحظات إضافية</div>
               <div class="text-body-2">{{ selectedPayment.notes }}</div>
             </div>
@@ -125,7 +132,7 @@
           <AppSkeleton type="list" />
         </div>
         <div v-else-if="paymentDetails.length">
-          <v-list border class="rounded-lg pa-0 overflow-hidden">
+          <v-list border class="rounded-md pa-0 overflow-hidden">
             <v-list-item v-for="(detail, index) in paymentDetails" :key="detail.id" :class="{ 'border-b': index < paymentDetails.length - 1 }">
               <template #prepend>
                 <v-avatar color="primary-lighten-5" size="32" class="me-3">
@@ -152,7 +159,7 @@
     </v-avatar>
     <h2 class="text-h4 font-weight-bold mb-2">عذراً، لا تملك الصلاحية</h2>
     <p class="text-body-1 text-grey mb-6">ليس لديك إذن للوصول إلى سجل دفعات الأقساط. يرجى مراجعة المسؤول.</p>
-    <AppButton to="/dashboard" color="primary" variant="tonal" prepend-icon="ri-home-4-line"> العودة للرئيسية </AppButton>
+    <AppButton to="/app/admin/dashboard" color="primary" variant="tonal" prepend-icon="ri-home-4-line"> العودة للرئيسية </AppButton>
   </div>
 </template>
 
@@ -178,7 +185,7 @@ const props = defineProps({
   },
 });
 
-const { can } = usePermissions();
+const { can, canAny } = usePermissions();
 const { payments, loading, loadPayments, loadPaymentDetails } = useInstallment();
 
 // State
@@ -189,11 +196,12 @@ const paymentDetails = ref([]);
 const loadingDetails = ref(false);
 
 const headers = [
+  { title: 'العميل', key: 'customer', sortable: false },
+  { title: 'المنتجات', key: 'products', sortable: false },
   { title: 'المبلغ', key: 'amount', sortable: true },
   { title: 'التاريخ', key: 'date', sortable: true },
   { title: 'الطريقة', key: 'method', sortable: false },
   { title: 'ملاحظات', key: 'notes', sortable: false },
-  { title: 'الإجراءات', key: 'actions', sortable: false, align: 'end' },
 ];
 
 const getMethodLabel = method => {

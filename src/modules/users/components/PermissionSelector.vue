@@ -32,7 +32,7 @@
           </v-btn>
         </div>
 
-        <v-card variant="flat" border class="rounded-lg shadow-sm">
+        <v-card variant="flat" border class="rounded-md shadow-sm">
           <v-list density="compact" class="py-0">
             <template v-for="(perm, pKey) in group" :key="pKey">
               <v-list-item v-if="pKey !== 'name'" class="perm-item border-b last-no-border">

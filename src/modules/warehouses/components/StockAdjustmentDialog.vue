@@ -9,7 +9,7 @@
     @close="close"
   >
     <v-form ref="form" v-model="isFormValid" class="pa-2">
-      <div v-if="warehouse" class="mb-6 pa-4 rounded-lg bg-primary-lighten-5 border-primary border-dashed border-sm">
+      <div v-if="warehouse" class="mb-6 pa-4 rounded-md bg-primary-lighten-5 border-primary border-dashed border-sm">
         <div class="text-caption text-primary font-weight-bold mb-1">المستودع المحدد:</div>
         <div class="text-h6 font-weight-black text-primary">{{ warehouse.name }}</div>
       </div>
@@ -24,9 +24,9 @@
           البنود المراد تعديلها
         </div>
 
-        <v-card v-for="(item, index) in items" :key="item.variant_id" border flat class="mb-3 pa-3 rounded-lg overflow-hidden">
+        <v-card v-for="(item, index) in items" :key="item.variant_id" border flat class="mb-3 pa-3 rounded-md overflow-hidden">
           <div class="d-flex align-center gap-3">
-            <AppAvatar :img-url="item.primary_image_url" :name="item.name" size="48" rounded="lg" border />
+            <AppAvatar :img-url="item.primary_image_url" :name="item.name" size="48" rounded="md" border />
             <div class="flex-grow-1">
               <div class="font-weight-bold text-body-2">{{ item.name }}</div>
               <div class="text-caption text-grey">{{ item.variant_name }}</div>

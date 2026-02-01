@@ -1,5 +1,5 @@
 <template>
-  <v-card variant="flat" border class="plan-card rounded-lg overflow-hidden mb-4">
+  <v-card variant="flat" border class="plan-card rounded-md overflow-hidden mb-4">
     <div class="pa-4">
       <div class="d-flex justify-space-between align-center mb-4">
         <div class="d-flex align-center gap-2">

@@ -128,6 +128,12 @@ export default [
         permission: [PERMISSIONS.INSTALLMENT_PLANS_VIEW_ALL, PERMISSIONS.INSTALLMENT_PLANS_VIEW_CHILDREN, PERMISSIONS.INSTALLMENT_PLANS_VIEW_SELF],
       },
       {
+        title: 'الأقساط المجدولة',
+        to: '/app/installments',
+        icon: 'ri-list-ordered',
+        permission: [PERMISSIONS.INSTALLMENT_PLANS_VIEW_ALL, PERMISSIONS.INSTALLMENT_PLANS_VIEW_CHILDREN, PERMISSIONS.INSTALLMENT_PLANS_VIEW_SELF],
+      },
+      {
         title: 'دفعات الأقساط',
         to: '/app/installment-payments',
         icon: 'ri-money-dollar-box-line',

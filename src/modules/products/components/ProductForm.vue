@@ -8,7 +8,7 @@
             :img-url="primaryImageUrl"
             :name="productData.name || 'P'"
             :size="$vuetify.display.xs ? '36' : '48'"
-            rounded="lg"
+            rounded="md"
             type="product"
             border
           />
@@ -58,7 +58,7 @@
                         v-bind="tooltipProps"
                         :variant="isSelected ? 'flat' : 'tonal'"
                         :color="isSelected ? 'primary' : 'grey-lighten-3'"
-                        :class="['rounded-lg', { 'text-primary': !isSelected }]"
+                        :class="['rounded-md', { 'text-primary': !isSelected }]"
                         class="flex-grow-1 flex-md-grow-0"
                         size="small"
                         @click="toggle"

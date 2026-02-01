@@ -1,6 +1,6 @@
 <template>
   <v-dialog :model-value="modelValue" max-width="1200" @update:model-value="$emit('update:modelValue', $event)" scrollable>
-    <v-card class="explorer-dialog-card rounded-lg">
+    <v-card class="explorer-dialog-card rounded-md">
       <!-- Header -->
       <v-card-title class="pa-4 bg-primary d-flex align-center justify-space-between">
         <div class="d-flex align-center gap-3">
@@ -34,9 +34,9 @@
         </div>
 
         <!-- Row 2: Current Category Details Card -->
-        <div v-if="currentCategory && !search" class="mb-4 bg-white rounded-lg border border-primary-lighten-4 overflow-hidden elevation-sm">
+        <div v-if="currentCategory && !search" class="mb-4 bg-white rounded-md border border-primary-lighten-4 overflow-hidden elevation-sm">
           <div class="pa-4 d-flex align-sm-center flex-column flex-sm-row gap-4">
-            <v-avatar size="100" rounded="lg" color="primary-lighten-5" class="border">
+            <v-avatar size="100" rounded="md" color="primary-lighten-5" class="border">
               <v-img v-if="currentCategory.image_url" :src="currentCategory.image_url" cover />
               <v-icon v-else icon="ri-folder-open-fill" size="48" color="primary" />
             </v-avatar>
@@ -257,11 +257,11 @@
           <!-- Image Selection -->
           <v-col cols="12" class="d-flex justify-center mb-4">
             <div class="category-image-zone position-relative cursor-pointer" @click="showMediaGallery = true">
-              <v-avatar size="100" rounded="xl" color="grey-lighten-4" class="border-2 border-dashed elevation-1 hover-scale overflow-hidden">
+              <v-avatar size="100" rounded="md" color="grey-lighten-4" class="border-2 border-dashed elevation-1 hover-scale overflow-hidden">
                 <v-img v-if="imagePreview" :src="imagePreview" cover />
                 <v-icon v-else icon="ri-image-add-line" size="32" color="grey-lighten-1" />
 
-                <div class="change-overlay d-flex flex-column align-center justify-center rounded-lg">
+                <div class="change-overlay d-flex flex-column align-center justify-center rounded-md">
                   <v-icon icon="ri-exchange-line" color="white" size="20" />
                   <span class="text-white text-caption mt-1 font-weight-bold">تغيير الصورة</span>
                 </div>

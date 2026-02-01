@@ -40,7 +40,7 @@
         <v-col v-for="type in filteredTypes" :key="type.id" cols="12" sm="6" md="4" lg="3">
           <AppCard class="type-card h-100" no-padding>
             <div class="type-card-image d-flex align-center justify-center pa-4 bg-primary-lighten-5 position-relative">
-              <v-avatar size="100" rounded="lg" class="elevation-1 bg-white">
+              <v-avatar size="100" rounded="md" class="elevation-1 bg-white">
                 <v-icon :icon="getTypeIcon(type.type)" size="48" :color="getTypeColor(type.type)" />
               </v-avatar>
 

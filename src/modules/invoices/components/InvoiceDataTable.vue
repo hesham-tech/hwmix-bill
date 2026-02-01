@@ -23,12 +23,18 @@
     </template>
 
     <!-- العميل -->
-    <template #item.user="{ item }">
-      <div class="d-flex align-center py-2" v-if="item.user">
-        <AppAvatar :img-url="item.user.avatar_url" :name="item.user.nickname || item.user.full_name" size="32" rounded="circle" class="me-2 border" />
+    <template #item.customer="{ item }">
+      <div class="d-flex align-center py-2" v-if="item.customer">
+        <AppAvatar
+          :img-url="item.customer.avatar_url"
+          :name="item.customer.nickname || item.customer.full_name"
+          size="32"
+          rounded="circle"
+          class="me-2 border"
+        />
         <div class="d-flex flex-column">
-          <span class="font-weight-bold text-body-2">{{ item.user.nickname || item.user.full_name }}</span>
-          <AppPhone :phone="item.user.phone" />
+          <span class="font-weight-bold text-body-2">{{ item.customer.nickname || item.customer.full_name }}</span>
+          <AppPhone :phone="item.customer.phone" />
         </div>
       </div>
       <span v-else class="text-caption text-grey">بدون عميل</span>
@@ -160,7 +166,7 @@ const { can, canAny } = usePermissions();
 const headers = [
   { title: 'رقم الفاتورة', key: 'invoice_number', sortable: true },
   { title: 'النوع', key: 'invoice_type', sortable: false },
-  { title: 'العميل', key: 'user', sortable: false },
+  { title: 'العميل', key: 'customer', sortable: false },
   { title: 'التاريخ', key: 'issue_date', sortable: true },
   { title: 'الإجمالي', key: 'net_amount', sortable: true, align: 'end' },
   { title: 'المدفوع', key: 'paid_amount', sortable: true, align: 'end' },

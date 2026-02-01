@@ -6,9 +6,9 @@
       </slot>
     </template>
 
-    <v-card rounded="xl" class="pa-4">
+    <v-card rounded="md" class="pa-4">
       <v-card-title class="d-flex align-center gap-2">
-        <v-avatar color="primary-lighten-5" rounded="lg" size="40">
+        <v-avatar color="primary-lighten-5" rounded="md" size="40">
           <v-icon icon="ri-verified-badge-line" color="primary" />
         </v-avatar>
         <span class="font-weight-black">إضافة علامة تجارية جديدة</span>
@@ -22,7 +22,7 @@
             placeholder="مثال: سامسونج"
             variant="solo-filled"
             flat
-            rounded="lg"
+            rounded="md"
             :rules="[required]"
             autofocus
           />
@@ -32,7 +32,7 @@
             placeholder="Samsung"
             variant="solo-filled"
             flat
-            rounded="lg"
+            rounded="md"
             class="mt-2 text-left"
             dir="ltr"
           />
@@ -42,7 +42,7 @@
       <v-card-actions class="pa-4">
         <v-spacer />
         <v-btn variant="text" color="grey" @click="dialog = false" :disabled="loading">إلغاء</v-btn>
-        <v-btn color="primary" variant="flat" rounded="lg" class="px-6 font-weight-bold" :loading="loading" @click="save"> حفظ البراند </v-btn>
+        <v-btn color="primary" variant="flat" rounded="md" class="px-6 font-weight-bold" :loading="loading" @click="save"> حفظ البراند </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

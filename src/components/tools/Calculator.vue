@@ -1,32 +1,26 @@
 <template>
-  <v-card width="280" class="calculator-card elevation-12">
-    <v-card-title class="d-flex justify-space-between align-center py-2 bg-grey-lighten-4 drag-handle cursor-move">
-      <div class="d-flex align-center">
-        <span class="text-subtitle-2 font-weight-bold">آلة حاسبة</span>
-        <!-- زر السجل -->
-        <v-menu v-if="history.length > 0" offset="5">
-          <template #activator="{ props }">
-            <v-btn v-bind="props" icon="ri-history-line" size="x-small" variant="text" class="ms-2" color="primary" />
-          </template>
-          <v-list density="compact" width="200">
-            <v-list-item v-for="(h, i) in history" :key="i" @click="useHistory(h)">
-              <div class="text-caption text-grey">{{ h.expr }}</div>
-              <div class="text-body-2 font-weight-bold">= {{ h.res }}</div>
-            </v-list-item>
-            <v-divider />
-            <v-list-item @click="history = []" class="text-error text-center" title="مسح السجل" />
-          </v-list>
-        </v-menu>
-      </div>
-      <v-btn icon="ri-close-line" size="x-small" variant="text" @click="$emit('close')" />
-    </v-card-title>
+  <div class="calculator-content">
+    <div class="calculator-display pa-4 text-right position-relative">
+      <!-- زر السجل عائم فوق الشاشة -->
+      <v-menu v-if="history.length > 0" offset="5">
+        <template #activator="{ props }">
+          <v-btn v-bind="props" icon="ri-history-line" size="x-small" variant="tonal" class="position-absolute history-btn" color="primary" />
+        </template>
+        <v-list density="compact" width="200">
+          <v-list-item v-for="(h, i) in history" :key="i" @click="useHistory(h)">
+            <div class="text-caption text-grey">{{ h.expr }}</div>
+            <div class="text-body-2 font-weight-bold">= {{ h.res }}</div>
+          </v-list-item>
+          <v-divider />
+          <v-list-item @click="history = []" class="text-error text-center" title="مسح السجل" />
+        </v-list>
+      </v-menu>
 
-    <div class="calculator-display pa-4 text-right">
       <div class="text-caption text-grey">{{ expression || '0' }}</div>
       <div class="text-h4 font-weight-black">{{ current || '0' }}</div>
     </div>
 
-    <v-card-text class="pa-2">
+    <div class="pa-2">
       <v-row no-gutters>
         <v-col v-for="btn in buttons" :key="btn.val" :cols="btn.cols || 3" class="pa-1">
           <v-btn
@@ -34,15 +28,15 @@
             :color="btn.color || 'surface'"
             :variant="btn.variant || 'flat'"
             height="50"
-            class="text-h6 font-weight-bold rounded-lg calc-button"
+            class="text-h6 font-weight-bold rounded-md calc-button"
             @click="handleInput(btn.val)"
           >
             {{ btn.label }}
           </v-btn>
         </v-col>
       </v-row>
-    </v-card-text>
-  </v-card>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -220,6 +214,13 @@ watch(history, saveCurrentData, { deep: true });
   flex-direction: column;
   justify-content: center;
   border-bottom: 1px solid #edf2f7;
+  padding-right: 40px !important;
+}
+
+.history-btn {
+  top: 10px;
+  right: 10px;
+  z-index: 2;
 }
 
 .calc-button {

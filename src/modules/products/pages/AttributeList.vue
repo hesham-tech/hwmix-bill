@@ -103,7 +103,7 @@
       </v-row>
 
       <!-- List View -->
-      <v-card v-else class="rounded-lg border overflow-hidden flat">
+      <v-card v-else class="rounded-md border overflow-hidden flat">
         <AppDataTable
           :headers="headers"
           :items="attributes"
@@ -233,7 +233,7 @@
             </div>
 
             <v-expand-transition>
-              <div v-if="formData.values.length" class="values-form-list pa-2 bg-grey-lighten-5 rounded-lg border">
+              <div v-if="formData.values.length" class="values-form-list pa-2 bg-grey-lighten-5 rounded-md border">
                 <v-row v-for="(value, index) in formData.values" :key="index" dense class="mb-2 align-center">
                   <v-col cols="10">
                     <div class="d-flex align-center gap-2">
@@ -290,7 +290,7 @@
               </div>
             </v-expand-transition>
 
-            <div v-if="!formData.values.length" class="text-center pa-6 text-grey-darken-1 border border-dashed rounded-lg bg-grey-lighten-5">
+            <div v-if="!formData.values.length" class="text-center pa-6 text-grey-darken-1 border border-dashed rounded-md bg-grey-lighten-5">
               <v-icon icon="ri-information-line" class="mb-2" size="24" />
               <div class="text-caption">يمكنك إضافة قيم لهذه الخاصية الآن أو لاحقاً</div>
             </div>

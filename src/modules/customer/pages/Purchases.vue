@@ -12,7 +12,7 @@
             variant="solo-filled"
             density="comfortable"
             flat
-            class="rounded-lg px-0"
+            class="rounded-md px-0"
             @update:model-value="debouncedSearch"
           />
         </v-col>
@@ -22,7 +22,7 @@
     <v-container fluid class="pt-0">
       <v-row>
         <v-col cols="12">
-          <v-card rounded="xl" class="border shadow-sm overflow-hidden">
+          <v-card rounded="md" class="border shadow-sm overflow-hidden">
             <PurchasesDataTable
               :items="items"
               :loading="loading"

@@ -31,7 +31,7 @@
           <template #item.full_name="{ item }">
             <div class="d-flex align-center">
               <v-avatar size="32" color="primary" class="me-2">
-                <span class="text-white text-caption">{{ (item.first_name || item.full_name)?.charAt(0) }}</span>
+                <span class="text-white text-caption">{{ item.full_name?.charAt(0) }}</span>
               </v-avatar>
               <div>
                 <div class="font-weight-medium">{{ item.full_name }}</div>
@@ -163,8 +163,7 @@ const rolesList = ref([]);
 const loadingRoles = ref(false);
 
 const formData = ref({
-  first_name: '',
-  last_name: '',
+  full_name: '',
   nickname: '',
   email: '',
   password: '',
@@ -200,7 +199,7 @@ const loadRoles = async () => {
 
 const handleCreate = () => {
   selectedItem.value = null;
-  formData.value = { first_name: '', last_name: '', nickname: '', email: '', password: '', phone: '', role_id: null, is_active: 1 };
+  formData.value = { full_name: '', nickname: '', email: '', password: '', phone: '', role_id: null, is_active: 1 };
   showDialog.value = true;
   if (!rolesList.value.length) loadRoles();
 };
@@ -208,8 +207,7 @@ const handleCreate = () => {
 const handleEdit = item => {
   selectedItem.value = item;
   formData.value = {
-    first_name: item.first_name || '',
-    last_name: item.last_name || '',
+    full_name: item.full_name || '',
     nickname: item.nickname || '',
     email: item.email,
     password: '',

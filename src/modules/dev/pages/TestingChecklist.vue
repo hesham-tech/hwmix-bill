@@ -1,6 +1,6 @@
 <template>
   <v-container fluid class="pa-6">
-    <v-card class="rounded-lg border border-grey-lighten-4 elevation-sm overflow-hidden">
+    <v-card class="rounded-md border border-grey-lighten-4 elevation-sm overflow-hidden">
       <v-card-title class="pa-6 d-flex align-center gap-3 bg-grey-lighten-5">
         <v-icon icon="ri-checkbox-multiple-line" color="primary" size="28" />
         <div>
@@ -24,7 +24,7 @@
           <div v-if="pendingItems.length > 0">
             <v-slide-y-transition group>
               <div v-for="item in pendingItems" :key="getItemKey(item)">
-                <v-card variant="flat" border class="mb-4 rounded-lg overflow-hidden border-grey-lighten-3 transition-all">
+                <v-card variant="flat" border class="mb-4 rounded-md overflow-hidden border-grey-lighten-3 transition-all">
                   <div class="pa-3 d-flex align-center bg-grey-lighten-5">
                     <v-checkbox-btn :model-value="isChecked(item)" @update:model-value="toggleItem(item)" color="success" class="flex-grow-0" />
                     <v-icon :icon="item.icon" size="20" class="me-3" color="grey-darken-2" />
@@ -107,7 +107,7 @@
 
             <v-slide-y-transition group>
               <div v-for="item in completedItems" :key="getItemKey(item)">
-                <v-card variant="flat" border class="mb-4 rounded-lg overflow-hidden border-grey-lighten-3 transition-all checklist-item-checked">
+                <v-card variant="flat" border class="mb-4 rounded-md overflow-hidden border-grey-lighten-3 transition-all checklist-item-checked">
                   <div class="pa-3 d-flex align-center bg-grey-lighten-5">
                     <v-checkbox-btn :model-value="isChecked(item)" @update:model-value="toggleItem(item)" color="success" class="flex-grow-0" />
                     <v-icon :icon="item.icon" size="20" class="me-3" color="grey-darken-2" />
@@ -160,7 +160,7 @@
 
     <!-- Note Dialog -->
     <v-dialog v-model="noteDialog.show" max-width="500px">
-      <v-card class="rounded-lg overflow-hidden">
+      <v-card class="rounded-md overflow-hidden">
         <v-card-title class="pa-4 bg-primary text-white d-flex align-center gap-2">
           <v-icon icon="ri-sticky-note-line" />
           ملاحظات: {{ noteDialog.title }}
@@ -173,7 +173,7 @@
             variant="outlined"
             auto-grow
             rows="4"
-            class="rounded-lg"
+            class="rounded-md"
             color="primary"
             hide-details
           />
@@ -184,7 +184,7 @@
         <v-card-actions class="pa-4">
           <v-spacer />
           <v-btn variant="text" color="grey-darken-1" @click="noteDialog.show = false" class="px-4"> إلغاء </v-btn>
-          <v-btn variant="flat" color="primary" @click="saveNote" class="px-6 rounded-lg font-weight-bold"> حفظ الملاحظة </v-btn>
+          <v-btn variant="flat" color="primary" @click="saveNote" class="px-6 rounded-md font-weight-bold"> حفظ الملاحظة </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

@@ -5,91 +5,152 @@
   >
     <AppPageHeader title="حركات الخزينة" subtitle="سجل وتدقيق جميع المعاملات المالية الصادرة والواردة" icon="ri-exchange-line" sticky>
       <template #controls>
-        <v-row align="center" class="w-100 mx-0">
-          <v-col cols="12" md="8">
-            <AppInput
-              v-model="search"
-              placeholder="بحث في الحركات..."
-              prepend-inner-icon="ri-search-line"
-              clearable
-              hide-details
-              variant="solo-filled"
-              density="comfortable"
-              flat
-              class="rounded-lg"
-              @update:model-value="debouncedSearch"
-            />
-          </v-col>
-          <v-col cols="12" md="4" class="text-end">
-            <AppButton
-              variant="tonal"
-              color="primary"
-              prepend-icon="ri-equalizer-line"
-              class="rounded-lg font-weight-bold"
-              @click="showAdvanced = !showAdvanced"
-            >
-              {{ showAdvanced ? 'إخفاء البحث المتقدم' : 'بحث متقدم' }}
-            </AppButton>
-          </v-col>
-        </v-row>
+        <v-col cols="12" md="8">
+          <AppInput
+            v-model="search"
+            placeholder="بحث في الحركات..."
+            prepend-inner-icon="ri-search-line"
+            clearable
+            hide-details
+            variant="solo-filled"
+            density="comfortable"
+            flat
+            class="rounded-md"
+            @update:model-value="debouncedSearch"
+          />
+        </v-col>
+        <v-col cols="auto" class="d-md-none">
+          <AppButton icon="ri-filter-line" color="primary" @click="showAdvanced = !showAdvanced" />
+        </v-col>
       </template>
     </AppPageHeader>
 
-    <v-container fluid class="pt-0">
-      <!-- Advanced Filters -->
-      <v-expand-transition>
-        <div v-if="showAdvanced" class="mb-6">
-          <TransactionFilters v-model="filters" :cash-boxes="cashBoxes" @apply="handleFiltersChange" />
-        </div>
-      </v-expand-transition>
-
-      <AppDataTable
-        :headers="headers"
-        :items="transactions"
-        :loading="loading"
-        :total-items="total"
-        v-model:items-per-page="itemsPerPage"
-        v-model:page="page"
-        v-model:sort-by="sortByVuetify"
-        title="المعاملات المالية الأخيرة"
-        icon="ri-history-line"
-        @update:options="changeSort"
-      >
-        <template #item.type="{ item }">
-          <v-chip :color="item.type === 'income' ? 'success' : 'error'" size="small" variant="flat" class="font-weight-bold px-3">
-            <v-icon :icon="item.type === 'income' ? 'ri-arrow-left-down-line' : 'ri-arrow-right-up-line'" size="14" class="me-1" />
-            {{ item.type === 'income' ? 'إيداع نقدية' : 'سحب نقدية' }}
-          </v-chip>
-        </template>
-
-        <template #item.cash_box="{ item }">
-          <div class="d-flex align-center py-2">
-            <v-avatar color="primary-lighten-5" size="32" rounded="lg" class="me-3">
-              <v-icon icon="ri-safe-2-line" size="18" color="primary" />
-            </v-avatar>
-            <span class="font-weight-bold text-slate-700">{{ item.cash_box?.name || 'خزينة غير محددة' }}</span>
+    <v-container fluid class="pa-0">
+      <!-- Mobile Expandable Filters -->
+      <div>
+        <v-expand-transition>
+          <div v-show="showAdvanced || !mobile" class="d-md-none">
+            <TransactionFilters v-model="filters" :cash-boxes="cashBoxes" @apply="handleFiltersChange" />
           </div>
-        </template>
+        </v-expand-transition>
+      </div>
 
-        <template #item.amount="{ item }">
-          <div class="text-end font-weight-black text-body-1" :class="item.type === 'income' ? 'text-success' : 'text-error'">
-            {{ item.type === 'income' ? '+' : '-' }} {{ formatCurrency(item.amount) }}
+      <!-- Desktop Layout (8/4) -->
+      <v-row class="d-none d-md-flex ma-0">
+        <!-- Table Column (8/12) -->
+        <v-col cols="12" md="8" class="pa-0">
+          <v-card rounded="md" class="border shadow-sm">
+            <AppDataTable
+              :headers="headers"
+              :items="transactions"
+              :loading="loading"
+              :total-items="total"
+              v-model:items-per-page="itemsPerPage"
+              v-model:page="page"
+              v-model:sort-by="sortByVuetify"
+              :table-height="'calc(100vh - 350px)'"
+              title="المعاملات المالية الأخيرة"
+              icon="ri-history-line"
+              @update:options="changeSort"
+            >
+              <template #item.type="{ item }">
+                <v-chip :color="item.type === 'income' ? 'success' : 'error'" size="small" variant="flat" class="font-weight-bold px-3">
+                  <v-icon :icon="item.type === 'income' ? 'ri-arrow-left-down-line' : 'ri-arrow-right-up-line'" size="14" class="me-1" />
+                  {{ item.type === 'income' ? 'إيداع نقدية' : 'سحب نقدية' }}
+                </v-chip>
+              </template>
+
+              <template #item.cash_box="{ item }">
+                <div class="d-flex align-center py-2">
+                  <v-avatar color="primary-lighten-5" size="32" rounded="md" class="me-3">
+                    <v-icon icon="ri-safe-2-line" size="18" color="primary" />
+                  </v-avatar>
+                  <span class="font-weight-bold text-slate-700">{{ item.cash_box?.name || 'خزينة غير محددة' }}</span>
+                </div>
+              </template>
+
+              <template #item.amount="{ item }">
+                <div class="text-end font-weight-black text-body-1" :class="item.type === 'income' ? 'text-success' : 'text-error'">
+                  {{ item.type === 'income' ? '+' : '-' }} {{ formatCurrency(item.amount) }}
+                </div>
+              </template>
+
+              <template #item.date="{ item }">
+                <div class="d-flex flex-column py-1">
+                  <span class="font-weight-bold text-slate-800">{{ formatDate(item.transaction_date) }}</span>
+                  <span class="text-caption text-grey">{{ formatTime(item.transaction_date) }}</span>
+                </div>
+              </template>
+
+              <template #item.description="{ item }">
+                <span class="text-body-2 text-wrap d-inline-block py-1" style="max-width: 300px; line-height: 1.4">
+                  {{ item.description || 'لا يوجد وصف' }}
+                </span>
+              </template>
+            </AppDataTable>
+          </v-card>
+        </v-col>
+
+        <!-- Filters Column (4/12) -->
+        <v-col cols="12" md="4" class="pa-0">
+          <div class="sticky-filters">
+            <TransactionFilters v-model="filters" :cash-boxes="cashBoxes" @apply="handleFiltersChange" />
           </div>
-        </template>
+        </v-col>
+      </v-row>
 
-        <template #item.date="{ item }">
-          <div class="d-flex flex-column py-1">
-            <span class="font-weight-bold text-slate-800">{{ formatDate(item.transaction_date) }}</span>
-            <span class="text-caption text-grey">{{ formatTime(item.transaction_date) }}</span>
-          </div>
-        </template>
+      <!-- Mobile: Full Width Table -->
+      <div class="d-md-none">
+        <v-card rounded="md" class="border shadow-sm">
+          <AppDataTable
+            :headers="headers"
+            :items="transactions"
+            :loading="loading"
+            :total-items="total"
+            v-model:items-per-page="itemsPerPage"
+            v-model:page="page"
+            v-model:sort-by="sortByVuetify"
+            title="المعاملات المالية"
+            icon="ri-history-line"
+            @update:options="changeSort"
+          >
+            <template #item.type="{ item }">
+              <v-chip :color="item.type === 'income' ? 'success' : 'error'" size="small" variant="flat" class="font-weight-bold px-3">
+                <v-icon :icon="item.type === 'income' ? 'ri-arrow-left-down-line' : 'ri-arrow-right-up-line'" size="14" class="me-1" />
+                {{ item.type === 'income' ? 'إيداع' : 'سحب' }}
+              </v-chip>
+            </template>
 
-        <template #item.description="{ item }">
-          <span class="text-body-2 text-wrap d-inline-block py-1" style="max-width: 300px; line-height: 1.4">
-            {{ item.description || 'لا يوجد وصف' }}
-          </span>
-        </template>
-      </AppDataTable>
+            <template #item.cash_box="{ item }">
+              <div class="d-flex align-center py-2">
+                <v-avatar color="primary-lighten-5" size="32" rounded="md" class="me-3">
+                  <v-icon icon="ri-safe-2-line" size="18" color="primary" />
+                </v-avatar>
+                <span class="font-weight-bold text-slate-700">{{ item.cash_box?.name || 'غير محدد' }}</span>
+              </div>
+            </template>
+
+            <template #item.amount="{ item }">
+              <div class="text-end font-weight-black text-body-1" :class="item.type === 'income' ? 'text-success' : 'text-error'">
+                {{ item.type === 'income' ? '+' : '-' }} {{ formatCurrency(item.amount) }}
+              </div>
+            </template>
+
+            <template #item.date="{ item }">
+              <div class="d-flex flex-column py-1">
+                <span class="font-weight-bold text-slate-800">{{ formatDate(item.transaction_date) }}</span>
+                <span class="text-caption text-grey">{{ formatTime(item.transaction_date) }}</span>
+              </div>
+            </template>
+
+            <template #item.description="{ item }">
+              <span class="text-body-2 text-wrap d-inline-block py-1" style="max-width: 200px; line-height: 1.4">
+                {{ item.description || 'لا يوجد' }}
+              </span>
+            </template>
+          </AppDataTable>
+        </v-card>
+      </div>
     </v-container>
   </div>
 
@@ -106,6 +167,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useDisplay } from 'vuetify';
 import { usePermissions } from '@/composables/usePermissions';
 import { useDataTable } from '@/composables/useDataTable';
 import { useApi } from '@/composables/useApi';
@@ -118,6 +180,7 @@ import AppInput from '@/components/common/AppInput.vue';
 import TransactionFilters from '../components/TransactionFilters.vue';
 
 const { can, canAny } = usePermissions();
+const { mobile } = useDisplay();
 const api = useApi('/api/transactions');
 const cashBoxesApi = useApi('/api/cash-boxes');
 

@@ -12,7 +12,7 @@
           <v-card-text class="pa-8 text-center bg-grey-lighten-5">
             <AppAvatar
               :img-url="formData.avatar_url"
-              :name="formData.nickname || formData.full_name"
+              :name="formData.name"
               size="180"
               type="user"
               editable
@@ -21,7 +21,7 @@
               @crop="handleCurrentCrop"
             />
 
-            <h3 class="text-h6 font-weight-bold mb-1">{{ userStore.currentUser?.nickname || userStore.currentUser?.full_name }}</h3>
+            <h3 class="text-h6 font-weight-bold mb-1">{{ userStore.currentUser?.name }}</h3>
             <v-chip color="primary" variant="tonal" size="small" class="mb-4">
               {{ userStore.currentUser?.role || 'مستخدم' }}
             </v-chip>
@@ -165,6 +165,7 @@ const formData = reactive({
   email: '',
   phone: '',
   avatar_url: '',
+  name: '',
   images_ids: [],
 });
 
@@ -225,6 +226,7 @@ const initForm = () => {
   formData.email = user.email || '';
   formData.phone = user.phone || '';
   formData.avatar_url = user.avatar_url || '';
+  formData.name = user.name || '';
   formData.images_ids = [];
 };
 

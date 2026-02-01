@@ -49,6 +49,10 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  countryCode: {
+    type: String,
+    default: '+2', // Egypt country code by default
+  },
 });
 
 const { mobile } = useDisplay();
@@ -63,7 +67,13 @@ const handleCopy = async () => {
 
 const openWhatsApp = () => {
   // Remove non-numeric characters for the link
-  const cleanPhone = props.phone.replace(/\D/g, '');
+  let cleanPhone = props.phone.replace(/\D/g, '');
+
+  // Add country code if not already present
+  if (!cleanPhone.startsWith(props.countryCode)) {
+    cleanPhone = props.countryCode + cleanPhone;
+  }
+
   // WhatsApp wa.me link
   window.open(`https://wa.me/${cleanPhone}`, '_blank');
 };

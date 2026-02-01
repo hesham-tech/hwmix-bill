@@ -7,12 +7,12 @@
     scrollable
     @update:model-value="$emit('update:modelValue', $event)"
   >
-    <v-card class="app-dialog-card overflow-hidden">
+    <v-card v-draggable="draggable ? { handle: '.drag-handle' } : null" class="app-dialog-card overflow-hidden">
       <!-- Premium Dialog Header -->
       <slot name="header">
-        <header :class="['dialog-premium-header pa-5 d-flex align-center justify-space-between text-white', `variant-${variant}`]">
+        <header :class="['dialog-premium-header pa-5 d-flex align-center justify-space-between text-white drag-handle', `variant-${variant}`]">
           <div class="d-flex align-center gap-3">
-            <div v-if="icon" class="header-icon-wrapper d-flex align-center justify-center rounded-xl shadow-lg">
+            <div v-if="icon" class="header-icon-wrapper d-flex align-center justify-center rounded-md shadow-lg no-drag">
               <v-icon :icon="icon" color="white" size="24" />
             </div>
             <div class="header-text-container">
@@ -21,7 +21,7 @@
             </div>
           </div>
 
-          <v-btn icon="ri-close-line" variant="tonal" color="white" class="close-btn-hover" density="comfortable" @click="handleClose" />
+          <v-btn icon="ri-close-line" variant="tonal" color="white" class="close-btn-hover no-drag" density="comfortable" @click="handleClose" />
         </header>
       </slot>
 
@@ -40,7 +40,7 @@
           <slot name="actions" />
         </div>
         <template v-else-if="!hideActions">
-          <v-btn v-if="showCancel" variant="tonal" color="grey-darken-1" class="px-6 font-weight-bold rounded-pill" @click="handleCancel">
+          <v-btn v-if="showCancel" variant="tonal" color="grey-darken-1" class="px-6 font-weight-bold rounded-md" @click="handleCancel">
             {{ cancelText }}
           </v-btn>
 
@@ -49,7 +49,7 @@
             variant="flat"
             :color="confirmColor"
             :loading="loading"
-            class="px-8 font-weight-black rounded-pill shadow-md"
+            class="px-8 font-weight-black rounded-md shadow-md"
             @click="handleConfirm"
           >
             <v-icon v-if="!loading" icon="ri-checkbox-circle-line" class="me-2" />
@@ -127,6 +127,10 @@ const props = defineProps({
     type: String,
     default: 'blue', // 'blue' or 'purple'
   },
+  draggable: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(['update:modelValue', 'close', 'cancel', 'confirm']);
@@ -148,7 +152,7 @@ const handleConfirm = () => {
 
 <style scoped>
 .app-dialog-card {
-  border-radius: 28px !important;
+  border-radius: 12px !important;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
 }
 

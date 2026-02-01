@@ -9,18 +9,6 @@
 
       <div class="d-flex flex-wrap gap-2 flex-grow-1 justify-end">
         <slot name="actions" />
-
-        <v-text-field
-          v-if="searchable"
-          v-model="searchModel"
-          density="compact"
-          placeholder="بحث..."
-          prepend-inner-icon="ri-search-line"
-          variant="outlined"
-          hide-details
-          clearable
-          class="search-field"
-        />
       </div>
     </v-card-title>
 
@@ -34,11 +22,17 @@
       :items-length="totalItems"
       :loading="loading"
       :search="searchModel"
+      :height="tableHeight"
+      fixed-header
+      fixed-footer
       class="elevation-0"
-      density="comfortable"
+      density="compact"
+      hover
+      striped="even"
       :items-per-page-options="itemsPerPageOptions"
       :no-data-text="emptyText"
       :hide-default-footer="hidePagination"
+      :row-props="rowProps"
       @update:options="handleOptionsUpdate"
       @click:row="(event, { item }) => $emit('click:row', item)"
       @contextmenu:row="handleContextMenu"
@@ -146,7 +140,7 @@
 
     <!-- Context Menu -->
     <v-menu v-model="menuModel" :target="[menuProps.x, menuProps.y]" transition="scale-transition" offset="5">
-      <v-list density="compact" min-width="180" class="rounded-lg border shadow-lg context-menu-list">
+      <v-list density="compact" min-width="180" class="rounded-md border shadow-lg context-menu-list">
         <div class="px-4 py-2 text-caption text-grey-darken-1 border-bottom d-flex align-center gap-2 bg-grey-lighten-4">
           <v-icon icon="ri-settings-4-line" size="14" />
           <span>الاجرائات</span>
@@ -236,6 +230,12 @@ const props = defineProps({
     default: () => [],
   },
 
+  // Table height - default: 100vh - (navbar ~80px + header ~150px + footer ~70px + margins ~50px)
+  tableHeight: {
+    type: String,
+    default: 'calc(100vh - 350px)',
+  },
+
   // Search
   searchable: {
     type: Boolean,
@@ -318,6 +318,10 @@ const props = defineProps({
       { value: 100, title: '100' },
       { value: -1, title: 'الكل' },
     ],
+  },
+  rowProps: {
+    type: [Function, Object],
+    default: null,
   },
 });
 

@@ -11,7 +11,7 @@
         color="primary"
         prepend-icon="ri-add-line"
         size="large"
-        class="px-6 rounded-lg shadow-lg"
+        class="px-6 rounded-md shadow-lg"
         @click="openRoleDialog()"
       >
         إضافة دور جديد
@@ -21,7 +21,7 @@
     <!-- Stats Row -->
     <v-row class="mb-6">
       <v-col cols="12" sm="4">
-        <v-card variant="flat" border class="pa-4 rounded-lg bg-primary-lighten-5 border-primary">
+        <v-card variant="flat" border class="pa-4 rounded-md bg-primary-lighten-5 border-primary">
           <div class="d-flex align-center gap-4">
             <v-avatar color="primary" variant="tonal" size="48">
               <v-icon icon="ri-shield-user-line" color="primary" />
@@ -41,12 +41,12 @@
         <v-card variant="flat" border class="role-card h-100 transition-swing">
           <v-card-text class="pa-5">
             <div class="d-flex align-center justify-space-between mb-4">
-              <v-icon :icon="getRoleIcon(role.name)" size="32" color="primary" class="bg-grey-lighten-4 pa-4 rounded-lg" />
+              <v-icon :icon="getRoleIcon(role.name)" size="32" color="primary" class="bg-grey-lighten-4 pa-4 rounded-md" />
               <v-menu location="bottom end">
                 <template #activator="{ props }">
                   <v-btn icon="ri-more-2-fill" variant="text" size="small" v-bind="props" />
                 </template>
-                <v-list density="compact" class="rounded-lg">
+                <v-list density="compact" class="rounded-md">
                   <v-list-item v-if="can(PERMISSIONS.ROLES_UPDATE_ALL)" @click="openRoleDialog(role)">
                     <template #prepend><v-icon icon="ri-edit-line" size="small" /></template>
                     <v-list-item-title>تعديل الدور</v-list-item-title>
@@ -77,7 +77,7 @@
 
       <!-- Empty State -->
       <v-col v-if="store.roles.length === 0" cols="12">
-        <div class="text-center pa-12 bg-grey-lighten-5 rounded-lg border-dashed">
+        <div class="text-center pa-12 bg-grey-lighten-5 rounded-md border-dashed">
           <v-icon icon="ri-shield-flash-line" size="64" color="grey-lighten-2" />
           <div class="text-h6 text-grey mt-4">لا يوجد أدوار مسجلة حالياً</div>
           <p class="text-caption text-grey-darken-1 mb-6">ابدأ بإنشاء أول دور وظيفي لفريق عملك</p>

@@ -39,7 +39,7 @@
     <template #item="{ props, item }">
       <v-list-item v-bind="props" class="py-2">
         <template #prepend>
-          <AppAvatar :img-url="item.raw.avatar_url" :name="item.raw.nickname || item.raw.name" size="40" rounded="lg" class="me-3 border" />
+          <AppAvatar :img-url="item.raw.avatar_url" :name="item.raw.nickname || item.raw.name" size="40" rounded="md" class="me-3 border" />
         </template>
         <template #title>
           <div class="d-flex align-center justify-space-between">

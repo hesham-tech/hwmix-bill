@@ -1,6 +1,6 @@
 <template>
   <v-dialog :model-value="modelValue || internalModelValue" max-width="480" persistent @update:model-value="$emit('update:modelValue', $event)">
-    <v-card class="confirm-dialog rounded-xl overflow-hidden shadow-xl border-0">
+    <v-card class="confirm-dialog rounded-md overflow-hidden shadow-xl border-0">
       <div class="pa-8 text-center position-relative">
         <!-- Abstract background pattern -->
         <div class="abstract-bg" :class="type === 'error' ? 'bg-error-light' : 'bg-primary-light'"></div>
@@ -16,14 +16,14 @@
       <v-divider class="opacity-10" />
 
       <v-card-actions class="pa-6 bg-grey-lighten-5 d-flex gap-4">
-        <v-btn variant="tonal" :color="cancelColor" class="flex-grow-1 font-weight-bold rounded-pill" height="48" @click="handleCancel">
+        <v-btn variant="tonal" :color="cancelColor" class="flex-grow-1 font-weight-bold rounded-md" height="48" @click="handleCancel">
           {{ cancelText }}
         </v-btn>
 
         <v-btn
           variant="flat"
           :color="type === 'error' ? 'error' : confirmColor"
-          class="flex-grow-1 font-weight-black elevation-2 rounded-pill shadow-md"
+          class="flex-grow-1 font-weight-black elevation-2 rounded-md shadow-md"
           height="48"
           :loading="loading"
           @click="handleConfirm"

@@ -18,10 +18,10 @@
         @click="userStore.companies.length > 1 ? (showCompanySwitch = true) : null"
       >
         <div class="logo-container">
-          <v-avatar size="50" rounded="lg" v-if="activeCompany?.logo" class="logo-avatar">
+          <v-avatar size="50" rounded="md" v-if="activeCompany?.logo" class="logo-avatar">
             <v-img :src="activeCompany.logo" contain />
           </v-avatar>
-          <v-avatar v-else size="50" rounded="lg" color="primary" variant="tonal" class="logo-avatar">
+          <v-avatar v-else size="50" rounded="md" color="primary" variant="tonal" class="logo-avatar">
             <v-icon icon="ri-building-line" size="28" />
           </v-avatar>
           <transition name="fade">

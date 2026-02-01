@@ -1,29 +1,20 @@
 <template>
-  <AppCard class="filter-card">
-    <div class="pa-4 pb-0">
-      <div class="d-flex align-center mb-4">
-        <v-icon icon="ri-equalizer-line" color="primary" class="me-3" />
-        <div class="text-h6 font-weight-bold">بحث متقدم</div>
+  <AppCard class="filter-card mb-2">
+    <div class="pa-2 pb-0">
+      <div class="d-flex align-center pa-2 mb-2">
+        <v-icon icon="ri-equalizer-line" color="primary" size="small" class="me-2" />
+        <div class="text-subtitle-1 font-weight-bold">بحث متقدم</div>
 
-        <v-chip v-if="hasActiveFilters" size="x-small" color="primary" class="ms-3 font-weight-bold"> مرشحات نشطة </v-chip>
+        <v-chip v-if="hasActiveFilters" size="x-small" color="primary" class="ms-2 font-weight-bold">نشط</v-chip>
 
         <v-spacer />
 
-        <AppButton
-          v-if="hasActiveFilters"
-          variant="text"
-          color="error"
-          size="small"
-          prepend-icon="ri-close-circle-line"
-          @click.stop="resetAllFilters"
-        >
-          مسح الكل
-        </AppButton>
+        <AppButton v-if="hasActiveFilters" icon="ri-close-line" size="x-small" variant="text" color="error" @click.stop="resetAllFilters" />
       </div>
 
-      <v-divider class="mb-6" />
+      <v-divider class="mb-3" />
 
-      <v-row>
+      <v-row dense>
         <!-- النوع -->
         <v-col cols="12" sm="6" md="3">
           <v-select
@@ -79,12 +70,16 @@
         </v-col>
       </v-row>
 
-      <div class="d-flex flex-wrap gap-2 mt-4 pb-4">
-        <AppButton flex-grow-1 prepend-icon="ri-filter-line" @click="emit('apply')" class="flex-grow-1"> تطبيق الفلاتر </AppButton>
-        <AppButton flex-grow-1 variant="outlined" color="secondary" prepend-icon="ri-refresh-line" @click="resetAllFilters" class="flex-grow-1">
-          إعادة تعيين
-        </AppButton>
-      </div>
+      <v-row dense class="mt-2 pb-2">
+        <v-col cols="6">
+          <AppButton block prepend-icon="ri-filter-line" size="small" @click="emit('apply')">تطبيق</AppButton>
+        </v-col>
+        <v-col cols="6">
+          <AppButton block prepend-icon="ri-refresh-line" size="small" variant="outlined" color="secondary" @click="resetAllFilters">
+            إعادة
+          </AppButton>
+        </v-col>
+      </v-row>
     </div>
   </AppCard>
 </template>

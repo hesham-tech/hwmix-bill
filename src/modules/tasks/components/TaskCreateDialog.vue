@@ -1,6 +1,6 @@
 <template>
   <v-dialog v-model="internalValue" max-width="600px">
-    <v-card class="rounded-lg overflow-hidden">
+    <v-card class="rounded-md overflow-hidden">
       <v-card-title class="pa-6 bg-primary text-white d-flex align-center gap-3">
         <v-icon icon="ri-add-circle-line" size="28" />
         <span class="text-h5 font-weight-bold">إسناد مهمة جديدة</span>
@@ -86,7 +86,7 @@
         <v-btn
           color="primary"
           variant="flat"
-          class="px-8 rounded-lg font-weight-bold"
+          class="px-8 rounded-md font-weight-bold"
           :loading="loading"
           :disabled="!valid || selectedAssignees.length === 0"
           @click="submit"

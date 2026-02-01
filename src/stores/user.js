@@ -140,8 +140,47 @@ export const useUserStore = defineStore('user', () => {
 
   const hasInstallments = computed(() => !!currentUser.value?.has_installments);
 
+  const currentCompany = computed(() => {
+    if (!currentUser.value || !companies.value.length) return null;
+    return companies.value.find(c => c.id === currentUser.value.company_id) || companies.value[0];
+  });
+
+  const updatePrintFormat = async format => {
+    try {
+      if (!currentCompany.value) return;
+
+      const companyId = currentCompany.value.id;
+      const settings = currentCompany.value.settings || {};
+      const print_settings = settings.print_settings || {};
+
+      const response = await apiClient.put(`/api/companies/${companyId}`, {
+        settings: {
+          ...settings,
+          print_settings: {
+            ...print_settings,
+            print_format: format,
+          },
+        },
+      });
+
+      if (response.data.success) {
+        // Update local state
+        const companyIndex = companies.value.findIndex(c => c.id === companyId);
+        if (companyIndex !== -1) {
+          companies.value[companyIndex].settings = response.data.data.settings;
+          companies.value[companyIndex].print_settings = response.data.data.print_settings;
+        }
+        return true;
+      }
+    } catch (error) {
+      console.error('Failed to update print format:', error);
+      throw error;
+    }
+  };
+
   return {
     currentUser,
+    currentCompany,
     permissions,
     roles,
     companies,
@@ -157,5 +196,6 @@ export const useUserStore = defineStore('user', () => {
     hasRole,
     hasAnyRole,
     clearUser,
+    updatePrintFormat,
   };
 });

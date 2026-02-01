@@ -7,7 +7,7 @@
           <h1 class="text-h4 font-weight-black mb-1">مشترياتي</h1>
           <p class="text-subtitle-1 text-grey-darken-1">تابع فواتيرك ومدفوعاتك بكل سهولة</p>
         </div>
-        <v-avatar color="primary" rounded="xl" size="56" class="elevation-4 shadow-primary">
+        <v-avatar color="primary" rounded="md" size="56" class="elevation-4 shadow-primary">
           <v-icon icon="ri-bill-line" color="white" size="32" />
         </v-avatar>
       </div>
@@ -15,19 +15,19 @@
       <!-- Quick Stats -->
       <v-row class="mb-6">
         <v-col cols="12" sm="4">
-          <v-card variant="flat" border class="rounded-xl pa-4 bg-primary-lighten-5 border-primary opacity-90">
+          <v-card variant="flat" border class="rounded-md pa-4 bg-primary-lighten-5 border-primary opacity-90">
             <div class="text-caption text-primary-darken-2 font-weight-bold mb-1">إجمالي المشتريات</div>
             <div class="text-h5 font-weight-black">{{ formatCurrency(summary.total_amount) }}</div>
           </v-card>
         </v-col>
         <v-col cols="12" sm="4">
-          <v-card variant="flat" border class="rounded-xl pa-4 bg-error-lighten-5 border-error">
+          <v-card variant="flat" border class="rounded-md pa-4 bg-error-lighten-5 border-error">
             <div class="text-caption text-error-darken-2 font-weight-bold mb-1">المبلغ المطلوب سداده</div>
             <div class="text-h5 font-weight-black text-error">{{ formatCurrency(summary.due_amount) }}</div>
           </v-card>
         </v-col>
         <v-col cols="12" sm="4">
-          <v-card variant="flat" border class="rounded-xl pa-4 bg-success-lighten-5 border-success">
+          <v-card variant="flat" border class="rounded-md pa-4 bg-success-lighten-5 border-success">
             <div class="text-caption text-success-darken-2 font-weight-bold mb-1">عدد الفواتير</div>
             <div class="text-h5 font-weight-black">{{ total }}</div>
           </v-card>
@@ -43,7 +43,7 @@
           variant="solo"
           flat
           border
-          class="rounded-xl flex-grow-1"
+          class="rounded-md flex-grow-1"
           hide-details
           density="comfortable"
           @update:model-value="debouncedSearch"
@@ -52,7 +52,7 @@
           variant="tonal"
           color="primary"
           height="48"
-          class="rounded-xl px-6 font-weight-bold"
+          class="rounded-md px-6 font-weight-bold"
           prepend-icon="ri-refresh-line"
           @click="refresh"
           :loading="loading"
@@ -67,7 +67,7 @@
       </div>
 
       <!-- Empty State -->
-      <div v-else-if="items.length === 0" class="text-center py-12 bg-grey-lighten-4 rounded-xl border border-dashed mt-4">
+      <div v-else-if="items.length === 0" class="text-center py-12 bg-grey-lighten-4 rounded-md border border-dashed mt-4">
         <v-icon icon="ri-inbox-line" size="64" color="grey-lighten-1" class="mb-4" />
         <h3 class="text-h6 font-weight-bold text-grey-darken-1">لا توجد فواتير حالياً</h3>
         <p class="text-body-2 text-grey">كل مشترياتك ستظهر هنا بمجرد صدورها</p>

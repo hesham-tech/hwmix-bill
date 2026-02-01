@@ -35,6 +35,15 @@ import '@layouts/styles/index.scss';
     console.warn('Failed to initialize logger:', e);
   }
 
+  // Draggable Directive
+  try {
+    const draggable = (await import('@/directives/draggable')).default;
+    app.directive('draggable', draggable);
+    console.log('Draggable directive registered.');
+  } catch (e) {
+    console.warn('Failed to register draggable directive:', e);
+  }
+
   // Mount vue app
   app.mount('#app');
   console.log('Vue app mounted successfully!');

@@ -7,7 +7,7 @@
           <h1 class="text-h4 font-weight-black mb-1">خطط التقسيط</h1>
           <p class="text-subtitle-1 text-grey-darken-1">ادارة ومتابعة جداول الدفع الآجلة</p>
         </div>
-        <v-avatar color="secondary" rounded="xl" size="56" class="elevation-4">
+        <v-avatar color="secondary" rounded="md" size="56" class="elevation-4">
           <v-icon icon="ri-calendar-schedule-line" color="white" size="32" />
         </v-avatar>
       </div>
@@ -40,7 +40,7 @@
       </div>
 
       <!-- Empty State -->
-      <div v-else-if="plans.length === 0" class="text-center py-12 bg-grey-lighten-4 rounded-xl border border-dashed mt-4">
+      <div v-else-if="plans.length === 0" class="text-center py-12 bg-grey-lighten-4 rounded-md border border-dashed mt-4">
         <v-icon icon="ri-calendar-todo-line" size="64" color="grey-lighten-1" class="mb-4" />
         <h3 class="text-h6 font-weight-bold text-grey-darken-1">لا توجد خطط تقسيط حالياً</h3>
       </div>

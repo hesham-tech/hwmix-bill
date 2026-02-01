@@ -7,7 +7,7 @@
           <h1 class="text-h4 font-weight-black mb-1">مدفوعاتي</h1>
           <p class="text-subtitle-1 text-grey-darken-1">سجل بجميع الدفعات المالية التي قمت بها</p>
         </div>
-        <v-avatar color="success" rounded="xl" size="56" class="elevation-4">
+        <v-avatar color="success" rounded="md" size="56" class="elevation-4">
           <v-icon icon="ri-money-dollar-circle-line" color="white" size="32" />
         </v-avatar>
       </div>
@@ -34,7 +34,7 @@
       </div>
 
       <!-- Empty State -->
-      <div v-else-if="payments.length === 0" class="text-center py-12 bg-grey-lighten-4 rounded-xl border border-dashed mt-4">
+      <div v-else-if="payments.length === 0" class="text-center py-12 bg-grey-lighten-4 rounded-md border border-dashed mt-4">
         <v-icon icon="ri-bank-card-line" size="64" color="grey-lighten-1" class="mb-4" />
         <h3 class="text-h6 font-weight-bold text-grey-darken-1">لا توجد مدفوعات مسجلة</h3>
       </div>

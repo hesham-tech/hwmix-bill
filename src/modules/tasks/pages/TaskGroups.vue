@@ -7,12 +7,12 @@
         <p class="text-subtitle-1 text-grey-darken-1 mb-0">أنشئ فرق عمل لتسهيل إسناد المهام</p>
       </div>
       <v-spacer />
-      <v-btn color="primary" prepend-icon="ri-group-line" class="px-6 rounded-lg" @click="openCreateDialog"> مجموعة جديدة </v-btn>
+      <v-btn color="primary" prepend-icon="ri-group-line" class="px-6 rounded-md" @click="openCreateDialog"> مجموعة جديدة </v-btn>
     </div>
 
     <v-row v-if="!loading">
       <v-col v-for="group in groups" :key="group.id" cols="12" md="4">
-        <v-card class="group-card rounded-lg border-grey-lighten-4" variant="flat" border>
+        <v-card class="group-card rounded-md border-grey-lighten-4" variant="flat" border>
           <v-card-text class="pa-5">
             <div class="d-flex align-center justify-space-between mb-4">
               <div class="d-flex align-center gap-3">
@@ -28,7 +28,7 @@
                 <template #activator="{ props }">
                   <v-btn icon="ri-more-2-fill" variant="text" size="small" v-bind="props" />
                 </template>
-                <v-list density="compact" class="rounded-lg">
+                <v-list density="compact" class="rounded-md">
                   <v-list-item prepend-icon="ri-edit-line" title="تعديل" @click="editGroup(group)" />
                   <v-list-item prepend-icon="ri-delete-bin-line" title="حذف" color="error" @click="deleteGroup(group)" />
                 </v-list>
@@ -58,7 +58,7 @@
 
     <!-- Create/Edit Dialog -->
     <v-dialog v-model="showDialog" max-width="500px">
-      <v-card class="rounded-lg overflow-hidden">
+      <v-card class="rounded-md overflow-hidden">
         <v-card-title class="pa-6 bg-primary text-white font-weight-bold">
           {{ editingGroup ? 'تعديل مجموعة' : 'مجموعة عمل جديدة' }}
         </v-card-title>
@@ -81,7 +81,7 @@
         <v-card-actions class="pa-6 pt-0">
           <v-spacer />
           <v-btn variant="text" @click="showDialog = false">إلغاء</v-btn>
-          <v-btn color="primary" variant="flat" class="px-8 rounded-lg" :loading="saving" @click="saveGroup">حفظ</v-btn>
+          <v-btn color="primary" variant="flat" class="px-8 rounded-md" :loading="saving" @click="saveGroup">حفظ</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

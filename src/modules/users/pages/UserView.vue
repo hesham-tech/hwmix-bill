@@ -20,10 +20,10 @@
     <!-- Loading State -->
     <v-row v-if="loading">
       <v-col cols="12" md="4">
-        <v-skeleton-loader type="card" height="500" class="rounded-lg" />
+        <v-skeleton-loader type="card" height="500" class="rounded-md" />
       </v-col>
       <v-col cols="12" md="8">
-        <v-skeleton-loader type="article, table" height="500" class="rounded-lg" />
+        <v-skeleton-loader type="article, table" height="500" class="rounded-md" />
       </v-col>
     </v-row>
 
@@ -31,7 +31,7 @@
     <v-row v-else-if="user">
       <!-- Sidebar Info Card -->
       <v-col cols="12" md="4">
-        <v-card class="user-sidebar-card rounded-lg overflow-hidden border-0 elevation-sm h-100">
+        <v-card class="user-sidebar-card rounded-md overflow-hidden border-0 elevation-sm h-100">
           <!-- Gradient Header -->
           <div class="user-card-header pa-8 text-center position-relative">
             <AppAvatar
@@ -72,23 +72,23 @@
 
           <!-- Basic Info List -->
           <v-list class="pa-4 pt-8 bg-transparent">
-            <v-list-item prepend-icon="ri-phone-line" class="rounded-lg mb-2" subtitle="رقم الهاتف">
+            <v-list-item prepend-icon="ri-phone-line" class="rounded-md mb-2" subtitle="رقم الهاتف">
               <template #append>
                 <AppPhone v-if="user.phone" :phone="user.phone" hide-text icon-only />
               </template>
             </v-list-item>
-            <v-list-item prepend-icon="ri-mail-line" class="rounded-lg mb-2" :title="user.email || 'لا يوجد بريد'" subtitle="البريد الإلكتروني" />
-            <v-list-item prepend-icon="ri-at-line" class="rounded-lg mb-2" :title="user.username" subtitle="اسم المستخدم" />
-            <v-list-item prepend-icon="ri-calendar-line" class="rounded-lg mb-2" :title="formatDate(user.created_at)" subtitle="تاريخ الانضمام" />
+            <v-list-item prepend-icon="ri-mail-line" class="rounded-md mb-2" :title="user.email || 'لا يوجد بريد'" subtitle="البريد الإلكتروني" />
+            <v-list-item prepend-icon="ri-at-line" class="rounded-md mb-2" :title="user.username" subtitle="اسم المستخدم" />
+            <v-list-item prepend-icon="ri-calendar-line" class="rounded-md mb-2" :title="formatDate(user.created_at)" subtitle="تاريخ الانضمام" />
           </v-list>
 
           <v-divider class="mx-6 opacity-20" />
 
           <!-- Financial Card -->
           <div class="pa-6">
-            <div class="balance-card pa-6 rounded-lg overflow-hidden position-relative">
+            <div class="balance-card pa-6 rounded-md overflow-hidden position-relative">
               <div class="d-flex align-center gap-3">
-                <div class="pa-2 rounded-lg bg-white-transparent">
+                <div class="pa-2 rounded-md bg-white-transparent">
                   <v-icon icon="ri-wallet-3-line" color="white" />
                 </div>
                 <div>
@@ -99,13 +99,13 @@
             </div>
 
             <div class="stats-grid mt-6">
-              <div class="stat-item text-center pa-3 rounded-lg border border-dashed">
+              <div class="stat-item text-center pa-3 rounded-md border border-dashed">
                 <div class="text-caption text-grey">نوع العميل</div>
                 <div class="text-body-2 font-weight-bold mt-1" :class="user.customer_type === 'wholesale' ? 'text-purple' : 'text-info'">
                   {{ user.customer_type === 'wholesale' ? 'جملة' : 'قطاعي' }}
                 </div>
               </div>
-              <div class="stat-item text-center pa-3 rounded-lg border border-dashed">
+              <div class="stat-item text-center pa-3 rounded-md border border-dashed">
                 <div class="text-caption text-grey">المبيعات</div>
                 <div class="text-body-2 font-weight-bold mt-1">{{ user.sales_count || 0 }}</div>
               </div>
@@ -116,7 +116,7 @@
 
       <!-- Main Content Tabs -->
       <v-col cols="12" md="8">
-        <v-card class="rounded-lg border border-grey-lighten-4 h-100 overflow-hidden elevation-sm">
+        <v-card class="rounded-md border border-grey-lighten-4 h-100 overflow-hidden elevation-sm">
           <v-tabs v-model="activeTab" bg-color="white" color="primary" density="comfortable" align-tabs="start" class="border-b">
             <v-tab value="details" prepend-icon="ri-information-line" class="px-6">المعلومات الإضافية</v-tab>
             <v-tab value="activity" prepend-icon="ri-history-line" class="px-6">النشاطات</v-tab>
@@ -126,14 +126,14 @@
             <v-window-item value="details">
               <div class="mb-10">
                 <h3 class="text-h6 font-weight-bold mb-6 d-flex align-center gap-3">
-                  <v-avatar color="primary-lighten-5" rounded="lg" size="32">
+                  <v-avatar color="primary-lighten-5" rounded="md" size="32">
                     <v-icon icon="ri-building-line" color="primary" size="20" />
                   </v-avatar>
                   الشركات المرتبطة
                 </h3>
                 <v-row>
                   <v-col v-for="company in user.companies" :key="company.id" cols="12" sm="6" lg="4">
-                    <v-card variant="outlined" class="rounded-lg border-grey-lighten-3 pa-1 hover-card">
+                    <v-card variant="outlined" class="rounded-md border-grey-lighten-3 pa-1 hover-card">
                       <v-list-item :prepend-avatar="company.logo || '/default-company.png'">
                         <v-list-item-title class="font-weight-bold text-body-1">{{ company.name }}</v-list-item-title>
                         <v-list-item-subtitle class="text-caption mt-1">
@@ -143,7 +143,7 @@
                     </v-card>
                   </v-col>
                   <v-col v-if="!user.companies?.length" cols="12">
-                    <div class="text-center py-8 bg-grey-lighten-5 rounded-lg border-dashed">
+                    <div class="text-center py-8 bg-grey-lighten-5 rounded-md border-dashed">
                       <v-icon icon="ri-building-2-line" color="grey-lighten-2" size="48" class="mb-2" />
                       <p class="text-grey text-body-2">لا توجد شركات مرتبطة حالياً</p>
                     </div>
@@ -153,12 +153,12 @@
 
               <div>
                 <h3 class="text-h6 font-weight-bold mb-4 d-flex align-center gap-3">
-                  <v-avatar color="primary-lighten-5" rounded="lg" size="32">
+                  <v-avatar color="primary-lighten-5" rounded="md" size="32">
                     <v-icon icon="ri-sticky-note-line" color="primary" size="20" />
                   </v-avatar>
                   ملاحظات إضافية
                 </h3>
-                <div class="bg-grey-lighten-5 pa-6 rounded-lg border border-dashed text-body-1 text-grey-darken-1 min-height-100">
+                <div class="bg-grey-lighten-5 pa-6 rounded-md border border-dashed text-body-1 text-grey-darken-1 min-height-100">
                   {{ user.notes || 'لا توجد ملاحظات إضافية مسجلة لهذا المستخدم.' }}
                 </div>
               </div>

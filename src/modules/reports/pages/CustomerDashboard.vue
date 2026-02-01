@@ -52,7 +52,7 @@
     </v-row>
 
     <!-- Content Sections with Tabs -->
-    <v-card rounded="xl" class="border">
+    <v-card rounded="md" class="border">
       <v-tabs v-model="activeTab" color="primary" align-tabs="start" class="border-bottom">
         <v-tab v-if="recentInvoices.length > 0" value="invoices" class="text-body-1 font-weight-bold">
           <v-icon start icon="ri-bill-line" />
@@ -141,7 +141,7 @@
         <v-row>
           <v-col cols="12" md="6">
             <div class="text-subtitle-2 text-grey mb-1">بيانات الفاتورة</div>
-            <v-list density="compact" border class="rounded-lg">
+            <v-list density="compact" border class="rounded-md">
               <v-list-item title="التاريخ" :subtitle="formatDate(invoiceDialog.data.issue_date)" />
               <v-list-item title="رقم الفاتورة" :subtitle="`#${invoiceDialog.data.invoice_number}`" />
               <v-list-item title="إجمالي المبلغ" :subtitle="formatCurrency(invoiceDialog.data.net_amount)" />
@@ -155,13 +155,13 @@
           </v-col>
           <v-col cols="12" md="6">
             <div class="text-subtitle-2 text-grey mb-1">الحالة المالية والدفع</div>
-            <v-card variant="tonal" :color="getPaymentStatusColor(invoiceDialog.data.payment_status)" class="pa-6 rounded-xl text-center mb-4">
+            <v-card variant="tonal" :color="getPaymentStatusColor(invoiceDialog.data.payment_status)" class="pa-6 rounded-md text-center mb-4">
               <div class="text-h5 font-weight-black mb-1">{{ getPaymentStatusLabel(invoiceDialog.data.payment_status) }}</div>
               <div class="text-caption">حالة الفاتورة الحالية في النظام</div>
             </v-card>
 
             <!-- Quick Pay from Balance -->
-            <v-card v-if="invoiceDialog.data.remaining_amount > 0" variant="outlined" class="pa-4 rounded-xl border-dashed">
+            <v-card v-if="invoiceDialog.data.remaining_amount > 0" variant="outlined" class="pa-4 rounded-md border-dashed">
               <div class="d-flex align-center justify-space-between mb-3">
                 <span class="text-body-2">رصيدك المتاح:</span>
                 <span :class="['font-weight-black', userStore.currentUser.balance >= 1 ? 'text-success' : 'text-error']">

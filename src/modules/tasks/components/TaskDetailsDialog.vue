@@ -1,6 +1,6 @@
 <template>
   <v-dialog v-model="internalValue" max-width="800px">
-    <v-card v-if="task" class="rounded-lg overflow-hidden">
+    <v-card v-if="task" class="rounded-md overflow-hidden">
       <v-card-title class="pa-6 bg-grey-lighten-5 d-flex align-center gap-3">
         <v-chip :color="getStatusColor(task.status)" variant="flat" size="small">
           {{ translateStatus(task.status) }}
@@ -52,7 +52,7 @@
                     <span class="font-weight-bold text-body-2">{{ activity.user?.nickname || 'مستخدم' }}</span>
                     <span class="text-caption text-grey">{{ formatDateTime(activity.created_at) }}</span>
                   </div>
-                  <v-card variant="flat" :color="activity.type === 'comment' ? 'blue-lighten-5' : 'grey-lighten-4'" class="pa-3 rounded-lg">
+                  <v-card variant="flat" :color="activity.type === 'comment' ? 'blue-lighten-5' : 'grey-lighten-4'" class="pa-3 rounded-md">
                     <p class="text-body-2 mb-0">{{ activity.content }}</p>
                   </v-card>
                 </div>
@@ -127,7 +127,7 @@
         </v-row>
       </v-card-text>
     </v-card>
-    <v-card v-else class="rounded-lg pa-12 text-center">
+    <v-card v-else class="rounded-md pa-12 text-center">
       <v-progress-circular indeterminate color="primary" />
     </v-card>
   </v-dialog>

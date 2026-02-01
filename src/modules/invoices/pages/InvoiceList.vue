@@ -1,6 +1,6 @@
 <template>
   <div class="invoice-list-wrapper">
-    <AppPageHeader title="الفواتير" subtitle="إدارة جميع الفواتير الصادرة والواردة" icon="ri-file-list-3-line">
+    <AppPageHeader title="الفواتير" subtitle="إدارة جميع الفواتير الصادرة والواردة" icon="ri-file-list-3-line" sticky>
       <template #append>
         <AppButton v-if="can(PERMISSIONS.INVOICES_CREATE)" prepend-icon="ri-add-line" size="large" @click="navigateToCreate">
           فاتورة جديدة
@@ -17,28 +17,30 @@
             variant="solo-filled"
             density="comfortable"
             flat
-            class="rounded-lg px-0"
+            class="rounded-md"
             @update:model-value="debouncedSearch"
           />
         </v-col>
-        <v-col cols="12" md="4" class="text-end">
-          <v-btn
-            variant="tonal"
-            color="primary"
-            prepend-icon="ri-equalizer-line"
-            class="rounded-lg font-weight-bold"
-            @click="showAdvanced = !showAdvanced"
-          >
-            {{ showAdvanced ? 'إخفاء البحث المتقدم' : 'بحث متقدم' }}
-          </v-btn>
+        <v-col cols="auto" class="d-md-none">
+          <AppButton icon="ri-filter-line" color="primary" @click="showAdvanced = !showAdvanced" />
         </v-col>
       </template>
     </AppPageHeader>
 
-    <v-container fluid class="pt-0">
-      <v-row>
-        <!-- Main Content Column -->
-        <v-col cols="12" lg="9" order="1" order-lg="1">
+    <v-container fluid class="pa-0">
+      <!-- Advanced Filters (Expandable on Mobile) -->
+      <div>
+        <v-expand-transition>
+          <div v-show="showAdvanced || !mobile" class="d-md-none">
+            <InvoiceFilters v-model="filters" @apply="applyFilters" />
+          </div>
+        </v-expand-transition>
+      </div>
+
+      <!-- Desktop: Side-by-side Layout -->
+      <v-row class="d-none d-md-flex ma-0">
+        <!-- Table Column (8/12) -->
+        <v-col cols="12" md="8" class="pa-0">
           <!-- Bulk Actions -->
           <AppCard v-if="hasSelection" class="mb-4" color="primary" variant="tonal">
             <div class="d-flex align-center px-4 py-2">
@@ -56,13 +58,14 @@
             </div>
           </AppCard>
 
-          <v-card rounded="xl" class="border shadow-sm overflow-hidden">
+          <v-card rounded="md" class="border shadow-sm">
             <InvoiceDataTable
               :items="items"
               :loading="loading"
               :total="total"
               :current-page="currentPage"
               :per-page="perPage"
+              :table-height="'calc(100vh - 350px)'"
               @view="viewInvoice"
               @edit="editInvoice"
               @print="printInvoice"
@@ -74,33 +77,33 @@
           </v-card>
         </v-col>
 
-        <!-- Sidebar Column (Filters) -->
-        <v-col cols="12" lg="3" order="0" order-lg="2">
-          <div class="sticky-sidebar">
-            <h3 class="text-subtitle-1 font-weight-bold mb-4 d-flex align-center gap-2">
-              <v-icon icon="ri-filter-3-line" color="primary" />
-              تصفية الفواتير
-            </h3>
-
-            <v-card variant="flat" border class="rounded-lg pa-4 bg-grey-lighten-5">
-              <InvoiceFilters v-model="filters" @apply="applyFilters" />
-            </v-card>
-
-            <!-- Quick Sidebar Card -->
-            <v-card variant="flat" border class="rounded-lg pa-4 mt-6 bg-primary-lighten-5 border-primary">
-              <div class="d-flex align-center gap-3">
-                <v-avatar color="primary" rounded="lg" size="40">
-                  <v-icon icon="ri-file-list-3-line" color="white" />
-                </v-avatar>
-                <div>
-                  <div class="text-caption text-primary-darken-1 font-weight-bold">إجمالي الفواتير</div>
-                  <div class="text-h6 font-weight-black">{{ total }}</div>
-                </div>
-              </div>
-            </v-card>
+        <!-- Filters Column (4/12) -->
+        <v-col cols="12" md="4" class="pa-0">
+          <div class="sticky-filters">
+            <InvoiceFilters v-model="filters" @apply="applyFilters" />
           </div>
         </v-col>
       </v-row>
+
+      <!-- Mobile: Table Only (Full Width) -->
+      <div class="d-md-none">
+        <v-card rounded="md" class="border shadow-sm">
+          <InvoiceDataTable
+            :items="items"
+            :loading="loading"
+            :total="total"
+            :current-page="currentPage"
+            :per-page="perPage"
+            @view="viewInvoice"
+            @edit="editInvoice"
+            @print="printInvoice"
+            @delete="confirmDelete"
+            @update:page="changePage"
+            @update:per-page="changePerPage"
+            @update:sort-by="changeSort"
+          />
+        </v-card>
+      </div>
 
       <!-- Delete Confirmation Dialog -->
       <AppDialog
@@ -119,8 +122,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { useDisplay } from 'vuetify';
 import { useDataTable } from '@/composables/useDataTable';
 import { useApi } from '@/composables/useApi';
 import { usePermissions } from '@/composables/usePermissions';
@@ -135,6 +139,7 @@ import { toast } from 'vue3-toastify';
 
 const router = useRouter();
 const { can, canAny } = usePermissions();
+const { mobile } = useDisplay();
 
 // API
 const invoiceApi = useApi('/api/invoices');
@@ -185,15 +190,15 @@ const debouncedSearch = () => {
 
 // Navigation
 const navigateToCreate = () => {
-  router.push('/invoices/create');
+  router.push('/app/invoices/create');
 };
 
 const viewInvoice = invoice => {
-  router.push(`/invoices/${invoice.id}`);
+  router.push(`/app/invoices/${invoice.id}`);
 };
 
 const editInvoice = invoice => {
-  router.push(`/invoices/${invoice.id}/edit`);
+  router.push(`/app/invoices/${invoice.id}/edit`);
 };
 
 const printInvoice = async invoice => {
@@ -232,3 +237,9 @@ const confirmBulkDelete = () => {
   toast.info('ميزة الحذف الجماعي قيد التطوير');
 };
 </script>
+
+<style scoped>
+.invoice-list-wrapper :deep(.v-container) {
+  max-width: 100% !important;
+}
+</style>

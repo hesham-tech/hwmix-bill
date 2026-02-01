@@ -1,6 +1,6 @@
 <template>
   <v-dialog v-model="show" max-width="900" scrollable persistent transition="dialog-bottom-transition" class="media-gallery-dialog">
-    <v-card class="rounded-lg overflow-hidden">
+    <v-card class="rounded-md overflow-hidden">
       <!-- Header -->
       <v-toolbar color="primary" density="comfortable" flat>
         <v-icon icon="ri-gallery-line" class="ms-4 me-2" />
@@ -19,7 +19,7 @@
             variant="solo"
             density="compact"
             hide-details
-            class="max-width-300 elevation-0 border rounded-lg"
+            class="max-width-300 elevation-0 border rounded-md"
           />
 
           <v-spacer />

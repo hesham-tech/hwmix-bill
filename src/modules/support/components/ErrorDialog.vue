@@ -1,6 +1,6 @@
 <template>
   <v-dialog v-model="isVisible" max-width="600px" persistent scrollable>
-    <v-card :border="(isManualReport ? 'primary' : isConnectivityError ? 'warning' : 'error') + ' md'" rounded="xl" class="pa-4">
+    <v-card :border="(isManualReport ? 'primary' : isConnectivityError ? 'warning' : 'error') + ' md'" rounded="md" class="pa-4">
       <v-card-title class="d-flex align-center" :class="titleColor">
         <v-icon :icon="titleIcon" size="32" class="me-3" />
         <span class="text-h5 font-weight-bold">
@@ -72,7 +72,7 @@
             <v-img
               :src="screenshotUrl"
               max-height="200"
-              rounded="lg"
+              rounded="md"
               class="bg-grey-lighten-3 border cursor-pointer screenshot-preview-img"
               @click="toggleFullPreview = true"
             />
@@ -81,7 +81,7 @@
 
         <!-- Full Size Preview Dialog -->
         <v-dialog v-model="toggleFullPreview" max-width="90%">
-          <v-card class="pa-2 overflow-hidden position-relative" rounded="xl">
+          <v-card class="pa-2 overflow-hidden position-relative" rounded="md">
             <v-btn
               icon="ri-close-line"
               size="small"

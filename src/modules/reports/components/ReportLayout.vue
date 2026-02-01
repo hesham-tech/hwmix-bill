@@ -19,7 +19,7 @@
     <v-row class="px-6 mx-0">
       <!-- Sidebar Filters (Desktop) -->
       <v-col cols="12" md="3" class="ps-0">
-        <v-card border flat class="rounded-lg pa-4 sticky-top">
+        <v-card border flat class="rounded-md pa-4 sticky-top">
           <div class="d-flex align-center mb-4">
             <v-icon icon="ri-filter-3-line" color="primary" class="me-2" />
             <h3 class="text-subtitle-1 font-weight-bold">تصفية النتائج</h3>
@@ -41,7 +41,7 @@
         </div>
 
         <!-- Table Card -->
-        <v-card border flat class="rounded-lg overflow-hidden">
+        <v-card border flat class="rounded-md overflow-hidden">
           <slot name="table" />
         </v-card>
       </v-col>

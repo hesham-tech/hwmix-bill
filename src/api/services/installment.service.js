@@ -87,6 +87,40 @@ class InstallmentService extends BaseService {
   }
 
   /**
+   * Pay multiple installments (Logic-rich endpoint)
+   */
+  async pay(paymentData, options = {}) {
+    const { showToast = true, loading = true } = options;
+    const userStore = useUserStore();
+
+    if (loading) userStore.loadingApi = true;
+
+    try {
+      const response = await apiClient.post('installment-payments/pay', paymentData);
+      return this.handleSuccess(response, showToast);
+    } catch (error) {
+      return this.handleError(error, showToast);
+    }
+  }
+
+  /**
+   * Deposit excess amount to customer balance
+   */
+  async depositExcess(payload, options = {}) {
+    const { showToast = true, loading = true } = options;
+    const userStore = useUserStore();
+
+    if (loading) userStore.loadingApi = true;
+
+    try {
+      const response = await apiClient.post('installment-payments/deposit-excess', payload);
+      return this.handleSuccess(response, showToast);
+    } catch (error) {
+      return this.handleError(error, showToast);
+    }
+  }
+
+  /**
    * Get payment details
    */
   async getPaymentDetails(params = {}, options = {}) {

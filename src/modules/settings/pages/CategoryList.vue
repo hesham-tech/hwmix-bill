@@ -252,11 +252,11 @@
           <!-- Image Selection -->
           <v-col cols="12" class="d-flex justify-center mb-4">
             <div class="category-image-zone position-relative cursor-pointer" @click="showMediaGallery = true">
-              <v-avatar size="120" rounded="xl" color="grey-lighten-4" class="border-2 border-dashed elevation-1 hover-scale overflow-hidden">
+              <v-avatar size="120" rounded="md" color="grey-lighten-4" class="border-2 border-dashed elevation-1 hover-scale overflow-hidden">
                 <v-img v-if="imagePreview" :src="imagePreview" cover />
                 <v-icon v-else icon="ri-image-add-line" size="40" color="grey-lighten-1" />
 
-                <div class="change-overlay d-flex flex-column align-center justify-center rounded-lg">
+                <div class="change-overlay d-flex flex-column align-center justify-center rounded-md">
                   <v-icon icon="ri-exchange-line" color="white" size="24" />
                   <span class="text-white text-caption mt-1 font-weight-bold">تغيير الصورة</span>
                 </div>

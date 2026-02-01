@@ -25,12 +25,12 @@
               variant="solo-filled"
               density="comfortable"
               flat
-              class="rounded-lg"
+              class="rounded-md"
               @update:model-value="handleSearch"
             />
           </v-col>
           <v-col cols="12" md="4" class="text-end">
-            <v-btn-group variant="tonal" density="comfortable" color="primary" class="rounded-lg bg-primary-lighten-5">
+            <v-btn-group variant="tonal" density="comfortable" color="primary" class="rounded-md bg-primary-lighten-5">
               <AppButton :active="viewMode === 'grid'" icon="ri-grid-fill" tooltip="عرض شبكي" @click="viewMode = 'grid'" />
               <AppButton :active="viewMode === 'list'" icon="ri-list-check" tooltip="عرض قائمة" @click="viewMode = 'list'" />
             </v-btn-group>
@@ -58,7 +58,7 @@
               <v-col v-for="item in cashBoxes" :key="item.id" cols="12" sm="6" md="4" lg="3">
                 <AppCard class="cashbox-card h-100" no-padding>
                   <div class="cashbox-card-header d-flex align-center justify-center pa-4 bg-grey-lighten-4 position-relative">
-                    <v-avatar size="80" rounded="lg" class="elevation-1 bg-white">
+                    <v-avatar size="80" rounded="md" class="elevation-1 bg-white">
                       <v-icon icon="ri-safe-2-line" size="40" color="warning" />
                     </v-avatar>
 
@@ -207,7 +207,7 @@
             />
           </v-col>
           <v-col cols="12">
-            <v-card variant="tonal" color="primary" class="pa-4 rounded-lg">
+            <v-card variant="tonal" color="primary" class="pa-4 rounded-md">
               <div class="d-flex align-center justify-space-between">
                 <div>
                   <div class="text-subtitle-1 font-weight-bold">حالة النشاط</div>

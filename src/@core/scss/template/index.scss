@@ -15,16 +15,16 @@
   --v-card-text-padding: 4px !important;
 }
 
+// Apply compact padding to layout containers only (not buttons!)
 .v-card,
 .v-card-text,
-.v-container,
 .v-list-item,
 .v-row,
 .v-col {
   padding: 4px !important;
 }
 
-// Override Vuetify spacing utilities
+// Override Vuetify spacing utilities - preserve original values for pa-4 and above
 .pa-0 {
   padding: 0 !important;
 }
@@ -37,15 +37,28 @@
 .pa-3 {
   padding: 12px !important;
 }
-.pa-4,
-.pa-5,
-.pa-6,
-.pa-7,
-.pa-8,
-.pa-9,
-.pa-10 {
-  padding: 4px !important;
-}
+// Let Vuetify's defaults work for pa-4 and above
+
+// Add support for larger padding values that buttons need
+.px-4 { padding-inline: 16px !important; }
+.px-5 { padding-inline: 20px !important; }
+.px-6 { padding-inline: 24px !important; }
+.px-7 { padding-inline: 28px !important; }
+.px-8 { padding-inline: 32px !important; }
+.px-9 { padding-inline: 36px !important; }
+.px-10 { padding-inline: 40px !important; }
+.px-11 { padding-inline: 44px !important; }
+.px-12 { padding-inline: 48px !important; }
+
+.py-4 { padding-block: 16px !important; }
+.py-5 { padding-block: 20px !important; }
+.py-6 { padding-block: 24px !important; }
+.py-7 { padding-block: 28px !important; }
+.py-8 { padding-block: 32px !important; }
+.py-9 { padding-block: 36px !important; }
+.py-10 { padding-block: 40px !important; }
+.py-11 { padding-block: 44px !important; }
+.py-12 { padding-block: 48px !important; }
 
 .ma-0 {
   margin: 0 !important;
@@ -53,15 +66,7 @@
 .ma-1 {
   margin: 4px !important;
 }
-.ma-4,
-.ma-5,
-.ma-6,
-.ma-7,
-.ma-8,
-.ma-9,
-.ma-10 {
-  margin: 4px !important;
-}
+// Let Vuetify's defaults work for ma-4 and above
 
 // Gap reduction
 .gap-6 {

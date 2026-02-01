@@ -1,13 +1,12 @@
 <template>
   <div class="product-list-page">
-    <AppPageHeader title="قائمة المنتجات" subtitle="إدارة المخزون والمنتجات والمتغيرات" icon="ri-box-3-line">
+    <AppPageHeader title="قائمة المنتجات" subtitle="إدارة المخزون والمنتجات والمتغيرات" icon="ri-box-3-line" sticky>
       <template #append>
         <AppButton
           v-if="canAny(PERMISSIONS.PRODUCTS_CREATE)"
           color="primary"
           prepend-icon="ri-add-line"
           size="large"
-          class="gradient-add-btn elevation-6"
           @click="router.push({ name: 'product-create' })"
         >
           إضافة منتج
@@ -25,12 +24,15 @@
             variant="solo-filled"
             density="comfortable"
             flat
-            class="rounded-lg px-0"
+            class="rounded-md"
             @update:model-value="debouncedSearch"
           />
         </v-col>
+        <v-col cols="auto" class="d-md-none">
+          <AppButton icon="ri-filter-line" color="primary" @click="showAdvanced = !showAdvanced" />
+        </v-col>
         <v-col cols="12" md="4" class="d-flex align-center justify-end gap-2">
-          <v-btn-toggle v-if="mobile" v-model="viewMode" mandatory color="primary" variant="tonal" density="comfortable" class="rounded-lg">
+          <v-btn-toggle v-if="mobile" v-model="viewMode" mandatory color="primary" variant="tonal" density="comfortable" class="rounded-md">
             <v-btn value="table" icon="ri-table-line" />
             <v-btn value="grid" icon="ri-layout-grid-line" />
           </v-btn-toggle>
@@ -39,7 +41,7 @@
             variant="tonal"
             color="primary"
             prepend-icon="ri-equalizer-line"
-            class="rounded-lg font-weight-bold"
+            class="rounded-md font-weight-bold"
             @click="showAdvanced = !showAdvanced"
           >
             {{ showAdvanced ? 'إخفاء البحث' : 'بحث متقدم' }}
@@ -48,10 +50,20 @@
       </template>
     </AppPageHeader>
 
-    <v-container fluid class="pt-0">
-      <v-row>
-        <!-- Main Content Column -->
-        <v-col cols="12" lg="9" order="1" order-lg="1">
+    <v-container fluid class="pa-0">
+      <!-- Advanced Filters (Expandable on Mobile) -->
+      <div>
+        <v-expand-transition>
+          <div v-show="showAdvanced || !mobile" class="d-md-none">
+            <ProductFilters @apply="handleFiltersChange" />
+          </div>
+        </v-expand-transition>
+      </div>
+
+      <!-- Desktop: Side-by-side Layout -->
+      <v-row class="d-none d-md-flex ma-0">
+        <!-- Main Content Column (8/12) -->
+        <v-col cols="12" md="8" class="pa-0">
           <!-- View Mode Toggle (In Main Content for context) -->
           <div v-if="!mobile" class="d-flex align-center justify-end mb-4 px-2">
             <v-card variant="tonal" border class="rounded-pill pa-1 d-flex align-center">
@@ -80,7 +92,7 @@
             </v-card>
           </div>
 
-          <v-card v-if="viewMode === 'table'" rounded="xl" class="border shadow-sm overflow-hidden">
+          <v-card v-if="viewMode === 'table'" rounded="md" class="border shadow-sm overflow-hidden">
             <AppDataTable
               v-model:page="page"
               v-model:items-per-page="itemsPerPage"
@@ -97,7 +109,7 @@
             >
               <template #item.name="{ item }">
                 <div @click="viewProduct(item)" class="d-flex align-center gap-3 py-2">
-                  <AppAvatar :img-url="item.primary_image_url || item.main_image" :name="item.name" size="44" rounded="lg" type="product" hoverable />
+                  <AppAvatar :img-url="item.primary_image_url || item.main_image" :name="item.name" size="44" rounded="md" type="product" hoverable />
                   <div class="d-flex flex-column">
                     <div class="d-flex align-center gap-1">
                       <span class="text-subtitle-2 font-weight-bold text-primary">{{ item.name }}</span>
@@ -168,14 +180,14 @@
           <!-- Grid View -->
           <v-row v-else class="mx-0">
             <v-col v-for="item in products" :key="item.id" cols="12" sm="6" md="4" lg="4">
-              <v-card border flat class="rounded-lg overflow-hidden hover-shadow transition-swing" @click="viewProduct(item)">
+              <v-card border flat class="rounded-md overflow-hidden hover-shadow transition-swing" @click="viewProduct(item)">
                 <div class="pa-4">
                   <div class="d-flex gap-4">
                     <AppAvatar
                       :img-url="item.primary_image_url || item.main_image"
                       :name="item.name"
                       size="100"
-                      rounded="xl"
+                      rounded="md"
                       type="product"
                       class="border"
                     />
@@ -226,14 +238,14 @@
               </h3>
             </div>
 
-            <v-card variant="flat" border class="rounded-lg pa-4 bg-grey-lighten-5">
+            <v-card variant="flat" border class="rounded-md pa-4 bg-grey-lighten-5">
               <ProductFilters @apply="handleFiltersChange" />
             </v-card>
 
             <!-- Quick Stats in Sidebar -->
-            <v-card variant="flat" border class="rounded-lg pa-4 mt-6 bg-primary-lighten-5 border-primary">
+            <v-card variant="flat" border class="rounded-md pa-4 mt-6 bg-primary-lighten-5 border-primary">
               <div class="d-flex align-center gap-3">
-                <v-avatar color="primary" rounded="lg" size="40">
+                <v-avatar color="primary" rounded="md" size="40">
                   <v-icon icon="ri-box-3-line" color="white" />
                 </v-avatar>
                 <div>
@@ -353,6 +365,10 @@ const handleFiltersChange = newFilters => {
 </script>
 
 <style scoped>
+.product-list-page :deep(.v-container) {
+  max-width: 100% !important;
+}
+
 .gap-2 {
   gap: 0.5rem;
 }

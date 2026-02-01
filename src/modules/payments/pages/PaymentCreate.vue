@@ -113,7 +113,7 @@
 
           <!-- ملخص العملية المالية -->
           <v-expand-transition>
-            <div v-if="formData.invoice_id" class="mt-6 p-4 rounded-lg bg-blue-grey-lighten-5 border">
+            <div v-if="formData.invoice_id" class="mt-6 p-4 rounded-md bg-blue-grey-lighten-5 border">
               <div class="d-flex align-center justify-space-between mb-4">
                 <div class="d-flex align-center">
                   <v-icon color="primary" class="me-2">ri-calculator-line</v-icon>

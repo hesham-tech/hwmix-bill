@@ -10,22 +10,22 @@
       </v-btn>
     </div>
 
-    <v-alert type="info" variant="tonal" class="mb-6 rounded-xl" icon="ri-shield-user-line" title="نصيحة أمان">
+    <v-alert type="info" variant="tonal" class="mb-6 rounded-md" icon="ri-shield-user-line" title="نصيحة أمان">
       إذا رأيت جهازاً لا تعرفه، قم بتسجيل الخروج منه فوراً وقم بتغيير كلمة المرور الخاصة بك.
     </v-alert>
 
     <v-row v-if="loading && !sessions.length">
       <v-col v-for="i in 3" :key="i" cols="12" md="6" lg="4">
-        <v-skeleton-loader type="list-item-avatar-three-line" class="rounded-xl border" />
+        <v-skeleton-loader type="list-item-avatar-three-line" class="rounded-md border" />
       </v-col>
     </v-row>
 
     <v-row v-else>
       <v-col v-for="session in sessions" :key="session.id" cols="12" md="6" lg="4">
-        <v-card variant="flat" border class="session-card rounded-xl h-100 overflow-hidden" :class="{ 'current-session': session.is_current }">
+        <v-card variant="flat" border class="session-card rounded-md h-100 overflow-hidden" :class="{ 'current-session': session.is_current }">
           <div class="pa-5">
             <div class="d-flex align-start gap-4">
-              <v-avatar :color="session.is_current ? 'primary' : 'grey-lighten-4'" rounded="lg" size="48">
+              <v-avatar :color="session.is_current ? 'primary' : 'grey-lighten-4'" rounded="md" size="48">
                 <v-icon :icon="getDeviceIcon(session.device)" :color="session.is_current ? 'white' : 'grey-darken-1'" />
               </v-avatar>
 
@@ -74,26 +74,26 @@
 
     <!-- Confirm Revoke Dialog -->
     <v-dialog v-model="revokeDialog.show" max-width="400">
-      <v-card class="rounded-xl pa-2">
+      <v-card class="rounded-md pa-2">
         <v-card-title class="text-h6 font-weight-bold">إنهاء الجلسة؟</v-card-title>
         <v-card-text> هل أنت متأكد من رغبتك في تسجيل الخروج من هذا الجهاز؟ سيتم طلب تسجيل الدخول مرة أخرى للوصول إلى الحساب. </v-card-text>
         <v-card-actions class="mt-4">
           <v-spacer />
-          <v-btn variant="text" rounded="lg" @click="revokeDialog.show = false"> إلغاء </v-btn>
-          <v-btn color="error" variant="flat" rounded="lg" :loading="revokingId === revokeDialog.id" @click="handleRevoke"> إنهاء الجلسة </v-btn>
+          <v-btn variant="text" rounded="md" @click="revokeDialog.show = false"> إلغاء </v-btn>
+          <v-btn color="error" variant="flat" rounded="md" :loading="revokingId === revokeDialog.id" @click="handleRevoke"> إنهاء الجلسة </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
     <!-- Confirm Revoke All Dialog -->
     <v-dialog v-model="revokeAllDialog" max-width="400">
-      <v-card class="rounded-xl pa-2">
+      <v-card class="rounded-md pa-2">
         <v-card-title class="text-h6 font-weight-bold text-error">إنهاء جميع الجلسات الأخرى؟</v-card-title>
         <v-card-text> سيتم تسجيل الخروج من جميع الأجهزة والمنصات الأخرى باستثناء هذا الجهاز الحالي. هل تود الاستمرار؟ </v-card-text>
         <v-card-actions class="mt-4">
           <v-spacer />
-          <v-btn variant="text" rounded="lg" @click="revokeAllDialog = false"> إلغاء </v-btn>
-          <v-btn color="error" variant="flat" rounded="lg" :loading="revokingAll" @click="handleRevokeOthers"> تأكيد الإنهاء </v-btn>
+          <v-btn variant="text" rounded="md" @click="revokeAllDialog = false"> إلغاء </v-btn>
+          <v-btn color="error" variant="flat" rounded="md" :loading="revokingAll" @click="handleRevokeOthers"> تأكيد الإنهاء </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

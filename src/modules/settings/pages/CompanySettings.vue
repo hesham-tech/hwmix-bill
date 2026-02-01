@@ -21,7 +21,7 @@
                 size="180"
                 type="company"
                 :editable="canUpdate"
-                rounded="xl"
+                rounded="md"
                 class="border-2 border-dashed elevation-3 hover-scale overflow-hidden"
                 @edit="showMediaGallery = true"
                 @crop="handleCurrentCrop"
@@ -175,6 +175,41 @@
 
               <AppButton variant="tonal" block prepend-icon="ri-add-line" class="mt-2" @click="addSocialLink"> إضافة رابط تواصل </AppButton>
             </AppCard>
+
+            <!-- Printing Preferences Card -->
+            <AppCard title="إعدادات الطباعة" icon="ri-printer-line" class="my-4" icon-color="primary">
+              <v-row>
+                <v-col cols="12" md="6">
+                  <v-select
+                    v-model="formData.print_settings.print_format"
+                    :items="[
+                      { title: 'حراري (80mm)', value: 'thermal' },
+                      { title: 'قياسي (A4)', value: 'a4' },
+                      { title: 'مدمج (A5)', value: 'a5' },
+                    ]"
+                    label="تنسيق الطباعة المفضل"
+                    prepend-inner-icon="ri-layout-grid-line"
+                    variant="outlined"
+                    density="comfortable"
+                  />
+                </v-col>
+
+                <v-col cols="12" md="6">
+                  <v-switch v-model="formData.print_settings.show_logo" label="إظهار شعار الشركة في المطبوعات" color="primary" hide-details />
+                </v-col>
+
+                <v-col cols="12">
+                  <AppInput
+                    v-model="formData.print_settings.footer_text"
+                    label="نص تذييل الفاتورة"
+                    placeholder="مثال: شكراً لزيارتكم، البضاعة المباعة لا ترد ولا تستبدل..."
+                    prepend-inner-icon="ri-text-spacing"
+                    type="textarea"
+                    rows="2"
+                  />
+                </v-col>
+              </v-row>
+            </AppCard>
           </AppCard>
         </v-form>
       </v-col>
@@ -260,6 +295,11 @@ const formData = ref({
   logo: '',
   social_links: [],
   images_ids: [],
+  print_settings: {
+    print_format: 'thermal',
+    show_logo: true,
+    footer_text: 'شكراً لتعاملكم معنا',
+  },
 });
 
 const socialPlatforms = [
@@ -368,6 +408,11 @@ const loadCompanyData = async () => {
         logo: data.logo || '',
         social_links: Array.isArray(data.social_links) ? data.social_links : [],
         images_ids: [],
+        print_settings: data.print_settings || {
+          print_format: 'thermal',
+          show_logo: true,
+          footer_text: 'شكراً لتعاملكم معنا',
+        },
       };
     }
   } catch (error) {
@@ -396,6 +441,13 @@ const handleSave = async () => {
     if (payload.images_ids.length === 0) {
       delete payload.images_ids;
     }
+
+    // Nest print_settings back into settings
+    payload.settings = {
+      ...payload.settings,
+      print_settings: payload.print_settings,
+    };
+    delete payload.print_settings;
 
     await api.update(formData.value.id, payload);
 

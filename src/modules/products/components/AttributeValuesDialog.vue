@@ -7,7 +7,7 @@
     width="100%"
     max-width="1200"
   >
-    <v-card class="attribute-values-dialog bg-slate-50 rounded-lg overflow-hidden">
+    <v-card class="attribute-values-dialog bg-slate-50 rounded-md overflow-hidden">
       <AppPageHeader :title="attribute?.name" stickyTop="0" class="bg-white border-b">
         <template #prepend>
           <v-avatar color="primary-lighten-5" size="48" class="border-primary-10 ms-4">
@@ -108,7 +108,7 @@
             </v-row>
 
             <!-- List View -->
-            <v-card v-else class="rounded-lg border overflow-hidden flat">
+            <v-card v-else class="rounded-md border overflow-hidden flat">
               <AppDataTable
                 :headers="headers"
                 :items="filteredValues"
@@ -161,7 +161,7 @@
     >
       <v-form ref="formRef" class="pt-2">
         <!-- Visual Preview Cell -->
-        <div class="preview-cell mb-6 rounded-lg pa-4 bg-slate-50 border border-dashed">
+        <div class="preview-cell mb-6 rounded-md pa-4 bg-slate-50 border border-dashed">
           <div class="d-flex align-center mb-4">
             <div class="text-caption font-weight-black text-slate-400">معاينة القيمة</div>
             <v-spacer />
@@ -173,7 +173,7 @@
             <v-avatar v-if="isColor" size="80" class="elevation-6 border-white-4" :style="{ backgroundColor: previewHex || '#f1f5f9' }">
               <v-icon v-if="!previewHex" icon="ri-palette-line" color="slate-300" />
             </v-avatar>
-            <div v-else class="text-h4 font-weight-black text-primary px-6 py-2 bg-white rounded-lg border elevation-1">
+            <div v-else class="text-h4 font-weight-black text-primary px-6 py-2 bg-white rounded-md border elevation-1">
               {{ formData.name || '---' }}
             </div>
           </div>
@@ -183,7 +183,7 @@
           <v-col cols="12">
             <template v-if="isColor">
               <div class="color-control mb-6">
-                <v-color-picker v-model="formData.color" hide-inputs show-swatches width="100%" class="rounded-lg border flat" elevation="0" />
+                <v-color-picker v-model="formData.color" hide-inputs show-swatches width="100%" class="rounded-md border flat" elevation="0" />
               </div>
 
               <v-combobox
@@ -195,7 +195,7 @@
                 placeholder="أدخل اسماً أو اختر من المقترحات..."
                 variant="outlined"
                 bg-color="white"
-                rounded="lg"
+                rounded="md"
                 class="mb-2"
                 @update:model-value="handleColorSelection"
               >
@@ -215,7 +215,7 @@
               label="اسم القيمة"
               placeholder="مثال: XL، قطن، 128GB..."
               :rules="[v => !!v || 'هذا الحقل مطلوب']"
-              rounded="lg"
+              rounded="md"
             />
           </v-col>
         </v-row>

@@ -16,11 +16,11 @@
         <!-- Logo Selection Section -->
         <v-col cols="12" class="d-flex justify-center mb-4">
           <div class="logo-preview-zone position-relative cursor-pointer" @click="showMediaGallery = true">
-            <v-avatar size="120" rounded="xl" color="grey-lighten-4" class="border-2 border-dashed elevation-1 hover-scale overflow-hidden">
+            <v-avatar size="120" rounded="md" color="grey-lighten-4" class="border-2 border-dashed elevation-1 hover-scale overflow-hidden">
               <v-img v-if="imagePreview" :src="imagePreview" cover />
               <v-icon v-else icon="ri-image-add-line" size="40" color="grey-lighten-1" />
 
-              <div class="change-overlay d-flex flex-column align-center justify-center rounded-lg">
+              <div class="change-overlay d-flex flex-column align-center justify-center rounded-md">
                 <v-icon icon="ri-exchange-line" color="white" size="24" />
                 <span class="text-white text-caption mt-1 font-weight-bold">تغيير الشعار</span>
               </div>
@@ -52,7 +52,7 @@
         </v-col>
 
         <v-col v-if="canToggle" cols="12">
-          <v-card variant="tonal" :color="formData.active ? 'primary' : 'grey'" class="pa-4 rounded-lg mt-4">
+          <v-card variant="tonal" :color="formData.active ? 'primary' : 'grey'" class="pa-4 rounded-md mt-4">
             <div class="d-flex align-center justify-space-between">
               <div>
                 <div class="text-subtitle-1 font-weight-bold">حالة النشاط</div>
@@ -64,7 +64,7 @@
         </v-col>
 
         <v-col v-if="isSuperAdmin" cols="12">
-          <v-card variant="tonal" :color="formData.is_system ? 'info' : 'grey'" class="pa-4 rounded-lg">
+          <v-card variant="tonal" :color="formData.is_system ? 'info' : 'grey'" class="pa-4 rounded-md">
             <div class="d-flex align-center justify-space-between">
               <div>
                 <div class="text-subtitle-1 font-weight-bold">طريقة أساسية (System)</div>

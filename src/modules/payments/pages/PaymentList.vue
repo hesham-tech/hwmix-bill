@@ -28,11 +28,16 @@
         </template>
 
         <template #item.invoice="{ item }">
-          <div v-if="item.invoice" class="d-flex flex-column">
-            <span class="font-weight-bold text-primary">فاتورة #{{ item.invoice.invoice_number }}</span>
-            <span class="text-caption text-grey">{{ item.invoice.customer?.name || 'بدون عميل' }}</span>
+          <div class="d-flex flex-column">
+            <span v-if="item.invoice" class="font-weight-bold text-primary">فاتورة #{{ item.invoice.invoice_number }}</span>
+            <span class="text-caption text-grey">{{
+              item.customer?.nickname ||
+              item.customer?.full_name ||
+              item.invoice?.customer?.nickname ||
+              item.invoice?.customer?.full_name ||
+              'بدون عميل'
+            }}</span>
           </div>
-          <span v-else class="text-grey-lighten-1">مدفوعات عامة</span>
         </template>
 
         <template #item.amount="{ item }">

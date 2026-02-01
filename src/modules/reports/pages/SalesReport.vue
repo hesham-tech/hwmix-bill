@@ -36,19 +36,19 @@
     <template #summary>
       <v-row dense>
         <v-col cols="12" sm="4">
-          <v-card border flat class="rounded-lg pa-4 bg-success-lighten-5 border-success">
+          <v-card border flat class="rounded-md pa-4 bg-success-lighten-5 border-success">
             <div class="text-caption font-weight-bold text-success">إجمالي المبيعات</div>
             <div class="text-h4 font-weight-black text-success">{{ formatCurrency(summary.total_sales) }}</div>
           </v-card>
         </v-col>
         <v-col cols="12" sm="4">
-          <v-card border flat class="rounded-lg pa-4 bg-primary-lighten-5 border-primary">
+          <v-card border flat class="rounded-md pa-4 bg-primary-lighten-5 border-primary">
             <div class="text-caption font-weight-bold text-primary">عدد الفواتير</div>
             <div class="text-h4 font-weight-black text-primary">{{ summary.total_invoices }}</div>
           </v-card>
         </v-col>
         <v-col cols="12" sm="4">
-          <v-card border flat class="rounded-lg pa-4 bg-info-lighten-5 border-info">
+          <v-card border flat class="rounded-md pa-4 bg-info-lighten-5 border-info">
             <div class="text-caption font-weight-bold text-info">قطع مباعة</div>
             <div class="text-h4 font-weight-black text-info">{{ summary.total_items_sold || 0 }}</div>
           </v-card>

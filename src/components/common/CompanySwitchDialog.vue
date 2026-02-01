@@ -18,7 +18,7 @@
           density="comfortable"
           flat
           hide-details
-          rounded="lg"
+          rounded="md"
           class="search-field"
         />
       </div> -->
@@ -38,7 +38,7 @@
             >
               <div class="d-flex pa-3 align-start">
                 <!-- Company Logo -->
-                <v-avatar :size="mobile ? 48 : 64" rounded="lg" color="grey-lighten-4" :class="[mobile ? 'me-2' : 'me-4', 'border-thin']">
+                <v-avatar :size="mobile ? 48 : 64" rounded="md" color="grey-lighten-4" :class="[mobile ? 'me-2' : 'me-4', 'border-thin']">
                   <v-img v-if="company.logo" :src="company.logo" contain />
                   <v-icon v-else icon="ri-building-line" color="primary" :size="mobile ? 24 : 32" />
                 </v-avatar>

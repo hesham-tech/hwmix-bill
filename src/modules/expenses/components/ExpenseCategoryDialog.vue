@@ -21,7 +21,7 @@
 
       <v-divider class="mb-4" />
 
-      <v-list density="compact" class="border rounded-lg">
+      <v-list density="compact" class="border rounded-md">
         <v-list-item v-for="cat in categories" :key="cat.id" class="px-3">
           <template #prepend>
             <v-icon icon="ri-price-tag-3-line" size="small" color="primary" class="me-3" />

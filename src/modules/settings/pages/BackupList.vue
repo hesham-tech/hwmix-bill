@@ -11,7 +11,7 @@
       </div>
     </div>
 
-    <v-card rounded="xl" elevation="2">
+    <v-card rounded="md" elevation="2">
       <v-card-text class="pa-0">
         <v-data-table
           :headers="headers"
@@ -75,7 +75,7 @@
 
     <!-- Settings Dialog -->
     <v-dialog v-model="settingsDialog" max-width="500" persistent>
-      <v-card rounded="xl">
+      <v-card rounded="md">
         <v-card-title class="pa-6 pb-2">
           <h3 class="text-h5 font-weight-bold">إعدادات النسخ التلقائي</h3>
         </v-card-title>
@@ -98,7 +98,7 @@
 
     <!-- Restore Confirmation Dialog -->
     <v-dialog v-model="restoreDialog" max-width="600">
-      <v-card border="error md" rounded="xl">
+      <v-card border="error md" rounded="md">
         <v-card-title class="pa-6 pb-2 text-error d-flex align-center">
           <v-icon icon="ri-error-warning-line" class="me-2" />
           تحذير: استعادة النظام
@@ -130,7 +130,7 @@
 
     <!-- Delete Confirmation Dialog -->
     <v-dialog v-model="deleteDialog" max-width="400">
-      <v-card rounded="xl">
+      <v-card rounded="md">
         <v-card-title class="pa-6 pb-2">حذف نسخة احتياطية</v-card-title>
         <v-card-text class="pa-6 pt-2"> هل أنت متأكد من حذف هذا الملف؟ لن تتمكن من استعادة البيانات منه لاحقاً. </v-card-text>
         <v-card-actions class="pa-6">

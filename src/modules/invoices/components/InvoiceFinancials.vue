@@ -1,6 +1,10 @@
 <template>
-  <v-card class="rounded-lg sticky-summary pt-4 border-dashed mb-6" prepend-icon="ri-calculator-line" title="ملخص الحسابات">
-    <v-card-text>
+  <v-card class="rounded-md sticky-summary pt-0 pb-0 border-dashed mb-3 shadow-sm">
+    <div class="pa-2 d-flex align-center border-b border-dashed mb-1">
+      <v-icon icon="ri-calculator-line" color="primary" class="me-2" size="small" />
+      <span class="text-subtitle-2 font-weight-bold">ملخص الحسابات</span>
+    </div>
+    <v-card-text class="pa-2 pt-1">
       <v-row dense>
         <!-- Row 1: Gross & Item Discount -->
         <v-col cols="6" class="mb-1">
@@ -17,8 +21,8 @@
         </v-col>
 
         <!-- Row 2: Extra Discount -->
-        <v-col cols="12" class="mb-2">
-          <div class="d-flex justify-space-between align-center py-1 px-2 bg-grey-lighten-4 rounded">
+        <v-col cols="12" class="mb-1">
+          <div class="d-flex justify-space-between align-center py-0 px-2 bg-grey-lighten-4 rounded compact-row">
             <span class="text-secondary text-body-2">خصم إضافي</span>
             <AppInput
               :model-value="modelValue.header_discount"
@@ -32,10 +36,10 @@
           </div>
         </v-col>
 
-        <v-divider class="border-dashed my-2 w-100" />
+        <v-divider class="border-dashed my-1 w-100" />
 
         <!-- Row 3: Tax Section (Rate + Switch + Value) -->
-        <v-col cols="12" class="mb-2">
+        <v-col cols="12" class="mb-1">
           <v-row dense align="center">
             <v-col cols="4">
               <AppInput
@@ -69,13 +73,13 @@
           </v-row>
         </v-col>
 
-        <v-divider class="border-opacity-50 my-2 w-100" />
+        <v-divider class="border-opacity-50 my-1 w-100" />
 
         <!-- Row 4: Net Amount -->
-        <v-col cols="12" class="mb-3">
-          <div class="d-flex justify-space-between align-center bg-primary-lighten-5 pa-3 rounded-lg border border-primary-lighten-3">
-            <span class="text-subtitle-1 font-weight-bold text-primary">صافي الفاتورة</span>
-            <span class="text-h5 font-weight-black text-primary">{{ formatCurrency(financials.net_amount) }}</span>
+        <v-col cols="12" class="mb-2">
+          <div class="d-flex justify-space-between align-center bg-primary-lighten-5 pa-2 rounded-md border border-primary-lighten-3">
+            <span class="text-body-1 font-weight-bold text-primary">صافي الفاتورة</span>
+            <span class="text-h6 font-weight-black text-primary">{{ formatCurrency(financials.net_amount) }}</span>
           </div>
         </v-col>
 
@@ -96,11 +100,11 @@
         </v-col>
       </v-row>
 
-      <v-divider class="my-6" />
+      <v-divider class="my-2" />
 
-      <div class="d-flex align-center mb-4">
-        <v-icon icon="ri-wallet-3-line" color="primary" class="me-2" />
-        <h3 class="text-h6 font-weight-bold mb-0">بيانات الدفع</h3>
+      <div class="d-flex align-center mb-2">
+        <v-icon icon="ri-wallet-3-line" color="primary" class="me-2" size="small" />
+        <h3 class="text-subtitle-1 font-weight-bold mb-0">بيانات الدفع</h3>
       </div>
 
       <v-row dense class="mx-0">
@@ -125,10 +129,10 @@
         </v-col>
 
         <v-col cols="12">
-          <v-alert variant="tonal" :color="financials.remaining_amount <= 0 ? 'success' : 'error'" class="mb-4 rounded-lg" density="compact">
-            <div class="d-flex justify-space-between align-center w-100">
-              <span class="text-body-2 font-weight-bold">المبلغ المتبقي</span>
-              <span class="text-h6 font-weight-black">
+          <v-alert variant="tonal" :color="financials.remaining_amount <= 0 ? 'success' : 'error'" class="mb-1 rounded-md" density="compact">
+            <div class="d-flex justify-space-between align-center w-100 py-0">
+              <span class="text-caption font-weight-bold">المبلغ المتبقي</span>
+              <span class="text-body-2 font-weight-black">
                 {{ formatCurrency(financials.remaining_amount) }}
               </span>
             </div>

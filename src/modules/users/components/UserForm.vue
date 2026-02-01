@@ -33,7 +33,7 @@
           v-if="lookupResult && !isEditMode"
           type="info"
           variant="tonal"
-          class="mb-6 rounded-lg border-primary animate__animated animate__fadeIn"
+          class="mb-6 rounded-md border-primary animate__animated animate__fadeIn"
           prepend-icon="ri-user-shared-line"
         >
           <div class="d-flex align-center justify-space-between flex-wrap gap-2">
@@ -139,7 +139,7 @@
           <v-card
             variant="tonal"
             :color="form.is_active ? 'success' : 'error'"
-            class="pa-2 rounded-lg d-flex align-center justify-space-between"
+            class="pa-2 rounded-md d-flex align-center justify-space-between"
             height="56"
           >
             <span class="ms-2 font-weight-bold">{{ form.is_active ? 'المستخدم نشط' : 'المستخدم معطل' }}</span>
@@ -308,8 +308,6 @@ const form = ref({
 delete form.value.roles;
 delete form.value.permissions;
 delete form.value.direct_permissions;
-delete form.value.first_name;
-delete form.value.last_name;
 
 onMounted(async () => {
   if (globalUserStore.isAdmin) {
@@ -365,8 +363,8 @@ watch(
   () => props.modelValue,
   newVal => {
     if (newVal) {
-      // Sanitize incoming data: remove roles, permissions and legacy name fields
-      const { roles, permissions, direct_permissions, first_name, last_name, ...cleanData } = newVal;
+      // Sanitize incoming data: remove roles and permissions
+      const { roles, permissions, direct_permissions, ...cleanData } = newVal;
 
       form.value = {
         ...form.value,

@@ -62,11 +62,11 @@
         <!-- Invoice Details -->
         <v-col cols="12" md="8">
           <!-- Customer Info -->
-          <AppCard title="معلومات العميل" icon="ri-user-line" class="mb-4 mb-sm-6">
-            <div class="d-flex align-center flex-column flex-sm-row py-2" v-if="invoice.user">
+          <AppCard title="معلومات العميل" icon="ri-user-line" class="mb-4 mb-sm-6" rounded="md">
+            <div class="d-flex align-center flex-column flex-sm-row py-2" v-if="invoice.customer">
               <AppAvatar
-                :img-url="invoice.user.avatar_url"
-                :name="invoice.user.nickname || invoice.user.full_name"
+                :img-url="invoice.customer.avatar_url"
+                :name="invoice.customer.nickname || invoice.customer.full_name"
                 :size="mobile ? 80 : 64"
                 rounded="circle"
                 class="mb-4 mb-sm-0 me-sm-4 border shadow-sm"
@@ -74,19 +74,21 @@
               <v-row class="flex-grow-1 mx-0">
                 <v-col cols="12" sm="6" class="py-1 py-sm-2">
                   <div class="text-caption text-grey mb-0 mb-sm-1">الاسم / اللقب</div>
-                  <div :class="[mobile ? 'text-body-1' : 'text-h6', 'font-weight-bold']">{{ invoice.user.nickname || invoice.user.full_name }}</div>
+                  <div :class="[mobile ? 'text-body-1' : 'text-h6', 'font-weight-bold']">
+                    {{ invoice.customer.nickname || invoice.customer.full_name }}
+                  </div>
                 </v-col>
                 <v-col cols="12" sm="6" class="py-1 py-sm-2">
                   <div class="text-caption text-grey mb-0 mb-sm-1">رقم الهاتف</div>
-                  <AppPhone :phone="invoice.user.phone" />
+                  <AppPhone :phone="invoice.customer.phone" />
                 </v-col>
-                <v-col v-if="invoice.user.email" cols="12" sm="6" class="py-1 py-sm-2">
+                <v-col v-if="invoice.customer.email" cols="12" sm="6" class="py-1 py-sm-2">
                   <div class="text-caption text-grey mb-0 mb-sm-1">البريد الإلكتروني</div>
-                  <div class="font-weight-medium text-body-1">{{ invoice.user.email || '---' }}</div>
+                  <div class="font-weight-medium text-body-1">{{ invoice.customer.email || '---' }}</div>
                 </v-col>
-                <v-col v-if="invoice.user.position" cols="12" sm="6" class="py-1 py-sm-2">
+                <v-col v-if="invoice.customer.position" cols="12" sm="6" class="py-1 py-sm-2">
                   <div class="text-caption text-grey mb-0 mb-sm-1">المسمى الوظيفي / الموقع</div>
-                  <div class="font-weight-medium text-body-1">{{ invoice.user.position }}</div>
+                  <div class="font-weight-medium text-body-1">{{ invoice.customer.position }}</div>
                 </v-col>
               </v-row>
             </div>
@@ -94,7 +96,7 @@
           </AppCard>
 
           <!-- Items -->
-          <AppCard title="عناصر الفاتورة" icon="ri-list-check-2" class="mb-4 mb-sm-6" padding="0">
+          <AppCard title="عناصر الفاتورة" icon="ri-list-check-2" class="mb-4 mb-sm-6" padding="0" rounded="md">
             <!-- Desktop Table -->
             <v-table v-if="!mobile" class="invoice-items-table">
               <thead>
@@ -160,7 +162,7 @@
 
             <!-- Mobile Cards -->
             <div v-else class="pa-2">
-              <v-card v-for="item in invoice.items" :key="'m-' + item.id" border flat class="mb-2 rounded-lg bg-grey-lighten-5">
+              <v-card v-for="item in invoice.items" :key="'m-' + item.id" border flat class="mb-2 rounded-md bg-grey-lighten-5">
                 <div class="pa-3">
                   <div class="d-flex align-center gap-2 mb-3">
                     <AppAvatar
@@ -168,7 +170,7 @@
                       :img-url="item.primary_image_url"
                       :name="item.name"
                       size="44"
-                      rounded="lg"
+                      rounded="md"
                       class="border"
                       type="product"
                     />
@@ -215,7 +217,7 @@
           </AppCard>
 
           <!-- Payment History -->
-          <AppCard title="سجل المدفوعات" icon="ri-history-line">
+          <AppCard title="سجل المدفوعات" icon="ri-history-line" class="mb-4 mb-sm-6" rounded="md">
             <template #actions>
               <AppButton
                 v-if="invoice.payment_status !== 'paid' && can(PERMISSIONS.PAYMENTS_CREATE)"
@@ -223,7 +225,7 @@
                 prepend-icon="ri-add-line"
                 size="small"
                 class="no-print"
-                @click="router.push({ path: '/payments/create', query: { invoice_id: invoice.id } })"
+                @click="router.push({ path: '/app/payments/create', query: { invoice_id: invoice.id } })"
               >
                 إضافة دفعة
               </AppButton>
@@ -248,12 +250,43 @@
             </v-list>
             <div v-else class="text-center py-6 text-grey">لا توجد مدفوعات مسجلة لهذه الفاتورة.</div>
           </AppCard>
+
+          <!-- Installment Schedule Table (If Installment Type) -->
+          <AppCard
+            v-if="invoice.installment_plan && invoice.installment_plan.installments?.length"
+            title="جدول الأقساط"
+            icon="ri-calendar-schedule-line"
+            class="mb-4 mb-sm-6"
+            padding="0"
+            rounded="md"
+          >
+            <InstallmentsTable
+              :items="invoice.installment_plan.installments"
+              :show-customer="false"
+              :show-plan="false"
+              :show-actions="false"
+              hide-pagination
+              class="border-0"
+            />
+            <v-divider />
+            <div class="pa-4 d-flex justify-end">
+              <AppButton
+                color="primary"
+                variant="tonal"
+                size="small"
+                prepend-icon="ri-external-link-line"
+                @click="router.push(`/app/installment-plans/${invoice.installment_plan.id}`)"
+              >
+                إدارة الخطة بالكامل
+              </AppButton>
+            </div>
+          </AppCard>
         </v-col>
 
         <!-- Summary -->
         <v-col cols="12" md="4">
           <!-- Status -->
-          <AppCard title="الحالة والمتابعة" icon="ri-settings-4-line" class="mb-6">
+          <AppCard title="الحالة والمتابعة" icon="ri-settings-4-line" class="mb-6" rounded="md">
             <div class="d-flex flex-column gap-4">
               <div>
                 <div class="text-caption text-grey mb-1">حالة الفاتورة العامة</div>
@@ -285,7 +318,7 @@
           </AppCard>
 
           <!-- Totals -->
-          <AppCard title="الملخص المالي" icon="ri-money-dollar-box-line">
+          <AppCard title="الملخص المالي" icon="ri-money-dollar-box-line" rounded="md">
             <div class="d-flex flex-column gap-2 mb-4">
               <div class="d-flex justify-space-between text-body-2">
                 <span class="text-grey">المجموع الإجمالي (قبل الخصم):</span>
@@ -308,7 +341,7 @@
               <span class="text-h5 font-weight-black text-primary">{{ formatCurrency(invoice.net_amount) }}</span>
             </div>
 
-            <div class="d-flex flex-column gap-2 mb-4 p-3 rounded-lg bg-grey-lighten-4 border-s-dark">
+            <div class="d-flex flex-column gap-2 mb-4 p-3 rounded-md bg-grey-lighten-4 border-s-dark">
               <div class="d-flex justify-space-between text-body-2">
                 <span class="text-grey">رصيد سابق:</span>
                 <span :class="parseFloat(invoice.previous_balance) < 0 ? 'text-error' : 'text-success'" class="font-weight-bold">
@@ -323,7 +356,7 @@
 
             <v-divider class="mb-4" />
 
-            <div class="d-flex flex-column gap-2 p-3 rounded-lg bg-grey-lighten-4 border">
+            <div class="d-flex flex-column gap-2 p-3 rounded-md bg-grey-lighten-4 border">
               <div class="d-flex justify-space-between text-body-2">
                 <span class="text-grey">ما تم تحصيله:</span>
                 <span class="font-weight-bold text-info text-body-1">{{ formatCurrency(invoice.paid_amount) }}</span>
@@ -343,7 +376,7 @@
             </div>
 
             <!-- Initial Snapshot (Read Only) -->
-            <div class="mt-4 p-3 rounded-lg bg-blue-grey-lighten-5">
+            <div class="mt-4 p-3 rounded-md bg-blue-grey-lighten-5">
               <div class="text-caption text-grey mb-1 font-weight-bold">حالة الفاتورة عند الإنشاء</div>
               <div class="d-flex justify-space-between text-caption border-bottom pb-1 mb-1">
                 <span>المدفوع الابتدائي:</span>
@@ -356,7 +389,7 @@
             </div>
 
             <!-- Installment Plan Context -->
-            <div v-if="invoice.installment_plan" class="mt-4 pa-3 rounded-lg border-primary border-dashed border-sm bg-primary-lighten-5">
+            <div v-if="invoice.installment_plan" class="mt-4 pa-3 rounded-md border-primary border-dashed border-sm bg-primary-lighten-5">
               <div class="text-primary font-weight-bold mb-1 d-flex align-center">
                 <v-icon icon="ri-calendar-todo-line" size="small" class="me-2" />
                 خطة تقسيط نشطة
@@ -390,17 +423,14 @@ import { useApi } from '@/composables/useApi';
 import { usePermissions } from '@/composables/usePermissions';
 import { usePrintExport } from '@/composables/usePrintExport';
 import { useUserStore } from '@/stores/user';
-import AppButton from '@/components/common/AppButton.vue';
-import AppCard from '@/components/common/AppCard.vue';
-import AppDialog from '@/components/common/AppDialog.vue';
-import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
+import InstallmentsTable from '@/modules/installments/components/InstallmentsTable.vue';
 import { toast } from 'vue3-toastify';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 
 const router = useRouter();
 const route = useRoute();
-const { can } = usePermissions();
+const { can, canAny } = usePermissions();
 const { mobile } = useDisplay();
 const { printElement } = usePrintExport();
 const userStore = useUserStore();
@@ -420,8 +450,8 @@ const statusOptions = [
   { title: 'ملغاة', value: 'canceled' },
 ];
 
-const goBack = () => router.push('/invoices');
-const editInvoice = () => router.push(`/invoices/${route.params.id}/edit`);
+const goBack = () => router.push('/app/invoices');
+const editInvoice = () => router.push(`/app/invoices/${route.params.id}/edit`);
 
 const printInvoice = () => {
   printElement('invoice-content', `فاتورة #${invoice.value?.invoice_number}`);
@@ -431,7 +461,7 @@ const deleteInvoice = async () => {
   try {
     await invoiceApi.remove(route.params.id, { successMessage: 'تم حذف الفاتورة' });
     userStore.fetchUser();
-    router.push('/invoices');
+    router.push('/app/invoices');
   } finally {
     showDeleteDialog.value = false;
   }
@@ -455,7 +485,8 @@ const getStatusColor = status => {
     draft: 'grey',
     confirmed: 'primary',
     paid: 'success',
-    partially_paid: 'warning',
+    partially_paid: 'info',
+    canceled: 'error',
     canceled: 'error',
   };
   return colors[status] || 'grey';
@@ -466,6 +497,7 @@ const getStatusLabel = status => {
     draft: 'مسودة',
     confirmed: 'مؤكدة',
     paid: 'مدفوعة',
+    partially_paid: 'مدفوعة جزئياً',
     canceled: 'ملغاة',
   };
   return labels[status] || status;
@@ -487,10 +519,27 @@ const getPaymentStatusLabel = status => {
   return labels[status] || status;
 };
 
+const getDueDateClass = (dueDate, status) => {
+  if (status === 'paid') return 'text-success';
+  if (status === 'canceled') return 'text-grey';
+  const today = new Date();
+  const due = new Date(dueDate);
+  if (due < today) return 'text-error font-weight-bold';
+  return 'text-grey-darken-1';
+};
+
 onMounted(async () => {
   try {
     const response = await invoiceApi.getById(route.params.id);
     invoice.value = response.data;
+
+    // Load full plan if it exists to get installments
+    if (invoice.value.installment_plan?.id) {
+      const planApi = useApi('/api/installment-plans');
+      const planResponse = await planApi.getById(invoice.value.installment_plan.id);
+      invoice.value.installment_plan = planResponse.data;
+    }
+
     selectedStatus.value = invoice.value.status;
   } finally {
     loading.value = false;
