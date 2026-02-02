@@ -1,7 +1,8 @@
 import { printService } from '../core/PrintService';
 import { useUserStore } from '@/stores/user';
+import { useNotifications } from '@/plugins/notification';
 import { computed } from 'vue';
-import type { PrintOptions, InstallmentReceiptData, InvoiceData } from '../core/types';
+import type { PrintOptions, InstallmentReceiptData, InvoiceData, PrintResult } from '../core/types';
 
 /**
  * Composable for easy print access
@@ -9,6 +10,7 @@ import type { PrintOptions, InstallmentReceiptData, InvoiceData } from '../core/
  */
 export function usePrint() {
     const userStore = useUserStore();
+    const { notify } = useNotifications();
 
     const printFormat = computed(() =>
         userStore.currentCompany?.print_settings?.print_format || 'thermal'
@@ -32,13 +34,22 @@ export function usePrint() {
         type: string,
         data: T,
         options: PrintOptions = {}
-    ): Promise<void> => {
-        return printService.print(type, data, {
+    ): Promise<PrintResult> => {
+        const result = await printService.print(type, data, {
             format: printFormat.value,
             logo: companyLogo.value,
             companyName: companyName.value,
             ...options
         });
+
+        if (!result.success) {
+            notify(result.error || 'حدث خطأ أثناء محاولة الطباعة', {
+                type: 'error',
+                body: `قالب: ${type}`
+            });
+        }
+
+        return result;
     };
 
     /**
@@ -48,7 +59,7 @@ export function usePrint() {
     const printInstallment = async (
         data: InstallmentReceiptData,
         options: PrintOptions = {}
-    ): Promise<void> => {
+    ): Promise<PrintResult> => {
         return print('installment', data, options);
     };
 
@@ -59,7 +70,7 @@ export function usePrint() {
     const printInvoice = async (
         data: InvoiceData,
         options: PrintOptions = {}
-    ): Promise<void> => {
+    ): Promise<PrintResult> => {
         return print('invoice', data, options);
     };
 
@@ -67,9 +78,9 @@ export function usePrint() {
         print,
         printInstallment,
         printInvoice,
-        // Expose settings for inspection
-        printFormat: printFormat.value,
-        companyLogo: companyLogo.value,
-        companyName: companyName.value,
+        // Expose settings for inspection (Reactive)
+        printFormat,
+        companyLogo,
+        companyName,
     };
 }

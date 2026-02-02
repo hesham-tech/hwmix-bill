@@ -19,8 +19,9 @@ export function useDataTable(fetchFunction, options = {}) {
     initialPerPage = 10,
     initialSortBy = 'id',
     initialSortOrder = 'desc',
-    syncWithUrl = true, // مزامنة مع URL query params
-    immediate = true, // جلب البيانات فوراً عند التحميل
+    initialFilters = {}, // ✅ دعم فلاتر أولية
+    syncWithUrl = true,
+    immediate = true,
   } = options;
 
   // ✅ الحالة (State)
@@ -28,9 +29,14 @@ export function useDataTable(fetchFunction, options = {}) {
   const loading = ref(false);
   const error = ref(null);
 
-  // Pagination
-  const currentPage = ref(syncWithUrl ? parseInt(route.query.page) || initialPage : initialPage);
-  const perPage = ref(syncWithUrl ? parseInt(route.query.per_page) || initialPerPage : initialPerPage);
+  // Pagination safety
+  const parseNum = (val, fallback) => {
+    const n = parseInt(val);
+    return isNaN(n) || n < 1 ? fallback : n;
+  };
+
+  const currentPage = ref(syncWithUrl ? parseNum(route.query.page, initialPage) : initialPage);
+  const perPage = ref(syncWithUrl ? parseNum(route.query.per_page, initialPerPage) : initialPerPage);
   const total = ref(0);
   const lastPage = ref(1);
 
@@ -38,9 +44,20 @@ export function useDataTable(fetchFunction, options = {}) {
   const sortBy = ref(syncWithUrl ? route.query.sort_by || initialSortBy : initialSortBy);
   const sortOrder = ref(syncWithUrl ? route.query.sort_order || initialSortOrder : initialSortOrder);
 
-  // Search & Filters
+  // Search & Filters with parsing safety
   const search = ref(syncWithUrl ? route.query.search || '' : '');
-  const filters = ref(syncWithUrl ? JSON.parse(route.query.filters || '{}') : {});
+
+  const getInitialFilters = () => {
+    if (!syncWithUrl || !route.query.filters) return { ...initialFilters };
+    try {
+      return { ...initialFilters, ...JSON.parse(route.query.filters) };
+    } catch (e) {
+      console.warn('[DataTable] Failed to parse filters from URL:', e);
+      return { ...initialFilters };
+    }
+  };
+
+  const filters = ref(getInitialFilters());
 
   // Selection
   const selectedIds = ref([]);
@@ -50,7 +67,10 @@ export function useDataTable(fetchFunction, options = {}) {
   const hasItems = computed(() => items.value.length > 0);
   const isEmpty = computed(() => !loading.value && items.value.length === 0);
   const hasSelection = computed(() => selectedIds.value.length > 0);
-  const totalPages = computed(() => Math.ceil(total.value / perPage.value));
+  const totalPages = computed(() => {
+    const pp = perPage.value || 10;
+    return Math.max(1, Math.ceil(total.value / pp));
+  });
 
   // ✅ Vuetify Compatible Sorting (v-model:sort-by)
   const sortByVuetify = computed({
@@ -117,9 +137,13 @@ export function useDataTable(fetchFunction, options = {}) {
         items.value = newData;
       }
 
-      total.value = response.meta?.total || response.total || 0;
-      lastPage.value = response.meta?.last_page || response.last_page || 1;
-      currentPage.value = response.meta?.current_page || response.current_page || 1;
+      total.value = response.meta?.total ?? response.total ?? 0;
+      lastPage.value = response.meta?.last_page ?? response.last_page ?? 1;
+
+      const newPage = response.meta?.current_page ?? response.current_page ?? 1;
+      if (currentPage.value !== newPage) {
+        currentPage.value = newPage;
+      }
 
       // مزامنة مع URL
       if (syncWithUrl) {
@@ -138,8 +162,8 @@ export function useDataTable(fetchFunction, options = {}) {
    */
   const updateUrl = () => {
     const query = {
-      page: currentPage.value,
-      per_page: perPage.value,
+      page: String(currentPage.value),
+      per_page: String(perPage.value),
       sort_by: sortBy.value,
       sort_order: sortOrder.value,
     };
@@ -152,7 +176,18 @@ export function useDataTable(fetchFunction, options = {}) {
       query.filters = JSON.stringify(filters.value);
     }
 
-    router.replace({ query });
+    // ✅ تجنب التحديث إذا كان كائن الـ query مطابقاً تماماً للحالي
+    const currentQuery = route.query;
+    const isSame =
+      Object.keys(query).length === Object.keys(currentQuery).length && Object.keys(query).every(key => query[key] === currentQuery[key]);
+
+    if (!isSame) {
+      router.replace({ query }).catch(err => {
+        if (err.name !== 'NavigationDuplicated') {
+          console.error('DataTable URL update error:', err);
+        }
+      });
+    }
   };
 
   /**
@@ -220,8 +255,10 @@ export function useDataTable(fetchFunction, options = {}) {
   /**
    * تطبيق الفلاتر
    */
-  const applyFilters = newFilters => {
-    filters.value = { ...newFilters };
+  const applyFilters = (newFilters = null) => {
+    if (newFilters !== null && newFilters !== undefined) {
+      filters.value = { ...filters.value, ...newFilters };
+    }
     currentPage.value = 1;
     fetchData();
   };

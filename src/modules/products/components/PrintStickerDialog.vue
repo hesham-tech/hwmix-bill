@@ -110,8 +110,10 @@ const open = async productId => {
 
   try {
     const res = await productService.getOne(productId);
-    product.value = res.data;
-    variants.value = res.data.variants || [];
+    const data = Array.isArray(res.data) ? res.data[0] : res.data;
+
+    product.value = data;
+    variants.value = data?.variants || [];
 
     if (variants.value.length > 0) {
       selectedVariantId.value = variants.value[0].id;

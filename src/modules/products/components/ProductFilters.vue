@@ -49,7 +49,7 @@
 
       <v-row dense class="mt-2 pb-2">
         <v-col cols="6">
-          <AppButton block prepend-icon="ri-filter-line" size="small" @click="emit('apply')">تطبيق</AppButton>
+          <AppButton block prepend-icon="ri-filter-line" size="small" @click="apply">تطبيق</AppButton>
         </v-col>
         <v-col cols="6">
           <AppButton block prepend-icon="ri-refresh-line" size="small" variant="outlined" color="secondary" @click="resetAllFilters">
@@ -83,6 +83,10 @@ const hasActiveFilters = computed(() => {
   });
 });
 
+const apply = () => {
+  emit('apply', filters.value);
+};
+
 const resetAllFilters = () => {
   filters.value = {
     ...filters.value,
@@ -91,7 +95,7 @@ const resetAllFilters = () => {
     active: null,
     featured: null,
   };
-  emit('apply');
+  emit('apply', filters.value);
 };
 </script>
 

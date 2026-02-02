@@ -1,23 +1,23 @@
 <template>
   <div class="sticker-page">
-    <div v-for="(item, index) in items" :key="index" class="product-sticker">
-      <div class="sticker-content">
-        <div class="company-name">{{ companyName }}</div>
-        <div class="product-name">{{ item.productName }}</div>
-        <div class="barcode-container">
-          <vue-barcode :value="item.barcode" :options="barcodeOptions" tag="svg" />
-        </div>
-        <div class="price-container">
-          <span class="price-label">السعر:</span>
-          <span class="price-value">{{ item.price }} {{ currency }}</span>
-        </div>
+    <div v-for="(item, index) in preparedItems" :key="item.id" class="product-sticker">
+      <div class="company-name">{{ companyName || 'Hwnix Business' }}</div>
+      <div class="product-name">{{ item.productName }}</div>
+      <div class="barcode-wrapper">
+        <img :id="`bc-img-${index}`" :src="item.barcodeImage" alt="barcode" class="barcode-img" />
+        <div class="barcode-text">{{ item.barcode + '/' + Math.trunc(item.price) }}</div>
       </div>
+      <!-- <div class="price-box">
+        <span class="price-val">{{ formatCurrency(item.price) }}</span>
+      </div> -->
     </div>
   </div>
 </template>
 
 <script setup>
-import VueBarcode from 'vue3-barcode';
+import { computed } from 'vue';
+import JsBarcode from 'jsbarcode';
+import { formatCurrency } from '@/utils/formatters';
 
 const props = defineProps({
   items: { type: Array, required: true },
@@ -26,83 +26,48 @@ const props = defineProps({
   printFormat: { type: String, default: 'sticker' },
 });
 
-const barcodeOptions = {
-  width: 1.5,
-  height: 40,
-  displayValue: true,
-  fontSize: 12,
-  margin: 0,
-  background: 'transparent',
-};
+// Move cache outside for persistence across multiple mounts/print jobs
+const barcodeCache = new Map();
+
+function generateBarcodeBase64(value) {
+  if (!value) return '';
+
+  // Return from cache if already generated
+  if (barcodeCache.has(value)) {
+    return barcodeCache.get(value);
+  }
+
+  const canvas = document.createElement('canvas');
+  try {
+    JsBarcode(canvas, value, {
+      format: 'CODE128',
+      width: 2,
+      height: 60,
+      displayValue: false,
+      margin: 0,
+      background: 'transparent',
+      lineColor: '#000',
+    });
+
+    const dataUrl = canvas.toDataURL('image/png');
+    barcodeCache.set(value, dataUrl);
+    return dataUrl;
+  } catch (e) {
+    console.error('Barcode generation failed:', e);
+    return '';
+  }
+}
+
+const preparedItems = computed(() => {
+  // ✅ Safety: Limit batch rendering to 500 stickers to prevent browser freeze
+  const safeItems = props.items.slice(0, 500);
+
+  return safeItems.map(item => ({
+    ...item,
+    barcodeImage: generateBarcodeBase64(item.barcode),
+  }));
+});
 </script>
-
 <style scoped>
-.product-sticker {
-  width: 40mm;
-  height: 25mm;
-  padding: 1mm;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  direction: rtl;
-  font-family: 'Inter', sans-serif;
-  overflow: hidden;
-  background: white;
-  page-break-after: always;
-}
-
-.sticker-content {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-
-.company-name {
-  font-size: 8px;
-  font-weight: bold;
-  opacity: 0.8;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.product-name {
-  font-size: 10px;
-  font-weight: bold;
-  line-height: 1.1;
-  max-height: 2.2em;
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
-.barcode-container {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  margin: 1px 0;
-}
-
-.barcode-container svg {
-  max-width: 100%;
-  height: auto;
-}
-
-.price-container {
-  border-top: 0.5px dashed #ccc;
-  padding-top: 1px;
-  display: flex;
-  justify-content: center;
-  gap: 3px;
-  font-size: 11px;
-  font-weight: black;
-}
-
-.price-value {
-  color: #000;
-}
+/* Styles are managed via TemplateRegistry in templates/product/index.ts */
 </style>

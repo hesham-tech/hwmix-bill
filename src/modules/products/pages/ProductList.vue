@@ -174,9 +174,17 @@
                   {{ new Date(item.created_at).toLocaleDateString('ar-EG') }}
                 </div>
               </template>
-              <template #extra-actions="{ item }">
+              <template #extra-actions="{ item, inMenu }">
+                <!-- Print Labels Action -->
+                <v-list-item
+                  v-if="inMenu && can(PERMISSIONS.PRODUCTS_PRINT_LABELS)"
+                  prepend-icon="ri-ticket-line"
+                  title="طباعة ملصقات"
+                  class="text-warning"
+                  @click="stickerDialog?.open(item.id)"
+                />
                 <AppButton
-                  v-if="can(PERMISSIONS.PRODUCTS_PRINT_LABELS)"
+                  v-else-if="can(PERMISSIONS.PRODUCTS_PRINT_LABELS)"
                   icon="ri-ticket-line"
                   variant="text"
                   color="warning"
@@ -227,19 +235,13 @@
               </v-card>
             </v-col>
             <v-col cols="12" class="d-flex justify-center mt-4">
-              <v-pagination
-                v-model="page"
-                :length="Math.ceil(totalItems / itemsPerPage)"
-                density="comfortable"
-                rounded="pill"
-                @update:model-value="refresh"
-              />
+              <v-pagination v-model="page" :length="totalPages" density="comfortable" rounded="pill" @update:model-value="refresh" />
             </v-col>
           </v-row>
         </v-col>
 
         <!-- Sidebar Column (Filters) -->
-        <v-col cols="12" lg="3" order="0" order-lg="2">
+        <v-col cols="12" lg="4" order="0" order-lg="2">
           <div class="sticky-sidebar">
             <div class="d-flex align-center justify-space-between mb-4">
               <h3 class="text-subtitle-1 font-weight-bold d-flex align-center gap-2">
@@ -318,6 +320,7 @@ const {
   currentPage: page,
   perPage: itemsPerPage,
   total: totalItems,
+  totalPages,
   search,
   filters,
   sortBy,
@@ -330,6 +333,7 @@ const {
   syncWithUrl: true,
   initialSortBy: 'created_at',
   initialSortOrder: 'desc',
+  initialFilters: { ...productStore.filters }, // ✅ مزامنة الفلاتر الأولية من المتجر
   immediate: false,
 });
 
@@ -364,12 +368,11 @@ const confirmDelete = async item => {
   }
 };
 
-// Debounce search
-let searchTimeout;
-const debouncedSearch = () => {
+// Debounce search - now using the composable's applyFilters safely
+const debouncedSearch = val => {
   clearTimeout(searchTimeout);
   searchTimeout = setTimeout(() => {
-    applyFilters();
+    applyFilters(); // will use current search.value
   }, 500);
 };
 

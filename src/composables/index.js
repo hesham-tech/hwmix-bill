@@ -2,13 +2,13 @@ import { ref, computed } from 'vue';
 import { toast } from 'vue3-toastify';
 
 /**
- * useApi Composable
- * للتعامل مع API calls بشكل reactive
+ * useServiceApi Composable
+ * للتعامل مع API calls بشكل reactive باستخدام service method
  *
  * @param {Function} serviceMethod - الدالة من الـ service
  * @param {Object} options - { immediate, onSuccess, onError }
  */
-export function useApi(serviceMethod, options = {}) {
+export function useServiceApi(serviceMethod, options = {}) {
   const { immediate = false, onSuccess, onError } = options;
 
   const data = ref(null);
@@ -220,3 +220,11 @@ export function useLoading(initialState = false) {
     withLoading,
   };
 }
+
+// Export all standalone composables
+export * from './useApi';
+export * from './useDataTable';
+export * from './useForm';
+export * from './usePermissions';
+export * from './usePrintExport';
+export * from './useInstallments';

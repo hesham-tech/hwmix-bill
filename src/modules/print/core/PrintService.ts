@@ -7,6 +7,8 @@ import type {
 } from './types';
 import { templateRegistry } from '../templates/TemplateRegistry';
 import { useUserStore } from '@/stores/user';
+import { useappState } from '@/stores/appState';
+import { PRINT_CONFIG } from './printConfig';
 
 /**
  * Core Print Service
@@ -23,63 +25,81 @@ class PrintService implements IPrintService {
         type: string,
         data: T,
         options: PrintOptions = {}
-    ): Promise<void> {
-        console.log('[PrintService] 🖨️ Print called:', { type, data, options });
-        // Get template from registry
-        const template = templateRegistry.get(type);
+    ): Promise<import('./types').PrintResult> {
+        const appState = useappState();
+        appState.isLoader = true;
 
-        if (!template) {
-            throw new Error(
-                `Print template "${type}" not found. Available templates: ${templateRegistry.list().join(', ')}`
+        try {
+            // Get template from registry
+            const template = templateRegistry.get(type);
+
+            if (!template) {
+                throw new Error(
+                    `قالب الطباعة "${type}" غير موجود. القوالب المتاحة: ${templateRegistry.list().join(', ')}`
+                );
+            }
+
+            // Get user store for company settings
+            const userStore = useUserStore();
+
+            // Merge options with defaults from company settings
+            const printFormat: PrintFormat = options.format ||
+                userStore.currentCompany?.print_settings?.print_format ||
+                (PRINT_CONFIG.DEFAULTS.FORMAT as PrintFormat);
+
+            const companyLogo = options.logo ||
+                userStore.currentCompany?.logo_url ||
+                userStore.currentCompany?.logo;
+
+            const companyName = options.companyName ||
+                userStore.currentCompany?.name ||
+                PRINT_CONFIG.DEFAULTS.COMPANY_NAME;
+
+            // Validate format is supported by template
+            if (!template.formats.includes(printFormat)) {
+                console.warn(
+                    `[PrintService] Format "${printFormat}" not supported by template "${type}". Supported: ${template.formats.join(', ')}`
+                );
+            }
+
+            // Transform data if transformer provided
+            const transformedData = template.transformData
+                ? template.transformData(data)
+                : data;
+
+            // Build print data
+            const printData = await this.buildPrintData(
+                template,
+                transformedData,
+                printFormat,
+                companyLogo,
+                companyName,
+                options.additionalCss
             );
+
+
+            // Trigger print
+            await this.triggerPrint(printData, options);
+
+            appState.isLoader = false;
+            return { success: true, type };
+        } catch (error: any) {
+            appState.isLoader = false;
+            console.error('[PrintService] ❌ Print failed:', error);
+
+            // Call error callback if provided
+            try {
+                options.onError?.(error);
+            } catch (cbError) {
+                console.error('[PrintService] Error in onError callback:', cbError);
+            }
+
+            return {
+                success: false,
+                error: error.message || 'حدث خطأ غير متوقع أثناء الطباعة',
+                type
+            };
         }
-
-        // Get user store for company settings
-        const userStore = useUserStore();
-
-        // Merge options with defaults from company settings
-        const printFormat: PrintFormat = options.format ||
-            userStore.currentCompany?.print_settings?.print_format ||
-            'thermal';
-
-        const companyLogo = options.logo ||
-            userStore.currentCompany?.logo_url ||
-            userStore.currentCompany?.logo;
-
-        const companyName = options.companyName ||
-            userStore.currentCompany?.name ||
-            '';
-
-        // Validate format is supported by template
-        if (!template.formats.includes(printFormat)) {
-            console.warn(
-                `[PrintService] Format "${printFormat}" not supported by template "${type}". Supported: ${template.formats.join(', ')}`
-            );
-        }
-
-        // Transform data if transformer provided
-        const transformedData = template.transformData
-            ? template.transformData(data)
-            : data;
-
-        // Build print data
-        const printData = await this.buildPrintData(
-            template,
-            transformedData,
-            printFormat,
-            companyLogo,
-            companyName,
-            options.additionalCss
-        );
-
-        console.log('[PrintService] 📄 Print data built:', {
-            htmlLength: printData.html?.length,
-            cssLength: printData.css?.length,
-            format: printData.format
-        });
-
-        // Trigger print
-        await this.triggerPrint(printData, options);
     }
 
     /**
@@ -95,7 +115,16 @@ class PrintService implements IPrintService {
     ): Promise<PrintData> {
         // Create temporary container
         const container = document.createElement('div');
-        container.style.display = 'none';
+        container.id = 'print-render-container-' + Date.now();
+        container.style.position = 'fixed';
+        container.style.top = '0';
+        container.style.left = '0';
+        container.style.width = '210mm';
+        container.style.height = 'auto'; // Important for long batches
+        container.style.background = 'white';
+        container.style.zIndex = '-9999';
+        container.style.opacity = '0.01';
+        container.style.pointerEvents = 'none';
         document.body.appendChild(container);
 
         try {
@@ -111,16 +140,55 @@ class PrintService implements IPrintService {
 
             app.mount(container);
 
-            // Wait for next tick to ensure rendering
-            await new Promise(resolve => setTimeout(resolve, 100));
+            // Event-driven Batch Verification: Monitor DOM for barcode image completion
+            const expectedCount = data.items?.length || 0;
 
-            // Get HTML (outerHTML to include wrapper with classes)
-            const element = container.querySelector('[id*="print"]') || container.firstElementChild;
+            if (expectedCount > 0 && template.requireVerification) {
+                await new Promise<void>((resolve) => {
+                    const timeout = setTimeout(() => {
+                        observer.disconnect();
+                        console.warn('[PrintService] ⚠️ Verification timeout. Proceeding with partially loaded content.');
+                        resolve();
+                    }, PRINT_CONFIG.VERIFICATION_TIMEOUT);
+
+                    const observer = new MutationObserver(() => {
+                        const readyCount = container.querySelectorAll('img[src^="data:image"]').length;
+                        if (readyCount >= expectedCount) {
+                            observer.disconnect();
+                            clearTimeout(timeout);
+                            resolve();
+                        }
+                    });
+
+                    observer.observe(container, {
+                        childList: true,
+                        subtree: true,
+                        attributes: true,
+                        attributeFilter: ['src']
+                    });
+
+                    // Initial check
+                    const initialCount = container.querySelectorAll('img[src^="data:image"]').length;
+                    if (initialCount >= expectedCount) {
+                        observer.disconnect();
+                        clearTimeout(timeout);
+                        resolve();
+                    }
+                });
+
+                // Final safety buffer for layout
+                await new Promise(resolve => setTimeout(resolve, PRINT_CONFIG.LAYOUT_SAFETY_DELAY));
+            }
+
+            // Get HTML
+            const element = container.querySelector('.sticker-page') || container.firstElementChild;
             const html = element?.outerHTML || container.innerHTML;
 
-            // Unmount and cleanup
+            // Cleanup
             app.unmount();
-            document.body.removeChild(container);
+            if (document.body.contains(container)) {
+                document.body.removeChild(container);
+            }
 
             // Combine styles
             const css = template.styles + (additionalCss || '');
@@ -128,10 +196,11 @@ class PrintService implements IPrintService {
             return {
                 html,
                 css,
-                format
+                format: template.formats[0]
             };
+
         } catch (error) {
-            // Cleanup on error
+            console.error('[PrintService] ❌ Print data construction failed:', error);
             if (document.body.contains(container)) {
                 document.body.removeChild(container);
             }
@@ -146,7 +215,6 @@ class PrintService implements IPrintService {
         printData: PrintData,
         options: PrintOptions
     ): Promise<void> {
-        console.log('[PrintService] 🚀 Dispatching trigger-print event...');
 
         // Emit custom event for PrintDriver to handle
         const event = new CustomEvent('trigger-print', {
@@ -157,7 +225,6 @@ class PrintService implements IPrintService {
         });
 
         window.dispatchEvent(event);
-        console.log('[PrintService] ✅ Event dispatched!');
 
         // Call callbacks
         try {

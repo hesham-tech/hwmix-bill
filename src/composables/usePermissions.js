@@ -47,5 +47,6 @@ export function usePermissions() {
     canAny,
     canAll,
     hasRole,
+    hasPermission: can,
   };
 }

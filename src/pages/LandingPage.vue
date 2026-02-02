@@ -20,13 +20,7 @@
       <div class="d-flex align-center gap-2">
         <div class="d-none d-sm-flex gap-2">
           <v-btn variant="text" color="primary" class="font-weight-bold" to="/register">إنشاء حساب</v-btn>
-          <v-btn
-            prepend-icon="ri-login-box-line"
-            color="primary"
-            variant="elevated"
-            class="rounded-pill px-6 font-weight-bold"
-            to="/login?type=customer"
-          >
+          <v-btn prepend-icon="ri-login-box-line" color="primary" variant="elevated" class="rounded-pill px-6 font-weight-bold" to="/login">
             دخول
           </v-btn>
         </div>
@@ -63,7 +57,7 @@
 
         <v-divider />
 
-        <v-btn color="primary" block variant="elevated" class="rounded-md mt-4" to="/login?type=customer">دخول</v-btn>
+        <v-btn color="primary" block variant="elevated" class="rounded-md mt-4" to="/login">دخول</v-btn>
         <v-btn color="primary" block variant="outlined" class="rounded-md" to="/register">إنشاء حساب</v-btn>
       </div>
     </v-navigation-drawer>
@@ -84,7 +78,7 @@
             اكتشف أحدث المنتجات من أفضل العلامات التجارية، واستمتع بنظام تقسيط مرن وواجهة إدارة فواتير احترافية مصممة خصيصاً لراحتك.
           </p>
           <div class="d-flex gap-4 justify-center flex-wrap slide-up-delay-3">
-            <v-btn size="x-large" color="primary" class="rounded-md px-12 font-weight-black elevation-8" to="/login?type=customer" height="56">
+            <v-btn size="x-large" color="primary" class="rounded-md px-12 font-weight-black elevation-8" to="/login" height="56">
               تصفح المتجر الآن
             </v-btn>
             <v-btn size="x-large" variant="outlined" color="primary" class="rounded-md px-12 font-weight-black" height="56" to="/register">

@@ -1,5 +1,3 @@
-// test
-
 import { createApp } from 'vue';
 import App from '@/App.vue';
 import { registerPlugins } from '@core/utils/plugins';
@@ -9,9 +7,6 @@ import setupAutoSelectOnFocus from './utils/auto-select-on-focus';
 // Styles
 import '@core/scss/template/index.scss';
 import '@layouts/styles/index.scss';
-
-// Initialize print system (register templates)
-import '@/modules/print';
 
 // // Create vue app
 // const app = createApp(App);
@@ -48,6 +43,13 @@ import '@/modules/print';
     app.directive('draggable', draggable);
   } catch (e) {
     console.warn('Failed to register draggable directive:', e);
+  }
+
+  // Initialize print system (register templates) after core initialization
+  try {
+    await import('@/modules/print');
+  } catch (e) {
+    console.warn('Failed to initialize print system:', e);
   }
 
   // Mount vue app

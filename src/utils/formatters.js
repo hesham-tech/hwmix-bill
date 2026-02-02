@@ -64,14 +64,12 @@ export const formatCurrency = (amount, currency = 'EGP') => {
 
   const formattedAmount = new Intl.NumberFormat('en-US', {
     style: 'decimal',
-    maximumFractionDigits: 0,
-  })
-    .format(amount)
-    .replace(/,/g, "'");
+    maximumFractionDigits: 2,
+  }).format(amount);
 
   const symbol = currency === 'EGP' ? 'ج' : currency;
 
-  return `${formattedAmount} ${symbol}`;
+  return `\u200E${formattedAmount} ${symbol}`;
 };
 
 /**
@@ -80,12 +78,12 @@ export const formatCurrency = (amount, currency = 'EGP') => {
 export const formatNumber = (number, decimals = 2) => {
   if (number === null || number === undefined) return '-';
 
-  return new Intl.NumberFormat('en-US', {
+  const formattedNumber = new Intl.NumberFormat('en-US', {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
-  })
-    .format(number)
-    .replace(/,/g, "'");
+  }).format(number);
+
+  return `\u200E${formattedNumber}`;
 };
 
 /**

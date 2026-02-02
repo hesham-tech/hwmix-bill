@@ -67,8 +67,8 @@
       </div>
 
       <div class="footer-note">
-        <p>شكراً لتعاملكم معنا</p>
-        <p class="print-date">طبع بتاريخ: {{ new Date().toLocaleString('ar-EG') }}</p>
+        <p>{{ PRINT_CONFIG.STRINGS.THANK_YOU }}</p>
+        <p class="print-date">{{ PRINT_CONFIG.STRINGS.PRINTED_AT }}: {{ new Date().toLocaleString('ar-EG') }}</p>
       </div>
     </div>
   </div>
@@ -76,6 +76,7 @@
 
 <script setup>
 import { formatCurrency, formatDate } from '@/utils/formatters';
+import { PRINT_CONFIG } from '@/modules/print/core/printConfig';
 
 const props = defineProps({
   paymentData: Object,

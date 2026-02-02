@@ -20,6 +20,9 @@ export interface PrintTemplate<T = any> {
 
     /** Optional data transformer function */
     transformData?: (data: T) => any;
+
+    /** Whether to wait for image/barcode verification before printing */
+    requireVerification?: boolean;
 }
 
 /**
@@ -46,6 +49,15 @@ export interface PrintOptions {
 
     /** Callback on print error */
     onError?: (error: Error) => void;
+}
+
+/**
+ * Result of print operation
+ */
+export interface PrintResult {
+    success: boolean;
+    error?: string;
+    type: string;
 }
 
 /**
@@ -157,5 +169,5 @@ export interface IPrintService {
         type: string,
         data: T,
         options?: PrintOptions
-    ): Promise<void>;
+    ): Promise<PrintResult>;
 }
