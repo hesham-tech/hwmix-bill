@@ -7,5 +7,6 @@
 import './installment';
 import './invoice';
 import './payment';
+import './product';
 
 export { };

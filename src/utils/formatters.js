@@ -62,13 +62,16 @@ export const formatTime = date => {
 export const formatCurrency = (amount, currency = 'EGP') => {
   if (amount === null || amount === undefined) return '-';
 
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency,
+  const formattedAmount = new Intl.NumberFormat('en-US', {
+    style: 'decimal',
     maximumFractionDigits: 0,
   })
     .format(amount)
     .replace(/,/g, "'");
+
+  const symbol = currency === 'EGP' ? 'ج' : currency;
+
+  return `${formattedAmount} ${symbol}`;
 };
 
 /**

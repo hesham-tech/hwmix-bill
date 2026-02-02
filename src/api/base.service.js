@@ -259,6 +259,81 @@ class BaseService {
       return this.handleError(error, showToast);
     }
   }
+
+  /**
+   * Low-level GET helper
+   */
+  async get(url, params = {}, options = {}) {
+    const { showToast = false, loading = true } = options;
+    const userStore = useUserStore();
+    if (loading) userStore.loadingApi = true;
+    try {
+      const response = await apiClient.get(`${this.resource}/${url}`, { params });
+      return this.handleSuccess(response, showToast);
+    } catch (error) {
+      return this.handleError(error, showToast);
+    }
+  }
+
+  /**
+   * Low-level POST helper
+   */
+  async post(url, data = {}, options = {}) {
+    const { showToast = false, loading = true } = options;
+    const userStore = useUserStore();
+    if (loading) userStore.loadingApi = true;
+    try {
+      const response = await apiClient.post(`${this.resource}/${url}`, data);
+      return this.handleSuccess(response, showToast);
+    } catch (error) {
+      return this.handleError(error, showToast);
+    }
+  }
+
+  /**
+   * Low-level PUT helper
+   */
+  async put(url, data = {}, options = {}) {
+    const { showToast = false, loading = true } = options;
+    const userStore = useUserStore();
+    if (loading) userStore.loadingApi = true;
+    try {
+      const response = await apiClient.put(`${this.resource}/${url}`, data);
+      return this.handleSuccess(response, showToast);
+    } catch (error) {
+      return this.handleError(error, showToast);
+    }
+  }
+
+  /**
+   * Low-level PATCH helper
+   */
+  async patch(url, data = {}, options = {}) {
+    const { showToast = false, loading = true } = options;
+    const userStore = useUserStore();
+    if (loading) userStore.loadingApi = true;
+    try {
+      const response = await apiClient.patch(`${this.resource}/${url}`, data);
+      return this.handleSuccess(response, showToast);
+    } catch (error) {
+      return this.handleError(error, showToast);
+    }
+  }
+
+  /**
+   * Low-level DELETE helper
+   */
+  async deleteCustom(url, options = {}) {
+    const { showToast = false, loading = true } = options;
+    const userStore = useUserStore();
+    if (loading) userStore.loadingApi = true;
+    try {
+      const response = await apiClient.delete(`${this.resource}/${url}`);
+      return this.handleSuccess(response, showToast);
+    } catch (error) {
+      return this.handleError(error, showToast);
+    }
+  }
 }
 
 export default BaseService;

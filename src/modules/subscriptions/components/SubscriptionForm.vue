@@ -8,10 +8,11 @@
             <AppAutocomplete
               v-model="formData.user_id"
               label="العميل *"
-              api-endpoint="users/lookup?role=customer"
-              item-title="full_name"
+              api-endpoint="users"
+              item-title="nickname"
               item-value="id"
               required
+              can-create
               :rules="[v => !!v || 'يرجى اختيار العميل']"
             />
           </v-col>
@@ -61,8 +62,23 @@
           </v-col>
 
           <!-- Auto Renew Toggle -->
-          <v-col cols="12" md="6" class="d-flex align-center">
+          <v-col cols="12" md="4" class="d-flex align-center">
             <v-switch v-model="formData.auto_renew" label="تجديد تلقائي" color="primary" inset hide-details />
+          </v-col>
+
+          <!-- Renewal Type -->
+          <v-col cols="12" md="4">
+            <v-select v-model="formData.renewal_type" :items="renewalTypes" label="نوع التجديد *" variant="outlined" density="comfortable" required />
+          </v-col>
+
+          <!-- Unique Identifier (Phone/IP) -->
+          <v-col cols="12" md="4">
+            <AppInput
+              v-model="formData.unique_identifier"
+              label="رقم الهاتف / IP / معرف"
+              placeholder="مثال: 0100xxxxxxx"
+              prepend-inner-icon="ri-hashtag"
+            />
           </v-col>
 
           <!-- Notes -->
@@ -77,14 +93,16 @@
       <v-card-actions class="px-0 pb-0">
         <v-spacer />
         <AppButton variant="text" color="grey" @click="$emit('cancel')"> إلغاء </AppButton>
-        <AppButton color="primary" type="submit" :loading="loading" :disabled="!isValid" prepend-icon="ri-save-line"> حفظ الاشتراك </AppButton>
+        <AppButton color="primary" type="submit" :loading="loading" :disabled="!isValid" prepend-icon="ri-save-line">
+          {{ isEditMode ? 'تحديث الاشتراك' : 'حفظ الاشتراك' }}
+        </AppButton>
       </v-card-actions>
     </v-card>
   </v-form>
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
+import { ref, reactive, computed, watch } from 'vue';
 import { subscriptionApiService, serviceApiService } from '@/api';
 import AppInput from '@/components/common/AppInput.vue';
 import AppAutocomplete from '@/components/common/AppAutocomplete.vue';
@@ -112,16 +130,47 @@ const billingCycles = [
   { title: 'سنوي', value: 'yearly' },
 ];
 
+const renewalTypes = [
+  { title: 'يدوي (يتطلب دفع)', value: 'manual' },
+  { title: 'تلقائي (يخصم من مدفوعات الاشتراك السابقة)', value: 'automatic' },
+];
+
+const isEditMode = computed(() => !!props.initialData?.id);
+
 const formData = reactive({
-  user_id: props.initialData.user_id || null,
-  service_id: props.initialData.service_id || null,
-  billing_cycle: props.initialData.billing_cycle || 'monthly',
-  price: props.initialData.price || 0,
-  starts_at: props.initialData.starts_at || new Date().toISOString().substr(0, 10),
-  auto_renew: props.initialData.auto_renew ?? true,
-  notes: props.initialData.notes || '',
+  user_id: null,
+  service_id: null,
+  billing_cycle: 'monthly',
+  price: 0,
+  starts_at: new Date().toISOString().substr(0, 10),
+  unique_identifier: '',
+  auto_renew: true,
+  renewal_type: 'manual',
+  notes: '',
   status: 'active',
 });
+
+// Initialize form data
+watch(
+  () => props.initialData,
+  newData => {
+    if (newData) {
+      Object.assign(formData, {
+        user_id: newData.user_id || null,
+        service_id: newData.service_id || null,
+        billing_cycle: newData.billing_cycle || 'monthly',
+        price: newData.price || 0,
+        starts_at: newData.starts_at ? newData.starts_at.substring(0, 10) : new Date().toISOString().substr(0, 10),
+        unique_identifier: newData.unique_identifier || '',
+        auto_renew: newData.auto_renew ?? true,
+        renewal_type: newData.renewal_type || 'manual',
+        notes: newData.notes || '',
+        status: newData.status || 'active',
+      });
+    }
+  },
+  { immediate: true }
+);
 
 const handleServiceChange = async serviceId => {
   if (!serviceId) return;
@@ -140,9 +189,14 @@ const handleSubmit = async () => {
 
   loading.value = true;
   try {
-    const response = await subscriptionApiService.create(formData);
-    toast.success('تم إنشاء الاشتراك بنجاح');
-    emit('success', response.data);
+    if (isEditMode.value) {
+      await subscriptionApiService.update(props.initialData.id, formData);
+      toast.success('تم تحديث الاشتراك بنجاح');
+    } else {
+      await subscriptionApiService.create(formData);
+      toast.success('تم إنشاء الاشتراك بنجاح');
+    }
+    emit('success');
   } catch (error) {
     // Error handled by intercepter
   } finally {

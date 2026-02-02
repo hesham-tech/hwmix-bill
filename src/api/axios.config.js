@@ -114,8 +114,8 @@ apiClient.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // 500+ Server Errors OR Connection Failures (status 0) OR 404 NotFound (for reporting)
-    if (error?.response?.status >= 500 || error?.response?.status === 404 || !error.response) {
+    // 400: Bad Request & 500+ Server Errors OR Connection Failures (status 0) OR 404 NotFound (for reporting)
+    if (error?.response?.status === 400 || error?.response?.status >= 500 || error?.response?.status === 404 || !error.response) {
       const isConnectivityError = !error.response || error.code === 'ERR_NETWORK' || error.message === 'Network Error';
 
       // Use a more direct approach to avoid dynamic import delays for UI
@@ -128,7 +128,7 @@ apiClient.interceptors.response.use(
         import('@/modules/support/services/error-collector').then(module => {
           module
             .collectErrorInfo(error, {
-              type: isConnectivityError ? 'connectivity_error' : 'server_error',
+              type: error?.response?.status === 400 ? 'bad_request' : isConnectivityError ? 'connectivity_error' : 'server_error',
               isConnectivityError,
               request: {
                 method: error?.config?.method?.toUpperCase(),
@@ -139,6 +139,7 @@ apiClient.interceptors.response.use(
               extraData: {
                 status: error?.response?.status || 0,
                 code: error?.code,
+                serverMessage: error?.response?.data?.message,
               },
               // Pass callbacks to sync with appState
               onCaptureStart: () => {
@@ -159,6 +160,10 @@ apiClient.interceptors.response.use(
             });
         });
       });
+    } else {
+      // Fallback for any other error status code not explicitly handled
+      const fallbackMessage = error?.response?.data?.message || error?.message || 'حدث خطأ غير متوقع.';
+      toast.error(fallbackMessage);
     }
 
     return Promise.reject(error);

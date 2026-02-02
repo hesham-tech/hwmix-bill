@@ -41,18 +41,14 @@
       <!-- Pass through all slots meant for v-data-table -->
       <template v-for="(_, slot) in $slots" #[slot]="scope">
         <slot
-          v-if="
-            (slot.startsWith('item.') && slot !== 'item.actions') ||
-            slot.startsWith('header.') ||
-            ['no-data', 'loading', 'body', 'footer', 'top', 'bottom'].includes(slot)
-          "
+          v-if="slot.startsWith('item.') || slot.startsWith('header.') || ['no-data', 'loading', 'body', 'footer', 'top', 'bottom'].includes(slot)"
           :name="slot"
           v-bind="scope || {}"
         />
       </template>
 
       <!-- Actions column (Centralized logic) -->
-      <template v-if="showActions" #item.actions="{ item }">
+      <template v-if="showActions && !$slots['item.actions']" #item.actions="{ item }">
         <div class="d-flex align-center gap-1">
           <!-- Default View Button -->
           <AppButton

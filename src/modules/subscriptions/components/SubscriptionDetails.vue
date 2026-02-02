@@ -3,6 +3,11 @@
     <v-progress-circular indeterminate color="primary" />
     <div class="mt-4 text-body-2 grey--text">جاري تحميل بيانات الاشتراك...</div>
   </div>
+  <div v-else-if="error" class="pa-10 text-center">
+    <v-icon icon="ri-error-warning-line" color="error" size="48" />
+    <div class="mt-4 text-h6 text-error">فشل تحميل بيانات الاشتراك</div>
+    <AppButton variant="text" color="primary" @click="loadSubscription">إعادة المحاولة</AppButton>
+  </div>
   <div v-else-if="subscription" class="subscription-details">
     <v-row>
       <!-- Main Info Card -->
@@ -44,6 +49,16 @@
                   {{ formatDate(subscription.next_billing_date) }}
                 </div>
               </v-col>
+              <v-col v-if="subscription.unique_identifier" cols="6">
+                <div class="text-caption text-grey mb-1">المُعرف (هاتف/IP)</div>
+                <div class="text-body-1 font-weight-bold text-secondary">{{ subscription.unique_identifier }}</div>
+              </v-col>
+              <v-col cols="6">
+                <div class="text-caption text-grey mb-1">مدفوع جزئي (رصيد اشتراك)</div>
+                <div class="text-h6 font-weight-black" :class="subscription.partial_payment >= 0 ? 'text-success' : 'text-error'">
+                  {{ formatCurrency(subscription.partial_payment) }}
+                </div>
+              </v-col>
             </v-row>
           </v-card-text>
         </v-card>
@@ -61,6 +76,12 @@
             </div>
 
             <v-divider class="mb-4" />
+
+            <div class="d-flex gap-2">
+              <AppButton block color="primary" prepend-icon="ri-loop-right-line" @click="renewDialog?.open(subscription)">تجديد الآن</AppButton>
+            </div>
+
+            <v-divider class="my-4" />
 
             <div class="d-flex gap-2">
               <AppButton block variant="tonal" color="warning" prepend-icon="ri-pause-line">إيقاف مؤقت</AppButton>
@@ -82,15 +103,19 @@
         <v-card border flat>
           <div class="pa-4 bg-grey-lighten-5 border-b font-weight-bold text-center">سجل العمليات</div>
           <v-list density="compact" class="pa-0">
-            <v-list-item v-for="i in 3" :key="i" class="border-b">
+            <v-list-item v-for="payment in history" :key="payment.id" class="border-b">
               <template #prepend>
                 <v-avatar color="success-lighten-5" size="32" class="me-3">
-                  <v-icon icon="ri-check-line" color="success" size="16" />
+                  <v-icon icon="ri-money-dollar-circle-line" color="success" size="16" />
                 </v-avatar>
               </template>
-              <v-list-item-title class="text-body-2">تم تجديد بنجاح</v-list-item-title>
-              <v-list-item-subtitle class="text-caption">12/01/2026</v-list-item-subtitle>
+              <v-list-item-title class="text-body-2 font-weight-bold">تحصيل: {{ formatCurrency(payment.amount) }}</v-list-item-title>
+              <v-list-item-subtitle class="text-caption d-flex justify-space-between">
+                <span>{{ formatDate(payment.payment_date) }}</span>
+                <span class="text-grey">بواسطة: {{ payment.creator?.name }}</span>
+              </v-list-item-subtitle>
             </v-list-item>
+            <v-list-item v-if="history.length === 0" class="text-center py-4 text-grey text-caption"> لا توجد عمليات تحصيل سابقة </v-list-item>
           </v-list>
           <v-card-actions class="justify-center">
             <AppButton variant="text" size="small">عرض كل السجل</AppButton>
@@ -98,6 +123,9 @@
         </v-card>
       </v-col>
     </v-row>
+
+    <!-- Renew Dialog -->
+    <RenewSubscriptionDialog ref="renewDialog" @success="loadSubscription" />
   </div>
 </template>
 
@@ -108,6 +136,9 @@ import { formatDate, formatCurrency } from '@/utils/formatters';
 import AppAvatar from '@/components/common/AppAvatar.vue';
 import AppButton from '@/components/common/AppButton.vue';
 import { toast } from 'vue3-toastify';
+import RenewSubscriptionDialog from './RenewSubscriptionDialog.vue';
+
+const renewDialog = ref(null);
 
 const props = defineProps({
   subscriptionId: {
@@ -117,15 +148,24 @@ const props = defineProps({
 });
 
 const subscription = ref(null);
+const history = ref([]);
 const loading = ref(true);
+const error = ref(false);
 
 const loadSubscription = async () => {
   loading.value = true;
+  error.value = false;
   try {
-    const response = await subscriptionApiService.get(props.subscriptionId);
-    subscription.value = response.data;
-  } catch (error) {
-    console.error('Error loading subscription details:', error);
+    const [subRes, histRes] = await Promise.all([
+      subscriptionApiService.getOne(props.subscriptionId),
+      subscriptionApiService.getHistory(props.subscriptionId),
+    ]);
+    subscription.value = subRes.data[0]; // BaseService returns array for getOne
+    // Handle history structure (standard paginate or normalized)
+    history.value = histRes.data?.data || histRes.data || [];
+  } catch (err) {
+    console.error('Error loading subscription details:', err);
+    error.value = true;
   } finally {
     loading.value = false;
   }

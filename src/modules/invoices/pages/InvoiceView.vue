@@ -30,6 +30,16 @@
           {{ mobile ? '' : 'تعديل' }}
         </AppButton>
         <AppButton
+          v-if="invoice?.invoice_type?.code === 'purchase'"
+          color="warning"
+          :prepend-icon="!mobile ? 'ri-ticket-line' : ''"
+          :icon="mobile ? 'ri-ticket-line' : false"
+          :size="mobile ? 'small' : 'default'"
+          @click="stickersDialog?.open(invoice)"
+        >
+          {{ mobile ? '' : 'الملصقات' }}
+        </AppButton>
+        <AppButton
           color="info"
           :prepend-icon="!mobile ? 'ri-printer-line' : ''"
           :icon="mobile ? 'ri-printer-line' : false"
@@ -409,6 +419,7 @@
       </v-row>
     </div>
 
+    <PrintInvoiceItemsStickersDialog ref="stickersDialog" />
     <!-- Delete Confirmation Dialog -->
     <AppDialog
       v-model="showDeleteDialog"
@@ -432,6 +443,7 @@ import { usePermissions } from '@/composables/usePermissions';
 import { useUserStore } from '@/stores/user';
 import AppAvatar from '@/components/common/AppAvatar.vue';
 import InstallmentsTable from '@/modules/installments/components/InstallmentsTable.vue';
+import PrintInvoiceItemsStickersDialog from '../components/PrintInvoiceItemsStickersDialog.vue';
 import { toast } from 'vue3-toastify';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import { usePrint } from '@/modules/print/composables/usePrint';
@@ -449,6 +461,7 @@ const loading = ref(true);
 const invoice = ref(null);
 const showDeleteDialog = ref(false);
 const showPaymentDialog = ref(false);
+const stickersDialog = ref(null);
 const selectedStatus = ref(null);
 
 const statusOptions = [

@@ -174,6 +174,16 @@
                   {{ new Date(item.created_at).toLocaleDateString('ar-EG') }}
                 </div>
               </template>
+              <template #extra-actions="{ item }">
+                <AppButton
+                  v-if="can(PERMISSIONS.PRODUCTS_PRINT_LABELS)"
+                  icon="ri-ticket-line"
+                  variant="text"
+                  color="warning"
+                  tooltip="طباعة ملصقات"
+                  @click="stickerDialog?.open(item.id)"
+                />
+              </template>
             </AppDataTable>
           </v-card>
 
@@ -263,6 +273,8 @@
         title="حذف المنتج"
         message="هل أنت متأكد من حذف هذا المنتج؟ سيتم حذف كافة المتغيرات والمخزون المرتبط به."
       />
+      <v-divider />
+      <PrintStickerDialog ref="stickerDialog" />
     </v-container>
   </div>
 </template>
@@ -284,6 +296,7 @@ import AppInput from '@/components/common/AppInput.vue';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
 import AppConfirmDialog from '@/components/common/AppConfirmDialog.vue';
+import PrintStickerDialog from '../components/PrintStickerDialog.vue';
 import { formatCurrency } from '@/utils/formatters';
 
 const router = useRouter();
@@ -340,6 +353,7 @@ const editProduct = item => {
 
 // UI State
 const showAdvanced = ref(false);
+const stickerDialog = ref(null);
 
 const confirmDialog = ref(null);
 const confirmDelete = async item => {

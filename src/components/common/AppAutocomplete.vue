@@ -224,7 +224,8 @@ const fetchItems = debounce(async query => {
     const response = await apiClient.get(props.apiEndpoint, {
       params: { search: query, per_page: 50 },
     });
-    fetchedItems.value = response.data?.data || response.data || [];
+    const resData = response.data?.data || response.data || [];
+    fetchedItems.value = Array.isArray(resData) ? resData : Array.isArray(resData?.data) ? resData.data : [];
   } catch (error) {
     console.error(`Error fetching from ${props.apiEndpoint}:`, error);
   } finally {

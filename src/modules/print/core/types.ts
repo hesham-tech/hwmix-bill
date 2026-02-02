@@ -3,7 +3,7 @@ import type { Component } from 'vue';
 /**
  * Supported print formats
  */
-export type PrintFormat = 'thermal' | 'a4' | 'a5' | 'standard';
+export type PrintFormat = 'thermal' | 'a4' | 'a5' | 'standard' | 'sticker' | 'thermal_58';
 
 /**
  * Print template configuration
