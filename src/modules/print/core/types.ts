@@ -156,7 +156,9 @@ export interface InvoiceData {
  */
 export interface ITemplateRegistry {
     register<T = any>(type: string, template: PrintTemplate<T>): void;
-    get(type: string): PrintTemplate | undefined;
+    registerLazy(type: string, loader: () => Promise<void>): void;
+    get(type: string): Promise<PrintTemplate | undefined>;
+    getSync(type: string): PrintTemplate | undefined;
     has(type: string): boolean;
     list(): string[];
 }

@@ -123,7 +123,8 @@ const handleInput = val => {
   } else if (val === '=') {
     try {
       const expr = current.value;
-      const result = eval(current.value);
+      // Use Function constructor instead of eval to avoid build issues
+      const result = new Function('return ' + current.value)();
       const resStr = String(Number(result.toFixed(4)));
 
       // إضافة للسجل

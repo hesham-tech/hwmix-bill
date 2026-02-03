@@ -92,7 +92,11 @@ import AppButton from '@/components/common/AppButton.vue';
 import AppInput from '@/components/common/AppInput.vue';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 
+import { useWorker } from '@/composables/useWorker';
+import ReportWorker from '@/workers/report.worker?worker';
+
 const { can, canAny } = usePermissions();
+const { postMessage: postToWorker, loading: workerLoading } = useWorker(ReportWorker);
 
 const api = useApi('/api/reports/profit-loss-summary');
 const { exportToCSV } = usePrintExport();
@@ -133,30 +137,30 @@ const loadReport = async () => {
         total_expenses: data.summary?.total_expenses || 0,
         net_profit: data.summary?.net_profit || 0,
       };
-      comparisonData.value = (data.details || []).map(item => ({
-        ...item,
-        month: item.date,
-        costs: (item.cost_of_goods_sold || 0) + (item.expenses || 0),
-        profit: item.net_profit,
-      }));
+
+      // Process large data in background worker
+      comparisonData.value = await postToWorker({
+        type: 'PROCESS_PROFIT_REPORT',
+        data: data.details || [],
+      });
     }
   } finally {
     loading.value = false;
   }
 };
 
-const handleExport = () => {
+const handleExport = async () => {
   if (!can(PERMISSIONS.REPORTS_EXPORT)) {
     return;
   }
-  const data = comparisonData.value.map(item => ({
-    الشهر: item.month,
-    الإيرادات: item.revenue,
-    التكاليف: item.costs,
-    الربح: item.profit,
-    'الهامش %': item.margin,
-  }));
-  exportToCSV(data, 'تقرير_الأرباح_والخسائر.csv');
+
+  // Use worker to prepare export data
+  const exportData = await postToWorker({
+    type: 'PREPARE_EXPORT',
+    data: comparisonData.value,
+  });
+
+  exportToCSV(exportData, 'تقرير_الأرباح_والخسائر.csv');
 };
 
 onMounted(loadReport);

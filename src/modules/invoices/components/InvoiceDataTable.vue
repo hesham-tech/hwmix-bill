@@ -6,6 +6,7 @@
     :total-items="total"
     :page="currentPage"
     :items-per-page="perPage"
+    :virtual="virtual"
     permission-module="invoices"
     :show-actions="true"
     :can-view="true"
@@ -131,6 +132,10 @@ const props = defineProps({
   perPage: {
     type: Number,
     default: 10,
+  },
+  virtual: {
+    type: Boolean,
+    default: false,
   },
 });
 

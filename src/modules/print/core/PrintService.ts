@@ -30,8 +30,8 @@ class PrintService implements IPrintService {
         appState.isLoader = true;
 
         try {
-            // Get template from registry
-            const template = templateRegistry.get(type);
+            // Get template from registry (with lazy loading support)
+            const template = await templateRegistry.get(type);
 
             if (!template) {
                 throw new Error(

@@ -25,11 +25,20 @@
       "@core/*": [
         "src/@core/*"
       ],
+      "@ui/*": [
+        "src/@ui/*"
+      ],
+      "@utils/*": [
+        "src/@utils/*"
+      ],
+      "@core-styles/*": [
+        "src/@core-styles/*"
+      ],
       "@images/*": [
         "src/assets/images/*"
       ],
       "@styles/*": [
-        "src/styles/*"
+        "src/assets/styles/*"
       ]
     },
     "types": [

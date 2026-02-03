@@ -23,6 +23,10 @@ export { default as companyService } from './services/company.service';
 export { default as expenseService } from './services/expense.service';
 export { default as expenseCategoryService } from './services/expense-category.service';
 export { default as financialLedgerService } from './services/financial-ledger.service';
+export { default as attributeService } from './services/attribute.service';
+export { default as attributeValueService } from './services/attribute-value.service';
+export { default as backupService } from './services/backup.service';
+export { default as errorReportService } from './services/error-report.service';
 export { default as serviceApiService } from './services/service.service';
 export { default as subscriptionApiService } from './services/subscription.service';
 

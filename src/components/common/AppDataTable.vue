@@ -12,8 +12,9 @@
       </div>
     </v-card-title>
 
-    <!-- Data Table -->
+    <!-- Data Table (Server Side) -->
     <v-data-table-server
+      v-if="!virtual"
       v-model:items-per-page="itemsPerPageModel"
       v-model:page="pageModel"
       v-model:sort-by="sortByModel"
@@ -37,20 +38,14 @@
       @click:row="(event, { item }) => $emit('click:row', item)"
       @contextmenu:row="handleContextMenu"
     >
-      <!-- Custom slots for columns -->
-      <!-- Pass through all slots meant for v-data-table -->
+      <!-- Common Slots -->
       <template v-for="(_, slot) in $slots" #[slot]="scope">
-        <slot
-          v-if="slot.startsWith('item.') || slot.startsWith('header.') || ['no-data', 'loading', 'body', 'footer', 'top', 'bottom'].includes(slot)"
-          :name="slot"
-          v-bind="scope || {}"
-        />
+        <slot :name="slot" v-bind="scope || {}" />
       </template>
 
-      <!-- Actions column (Centralized logic) -->
+      <!-- Actions column (Server) -->
       <template v-if="showActions && !$slots['item.actions']" #item.actions="{ item }">
         <div class="d-flex align-center gap-1">
-          <!-- Default View Button -->
           <AppButton
             v-if="
               canView &&
@@ -63,8 +58,6 @@
             tooltip="عرض التفاصيل"
             @click="$emit('view', item)"
           />
-
-          <!-- Default Edit Button -->
           <AppButton
             v-if="
               canEdit &&
@@ -78,8 +71,6 @@
             tooltip="تعديل"
             @click="$emit('edit', item)"
           />
-
-          <!-- Default Delete Button -->
           <AppButton
             v-if="
               canDelete &&
@@ -93,46 +84,80 @@
             tooltip="حذف"
             @click="$emit('delete', item)"
           />
-
-          <!-- Extra Actions Slot -->
           <slot name="extra-actions" :item="item" />
         </div>
       </template>
+    </v-data-table-server>
 
-      <!-- Mobile Expanded Row -->
-      <template v-if="mobile && enableMobileExpansion" #expanded-row="{ columns, item }">
-        <tr>
-          <td :colspan="columns.length" class="bg-grey-lighten-5 pa-4">
-            <v-row no-gutters class="mx-0">
-              <v-col v-for="header in hiddenHeaders" :key="header.key" cols="6" class="py-2 border-bottom-dotted">
-                <div class="text-caption text-grey-darken-1 font-weight-bold mb-1">{{ header.title }}:</div>
-                <div class="text-body-2">
-                  <slot :name="`item.${header.key}`" :item="item">
-                    {{ item[header.key] || '---' }}
-                  </slot>
-                </div>
-              </v-col>
-            </v-row>
-          </td>
-        </tr>
+    <!-- Data Table (Virtual Scrolling) -->
+    <v-data-table-virtual
+      v-else
+      v-model:sort-by="sortByModel"
+      :headers="processedHeaders"
+      :items="items"
+      :loading="loading"
+      :search="searchModel"
+      :height="tableHeight"
+      fixed-header
+      class="elevation-0"
+      density="compact"
+      hover
+      striped="even"
+      :no-data-text="emptyText"
+      :row-props="rowProps"
+      @click:row="(event, { item }) => $emit('click:row', item)"
+      @contextmenu:row="handleContextMenu"
+    >
+      <!-- Common Slots -->
+      <template v-for="(_, slot) in $slots" #[slot]="scope">
+        <slot :name="slot" v-bind="scope || {}" />
       </template>
 
-      <!-- Loading state -->
-      <template #loading>
-        <v-skeleton-loader type="table-row@5" />
-      </template>
-
-      <!-- Empty state -->
-      <template #no-data>
-        <div class="text-center py-8">
-          <v-icon size="64" color="grey-lighten-1"> ri-inbox-line </v-icon>
-          <p class="text-h6 text-grey mt-4">{{ emptyText }}</p>
-          <p class="text-body-2 text-grey-darken-1">{{ emptySubtext }}</p>
-
-          <slot name="empty-action" />
+      <!-- Actions column (Virtual) -->
+      <template v-if="showActions && !$slots['item.actions']" #item.actions="{ item }">
+        <div class="d-flex align-center gap-1">
+          <AppButton
+            v-if="
+              canView &&
+              (!permissionModule || canAny(`${permissionModule}.view_all`, `${permissionModule}.view_children`, `${permissionModule}.view_self`))
+            "
+            icon="ri-eye-line"
+            :size="mobile ? 'x-small' : 'small'"
+            variant="text"
+            color="info"
+            tooltip="عرض التفاصيل"
+            @click="$emit('view', item)"
+          />
+          <AppButton
+            v-if="
+              canEdit &&
+              (!permissionModule ||
+                canAny(`${permissionModule}.update_all`, `${permissionModule}.update_children`, `${permissionModule}.update_self`))
+            "
+            icon="ri-edit-line"
+            :size="mobile ? 'x-small' : 'small'"
+            variant="text"
+            color="primary"
+            tooltip="تعديل"
+            @click="$emit('edit', item)"
+          />
+          <AppButton
+            v-if="
+              canDelete &&
+              (!permissionModule ||
+                canAny(`${permissionModule}.delete_all`, `${permissionModule}.delete_children`, `${permissionModule}.delete_self`))
+            "
+            icon="ri-delete-bin-line"
+            :size="mobile ? 'x-small' : 'small'"
+            variant="text"
+            color="error"
+            tooltip="حذف"
+            @click="$emit('delete', item)"
+          />
+          <slot name="extra-actions" :item="item" />
         </div>
       </template>
-    </v-data-table-server>
+    </v-data-table-virtual>
 
     <!-- Context Menu -->
     <v-menu v-model="menuModel" :target="[menuProps.x, menuProps.y]" transition="scale-transition" offset="5">
@@ -208,6 +233,10 @@ const props = defineProps({
     default: 0,
   },
   loading: {
+    type: Boolean,
+    default: false,
+  },
+  virtual: {
     type: Boolean,
     default: false,
   },

@@ -1,13 +1,12 @@
 import { createVuetify } from 'vuetify';
 import { VBtn } from 'vuetify/components/VBtn';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
+// Auto-import enabled in vite.config.js - no need to import all components
 import defaults from './defaults';
 import { icons } from './icons';
 import { themes } from './theme';
 
 // Styles
-import '@core/scss/template/libs/vuetify/index.scss';
+import '@core-styles/template/libs/vuetify/index.scss';
 import 'vuetify/styles';
 
 // ✅ استيراد اللغات
@@ -23,8 +22,7 @@ export default function (app) {
   const currentLocale = getLocale();
 
   const vuetify = createVuetify({
-    components,
-    directives,
+    // Auto-import handles components and directives automatically
     aliases: {
       IconBtn: VBtn,
     },

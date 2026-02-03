@@ -1,8 +1,8 @@
-import { toBlob } from 'html-to-image';
+import html2canvas from 'html2canvas';
 
 /**
  * Universal utility to capture a DOM element as an image.
- * Using html-to-image for better CSS fidelity and Icon support.
+ * Using html2canvas for better CSS fidelity and Icon support.
  */
 export const captureElement = async (element, options = {}) => {
   const {
@@ -10,7 +10,7 @@ export const captureElement = async (element, options = {}) => {
     pixelRatio = 2, // 2 is usually enough for clarity without massive file size
   } = options;
 
-  console.log('[CaptureUtility] Starting high-fidelity capture with html-to-image...');
+  console.log('[CaptureUtility] Starting high-fidelity capture with html2canvas...');
 
   try {
     // Ensure all fonts are loaded before capture
@@ -20,34 +20,37 @@ export const captureElement = async (element, options = {}) => {
     }
 
     const config = {
-      cacheBust: false,
       backgroundColor,
-      pixelRatio,
-      quality: 0.9,
-      // Focus on visible viewport only
+      scale: pixelRatio,
+      useCORS: true,
+      allowTaint: false,
+      logging: false,
       width: window.innerWidth,
       height: window.innerHeight,
-      style: {
-        transform: `translate(-${window.scrollX}px, -${window.scrollY}px)`,
-        width: `${document.documentElement.scrollWidth}px`,
-        height: `${document.documentElement.scrollHeight}px`,
-        transformOrigin: 'top left',
-      },
-      filter: node => {
+      windowWidth: document.documentElement.scrollWidth,
+      windowHeight: document.documentElement.scrollHeight,
+      x: window.scrollX,
+      y: window.scrollY,
+      ignoreElements: node => {
         // Exclude UI elements that shouldn't be in the report
         if (
           node.id === 'global-capture-overlay' ||
           (node.classList && node.classList.contains('global-fab-feedback')) ||
           (node.dataset && node.dataset.captureIgnore !== undefined)
         ) {
-          return false;
+          return true;
         }
-        return true;
+        return false;
       },
     };
 
-    // Use toBlob for memory efficiency
-    const blob = await toBlob(element, config);
+    // Use html2canvas to capture
+    const canvas = await html2canvas(element, config);
+
+    // Convert canvas to blob
+    const blob = await new Promise(resolve => {
+      canvas.toBlob(resolve, 'image/png', 0.9);
+    });
 
     if (!blob || blob.size < 100) {
       throw new Error('Captured image is empty or too small');
