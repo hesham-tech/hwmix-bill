@@ -141,7 +141,10 @@ export function useDataTable(fetchFunction, options = {}) {
       lastPage.value = response.meta?.last_page ?? response.last_page ?? 1;
 
       const newPage = response.meta?.current_page ?? response.current_page ?? 1;
-      if (currentPage.value !== newPage) {
+
+      // Don't override currentPage during append operations
+      // This prevents infinite loops if API returns page 1 for page 2 request
+      if (!append && currentPage.value !== newPage) {
         currentPage.value = newPage;
       }
 

@@ -486,6 +486,7 @@ const {
   currentPage: page,
   perPage: itemsPerPage,
   total: totalItems,
+  lastPage,
   search,
   filters,
   sortBy,
@@ -510,7 +511,7 @@ const currentCompanyOnly = computed({
 });
 
 const handleLoadMore = () => {
-  if (loading.value || users.value.length >= totalItems.value) return;
+  if (loading.value || users.value.length >= totalItems.value || page.value >= (lastPage.value || Infinity)) return;
   page.value++;
   fetchData({ append: true });
 };
