@@ -1,0 +1,99 @@
+.sticker-page {
+  margin: 0;
+  padding: 0;
+  width: 40mm;
+}
+
+.product-sticker {
+  width: 40mm;
+  height: 25mm;
+  position: relative;
+  overflow: hidden;
+  background: white;
+  page-break-after: always;
+  box-sizing: border-box;
+  font-family: 'Tajawal', sans-serif;
+  direction: rtl;
+  text-align: center;
+}
+
+.company-name {
+  position: absolute;
+  top: 0.5mm;
+  left: 0;
+  right: 0;
+  font-size: 5px;
+  height: 2.5mm;
+  line-height: 2.5mm;
+  color: #000;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 4mm;
+}
+
+.product-name {
+  position: absolute;
+  top: 3.5mm;
+  left: 0;
+  right: 0;
+  font-size: 8px;
+  font-weight: 700;
+  height: 4mm;
+  line-height: 4mm;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: #000;
+  padding: 0 2mm;
+}
+
+.barcode-wrapper {
+  position: absolute;
+  top: 8mm;
+  left: 0;
+  right: 0;
+  height: 14mm;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  overflow: hidden;
+}
+
+.barcode-img {
+  width: auto;
+  max-width: 95%;
+  max-height: 10mm;
+  object-fit: contain;
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
+}
+
+.barcode-text {
+  font-size: 7px;
+  font-weight: 600;
+  font-family: monospace;
+  margin-top: 0.5mm;
+  color: #000;
+}
+
+.price-box {
+  position: absolute;
+  bottom: 0.5mm;
+  left: 0;
+  right: 0;
+  height: 4mm;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.price-val {
+  font-size: 8px;
+  font-weight: 700;
+  color: #000;
+  line-height: 1;
+}

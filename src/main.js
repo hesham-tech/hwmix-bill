@@ -1,35 +1,67 @@
 import { createApp } from 'vue';
 import App from '@/App.vue';
-import { registerPlugins } from '@core/utils/plugins';
+import { registerPlugins } from '@utils/helpers/plugins';
 import { useUserStore } from './stores/user';
 import setupAutoSelectOnFocus from './utils/auto-select-on-focus';
+import draggable from '@/directives/draggable';
 
 // Styles
-import '@core/scss/template/index.scss';
+import '@core-styles/template/index.scss';
 import '@layouts/styles/index.scss';
 
-// // Create vue app
-// const app = createApp(App);
-// // Register plugins
-// registerPlugins(app);
-// // Mount vue app
-// app.mount('#app');
+// إنشاء تطبيق Vue
+const app = createApp(App);
 
-(async () => {
-  // Create vue app
-  const app = createApp(App);
+// كتم تحذيرات Suspense التجريبية
+app.config.warnHandler = msg => {
+  if (msg.includes('Suspense is an experimental feature')) return;
+  console.warn(msg);
+};
 
-  await registerPlugins(app);
+// 1. التسجيل المتزامن للـ plugins الأساسية (Vuetify, Pinia, Router)
+// هذا ضروري قبل الـ mount لأن المكونات تعتمد عليها
+registerPlugins(app);
 
-  console.log('Executing pre-mount operations...');
-  //   await getUserApi();
+// تسجيل الـ directives الضرورية للواجهة الأولية
+app.directive('draggable', draggable);
 
-  // Mount vue app
-  app.mount('#app');
-  console.log('Vue app mounted successfully!');
-})();
+// 2. Mount vue app فوراً لاستبدال الـ Splash Screen بأسرع وقت
+app.mount('#app');
 
-// setupAutoSelectOnFocus(); // 👈 تطبيق السلوك على كامل النظام
+// 3. تحميل المزايا والـ Directives غير الحرجة في الخلفية
+// نستخدم requestIdleCallback لضمان استقرار الواجهة أولاً
+if ('requestIdleCallback' in window) {
+  requestIdleCallback(async () => {
+    initializeSecondaryFeatures(app);
+  });
+} else {
+  setTimeout(() => {
+    initializeSecondaryFeatures(app);
+  }, 100);
+}
+
+// دالة لمعالجة المزايا الثانوية بعد التحميل
+async function initializeSecondaryFeatures(appInstance) {
+  // Global Error Logging System
+  import('@/utils/logger')
+    .then(({ default: logger }) => {
+      appInstance.use(logger);
+    })
+    .catch(e => console.warn('Failed to initialize logger:', e));
+
+  // Initialize print system
+  import('@/modules/print').catch(e => {
+    console.warn('Failed to initialize print system:', e);
+  });
+
+  // Prefetch common routes
+  import('@/router/prefetch')
+    .then(({ prefetchCommonRoutes }) => {
+      prefetchCommonRoutes();
+    })
+    .catch(e => console.warn('Failed to initialize route prefetching:', e));
+}
+setupAutoSelectOnFocus(); // 👈 تطبيق السلوك على كامل النظام
 
 async function getUserApi() {
   const userStore = useUserStore();

@@ -1,156 +1,128 @@
+<template>
+  <v-app>
+    <router-view />
+    <ErrorDialog />
+    <CaptureOverlay />
+    <AppPrinter />
+
+    <!-- Floating Action Button for Manual Reports/Feedback -->
+    <v-tooltip location="top">
+      <template #activator="{ props: tooltipProps }">
+        <v-btn
+          v-bind="tooltipProps"
+          icon="ri-customer-service-2-line"
+          color="error"
+          size="large"
+          elevation="24"
+          class="global-fab-feedback"
+          :loading="appState.isCapturing"
+          @click="captureAndReport('feedback')"
+        />
+      </template>
+      الدعم الفني والاقتراحات
+    </v-tooltip>
+    <!-- Global Loading Overlay -->
+    <v-overlay v-model="appState.isLoader" persistent class="align-center justify-center" scrim="rgba(255, 255, 255, 0.7)" z-index="10000">
+      <div class="text-center">
+        <v-progress-circular color="primary" indeterminate size="64" width="6" />
+        <div class="mt-4 text-primary font-weight-black">جاري المعالجة...</div>
+      </div>
+    </v-overlay>
+  </v-app>
+</template>
+
 <script setup>
-import { onMounted } from 'vue';
-import { getOne } from './services/api';
-import { useUserStore } from './stores/user';
+import { ref, onMounted, watch } from 'vue';
+import ErrorDialog from '@/modules/support/components/ErrorDialog.vue';
+import CaptureOverlay from '@/modules/capture/components/CaptureOverlay.vue';
+import AppPrinter from '@/modules/print/components/PrintDriver.vue';
+import { useLocaleStore } from '@/stores/locale';
+import { useUserStore } from '@/stores/user';
+import { useNotifications } from '@/plugins/notification';
+import { useLocale, useRtl } from 'vuetify';
+import { useappState } from '@/stores/appState';
+
+const localeStore = useLocaleStore();
 const userStore = useUserStore();
+const appState = useappState();
+const { requestPermission, setupEchoListeners } = useNotifications();
+const { current: currentLocale } = useLocale();
+const { isRtl } = useRtl();
+
+const captureAndReport = async (type = 'feedback') => {
+  if (appState.isCapturing) return;
+  console.log('[App] Starting captureAndReport flow for type:', type);
+  const { collectErrorInfo } = await import('@/modules/support/services/error-collector');
+
+  await appState.triggerManualReport(type, (error, context) => {
+    console.log('[App] Collector callback triggered');
+    return collectErrorInfo(error, {
+      ...context,
+      onCaptureStart: () => {
+        console.log('[App] UI: isCapturing -> true');
+        appState.isCapturing = true;
+      },
+      onCaptureEnd: () => {
+        console.log('[App] UI: isCapturing -> false');
+        appState.isCapturing = false;
+      },
+    });
+  });
+};
+
+// ✅ تطبيق اللغة وإعداد الإشعارات عند بدء التطبيق
 onMounted(() => {
-  userStore.fetchUser();
+  const locale = localeStore.locale;
+  document.documentElement.setAttribute('dir', locale === 'ar' ? 'rtl' : 'ltr');
+  document.documentElement.setAttribute('lang', locale);
+
+  // تحديث Vuetify
+  currentLocale.value = locale;
+
+  // إعداد مستمعي الإشعارات
+  if (userStore.currentUser) {
+    setupEchoListeners(userStore.currentUser);
+    requestPermission();
+  }
 });
+
+// ✅ مراقبة تسجيل الدخول لإعادة تهيئة المستمعين
+watch(
+  () => userStore.currentUser,
+  newUser => {
+    if (newUser) {
+      setupEchoListeners(newUser);
+      requestPermission();
+    }
+  }
+);
+
+// ✅ مراقبة تغيير اللغة
+watch(
+  () => localeStore.locale,
+  newLocale => {
+    document.documentElement.setAttribute('dir', newLocale === 'ar' ? 'rtl' : 'ltr');
+    document.documentElement.setAttribute('lang', newLocale);
+
+    // تحديث Vuetify ديناميكياً
+    currentLocale.value = newLocale;
+
+    // إعادة تحميل الصفحة لتطبيق التغييرات بشكل كامل
+    window.location.reload();
+  }
+);
 </script>
 
-<template>
-  <div v-if="userStore.loadingApi" class="box-loader">
-    <div class="loader"></div>
-  </div>
-  <!-- <div class="error-Server">
-    <div class="errorServer"></div>
-  </div> -->
-  <v-locale-provider rtl>
-    <VApp>
-      <VCol class="pa-2" style="position: relative" cols="12">
-        <RouterView />
-      </VCol>
-    </VApp>
-  </v-locale-provider>
-</template>
-<style scoped>
-.box-loader {
-  position: fixed;
+<style>
+* {
+  font-family: 'Tajawal', sans-serif;
+}
+
+.global-fab-feedback {
+  position: fixed !important;
+  bottom: 16px;
+  inset-inline-start: 16px;
   z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #0000001e;
-  block-size: 100%;
-  inline-size: 100%;
-  inset: 0;
-  cursor: progress;
-}
-
-.loader {
-  padding: 1px;
-  border-radius: 50%;
-  animation: l4 1s infinite steps(10);
-  aspect-ratio: 1;
-  background: conic-gradient(#0000 10%, #3c33f0) content-box;
-  inline-size: 50px;
-  mask: repeating-conic-gradient(#0000 0deg, #000 1deg 20deg, #0000 21deg 36deg),
-    radial-gradient(farthest-side, #0000 calc(100% - var(--b) - 1px), #000 calc(100% - var(--b)));
-  mask-composite: destination-in;
-  mask-composite: intersect;
-
-  --b: 8px;
-}
-
-.error-Server {
-  position: fixed;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #0000001e;
-  block-size: 100%;
-  inline-size: 100%;
-  inset: 0;
-  cursor: progress;
-}
-
-.errorServer {
-  padding: 1px;
-  border-radius: 50%;
-  animation: l4 1s infinite steps(10);
-  aspect-ratio: 1;
-  background: conic-gradient(#0000 10%, #3c33f0) content-box;
-  inline-size: 50px;
-  mask: repeating-conic-gradient(#0000 0deg, #000 1deg 20deg, #0000 21deg 36deg),
-    radial-gradient(farthest-side, #0000 calc(100% - var(--b) - 1px), #000 calc(100% - var(--b)));
-  mask-composite: destination-in;
-  mask-composite: intersect;
-
-  --b: 8px;
-}
-
-@keyframes l4 {
-  to {
-    transform: rotate(1turn);
-  }
-}
-</style>
-<style lang="scss">
-.v-checkbox-btn.v-selection-control .v-label {
-  white-space: nowrap;
-}
-.v-table {
-  white-space: nowrap !important;
-}
-.layout-page-content {
-  padding-inline: 0 !important;
-}
-.forbidden-cursor {
-  cursor: not-allowed !important;
-}
-html,
-body {
-  font-family: 'Segoe UI', Tahoma, Arial, sans-serif !important;
-  font-feature-settings: 'lnum';
-  font-variant-numeric: lining-nums;
-}
-
-input,
-textarea {
-  font-family: 'Segoe UI', Tahoma, Arial, sans-serif !important;
-}
-
-/* تنسيق عام لجعل الأرقام إنجليزية في كامل المشروع */
-body {
-  /* الطريقة الأفضل والموصى بها: */
-  font-variant-numeric: tabular-nums;
-  /* يمكنك أيضًا تجربة oldstyle-nums إذا كنت تفضل هذا النمط */
-
-  /* بديل أقل تفضيلاً ولكن قد يعمل في بعض الخطوط والسياقات: */
-  /* font-feature-settings: "lnum" 1; */
-  /* font-feature-settings: "tnum" 1; */
-
-  /* إذا كانت الخطوط العربية تسبب مشكلة، قد تحتاج لتحديد خط بديل */
-  /* font-family: 'Roboto', 'Arial', sans-serif; */
-  /* هذا يضمن استخدام خط يدعم الأرقام اللاتينية بشكل افتراضي */
-}
-
-/* تأكد من أن حقول الإدخال تتبع نفس النمط */
-.v-data-table__tr:nth-child(even) {
-  background-color: #e3f2fd; /* أزرق سماوي لطيف */
-}
-
-.v-data-table__tr:nth-child(odd) {
-  background-color: #ffffff; /* أبيض */
-}
-.v-table__wrapper tbody tr:nth-child(even) {
-  background-color: #e3f2fd;
-}
-
-.v-table__wrapper tbody tr:nth-child(odd) {
-  background-color: #ffffff; /* أبيض */
-}
-.v-table__wrapper {
-  position: relative !important;
-  overflow-x: auto !important;
-}
-
-.sticky-column {
-  position: sticky !important;
-  left: 500px;
-  background: #fff;
-  z-index: 15;
-  min-width: 150px;
+  padding: 0 !important;
 }
 </style>

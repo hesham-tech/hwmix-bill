@@ -397,6 +397,16 @@ export function getExactColorHexCode(colorName) {
 }
 
 export function isColorProperty(propertyName) {
+  if (!propertyName) return false;
   const normalizedPropertyName = propertyName.trim().toLowerCase();
   return EXPECTED_COLOR_PROPERTIES.map(x => x.toLowerCase()).includes(normalizedPropertyName);
+}
+
+export function getContrastColor(hexcolor) {
+  if (!hexcolor || hexcolor.length < 7) return '#000000';
+  const r = parseInt(hexcolor.substring(1, 3), 16);
+  const g = parseInt(hexcolor.substring(3, 5), 16);
+  const b = parseInt(hexcolor.substring(5, 7), 16);
+  const y = (r * 299 + g * 587 + b * 114) / 1000;
+  return y >= 128 ? '#000000' : '#FFFFFF';
 }

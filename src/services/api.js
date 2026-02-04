@@ -3,7 +3,7 @@ import { serialize } from 'object-to-formdata';
 import { useUserStore } from '@/stores/user';
 import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
-import { router } from '@/plugins/router';
+import router from '@/router';
 import translateErrors from '@/utils/translateErrors';
 
 const apiClient = axios.create({
