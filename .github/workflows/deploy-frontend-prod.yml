@@ -27,7 +27,7 @@ jobs:
         run: npm run build
         env:
           # Using the correct subdomain for the API
-          VITE_API_URL: 'https://api.hwnix.com'
+          VITE_API_URL: 'https://bill-api.hwnix.com'
 
       - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.9.0
