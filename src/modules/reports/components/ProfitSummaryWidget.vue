@@ -85,12 +85,12 @@ const loadProfitData = async () => {
 
     const last = await api.get({ date_from: lastMonthFrom, date_to: lastMonthTo }, { showLoading: false });
 
-    const currentProfit = current.result?.net_profit || 0;
-    const lastProfit = last.result?.net_profit || 0;
+    const currentProfit = current.data?.summary?.net_profit || 0;
+    const lastProfit = last.data?.summary?.net_profit || 0;
 
     profitData.value = {
-      revenue: current.revenues?.total || 0,
-      costs: current.costs?.total || 0,
+      revenue: current.data?.summary?.total_revenue || 0,
+      costs: current.data?.summary?.total_costs || 0,
       netProfit: currentProfit,
       change: lastProfit !== 0 ? ((currentProfit - lastProfit) / Math.abs(lastProfit)) * 100 : 0,
     };

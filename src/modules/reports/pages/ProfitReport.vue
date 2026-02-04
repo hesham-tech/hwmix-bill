@@ -126,9 +126,12 @@ const headers = [
 const tableData = computed(() => [...comparisonData.value].reverse());
 
 const loadReport = async () => {
+  console.log('Loading Profit Report with filters:', filters.value);
   loading.value = true;
   try {
     const res = await api.get(filters.value, { showLoading: false });
+    console.log('API Response received:', res);
+
     if (res.status) {
       const data = res.data || {};
       summary.value = {
@@ -138,14 +141,29 @@ const loadReport = async () => {
         net_profit: data.summary?.net_profit || 0,
       };
 
-      // Process large data in background worker
-      comparisonData.value = await postToWorker({
-        type: 'PROCESS_PROFIT_REPORT',
-        data: data.details || [],
+      // Process data directly (worker is overkill for small detail sets)
+      const rawDetails = data.details || [];
+      comparisonData.value = rawDetails.map(item => {
+        const revenue = parseFloat(item.revenue) || 0;
+        const costs = (parseFloat(item.cost_of_goods_sold) || 0) + (parseFloat(item.expenses) || 0);
+        const profit = parseFloat(item.net_profit) || 0;
+
+        return {
+          ...item,
+          month: item.date,
+          costs,
+          profit,
+          revenue,
+          margin: revenue > 0 ? ((profit / revenue) * 100).toFixed(2) : '0.00',
+        };
       });
+      console.log('Comparison data processed:', comparisonData.value);
     }
+  } catch (error) {
+    console.error('Error loading profit report:', error);
   } finally {
     loading.value = false;
+    console.log('Loading finished, loading state:', loading.value);
   }
 };
 
