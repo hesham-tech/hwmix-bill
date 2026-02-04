@@ -87,7 +87,16 @@ apiClient.interceptors.response.use(
           // Fallback if store import fails
           sessionStorage.removeItem('token');
           localStorage.removeItem('token');
-          window.location.href = '/login?sessionExpired=1';
+          router
+            .push({
+              path: '/login',
+              query: { sessionExpired: 1 },
+            })
+            .catch(err => {
+              // If router fails (e.g. before app init), fallback is unavoidable
+              console.error('Router push failed:', err);
+              window.location.href = '/login?sessionExpired=1';
+            });
         });
 
       return Promise.reject(error);

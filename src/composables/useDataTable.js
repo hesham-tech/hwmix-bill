@@ -194,6 +194,7 @@ export function useDataTable(fetchFunction, options = {}) {
    * تغيير الصفحة
    */
   const changePage = page => {
+    if (currentPage.value === page) return;
     currentPage.value = page;
     fetchData();
   };
@@ -202,6 +203,7 @@ export function useDataTable(fetchFunction, options = {}) {
    * تغيير عدد العناصر لكل صفحة
    */
   const changePerPage = value => {
+    if (perPage.value === value) return;
     perPage.value = value;
     currentPage.value = 1; // العودة للصفحة الأولى
     fetchData();
@@ -212,30 +214,38 @@ export function useDataTable(fetchFunction, options = {}) {
    * يدعم السلاسل النصية البسيطة أو كائنات Vuetify (sortBy array/options object)
    */
   const changeSort = column => {
+    let newSortBy = sortBy.value;
+    let newSortOrder = sortOrder.value;
+
     // 1. إذا كانت مصفوفة (نمط Vuetify 3: [{ key, order }])
     if (Array.isArray(column) && column.length > 0) {
-      const firstSort = column[0];
-      sortBy.value = firstSort.key;
-      sortOrder.value = firstSort.order || 'asc';
+      newSortBy = column[0].key;
+      newSortOrder = column[0].order || 'asc';
     }
     // 2. إذا كان كائن الخيارات بالكامل (update:options event)
     else if (column && typeof column === 'object' && Array.isArray(column.sortBy)) {
       if (column.sortBy.length > 0) {
-        const firstSort = column.sortBy[0];
-        sortBy.value = firstSort.key;
-        sortOrder.value = firstSort.order || 'asc';
+        newSortBy = column.sortBy[0].key;
+        newSortOrder = column.sortBy[0].order || 'asc';
       }
     }
     // 3. إذا كان اسم العمود كسلسلة نصية (النمط الكلاسيكي)
     else if (typeof column === 'string') {
       if (sortBy.value === column) {
-        sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
+        newSortOrder = sortOrder.value === 'asc' ? 'desc' : 'asc';
       } else {
-        sortBy.value = column;
-        sortOrder.value = 'asc';
+        newSortBy = column;
+        newSortOrder = 'asc';
       }
     }
 
+    // ✅ التحقق من التغيير الفعلي قبل إعادة الجلب (Prevent Double Fetch)
+    if (newSortBy === sortBy.value && newSortOrder === sortOrder.value) {
+      return;
+    }
+
+    sortBy.value = newSortBy;
+    sortOrder.value = newSortOrder;
     fetchData();
   };
 

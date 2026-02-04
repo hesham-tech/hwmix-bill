@@ -164,7 +164,7 @@ const {
   syncWithUrl: true,
   initialSortBy: 'due_date',
   initialSortOrder: 'asc',
-  immediate: false,
+  immediate: true,
 });
 
 // UI State

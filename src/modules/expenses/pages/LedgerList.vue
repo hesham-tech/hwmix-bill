@@ -103,12 +103,14 @@ const {
   perPage,
   total: totalItems,
   sortByVuetify,
+  sortBy,
+  changeSort,
   applyFilters,
   fetchData,
 } = useDataTable(params => financialLedgerService.getAll(params), {
   initialSortBy: 'created_at',
   initialSortOrder: 'desc',
-  immediate: false,
+  immediate: true,
 });
 
 const exportLoading = ref(false);
@@ -148,11 +150,7 @@ const handleAdvancedFilters = () => {
 };
 
 const handleOptionsUpdate = options => {
-  const { sortBy } = options;
-  if (sortBy && sortBy.length > 0) {
-    sortByVuetify.value = sortBy;
-    fetchData();
-  }
+  changeSort(options);
 };
 
 const resetFilters = () => {

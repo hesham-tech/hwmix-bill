@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import authService from '@/api/services/auth.service';
+import router from '@/router';
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(JSON.parse(sessionStorage.getItem('user') || localStorage.getItem('user') || 'null'));
@@ -35,8 +36,15 @@ export const useAuthStore = defineStore('auth', () => {
     userStore.clearUser();
 
     // Redirect to login if not already there
-    if (window.location.pathname !== '/login') {
-      window.location.href = '/login?sessionExpired=1';
+    // Redirect to login if not already there
+    if (router.currentRoute.value.path !== '/login') {
+      router.push({
+        path: '/login',
+        query: {
+          sessionExpired: 1,
+          redirect: router.currentRoute.value.fullPath,
+        },
+      });
     }
   }
 

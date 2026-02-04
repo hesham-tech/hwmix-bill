@@ -21,8 +21,20 @@ export const authGuard = async (to, from, next) => {
   if (isPublic && authStore.isAuthenticated) {
     // If user is already logged in and tries to access a public page (like Login or Landing)
     // We redirect them to their respective dashboard
-    if (!userStore.currentUser) {
-      await userStore.fetchUser();
+    // Check if user data is loaded, if not fetch it
+    if (!userStore.currentUser && authStore.isAuthenticated) {
+      try {
+        await userStore.fetchUser();
+      } catch (e) {
+        // If fetch fails, logout to prevent infinite loop
+        authStore.logout();
+        return next({ name: 'login' });
+      }
+    }
+
+    // Check for redirect URL in query
+    if (to.query.redirect) {
+      return next(to.query.redirect);
     }
 
     if (userStore.isStaff) {
@@ -48,8 +60,12 @@ export const permissionGuard = async (to, from, next) => {
   }
 
   // Fetch user permissions if not loaded
-  if (!userStore.currentUser) {
-    await userStore.fetchUser();
+  if (!userStore.currentUser && authStore.isAuthenticated) {
+    try {
+      await userStore.fetchUser();
+    } catch (e) {
+      return next({ name: 'login' });
+    }
   }
 
   const requiredPermission = to.meta.permission;

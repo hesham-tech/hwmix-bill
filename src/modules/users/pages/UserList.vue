@@ -498,7 +498,7 @@ const {
   syncWithUrl: true,
   initialSortBy: 'created_at',
   initialSortOrder: 'desc',
-  immediate: false,
+  immediate: true,
 });
 
 const currentCompanyOnly = computed({
@@ -516,17 +516,7 @@ const handleLoadMore = () => {
 };
 
 const onTableOptionsUpdate = options => {
-  // جلب الترتيب الحالي من الستيت والترتيب الجديد من الحدث
-  const currentSortKey = sortBy.value;
-  const currentSortOrder = sortOrder.value;
-  const newSortKey = options.sortBy?.[0]?.key;
-  const newSortOrder = options.sortBy?.[0]?.order || 'asc';
-
-  // لا نقوم برد فعل إلا إذا تغير الترتيب فعلياً
-  // هذا يمنع الـ Infinite Loop لأن تغيير الصفحة (Page) يطلق حدث options أيضاً
-  if (newSortKey !== currentSortKey || newSortOrder !== currentSortOrder) {
-    changeSort(options);
-  }
+  changeSort(options);
 };
 
 const handleFiltersChange = newFilters => {

@@ -132,12 +132,14 @@ const {
   perPage,
   total: totalItems,
   sortByVuetify,
+  sortBy,
+  changeSort,
   applyFilters,
   fetchData,
 } = useDataTable(params => expenseService.getAll(params), {
   initialSortBy: 'expense_date',
   initialSortOrder: 'desc',
-  immediate: false,
+  immediate: true,
 });
 
 const showExpenseDialog = ref(false);
@@ -188,12 +190,7 @@ const handleAdvancedFilters = () => {
 };
 
 const handleOptionsUpdate = options => {
-  // useDataTable changeSort handles this
-  const { sortBy } = options;
-  if (sortBy && sortBy.length > 0) {
-    sortByVuetify.value = sortBy;
-    fetchData();
-  }
+  changeSort(options);
 };
 
 const resetFilters = () => {
