@@ -38,6 +38,7 @@
           </v-btn-toggle>
 
           <v-btn
+            v-if="mobile"
             variant="tonal"
             color="primary"
             prepend-icon="ri-equalizer-line"
@@ -94,9 +95,6 @@
 
           <v-card v-if="viewMode === 'table'" rounded="md" class="border shadow-sm overflow-hidden">
             <AppDataTable
-              v-model:page="page"
-              v-model:items-per-page="itemsPerPage"
-              v-model:sort-by="sortByVuetify"
               :headers="headers"
               :items="products"
               :total-items="totalItems"
@@ -107,7 +105,7 @@
               @view="viewProduct"
               @edit="editProduct"
               @delete="confirmDelete"
-              @update:options="changeSort"
+              @update:options="onTableOptionsUpdate"
             >
               <template #item.name="{ item }">
                 <div @click="viewProduct(item)" class="d-flex align-center gap-3 py-2">
@@ -330,14 +328,26 @@ const {
   changePage,
   changeSort,
   applyFilters,
+  fetchData,
   refresh,
 } = useDataTable(fetchProductsApi, {
   syncWithUrl: true,
   initialSortBy: 'created_at',
   initialSortOrder: 'desc',
   initialFilters: { ...productStore.filters }, // ✅ مزامنة الفلاتر الأولية من المتجر
-  immediate: false,
+  immediate: true,
 });
+
+const onTableOptionsUpdate = options => {
+  const currentSortKey = sortBy.value;
+  const currentSortOrder = sortOrder.value;
+  const newSortKey = options.sortBy?.[0]?.key;
+  const newSortOrder = options.sortBy?.[0]?.order || 'asc';
+
+  if (newSortKey !== currentSortKey || newSortOrder !== currentSortOrder) {
+    changeSort(options);
+  }
+};
 
 const headers = [
   { title: 'المنتج', key: 'name', sortable: true },

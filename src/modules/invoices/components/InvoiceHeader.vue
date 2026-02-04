@@ -4,7 +4,7 @@
       <AppButton icon="ri-arrow-right-line" variant="text" color="secondary" @click="$emit('cancel')" class="me-2 me-sm-4" />
       <div>
         <h1 class="text-subtitle-1 text-sm-h5 font-weight-bold mb-0">
-          {{ isEdit ? 'تعديل الفاتورة' : 'إنشاء فاتورة جديدة' }}
+          {{ title || (isEdit ? 'تعديل الفاتورة' : 'إنشاء فاتورة جديدة') }}
         </h1>
         <div v-if="invoiceTotal > 0" class="text-caption text-sm-h6 font-weight-bold text-primary mt-0 mt-sm-1">
           الإجمالي: {{ formatCurrency(invoiceTotal) }}
@@ -35,6 +35,7 @@ defineProps({
   invoiceTotal: Number,
   loading: Boolean,
   canSubmit: Boolean,
+  title: String,
 });
 
 defineEmits(['save', 'cancel']);

@@ -86,7 +86,8 @@
                     :title="child.title"
                     :prepend-icon="child.icon || 'ri-subtract-line'"
                     class="menu-sub-item"
-                    selected-class="active-link"
+                    active-class="active-link"
+                    :active="isItemActive(child.to)"
                     @click="xs ? (drawer = false) : null"
                   />
                 </template>
@@ -97,7 +98,8 @@
                 :title="child.title"
                 :prepend-icon="child.icon || 'ri-subtract-line'"
                 class="menu-sub-item"
-                selected-class="active-link"
+                active-class="active-link"
+                :active="isItemActive(child.to)"
                 @click="xs ? (drawer = false) : null"
               />
             </template>
@@ -233,6 +235,18 @@ const filteredMenu = computed(() => {
 const canAccess = permission => {
   if (!permission) return true;
   return userStore.hasPermission(permission);
+};
+
+const isItemActive = itemPath => {
+  if (!itemPath) return false;
+
+  // If path contains query params, do strict check
+  if (itemPath.includes('?')) {
+    return route.fullPath === itemPath;
+  }
+
+  // Otherwise let Vuetify handle it (or basic path check)
+  return route.path === itemPath;
 };
 
 const handleLogout = async () => {

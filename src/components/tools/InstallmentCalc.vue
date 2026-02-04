@@ -68,6 +68,16 @@
             @update:model-value="onDataChange"
           />
         </v-col>
+        <v-col cols="6">
+          <v-text-field
+            v-model="plan.start_date"
+            label="تاريخ أول قسط"
+            type="date"
+            density="compact"
+            variant="outlined"
+            @update:model-value="onDataChange"
+          />
+        </v-col>
       </v-row>
 
       <v-row dense class="mt-2">

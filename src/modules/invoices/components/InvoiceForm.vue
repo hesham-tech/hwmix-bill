@@ -6,6 +6,7 @@
       :invoice-total="invoiceTotal"
       :loading="loading"
       :can-submit="canSubmit"
+      :title="formTitle"
       @save="saveInvoice"
       @cancel="$emit('cancel')"
     />
@@ -230,6 +231,21 @@ const canSubmit = computed(() => {
   return isFormValid.value && invoiceData.value.items.length > 0 && !loading.value;
 });
 
+const formTitle = computed(() => {
+  if (isEdit.value) return 'تعديل الفاتورة';
+
+  switch (currentContext.value) {
+    case 'sale':
+      return 'فاتورة بيع جديدة';
+    case 'installment_sale':
+      return 'فاتورة تقسيط جديدة';
+    case 'purchase':
+      return 'فاتورة شراء جديدة';
+    default:
+      return 'إنشاء فاتورة جديدة';
+  }
+});
+
 // Methods
 const addItem = productItem => {
   const existing = invoiceData.value.items.find(i => i.product_id === productItem.product_id && i.variant_id === productItem.variant_id);
@@ -407,7 +423,15 @@ const loadLookups = async () => {
 
     if (!isEdit.value) {
       if (invoiceTypes.value.length > 0) {
-        invoiceData.value.invoice_type_id = invoiceTypes.value[0].id;
+        // Try to find type matching the initialType prop (passed from query param)
+        const targetType = invoiceTypes.value.find(t => t.code === props.initialType);
+
+        if (targetType) {
+          invoiceData.value.invoice_type_id = targetType.id;
+        } else {
+          // Fallback to first type if specific type not found
+          invoiceData.value.invoice_type_id = invoiceTypes.value[0].id;
+        }
       }
 
       // Select default Warehouse
@@ -476,6 +500,19 @@ const fetchInvoice = async () => {
     loading.value = false;
   }
 };
+
+// Watch for route/type changes to switch invoice type dynamically
+watch(
+  () => props.initialType,
+  newType => {
+    if (!isEdit.value && newType && invoiceTypes.value.length > 0) {
+      const targetType = invoiceTypes.value.find(t => t.code === newType);
+      if (targetType) {
+        invoiceData.value.invoice_type_id = targetType.id;
+      }
+    }
+  }
+);
 
 onMounted(() => {
   loadLookups();

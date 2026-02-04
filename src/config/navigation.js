@@ -40,9 +40,21 @@ export default [
         permission: [PERMISSIONS.INVOICES_VIEW_ALL, PERMISSIONS.INVOICES_VIEW_CHILDREN, PERMISSIONS.INVOICES_VIEW_SELF],
       },
       {
-        title: 'فاتورة جديدة',
-        to: '/app/invoices/create',
+        title: 'فاتورة بيع',
+        to: '/app/invoices/create?type=sale',
         icon: 'ri-file-add-line',
+        permission: PERMISSIONS.INVOICES_CREATE,
+      },
+      {
+        title: 'فاتورة تقسيط',
+        to: '/app/invoices/create?type=installment_sale',
+        icon: 'ri-calendar-todo-line',
+        permission: PERMISSIONS.INVOICES_CREATE,
+      },
+      {
+        title: 'فاتورة شراء',
+        to: '/app/invoices/create?type=purchase',
+        icon: 'ri-shopping-cart-line',
         permission: PERMISSIONS.INVOICES_CREATE,
       },
     ],

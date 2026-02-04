@@ -73,9 +73,8 @@
               @load="handleLoadMore"
             >
               <AppDataTable
-                v-model:page="page"
-                v-model:items-per-page="itemsPerPage"
                 v-model:sort-by="sortByVuetify"
+                :items-per-page="-1"
                 :headers="headers"
                 :items="users || []"
                 :total-items="totalItems || 0"
@@ -260,9 +259,8 @@
             @load="handleLoadMore"
           >
             <AppDataTable
-              v-model:page="page"
-              v-model:items-per-page="itemsPerPage"
               v-model:sort-by="sortByVuetify"
+              :items-per-page="-1"
               :headers="headers"
               :items="users || []"
               :total-items="totalItems || 0"
@@ -518,7 +516,17 @@ const handleLoadMore = () => {
 };
 
 const onTableOptionsUpdate = options => {
-  changeSort(options);
+  // جلب الترتيب الحالي من الستيت والترتيب الجديد من الحدث
+  const currentSortKey = sortBy.value;
+  const currentSortOrder = sortOrder.value;
+  const newSortKey = options.sortBy?.[0]?.key;
+  const newSortOrder = options.sortBy?.[0]?.order || 'asc';
+
+  // لا نقوم برد فعل إلا إذا تغير الترتيب فعلياً
+  // هذا يمنع الـ Infinite Loop لأن تغيير الصفحة (Page) يطلق حدث options أيضاً
+  if (newSortKey !== currentSortKey || newSortOrder !== currentSortOrder) {
+    changeSort(options);
+  }
 };
 
 const handleFiltersChange = newFilters => {

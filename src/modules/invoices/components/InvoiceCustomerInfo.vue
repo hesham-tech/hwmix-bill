@@ -38,7 +38,7 @@
             @update:model-value="$emit('update:prop', { key: 'issue_date', value: $event })"
           />
         </v-col>
-        <v-col cols="6" md="4">
+        <v-col cols="6" md="4" v-if="!isInstallmentSale">
           <AppInput
             :model-value="modelValue.due_date"
             type="date"
@@ -78,8 +78,9 @@
 
 <script setup>
 import CustomerSelector from './CustomerSelector.vue';
+import { computed } from 'vue';
 
-defineProps({
+const props = defineProps({
   modelValue: {
     type: Object,
     required: true,
@@ -103,6 +104,11 @@ defineProps({
 });
 
 defineEmits(['update:selectedCustomer', 'create-customer', 'update:prop']);
+
+const isInstallmentSale = computed(() => {
+  const type = props.invoiceTypes.find(t => t.id === props.modelValue.invoice_type_id);
+  return type?.code === 'installment_sale';
+});
 </script>
 
 <style scoped>
