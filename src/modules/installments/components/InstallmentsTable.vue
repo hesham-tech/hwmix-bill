@@ -147,8 +147,8 @@ const emit = defineEmits(['view', 'pay', 'print-receipt']);
 
 // Logic for Row Decoration
 const getRowProps = ({ item }) => {
-  if (item.status === 'paid') return { class: 'bg-green-lighten-5' };
-  if (item.status === 'partially_paid') return { class: 'bg-yellow-lighten-5' };
+  if (item.status === 'paid') return { class: 'installment-row-paid' };
+  if (['partially_paid', 'partial'].includes(item.status)) return { class: 'installment-row-partial' };
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -156,7 +156,7 @@ const getRowProps = ({ item }) => {
   due.setHours(0, 0, 0, 0);
 
   if (item.status === 'overdue' || (['pending', 'partially_paid', 'partial'].includes(item.status) && due <= today)) {
-    return { class: 'bg-red-lighten-5' };
+    return { class: 'installment-row-overdue' };
   }
 
   return {};
@@ -255,15 +255,26 @@ const getDueDateClass = (dueDate, status) => {
 };
 </script>
 
-<style scoped>
-/* Premium light background colors */
-.bg-green-lighten-5 {
+<style>
+/* Unscoped style to reach TR elements inside AppDataTable */
+.installment-row-paid {
   background-color: #f1f8e9 !important;
 }
-.bg-yellow-lighten-5 {
+.installment-row-partial {
   background-color: #fff8e1 !important;
 }
-.bg-red-lighten-5 {
+.installment-row-overdue {
   background-color: #ffebee !important;
 }
+
+/* Hover effect stabilization */
+.v-data-table .installment-row-paid:hover,
+.v-data-table .installment-row-partial:hover,
+.v-data-table .installment-row-overdue:hover {
+  filter: brightness(0.98);
+}
+</style>
+
+<style scoped>
+/* Scoped styles can remain for local elements if needed */
 </style>

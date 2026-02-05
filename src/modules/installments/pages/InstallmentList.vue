@@ -55,6 +55,7 @@
               v-model:items-per-page="itemsPerPage"
               v-model:page="page"
               v-model:sort-by="sortByVuetify"
+              :auto-sort="false"
               @update:options="changeSort"
               @view="handleView"
               @pay="handlePay"

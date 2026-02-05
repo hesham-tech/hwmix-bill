@@ -227,6 +227,14 @@ export function useDataTable(fetchFunction, options = {}) {
     }
     // 2. إذا كان كائن الخيارات بالكامل (update:options event)
     else if (column && typeof column === 'object' && Array.isArray(column.sortBy)) {
+      // ✅ تحديث عدد العناصر والصفحة إذا تم تمريرهما مع الترتيب
+      if (column.itemsPerPage !== undefined && perPage.value !== column.itemsPerPage) {
+        perPage.value = column.itemsPerPage;
+        currentPage.value = 1; // تصفير الصفحة عند تغيير العدد
+      } else if (column.page !== undefined && currentPage.value !== column.page) {
+        currentPage.value = column.page;
+      }
+
       if (column.sortBy.length > 0) {
         newSortBy = column.sortBy[0].key;
         newSortOrder = column.sortBy[0].order || 'asc';
