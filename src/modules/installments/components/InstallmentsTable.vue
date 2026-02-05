@@ -79,7 +79,10 @@
     <template #extra-actions="{ item }">
       <!-- Pay: Only if pending/overdue/partial AND has permission -->
       <AppButton
-        v-if="['pending', 'partially_paid', 'overdue'].includes(item.status) && can(PERMISSIONS.PAYMENTS_CREATE)"
+        v-if="
+          ['pending', 'partially_paid', 'partial', 'overdue'].includes(item.status) &&
+          canAny(PERMISSIONS.PAYMENTS_CREATE, PERMISSIONS.INSTALLMENT_PAYMENTS_CREATE)
+        "
         icon="ri-hand-coin-line"
         size="small"
         variant="elevated"
@@ -128,7 +131,7 @@ import { formatCurrency, formatDate } from '@/utils/formatters';
 import { usePermissions } from '@/composables/usePermissions';
 import { PERMISSIONS } from '@/config/permissions';
 
-const { can } = usePermissions();
+const { can, canAny } = usePermissions();
 
 const props = defineProps({
   items: { type: Array, default: () => [] },
@@ -152,7 +155,7 @@ const getRowProps = ({ item }) => {
   const due = new Date(item.due_date);
   due.setHours(0, 0, 0, 0);
 
-  if (item.status === 'overdue' || (['pending', 'partially_paid'].includes(item.status) && due <= today)) {
+  if (item.status === 'overdue' || (['pending', 'partially_paid', 'partial'].includes(item.status) && due <= today)) {
     return { class: 'bg-red-lighten-5' };
   }
 
@@ -170,7 +173,7 @@ const displayItems = computed(() => {
     const isOverdue = item => {
       const due = new Date(item.due_date);
       due.setHours(0, 0, 0, 0);
-      return item.status === 'overdue' || (['pending', 'partially_paid'].includes(item.status) && due <= today);
+      return item.status === 'overdue' || (['pending', 'partially_paid', 'partial'].includes(item.status) && due <= today);
     };
 
     const aOverdue = isOverdue(a);
@@ -181,7 +184,7 @@ const displayItems = computed(() => {
     if (!aOverdue && bOverdue) return 1;
 
     // 2. Status priority for others
-    const priority = { pending: 1, partially_paid: 2, paid: 3, canceled: 4, cancelled: 4 };
+    const priority = { pending: 1, partially_paid: 2, partial: 2, paid: 3, canceled: 4, cancelled: 4 };
     const aPrio = priority[a.status] ?? 99;
     const bPrio = priority[b.status] ?? 99;
 
@@ -253,12 +256,12 @@ const getDueDateClass = (dueDate, status) => {
 </script>
 
 <style scoped>
-/* Vuetify standard light background colors */
+/* Premium light background colors */
 .bg-green-lighten-5 {
-  background-color: #e8f5e9 !important;
+  background-color: #f1f8e9 !important;
 }
 .bg-yellow-lighten-5 {
-  background-color: #fffde7 !important;
+  background-color: #fff8e1 !important;
 }
 .bg-red-lighten-5 {
   background-color: #ffebee !important;
