@@ -111,7 +111,8 @@ export const useUserStore = defineStore('user', () => {
         company_id: companyId,
       });
 
-      if (response.data.success) {
+      // Backend sends { status: true, ... }
+      if (response.data.status || response.data.success) {
         // Full page reload is the safest way to reset all stores and
         // ensure all subsequent requests use the new company context.
         window.location.reload();
@@ -163,7 +164,7 @@ export const useUserStore = defineStore('user', () => {
         },
       });
 
-      if (response.data.success) {
+      if (response.data.status || response.data.success) {
         // Update local state
         const companyIndex = companies.value.findIndex(c => c.id === companyId);
         if (companyIndex !== -1) {
