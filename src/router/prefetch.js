@@ -5,15 +5,9 @@
 
 // Common routes that should be prefetched after initial load
 const COMMON_ROUTES_TO_PREFETCH = [
-  // Admin routes - most frequently accessed
+  // Only prefetch the absolute most critical entry points
   () => import('@/modules/reports/pages/Dashboard.vue'),
   () => import('@/modules/invoices/pages/InvoiceList.vue'),
-  () => import('@/modules/products/pages/ProductList.vue'),
-  () => import('@/modules/payments/pages/PaymentList.vue'),
-
-  // Customer portal
-  () => import('@/modules/customer/portal/dashboard/pages/CustomerDashboard.vue'),
-  () => import('@/modules/customer/portal/purchases/pages/Purchases.vue'),
 ];
 
 // Routes to prefetch when user is on a list page
@@ -37,14 +31,17 @@ export function prefetchCommonRoutes() {
   }
 
   requestIdleCallback(() => {
-    COMMON_ROUTES_TO_PREFETCH.forEach((route, index) => {
-      // Stagger prefetches to avoid network congestion
-      setTimeout(() => {
-        route().catch(err => {
-          console.debug('[Prefetch] Failed to prefetch common route:', err);
-        });
-      }, index * 100);
-    });
+    // Large initial delay to let the main app fully stabilize
+    setTimeout(() => {
+      COMMON_ROUTES_TO_PREFETCH.forEach((route, index) => {
+        // Stagger prefetches by 1 second to avoid network congestion
+        setTimeout(() => {
+          route().catch(err => {
+            console.debug('[Prefetch] Failed to prefetch common route:', err);
+          });
+        }, index * 1000);
+      });
+    }, 5000);
   });
 }
 
@@ -58,9 +55,13 @@ export function prefetchRelatedRoutes(routeName) {
 
   requestIdleCallback(() => {
     routes.forEach((route, index) => {
-      setTimeout(() => {
-        route().catch(() => {});
-      }, index * 100);
+      // Stagger related routes as well
+      setTimeout(
+        () => {
+          route().catch(() => {});
+        },
+        (index + 1) * 1000
+      );
     });
   });
 }

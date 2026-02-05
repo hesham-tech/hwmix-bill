@@ -33,8 +33,10 @@ export default defineConfig({
         ],
       },
       workbox: {
-        // Cache all assets for offline use
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,gz,br}'],
+        // Only pre-cache essential "App Shell" assets to avoid huge request waterfalls
+        globPatterns: ['index.html', 'assets/main-*.js', 'assets/index-*.js', 'assets/*.css', '**/*.{ico,png,svg}'],
+        // Exclude large or non-essential chunks from pre-caching
+        globIgnores: ['**/vendor-*.js', '**/Dashboard-*.js', '**/InvoiceList-*.js'],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
