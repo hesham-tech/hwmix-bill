@@ -164,35 +164,39 @@ const getRowProps = ({ item }) => {
 
 // Logic for Sorting: Overdue first, then oldest pending
 const displayItems = computed(() => {
-  if (!props.autoSort) return props.items;
-
-  return [...props.items].sort((a, b) => {
+  // If autoSort is true, we keep local sorting (useful for small widgets like dashboard)
+  if (props.autoSort) {
+    const list = [...props.items];
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const isOverdue = item => {
-      const due = new Date(item.due_date);
-      due.setHours(0, 0, 0, 0);
-      return item.status === 'overdue' || (['pending', 'partially_paid', 'partial'].includes(item.status) && due <= today);
-    };
+    return list.sort((a, b) => {
+      const aDue = new Date(a.due_date);
+      const bDue = new Date(b.due_date);
+      aDue.setHours(0, 0, 0, 0);
+      bDue.setHours(0, 0, 0, 0);
 
-    const aOverdue = isOverdue(a);
-    const bOverdue = isOverdue(b);
+      // 1. Critical Priority (Overdue/Today)
+      const aCritical = !['paid', 'canceled', 'cancelled'].includes(a.status) && aDue <= today;
+      const bCritical = !['paid', 'canceled', 'cancelled'].includes(b.status) && bDue <= today;
 
-    // 1. Overdue/Due Today priority
-    if (aOverdue && !bOverdue) return -1;
-    if (!aOverdue && bOverdue) return 1;
+      if (aCritical && !bCritical) return -1;
+      if (!aCritical && bCritical) return 1;
 
-    // 2. Status priority for others
-    const priority = { pending: 1, partially_paid: 2, partial: 2, paid: 3, canceled: 4, cancelled: 4 };
-    const aPrio = priority[a.status] ?? 99;
-    const bPrio = priority[b.status] ?? 99;
+      // 2. Status Priority
+      const priority = { pending: 1, partially_paid: 2, partial: 2, paid: 3, canceled: 4, cancelled: 4 };
+      const aPrio = priority[a.status] ?? 99;
+      const bPrio = priority[b.status] ?? 99;
 
-    if (aPrio !== bPrio) return aPrio - bPrio;
+      if (aPrio !== bPrio) return aPrio - bPrio;
 
-    // 3. Date priority (oldest first)
-    return new Date(a.due_date) - new Date(b.due_date);
-  });
+      // 3. Date
+      return aDue - bDue;
+    });
+  }
+
+  // Otherwise, strictly follow server order
+  return props.items;
 });
 
 const computedHeaders = computed(() => {
