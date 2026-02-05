@@ -55,8 +55,6 @@
               v-model:items-per-page="itemsPerPage"
               v-model:page="page"
               v-model:sort-by="sortByVuetify"
-              :row-props="getRowProps"
-              :can-pay="canAny(PERMISSIONS.PAYMENTS_CREATE)"
               @update:options="changeSort"
               @view="handleView"
               @pay="handlePay"
@@ -83,8 +81,6 @@
             v-model:items-per-page="itemsPerPage"
             v-model:page="page"
             v-model:sort-by="sortByVuetify"
-            :row-props="getRowProps"
-            :can-pay="canAny(PERMISSIONS.PAYMENTS_CREATE)"
             @update:options="changeSort"
             @view="handleView"
             @pay="handlePay"
@@ -169,36 +165,6 @@ const {
 
 // UI State
 const showAdvanced = ref(false);
-
-const getRowProps = ({ item }) => {
-  if (item.status === 'pending' || item.status === 'overdue') {
-    return { class: 'bg-error-lighten-5' };
-  }
-  return {};
-};
-
-// onMounted removed - no initialization needed
-
-const getDueDateClass = (dueDate, status) => {
-  if (status === 'paid') return 'text-success';
-  if (status === 'cancelled') return 'text-grey';
-
-  const today = new Date();
-  const due = new Date(dueDate);
-  if (due < today) return 'text-error font-weight-bold';
-  return '';
-};
-
-const getStatusColor = status => {
-  const colors = {
-    pending: 'warning',
-    paid: 'success',
-    overdue: 'error',
-    canceled: 'grey',
-    partially_paid: 'info',
-  };
-  return colors[status] || 'grey';
-};
 
 const getStatusLabel = status => {
   const labels = {

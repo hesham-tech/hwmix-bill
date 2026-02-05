@@ -131,7 +131,6 @@
               :loading="loading"
               :show-customer="false"
               :show-plan="false"
-              :can-pay="canAny(PERMISSIONS.PAYMENTS_CREATE)"
               rounded="md"
               class="border shadow-sm"
               @view="openDetails"
@@ -217,19 +216,6 @@ const loadPlan = async () => {
   }
 };
 
-const getStatusColor = status => {
-  const colors = {
-    active: 'success',
-    pending: 'warning',
-    completed: 'info',
-    canceled: 'error',
-    paid: 'success',
-    overdue: 'error',
-    partially_paid: 'info',
-  };
-  return colors[status] || 'grey';
-};
-
 const getStatusLabel = status => {
   const labels = {
     active: 'نشط',
@@ -241,25 +227,6 @@ const getStatusLabel = status => {
     partially_paid: 'مدفوع جزئياً',
   };
   return labels[status] || status;
-};
-
-const getFrequencyLabel = freq => {
-  const labels = {
-    monthly: 'شهرياً',
-    weekly: 'أسبوعياً',
-    biweekly: 'كل أسبوعين',
-    quarterly: 'كل 3 شهور',
-  };
-  return labels[freq] || freq;
-};
-
-const getDueDateClass = (dueDate, status) => {
-  if (status === 'paid') return 'text-success';
-  if (status === 'canceled') return 'text-grey';
-  const today = new Date();
-  const due = new Date(dueDate);
-  if (due < today) return 'text-error font-weight-bold';
-  return '';
 };
 
 const markAsPaid = async installment => {

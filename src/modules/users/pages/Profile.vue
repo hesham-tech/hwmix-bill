@@ -21,8 +21,8 @@
               @crop="handleCurrentCrop"
             />
 
-            <h3 class=\"text-h6 font-weight-bold mb-1\">{{ userStore.currentUser?.name }}</h3>
-            <v-chip color=\"primary\" variant=\"tonal\" size=\"small\" class=\"mb-4\">
+            <h3 class="text-h6 font-weight-bold mb-1">{{ userStore.currentUser?.name }}</h3>
+            <v-chip color="primary" variant="tonal" size="small" class="mb-4">
               {{ userStore.currentUser?.role || 'مستخدم' }}
             </v-chip>
 

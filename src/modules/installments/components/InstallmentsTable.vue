@@ -1,13 +1,14 @@
 <template>
   <AppDataTable
     :headers="computedHeaders"
-    :items="items"
+    :items="displayItems"
     :loading="loading"
     :total-items="totalItems"
     v-bind="$attrs"
     :can-edit="false"
     :can-delete="false"
     :can-view="false"
+    :row-props="getRowProps"
     title="جدول الأقساط"
     icon="ri-list-check-line"
   >
@@ -76,18 +77,35 @@
 
     <!-- Actions -->
     <template #extra-actions="{ item }">
+      <!-- Pay: Only if pending/overdue/partial AND has permission -->
       <AppButton
-        v-if="['paid', 'partially_paid'].includes(item.status) || item.remaining <= 0"
+        v-if="['pending', 'partially_paid', 'overdue'].includes(item.status) && can(PERMISSIONS.PAYMENTS_CREATE)"
+        icon="ri-hand-coin-line"
+        size="small"
+        variant="elevated"
+        color="success"
+        class="font-weight-black ms-1 px-3"
+        tooltip="تحصيل المبلغ"
+        @click.stop="$emit('pay', item)"
+      >
+        دفع
+      </AppButton>
+
+      <!-- Print Receipt: Only if paid or partially paid -->
+      <AppButton
+        v-if="['paid', 'partially_paid'].includes(item.status)"
         icon="ri-printer-fill"
         size="small"
         variant="elevated"
         color="teal-darken-1"
-        class="font-weight-black ms-2 px-3"
+        class="font-weight-black ms-1 px-3"
         tooltip="طباعة الإيصال"
         @click.stop="$emit('print-receipt', item)"
       >
         طباعة
       </AppButton>
+
+      <!-- View Details -->
       <AppButton
         icon="ri-eye-line"
         size="small"
@@ -96,18 +114,8 @@
         class="font-weight-bold ms-1"
         tooltip="عرض التفاصيل"
         @click.stop="$emit('view', item)"
-      />
-      <AppButton
-        v-if="['pending', 'partially_paid', 'overdue'].includes(item.status) && canPay"
-        icon="ri-hand-coin-line"
-        size="small"
-        variant="tonal"
-        color="success"
-        class="font-weight-bold ms-1"
-        tooltip="تحصيل المبلغ"
-        @click.stop="$emit('pay', item)"
       >
-        دفع
+        عرض
       </AppButton>
     </template>
   </AppDataTable>
@@ -117,6 +125,10 @@
 import { computed } from 'vue';
 import { AppDataTable, AppButton, AppAvatar, AppPhone } from '@/components';
 import { formatCurrency, formatDate } from '@/utils/formatters';
+import { usePermissions } from '@/composables/usePermissions';
+import { PERMISSIONS } from '@/config/permissions';
+
+const { can } = usePermissions();
 
 const props = defineProps({
   items: { type: Array, default: () => [] },
@@ -125,10 +137,60 @@ const props = defineProps({
   showCustomer: { type: Boolean, default: true },
   showPlan: { type: Boolean, default: true },
   showRemaining: { type: Boolean, default: true },
-  canPay: { type: Boolean, default: true },
+  autoSort: { type: Boolean, default: true }, // Whether to sort locally
 });
 
 const emit = defineEmits(['view', 'pay', 'print-receipt']);
+
+// Logic for Row Decoration
+const getRowProps = ({ item }) => {
+  if (item.status === 'paid') return { class: 'bg-green-lighten-5' };
+  if (item.status === 'partially_paid') return { class: 'bg-yellow-lighten-5' };
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const due = new Date(item.due_date);
+  due.setHours(0, 0, 0, 0);
+
+  if (item.status === 'overdue' || (['pending', 'partially_paid'].includes(item.status) && due <= today)) {
+    return { class: 'bg-red-lighten-5' };
+  }
+
+  return {};
+};
+
+// Logic for Sorting: Overdue first, then oldest pending
+const displayItems = computed(() => {
+  if (!props.autoSort) return props.items;
+
+  return [...props.items].sort((a, b) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const isOverdue = item => {
+      const due = new Date(item.due_date);
+      due.setHours(0, 0, 0, 0);
+      return item.status === 'overdue' || (['pending', 'partially_paid'].includes(item.status) && due <= today);
+    };
+
+    const aOverdue = isOverdue(a);
+    const bOverdue = isOverdue(b);
+
+    // 1. Overdue/Due Today priority
+    if (aOverdue && !bOverdue) return -1;
+    if (!aOverdue && bOverdue) return 1;
+
+    // 2. Status priority for others
+    const priority = { pending: 1, partially_paid: 2, paid: 3, canceled: 4, cancelled: 4 };
+    const aPrio = priority[a.status] ?? 99;
+    const bPrio = priority[b.status] ?? 99;
+
+    if (aPrio !== bPrio) return aPrio - bPrio;
+
+    // 3. Date priority (oldest first)
+    return new Date(a.due_date) - new Date(b.due_date);
+  });
+});
 
 const computedHeaders = computed(() => {
   const h = [];
@@ -138,7 +200,7 @@ const computedHeaders = computed(() => {
   h.push({ title: 'تاريخ الاستحقاق', key: 'due_date', sortable: true });
   h.push({ title: 'القيمة', key: 'amount', align: 'end', sortable: true });
   h.push({ title: 'الحالة', key: 'status', sortable: true });
-  h.push({ title: 'الإجراءات', key: 'actions', sortable: false, align: 'end', width: '180px' });
+  h.push({ title: 'الإجراءات', key: 'actions', sortable: false, align: 'end', width: '220px' });
   return h;
 });
 
@@ -156,7 +218,7 @@ const getStatusColor = status => {
     pending: 'warning',
     paid: 'success',
     overdue: 'error',
-    canceled: 'grey', // One 'L' as per standardization
+    canceled: 'grey',
     cancelled: 'grey',
     partially_paid: 'info',
   };
@@ -180,8 +242,25 @@ const getDueDateClass = (dueDate, status) => {
   if (status === 'canceled' || status === 'cancelled') return 'text-grey';
 
   const today = new Date();
+  today.setHours(0, 0, 0, 0);
   const due = new Date(dueDate);
+  due.setHours(0, 0, 0, 0);
+
   if (due < today) return 'text-error font-weight-bold';
+  if (due.getTime() === today.getTime()) return 'text-error font-weight-bold';
   return '';
 };
 </script>
+
+<style scoped>
+/* Vuetify standard light background colors */
+.bg-green-lighten-5 {
+  background-color: #e8f5e9 !important;
+}
+.bg-yellow-lighten-5 {
+  background-color: #fffde7 !important;
+}
+.bg-red-lighten-5 {
+  background-color: #ffebee !important;
+}
+</style>
