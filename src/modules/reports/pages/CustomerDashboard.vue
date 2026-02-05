@@ -90,7 +90,7 @@
             </template>
           </AppDataTable>
           <div class="text-center mt-4">
-            <AppButton variant="text" to="/invoices">عرض كافة الفواتير</AppButton>
+            <AppButton variant="text" to="/app/invoices">عرض كافة الفواتير</AppButton>
           </div>
         </v-window-item>
 

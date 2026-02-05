@@ -182,7 +182,7 @@
     <div v-else class="text-center py-16">
       <v-icon icon="ri-user-search-line" size="64" color="grey-lighten-2" />
       <h3 class="text-h5 text-grey mt-4">المستخدم غير موجود</h3>
-      <AppButton variant="text" color="primary" class="mt-4" @click="$router.push('/users')">العودة لقائمة المستخدمين</AppButton>
+      <AppButton variant="text" color="primary" class="mt-4" @click="$router.push('/app/users')">العودة لقائمة المستخدمين</AppButton>
     </div>
 
     <!-- User Form Dialog -->

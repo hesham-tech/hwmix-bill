@@ -114,28 +114,28 @@ const quickActions = [
     subtitle: 'إنشاء فاتورة بيع',
     icon: 'ri-file-add-line',
     color: 'primary',
-    route: '/invoices/create',
+    route: '/app/invoices/create',
   },
   {
     title: 'تسجيل دفعة',
     subtitle: 'إضافة دفعة جديدة',
     icon: 'ri-money-dollar-circle-line',
     color: 'success',
-    route: '/payments/create',
+    route: '/app/payments/create',
   },
   {
     title: 'منتج جديد',
     subtitle: 'إضافة منتج للمخزون',
     icon: 'ri-shopping-bag-line',
     color: 'info',
-    route: '/products/create',
+    route: '/app/products/create',
   },
   {
     title: 'عرض التقارير',
     subtitle: 'تقارير مفصلة',
     icon: 'ri-bar-chart-line',
     color: 'warning',
-    route: '/reports',
+    route: '/app/reports',
   },
 ];
 

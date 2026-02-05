@@ -93,7 +93,7 @@
                     <div class="d-flex flex-column">
                       <span
                         class="font-weight-bold text-body-1 text-primary cursor-pointer hover-underline"
-                        @click="$router.push(`/users/${item.id}`)"
+                        @click="$router.push(`/app/users/${item.id}`)"
                       >
                         {{ item.nickname || item.full_name }}
                       </span>

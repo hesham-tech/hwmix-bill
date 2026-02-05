@@ -4,7 +4,7 @@
       <v-icon icon="ri-list-check-line" color="primary" />
       <span class="text-h6 font-weight-bold">مهامي اليوم</span>
       <v-spacer />
-      <v-btn icon="ri-external-link-line" variant="text" size="small" to="/tasks" />
+      <v-btn icon="ri-external-link-line" variant="text" size="small" to="/app/tasks" />
     </v-card-title>
 
     <v-divider />

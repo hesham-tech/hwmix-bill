@@ -113,9 +113,9 @@ export const useUserStore = defineStore('user', () => {
 
       // Backend sends { status: true, ... }
       if (response.data.status || response.data.success) {
-        // Full page reload is the safest way to reset all stores and
+        // Full redirect is the safest way to reset all stores and
         // ensure all subsequent requests use the new company context.
-        window.location.reload();
+        window.location.href = '/app';
       }
     } catch (error) {
       console.error('Failed to switch company:', error);

@@ -21,8 +21,8 @@
               @crop="handleCurrentCrop"
             />
 
-            <h3 class="text-h6 font-weight-bold mb-1">{{ userStore.currentUser?.name }}</h3>
-            <v-chip color="primary" variant="tonal" size="small" class="mb-4">
+            <h3 class=\"text-h6 font-weight-bold mb-1\">{{ userStore.currentUser?.name }}</h3>
+            <v-chip color=\"primary\" variant=\"tonal\" size=\"small\" class=\"mb-4\">
               {{ userStore.currentUser?.role || 'مستخدم' }}
             </v-chip>
 
@@ -123,7 +123,7 @@
         <AppCard title="إجراءات سريعة" icon="ri-flashlight-line">
           <v-list density="compact" nav>
             <v-list-item prepend-icon="ri-lock-password-line" title="تغيير كلمة المرور" to="/forgot-password" />
-            <v-list-item prepend-icon="ri-history-line" title="سجل نشاطاتي" :to="`/activity-logs?user_id=${userStore.currentUser?.id}`" />
+            <v-list-item prepend-icon="ri-history-line" title="سجل نشاطاتي" :to="`/app/activity-logs?user_id=${userStore.currentUser?.id}`" />
           </v-list>
         </AppCard>
       </v-col>
