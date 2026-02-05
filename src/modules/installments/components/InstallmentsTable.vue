@@ -96,8 +96,8 @@
 
       <!-- Print Receipt: Only if paid or partially paid -->
       <AppButton
-        v-if="['paid', 'partially_paid'].includes(item.status)"
-        icon="ri-printer-fill"
+        v-if="['paid', 'partially_paid', 'partial'].includes(item.status)"
+        icon="ri-printer-line"
         size="small"
         variant="elevated"
         color="teal-darken-1"

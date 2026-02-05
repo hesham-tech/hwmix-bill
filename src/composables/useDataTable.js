@@ -213,12 +213,12 @@ export function useDataTable(fetchFunction, options = {}) {
   };
 
   /**
-   * تغيير الترتيب
-   * يدعم السلاسل النصية البسيطة أو كائنات Vuetify (sortBy array/options object)
+   * تغيير الترتيب أو خيارات الجدول (Vuetify update:options)
    */
   const changeSort = column => {
     let newSortBy = sortBy.value;
     let newSortOrder = sortOrder.value;
+    let hasPaginationChanged = false;
 
     // 1. إذا كانت مصفوفة (نمط Vuetify 3: [{ key, order }])
     if (Array.isArray(column) && column.length > 0) {
@@ -231,8 +231,10 @@ export function useDataTable(fetchFunction, options = {}) {
       if (column.itemsPerPage !== undefined && perPage.value !== column.itemsPerPage) {
         perPage.value = column.itemsPerPage;
         currentPage.value = 1; // تصفير الصفحة عند تغيير العدد
+        hasPaginationChanged = true;
       } else if (column.page !== undefined && currentPage.value !== column.page) {
         currentPage.value = column.page;
+        hasPaginationChanged = true;
       }
 
       if (column.sortBy.length > 0) {
@@ -251,7 +253,9 @@ export function useDataTable(fetchFunction, options = {}) {
     }
 
     // ✅ التحقق من التغيير الفعلي قبل إعادة الجلب (Prevent Double Fetch)
-    if (newSortBy === sortBy.value && newSortOrder === sortOrder.value) {
+    const hasSortChanged = newSortBy !== sortBy.value || newSortOrder !== sortOrder.value;
+
+    if (!hasSortChanged && !hasPaginationChanged) {
       return;
     }
 
