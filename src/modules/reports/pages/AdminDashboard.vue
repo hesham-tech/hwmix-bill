@@ -2,7 +2,10 @@
   <div class="admin-dashboard">
     <div class="mb-6 px-6 pt-6 d-flex align-center justify-space-between">
       <div>
-        <h1 class="text-h4 font-weight-bold">لوحة التحكم الإحصائية</h1>
+        <div class="d-flex align-center">
+          <v-chip color="primary" class="me-3" size="small" variant="elevated">Static</v-chip>
+          <h1 class="text-h4 font-weight-bold">لوحة التحكم الإحصائية</h1>
+        </div>
         <p class="text-body-1 text-grey">تحليل أداء النظام، الفواتير، وحركات المخزون في مكان واحد</p>
       </div>
       <AppButton color="primary" prepend-icon="ri-refresh-line" variant="tonal" :loading="refreshing" @click="refreshAll"> تحديث البيانات </AppButton>
