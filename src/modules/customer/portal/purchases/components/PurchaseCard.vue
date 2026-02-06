@@ -4,7 +4,7 @@
       <div class="d-flex justify-space-between align-center mb-4">
         <div>
           <div class="text-caption text-grey mb-1">رقم الفاتورة</div>
-          <div class="text-h6 font-weight-black text-primary">#{{ purchase.invoice_number }}</div>
+          <div class="text-h6 font-weight-bold text-primary">#{{ purchase.invoice_number }}</div>
         </div>
         <v-chip :color="getStatusColor(purchase.status)" size="small" variant="tonal" class="font-weight-bold px-3">
           {{ getStatusLabel(purchase.status) }}

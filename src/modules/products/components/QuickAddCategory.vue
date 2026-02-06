@@ -11,7 +11,7 @@
         <v-avatar color="primary-lighten-5" rounded="md" size="40">
           <v-icon icon="ri-folder-add-line" color="primary" />
         </v-avatar>
-        <span class="font-weight-black">إضافة قسم جديد</span>
+        <span class="font-weight-bold">إضافة قسم جديد</span>
       </v-card-title>
 
       <v-card-text class="mt-4">

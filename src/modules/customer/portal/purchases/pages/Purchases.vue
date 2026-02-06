@@ -4,7 +4,7 @@
       <!-- Welcome Header -->
       <div class="d-flex justify-space-between align-center mb-6">
         <div>
-          <h1 class="text-h4 font-weight-black mb-1">مشترياتي</h1>
+          <h1 class="text-h4 font-weight-bold mb-1">مشترياتي</h1>
           <p class="text-subtitle-1 text-grey-darken-1">تابع فواتيرك ومدفوعاتك بكل سهولة</p>
         </div>
         <v-avatar color="primary" rounded="md" size="56" class="elevation-4 shadow-primary">
@@ -17,19 +17,19 @@
         <v-col cols="12" sm="4">
           <v-card variant="flat" border class="rounded-md pa-4 bg-primary-lighten-5 border-primary opacity-90">
             <div class="text-caption text-primary-darken-2 font-weight-bold mb-1">إجمالي المشتريات</div>
-            <div class="text-h5 font-weight-black">{{ formatCurrency(summary.total_amount) }}</div>
+            <div class="text-h5 font-weight-bold">{{ formatCurrency(summary.total_amount) }}</div>
           </v-card>
         </v-col>
         <v-col cols="12" sm="4">
           <v-card variant="flat" border class="rounded-md pa-4 bg-error-lighten-5 border-error">
             <div class="text-caption text-error-darken-2 font-weight-bold mb-1">المبلغ المطلوب سداده</div>
-            <div class="text-h5 font-weight-black text-error">{{ formatCurrency(summary.due_amount) }}</div>
+            <div class="text-h5 font-weight-bold text-error">{{ formatCurrency(summary.due_amount) }}</div>
           </v-card>
         </v-col>
         <v-col cols="12" sm="4">
           <v-card variant="flat" border class="rounded-md pa-4 bg-success-lighten-5 border-success">
             <div class="text-caption text-success-darken-2 font-weight-bold mb-1">عدد الفواتير</div>
-            <div class="text-h5 font-weight-black">{{ total }}</div>
+            <div class="text-h5 font-weight-bold">{{ total }}</div>
           </v-card>
         </v-col>
       </v-row>

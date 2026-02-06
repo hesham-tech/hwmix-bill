@@ -16,7 +16,7 @@
               <v-icon :icon="icon" color="white" size="24" />
             </div>
             <div class="header-text-container">
-              <span class="text-h6 font-weight-black d-block title-text">{{ title }}</span>
+              <span class="text-h6 font-weight-bold d-block title-text">{{ title }}</span>
               <span v-if="subtitle" class="text-caption d-block opacity-80 subtitle-text">{{ subtitle }}</span>
             </div>
           </div>
@@ -49,7 +49,7 @@
             variant="flat"
             :color="confirmColor"
             :loading="loading"
-            class="px-8 font-weight-black rounded-md shadow-md"
+            class="px-8 font-weight-bold rounded-md shadow-md"
             @click="handleConfirm"
           >
             <v-icon v-if="!loading" icon="ri-checkbox-circle-line" class="me-2" />

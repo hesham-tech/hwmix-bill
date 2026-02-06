@@ -96,7 +96,7 @@
         <v-col cols="12">
           <v-card variant="tonal" color="primary" class="pa-3 text-center">
             <div class="text-caption mb-1">تفاصيل الأقساط</div>
-            <div class="text-h6 font-weight-black" v-html="scheduleSummary" />
+            <div class="text-h6 font-weight-bold" v-html="scheduleSummary" />
           </v-card>
         </v-col>
       </v-row>

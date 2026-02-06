@@ -64,7 +64,7 @@
         </template>
 
         <template #item.amount="{ item }">
-          <div class="font-weight-black text-body-1 text-success">
+          <div class="font-weight-bold text-body-1 text-success">
             {{ formatCurrency(item.amount) }}
           </div>
         </template>
@@ -95,7 +95,7 @@
           <v-col cols="12" sm="6">
             <div class="pa-3 border rounded-md bg-grey-lighten-5 mb-2">
               <div class="text-caption text-grey mb-1">قيمة الدفعة</div>
-              <div class="text-h5 font-weight-black text-success">{{ formatCurrency(selectedPayment.amount) }}</div>
+              <div class="text-h5 font-weight-bold text-success">{{ formatCurrency(selectedPayment.amount) }}</div>
             </div>
           </v-col>
           <v-col cols="12" sm="6">
@@ -142,7 +142,7 @@
               <v-list-item-title class="font-weight-bold">قسط مستحق</v-list-item-title>
               <v-list-item-subtitle class="text-grey">تم سداد جزء من قيمة القسط</v-list-item-subtitle>
               <template #append>
-                <div class="text-h6 font-weight-black text-primary">{{ formatCurrency(detail.amount_paid) }}</div>
+                <div class="text-h6 font-weight-bold text-primary">{{ formatCurrency(detail.amount_paid) }}</div>
               </template>
             </v-list-item>
           </v-list>

@@ -89,7 +89,7 @@ const filters = computed({
 });
 
 const statusOptions = [
-  { title: 'معلق', value: 'pending' },
+  { title: 'في الانتظار', value: 'pending' },
   { title: 'مدفوع', value: 'paid' },
   { title: 'متأخر', value: 'overdue' },
   { title: 'ملغي', value: 'cancelled' },

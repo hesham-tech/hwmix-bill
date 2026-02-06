@@ -158,7 +158,7 @@
                           <v-icon icon="ri-key-2-line" size="small" color="info" />
                           <span class="text-caption font-weight-bold text-info">بيانات التفعيل:</span>
                         </div>
-                        <div class="text-body-2 font-weight-black code-font">{{ delivery.delivery_data?.license_key || '---' }}</div>
+                        <div class="text-body-2 font-weight-bold code-font">{{ delivery.delivery_data?.license_key || '---' }}</div>
                         <div v-if="delivery.delivery_data?.instructions" class="text-caption text-grey mt-1">
                           {{ delivery.delivery_data.instructions }}
                         </div>
@@ -212,12 +212,12 @@
                           <v-icon icon="ri-key-2-line" size="small" color="info" />
                           <span class="text-caption font-weight-bold text-info">بيانات التفعيل:</span>
                         </div>
-                        <div class="text-body-2 font-weight-black code-font">{{ delivery.delivery_data?.license_key || '---' }}</div>
+                        <div class="text-body-2 font-weight-bold code-font">{{ delivery.delivery_data?.license_key || '---' }}</div>
                       </div>
                     </div>
                     <div class="d-flex justify-space-between align-center border-top-dotted pt-2 mt-1">
                       <span class="text-subtitle-2 font-weight-bold">الإجمالي:</span>
-                      <span class="text-subtitle-1 font-weight-black text-success">{{ formatCurrency(item.total) }}</span>
+                      <span class="text-subtitle-1 font-weight-bold text-success">{{ formatCurrency(item.total) }}</span>
                     </div>
                   </div>
                 </div>
@@ -346,7 +346,7 @@
 
               <div class="d-flex justify-space-between align-center">
                 <span class="text-h6 font-weight-bold">صافي الفاتورة:</span>
-                <span class="text-h5 font-weight-black text-primary">{{ formatCurrency(invoice.net_amount) }}</span>
+                <span class="text-h5 font-weight-bold text-primary">{{ formatCurrency(invoice.net_amount) }}</span>
               </div>
             </div>
 
@@ -361,7 +361,7 @@
               </div>
               <div class="d-flex justify-space-between text-body-1 pt-1 border-top mt-1">
                 <span class="text-grey font-weight-bold">إجمالي المستحق:</span>
-                <span class="font-weight-black">{{ formatCurrency(invoice.total_required) }}</span>
+                <span class="font-weight-bold">{{ formatCurrency(invoice.total_required) }}</span>
               </div>
             </div>
 
@@ -374,7 +374,7 @@
               </div>
               <div v-if="parseFloat(invoice.remaining_amount) > 0" class="d-flex justify-space-between text-body-1 pt-1 border-top mt-1">
                 <span class="text-grey font-weight-bold">المبلغ المتبقي:</span>
-                <span class="font-weight-black text-error">{{ formatCurrency(invoice.remaining_amount) }}</span>
+                <span class="font-weight-bold text-error">{{ formatCurrency(invoice.remaining_amount) }}</span>
               </div>
               <div v-else-if="invoice.remaining_amount < 0" class="text-center text-indigo font-weight-bold py-1">
                 <v-icon icon="ri-add-circle-fill" size="small" class="me-1" />
@@ -389,7 +389,7 @@
 
               <div class="d-flex justify-space-between text-body-1">
                 <span class="text-grey font-weight-bold">رصيد العميل بعد:</span>
-                <span class="font-weight-black text-primary">{{ formatCurrency(invoice.user_balance_after || 0) }}</span>
+                <span class="font-weight-bold text-primary">{{ formatCurrency(invoice.user_balance_after || 0) }}</span>
               </div>
             </div>
 

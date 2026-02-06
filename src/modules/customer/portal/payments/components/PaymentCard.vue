@@ -8,7 +8,7 @@
           </v-avatar>
           <div>
             <div class="text-caption text-grey">المبلغ المسدد</div>
-            <div class="text-h6 font-weight-black text-success">{{ formatCurrency(payment.amount) }}</div>
+            <div class="text-h6 font-weight-bold text-success">{{ formatCurrency(payment.amount) }}</div>
           </div>
         </div>
         <v-chip size="small" variant="flat" color="primary-lighten-5" class="text-primary font-weight-bold">

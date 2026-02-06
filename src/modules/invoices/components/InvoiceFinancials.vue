@@ -79,7 +79,7 @@
         <v-col cols="12" class="mb-2">
           <div class="d-flex justify-space-between align-center bg-primary-lighten-5 pa-2 rounded-md border border-primary-lighten-3">
             <span class="text-body-1 font-weight-bold text-primary">صافي الفاتورة</span>
-            <span class="text-h6 font-weight-black text-primary">{{ formatCurrency(financials.net_amount) }}</span>
+            <span class="text-h6 font-weight-bold text-primary">{{ formatCurrency(financials.net_amount) }}</span>
           </div>
         </v-col>
 
@@ -95,7 +95,7 @@
         <v-col cols="6" class="mb-1 text-left">
           <div class="d-flex flex-column align-end border-s-dark ps-2">
             <span class="text-secondary text-caption">إجمالي المستحق</span>
-            <span class="font-weight-black text-body-1">{{ formatCurrency(financials.total_balance) }}</span>
+            <span class="font-weight-bold text-body-1">{{ formatCurrency(financials.total_balance) }}</span>
           </div>
         </v-col>
       </v-row>
@@ -132,7 +132,7 @@
           <v-alert variant="tonal" :color="financials.remaining_amount <= 0 ? 'success' : 'error'" class="mb-1 rounded-md" density="compact">
             <div class="d-flex justify-space-between align-center w-100 py-0">
               <span class="text-caption font-weight-bold">المبلغ المتبقي</span>
-              <span class="text-body-2 font-weight-black">
+              <span class="text-body-2 font-weight-bold">
                 {{ formatCurrency(financials.remaining_amount) }}
               </span>
             </div>

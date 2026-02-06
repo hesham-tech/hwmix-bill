@@ -4,7 +4,7 @@
       <!-- Header -->
       <div class="d-flex justify-space-between align-center mb-6">
         <div>
-          <h1 class="text-h4 font-weight-black mb-1">خطط التقسيط</h1>
+          <h1 class="text-h4 font-weight-bold mb-1">خطط التقسيط</h1>
           <p class="text-subtitle-1 text-grey-darken-1">ادارة ومتابعة جداول الدفع الآجلة</p>
         </div>
         <v-avatar color="secondary" rounded="md" size="56" class="elevation-4">
@@ -17,19 +17,19 @@
         <v-col cols="12" sm="4">
           <v-card variant="flat" border class="pa-4 bg-secondary-lighten-5 border-secondary">
             <div class="text-caption text-secondary-darken-2 font-weight-bold mb-1">إجمالي مبلغ التقسيط</div>
-            <div class="text-h5 font-weight-black">{{ formatCurrency(summary.total) }}</div>
+            <div class="text-h5 font-weight-bold">{{ formatCurrency(summary.total) }}</div>
           </v-card>
         </v-col>
         <v-col cols="12" sm="4">
           <v-card variant="flat" border class="pa-4 bg-info-lighten-5 border-info">
             <div class="text-caption text-info-darken-2 font-weight-bold mb-1">الخطط المكتملة</div>
-            <div class="text-h5 font-weight-black">{{ summary.completed }}</div>
+            <div class="text-h5 font-weight-bold">{{ summary.completed }}</div>
           </v-card>
         </v-col>
         <v-col cols="12" sm="4">
           <v-card variant="flat" border class="pa-4 bg-primary-lighten-5 border-primary">
             <div class="text-caption text-primary-darken-2 font-weight-bold mb-1">الخطط النشطة</div>
-            <div class="text-h5 font-weight-black">{{ summary.active }}</div>
+            <div class="text-h5 font-weight-bold">{{ summary.active }}</div>
           </v-card>
         </v-col>
       </v-row>

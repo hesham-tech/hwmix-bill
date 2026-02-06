@@ -25,7 +25,7 @@
       <div v-for="(group, key) in filteredPermissions" :key="key" class="mb-6">
         <div class="d-flex align-center gap-2 mb-3 px-2">
           <v-icon :icon="getGroupIcon(key)" color="primary" size="20" />
-          <span class="font-weight-black text-subtitle-1">{{ group.name?.label || key }}</span>
+          <span class="font-weight-bold text-subtitle-1">{{ group.name?.label || key }}</span>
           <v-spacer />
           <v-btn variant="text" size="x-small" color="grey" @click="toggleGroup(group)">
             {{ allInGroupSelected(group) ? 'إلغاء الكل' : 'تحديد الكل' }}

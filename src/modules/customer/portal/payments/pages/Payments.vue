@@ -4,7 +4,7 @@
       <!-- Header -->
       <div class="d-flex justify-space-between align-center mb-6">
         <div>
-          <h1 class="text-h4 font-weight-black mb-1">مدفوعاتي</h1>
+          <h1 class="text-h4 font-weight-bold mb-1">مدفوعاتي</h1>
           <p class="text-subtitle-1 text-grey-darken-1">سجل بجميع الدفعات المالية التي قمت بها</p>
         </div>
         <v-avatar color="success" rounded="md" size="56" class="elevation-4">
@@ -17,13 +17,13 @@
         <v-col cols="12" sm="6">
           <v-card variant="flat" border class="pa-4 bg-success-lighten-5 border-success">
             <div class="text-caption text-success-darken-2 font-weight-bold mb-1">إجمالي ما تم سداده</div>
-            <div class="text-h4 font-weight-black">{{ formatCurrency(totalPaid) }}</div>
+            <div class="text-h4 font-weight-bold">{{ formatCurrency(totalPaid) }}</div>
           </v-card>
         </v-col>
         <v-col cols="12" sm="6">
           <v-card variant="flat" border class="pa-4 bg-grey-lighten-5">
             <div class="text-caption text-grey-darken-2 font-weight-bold mb-1">عدد الدفعات</div>
-            <div class="text-h4 font-weight-black">{{ total }}</div>
+            <div class="text-h4 font-weight-bold">{{ total }}</div>
           </v-card>
         </v-col>
       </v-row>

@@ -13,7 +13,7 @@
         </div>
 
         <!-- Title & Subtitle -->
-        <h1 class="text-h3 font-weight-black text-white mb-4 tracking-tight">دخول <span class="text-gradient">محظور</span></h1>
+        <h1 class="text-h3 font-weight-bold text-white mb-4 tracking-tight">دخول <span class="text-gradient">محظور</span></h1>
 
         <p class="text-h6 text-white opacity-80 mb-10 max-width-600 mx-auto leading-relaxed">
           عذراً، محاولة الوصول إلى هذا المورد مرفوضة. لا تمتلك الصلاحيات الكافية لتنفيذ هذا الإجراء أو عرض هذه الصفحة.

@@ -408,7 +408,7 @@
                 class="border shadow-sm avatar-white-border"
               />
               <div class="header-text">
-                <span class="text-h6 font-weight-black d-block title-text">إدارة صلاحيات الوصول</span>
+                <span class="text-h6 font-weight-bold d-block title-text">إدارة صلاحيات الوصول</span>
                 <div class="d-flex align-center gap-2">
                   <v-icon icon="ri-user-smile-line" size="14" color="white" class="opacity-80" />
                   <span class="text-caption text-white opacity-90 font-weight-medium">

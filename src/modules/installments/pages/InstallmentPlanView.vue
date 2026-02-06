@@ -55,19 +55,19 @@
                 <v-row>
                   <v-col cols="6" sm="3">
                     <div class="text-caption text-grey mb-1">المبلغ الصافي</div>
-                    <div class="text-h6 font-weight-black">{{ formatCurrency(plan.net_amount) }}</div>
+                    <div class="text-h6 font-weight-bold">{{ formatCurrency(plan.net_amount) }}</div>
                   </v-col>
                   <v-col cols="6" sm="3">
                     <div class="text-caption text-grey mb-1">نسبة الفائدة</div>
-                    <div class="text-h6 font-weight-black text-error">{{ plan.interest_rate }}%</div>
+                    <div class="text-h6 font-weight-bold text-error">{{ plan.interest_rate }}%</div>
                   </v-col>
                   <v-col cols="6" sm="3">
                     <div class="text-caption text-grey mb-1">مبلغ الفائدة</div>
-                    <div class="text-h6 font-weight-black text-error">{{ formatCurrency(plan.interest_amount) }}</div>
+                    <div class="text-h6 font-weight-bold text-error">{{ formatCurrency(plan.interest_amount) }}</div>
                   </v-col>
                   <v-col cols="6" sm="3">
                     <div class="text-caption text-grey mb-1">إجمالي المبلغ</div>
-                    <div class="text-h6 font-weight-black text-primary">{{ formatCurrency(plan.total_amount) }}</div>
+                    <div class="text-h6 font-weight-bold text-primary">{{ formatCurrency(plan.total_amount) }}</div>
                   </v-col>
 
                   <v-col cols="12">
@@ -103,7 +103,7 @@
                 </v-avatar>
                 <div>
                   <div class="text-caption text-info font-weight-bold">المحصل حتى الآن</div>
-                  <div class="text-h5 font-weight-black">{{ formatCurrency(collectedAmount) }}</div>
+                  <div class="text-h5 font-weight-bold">{{ formatCurrency(collectedAmount) }}</div>
                 </div>
               </div>
 
@@ -113,7 +113,7 @@
                 </v-avatar>
                 <div>
                   <div class="text-caption text-error font-weight-bold">المتبقي المطلوب</div>
-                  <div class="text-h5 font-weight-black">{{ formatCurrency(plan.remaining_amount) }}</div>
+                  <div class="text-h5 font-weight-bold">{{ formatCurrency(plan.remaining_amount) }}</div>
                 </div>
               </div>
 

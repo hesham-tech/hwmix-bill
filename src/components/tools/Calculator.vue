@@ -17,7 +17,7 @@
       </v-menu>
 
       <div class="text-caption text-grey">{{ expression || '0' }}</div>
-      <div class="text-h4 font-weight-black">{{ current || '0' }}</div>
+      <div class="text-h4 font-weight-bold">{{ current || '0' }}</div>
     </div>
 
     <div class="pa-2">

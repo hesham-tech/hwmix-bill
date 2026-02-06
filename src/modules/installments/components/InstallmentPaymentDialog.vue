@@ -15,7 +15,7 @@
           <div class="pa-4 rounded-md bg-primary-lighten-5 border-primary border-opacity-25 mb-4 d-flex align-center justify-space-between">
             <div>
               <div class="text-caption text-primary font-weight-bold mb-1">المبلغ المطلوب تحصيله (المتبقي)</div>
-              <div class="text-h5 font-weight-black text-primary">{{ formatCurrency(installment?.remaining ?? installment?.amount ?? 0) }}</div>
+              <div class="text-h5 font-weight-bold text-primary">{{ formatCurrency(installment?.remaining ?? installment?.amount ?? 0) }}</div>
             </div>
             <v-icon icon="ri-money-dollar-circle-line" size="48" color="primary" class="opacity-25" />
           </div>

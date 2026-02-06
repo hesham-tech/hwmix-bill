@@ -8,7 +8,7 @@
           </v-avatar>
           <div>
             <div class="text-caption text-grey">إجمالي خطة التقسيط</div>
-            <div class="text-h6 font-weight-black text-secondary">{{ formatCurrency(plan.net_amount) }}</div>
+            <div class="text-h6 font-weight-bold text-secondary">{{ formatCurrency(plan.net_amount) }}</div>
           </div>
         </div>
         <v-chip :color="getStatusColor(plan.status)" size="small" variant="flat" class="font-weight-bold">

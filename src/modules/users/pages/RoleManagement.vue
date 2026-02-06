@@ -3,7 +3,7 @@
     <!-- Header -->
     <div class="d-flex align-center justify-space-between mb-8">
       <div>
-        <h1 class="text-h4 font-weight-black text-primary mb-1">إدارة الأدوار الوظيفية</h1>
+        <h1 class="text-h4 font-weight-bold text-primary mb-1">إدارة الأدوار الوظيفية</h1>
         <p class="text-body-1 text-grey-darken-1">عرّف المسميات الوظيفية وصلاحياتها لتنظيم فريق العمل</p>
       </div>
       <AppButton
@@ -27,7 +27,7 @@
               <v-icon icon="ri-shield-user-line" color="primary" />
             </v-avatar>
             <div>
-              <div class="text-h5 font-weight-black">{{ store.roles.length }}</div>
+              <div class="text-h5 font-weight-bold">{{ store.roles.length }}</div>
               <div class="text-caption text-primary">إجمالي الأدوار المعرفة</div>
             </div>
           </div>

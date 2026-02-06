@@ -76,7 +76,7 @@
         </template>
 
         <template #[`item.balance_after`]="{ item }">
-          <span class="font-weight-black">{{ formatCurrency(item.balance_after) }}</span>
+          <span class="font-weight-bold">{{ formatCurrency(item.balance_after) }}</span>
         </template>
       </AppDataTable>
     </v-card>

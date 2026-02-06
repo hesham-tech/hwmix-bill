@@ -4,7 +4,7 @@
       <div class="d-flex align-center justify-space-between mb-4">
         <div>
           <div class="text-caption font-weight-bold text-grey-darken-1 mb-1">تحليل المبيعات</div>
-          <h3 class="text-h6 font-weight-black">اتجاه المبيعات (آخر 7 أيام)</h3>
+          <h3 class="text-h6 font-weight-bold">اتجاه المبيعات (آخر 7 أيام)</h3>
         </div>
         <v-btn icon="ri-more-2-line" variant="text" size="small" color="grey" />
       </div>

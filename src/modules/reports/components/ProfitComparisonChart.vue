@@ -9,7 +9,7 @@
         <p class="text-subtitle-1 mt-4">لا توجد بيانات للعرض</p>
       </div>
       <div v-else>
-        <h3 class="text-h6 font-weight-black mb-6">مقارنة الربحية الشهرية</h3>
+        <h3 class="text-h6 font-weight-bold mb-6">مقارنة الربحية الشهرية</h3>
         <Line :data="chartData" :options="computedOptions" />
       </div>
     </v-card-text>

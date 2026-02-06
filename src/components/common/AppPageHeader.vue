@@ -14,7 +14,7 @@
         <!-- Title & Subtitle Section -->
         <v-col cols="auto">
           <!-- Title Section -->
-          <v-card-title class="pa-0 text-h5 font-weight-black text-slate-800 mb-1" :class="mobile ? 'text-subtitle-1' : 'text-md-h4'">
+          <v-card-title class="pa-0 text-h5 font-weight-bold text-slate-800 mb-1" :class="mobile ? 'text-subtitle-1' : 'text-md-h4'">
             <slot name="title">{{ title }}</slot>
           </v-card-title>
 

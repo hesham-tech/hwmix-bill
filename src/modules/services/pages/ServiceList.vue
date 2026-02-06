@@ -38,7 +38,7 @@
         </template>
 
         <template #item.default_price="{ item }">
-          <div class="font-weight-black text-body-1 text-primary">
+          <div class="font-weight-bold text-body-1 text-primary">
             {{ formatCurrency(item.default_price) }}
           </div>
         </template>

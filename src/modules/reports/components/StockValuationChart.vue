@@ -9,7 +9,7 @@
         <p class="text-subtitle-1 mt-4">لا توجد بيانات للعرض</p>
       </div>
       <div v-else>
-        <h3 class="text-h6 font-weight-black mb-6">توزيع قيمة المخزون</h3>
+        <h3 class="text-h6 font-weight-bold mb-6">توزيع قيمة المخزون</h3>
         <Doughnut :data="chartData" :options="chartOptions" />
       </div>
     </v-card-text>

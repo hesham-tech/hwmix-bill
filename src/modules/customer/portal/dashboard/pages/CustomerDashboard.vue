@@ -3,7 +3,7 @@
     <!-- Welcome Header -->
     <div class="d-flex flex-column flex-sm-row justify-space-between align-sm-center mb-8 gap-4">
       <div>
-        <h1 class="text-h3 font-weight-black primary-gradient-text mb-2">{{ dynamicGreeting }}, {{ userName }}!</h1>
+        <h1 class="text-h3 font-weight-bold primary-gradient-text mb-2">{{ dynamicGreeting }}, {{ userName }}!</h1>
         <p class="text-subtitle-1 text-grey-darken-1">نظرة سريعة على جميع نشاطاتك المالية ومشترياتك</p>
       </div>
       <v-btn
@@ -25,7 +25,7 @@
         <v-card variant="flat" border class="stats-card pa-6 text-center h-100 bg-primary-lighten-5 border-primary">
           <v-icon icon="ri-wallet-3-line" size="48" color="primary" class="mb-3" />
           <div class="text-body-2 text-primary-darken-2 font-weight-bold mb-1">رصيدك</div>
-          <div class="text-h4 font-weight-black text-primary-darken-4">{{ formatCurrency(stats.remainingBalance) }}</div>
+          <div class="text-h4 font-weight-bold text-primary-darken-4">{{ formatCurrency(stats.remainingBalance) }}</div>
         </v-card>
       </v-col>
 
@@ -33,7 +33,7 @@
         <v-card variant="flat" border class="stats-card pa-6 text-center h-100 bg-success-lighten-5 border-success">
           <v-icon icon="ri-checkbox-circle-line" size="48" color="success" class="mb-3" />
           <div class="text-body-2 text-success-darken-2 font-weight-bold mb-1">إجمالي ما تم سداده</div>
-          <div class="text-h4 font-weight-black text-success-darken-4">{{ formatCurrency(stats.totalPaid) }}</div>
+          <div class="text-h4 font-weight-bold text-success-darken-4">{{ formatCurrency(stats.totalPaid) }}</div>
         </v-card>
       </v-col> -->
 
@@ -41,7 +41,7 @@
         <v-card variant="flat" border class="stats-card pa-6 text-center h-100 bg-orange-lighten-5 border-orange">
           <v-icon icon="ri-calendar-todo-line" size="48" color="orange" class="mb-3" />
           <div class="text-body-2 text-orange-darken-2 font-weight-bold mb-1">فواتير قيد التقسيط</div>
-          <div class="text-h4 font-weight-black text-orange-darken-4">{{ stats.activeInstallmentPlans || 0 }} خطط</div>
+          <div class="text-h4 font-weight-bold text-orange-darken-4">{{ stats.activeInstallmentPlans || 0 }} خطط</div>
         </v-card>
       </v-col>
     </v-row>
@@ -50,7 +50,7 @@
       <!-- Recent Purchases -->
       <v-col cols="12" lg="8">
         <div class="d-flex align-center justify-space-between mb-4">
-          <h2 class="text-h5 font-weight-black d-flex align-center gap-2">
+          <h2 class="text-h5 font-weight-bold d-flex align-center gap-2">
             <v-icon icon="ri-bill-line" color="primary" />
             أحدث المشتريات
           </h2>
@@ -126,7 +126,7 @@
           <div class="d-flex align-start gap-3">
             <v-icon icon="ri-error-warning-fill" size="24" color="error" />
             <div>
-              <div class="text-subtitle-2 font-weight-black text-error mb-1">تنبيه أقساط قادمة</div>
+              <div class="text-subtitle-2 font-weight-bold text-error mb-1">تنبيه أقساط قادمة</div>
               <div class="text-body-2 text-error-darken-1 mb-3">لديك أقساط تستحق السداد قريباً، يرجى مراجعة الجدول.</div>
               <v-btn size="small" color="error" variant="flat" to="/app/customer-installments" class="font-weight-bold rounded-md px-4">
                 مراجعة الآن

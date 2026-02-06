@@ -41,7 +41,7 @@
         </template>
 
         <template #item.amount="{ item }">
-          <div class="font-weight-black text-h6 text-success">
+          <div class="font-weight-bold text-h6 text-success">
             {{ formatCurrency(item.amount) }}
           </div>
         </template>

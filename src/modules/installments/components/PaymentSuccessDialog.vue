@@ -15,7 +15,7 @@
           <div class="icon-pulse"></div>
           <v-icon icon="ri-checkbox-circle-fill" size="80" color="success" />
         </div>
-        <h2 class="text-h4 font-weight-black text-slate-900 mb-1">تمت العملية بنجاح!</h2>
+        <h2 class="text-h4 font-weight-bold text-slate-900 mb-1">تمت العملية بنجاح!</h2>
       </div>
 
       <!-- High-End Apple Style Receipt (UI Only) -->
@@ -31,19 +31,19 @@
           <div class="receipt-fields">
             <div class="field-row">
               <span class="field-label">اسم العميل</span>
-              <span class="field-value font-weight-black">{{ customerName }}</span>
+              <span class="field-value font-weight-bold">{{ customerName }}</span>
             </div>
 
             <div class="field-row">
               <span class="field-label">رقم العملية</span>
               <span class="field-value">
-                <v-chip size="small" variant="flat" color="primary" class="font-weight-black"> #{{ paymentData?.id }} </v-chip>
+                <v-chip size="small" variant="flat" color="primary" class="font-weight-bold"> #{{ paymentData?.id }} </v-chip>
               </span>
             </div>
 
             <div class="field-row hero-row">
               <span class="field-label">المبلغ الإجمالي المحصل</span>
-              <span class="field-value text-h5 font-weight-black text-slate-900">
+              <span class="field-value text-h5 font-weight-bold text-slate-900">
                 {{ formatCurrency(amountPaid) }}
               </span>
             </div>
@@ -57,7 +57,7 @@
 
             <div class="field-row">
               <span class="field-label">تاريخ الاستحقاق</span>
-              <span class="field-value font-weight-black text-primary">
+              <span class="field-value font-weight-bold text-primary">
                 {{ formatDate(paidInstallments[0]?.due_date) }}
               </span>
             </div>
@@ -69,13 +69,13 @@
 
             <div v-if="paymentData?.reference_number" class="field-row">
               <span class="field-label">رقم المرجع / الشيك</span>
-              <span class="field-value font-weight-black">{{ paymentData?.reference_number }}</span>
+              <span class="field-value font-weight-bold">{{ paymentData?.reference_number }}</span>
             </div>
           </div>
 
           <!-- Paid Installments Section -->
           <div v-if="paidInstallments.length" class="paid-installments-section mt-6 mb-4">
-            <div class="text-overline font-weight-black text-slate-400 mb-2">الأقساط المسددة في هذه الحركة</div>
+            <div class="text-overline font-weight-bold text-slate-400 mb-2">الأقساط المسددة في هذه الحركة</div>
             <div class="installments-mini-table">
               <template v-for="inst in paidInstallments" :key="inst?.id">
                 <div v-if="inst" class="mini-row d-flex justify-space-between align-center py-2 border-b-light">
@@ -83,7 +83,7 @@
                     <v-icon icon="ri-refresh-line" size="14" color="success" class="me-2" />
                     <span class="text-body-2 text-slate-700">قسط رقم #{{ inst.installment_number }}</span>
                   </div>
-                  <span class="text-body-2 font-weight-black text-slate-900">{{ formatCurrency(inst.amount) }}</span>
+                  <span class="text-body-2 font-weight-bold text-slate-900">{{ formatCurrency(inst.amount) }}</span>
                 </div>
               </template>
             </div>
@@ -95,7 +95,7 @@
               <v-icon icon="ri-subtract-line" size="18" class="me-2 opacity-50" />
               <span class="text-subtitle-2 font-weight-bold">المتبقي المطلوب من الخطة:</span>
             </div>
-            <span class="text-h6 font-weight-black">{{ formatCurrency(remainingAmount) }}</span>
+            <span class="text-h6 font-weight-bold">{{ formatCurrency(remainingAmount) }}</span>
           </div>
         </div>
 
@@ -120,7 +120,7 @@
           size="large"
           color="primary"
           variant="elevated"
-          class="rounded-md font-weight-black mb-2"
+          class="rounded-md font-weight-bold mb-2"
           prepend-icon="ri-printer-fill"
           @click="handlePrint"
         >

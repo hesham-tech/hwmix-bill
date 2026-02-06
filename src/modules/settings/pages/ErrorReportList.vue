@@ -210,7 +210,7 @@
                 <v-icon icon="ri-code-line" class="me-2" size="20" />
                 تتبع الخطأ (Stack Trace)
               </h3>
-              <v-sheet dark class="bg-grey-darken-4 pa-4 rounded-md overflow-x-auto">
+              <v-sheet class="bg-primary-darken-1 pa-4 rounded-md overflow-x-auto">
                 <pre class="text-caption text-white ltr">{{ selectedReport.stack_trace }}</pre>
               </v-sheet>
             </v-col>

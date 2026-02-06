@@ -13,11 +13,11 @@
         <div class="d-flex align-center justify-space-between mb-6 p-4 bg-grey-lighten-4 rounded-md border">
           <div>
             <div class="text-caption text-grey">العميل</div>
-            <div class="font-weight-black">{{ subscription.user?.full_name }}</div>
+            <div class="font-weight-bold">{{ subscription.user?.full_name }}</div>
           </div>
           <div class="text-end">
             <div class="text-caption text-grey">تاريخ الانتهاء الحالي</div>
-            <div class="font-weight-black" :class="isExpired ? 'text-error' : ''">
+            <div class="font-weight-bold" :class="isExpired ? 'text-error' : ''">
               {{ formatDate(subscription.ends_at || subscription.next_billing_date) }}
             </div>
           </div>

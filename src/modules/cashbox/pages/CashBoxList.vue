@@ -84,7 +84,7 @@
                   <v-card-text class="pt-0">
                     <div class="d-flex align-center justify-space-between mt-2">
                       <span class="text-caption text-grey">الرصيد الحالي</span>
-                      <span class="font-weight-black" :class="item.balance >= 0 ? 'text-success' : 'text-error'">
+                      <span class="font-weight-bold" :class="item.balance >= 0 ? 'text-success' : 'text-error'">
                         {{ formatCurrency(item.balance) }}
                       </span>
                     </div>
@@ -150,7 +150,7 @@
             </template>
 
             <template #item.balance="{ item }">
-              <div class="text-end font-weight-black" :class="item.balance >= 0 ? 'text-success' : 'text-error'">
+              <div class="text-end font-weight-bold" :class="item.balance >= 0 ? 'text-success' : 'text-error'">
                 {{ formatCurrency(item.balance) }}
               </div>
             </template>

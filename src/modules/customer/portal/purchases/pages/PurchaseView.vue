@@ -4,7 +4,7 @@
       <div class="d-flex align-center">
         <v-btn icon="ri-arrow-right-line" variant="text" color="secondary" @click="goBack" class="me-3" />
         <div>
-          <h1 class="text-h4 font-weight-black">الفاتورة #{{ invoice?.invoice_number }}</h1>
+          <h1 class="text-h4 font-weight-bold">الفاتورة #{{ invoice?.invoice_number }}</h1>
           <p class="text-body-1 text-grey mb-0" v-if="invoice">
             <v-icon icon="ri-calendar-line" size="small" class="me-1" />
             {{ formatDate(invoice.issue_date) }}
@@ -67,12 +67,12 @@
 
             <div class="d-flex justify-space-between align-center mb-4">
               <span class="text-subtitle-1 font-weight-bold">صافي المشتريات</span>
-              <span class="text-h5 font-weight-black text-primary">{{ formatCurrency(invoice.net_amount) }}</span>
+              <span class="text-h5 font-weight-bold text-primary">{{ formatCurrency(invoice.net_amount) }}</span>
             </div>
 
             <div class="bg-primary-lighten-5 pa-4 text-center">
               <div class="text-caption text-primary-darken-2 font-weight-bold mb-1">المبلغ المتبقي للسداد</div>
-              <div class="text-h4 font-weight-black text-primary-darken-3">
+              <div class="text-h4 font-weight-bold text-primary-darken-3">
                 {{ formatCurrency(invoice.remaining_amount) }}
               </div>
             </div>
@@ -118,7 +118,7 @@
                         <v-icon icon="ri-image-line" color="grey" />
                       </v-avatar>
                       <div>
-                        <div class="font-weight-black text-body-1">{{ item.name }}</div>
+                        <div class="font-weight-bold text-body-1">{{ item.name }}</div>
                         <div class="text-caption text-grey">سعر الوحدة: {{ formatCurrency(item.unit_price) }}</div>
                       </div>
                     </div>
@@ -126,7 +126,7 @@
                   <td class="text-center">
                     <v-chip size="small" variant="tonal" color="primary" class="font-weight-bold">{{ item.quantity }}</v-chip>
                   </td>
-                  <td class="text-left font-weight-black text-primary text-body-1">{{ formatCurrency(item.total) }}</td>
+                  <td class="text-left font-weight-bold text-primary text-body-1">{{ formatCurrency(item.total) }}</td>
                 </tr>
               </tbody>
             </v-table>
@@ -145,10 +145,10 @@
                     type="product"
                   />
                   <div class="flex-grow-1">
-                    <div class="font-weight-black text-body-2 mb-1">{{ item.name }}</div>
+                    <div class="font-weight-bold text-body-2 mb-1">{{ item.name }}</div>
                     <div class="d-flex justify-space-between align-end">
                       <div class="text-caption text-grey">{{ item.quantity }} × {{ formatCurrency(item.unit_price) }}</div>
-                      <div class="text-subtitle-2 font-weight-black text-primary">{{ formatCurrency(item.total) }}</div>
+                      <div class="text-subtitle-2 font-weight-bold text-primary">{{ formatCurrency(item.total) }}</div>
                     </div>
                   </div>
                 </div>
@@ -169,7 +169,7 @@
                 :color="getPaymentStatusColor(invoice.payment_status)"
                 class="mb-3"
               />
-              <div class="text-h5 font-weight-black" :class="`text-${getPaymentStatusColor(invoice.payment_status)}`">
+              <div class="text-h5 font-weight-bold" :class="`text-${getPaymentStatusColor(invoice.payment_status)}`">
                 {{ getPaymentStatusLabel(invoice.payment_status) }}
               </div>
             </div>

@@ -101,7 +101,7 @@
             <v-divider class="mb-6" />
             <div class="d-flex align-center gap-2 mb-4 px-2">
               <v-icon icon="ri-checkbox-circle-fill" color="success" size="20" />
-              <h3 class="text-subtitle-1 font-weight-black text-success">الموديولات المكتملة</h3>
+              <h3 class="text-subtitle-1 font-weight-bold text-success">الموديولات المكتملة</h3>
               <v-chip size="x-small" color="success" variant="tonal" class="ms-2">{{ completedItems.length }}</v-chip>
             </div>
 

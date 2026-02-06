@@ -262,7 +262,7 @@
                 </v-avatar>
                 <div>
                   <div class="text-caption text-primary-darken-1 font-weight-bold">إجمالي المنتجات</div>
-                  <div class="text-h6 font-weight-black">{{ totalItems }}</div>
+                  <div class="text-h6 font-weight-bold">{{ totalItems }}</div>
                 </div>
               </div>
             </v-card>

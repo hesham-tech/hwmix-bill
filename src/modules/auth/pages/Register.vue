@@ -15,7 +15,7 @@
                 <div class="icon-orb mb-6">
                   <v-icon icon="ri-shield-user-fill" size="64" color="white" />
                 </div>
-                <h1 class="text-h3 font-weight-black text-white mb-4">انضم إلينا</h1>
+                <h1 class="text-h3 font-weight-bold text-white mb-4">انضم إلينا</h1>
                 <p class="text-h6 text-white opacity-80 mb-8 font-weight-medium">قم بإنشاء حسابك الآن للوصول إلى كافة الخدمات والميزات بشكل آمن.</p>
                 <div class="step-items">
                   <div class="step-item d-flex align-center gap-4 mb-4">
@@ -36,7 +36,7 @@
             <div class="form-card h-100 pa-6 pa-md-8 w-100 d-flex flex-column justify-center">
               <div class="d-flex align-center justify-space-between mb-8">
                 <div>
-                  <h2 class="text-h4 font-weight-black text-slate-900 mb-1">تسجيل جديد</h2>
+                  <h2 class="text-h4 font-weight-bold text-slate-900 mb-1">تسجيل جديد</h2>
                   <p class="text-body-1 text-slate-500">من فضلك قم بملء البيانات التالية بدقة</p>
                 </div>
                 <v-btn icon="ri-arrow-left-line" variant="tonal" color="primary" rounded="md" to="/login" />

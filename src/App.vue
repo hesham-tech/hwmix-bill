@@ -25,7 +25,7 @@
     <v-overlay v-model="appState.isLoader" persistent class="align-center justify-center" scrim="rgba(255, 255, 255, 0.7)" z-index="10000">
       <div class="text-center">
         <v-progress-circular color="primary" indeterminate size="64" width="6" />
-        <div class="mt-4 text-primary font-weight-black">جاري المعالجة...</div>
+        <div class="mt-4 text-primary font-weight-bold">جاري المعالجة...</div>
       </div>
     </v-overlay>
   </v-app>

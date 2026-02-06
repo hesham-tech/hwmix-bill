@@ -25,19 +25,19 @@
         <v-col cols="12" md="4">
           <v-card border flat class="rounded-md pa-4 bg-success-lighten-5 border-success">
             <div class="text-caption font-weight-bold text-success">إجمالي المقبوضات (+)</div>
-            <div class="text-h4 font-weight-black text-success">{{ formatCurrency(summary.total_inflow) }}</div>
+            <div class="text-h4 font-weight-bold text-success">{{ formatCurrency(summary.total_inflow) }}</div>
           </v-card>
         </v-col>
         <v-col cols="12" md="4">
           <v-card border flat class="rounded-md pa-4 bg-error-lighten-5 border-error">
             <div class="text-caption font-weight-bold text-error">إجمالي المدفوعات (-)</div>
-            <div class="text-h4 font-weight-black text-error">{{ formatCurrency(summary.total_outflow) }}</div>
+            <div class="text-h4 font-weight-bold text-error">{{ formatCurrency(summary.total_outflow) }}</div>
           </v-card>
         </v-col>
         <v-col cols="12" md="4">
           <v-card border flat class="rounded-md pa-4 bg-info-lighten-5 border-info">
             <div class="text-caption font-weight-bold text-info">صافي التدفق</div>
-            <div class="text-h4 font-weight-black" :class="summary.net_flow >= 0 ? 'text-info' : 'text-error'">
+            <div class="text-h4 font-weight-bold" :class="summary.net_flow >= 0 ? 'text-info' : 'text-error'">
               {{ formatCurrency(summary.net_flow) }}
             </div>
           </v-card>
@@ -54,7 +54,7 @@
     <template #table>
       <AppDataTable :headers="headers" :items="transactions" :loading="loading" title="سجل حركات الخزينة" icon="ri-history-line">
         <template #item.amount="{ item }">
-          <div :class="item.type === 'income' ? 'text-success' : 'text-error'" class="font-weight-black pr-4">
+          <div :class="item.type === 'income' ? 'text-success' : 'text-error'" class="font-weight-bold pr-4">
             {{ item.type === 'income' ? '+' : '-' }} {{ formatCurrency(Math.abs(item.amount)) }}
           </div>
         </template>

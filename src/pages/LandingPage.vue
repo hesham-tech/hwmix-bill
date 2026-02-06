@@ -6,7 +6,7 @@
         <v-avatar color="primary" rounded="md" size="40">
           <v-icon icon="ri-building-line" color="white" />
         </v-avatar>
-        <span class="text-h6 font-weight-black text-primary">hwmix-bill</span>
+        <span class="text-h6 font-weight-bold text-primary">hwmix-bill</span>
       </div>
 
       <!-- Center Links (Desktop) -->
@@ -14,7 +14,7 @@
         <a href="#features" class="nav-link">المميزات</a>
         <a href="#categories" class="nav-link">الأقسام</a>
         <a href="#products" class="nav-link">المنتجات</a>
-        <router-link to="/saas" class="nav-link gold-text font-weight-black">نظام الإدارة</router-link>
+        <router-link to="/saas" class="nav-link gold-text font-weight-bold">نظام الإدارة</router-link>
       </div>
 
       <div class="d-flex align-center gap-2">
@@ -37,12 +37,12 @@
           <v-avatar color="primary" rounded="md" size="32">
             <v-icon icon="ri-building-line" color="white" size="18" />
           </v-avatar>
-          <span class="text-subtitle-1 font-weight-black text-primary">hwmix-bill</span>
+          <span class="text-subtitle-1 font-weight-bold text-primary">hwmix-bill</span>
         </div>
 
         <router-link
           to="/saas"
-          class="nav-link gold-text font-weight-black text-h6 px-2 py-2 rounded-md bg-amber-lighten-5 d-flex align-center gap-2"
+          class="nav-link gold-text font-weight-bold text-h6 px-2 py-2 rounded-md bg-amber-lighten-5 d-flex align-center gap-2"
           @click="mobileDrawer = false"
         >
           <v-icon icon="ri-shield-flash-line" color="amber-darken-3" />
@@ -70,7 +70,7 @@
           <v-chip color="primary" variant="tonal" class="mb-4 font-weight-bold py-4 px-6 border slide-up">
             تسوق بذكاء وقم بإدارة فواتيرك في مكان واحد
           </v-chip>
-          <h1 class="text-h2 font-weight-black mb-6 hero-title slide-up-delay-1">
+          <h1 class="text-h2 font-weight-bold mb-6 hero-title slide-up-delay-1">
             تجربة تسوق <span class="primary-gradient-text">فريدة</span> <br />
             وإدارة مالية متكاملة.
           </h1>
@@ -78,10 +78,10 @@
             اكتشف أحدث المنتجات من أفضل العلامات التجارية، واستمتع بنظام تقسيط مرن وواجهة إدارة فواتير احترافية مصممة خصيصاً لراحتك.
           </p>
           <div class="d-flex gap-4 justify-center flex-wrap slide-up-delay-3">
-            <v-btn size="x-large" color="primary" class="rounded-md px-12 font-weight-black elevation-8" to="/login" height="56">
+            <v-btn size="x-large" color="primary" class="rounded-md px-12 font-weight-bold elevation-8" to="/login" height="56">
               تصفح المتجر الآن
             </v-btn>
-            <v-btn size="x-large" variant="outlined" color="primary" class="rounded-md px-12 font-weight-black" height="56" to="/register">
+            <v-btn size="x-large" variant="outlined" color="primary" class="rounded-md px-12 font-weight-bold" height="56" to="/register">
               إنشاء حساب جديد
             </v-btn>
           </div>
@@ -93,7 +93,7 @@
         <v-container>
           <div class="d-flex align-center justify-space-between mb-10">
             <div>
-              <h2 class="text-h4 font-weight-black mb-2">تسوق حسب القسم</h2>
+              <h2 class="text-h4 font-weight-bold mb-2">تسوق حسب القسم</h2>
               <p class="text-grey">اختر ما يناسبك من بين تشكيلاتنا الواسعة</p>
             </div>
             <v-btn variant="text" color="primary" append-icon="ri-arrow-left-line">عرض الكل</v-btn>
@@ -116,7 +116,7 @@
       <!-- Featured Products Section -->
       <section id="products" class="py-16 bg-grey-lighten-5">
         <v-container>
-          <h2 class="text-h4 font-weight-black text-center mb-12">المنتجات الأكثر مبيعاً</h2>
+          <h2 class="text-h4 font-weight-bold text-center mb-12">المنتجات الأكثر مبيعاً</h2>
 
           <v-row>
             <v-col v-for="(prod, i) in featuredProducts" :key="i" cols="12" sm="6" md="3">
@@ -135,7 +135,7 @@
                   </div>
                   <h3 class="text-body-1 font-weight-bold mb-3 line-clamp-1">{{ prod.name }}</h3>
                   <div class="d-flex align-center gap-2">
-                    <span class="text-h6 font-weight-black text-primary">{{ prod.price }} ج.م</span>
+                    <span class="text-h6 font-weight-bold text-primary">{{ prod.price }} ج.م</span>
                     <span class="text-caption text-grey text-decoration-line-through" v-if="prod.oldPrice"> {{ prod.oldPrice }} ج.م </span>
                   </div>
                 </v-card-text>
@@ -171,7 +171,7 @@
       </section>
 
       <!-- Footer -->
-      <footer class="footer pa-12 bg-grey-darken-4 text-white">
+      <footer class="footer pa-12 bg-primary-darken-1 text-white">
         <v-container>
           <v-row>
             <v-col cols="12" md="4" class="mb-8 mb-md-0">
@@ -179,7 +179,7 @@
                 <v-avatar color="primary" rounded="md" size="40">
                   <v-icon icon="ri-building-line" color="white" />
                 </v-avatar>
-                <span class="text-h5 font-weight-black">hwmix-bill</span>
+                <span class="text-h5 font-weight-bold">hwmix-bill</span>
               </div>
               <p class="text-body-2 text-grey-lighten-1 mb-6 leading-relaxed">
                 نحن نوفر لك أفضل المنتجات الإلكترونية بأعلى جودة، مع نظام إدارة مالية وتقسيط يضمن لك راحة البال والتحكم الكامل في ميزانيتك.
@@ -221,7 +221,7 @@
                   variant="solo-filled"
                   density="comfortable"
                   hide-details
-                  bg-color="grey-darken-3"
+                  bg-color="primary-lighten-5"
                   class="rounded-md"
                 />
                 <v-btn color="primary" height="48" class="px-6 rounded-md font-weight-bold">اشترك</v-btn>
@@ -233,7 +233,7 @@
             </v-col>
           </v-row>
 
-          <v-divider class="my-10 border-grey-darken-3" />
+          <v-divider class="my-10 border-primary-lighten-4" />
 
           <div class="d-flex flex-column flex-md-row justify-space-between align-center gap-4">
             <div class="text-caption text-grey-lighten-1">جميع الحقوق محفوظة © {{ new Date().getFullYear() }} - hwmix-bill</div>

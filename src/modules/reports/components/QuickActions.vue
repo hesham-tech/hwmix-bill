@@ -1,7 +1,7 @@
 <template>
   <AppCard title="إجراءات سريعة" icon="ri-flashlight-line" class="h-100">
     <template #actions>
-      <v-chip size="x-small" color="primary" variant="flat" class="font-weight-black">أكثر استخداماً</v-chip>
+      <v-chip size="x-small" color="primary" variant="flat" class="font-weight-bold">أكثر استخداماً</v-chip>
     </template>
 
     <v-list class="pa-0">

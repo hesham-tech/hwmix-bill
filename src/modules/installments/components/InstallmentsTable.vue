@@ -58,7 +58,7 @@
 
     <!-- Amount Column -->
     <template #item.amount="{ item }">
-      <div class="font-weight-black text-body-1">{{ formatCurrency(item.amount) }}</div>
+      <div class="font-weight-bold text-body-1">{{ formatCurrency(item.amount) }}</div>
     </template>
 
     <!-- Due Date Column -->
@@ -87,7 +87,7 @@
         size="small"
         variant="elevated"
         color="success"
-        class="font-weight-black ms-1 px-3"
+        class="font-weight-bold ms-1 px-3"
         tooltip="تحصيل المبلغ"
         @click.stop="$emit('pay', item)"
       >
@@ -101,7 +101,7 @@
         size="small"
         variant="elevated"
         color="teal-darken-1"
-        class="font-weight-black ms-1 px-3"
+        class="font-weight-bold ms-1 px-3"
         tooltip="طباعة الإيصال"
         @click.stop="$emit('print-receipt', item)"
       >
@@ -147,15 +147,20 @@ const emit = defineEmits(['view', 'pay', 'print-receipt']);
 
 // Logic for Row Decoration
 const getRowProps = ({ item }) => {
-  if (item.status === 'paid') return { class: 'installment-row-paid' };
-  if (['partially_paid', 'partial'].includes(item.status)) return { class: 'installment-row-partial' };
+  const paidStatuses = ['paid', 'تم الدفع'];
+  const partialStatuses = ['partially_paid', 'partial', 'مدفوع جزئياً'];
+  const pendingStatuses = ['pending', 'لم يتم الدفع', 'في الانتظار'];
+  const overdueStatuses = ['overdue', 'متأخر'];
+
+  if (paidStatuses.includes(item.status)) return { class: 'installment-row-paid' };
+  if (partialStatuses.includes(item.status)) return { class: 'installment-row-partial' };
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const due = new Date(item.due_date);
   due.setHours(0, 0, 0, 0);
 
-  if (item.status === 'overdue' || (['pending', 'partially_paid', 'partial'].includes(item.status) && due <= today)) {
+  if (overdueStatuses.includes(item.status) || ([...pendingStatuses, ...partialStatuses].includes(item.status) && due <= today)) {
     return { class: 'installment-row-overdue' };
   }
 
@@ -184,7 +189,19 @@ const displayItems = computed(() => {
       if (!aCritical && bCritical) return 1;
 
       // 2. Status Priority
-      const priority = { pending: 1, partially_paid: 2, partial: 2, paid: 3, canceled: 4, cancelled: 4 };
+      const priority = {
+        pending: 1,
+        'في الانتظار': 1,
+        'لم يتم الدفع': 1,
+        partially_paid: 2,
+        partial: 2,
+        'مدفوع جزئياً': 2,
+        paid: 3,
+        'تم الدفع': 3,
+        canceled: 4,
+        cancelled: 4,
+        ملغي: 4,
+      };
       const aPrio = priority[a.status] ?? 99;
       const bPrio = priority[b.status] ?? 99;
 
@@ -223,23 +240,35 @@ const getCustomerData = item => {
 const getStatusColor = status => {
   const colors = {
     pending: 'warning',
+    'في الانتظار': 'warning',
+    'لم يتم الدفع': 'warning',
     paid: 'success',
+    'تم الدفع': 'success',
     overdue: 'error',
+    متأخر: 'error',
     canceled: 'grey',
     cancelled: 'grey',
+    ملغي: 'grey',
     partially_paid: 'info',
+    'مدفوع جزئياً': 'info',
   };
   return colors[status] || 'grey';
 };
 
 const getStatusLabel = status => {
   const labels = {
-    pending: 'معلق',
+    pending: 'في الانتظار',
+    'في الانتظار': 'في الانتظار',
+    'لم يتم الدفع': 'في الانتظار',
     paid: 'مدفوع',
+    'تم الدفع': 'مدفوع',
     overdue: 'متأخر',
+    متأخر: 'متأخر',
     canceled: 'ملغي',
     cancelled: 'ملغي',
+    ملغي: 'ملغي',
     partially_paid: 'مدفوع جزئياً',
+    'مدفوع جزئياً': 'مدفوع جزئياً',
   };
   return labels[status] || status;
 };

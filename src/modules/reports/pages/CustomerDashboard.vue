@@ -17,7 +17,7 @@
           <v-card-text class="d-flex flex-column align-center py-8">
             <v-icon icon="ri-wallet-3-line" size="48" color="white" class="mb-4" />
             <div class="text-overline text-white-50">مطلوب سداده (المديونية)</div>
-            <div class="text-h3 font-weight-black text-white mt-1">{{ formatCurrency(stats.remainingBalance) }}</div>
+            <div class="text-h3 font-weight-bold text-white mt-1">{{ formatCurrency(stats.remainingBalance) }}</div>
           </v-card-text>
         </v-card>
       </v-col>
@@ -73,7 +73,7 @@
         <v-window-item v-if="recentInvoices.length > 0" value="invoices">
           <AppDataTable :headers="invoiceHeaders" :items="recentInvoices" :loading="loading" hide-footer @view="showInvoiceDetails">
             <template #item.invoice_number="{ item }">
-              <div class="font-weight-black text-primary">#{{ item.invoice_number }}</div>
+              <div class="font-weight-bold text-primary">#{{ item.invoice_number }}</div>
             </template>
             <template #item.net_amount="{ item }">
               <span class="font-weight-bold">{{ formatCurrency(item.net_amount) }}</span>
@@ -84,7 +84,7 @@
               </span>
             </template>
             <template #item.payment_status="{ item }">
-              <v-chip :color="getPaymentStatusColor(item.payment_status)" size="x-small" label class="font-weight-black">
+              <v-chip :color="getPaymentStatusColor(item.payment_status)" size="x-small" label class="font-weight-bold">
                 {{ getPaymentStatusLabel(item.payment_status) }}
               </v-chip>
             </template>
@@ -156,7 +156,7 @@
           <v-col cols="12" md="6">
             <div class="text-subtitle-2 text-grey mb-1">الحالة المالية والدفع</div>
             <v-card variant="tonal" :color="getPaymentStatusColor(invoiceDialog.data.payment_status)" class="pa-6 rounded-md text-center mb-4">
-              <div class="text-h5 font-weight-black mb-1">{{ getPaymentStatusLabel(invoiceDialog.data.payment_status) }}</div>
+              <div class="text-h5 font-weight-bold mb-1">{{ getPaymentStatusLabel(invoiceDialog.data.payment_status) }}</div>
               <div class="text-caption">حالة الفاتورة الحالية في النظام</div>
             </v-card>
 
@@ -164,7 +164,7 @@
             <v-card v-if="invoiceDialog.data.remaining_amount > 0" variant="outlined" class="pa-4 rounded-md border-dashed">
               <div class="d-flex align-center justify-space-between mb-3">
                 <span class="text-body-2">رصيدك المتاح:</span>
-                <span :class="['font-weight-black', userStore.currentUser.balance >= 1 ? 'text-success' : 'text-error']">
+                <span :class="['font-weight-bold', userStore.currentUser.balance >= 1 ? 'text-success' : 'text-error']">
                   {{ formatCurrency(userStore.currentUser.balance) }}
                 </span>
               </div>

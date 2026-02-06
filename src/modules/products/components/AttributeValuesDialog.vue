@@ -93,7 +93,7 @@
                       <v-icon icon="ri-text-snippet-fill" size="36" color="primary" />
                     </v-avatar>
 
-                    <div class="text-subtitle-1 font-weight-black text-slate-800 mb-1 line-clamp-1">{{ item.name }}</div>
+                    <div class="text-subtitle-1 font-weight-bold text-slate-800 mb-1 line-clamp-1">{{ item.name }}</div>
                     <div v-if="isColor" class="text-caption font-weight-bold text-slate-400 mono">
                       {{ (item.color || item.value || '').toUpperCase() }}
                     </div>
@@ -163,7 +163,7 @@
         <!-- Visual Preview Cell -->
         <div class="preview-cell mb-6 rounded-md pa-4 bg-slate-50 border border-dashed">
           <div class="d-flex align-center mb-4">
-            <div class="text-caption font-weight-black text-slate-400">معاينة القيمة</div>
+            <div class="text-caption font-weight-bold text-slate-400">معاينة القيمة</div>
             <v-spacer />
             <v-chip v-if="isColor" size="x-small" color="primary" variant="flat" class="mono font-weight-bold">
               {{ formData.color || '#000000' }}
@@ -173,7 +173,7 @@
             <v-avatar v-if="isColor" size="80" class="elevation-6 border-white-4" :style="{ backgroundColor: previewHex || '#f1f5f9' }">
               <v-icon v-if="!previewHex" icon="ri-palette-line" color="slate-300" />
             </v-avatar>
-            <div v-else class="text-h4 font-weight-black text-primary px-6 py-2 bg-white rounded-md border elevation-1">
+            <div v-else class="text-h4 font-weight-bold text-primary px-6 py-2 bg-white rounded-md border elevation-1">
               {{ formData.name || '---' }}
             </div>
           </div>

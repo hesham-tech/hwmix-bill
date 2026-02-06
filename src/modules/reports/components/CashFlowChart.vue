@@ -9,7 +9,7 @@
         <p class="text-subtitle-1 mt-4">لا توجد حركات للعرض</p>
       </div>
       <div v-else>
-        <h3 class="text-h6 font-weight-black mb-6">تدفق السيولة النقدية</h3>
+        <h3 class="text-h6 font-weight-bold mb-6">تدفق السيولة النقدية</h3>
         <Bar :data="chartData" :options="chartOptions" />
       </div>
     </v-card-text>

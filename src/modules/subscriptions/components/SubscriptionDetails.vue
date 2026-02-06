@@ -18,7 +18,7 @@
               <div class="d-flex align-center gap-4">
                 <AppAvatar :img-url="null" :name="subscription.service?.name" size="64" rounded="lg" type="service" border />
                 <div>
-                  <div class="text-h6 font-weight-black">{{ subscription.service?.name }}</div>
+                  <div class="text-h6 font-weight-bold">{{ subscription.service?.name }}</div>
                   <div class="text-subtitle-2 text-secondary">{{ translateCycle(subscription.billing_cycle) }}</div>
                 </div>
               </div>
@@ -37,7 +37,7 @@
               </v-col>
               <v-col cols="6">
                 <div class="text-caption text-grey mb-1">السعر</div>
-                <div class="text-h6 font-weight-black text-primary">{{ formatCurrency(subscription.price) }}</div>
+                <div class="text-h6 font-weight-bold text-primary">{{ formatCurrency(subscription.price) }}</div>
               </v-col>
               <v-col cols="6">
                 <div class="text-caption text-grey mb-1">تاريخ البدء</div>
@@ -55,7 +55,7 @@
               </v-col>
               <v-col cols="6">
                 <div class="text-caption text-grey mb-1">مدفوع جزئي (رصيد اشتراك)</div>
-                <div class="text-h6 font-weight-black" :class="subscription.partial_payment >= 0 ? 'text-success' : 'text-error'">
+                <div class="text-h6 font-weight-bold" :class="subscription.partial_payment >= 0 ? 'text-success' : 'text-error'">
                   {{ formatCurrency(subscription.partial_payment) }}
                 </div>
               </v-col>

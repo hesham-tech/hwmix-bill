@@ -10,7 +10,7 @@
     :items-per-page="5"
   >
     <template #actions>
-      <v-chip v-if="upcomingCount > 0" color="error" size="small" variant="flat" class="font-weight-black">
+      <v-chip v-if="upcomingCount > 0" color="error" size="small" variant="flat" class="font-weight-bold">
         {{ upcomingCount }} فواتير متأخرة
       </v-chip>
     </template>
@@ -40,7 +40,7 @@
 
     <template #item.amount="{ item }">
       <div class="d-flex flex-column align-end">
-        <span class="font-weight-black text-body-1 text-error">{{ formatCurrency(item.remaining) }}</span>
+        <span class="font-weight-bold text-body-1 text-error">{{ formatCurrency(item.remaining) }}</span>
         <span class="text-caption text-grey">من {{ formatCurrency(item.total) }}</span>
       </div>
     </template>

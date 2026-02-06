@@ -9,7 +9,7 @@
           <v-icon :icon="icon || (type === 'error' ? 'ri-error-warning-fill' : 'ri-question-fill')" color="white" size="40" />
         </v-avatar>
 
-        <h3 class="text-h5 font-weight-black mb-3 relative-z">{{ title }}</h3>
+        <h3 class="text-h5 font-weight-bold mb-3 relative-z">{{ title }}</h3>
         <p class="text-body-1 text-grey-darken-2 mb-0 relative-z">{{ message || subtitle }}</p>
       </div>
 
@@ -23,7 +23,7 @@
         <v-btn
           variant="flat"
           :color="type === 'error' ? 'error' : confirmColor"
-          class="flex-grow-1 font-weight-black elevation-2 rounded-md shadow-md"
+          class="flex-grow-1 font-weight-bold elevation-2 rounded-md shadow-md"
           height="48"
           :loading="loading"
           @click="handleConfirm"

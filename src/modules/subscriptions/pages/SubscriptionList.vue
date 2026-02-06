@@ -3,7 +3,7 @@
     <AppPageHeader sticky>
       <template #title>
         <div class="d-flex align-center gap-2">
-          <span class="text-h6 font-weight-black">الاشتراكات الجارية</span>
+          <span class="text-h6 font-weight-bold">الاشتراكات الجارية</span>
           <v-chip size="x-small" color="primary" variant="flat">{{ total }}</v-chip>
         </div>
       </template>
@@ -41,7 +41,7 @@
         <template #item.service="{ item }">
           <div class="d-flex flex-column">
             <div class="d-flex align-center">
-              <span class="font-weight-black text-primary">{{ item.service?.name }}</span>
+              <span class="font-weight-bold text-primary">{{ item.service?.name }}</span>
               <v-chip v-if="item.unique_identifier" size="x-small" variant="tonal" color="secondary" class="ms-2 px-1" title="معرف فريد">
                 {{ item.unique_identifier }}
               </v-chip>

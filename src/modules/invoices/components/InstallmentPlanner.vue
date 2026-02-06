@@ -8,7 +8,7 @@
       <v-chip size="small" color="primary" variant="flat">بيع بالتقسيط</v-chip>
     </div>
 
-    <div class="text-h6 font-weight-black mb-1" v-html="scheduleSummary"></div>
+    <div class="text-h6 font-weight-bold mb-1" v-html="scheduleSummary"></div>
 
     <div class="text-caption text-secondary">سيتم تأكيد التفاصيل النهائية عند الضغط على حفظ الفاتورة</div>
   </v-card>

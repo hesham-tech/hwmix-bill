@@ -10,7 +10,7 @@
     :items-per-page="5"
   >
     <template #item.invoice_number="{ item }">
-      <div class="font-weight-black text-primary">#{{ item.invoice_number }}</div>
+      <div class="font-weight-bold text-primary">#{{ item.invoice_number }}</div>
     </template>
 
     <template #item.customer="{ item }">
@@ -18,7 +18,7 @@
     </template>
 
     <template #item.total="{ item }">
-      <div class="font-weight-black text-h6 text-success">
+      <div class="font-weight-bold text-h6 text-success">
         {{ formatCurrency(item.total) }}
       </div>
     </template>

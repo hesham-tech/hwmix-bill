@@ -12,7 +12,7 @@
       <div v-if="userStore.currentUser" class="d-flex align-center">
         <div class="d-flex flex-column align-end line-height-tight">
           <span class="text-caption text-grey d-none d-sm-inline">رصيدك الحالي</span>
-          <span class="font-weight-black text-body-2 text-sm-body-1" :class="userStore.currentUser.balance < 0 ? 'text-error' : 'text-success'">
+          <span class="font-weight-bold text-body-2 text-sm-body-1" :class="userStore.currentUser.balance < 0 ? 'text-error' : 'text-success'">
             {{ formatCurrency(userStore.currentUser.balance) }}
           </span>
         </div>
@@ -188,7 +188,7 @@
             <header class="dialog-premium-header pa-3 d-flex align-center justify-space-between text-white drag-handle cursor-move variant-blue">
               <div class="d-flex align-center gap-2">
                 <v-icon icon="ri-calculator-line" color="white" size="20" />
-                <span class="text-subtitle-2 font-weight-black">آلة حاسبة</span>
+                <span class="text-subtitle-2 font-weight-bold">آلة حاسبة</span>
               </div>
               <v-btn icon="ri-close-line" variant="tonal" color="white" class="no-drag" size="x-small" @click="appState.closeCalculator" />
             </header>
@@ -213,7 +213,7 @@
             <header class="dialog-premium-header pa-3 d-flex align-center justify-space-between text-white drag-handle cursor-move variant-purple">
               <div class="d-flex align-center gap-2">
                 <v-icon icon="ri-calendar-todo-line" color="white" size="20" />
-                <span class="text-subtitle-2 font-weight-black">
+                <span class="text-subtitle-2 font-weight-bold">
                   {{ appState.installmentCalc.mode === 'invoice' ? 'تأكيد خطة التقسيط' : 'حاسبة الأقساط المتقدمة' }}
                 </span>
               </div>

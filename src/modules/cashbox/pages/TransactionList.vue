@@ -70,7 +70,7 @@
               </template>
 
               <template #item.amount="{ item }">
-                <div class="text-end font-weight-black text-body-1" :class="item.type === 'income' ? 'text-success' : 'text-error'">
+                <div class="text-end font-weight-bold text-body-1" :class="item.type === 'income' ? 'text-success' : 'text-error'">
                   {{ item.type === 'income' ? '+' : '-' }} {{ formatCurrency(item.amount) }}
                 </div>
               </template>
@@ -131,7 +131,7 @@
             </template>
 
             <template #item.amount="{ item }">
-              <div class="text-end font-weight-black text-body-1" :class="item.type === 'income' ? 'text-success' : 'text-error'">
+              <div class="text-end font-weight-bold text-body-1" :class="item.type === 'income' ? 'text-success' : 'text-error'">
                 {{ item.type === 'income' ? '+' : '-' }} {{ formatCurrency(item.amount) }}
               </div>
             </template>

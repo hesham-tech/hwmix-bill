@@ -15,7 +15,7 @@
                 <div class="logo-orb-premium mb-8">
                   <v-icon icon="ri-shield-keyhole-fill" size="56" color="white" />
                 </div>
-                <h1 class="text-h3 font-weight-black text-white mb-4 tracking-tight">مرحباً بك</h1>
+                <h1 class="text-h3 font-weight-bold text-white mb-4 tracking-tight">مرحباً بك</h1>
                 <p class="text-h6 text-white opacity-80 mb-10 font-weight-medium leading-relaxed">
                   سجل دخولك للوصول إلى كافة الخدمات الرقمية والعمليات المتكاملة بشكل آمن.
                 </p>
@@ -39,7 +39,7 @@
             <div class="form-card-premium h-100 pa-6 pa-md-10 w-100 d-flex flex-column justify-center">
               <div class="form-content-wrapper">
                 <div class="form-header mb-8">
-                  <h2 class="text-h4 font-weight-black text-slate-900 mb-2">تسجيل الدخول <span class="wave-emoji">👋</span></h2>
+                  <h2 class="text-h4 font-weight-bold text-slate-900 mb-2">تسجيل الدخول <span class="wave-emoji">👋</span></h2>
                   <p class="text-body-1 text-slate-500">سعداء برؤيتك مرة أخرى في منصتنا</p>
                 </div>
 
@@ -150,12 +150,11 @@ const handleLogin = async () => {
 <style scoped>
 .login-wrapper {
   min-height: 100vh;
-  background: #0f172a;
+  background: #2e263d;
   position: relative;
   overflow: hidden;
   display: flex;
   align-items: center;
-  /* Removed transition and mode-specific backgrounds */
 }
 
 /* Premium Glass Card */
@@ -174,7 +173,7 @@ const handleLogin = async () => {
   flex-direction: column;
   overflow: hidden;
   z-index: 2;
-  box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.5) !important;
+  box-shadow: 0 50px 100px -20px rgba(var(--v-theme-on-surface), 0.5) !important;
 }
 
 /* Visual Card */
@@ -182,10 +181,8 @@ const handleLogin = async () => {
   position: relative;
   color: white;
   overflow: hidden;
-  /* Removed transition */
   border-radius: 12px;
-  /* Hardcoded background */
-  background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+  background: linear-gradient(135deg, #2e263d 0%, #8c57ff 100%);
 }
 
 /* Form Card */

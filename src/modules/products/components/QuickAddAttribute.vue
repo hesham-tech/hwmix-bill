@@ -11,7 +11,7 @@
         <v-avatar color="primary-lighten-5" rounded="md" size="40">
           <v-icon icon="ri-settings-5-line" color="primary" />
         </v-avatar>
-        <span class="font-weight-black">إضافة سمة جديدة</span>
+        <span class="font-weight-bold">إضافة سمة جديدة</span>
       </v-card-title>
 
       <v-card-text class="mt-4">

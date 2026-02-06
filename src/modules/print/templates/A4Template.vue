@@ -3,7 +3,7 @@
     <!-- Header Area -->
     <div class="d-flex justify-space-between align-center mb-8 border-b pb-4">
       <div class="company-branding">
-        <h1 class="text-h4 font-weight-black primary-text mb-1">{{ company?.name }}</h1>
+        <h1 class="text-h4 font-weight-bold primary-text mb-1">{{ company?.name }}</h1>
         <p class="text-h6 text-grey-darken-2">{{ company?.field }}</p>
       </div>
       <div class="logo-container" v-if="company?.logo">

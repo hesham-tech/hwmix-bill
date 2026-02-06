@@ -2,7 +2,7 @@
   <div class="session-management-page">
     <div class="d-flex align-center justify-space-between mb-6">
       <div>
-        <h1 class="text-h4 font-weight-black mb-1">إدارة الأجهزة والجلسات</h1>
+        <h1 class="text-h4 font-weight-bold mb-1">إدارة الأجهزة والجلسات</h1>
         <p class="text-grey-darken-1">تحكم في الأجهزة التي سجلت الدخول منها إلى حسابك وقم بتأمين حسابك.</p>
       </div>
       <v-btn color="error" variant="tonal" prepend-icon="ri-logout-circle-line" :loading="revokingAll" @click="confirmRevokeOthers">

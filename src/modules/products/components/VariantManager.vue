@@ -7,7 +7,7 @@
         <v-avatar color="primary-lighten-5" size="32" class="rounded-md">
           <v-icon color="primary" size="small">ri-layout-grid-line</v-icon>
         </v-avatar>
-        <h3 class="text-subtitle-1 font-weight-black">أصناف ومتغيرات المنتج</h3>
+        <h3 class="text-subtitle-1 font-weight-bold">أصناف ومتغيرات المنتج</h3>
       </div>
       
       <!-- Add Button Row - Full width on mobile, compact on desktop -->
@@ -93,7 +93,7 @@
             <!-- Phase 1: Identity & Prices -->
             <div class="d-flex align-center gap-2 mb-4">
               <v-icon icon="ri-price-tag-3-line" color="primary" size="small" />
-              <span class="text-overline text-primary font-weight-black">الهوية والأسعار</span>
+              <span class="text-overline text-primary font-weight-bold">الهوية والأسعار</span>
               <v-chip size="x-small" color="info" variant="tonal" class="px-2">
                 <v-icon icon="ri-information-line" size="x-small" class="me-1" />
                 تحديث تلقائي للربح
@@ -244,7 +244,7 @@
               <div class="d-flex align-center justify-space-between mb-4">
                 <div class="d-flex align-center gap-2">
                   <v-icon icon="ri-store-2-line" color="primary" size="small" />
-                  <span class="text-overline text-primary font-weight-black">توزيع المخزون عبر الفروع</span>
+                  <span class="text-overline text-primary font-weight-bold">توزيع المخزون عبر الفروع</span>
                 </div>
                 <v-btn size="x-small" variant="tonal" color="primary" class="rounded-md" prepend-icon="ri-add-line" @click="addStock(vIndex)">
                   إضافة فرع
@@ -312,7 +312,7 @@
             <div class="d-flex align-center justify-space-between mb-4">
               <div class="d-flex align-center gap-2">
                 <v-icon icon="ri-equalizer-line" color="primary" size="small" />
-                <span class="text-overline text-primary font-weight-black">المواصفات والخصائص الفنية</span>
+                <span class="text-overline text-primary font-weight-bold">المواصفات والخصائص الفنية</span>
               </div>
               <v-btn size="x-small" variant="tonal" color="secondary" class="rounded-md" prepend-icon="ri-add-line" @click="addAttribute(vIndex)">
                 إضافة صفة
@@ -389,7 +389,7 @@
             <!-- Phase 4: Variant Images -->
             <div class="d-flex align-center gap-2 mb-4">
               <v-icon icon="ri-image-line" color="primary" size="small" />
-              <span class="text-overline text-primary font-weight-black">صور المتغير الخاص</span>
+              <span class="text-overline text-primary font-weight-bold">صور المتغير الخاص</span>
             </div>
             <ProductMediaManager
               v-model="variant.images"

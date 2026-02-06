@@ -23,12 +23,12 @@
 
       <template #title>
         <div v-if="product" class="d-flex align-center gap-2">
-          <h1 :class="[mobile ? 'text-h6' : 'text-h4', 'font-weight-black']">{{ product.name }}</h1>
+          <h1 :class="[mobile ? 'text-h6' : 'text-h4', 'font-weight-bold']">{{ product.name }}</h1>
           <v-chip :color="product.active ? 'success' : 'error'" :size="mobile ? 'x-small' : 'small'" variant="flat" class="px-2 px-sm-3">
             {{ product.active ? 'نشط' : 'غير نشط' }}
           </v-chip>
         </div>
-        <div v-else :class="[mobile ? 'text-h6' : 'text-h4', 'font-weight-black']">جاري التحميل...</div>
+        <div v-else :class="[mobile ? 'text-h6' : 'text-h4', 'font-weight-bold']">جاري التحميل...</div>
       </template>
 
       <template #subtitle v-if="!mobile">
@@ -101,7 +101,7 @@
                       <div class="text-grey-darken-1 text-caption font-weight-bold">
                         {{ product.product_type === 'physical' ? 'إجمالي المخزون' : 'نوع المنتج' }}
                       </div>
-                      <div :class="[mobile ? 'text-h6' : 'text-h5', 'font-weight-black']">
+                      <div :class="[mobile ? 'text-h6' : 'text-h5', 'font-weight-bold']">
                         {{ product.product_type === 'physical' ? totalStock : product.product_type === 'digital' ? 'رقمي' : 'خدمة' }}
                         <span v-if="product.product_type === 'physical'" class="text-caption">قطعة</span>
                       </div>
@@ -117,7 +117,7 @@
                     </v-avatar>
                     <div>
                       <div class="text-grey-darken-1 text-caption font-weight-bold">عدد المتغيرات</div>
-                      <div :class="[mobile ? 'text-h6' : 'text-h5', 'font-weight-black']">{{ product.variants?.length || 0 }}</div>
+                      <div :class="[mobile ? 'text-h6' : 'text-h5', 'font-weight-bold']">{{ product.variants?.length || 0 }}</div>
                     </div>
                   </div>
                 </v-card>
@@ -130,7 +130,7 @@
                     </v-avatar>
                     <div>
                       <div class="text-grey-darken-1 text-caption font-weight-bold">متوسط سعر البيع</div>
-                      <div :class="[mobile ? 'text-h6' : 'text-h5', 'font-weight-black text-success']">{{ formatCurrency(averagePrice) }}</div>
+                      <div :class="[mobile ? 'text-h6' : 'text-h5', 'font-weight-bold text-success']">{{ formatCurrency(averagePrice) }}</div>
                     </div>
                   </div>
                 </v-card>
@@ -298,7 +298,7 @@
                                 </div>
                               </div>
                               <div class="text-right">
-                                <div class="text-h6 font-weight-black text-grey-darken-3">{{ stock.quantity }}</div>
+                                <div class="text-h6 font-weight-bold text-grey-darken-3">{{ stock.quantity }}</div>
                                 <div class="text-caption text-grey-lighten-1">متوفر</div>
                               </div>
                             </div>

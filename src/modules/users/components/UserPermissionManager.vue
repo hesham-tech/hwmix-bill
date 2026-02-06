@@ -33,7 +33,7 @@
                 <div class="section-banner pa-6 rounded-md mb-6 elevation-1 overflow-hidden">
                   <div class="d-flex align-center justify-space-between relative-z">
                     <div>
-                      <h3 class="text-h6 font-weight-black primary--text mb-1">الأدوار الوظيفية</h3>
+                      <h3 class="text-h6 font-weight-bold primary--text mb-1">الأدوار الوظيفية</h3>
                       <p class="text-body-2 text-grey-darken-1">حدد الأدوار التي تعكس مسؤوليات المستخدم في النظام</p>
                     </div>
                     <v-chip color="primary" variant="flat" size="large" class="px-6 font-weight-bold">
@@ -59,7 +59,7 @@
                             <v-checkbox-btn v-model="selectedRoles" :value="role.name" color="primary" hide-details density="compact" @click.stop />
                             <div class="flex-grow-1">
                               <div class="d-flex align-center justify-space-between mb-1">
-                                <span class="font-weight-black text-body-1">{{ role.label || role.name }}</span>
+                                <span class="font-weight-bold text-body-1">{{ role.label || role.name }}</span>
                               </div>
                               <p class="text-caption text-grey-darken-1 mb-2 line-clamp-2">{{ role.description || 'لا يوجد وصف متاح' }}</p>
                               <div class="d-flex gap-2">
@@ -148,7 +148,7 @@
                             <v-icon :icon="getGroupIcon(key)" size="20" />
                           </v-avatar>
                           <div>
-                            <span class="font-weight-black text-subtitle-2">{{ group.name?.label || key }}</span>
+                            <span class="font-weight-bold text-subtitle-2">{{ group.name?.label || key }}</span>
                             <div class="text-caption text-grey">{{ Object.keys(group).length - 1 }} صلاحية</div>
                           </div>
                         </div>
@@ -221,7 +221,7 @@
         <v-btn
           color="primary"
           size="large"
-          class="px-8 font-weight-black elevation-2"
+          class="px-8 font-weight-bold elevation-2"
           :loading="loading"
           prepend-icon="ri-shield-flash-line"
           rounded="md"

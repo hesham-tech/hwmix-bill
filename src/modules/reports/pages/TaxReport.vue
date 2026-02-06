@@ -22,19 +22,19 @@
         <v-col cols="12" md="4">
           <v-card border flat class="rounded-md pa-4 bg-success-lighten-5 border-success">
             <div class="text-caption font-weight-bold text-success">ضريبة المبيعات (+)</div>
-            <div class="text-h4 font-weight-black text-success">{{ formatCurrency(summary.total_sales_tax) }}</div>
+            <div class="text-h4 font-weight-bold text-success">{{ formatCurrency(summary.total_sales_tax) }}</div>
           </v-card>
         </v-col>
         <v-col cols="12" md="4">
           <v-card border flat class="rounded-md pa-4 bg-error-lighten-5 border-error">
             <div class="text-caption font-weight-bold text-error">ضريبة المشتريات (-)</div>
-            <div class="text-h4 font-weight-black text-error">{{ formatCurrency(summary.total_purchase_tax) }}</div>
+            <div class="text-h4 font-weight-bold text-error">{{ formatCurrency(summary.total_purchase_tax) }}</div>
           </v-card>
         </v-col>
         <v-col cols="12" md="4">
           <v-card border flat class="rounded-md pa-4 bg-info-lighten-5 border-info">
             <div class="text-caption font-weight-bold text-info">صافي الضريبة</div>
-            <div class="text-h4 font-weight-black text-info">{{ formatCurrency(summary.net_tax) }}</div>
+            <div class="text-h4 font-weight-bold text-info">{{ formatCurrency(summary.net_tax) }}</div>
           </v-card>
         </v-col>
       </v-row>

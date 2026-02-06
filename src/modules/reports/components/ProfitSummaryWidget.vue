@@ -17,7 +17,7 @@
 
       <div v-else>
         <div class="mb-4">
-          <h2 class="text-h3 font-weight-black" :class="profitData.netProfit >= 0 ? 'text-success' : 'text-error'">
+          <h2 class="text-h3 font-weight-bold" :class="profitData.netProfit >= 0 ? 'text-success' : 'text-error'">
             {{ formatCurrency(profitData.netProfit) }}
           </h2>
           <div class="d-flex align-center gap-2 mt-2">

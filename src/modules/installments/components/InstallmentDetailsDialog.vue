@@ -43,13 +43,13 @@
         <v-col cols="4">
           <div class="pa-4 rounded-md border text-center">
             <div class="text-caption text-grey mb-1">قيمة القسط</div>
-            <div class="text-h6 font-weight-black text-primary">{{ formatCurrency(installment.amount) }}</div>
+            <div class="text-h6 font-weight-bold text-primary">{{ formatCurrency(installment.amount) }}</div>
           </div>
         </v-col>
         <v-col cols="4">
           <div class="pa-4 rounded-md border text-center bg-error-lighten-5 border-error border-opacity-25">
             <div class="text-caption text-error font-weight-bold mb-1">المبلغ المتبقي</div>
-            <div class="text-h6 font-weight-black text-error">{{ formatCurrency(installment.remaining) }}</div>
+            <div class="text-h6 font-weight-bold text-error">{{ formatCurrency(installment.remaining) }}</div>
           </div>
         </v-col>
         <v-col cols="4">

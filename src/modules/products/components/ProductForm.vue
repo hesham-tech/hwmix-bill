@@ -17,7 +17,7 @@
 
       <template #title>
         <div class="d-flex align-center gap-2 flex-wrap">
-          <span class="text-h6 font-weight-black">{{ isEdit ? 'تعديل المنتج' : 'إضافة منتج' }}</span>
+          <span class="text-h6 font-weight-bold">{{ isEdit ? 'تعديل المنتج' : 'إضافة منتج' }}</span>
           <span v-if="productData.name" class="text-subtitle-2 font-weight-medium line-clamp-1">{{ productData.name }}</span>
           <v-chip v-if="isEdit" :color="productData.active ? 'success' : 'error'" size="x-small" variant="flat" class="px-2">
             {{ productData.active ? 'نشط' : 'مؤرشف' }}

@@ -110,7 +110,7 @@ export function useDataTable(fetchFunction, options = {}) {
     try {
       const params = {
         page: currentPage.value,
-        per_page: perPage.value,
+        per_page: perPage.value === -1 ? 1000 : perPage.value,
         sort_by: sortBy.value,
         sort_order: sortOrder.value,
       };
@@ -230,7 +230,7 @@ export function useDataTable(fetchFunction, options = {}) {
       // ✅ تحديث عدد العناصر والصفحة إذا تم تمريرهما مع الترتيب
       if (column.itemsPerPage !== undefined && perPage.value !== column.itemsPerPage) {
         perPage.value = column.itemsPerPage;
-        currentPage.value = 1; // تصفير الصفحة عند تغيير العدد
+        currentPage.value = 1;
         hasPaginationChanged = true;
       } else if (column.page !== undefined && currentPage.value !== column.page) {
         currentPage.value = column.page;

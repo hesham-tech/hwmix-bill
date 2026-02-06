@@ -72,7 +72,7 @@
                   :color="isColorProperty(attribute.name) ? 'white' : 'primary'"
                 />
               </v-avatar>
-              <h3 class="text-h6 font-weight-black text-slate-800">{{ attribute.name }}</h3>
+              <h3 class="text-h6 font-weight-bold text-slate-800">{{ attribute.name }}</h3>
 
               <!-- Action summary - tiny line -->
               <div class="mt-4 d-flex align-center text-caption text-slate-400 font-weight-bold">

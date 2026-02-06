@@ -4,7 +4,7 @@
       <div class="d-flex align-center justify-space-between mb-4">
         <div>
           <div class="text-caption font-weight-bold text-grey-darken-1 mb-1">الأكثر مبيعاً</div>
-          <h3 class="text-h6 font-weight-black">أفضل 5 منتجات</h3>
+          <h3 class="text-h6 font-weight-bold">أفضل 5 منتجات</h3>
         </div>
         <v-btn icon="ri-bar-chart-2-line" variant="text" size="small" color="primary" />
       </div>

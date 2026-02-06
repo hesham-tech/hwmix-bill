@@ -11,7 +11,7 @@
     @view="handleView"
   >
     <template #actions>
-      <v-chip v-if="installmentsCount > 0" color="info" size="small" variant="flat" class="font-weight-black">
+      <v-chip v-if="installmentsCount > 0" color="info" size="small" variant="flat" class="font-weight-bold">
         {{ installmentsCount }} أقساط مجدولة
       </v-chip>
     </template>
