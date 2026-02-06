@@ -397,7 +397,7 @@
       </AppDialog>
 
       <!-- Permission Management Dialog -->
-      <AppDialog v-model="isPermissionOpen" title="إدارة صلاحيات الوصول" variant="purple" max-width="900" hide-actions>
+      <AppDialog v-model="isPermissionOpen" title="إدارة صلاحيات الوصول" variant="purple" max-width="900" hide-actions fluid :fullscreen="isMobile">
         <template #header>
           <header class="dialog-premium-header variant-purple pa-5 d-flex align-center justify-space-between text-white">
             <div class="d-flex align-center gap-4">
@@ -428,6 +428,7 @@
 
 <script setup>
 import { ref, onMounted, watch, computed } from 'vue';
+import { useDisplay } from 'vuetify';
 import { useUserStore as useGlobalUserStore } from '@/stores/user';
 import { useUserStore } from '../store/user.store';
 import { usePermissions } from '@/composables/usePermissions';
@@ -450,6 +451,7 @@ import { getInitials } from '@/utils/helpers';
 import { formatCurrency } from '@/utils/formatters';
 
 const { can, canAny } = usePermissions();
+const { smAndDown: isMobile } = useDisplay();
 const store = useUserStore();
 const userStore = useGlobalUserStore();
 const userFormRef = ref(null);

@@ -27,7 +27,7 @@
 
       <!-- Dialog Content -->
       <v-card-text class="pa-0 dialog-content">
-        <div class="pa-6">
+        <div :class="{ 'pa-6': !fluid, 'pa-0': fluid }">
           <slot />
         </div>
       </v-card-text>
@@ -128,6 +128,10 @@ const props = defineProps({
     default: 'blue', // 'blue' or 'purple'
   },
   draggable: {
+    type: Boolean,
+    default: false,
+  },
+  fluid: {
     type: Boolean,
     default: false,
   },

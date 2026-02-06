@@ -149,6 +149,7 @@ apiClient.interceptors.response.use(
                 status: error?.response?.status || 0,
                 code: error?.code,
                 serverMessage: error?.response?.data?.message,
+                serverResponse: error?.response?.data,
               },
               // Pass callbacks to sync with appState
               onCaptureStart: () => {
