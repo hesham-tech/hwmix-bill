@@ -22,7 +22,7 @@
           <!-- Grid View Slot -->
           <template #grid="{ items }">
             <v-col v-for="item in items" :key="item.id" cols="12" sm="6" md="4" lg="3">
-              <v-card variant="outlined" class="mx-auto h-100 d-flex flex-column border-soft cursor-pointer" @click="viewPlan(item)">
+              <v-card variant="outlined" class="mx-auto h-100 d-flex flex-column border-soft cursor-pointer shadow-sm-hover" @click="viewPlan(item)">
                 <v-card-item class="pb-2">
                   <div class="d-flex justify-space-between align-center mb-1">
                     <span class="text-caption font-weight-bold text-primary">#{{ item.invoice?.invoice_number || item.invoice_number }}</span>
@@ -65,6 +65,7 @@
             </v-col>
           </template>
 
+          <!-- List View Slots -->
           <template #item.invoice="{ item }">
             <div class="d-flex flex-column py-2">
               <span
@@ -136,11 +137,12 @@ import { formatCurrency } from '@/utils/formatters';
 import AppPageHeader from '@/components/common/AppPageHeader.vue';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 
+// --- Initialization ---
 const { canAny } = usePermissions();
 const router = useRouter();
 const api = useApi('/api/installment-plans');
 
-// State
+// --- State ---
 const plans = ref([]);
 const loading = ref(false);
 const total = ref(0);
@@ -149,6 +151,7 @@ const itemsPerPage = ref(10);
 const search = ref('');
 const filters = ref({});
 
+// --- Configuration ---
 const headers = [
   { title: 'المبالغ والتقدم', key: 'amounts', align: 'center', width: '250px' },
   { title: 'الفاتورة والعميل', key: 'invoice', width: '280px' },
@@ -172,6 +175,7 @@ const filtersConfig = [
   { key: 'start_date', title: 'تاريخ البدء', type: 'date' },
 ];
 
+// --- Business Logic ---
 const getStatusColor = status => {
   const colors = {
     pending: 'warning',
@@ -198,24 +202,6 @@ const getStatusLabel = status => {
   return labels[status] || status;
 };
 
-const editPlan = item => {
-  console.log('Edit plan', item);
-};
-
-const viewPlan = plan => {
-  router.push(`/app/installment-plans/${plan.id}`);
-};
-
-const viewInvoice = invoiceId => {
-  router.push(`/app/invoices/${invoiceId}`);
-};
-
-const formatDate = dateString => {
-  if (!dateString) return '-';
-  const date = new Date(dateString);
-  return date.toLocaleDateString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric' });
-};
-
 const getPaymentProgress = item => {
   if (!item.total_amount || item.total_amount == 0) return 0;
   return (parseFloat(item.total_pay) / parseFloat(item.total_amount)) * 100;
@@ -229,6 +215,7 @@ const getProgressColor = item => {
   return 'error';
 };
 
+// --- Actions ---
 const loadData = async () => {
   loading.value = true;
   try {
@@ -246,6 +233,19 @@ const loadData = async () => {
   }
 };
 
+const editPlan = item => console.log('Edit plan', item);
+const viewPlan = plan => router.push(`/app/installment-plans/${plan.id}`);
+const viewInvoice = invoiceId => router.push(`/app/invoices/${invoiceId}`);
+
+const formatDate = dateString => {
+  if (!dateString) return '-';
+  return new Date(dateString).toLocaleDateString('ar-EG', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+};
+
 const handleFiltersUpdate = newFilters => {
   filters.value = newFilters;
   page.value = 1;
@@ -258,17 +258,15 @@ const handleOptionsUpdate = options => {
   loadData();
 };
 
-// Debounce search
+// --- Watchers ---
 let searchTimeout;
-const debouncedSearch = () => {
+watch(search, () => {
   clearTimeout(searchTimeout);
   searchTimeout = setTimeout(() => {
     page.value = 1;
     loadData();
   }, 500);
-};
-
-watch(search, debouncedSearch);
+});
 
 onMounted(loadData);
 </script>
@@ -276,5 +274,13 @@ onMounted(loadData);
 <style scoped>
 .hover-underline:hover {
   text-decoration: underline;
+}
+
+.shadow-sm-hover {
+  transition: box-shadow 0.3s ease;
+}
+
+.shadow-sm-hover:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
 }
 </style>

@@ -48,7 +48,6 @@
         <v-container fluid class="pa-2">
           <v-row dense>
             <slot name="filters">
-              <!-- Dynamic Filters from Headers or Filters Prop -->
               <v-col v-for="item in filterableItems" :key="item.key" cols="12" sm="6" md="4" lg="3">
                 <!-- Select Type -->
                 <v-select
@@ -261,7 +260,7 @@
       <v-list density="compact" min-width="180" class="rounded-md border shadow-lg context-menu-list">
         <div class="px-4 py-2 text-caption text-grey-darken-1 border-bottom d-flex align-center gap-2 bg-grey-lighten-4">
           <v-icon icon="ri-settings-4-line" size="14" />
-          <span>الاجرائات</span>
+          <span>الإجراءات</span>
         </div>
 
         <v-list-item
@@ -309,123 +308,54 @@
 </template>
 
 <script setup>
-import { computed, ref, reactive, nextTick, watch } from 'vue';
+import { computed, ref, reactive, nextTick, watch, useSlots } from 'vue';
+import { useDisplay } from 'vuetify';
+import { useWindowSize, useElementSize } from '@vueuse/core';
 import { usePermissions } from '@/composables/usePermissions';
 import AppButton from '@/components/common/AppButton.vue';
 import AppInput from '@/components/common/AppInput.vue';
 
-const { can, canAny } = usePermissions();
-
+// --- Props & Emits ---
 const props = defineProps({
   // Table data
-  headers: {
-    type: Array,
-    required: true,
-  },
-  items: {
-    type: Array,
-    default: () => [],
-  },
-  totalItems: {
-    type: Number,
-    default: 0,
-  },
-  loading: {
-    type: Boolean,
-    default: false,
-  },
-  virtual: {
-    type: Boolean,
-    default: false,
-  },
+  headers: { type: Array, required: true },
+  items: { type: Array, default: () => [] },
+  totalItems: { type: Number, default: 0 },
+  loading: { type: Boolean, default: false },
+  virtual: { type: Boolean, default: false },
 
   // Pagination
-  page: {
-    type: Number,
-    default: 1,
-  },
-  itemsPerPage: {
-    type: Number,
-    default: 10,
-  },
-  sortBy: {
-    type: Array,
-    default: () => [],
-  },
+  page: { type: Number, default: 1 },
+  itemsPerPage: { type: Number, default: 10 },
+  sortBy: { type: Array, default: () => [] },
 
-  // Search
-  searchable: {
-    type: Boolean,
-    default: true,
-  },
-  search: {
-    type: String,
-    default: '',
-  },
+  // Search & Filters
+  searchable: { type: Boolean, default: true },
+  search: { type: String, default: '' },
+  filters: { type: Array, default: () => [] },
 
-  // Header
-  title: {
-    type: String,
-    default: '',
-  },
-  icon: {
-    type: String,
-    default: '',
-  },
+  // Header & Styling
+  title: { type: String, default: '' },
+  icon: { type: String, default: '' },
+  fullHeight: { type: Boolean, default: true },
+  extraOffset: { type: Number, default: 0 },
 
-  // Permissions
-  permissionModule: {
-    type: String,
-    default: '',
-  },
-  showActions: {
-    type: Boolean,
-    default: true,
-  },
-  canView: {
-    type: Boolean,
-    default: true,
-  },
-  canEdit: {
-    type: Boolean,
-    default: true,
-  },
-  canDelete: {
-    type: Boolean,
-    default: true,
-  },
+  // Permissions & Actions
+  permissionModule: { type: String, default: '' },
+  showActions: { type: Boolean, default: true },
+  canView: { type: Boolean, default: true },
+  canEdit: { type: Boolean, default: true },
+  canDelete: { type: Boolean, default: true },
+  stickyActions: { type: Boolean, default: false },
 
-  // Empty state
-  emptyText: {
-    type: String,
-    default: 'لا توجد بيانات',
-  },
-  emptySubtext: {
-    type: String,
-    default: 'ابدأ بإضافة عنصر جديد',
-  },
+  // Mobile
+  mobileHeadersCount: { type: Number, default: 3 },
+  enableMobileExpansion: { type: Boolean, default: true },
 
-  // UI
-  hidePagination: {
-    type: Boolean,
-    default: false,
-  },
-  stickyActions: {
-    type: Boolean,
-    default: false,
-  },
-
-  // Mobile Expansion Settings
-  mobileHeadersCount: {
-    type: Number,
-    default: 3,
-  },
-  enableMobileExpansion: {
-    type: Boolean,
-    default: true,
-  },
-
-  // Options
+  // General UI
+  hidePagination: { type: Boolean, default: false },
+  emptyText: { type: String, default: 'لا توجد بيانات' },
+  emptySubtext: { type: String, default: 'ابدأ بإضافة عنصر جديد' },
   itemsPerPageOptions: {
     type: Array,
     default: () => [
@@ -436,30 +366,8 @@ const props = defineProps({
       { value: -1, title: 'الكل' },
     ],
   },
-  rowProps: {
-    type: [Function, Object],
-    default: null,
-  },
-  virtual: {
-    type: Boolean,
-    default: false,
-  },
-  filters: {
-    type: Array,
-    default: () => [],
-  },
-  showViewToggle: {
-    type: Boolean,
-    default: false,
-  },
-  fullHeight: {
-    type: Boolean,
-    default: true,
-  },
-  extraOffset: {
-    type: Number,
-    default: 0,
-  },
+  rowProps: { type: [Function, Object], default: null },
+  showViewToggle: { type: Boolean, default: false },
 });
 
 const emit = defineEmits([
@@ -475,21 +383,22 @@ const emit = defineEmits([
   'update:filters',
 ]);
 
-import { useDisplay } from 'vuetify';
-import { useWindowSize, useElementSize } from '@vueuse/core';
-
+// --- Core Composables ---
+const { canAny } = usePermissions();
 const { mobile } = useDisplay();
 const { height: windowHeight } = useWindowSize();
+const slots = useSlots();
 
-// Elements refs for internal measurement
+// --- Elements Measurement ---
 const tableRootRef = ref(null);
+// Lazy internal size measurement
 const { height: internalHeaderHeight } = useElementSize(computed(() => tableRootRef.value?.querySelector('.v-card-title')));
 const { height: internalPaginationHeight } = useElementSize(computed(() => tableRootRef.value?.querySelector('.v-pagination')?.parentElement));
 
 const calculatedTableHeight = computed(() => {
   if (!props.fullHeight) return '400px';
 
-  // Global layout elements measurement
+  // Find environment elements
   const navbarEl = document.querySelector('.v-app-bar');
   const breadcrumbsEl = document.querySelector('.sticky-breadcrumbs-container');
   const pageHeaderEl = document.querySelector('.app-page-header');
@@ -500,20 +409,18 @@ const calculatedTableHeight = computed(() => {
   const tableHeaderH = internalHeaderHeight.value || 48;
   const paginationH = internalPaginationHeight.value || 56;
 
-  // Base padding/margin offsets
-  const basePadding = 48;
-
+  const basePadding = 48; // Total vertical padding/margins in common layouts
   const occupied = navbarH + breadcrumbsH + pageHeaderH + tableHeaderH + paginationH + basePadding + props.extraOffset;
   const remaining = windowHeight.value - occupied;
 
   return `${Math.max(remaining, 300)}px`;
 });
 
-// Processed headers for mobile prioritization
+// --- Table Headers Processing ---
 const processedHeaders = computed(() => {
   let finalHeaders = [...props.headers];
 
-  // 1. Logic for sticky actions (Desktop)
+  // Sticky Actions (Desktop)
   if (props.stickyActions && props.showActions && !mobile.value) {
     finalHeaders = finalHeaders.map((header, index) => {
       if (index === finalHeaders.length - 1 && header.key === 'actions') {
@@ -523,13 +430,11 @@ const processedHeaders = computed(() => {
     });
   }
 
-  // 2. Logic for Mobile View
+  // Mobile Priorities
   if (mobile.value && props.enableMobileExpansion) {
-    // Keep prioritized count + Actions column
     const visibleCount = props.mobileHeadersCount;
     const prioritized = finalHeaders.filter((h, i) => i < visibleCount || h.key === 'actions');
 
-    // Add expander column if not already there
     if (!prioritized.some(h => h.key === 'data-table-expand')) {
       prioritized.unshift({ title: '', key: 'data-table-expand', align: 'start', sortable: false, width: '48px' });
     }
@@ -539,14 +444,17 @@ const processedHeaders = computed(() => {
   return finalHeaders;
 });
 
-// Calculate hidden headers for expansion row
 const hiddenHeaders = computed(() => {
   if (!mobile.value || !props.enableMobileExpansion) return [];
   const visibleKeys = processedHeaders.value.map(h => h.key);
   return props.headers.filter(h => !visibleKeys.includes(h.key) && h.key !== 'actions');
 });
 
-// v-model bindings
+// --- State & Models ---
+const viewMode = ref('list');
+const showAdvancedSearch = ref(false);
+const filtersModel = reactive({});
+
 const pageModel = computed({
   get: () => props.page,
   set: val => emit('update:page', val),
@@ -567,76 +475,41 @@ const searchModel = computed({
   set: val => emit('update:search', val),
 });
 
-const viewMode = ref('list');
-
-// Handle options update from v-data-table-server
-const handleOptionsUpdate = options => {
-  emit('update:options', options);
-};
-
-// --- Advanced Search & Filters Logic ---
-const showAdvancedSearch = ref(false);
-const filtersModel = reactive({});
-
-// Initialize filtersModel based on filters prop OR headers
-watch(
-  () => [props.headers, props.filters],
-  ([newHeaders, newFilters]) => {
-    if (newFilters && newFilters.length > 0) {
-      newFilters.forEach(f => {
-        if (filtersModel[f.key] === undefined) {
-          filtersModel[f.key] = null;
-        }
-      });
-    } else {
-      newHeaders.forEach(h => {
-        if (h.filterable && filtersModel[h.key] === undefined) {
-          filtersModel[h.key] = null;
-        }
-      });
-    }
-  },
-  { immediate: true, deep: true }
-);
-
+// --- Filters Logic ---
 const filterableItems = computed(() => {
-  if (props.filters && props.filters.length > 0) {
-    return props.filters;
-  }
+  if (props.filters && props.filters.length > 0) return props.filters;
   return props.headers.filter(h => h.filterable);
 });
 
 const hasAdvancedFilters = computed(() => {
-  return filterableItems.value.length > 0 || !!useSlots().filters;
+  return filterableItems.value.length > 0 || !!slots.filters;
 });
 
-const applyFilters = () => {
-  emit('update:filters', { ...filtersModel });
-  // If server-side, this usually triggers options update which parent handles
-};
+watch(
+  () => [props.headers, props.filters],
+  ([newHeaders, newFilters]) => {
+    const source = newFilters?.length > 0 ? newFilters : newHeaders.filter(h => h.filterable);
+    source.forEach(f => {
+      if (filtersModel[f.key] === undefined) filtersModel[f.key] = null;
+    });
+  },
+  { immediate: true, deep: true }
+);
 
+const applyFilters = () => emit('update:filters', { ...filtersModel });
 const resetFilters = () => {
-  Object.keys(filtersModel).forEach(key => {
-    filtersModel[key] = null;
-  });
+  Object.keys(filtersModel).forEach(key => (filtersModel[key] = null));
   emit('update:filters', {});
 };
 
-import { useSlots } from 'vue';
-const slots = useSlots();
-// --- End Filter Logic ---
+// --- Menu & Interactions ---
+const handleOptionsUpdate = options => emit('update:options', options);
 
-// --- Context Menu Logic ---
 const menuModel = ref(false);
-const menuProps = reactive({
-  x: 0,
-  y: 0,
-  item: null,
-  activator: null,
-});
+const menuProps = reactive({ x: 0, y: 0, item: null });
 
 const handleContextMenu = (event, { item }) => {
-  if (mobile.value) return; // Disable context menu on mobile, rely on row click or actions
+  if (mobile.value) return;
   event.preventDefault();
   menuModel.value = false;
   nextTick(() => {
@@ -652,22 +525,8 @@ const handleContextMenu = (event, { item }) => {
 .gap-1 {
   gap: 0.25rem;
 }
-
 .gap-2 {
   gap: 0.5rem;
-}
-
-.search-field {
-  max-width: 300px;
-  min-width: 200px;
-}
-
-@media (max-width: 600px) {
-  .search-field {
-    max-width: 100%;
-    min-width: 100%;
-    flex-basis: 100%;
-  }
 }
 
 :deep(th),
@@ -675,12 +534,11 @@ const handleContextMenu = (event, { item }) => {
   white-space: nowrap !important;
 }
 
-/* Highlight the row being context-clicked if we wanted to (optional) */
 :deep(.v-data-table__tr:hover) {
   background: rgba(var(--v-theme-primary), 0.02) !important;
 }
 
-/* Make AppButtons inside menu look like list items */
+/* Context Menu Styling */
 .context-menu-list :deep(.extra-actions-container) {
   display: flex;
   flex-direction: column;
@@ -709,7 +567,6 @@ const handleContextMenu = (event, { item }) => {
   gap: 12px;
 }
 
-/* Add text to buttons in menu if they only have icons */
 .context-menu-list :deep(.v-btn[tooltip]::after) {
   content: attr(tooltip);
   font-size: 0.875rem;
@@ -724,11 +581,7 @@ const handleContextMenu = (event, { item }) => {
   transition: all 0.3s ease;
 }
 
-.advanced-search-area {
-  transition: all 0.3s ease;
-}
-
-/* تصغير البادنج وتوحيد الارتفاعات للحقول المضيقة (السريع والمتقدم) */
+/* Dense UI Adjustments */
 .advanced-search-area :deep(.v-field),
 .search-input-mini :deep(.v-field) {
   --v-field-padding-top: 0px !important;
@@ -738,17 +591,10 @@ const handleContextMenu = (event, { item }) => {
   border-radius: 4px !important;
 }
 
-/* توحيد ارتفاع الأزرار في الهيدر مع حقل البحث */
 .v-card-title :deep(.v-btn.v-btn--size-small),
 .v-card-title :deep(.v-btn-toggle) {
   height: 28px !important;
   min-height: 28px !important;
-}
-
-.v-card-title :deep(.v-btn-toggle .v-btn) {
-  height: 100% !important;
-  min-height: 28px !important;
-  border-radius: 0 !important;
 }
 
 .v-card-title :deep(.v-btn-toggle) {
@@ -767,21 +613,11 @@ const handleContextMenu = (event, { item }) => {
   align-items: center;
 }
 
-/* توحيد الـ Select مع الـ Text Input */
-.advanced-search-area :deep(.v-select .v-field__input) {
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-  align-items: center;
-}
-
 .advanced-search-area :deep(.v-label.v-field-label),
 .search-input-mini :deep(.v-label.v-field-label) {
   font-size: 0.8rem !important;
   top: 50% !important;
   transform: translateY(-50%) !important;
-  height: auto !important;
-  display: flex !important;
-  align-items: center !important;
 }
 
 .advanced-search-area :deep(.v-label.v-field-label--floating),
@@ -790,43 +626,5 @@ const handleContextMenu = (event, { item }) => {
   transform: translateY(-50%) scale(0.8) !important;
   background-color: var(--v-theme-surface) !important;
   padding: 0 4px !important;
-}
-
-.advanced-search-area :deep(.v-input__details),
-.search-input-mini :deep(.v-input__details) {
-  display: none !important;
-}
-
-/* ضبط الايكونات لتتناسب مع الارتفاع الصغير */
-.advanced-search-area :deep(.v-field__append-inner),
-.search-input-mini :deep(.v-field__append-inner),
-.search-input-mini :deep(.v-field__prepend-inner) {
-  padding-top: 0 !important;
-  align-items: center;
-}
-
-.advanced-search-area :deep(.v-icon),
-.search-input-mini :deep(.v-icon) {
-  size: 16px !important;
-}
-
-.grid-view-wrapper {
-  background-color: var(--v-theme-surface);
-}
-
-.grid-view-scroll-container {
-  scrollbar-width: thin;
-  overflow-y: auto;
-  /* height: 100vh !important; */
-  scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
-}
-
-.grid-view-scroll-container::-webkit-scrollbar {
-  width: 6px;
-}
-
-.grid-view-scroll-container::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
 }
 </style>
