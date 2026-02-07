@@ -1,5 +1,5 @@
 <template>
-  <v-card>
+  <v-card ref="tableRootRef">
     <!-- Header with title and actions -->
     <v-card-title v-if="title" class="d-flex flex-wrap align-center justify-space-between gap-2 border-bottom">
       <div class="d-flex align-center gap-2">
@@ -105,7 +105,7 @@
         :items-length="totalItems"
         :loading="loading"
         :search="searchModel"
-        :height="tableHeight"
+        :height="calculatedTableHeight"
         fixed-header
         fixed-footer
         class="elevation-0"
@@ -179,7 +179,7 @@
         :items="items"
         :loading="loading"
         :search="searchModel"
-        :height="tableHeight"
+        :height="calculatedTableHeight"
         fixed-header
         class="elevation-0"
         density="compact"
@@ -244,7 +244,7 @@
 
     <!-- Grid View Area -->
     <div v-else-if="viewMode === 'grid'" class="grid-view-wrapper d-flex flex-column">
-      <div :style="{ height: tableHeight, overflowY: 'auto' }" class="grid-view-scroll-container pa-4">
+      <div :style="{ height: calculatedTableHeight, overflowY: 'auto' }" class="grid-view-scroll-container pa-4">
         <v-row dense>
           <slot name="grid" :items="items" />
         </v-row>
@@ -353,12 +353,6 @@ const props = defineProps({
     default: () => [],
   },
 
-  // Table height - default: 100vh - (navbar ~80px + header ~150px + footer ~70px + margins ~50px)
-  tableHeight: {
-    type: String,
-    default: 'calc(100vh - 350px)',
-  },
-
   // Search
   searchable: {
     type: Boolean,
@@ -458,6 +452,14 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  fullHeight: {
+    type: Boolean,
+    default: true,
+  },
+  extraOffset: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const emit = defineEmits([
@@ -474,7 +476,38 @@ const emit = defineEmits([
 ]);
 
 import { useDisplay } from 'vuetify';
+import { useWindowSize, useElementSize } from '@vueuse/core';
+
 const { mobile } = useDisplay();
+const { height: windowHeight } = useWindowSize();
+
+// Elements refs for internal measurement
+const tableRootRef = ref(null);
+const { height: internalHeaderHeight } = useElementSize(computed(() => tableRootRef.value?.querySelector('.v-card-title')));
+const { height: internalPaginationHeight } = useElementSize(computed(() => tableRootRef.value?.querySelector('.v-pagination')?.parentElement));
+
+const calculatedTableHeight = computed(() => {
+  if (!props.fullHeight) return '400px';
+
+  // Global layout elements measurement
+  const navbarEl = document.querySelector('.v-app-bar');
+  const breadcrumbsEl = document.querySelector('.sticky-breadcrumbs-container');
+  const pageHeaderEl = document.querySelector('.app-page-header');
+
+  const navbarH = navbarEl?.offsetHeight || 0;
+  const breadcrumbsH = breadcrumbsEl?.offsetHeight || 0;
+  const pageHeaderH = pageHeaderEl?.offsetHeight || 0;
+  const tableHeaderH = internalHeaderHeight.value || 48;
+  const paginationH = internalPaginationHeight.value || 56;
+
+  // Base padding/margin offsets
+  const basePadding = 48;
+
+  const occupied = navbarH + breadcrumbsH + pageHeaderH + tableHeaderH + paginationH + basePadding + props.extraOffset;
+  const remaining = windowHeight.value - occupied;
+
+  return `${Math.max(remaining, 300)}px`;
+});
 
 // Processed headers for mobile prioritization
 const processedHeaders = computed(() => {

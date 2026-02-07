@@ -2,7 +2,7 @@
   <div class="installment-plans-page">
     <AppPageHeader title="خطط التقسيط" subtitle="متابعة وإدارة جدول تحصيل الأقساط والمدفوعات الآجلة" icon="ri-calendar-schedule-line" sticky />
 
-    <div fluid class="pt-0">
+    <v-container fluid class="pt-0">
       <v-card rounded="md" class="border shadow-sm overflow-hidden mb-2">
         <AppDataTable
           :headers="headers"
@@ -67,7 +67,6 @@
 
           <template #item.invoice="{ item }">
             <div class="d-flex flex-column py-2">
-              <!-- Invoice Number -->
               <span
                 v-if="item.invoice"
                 class="font-weight-bold text-primary cursor-pointer hover-underline mb-1"
@@ -75,12 +74,10 @@
               >
                 فاتورة #{{ item.invoice.invoice_number }}
               </span>
-              <!-- Customer Name -->
               <div class="d-flex align-center gap-1">
                 <v-icon icon="ri-user-line" size="12" class="text-grey" />
                 <span class="text-caption text-grey">{{ item.customer?.name || item.invoice?.customer?.name || 'غير معروف' }}</span>
               </div>
-              <!-- Start Date -->
               <div class="d-flex align-center gap-1 mt-1">
                 <v-icon icon="ri-calendar-line" size="12" class="text-grey" />
                 <span class="text-caption text-grey">{{ formatDate(item.start_date) }}</span>
@@ -90,12 +87,10 @@
 
           <template #item.amounts="{ item }">
             <div class="d-flex flex-column gap-1 py-2 cursor-pointer" @click="viewPlan(item)">
-              <!-- Total Amount -->
               <div class="d-flex justify-space-between align-center">
                 <span class="text-caption text-grey">الإجمالي:</span>
                 <span class="font-weight-bold">{{ formatCurrency(item.total_amount) }}</span>
               </div>
-              <!-- Progress Bar with Percentage -->
               <div class="position-relative">
                 <v-progress-linear :model-value="getPaymentProgress(item)" :color="getProgressColor(item)" height="20" rounded class="my-1" />
                 <div class="position-absolute w-100 h-100 d-flex align-center justify-center" style="top: 0; left: 0">
@@ -104,7 +99,6 @@
                   </span>
                 </div>
               </div>
-              <!-- Paid / Remaining -->
               <div class="d-flex justify-space-between align-center">
                 <span class="text-caption text-success">مدفوع: {{ formatCurrency(item.total_pay) }}</span>
                 <span class="text-caption text-error">متبقي: {{ formatCurrency(item.remaining_amount) }}</span>
@@ -114,12 +108,10 @@
 
           <template #item.installments="{ item }">
             <div class="d-flex flex-column gap-1 py-2">
-              <!-- Number of Installments -->
               <v-chip size="small" variant="tonal" color="primary" class="font-weight-bold">
                 <v-icon icon="ri-list-check" size="14" class="me-1" />
                 {{ item.number_of_installments }} قسط
               </v-chip>
-              <!-- Installment Amount -->
               <div class="text-caption text-grey text-center mt-1">{{ formatCurrency(item.installment_amount) }} / شهرياً</div>
             </div>
           </template>
@@ -131,7 +123,7 @@
           </template>
         </AppDataTable>
       </v-card>
-    </div>
+    </v-container>
   </div>
 </template>
 
@@ -140,15 +132,11 @@ import { ref, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useApi } from '@/composables/useApi';
 import { usePermissions } from '@/composables/usePermissions';
-import { PERMISSIONS } from '@/config/permissions';
 import { formatCurrency } from '@/utils/formatters';
 import AppPageHeader from '@/components/common/AppPageHeader.vue';
 import AppDataTable from '@/components/common/AppDataTable.vue';
-import AppButton from '@/components/common/AppButton.vue';
-import AppInput from '@/components/common/AppInput.vue';
 
-const { can, canAny } = usePermissions();
-
+const { canAny } = usePermissions();
 const router = useRouter();
 const api = useApi('/api/installment-plans');
 
@@ -160,7 +148,6 @@ const page = ref(1);
 const itemsPerPage = ref(10);
 const search = ref('');
 const filters = ref({});
-const showAdvanced = ref(false);
 
 const headers = [
   { title: 'المبالغ والتقدم', key: 'amounts', align: 'center', width: '250px' },
@@ -212,13 +199,7 @@ const getStatusLabel = status => {
 };
 
 const editPlan = item => {
-  // Logic for editing
   console.log('Edit plan', item);
-};
-
-const deletePlan = item => {
-  // Logic for deleting
-  console.log('Delete plan', item);
 };
 
 const viewPlan = plan => {
@@ -287,10 +268,7 @@ const debouncedSearch = () => {
   }, 500);
 };
 
-// Watch search for changes
-watch(search, () => {
-  debouncedSearch();
-});
+watch(search, debouncedSearch);
 
 onMounted(loadData);
 </script>
