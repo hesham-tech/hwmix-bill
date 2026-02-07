@@ -1,8 +1,8 @@
 <template>
   <div class="payments-portal">
-    <v-container fluid class="pa-6">
+    <v-container fluid class="pa-2">
       <!-- Header -->
-      <div class="d-flex justify-space-between align-center mb-6">
+      <div class="d-flex justify-space-between align-center mb-2">
         <div>
           <h1 class="text-h4 font-weight-bold mb-1">مدفوعاتي</h1>
           <p class="text-subtitle-1 text-grey-darken-1">سجل بجميع الدفعات المالية التي قمت بها</p>
@@ -13,7 +13,7 @@
       </div>
 
       <!-- Stats -->
-      <v-row class="mb-6">
+      <v-row class="mb-2">
         <v-col cols="12" sm="6">
           <v-card variant="flat" border class="pa-4 bg-success-lighten-5 border-success">
             <div class="text-caption text-success-darken-2 font-weight-bold mb-1">إجمالي ما تم سداده</div>

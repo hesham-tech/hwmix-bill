@@ -49,7 +49,7 @@ const props = defineProps({
   },
   elevation: {
     type: [Number, String],
-    default: 1,
+    default: 0,
   },
   flat: {
     type: Boolean,

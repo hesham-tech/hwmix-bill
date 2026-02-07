@@ -1,6 +1,6 @@
 <template>
   <div v-if="can(PERMISSIONS.ADMIN_SUPER)" class="error-reports-page">
-    <div class="page-header mb-6">
+    <div class="page-header mb-2">
       <h1 class="text-h4 font-weight-bold ml-2">تقارير الأعطال</h1>
       <p class="text-body-1 text-grey">متابعة وتحليل المشاكل التقنية التي واجهها المستخدمون</p>
     </div>
@@ -113,7 +113,7 @@
           <v-btn icon="ri-close-line" variant="text" size="small" @click="detailsDialog = false" />
         </v-card-title>
 
-        <v-card-text class="pa-6">
+        <v-card-text class="pa-2">
           <v-row>
             <!-- Basic Info -->
             <v-col cols="12" md="8">
@@ -251,7 +251,7 @@
       </v-card>
     </v-dialog>
   </div>
-  <div v-else class="d-flex align-center justify-center pa-12">
+  <div v-else class="d-flex align-center justify-center pa-4">
     <v-alert type="error" title="وصول غير مسموح" text="عذراً، لا تملك الصلاحيات الكافية للوصول إلى هذه الصفحة." variant="tonal" class="rounded-md" />
   </div>
 </template>

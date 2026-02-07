@@ -30,7 +30,7 @@
       </v-row>
 
       <template v-else-if="plan">
-        <v-row class="mb-6">
+        <v-row class="mb-2">
           <!-- Main Plan Info -->
           <v-col cols="12" md="8">
             <v-card rounded="md" class="border shadow-sm overflow-hidden h-100">
@@ -51,7 +51,7 @@
                 </v-chip>
               </div>
 
-              <v-card-text class="pa-6">
+              <v-card-text class="pa-2">
                 <v-row>
                   <v-col cols="6" sm="3">
                     <div class="text-caption text-grey mb-1">المبلغ الصافي</div>

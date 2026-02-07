@@ -1,5 +1,5 @@
 <template>
-  <div class="customer-dashboard pa-6">
+  <div class="customer-dashboard pa-2">
     <!-- Premium Header -->
     <div class="welcome-section mb-8 d-flex align-center justify-space-between">
       <div>
@@ -10,7 +10,7 @@
     </div>
 
     <!-- Main Scorecards -->
-    <v-row class="mb-6">
+    <v-row class="mb-2">
       <v-col cols="12" md="4">
         <v-card class="premium-card balance-card" elevation="4">
           <div class="card-glow"></div>
@@ -155,7 +155,7 @@
           </v-col>
           <v-col cols="12" md="6">
             <div class="text-subtitle-2 text-grey mb-1">الحالة المالية والدفع</div>
-            <v-card variant="tonal" :color="getPaymentStatusColor(invoiceDialog.data.payment_status)" class="pa-6 rounded-md text-center mb-4">
+            <v-card variant="tonal" :color="getPaymentStatusColor(invoiceDialog.data.payment_status)" class="pa-2 rounded-md text-center mb-4">
               <div class="text-h5 font-weight-bold mb-1">{{ getPaymentStatusLabel(invoiceDialog.data.payment_status) }}</div>
               <div class="text-caption">حالة الفاتورة الحالية في النظام</div>
             </v-card>
@@ -185,7 +185,7 @@
 
         <div class="mt-6">
           <div class="text-subtitle-2 text-grey mb-2">الأصناف المشتراة</div>
-          <AppDataTable :headers="itemHeaders" :items="invoiceDialog.data.items || []" hide-footer dense border class="mb-6">
+          <AppDataTable :headers="itemHeaders" :items="invoiceDialog.data.items || []" hide-footer dense border class="mb-2">
             <template #item.unit_price="{ item }">{{ formatCurrency(item.unit_price) }}</template>
             <template #item.total="{ item }">{{ formatCurrency(item.unit_price * item.quantity) }}</template>
           </AppDataTable>

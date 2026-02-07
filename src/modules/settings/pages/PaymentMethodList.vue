@@ -1,7 +1,7 @@
 <template>
   <div class="payment-methods-page">
     <!-- Page Header -->
-    <div class="page-header d-flex align-center justify-space-between mb-6">
+    <div class="page-header d-flex align-center justify-space-between mb-2">
       <div>
         <h1 class="text-h4 font-weight-bold ml-2">طرق الدفع</h1>
         <p class="text-body-1 text-grey">إدارة طرق الدفع المتاحة في النظام</p>
@@ -10,7 +10,7 @@
     </div>
 
     <!-- Filters & View Toggle -->
-    <AppCard class="mb-6">
+    <AppCard class="mb-2">
       <div class="d-flex align-center flex-wrap gap-4">
         <AppInput
           v-model="search"
@@ -60,7 +60,7 @@
         <v-row>
           <v-col v-for="item in paymentMethods" :key="item.id" cols="12" sm="6" md="4" lg="3">
             <AppCard class="method-card h-100" no-padding>
-              <div class="method-card-header d-flex align-center justify-center pa-6 bg-grey-lighten-4 position-relative">
+              <div class="method-card-header d-flex align-center justify-center pa-2 bg-grey-lighten-4 position-relative">
                 <AppAvatar
                   :img-url="item.image_url"
                   :name="item.name"

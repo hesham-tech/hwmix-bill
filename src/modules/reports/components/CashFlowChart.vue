@@ -1,6 +1,6 @@
 <template>
   <v-card class="rounded-md" border flat>
-    <v-card-text class="pa-6">
+    <v-card-text class="pa-2">
       <div v-if="loading" class="text-center py-12">
         <v-progress-circular indeterminate color="primary" />
       </div>
@@ -9,7 +9,7 @@
         <p class="text-subtitle-1 mt-4">لا توجد حركات للعرض</p>
       </div>
       <div v-else>
-        <h3 class="text-h6 font-weight-bold mb-6">تدفق السيولة النقدية</h3>
+        <h3 class="text-h6 font-weight-bold mb-2">تدفق السيولة النقدية</h3>
         <Bar :data="chartData" :options="chartOptions" />
       </div>
     </v-card-text>

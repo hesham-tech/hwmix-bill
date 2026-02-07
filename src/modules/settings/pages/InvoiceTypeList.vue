@@ -1,7 +1,7 @@
 <template>
   <div class="invoice-types-page">
     <!-- Page Header -->
-    <div class="page-header d-flex align-center justify-space-between mb-6">
+    <div class="page-header d-flex align-center justify-space-between mb-2">
       <div>
         <h1 class="text-h4 font-weight-bold ml-2">أنواع الفواتير</h1>
         <p class="text-body-1 text-grey">تفعيل وتعطيل أنواع الفواتير المتاحة في النظام</p>
@@ -9,7 +9,7 @@
     </div>
 
     <!-- Filters & View Toggle -->
-    <AppCard class="mb-6">
+    <AppCard class="mb-2">
       <div class="d-flex align-center flex-wrap gap-4">
         <AppInput
           v-model="search"

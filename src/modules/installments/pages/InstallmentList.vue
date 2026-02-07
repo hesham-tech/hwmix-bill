@@ -74,7 +74,7 @@
 
       <!-- Mobile: Full-width Table -->
       <div class="d-md-none">
-        <v-card rounded="md" class="border shadow-sm overflow-hidden mb-6">
+        <v-card rounded="md" class="border shadow-sm overflow-hidden mb-2">
           <InstallmentsTable
             :items="installments"
             :loading="loading"
@@ -102,12 +102,12 @@
   </div>
 
   <!-- Access Denied State (Updated with AppButton) -->
-  <div v-else class="pa-12 text-center d-flex flex-column align-center justify-center" style="min-height: 400px">
-    <v-avatar size="100" color="error-lighten-5" class="mb-6">
+  <div v-else class="pa-4 text-center d-flex flex-column align-center justify-center" style="min-height: 400px">
+    <v-avatar size="100" color="error-lighten-5" class="mb-2">
       <v-icon icon="ri-lock-2-line" size="48" color="error" />
     </v-avatar>
     <h2 class="text-h4 font-weight-bold mb-2">عذراً، لا تملك الصلاحية</h2>
-    <p class="text-body-1 text-grey mb-6">ليس لديك إذن للوصول إلى الأقساط. يرجى مراجعة المسؤول.</p>
+    <p class="text-body-1 text-grey mb-2">ليس لديك إذن للوصول إلى الأقساط. يرجى مراجعة المسؤول.</p>
     <AppButton to="/app/admin/dashboard" color="primary" variant="tonal" prepend-icon="ri-home-4-line"> العودة للرئيسية </AppButton>
   </div>
 </template>

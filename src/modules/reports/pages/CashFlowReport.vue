@@ -63,12 +63,12 @@
   </ReportLayout>
 
   <!-- Access Denied State -->
-  <div v-else class="pa-12 text-center d-flex flex-column align-center justify-center" style="min-height: 400px">
-    <v-avatar size="100" color="error-lighten-5" class="mb-6">
+  <div v-else class="pa-4 text-center d-flex flex-column align-center justify-center" style="min-height: 400px">
+    <v-avatar size="100" color="error-lighten-5" class="mb-2">
       <v-icon icon="ri-lock-2-line" size="48" color="error" />
     </v-avatar>
     <h2 class="text-h4 font-weight-bold mb-2">عذراً، لا تملك الصلاحية</h2>
-    <p class="text-body-1 text-grey mb-6">ليس لديك إذن للوصول إلى تقارير التدفق النقدي. يرجى مراجعة المسؤول.</p>
+    <p class="text-body-1 text-grey mb-2">ليس لديك إذن للوصول إلى تقارير التدفق النقدي. يرجى مراجعة المسؤول.</p>
     <AppButton to="/dashboard" color="primary" variant="tonal" prepend-icon="ri-home-4-line"> العودة للرئيسية </AppButton>
   </div>
 </template>

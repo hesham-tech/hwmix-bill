@@ -1,7 +1,7 @@
 <template>
   <v-dialog v-model="internalValue" max-width="800px">
     <v-card v-if="task" class="rounded-md overflow-hidden">
-      <v-card-title class="pa-6 bg-grey-lighten-5 d-flex align-center gap-3">
+      <v-card-title class="pa-2 bg-grey-lighten-5 d-flex align-center gap-3">
         <v-chip :color="getStatusColor(task.status)" variant="flat" size="small">
           {{ translateStatus(task.status) }}
         </v-chip>
@@ -15,11 +15,11 @@
       <v-card-text class="pa-0">
         <v-row no-gutters>
           <!-- Details Column -->
-          <v-col cols="12" md="7" class="pa-6 border-e border-grey-lighten-4">
+          <v-col cols="12" md="7" class="pa-2 border-e border-grey-lighten-4">
             <h4 class="text-subtitle-1 font-weight-bold mb-2">الوصف</h4>
-            <p class="text-body-1 text-grey-darken-2 mb-6 whitespace-pre-wrap">{{ task.description || 'لا يوجد وصف لهذه المهمة.' }}</p>
+            <p class="text-body-1 text-grey-darken-2 mb-2 whitespace-pre-wrap">{{ task.description || 'لا يوجد وصف لهذه المهمة.' }}</p>
 
-            <v-divider class="mb-6" />
+            <v-divider class="mb-2" />
 
             <h4 class="text-subtitle-1 font-weight-bold mb-4">المرفقات</h4>
             <div class="d-flex flex-wrap gap-2 mb-4">
@@ -39,7 +39,7 @@
               <input type="file" ref="fileInput" class="d-none" @change="uploadAttachment" />
             </div>
 
-            <v-divider class="mb-6" />
+            <v-divider class="mb-2" />
 
             <h4 class="text-subtitle-1 font-weight-bold mb-4">النشاط والتعليقات</h4>
             <div class="activities-container mb-4">
@@ -73,8 +73,8 @@
           </v-col>
 
           <!-- Sidebar Column -->
-          <v-col cols="12" md="5" class="pa-6 bg-grey-lighten-5">
-            <div class="mb-6">
+          <v-col cols="12" md="5" class="pa-2 bg-grey-lighten-5">
+            <div class="mb-2">
               <h4 class="text-caption font-weight-bold text-grey-darken-1 mb-2">تحديث الحالة</h4>
               <v-select
                 v-model="task.status"
@@ -86,7 +86,7 @@
               />
             </div>
 
-            <div class="mb-6">
+            <div class="mb-2">
               <h4 class="text-caption font-weight-bold text-grey-darken-1 mb-2">التقدم</h4>
               <v-slider v-model="task.progress" color="primary" thumb-label step="5" @end="updateProgress">
                 <template #append>
@@ -95,9 +95,9 @@
               </v-slider>
             </div>
 
-            <v-divider class="mb-6" />
+            <v-divider class="mb-2" />
 
-            <div class="mb-6">
+            <div class="mb-2">
               <h4 class="text-caption font-weight-bold text-grey-darken-1 mb-2">المسؤولين</h4>
               <div class="d-flex flex-wrap gap-2">
                 <v-chip v-for="assign in task.assignments" :key="assign.id" size="small" variant="outlined" color="primary">
@@ -106,7 +106,7 @@
               </div>
             </div>
 
-            <div class="mb-6">
+            <div class="mb-2">
               <h4 class="text-caption font-weight-bold text-grey-darken-1 mb-2">الموعد النهائي</h4>
               <div class="d-flex align-center gap-2">
                 <v-icon icon="ri-calendar-event-line" size="18" color="primary" />
@@ -114,7 +114,7 @@
               </div>
             </div>
 
-            <div class="mb-6">
+            <div class="mb-2">
               <h4 class="text-caption font-weight-bold text-grey-darken-1 mb-2">بواسطة</h4>
               <div class="d-flex align-center gap-2">
                 <v-avatar size="24" color="grey-lighten-2">
@@ -127,7 +127,7 @@
         </v-row>
       </v-card-text>
     </v-card>
-    <v-card v-else class="rounded-md pa-12 text-center">
+    <v-card v-else class="rounded-md pa-4 text-center">
       <v-progress-circular indeterminate color="primary" />
     </v-card>
   </v-dialog>

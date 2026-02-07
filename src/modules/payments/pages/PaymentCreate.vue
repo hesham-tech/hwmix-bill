@@ -1,6 +1,6 @@
 <template>
   <div class="payment-create-page">
-    <div class="mb-6 px-6 pt-6 d-flex align-center">
+    <div class="mb-2 px-6 pt-6 d-flex align-center">
       <AppButton icon="ri-large-arrow-right-line" variant="text" color="secondary" class="me-3" @click="handleCancel" />
       <div>
         <h1 class="text-h4 font-weight-bold">تسجيل معاملة تحصيل</h1>
@@ -10,7 +10,7 @@
 
     <div class="px-6 pb-6">
       <v-form ref="formRef" @submit.prevent="handleSubmit">
-        <AppCard title="تفاصيل العملية المالية" icon="ri-money-dollar-box-line" class="mb-6">
+        <AppCard title="تفاصيل العملية المالية" icon="ri-money-dollar-box-line" class="mb-2">
           <v-row dense>
             <v-col cols="12" md="6">
               <AppAutocomplete

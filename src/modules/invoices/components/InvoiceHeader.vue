@@ -1,5 +1,5 @@
 <template>
-  <div class="sticky-header d-flex flex-column flex-sm-row align-start align-sm-center justify-space-between px-4 px-sm-6 py-3 mb-6 gap-3">
+  <div class="sticky-header d-flex flex-column flex-sm-row align-start align-sm-center justify-space-between px-4 px-sm-6 py-3 mb-2 gap-3">
     <div class="d-flex align-center">
       <AppButton icon="ri-arrow-right-line" variant="text" color="secondary" @click="$emit('cancel')" class="me-2 me-sm-4" />
       <div>

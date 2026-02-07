@@ -1,8 +1,8 @@
 <template>
   <div class="user-form-container">
-    <v-form ref="formRef" @submit.prevent="handleSubmit" class="user-form pa-4">
+    <v-form ref="formRef" @submit.prevent="handleSubmit" class="user-form">
       <!-- Avatar Selection -->
-      <div class="d-flex justify-center mb-8">
+      <div class="d-flex justify-center mb-4">
         <div class="avatar-selection-zone position-relative cursor-pointer" @click="showMediaGallery = true">
           <v-avatar
             size="120"
@@ -33,7 +33,7 @@
           v-if="lookupResult && !isEditMode"
           type="info"
           variant="tonal"
-          class="mb-6 rounded-md border-primary animate__animated animate__fadeIn"
+          class="mb-4 rounded-md border-primary"
           prepend-icon="ri-user-shared-line"
         >
           <div class="d-flex align-center justify-space-between flex-wrap gap-2">
@@ -49,7 +49,7 @@
       <v-row class="mx-0">
         <!-- Security & Status (Always visible but styled) -->
         <v-col cols="12">
-          <div class="d-flex align-center gap-2 mb-2 text-primary font-weight-bold">
+          <div class="d-flex align-center mb-1 text-primary font-weight-bold">
             <v-icon icon="ri-information-line" />
             <span>المعلومات الأساسية</span>
           </div>
@@ -139,8 +139,8 @@
           <v-card
             variant="tonal"
             :color="form.is_active ? 'success' : 'error'"
-            class="pa-2 rounded-md d-flex align-center justify-space-between"
-            height="56"
+            class="rounded-md d-flex align-center justify-space-between"
+            height="40"
           >
             <span class="ms-2 font-weight-bold">{{ form.is_active ? 'المستخدم نشط' : 'المستخدم معطل' }}</span>
             <AppSwitch v-model="form.is_active" hide-details />
@@ -174,7 +174,7 @@
       </v-row>
 
       <!-- Actions -->
-      <div v-if="!hideActions" class="d-flex justify-end gap-3 mt-8">
+      <div v-if="!hideActions" class="d-flex justify-end gap-3 mt-4">
         <AppButton variant="tonal" color="grey" @click="$emit('cancel')">إلغاء</AppButton>
         <AppButton :loading="loading" color="primary" class="px-8 font-weight-bold rounded-pill" @click="handleSubmit">
           <v-icon :icon="form.id ? 'ri-user-received-line' : 'ri-save-line'" class="me-2" />

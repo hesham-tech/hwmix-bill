@@ -1,6 +1,6 @@
 <template>
   <div class="admin-dashboard">
-    <div class="mb-6 px-6 pt-6 d-flex align-center justify-space-between">
+    <div class="mb-2 px-6 pt-6 d-flex align-center justify-space-between">
       <div>
         <h1 class="text-h4 font-weight-bold">لوحة التحكم الإحصائية</h1>
         <p class="text-body-1 text-grey">تحليل أداء النظام، الفواتير، وحركات المخزون في مكان واحد</p>
@@ -8,7 +8,7 @@
       <AppButton color="primary" prepend-icon="ri-refresh-line" variant="tonal" :loading="refreshing" @click="refreshAll"> تحديث البيانات </AppButton>
     </div>
     <ShareView file-name="dashboard-summary" background-color="#f8f9fa" top="0px" left="0px" :quality="0.5">
-      <div class="px-6 mb-6">
+      <div class="px-6 mb-2">
         <!-- Loading State -->
         <v-progress-linear v-if="loading" indeterminate color="primary" class="rounded-t" />
 
@@ -18,7 +18,7 @@
     </ShareView>
 
     <!-- Charts and Tasks Row -->
-    <v-row class="px-6 mx-0 mb-6">
+    <v-row class="px-6 mx-0 mb-2">
       <v-col cols="12" lg="8">
         <v-row>
           <v-col cols="12">
@@ -32,7 +32,7 @@
     </v-row>
 
     <!-- Top Products row -->
-    <v-row class="px-6 mx-0 mb-6">
+    <v-row class="px-6 mx-0 mb-2">
       <v-col cols="12">
         <TopProductsChart :data="topProducts" :loading="loading" />
       </v-col>

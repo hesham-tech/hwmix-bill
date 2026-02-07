@@ -1,5 +1,5 @@
 <template>
-  <v-card class="rounded-md border-dashed mb-6">
+  <v-card class="rounded-md border-dashed mb-2">
     <v-card-item class="py-4 px-6 border-bottom" prepend-icon="ri-list-settings-line">
       <template #title>
         <span class="font-weight-bold">أصناف الفاتورة</span>

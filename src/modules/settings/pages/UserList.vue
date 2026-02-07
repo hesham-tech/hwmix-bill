@@ -1,6 +1,6 @@
 <template>
   <div class="users-page">
-    <div class="page-header mb-6">
+    <div class="page-header mb-2">
       <h1 class="text-h4 font-weight-bold">المستخدمين</h1>
       <p class="text-body-1 text-grey">إدارة مستخ دمي النظام والعملاء</p>
     </div>

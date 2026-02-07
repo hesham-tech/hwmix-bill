@@ -1,30 +1,40 @@
 export default {
+  global: {
+    elevation: 0,
+    density: 'compact',
+  },
   IconBtn: {
     icon: true,
     color: 'default',
     variant: 'text',
+    density: 'compact',
   },
   VAlert: {
+    density: 'compact',
     VBtn: {
       color: undefined,
     },
   },
   VAvatar: {
-    // ℹ️ Remove after next release
     variant: 'flat',
   },
   VBadge: {
-    // set v-badge default color to primary
     color: 'primary',
   },
   VBtn: {
-    // set v-btn default color to primary
     color: 'primary',
-    // إذا كنت تريد أن يكون زر Vuetify الافتراضي "outlined" أيضًا، أضف هذا
-    // variant: 'outlined',
+    density: 'compact',
+    class: 'text-none', // Disable uppercase for smaller visual footprint
   },
+  VCard: {
+    density: 'compact',
+    elevation: 0,
+    variant: 'flat', // Change global to flat to avoid borders on headers
+  },
+
   VChip: {
     elevation: 0,
+    density: 'compact',
   },
   VMenu: {
     offset: '2px',
@@ -35,21 +45,20 @@ export default {
     variant: 'tonal',
   },
   VTabs: {
-    // set v-tabs default color to primary
     color: 'primary',
+    density: 'compact',
     VSlideGroup: {
       showArrows: true,
     },
   },
   VTooltip: {
-    // set v-tooltip default location to top
     location: 'top',
   },
   VCheckboxBtn: {
     color: 'primary',
+    density: 'compact',
   },
   VCheckbox: {
-    // set v-checkbox default color to primary
     color: 'primary',
     density: 'compact',
     hideDetails: 'auto',
@@ -64,39 +73,37 @@ export default {
     hideDetails: 'auto',
   },
   VSelect: {
-    variant: 'outlined', // موجود بالفعل، ممتاز!
+    variant: 'outlined',
     color: 'primary',
     hideDetails: 'auto',
     density: 'compact',
   },
   VRangeSlider: {
-    // set v-range-slider default color to primary
     color: 'primary',
     thumbLabel: true,
     hideDetails: 'auto',
-    trackSize: 6,
-    thumbSize: 22,
-    elevation: 4,
+    trackSize: 4,
+    thumbSize: 18,
+    elevation: 0,
   },
   VRating: {
-    // set v-rating default color to primary
     activeColor: 'warning',
     color: 'disabled',
+    density: 'compact',
   },
   VProgressCircular: {
-    // set v-progress-circular default color to primary
     color: 'primary',
   },
   VProgressLinear: {
     color: 'primary',
+    height: 4,
   },
   VSlider: {
-    // set v-slider default color to primary
     color: 'primary',
-    trackSize: 6,
+    trackSize: 4,
     hideDetails: 'auto',
-    thumbSize: 22,
-    elevation: 4,
+    thumbSize: 18,
+    elevation: 0,
   },
   VSnackbar: {
     VBtn: {
@@ -104,40 +111,49 @@ export default {
     },
   },
   VTextField: {
-    variant: 'outlined', // موجود بالفعل، ممتاز!
+    variant: 'outlined',
     density: 'compact',
     color: 'primary',
     hideDetails: 'auto',
   },
   VAutocomplete: {
-    variant: 'outlined', // موجود بالفعل، ممتاز!
+    variant: 'outlined',
     color: 'primary',
     density: 'compact',
     hideDetails: 'auto',
   },
   VCombobox: {
-    variant: 'outlined', // موجود بالفعل، ممتاز!
+    variant: 'outlined',
     color: 'primary',
     hideDetails: 'auto',
     density: 'compact',
   },
   VFileInput: {
-    variant: 'outlined', // موجود بالفعل، ممتاز!
+    variant: 'outlined',
     color: 'primary',
     hideDetails: 'auto',
     density: 'compact',
   },
   VTextarea: {
-    variant: 'outlined', // موجود بالفعل، ممتاز!
+    variant: 'outlined',
     color: 'primary',
     hideDetails: 'auto',
     density: 'compact',
   },
   VSwitch: {
-    // set v-switch default color to primary
     inset: true,
     color: 'primary',
     hideDetails: 'auto',
+    density: 'compact',
+  },
+  VTable: {
+    density: 'compact',
+  },
+  VList: {
+    density: 'compact',
+    VListItem: {
+      density: 'compact',
+    },
   },
   VNavigationDrawer: {
     touchless: true,

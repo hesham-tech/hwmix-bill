@@ -15,7 +15,7 @@
             :to="card.to"
             rounded="md"
           >
-            <v-card-text class="pa-6 d-flex flex-column align-center text-center">
+            <v-card-text class="pa-2 d-flex flex-column align-center text-center">
               <v-avatar :color="card.color" size="72" variant="tonal" class="mb-4">
                 <v-icon :icon="card.icon" size="36" />
               </v-avatar>

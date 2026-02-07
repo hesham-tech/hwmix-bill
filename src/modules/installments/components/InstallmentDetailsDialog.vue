@@ -10,7 +10,7 @@
   >
     <div v-if="installment" class="installment-details">
       <!-- Header Info -->
-      <v-row class="mb-6">
+      <v-row class="mb-2">
         <v-col cols="12" md="6">
           <div class="d-flex align-center pa-4 rounded-md border bg-light">
             <AppAvatar :src="customer?.avatar_url" :name="customer?.full_name" size="64" class="me-4 shadow-sm" />
@@ -39,7 +39,7 @@
       </v-row>
 
       <!-- Financial Info -->
-      <v-row class="mb-6">
+      <v-row class="mb-2">
         <v-col cols="4">
           <div class="pa-4 rounded-md border text-center">
             <div class="text-caption text-grey mb-1">قيمة القسط</div>
@@ -127,7 +127,7 @@
       </v-row>
 
       <!-- Spacing -->
-      <div class="mb-6"></div>
+      <div class="mb-2"></div>
 
       <!-- Payments List (If any) -->
       <div v-if="installment.payments?.length">

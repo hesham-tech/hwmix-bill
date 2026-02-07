@@ -184,7 +184,7 @@
           @mousedown="setActiveTool('calc')"
           @touchstart="setActiveTool('calc')"
         >
-          <v-card width="320" class="tool-premium-card elevation-24">
+          <v-card width="320" class="tool-premium-card elevation-2">
             <header class="dialog-premium-header pa-3 d-flex align-center justify-space-between text-white drag-handle cursor-move variant-blue">
               <div class="d-flex align-center gap-2">
                 <v-icon icon="ri-calculator-line" color="white" size="20" />
@@ -209,7 +209,7 @@
           @mousedown="setActiveTool('installment')"
           @touchstart="setActiveTool('installment')"
         >
-          <v-card width="350" class="tool-premium-card elevation-24">
+          <v-card width="350" class="tool-premium-card elevation-2">
             <header class="dialog-premium-header pa-3 d-flex align-center justify-space-between text-white drag-handle cursor-move variant-purple">
               <div class="d-flex align-center gap-2">
                 <v-icon icon="ri-calendar-todo-line" color="white" size="20" />
@@ -435,7 +435,7 @@ const toolPositions = ref({
 }
 
 .tool-premium-card {
-  border-radius: 16px !important;
+  border-radius: 4px !important;
   overflow: hidden;
   border: 1px solid rgba(var(--v-border-color), 0.1) !important;
 }

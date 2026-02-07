@@ -60,7 +60,7 @@
       </template>
     </AppPageHeader>
 
-    <v-container fluid :class="mobile ? 'pa-2' : 'pa-6'">
+    <v-container fluid :class="mobile ? 'pa-2' : 'pa-2'">
       <!-- Loading State -->
       <div v-if="loading" class="d-flex justify-center align-center" style="height: 400px">
         <LoadingSpinner />

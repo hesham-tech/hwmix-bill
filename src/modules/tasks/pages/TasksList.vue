@@ -1,6 +1,6 @@
 <template>
-  <v-container fluid class="pa-6">
-    <div class="d-flex align-center gap-3 mb-6">
+  <v-container fluid class="pa-2">
+    <div class="d-flex align-center gap-3 mb-2">
       <v-icon icon="ri-list-check-3" color="primary" size="32" />
       <div>
         <h1 class="text-h4 font-weight-bold">إدارة المهام</h1>
@@ -11,7 +11,7 @@
     </div>
 
     <!-- Filters -->
-    <v-card class="mb-6 rounded-md border-grey-lighten-4" variant="flat" border>
+    <v-card class="mb-2 rounded-md border-grey-lighten-4" variant="flat" border>
       <v-card-text class="pa-4">
         <v-row dense>
           <v-col cols="12" md="3">
@@ -100,7 +100,7 @@
     <!-- Loading Skeleton -->
     <v-skeleton-loader v-else type="card@6" class="bg-transparent" />
 
-    <div v-if="!loading && tasks.length === 0" class="text-center pa-12">
+    <div v-if="!loading && tasks.length === 0" class="text-center pa-4">
       <v-img src="/images/empty-tasks.png" width="200" class="mx-auto mb-4 opacity-50" />
       <h3 class="text-h6 text-grey">لا يوجد مهام حالياً</h3>
       <v-btn color="primary" variant="text" @click="openCreateDialog">إضافة مهمة جديدة</v-btn>

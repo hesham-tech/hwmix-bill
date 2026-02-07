@@ -1,7 +1,7 @@
 <template>
   <AppDialog v-model="show" title="إدارة فئات المصاريف" :loading="loading" max-width="500" hide-actions>
     <v-card flat>
-      <v-form ref="form" v-model="isFormValid" class="mb-6" @submit.prevent="handleAdd">
+      <v-form ref="form" v-model="isFormValid" class="mb-2" @submit.prevent="handleAdd">
         <v-row align="center" no-gutters>
           <v-col>
             <AppInput

@@ -1,6 +1,6 @@
 <template>
   <div class="session-management-page">
-    <div class="d-flex align-center justify-space-between mb-6">
+    <div class="d-flex align-center justify-space-between mb-2">
       <div>
         <h1 class="text-h4 font-weight-bold mb-1">إدارة الأجهزة والجلسات</h1>
         <p class="text-grey-darken-1">تحكم في الأجهزة التي سجلت الدخول منها إلى حسابك وقم بتأمين حسابك.</p>
@@ -10,7 +10,7 @@
       </v-btn>
     </div>
 
-    <v-alert type="info" variant="tonal" class="mb-6 rounded-md" icon="ri-shield-user-line" title="نصيحة أمان">
+    <v-alert type="info" variant="tonal" class="mb-2 rounded-md" icon="ri-shield-user-line" title="نصيحة أمان">
       إذا رأيت جهازاً لا تعرفه، قم بتسجيل الخروج منه فوراً وقم بتغيير كلمة المرور الخاصة بك.
     </v-alert>
 

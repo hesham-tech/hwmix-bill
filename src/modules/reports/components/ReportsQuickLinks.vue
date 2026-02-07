@@ -1,6 +1,6 @@
 <template>
   <v-card class="rounded-md" border flat>
-    <v-card-text class="pa-6">
+    <v-card-text class="pa-2">
       <h3 class="text-h6 font-weight-bold mb-4">التقارير المالية</h3>
 
       <v-list density="compact" class="pa-0">

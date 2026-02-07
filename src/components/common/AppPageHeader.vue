@@ -1,12 +1,12 @@
 <template>
   <header class="app-page-header" :class="{ 'sticky-header': sticky }" :style="sticky ? { top: stickyTop + 'px' } : {}">
-    <v-card flat color="transparent" :class="[mobile ? 'px-2 py-2' : 'px-4 py-3', 'w-full']">
+    <v-card flat color="transparent pa-2">
       <v-row align="center" no-gutters>
         <!-- Prepend Content (Icon or custom) -->
-        <v-col v-if="$slots.prepend || icon" cols="auto" class="me-3 me-md-4">
+        <v-col v-if="$slots.prepend || icon" cols="auto" class="">
           <slot name="prepend">
-            <v-avatar color="primary-lighten-5" rounded="md" size="48" class="elevation-sm">
-              <v-icon :icon="icon" :color="iconColor" size="28" />
+            <v-avatar color="primary-lighten-5" rounded="md" size="30" class="elevation-sm">
+              <v-icon :icon="icon" :color="iconColor" size="30" />
             </v-avatar>
           </slot>
         </v-col>
@@ -14,7 +14,7 @@
         <!-- Title & Subtitle Section -->
         <v-col cols="auto">
           <!-- Title Section -->
-          <v-card-title class="pa-0 text-h5 font-weight-bold text-slate-800 mb-1" :class="mobile ? 'text-subtitle-1' : 'text-md-h4'">
+          <v-card-title class="pa-0 text-h5 font-weight-bold text-slate-800" :class="mobile ? 'text-subtitle-1' : 'text-md-h4'">
             <slot name="title">{{ title }}</slot>
           </v-card-title>
 
@@ -25,7 +25,7 @@
           >
             <div class="d-flex flex-column">
               <slot name="subtitle">{{ subtitle }}</slot>
-              <div v-if="$slots.details || details" class="text-slate-400 mt-1">
+              <div v-if="$slots.details || details" class="text-slate-400">
                 <slot name="details">{{ details }}</slot>
               </div>
             </div>
@@ -33,7 +33,7 @@
         </v-col>
 
         <!-- Append Content -->
-        <v-col v-if="$slots.append" cols="12" sm="auto" class="mt-3 mt-sm-0 ms-sm-4">
+        <v-col v-if="$slots.append" cols="12" sm="auto" class="">
           <slot name="append"></slot>
         </v-col>
       </v-row>
@@ -78,7 +78,7 @@ defineProps({
   },
   stickyTop: {
     type: [Number, String],
-    default: 77,
+    default: 79,
   },
 });
 
@@ -87,7 +87,7 @@ const { mobile } = useDisplay();
 
 <style scoped>
 .app-page-header {
-  background-color: #f8fafc;
+  background-color: var(--v-theme-background);
   transition: all 0.3s ease;
   width: 100%;
 }

@@ -1,7 +1,7 @@
 <template>
   <div class="warehouses-page">
     <!-- Page Header -->
-    <div class="page-header d-flex align-center justify-space-between mb-6">
+    <div class="page-header d-flex align-center justify-space-between mb-2">
       <div>
         <h1 class="text-h4 font-weight-bold ml-2">المخازن</h1>
         <p class="text-body-1 text-grey">إدارة ومتابعة المخازن والمخزون الخاص بكل منها</p>
@@ -12,7 +12,7 @@
     </div>
 
     <!-- Filters & View Toggle -->
-    <AppCard class="mb-6">
+    <AppCard class="mb-2">
       <div class="d-flex align-center flex-wrap gap-4">
         <AppInput
           v-model="search"
@@ -50,7 +50,7 @@
       <v-row v-if="viewMode === 'grid'">
         <v-col v-for="warehouse in warehouses" :key="warehouse.id" cols="12" sm="6" md="4" lg="3">
           <AppCard class="warehouse-card h-100" no-padding>
-            <div class="warehouse-card-header d-flex align-center justify-center pa-4 bg-primary-lighten-5 position-relative">
+            <div class="warehouse-card-header d-flex align-center justify-center bg-primary-lighten-5 position-relative">
               <v-avatar color="primary" size="80" class="elevation-2">
                 <v-icon icon="ri-building-4-line" size="40" color="white" />
               </v-avatar>
@@ -88,7 +88,7 @@
 
             <v-divider />
 
-            <div class="pa-3 d-flex align-center justify-space-between">
+            <div class="d-flex align-center justify-space-between">
               <v-btn
                 v-if="canAny(PERMISSIONS.STOCKS_VIEW_ALL, PERMISSIONS.STOCKS_VIEW_CHILDREN, PERMISSIONS.STOCKS_VIEW_SELF)"
                 variant="tonal"
@@ -378,7 +378,6 @@ watch([page, itemsPerPage], () => {
 
 .warehouse-card {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: 20px;
   border: 1px solid rgba(var(--v-theme-primary), 0.05);
   overflow: hidden;
 }

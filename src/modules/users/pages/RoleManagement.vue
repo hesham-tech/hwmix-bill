@@ -1,5 +1,5 @@
 <template>
-  <div class="role-management-page pa-6">
+  <div class="role-management-page pa-2">
     <!-- Header -->
     <div class="d-flex align-center justify-space-between mb-8">
       <div>
@@ -19,7 +19,7 @@
     </div>
 
     <!-- Stats Row -->
-    <v-row class="mb-6">
+    <v-row class="mb-2">
       <v-col cols="12" sm="4">
         <v-card variant="flat" border class="pa-4 rounded-md bg-primary-lighten-5 border-primary">
           <div class="d-flex align-center gap-4">
@@ -77,17 +77,17 @@
 
       <!-- Empty State -->
       <v-col v-if="store.roles.length === 0" cols="12">
-        <div class="text-center pa-12 bg-grey-lighten-5 rounded-md border-dashed">
+        <div class="text-center pa-4 bg-grey-lighten-5 rounded-md border-dashed">
           <v-icon icon="ri-shield-flash-line" size="64" color="grey-lighten-2" />
           <div class="text-h6 text-grey mt-4">لا يوجد أدوار مسجلة حالياً</div>
-          <p class="text-caption text-grey-darken-1 mb-6">ابدأ بإنشاء أول دور وظيفي لفريق عملك</p>
+          <p class="text-caption text-grey-darken-1 mb-2">ابدأ بإنشاء أول دور وظيفي لفريق عملك</p>
           <AppButton color="primary" @click="openRoleDialog()">إضافة أول دور</AppButton>
         </div>
       </v-col>
     </v-row>
 
     <!-- Loading State -->
-    <div v-else class="text-center pa-12">
+    <div v-else class="text-center pa-4">
       <v-progress-circular indeterminate color="primary" size="64" />
       <div class="mt-4 text-grey">جاري تحميل الأدوار...</div>
     </div>

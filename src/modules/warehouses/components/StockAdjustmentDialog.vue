@@ -9,7 +9,7 @@
     @close="close"
   >
     <v-form ref="form" v-model="isFormValid" class="pa-2">
-      <div v-if="warehouse" class="mb-6 pa-4 rounded-md bg-primary-lighten-5 border-primary border-dashed border-sm">
+      <div v-if="warehouse" class="mb-2 pa-4 rounded-md bg-primary-lighten-5 border-primary border-dashed border-sm">
         <div class="text-caption text-primary font-weight-bold mb-1">المستودع المحدد:</div>
         <div class="text-h6 font-weight-bold text-primary">{{ warehouse.name }}</div>
       </div>

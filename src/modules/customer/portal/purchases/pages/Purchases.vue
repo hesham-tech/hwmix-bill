@@ -1,8 +1,8 @@
 <template>
   <div class="purchases-portal">
-    <v-container fluid class="pa-6">
+    <v-container fluid class="pa-2">
       <!-- Welcome Header -->
-      <div class="d-flex justify-space-between align-center mb-6">
+      <div class="d-flex justify-space-between align-center mb-2">
         <div>
           <h1 class="text-h4 font-weight-bold mb-1">مشترياتي</h1>
           <p class="text-subtitle-1 text-grey-darken-1">تابع فواتيرك ومدفوعاتك بكل سهولة</p>
@@ -13,7 +13,7 @@
       </div>
 
       <!-- Quick Stats -->
-      <v-row class="mb-6">
+      <v-row class="mb-2">
         <v-col cols="12" sm="4">
           <v-card variant="flat" border class="rounded-md pa-4 bg-primary-lighten-5 border-primary opacity-90">
             <div class="text-caption text-primary-darken-2 font-weight-bold mb-1">إجمالي المشتريات</div>
@@ -35,7 +35,7 @@
       </v-row>
 
       <!-- Search & Filters -->
-      <div class="d-flex flex-column flex-sm-row gap-4 mb-6 align-center">
+      <div class="d-flex flex-column flex-sm-row gap-4 mb-2 align-center">
         <v-text-field
           v-model="filters.search"
           placeholder="ابحث برقم الفاتورة..."

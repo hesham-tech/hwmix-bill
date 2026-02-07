@@ -76,10 +76,10 @@
     <!-- Settings Dialog -->
     <v-dialog v-model="settingsDialog" max-width="500" persistent>
       <v-card rounded="md">
-        <v-card-title class="pa-6 pb-2">
+        <v-card-title class="pa-2 pb-2">
           <h3 class="text-h5 font-weight-bold">إعدادات النسخ التلقائي</h3>
         </v-card-title>
-        <v-card-text class="pa-6 pt-2">
+        <v-card-text class="pa-2 pt-2">
           <v-form ref="settingsForm">
             <v-select v-model="settings.backup_frequency" label="تكرار النسخ الاحتياطي" :items="frequencies" variant="outlined" class="mb-4" />
             <v-text-field v-model="settings.backup_time" label="وقت التنفيذ" type="time" variant="outlined" class="mb-4" />
@@ -88,7 +88,7 @@
           </v-form>
         </v-card-text>
         <v-divider />
-        <v-card-actions class="pa-6">
+        <v-card-actions class="pa-2">
           <v-spacer />
           <v-btn color="grey-darken-1" variant="text" @click="settingsDialog = false">إلغاء</v-btn>
           <v-btn color="primary" variant="flat" :loading="savingSettings" @click="saveSettings">حفظ الإعدادات</v-btn>
@@ -99,11 +99,11 @@
     <!-- Restore Confirmation Dialog -->
     <v-dialog v-model="restoreDialog" max-width="600">
       <v-card border="error md" rounded="md">
-        <v-card-title class="pa-6 pb-2 text-error d-flex align-center">
+        <v-card-title class="pa-2 pb-2 text-error d-flex align-center">
           <v-icon icon="ri-error-warning-line" class="me-2" />
           تحذير: استعادة النظام
         </v-card-title>
-        <v-card-text class="pa-6 pt-2">
+        <v-card-text class="pa-2 pt-2">
           <p class="text-body-1 mb-4">
             أنت على وشك استعادة النظام من نسخة <strong>{{ selectedBackup?.filename }}</strong
             >.
@@ -120,7 +120,7 @@
           />
         </v-card-text>
         <v-divider />
-        <v-card-actions class="pa-6">
+        <v-card-actions class="pa-2">
           <v-spacer />
           <v-btn color="grey-darken-1" variant="text" @click="restoreDialog = false">إلغاء</v-btn>
           <v-btn color="error" variant="flat" :loading="restoring" @click="performRestore"> تأكيد الاستعادة الآن </v-btn>
@@ -131,9 +131,9 @@
     <!-- Delete Confirmation Dialog -->
     <v-dialog v-model="deleteDialog" max-width="400">
       <v-card rounded="md">
-        <v-card-title class="pa-6 pb-2">حذف نسخة احتياطية</v-card-title>
-        <v-card-text class="pa-6 pt-2"> هل أنت متأكد من حذف هذا الملف؟ لن تتمكن من استعادة البيانات منه لاحقاً. </v-card-text>
-        <v-card-actions class="pa-6">
+        <v-card-title class="pa-2 pb-2">حذف نسخة احتياطية</v-card-title>
+        <v-card-text class="pa-2 pt-2"> هل أنت متأكد من حذف هذا الملف؟ لن تتمكن من استعادة البيانات منه لاحقاً. </v-card-text>
+        <v-card-actions class="pa-2">
           <v-spacer />
           <v-btn color="grey-darken-1" variant="text" @click="deleteDialog = false">تراجع</v-btn>
           <v-btn color="error" variant="flat" :loading="deleting" @click="deleteBackup">حذف نهائي</v-btn>
@@ -143,12 +143,12 @@
   </div>
 
   <!-- Access Denied State -->
-  <div v-else class="pa-12 text-center d-flex flex-column align-center justify-center" style="min-height: 400px">
-    <v-avatar size="100" color="error-lighten-5" class="mb-6">
+  <div v-else class="pa-4 text-center d-flex flex-column align-center justify-center" style="min-height: 400px">
+    <v-avatar size="100" color="error-lighten-5" class="mb-2">
       <v-icon icon="ri-lock-2-line" size="48" color="error" />
     </v-avatar>
     <h2 class="text-h4 font-weight-bold mb-2">عذراً، لا تملك الصلاحية</h2>
-    <p class="text-body-1 text-grey mb-6">ليس لديك إذن للوصول إلى إدارة النسخ الاحتياطي. يرجى مراجعة المسؤول الأعلى.</p>
+    <p class="text-body-1 text-grey mb-2">ليس لديك إذن للوصول إلى إدارة النسخ الاحتياطي. يرجى مراجعة المسؤول الأعلى.</p>
     <AppButton to="/dashboard" color="primary" variant="tonal" prepend-icon="ri-home-4-line"> العودة للرئيسية </AppButton>
   </div>
 </template>

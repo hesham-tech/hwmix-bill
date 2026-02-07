@@ -6,13 +6,13 @@
     <div class="bg-shape shape-3"></div>
 
     <v-container class="fill-height d-flex align-center justify-center pa-4">
-      <div class="glass-container elevation-24 pa-3 pa-md-4">
+      <div class="glass-container pa-3">
         <v-row class="fill-height justify-center" align="stretch">
           <!-- Left Side: Visual/Branding -->
           <v-col cols="12" md="6" class="d-none d-md-flex">
             <div class="visual-card h-100 w-100 d-flex align-center justify-center">
-              <div class="visual-content text-center pa-6 pa-md-8">
-                <div class="icon-orb mb-6">
+              <div class="visual-content text-center pa-2 pa-md-8">
+                <div class="icon-orb mb-2">
                   <v-icon icon="ri-shield-user-fill" size="64" color="white" />
                 </div>
                 <h1 class="text-h3 font-weight-bold text-white mb-4">انضم إلينا</h1>
@@ -33,7 +33,7 @@
 
           <!-- Right Side: Form -->
           <v-col cols="12" md="6" class="d-flex">
-            <div class="form-card h-100 pa-6 pa-md-8 w-100 d-flex flex-column justify-center">
+            <div class="form-card h-100 pa-2 pa-md-8 w-100 d-flex flex-column justify-center">
               <div class="d-flex align-center justify-space-between mb-8">
                 <div>
                   <h2 class="text-h4 font-weight-bold text-slate-900 mb-1">تسجيل جديد</h2>
@@ -196,7 +196,7 @@ const handleRegister = async () => {
   flex-direction: column;
   overflow: hidden;
   z-index: 2;
-  box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.15) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05) !important;
 }
 
 /* Visual Card */
@@ -204,7 +204,7 @@ const handleRegister = async () => {
   background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
   position: relative;
   color: white;
-  border-radius: 12px;
+  border-radius: 4px;
   overflow: hidden;
 }
 
@@ -266,7 +266,7 @@ const handleRegister = async () => {
 }
 
 .premium-input :deep(.v-field) {
-  border-radius: 12px !important;
+  border-radius: 4px !important;
   background: #f8fafc !important;
   border: 1px solid #e2e8f0 !important;
   transition: all 0.3s ease;
@@ -279,7 +279,7 @@ const handleRegister = async () => {
 
 .submit-btn {
   height: 64px !important;
-  border-radius: 12px !important;
+  border-radius: 4px !important;
   font-weight: 800 !important;
   font-size: 1.1rem !important;
   letter-spacing: 0;

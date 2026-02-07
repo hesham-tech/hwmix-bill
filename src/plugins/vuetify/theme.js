@@ -1,30 +1,30 @@
-export const staticPrimaryColor = '#8C57FF'
-export const staticPrimaryDarkenColor = '#7E4EE6'
+export const staticPrimaryColor = '#8C57FF';
+export const staticPrimaryDarkenColor = '#7E4EE6';
 export const themes = {
   light: {
     dark: false,
     colors: {
-      'primary': staticPrimaryColor,
+      primary: staticPrimaryColor,
       'on-primary': '#fff',
       'primary-darken-1': '#7E4EE6',
-      'secondary': '#8A8D93',
+      secondary: '#8A8D93',
       'secondary-darken-1': '#7C7F84',
       'on-secondary': '#fff',
-      'success': '#56CA00',
+      success: '#56CA00',
       'success-darken-1': '#4DB600',
       'on-success': '#fff',
-      'info': '#16B1FF',
+      info: '#16B1FF',
       'info-darken-1': '#149FE6',
       'on-info': '#fff',
-      'warning': '#FFB400',
+      warning: '#FFB400',
       'warning-darken-1': '#E6A200',
       'on-warning': '#fff',
-      'error': '#FF4C51',
+      error: '#FF4C51',
       'error-darken-1': '#E64449',
       'on-error': '#fff',
-      'background': '#f4f5fa',
+      background: '#f4f5fa',
       'on-background': '#2E263D',
-      'surface': '#fff',
+      surface: '#fff',
       'on-surface': '#2E263D',
       'grey-50': '#FAFAFA',
       'grey-100': '#F5F5F5',
@@ -55,11 +55,11 @@ export const themes = {
       'pressed-opacity': 0.14,
       'dragged-opacity': 0.1,
       'disabled-opacity': 0.4,
-      'border-color': '#2E263D',
-      'border-opacity': 0.12,
-      'table-header-color': '#F6F7FB',
-      'high-emphasis-opacity': 0.9,
-      'medium-emphasis-opacity': 0.7,
+      'border-color': '#94A3B8', // Soft Slate
+      'border-opacity': 0.16,
+      'table-header-color': '#F8FAFC',
+      'high-emphasis-opacity': 0.85,
+      'medium-emphasis-opacity': 0.65,
 
       // 👉 shadows
       'shadow-key-umbra-color': '#2E263D',
@@ -73,27 +73,27 @@ export const themes = {
   dark: {
     dark: true,
     colors: {
-      'primary': staticPrimaryColor,
+      primary: staticPrimaryColor,
       'on-primary': '#fff',
       'primary-darken-1': '#7E4EE6',
-      'secondary': '#8A8D93',
+      secondary: '#8A8D93',
       'secondary-darken-1': '#7C7F84',
       'on-secondary': '#fff',
-      'success': '#56CA00',
+      success: '#56CA00',
       'success-darken-1': '#4DB600',
       'on-success': '#fff',
-      'info': '#16B1FF',
+      info: '#16B1FF',
       'info-darken-1': '#149FE6',
       'on-info': '#fff',
-      'warning': '#FFB400',
+      warning: '#FFB400',
       'warning-darken-1': '#E6A200',
       'on-warning': '#fff',
-      'error': '#FF4C51',
+      error: '#FF4C51',
       'error-darken-1': '#E64449',
       'on-error': '#fff',
-      'background': '#28243D',
+      background: '#28243D',
       'on-background': '#E7E3FC',
-      'surface': '#312d4b',
+      surface: '#312d4b',
       'on-surface': '#E7E3FC',
       'grey-50': '#2A2E42',
       'grey-100': '#2F3349',
@@ -139,5 +139,5 @@ export const themes = {
       'shadow-xl-opacity': '0.28',
     },
   },
-}
-export default themes
+};
+export default themes;

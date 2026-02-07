@@ -1,7 +1,7 @@
 <template>
   <div class="categories-page">
     <!-- Page Header -->
-    <div class="page-header d-flex align-center justify-space-between mb-6">
+    <div class="page-header d-flex align-center justify-space-between mb-2">
       <div>
         <h1 class="text-h4 font-weight-bold ml-2">الفئات</h1>
         <p class="text-body-1 text-grey">إدارة وتحليل فئات المنتجات</p>
@@ -12,7 +12,7 @@
     </div>
 
     <!-- Filters & View Toggle -->
-    <AppCard class="mb-6">
+    <AppCard class="mb-2">
       <div class="d-flex align-center flex-wrap gap-4">
         <AppInput
           v-model="search"
@@ -60,7 +60,7 @@
           <v-row>
             <v-col v-for="category in categories" :key="category.id" cols="12" sm="6" md="4" lg="3">
               <AppCard class="category-card h-100" no-padding @click="handleCategoryClick(category)">
-                <div class="category-card-header d-flex align-center justify-center pa-6 bg-grey-lighten-4 position-relative">
+                <div class="category-card-header d-flex align-center justify-center pa-2 bg-grey-lighten-4 position-relative">
                   <v-avatar
                     size="100"
                     rounded="circle"
@@ -524,7 +524,7 @@ watch(viewMode, () => {
 
 <style scoped>
 .categories-page {
-  padding: 24px;
+  padding: 0px;
   background-color: #f8f9fa;
   min-height: 100vh;
 }
@@ -535,7 +535,7 @@ watch(viewMode, () => {
 
 .category-card {
   transition: all 0.3s ease;
-  border-radius: 16px;
+  border-radius: 4px;
   border: 1px solid #eee;
 }
 

@@ -1,6 +1,6 @@
 <template>
   <div class="warehouses-page">
-    <div class="page-header mb-6">
+    <div class="page-header mb-2">
       <h1 class="text-h4 font-weight-bold">المخازن</h1>
       <p class="text-body-1 text-grey">إدارة مخازن المنتجات</p>
     </div>

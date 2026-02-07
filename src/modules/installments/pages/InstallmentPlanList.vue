@@ -1,48 +1,9 @@
 <template>
   <div class="installment-plans-page">
-    <AppPageHeader title="خطط التقسيط" subtitle="متابعة وإدارة جدول تحصيل الأقساط والمدفوعات الآجلة" icon="ri-calendar-schedule-line" sticky>
-      <template #controls>
-        <v-col cols="12" md="8">
-          <AppInput
-            v-model="search"
-            placeholder="بحث سريع في خطط التقسيط..."
-            prepend-inner-icon="ri-search-line"
-            clearable
-            hide-details
-            variant="solo-filled"
-            density="comfortable"
-            flat
-            class="rounded-md"
-            @update:model-value="debouncedSearch"
-          />
-        </v-col>
-        <v-col cols="12" md="4" class="text-end">
-          <AppButton
-            variant="tonal"
-            color="primary"
-            prepend-icon="ri-equalizer-line"
-            class="rounded-md font-weight-bold"
-            @click="showAdvanced = !showAdvanced"
-          >
-            {{ showAdvanced ? 'إخفاء البحث المتقدم' : 'بحث متقدم' }}
-          </AppButton>
-        </v-col>
-      </template>
-    </AppPageHeader>
+    <AppPageHeader title="خطط التقسيط" subtitle="متابعة وإدارة جدول تحصيل الأقساط والمدفوعات الآجلة" icon="ri-calendar-schedule-line" sticky />
 
-    <v-container fluid class="pt-0">
-      <!-- Advanced Filters (Placeholder for consistency) -->
-      <v-expand-transition>
-        <div v-if="showAdvanced" class="mb-6">
-          <v-card variant="tonal" color="primary" class="pa-4 rounded-md border-primary bg-primary-lighten-5">
-            <div class="d-flex align-center gap-2">
-              <v-icon icon="ri-information-line" />
-              <span>البحث المتقدم لخطط التقسيط سيتم إضافته قريباً مع خيارات فلترة متقدمة.</span>
-            </div>
-          </v-card>
-        </div>
-      </v-expand-transition>
-      <v-card rounded="md" class="border shadow-sm overflow-hidden mb-6">
+    <div fluid class="pt-0">
+      <v-card rounded="md" class="border shadow-sm overflow-hidden mb-2">
         <AppDataTable
           :headers="headers"
           :items="plans"
@@ -50,10 +11,60 @@
           :total-items="total"
           v-model:items-per-page="itemsPerPage"
           v-model:page="page"
+          v-model:search="search"
+          :filters="filtersConfig"
+          show-view-toggle
           title="سجل خطط التقسيط"
           icon="ri-calendar-event-line"
           @update:options="handleOptionsUpdate"
+          @update:filters="handleFiltersUpdate"
         >
+          <!-- Grid View Slot -->
+          <template #grid="{ items }">
+            <v-col v-for="item in items" :key="item.id" cols="12" sm="6" md="4" lg="3">
+              <v-card variant="outlined" class="mx-auto h-100 d-flex flex-column border-soft cursor-pointer" @click="viewPlan(item)">
+                <v-card-item class="pb-2">
+                  <div class="d-flex justify-space-between align-center mb-1">
+                    <span class="text-caption font-weight-bold text-primary">#{{ item.invoice?.invoice_number || item.invoice_number }}</span>
+                    <v-chip :color="getStatusColor(item.status)" size="x-small" density="comfortable" class="font-weight-bold">
+                      {{ getStatusLabel(item.status) }}
+                    </v-chip>
+                  </div>
+                  <v-card-title class="pa-0 text-subtitle-2 font-weight-bold">
+                    {{ item.customer?.name || item.customer_name || 'غير معروف' }}
+                  </v-card-title>
+                </v-card-item>
+
+                <v-card-text class="pt-0 flex-grow-1">
+                  <div class="d-flex align-center gap-2 mb-3 mt-1">
+                    <v-progress-linear :model-value="getPaymentProgress(item)" :color="getProgressColor(item)" height="6" rounded>
+                      <template #default="{ value }">
+                        <span class="text-xxs font-weight-black" style="font-size: 8px">{{ Math.ceil(value) }}%</span>
+                      </template>
+                    </v-progress-linear>
+                  </div>
+
+                  <div class="d-flex justify-space-between text-caption mb-1">
+                    <span class="text-grey">الإجمالي:</span>
+                    <span class="font-weight-bold">{{ formatCurrency(item.total_amount) }}</span>
+                  </div>
+                  <div class="d-flex justify-space-between text-caption">
+                    <span class="text-grey">المتبقي:</span>
+                    <span class="text-error font-weight-bold">{{ formatCurrency(item.remaining_amount || item.total_amount - item.total_pay) }}</span>
+                  </div>
+                </v-card-text>
+
+                <v-divider class="mx-4 opacity-50" />
+
+                <v-card-actions class="pa-2 px-3">
+                  <v-btn variant="text" size="x-small" color="info" @click.stop="viewPlan(item)">عرض</v-btn>
+                  <v-spacer />
+                  <v-btn variant="text" size="x-small" color="primary" @click.stop="editPlan(item)">تعديل</v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-col>
+          </template>
+
           <template #item.invoice="{ item }">
             <div class="d-flex flex-column py-2">
               <!-- Invoice Number -->
@@ -120,12 +131,12 @@
           </template>
         </AppDataTable>
       </v-card>
-    </v-container>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useApi } from '@/composables/useApi';
 import { usePermissions } from '@/composables/usePermissions';
@@ -148,6 +159,7 @@ const total = ref(0);
 const page = ref(1);
 const itemsPerPage = ref(10);
 const search = ref('');
+const filters = ref({});
 const showAdvanced = ref(false);
 
 const headers = [
@@ -155,6 +167,22 @@ const headers = [
   { title: 'الفاتورة والعميل', key: 'invoice', width: '280px' },
   { title: 'الأقساط', key: 'installments', align: 'center', width: '140px' },
   { title: 'الحالة', key: 'status', align: 'center', width: '120px' },
+];
+
+const filtersConfig = [
+  {
+    key: 'status',
+    title: 'الحالة',
+    type: 'select',
+    items: [
+      { title: 'في الانتظار', value: 'pending' },
+      { title: 'نشط', value: 'active' },
+      { title: 'مدفوعة جزئياً', value: 'partially_paid' },
+      { title: 'مدفوعة', value: 'paid' },
+      { title: 'متأخرة', value: 'overdue' },
+    ],
+  },
+  { key: 'start_date', title: 'تاريخ البدء', type: 'date' },
 ];
 
 const getStatusColor = status => {
@@ -181,6 +209,16 @@ const getStatusLabel = status => {
     overdue: 'متأخرة',
   };
   return labels[status] || status;
+};
+
+const editPlan = item => {
+  // Logic for editing
+  console.log('Edit plan', item);
+};
+
+const deletePlan = item => {
+  // Logic for deleting
+  console.log('Delete plan', item);
 };
 
 const viewPlan = plan => {
@@ -217,6 +255,7 @@ const loadData = async () => {
       page: page.value,
       per_page: itemsPerPage.value,
       search: search.value,
+      ...filters.value,
     };
     const response = await api.get(params, { showLoading: false });
     plans.value = response.data || [];
@@ -224,6 +263,12 @@ const loadData = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+const handleFiltersUpdate = newFilters => {
+  filters.value = newFilters;
+  page.value = 1;
+  loadData();
 };
 
 const handleOptionsUpdate = options => {
@@ -242,14 +287,15 @@ const debouncedSearch = () => {
   }, 500);
 };
 
+// Watch search for changes
+watch(search, () => {
+  debouncedSearch();
+});
+
 onMounted(loadData);
 </script>
 
 <style scoped>
-.installment-plans-page :deep(.v-container) {
-  max-width: 100% !important;
-}
-
 .hover-underline:hover {
   text-decoration: underline;
 }

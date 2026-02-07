@@ -14,10 +14,10 @@
   >
     <!-- Customer Column -->
     <template #item.customer="{ item }">
-      <div v-if="showCustomer" class="d-flex align-center py-2">
+      <div v-if="showCustomer" class="d-flex align-center py-1">
         <AppAvatar :src="getCustomerData(item).avatar_url" :name="getCustomerData(item).full_name" size="36" class="me-3 shadow-sm border" />
         <div>
-          <div class="font-weight-bold text-no-wrap text-body-2">
+          <div class="font-weight-bold text-no-wrap text-caption">
             {{ getCustomerData(item).full_name || '---' }}
           </div>
           <AppPhone :phone="getCustomerData(item).phone" />

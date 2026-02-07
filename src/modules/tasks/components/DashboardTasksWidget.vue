@@ -45,12 +45,12 @@
         </v-list-item>
       </v-list>
 
-      <div v-else-if="!loading" class="text-center pa-12">
+      <div v-else-if="!loading" class="text-center pa-4">
         <v-icon icon="ri-check-double-line" size="48" color="grey-lighten-3" class="mb-2" />
         <p class="text-grey mb-0">لا يوجد مهام تتطلب انتباهك حالياً</p>
       </div>
 
-      <div v-else class="pa-6">
+      <div v-else class="pa-2">
         <v-skeleton-loader type="list-item-three-line@3" />
       </div>
     </v-card-text>

@@ -299,7 +299,7 @@ const handleLogout = async () => {
 
 .sidebar-header {
   padding: 8px 10px;
-  border-radius: 12px;
+  border-radius: 4px;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
@@ -389,8 +389,7 @@ const handleLogout = async () => {
 
 .menu-item,
 .menu-sub-item {
-  margin-bottom: 4px;
-  border-radius: 8px;
+  border-radius: 4px;
 }
 
 .menu-sub-item {

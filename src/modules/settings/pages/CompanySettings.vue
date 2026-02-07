@@ -11,10 +11,10 @@
       <!-- Increased padding to clear the fixed footer -->
       <!-- Left Column: Branding & Media -->
       <v-col cols="12" lg="4">
-        <AppCard title="الهوية البصرية" icon="ri-magic-line" class="mb-6" no-padding>
+        <AppCard title="الهوية البصرية" icon="ri-magic-line" class="mb-2" no-padding>
           <v-card-text class="pa-8 text-center bg-grey-lighten-5">
             <!-- Professional Logo Preview (Standardized with Brands) -->
-            <div class="logo-preview-zone mx-auto mb-6 cursor-pointer">
+            <div class="logo-preview-zone mx-auto mb-2 cursor-pointer">
               <AppAvatar
                 :img-url="formData.logo"
                 :name="formData.name"
@@ -36,7 +36,7 @@
         </AppCard>
 
         <!-- Business Context Card -->
-        <AppCard title="سياق العمل" icon="ri-briefcase-line" class="mb-6">
+        <AppCard title="سياق العمل" icon="ri-briefcase-line" class="mb-2">
           <AppInput
             v-model="formData.field"
             label="مجال نشاط الشركة"
@@ -63,7 +63,7 @@
       <v-col cols="12" lg="8">
         <v-form ref="formRef">
           <!-- Information Section -->
-          <AppCard title="البيانات الأساسية والقانونية" icon="ri-information-line" class="mb-6">
+          <AppCard title="البيانات الأساسية والقانونية" icon="ri-information-line" class="mb-2">
             <v-row>
               <v-col cols="12" md="6">
                 <AppInput

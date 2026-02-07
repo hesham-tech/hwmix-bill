@@ -198,7 +198,7 @@
             <!-- Statistics Grid -->
             <v-row dense class="mb-3">
               <v-col cols="6" md="6">
-                <div class="pa-2 d-flex align-center gap-2 rounded-md border bg-white shadow-sm">
+                <div class="d-flex align-center gap-1 rounded-md border bg-white shadow-sm">
                   <v-avatar color="primary-lighten-5" rounded="md" size="32">
                     <v-icon icon="ri-team-line" color="primary" size="16" />
                   </v-avatar>
@@ -209,7 +209,7 @@
                 </div>
               </v-col>
               <v-col cols="6" md="6">
-                <div class="pa-2 d-flex align-center gap-2 rounded-md border bg-white shadow-sm">
+                <div class="d-flex align-center gap-1 rounded-md border bg-white shadow-sm">
                   <v-avatar color="success-lighten-5" rounded="md" size="32">
                     <v-icon icon="ri-user-follow-line" color="success" size="16" />
                   </v-avatar>
@@ -220,7 +220,7 @@
                 </div>
               </v-col>
               <v-col cols="6" md="6">
-                <div class="pa-2 d-flex align-center gap-2 rounded-md border bg-white shadow-sm">
+                <div class="d-flex align-center gap-1 rounded-md border bg-white shadow-sm">
                   <v-avatar color="warning-lighten-5" rounded="md" size="32">
                     <v-icon icon="ri-admin-line" color="warning" size="16" />
                   </v-avatar>
@@ -231,7 +231,7 @@
                 </div>
               </v-col>
               <v-col cols="6" md="6">
-                <div class="pa-2 d-flex align-center gap-2 rounded-md border bg-white shadow-sm">
+                <div class="d-flex align-center gap-1 rounded-md border bg-white shadow-sm">
                   <v-avatar color="error-lighten-5" rounded="md" size="32">
                     <v-icon icon="ri-user-forbid-line" color="error" size="16" />
                   </v-avatar>

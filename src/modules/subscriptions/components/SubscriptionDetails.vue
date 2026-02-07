@@ -12,9 +12,9 @@
     <v-row>
       <!-- Main Info Card -->
       <v-col cols="12" md="7">
-        <v-card border flat class="mb-6">
-          <v-card-text class="pa-6">
-            <div class="d-flex align-center justify-space-between mb-6">
+        <v-card border flat class="mb-2">
+          <v-card-text class="pa-2">
+            <div class="d-flex align-center justify-space-between mb-2">
               <div class="d-flex align-center gap-4">
                 <AppAvatar :img-url="null" :name="subscription.service?.name" size="64" rounded="lg" type="service" border />
                 <div>
@@ -27,7 +27,7 @@
               </v-chip>
             </div>
 
-            <v-divider class="mb-6" />
+            <v-divider class="mb-2" />
 
             <v-row>
               <v-col cols="6">
@@ -93,7 +93,7 @@
 
       <!-- History / Stats Side -->
       <v-col cols="12" md="5">
-        <v-card border flat class="mb-6">
+        <v-card border flat class="mb-2">
           <div class="pa-4 bg-grey-lighten-5 border-b font-weight-bold">ملاحظات</div>
           <v-card-text class="pa-4">
             <div class="text-body-2 italic text-grey-darken-1">{{ subscription.notes || 'لا يوجد ملاحظات' }}</div>

@@ -29,8 +29,8 @@
           <!-- Roles Segment -->
           <v-window-item value="roles" class="h-100">
             <div class="d-flex flex-column h-100">
-              <div class="flex-grow-1 overflow-y-auto pa-6">
-                <div class="section-banner pa-6 rounded-md mb-6 elevation-1 overflow-hidden">
+              <div class="flex-grow-1 overflow-y-auto pa-2">
+                <div class="section-banner pa-2 rounded-md mb-2 elevation-1 overflow-hidden">
                   <div class="d-flex align-center justify-space-between relative-z">
                     <div>
                       <h3 class="text-h6 font-weight-bold primary--text mb-1">الأدوار الوظيفية</h3>
@@ -138,10 +138,10 @@
               </div>
 
               <!-- Permission Content with Staggered Groups -->
-              <div class="flex-grow-1 overflow-y-auto pa-6">
+              <div class="flex-grow-1 overflow-y-auto pa-2">
                 <v-row v-if="Object.keys(filteredPermissions).length">
                   <v-col v-for="(group, key) in filteredPermissions" :key="key" cols="12">
-                    <div class="permission-group-premium rounded-md overflow-hidden elevation-1 bg-white mb-6">
+                    <div class="permission-group-premium rounded-md overflow-hidden elevation-1 bg-white mb-2">
                       <div class="group-header pa-4 d-flex align-center justify-space-between border-b bg-grey-lighten-5">
                         <div class="d-flex align-center gap-3">
                           <v-avatar color="primary" variant="tonal" size="36">
@@ -684,7 +684,7 @@ const handleSave = async () => {
     height: 36px !important;
   }
 
-  .pa-6 {
+  .pa-2 {
     padding: 8px !important;
   }
 
@@ -731,7 +731,7 @@ const handleSave = async () => {
 }
 
 @media (max-width: 599px) {
-  .pa-6 {
+  .pa-2 {
     padding: 8px !important;
   }
 

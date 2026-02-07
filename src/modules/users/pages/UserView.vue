@@ -85,8 +85,8 @@
           <v-divider class="mx-6 opacity-20" />
 
           <!-- Financial Card -->
-          <div class="pa-6">
-            <div class="balance-card pa-6 rounded-md overflow-hidden position-relative">
+          <div class="pa-2">
+            <div class="balance-card pa-2 rounded-md overflow-hidden position-relative">
               <div class="d-flex align-center gap-3">
                 <div class="pa-2 rounded-md bg-white-transparent">
                   <v-icon icon="ri-wallet-3-line" color="white" />
@@ -122,10 +122,10 @@
             <v-tab value="activity" prepend-icon="ri-history-line" class="px-6">النشاطات</v-tab>
           </v-tabs>
 
-          <v-window v-model="activeTab" class="pa-6">
+          <v-window v-model="activeTab" class="pa-2">
             <v-window-item value="details">
               <div class="mb-10">
-                <h3 class="text-h6 font-weight-bold mb-6 d-flex align-center gap-3">
+                <h3 class="text-h6 font-weight-bold mb-2 d-flex align-center gap-3">
                   <v-avatar color="primary-lighten-5" rounded="md" size="32">
                     <v-icon icon="ri-building-line" color="primary" size="20" />
                   </v-avatar>
@@ -158,7 +158,7 @@
                   </v-avatar>
                   ملاحظات إضافية
                 </h3>
-                <div class="bg-grey-lighten-5 pa-6 rounded-md border border-dashed text-body-1 text-grey-darken-1 min-height-100">
+                <div class="bg-grey-lighten-5 pa-2 rounded-md border border-dashed text-body-1 text-grey-darken-1 min-height-100">
                   {{ user.notes || 'لا توجد ملاحظات إضافية مسجلة لهذا المستخدم.' }}
                 </div>
               </div>

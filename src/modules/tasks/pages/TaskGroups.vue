@@ -1,6 +1,6 @@
 <template>
-  <v-container fluid class="pa-6">
-    <div class="d-flex align-center gap-3 mb-6">
+  <v-container fluid class="pa-2">
+    <div class="d-flex align-center gap-3 mb-2">
       <v-icon icon="ri-team-line" color="primary" size="32" />
       <div>
         <h1 class="text-h4 font-weight-bold">مجموعات العمل</h1>
@@ -50,7 +50,7 @@
 
     <v-skeleton-loader v-else type="card@3" class="bg-transparent" />
 
-    <div v-if="!loading && groups.length === 0" class="text-center pa-12">
+    <div v-if="!loading && groups.length === 0" class="text-center pa-4">
       <v-img src="/images/empty-groups.png" width="180" class="mx-auto mb-4 opacity-50" />
       <h3 class="text-h6 text-grey">لا يوجد مجموعات حالياً</h3>
       <v-btn color="primary" variant="text" @click="openCreateDialog">أنشئ أول مجموعة</v-btn>
@@ -59,10 +59,10 @@
     <!-- Create/Edit Dialog -->
     <v-dialog v-model="showDialog" max-width="500px">
       <v-card class="rounded-md overflow-hidden">
-        <v-card-title class="pa-6 bg-primary text-white font-weight-bold">
+        <v-card-title class="pa-2 bg-primary text-white font-weight-bold">
           {{ editingGroup ? 'تعديل مجموعة' : 'مجموعة عمل جديدة' }}
         </v-card-title>
-        <v-card-text class="pa-6">
+        <v-card-text class="pa-2">
           <v-text-field v-model="formData.name" label="اسم المجموعة" variant="outlined" class="mb-4" />
           <v-textarea v-model="formData.description" label="الوصف" variant="outlined" rows="2" class="mb-4" />
 
@@ -78,7 +78,7 @@
             variant="outlined"
           />
         </v-card-text>
-        <v-card-actions class="pa-6 pt-0">
+        <v-card-actions class="pa-2 pt-0">
           <v-spacer />
           <v-btn variant="text" @click="showDialog = false">إلغاء</v-btn>
           <v-btn color="primary" variant="flat" class="px-8 rounded-md" :loading="saving" @click="saveGroup">حفظ</v-btn>

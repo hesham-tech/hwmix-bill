@@ -65,7 +65,7 @@
         <v-col v-for="attribute in attributes" :key="attribute.id" cols="12" sm="6" md="4" lg="3">
           <v-card class="image-style-card border-slate-50" @click="openValuesDialog(attribute)">
             <v-card-text class="pa-10 d-flex flex-column align-center">
-              <v-avatar size="100" :color="isColorProperty(attribute.name) ? 'primary' : 'slate-50'" class="mb-6 border-slate-100 elevation-2">
+              <v-avatar size="100" :color="isColorProperty(attribute.name) ? 'primary' : 'slate-50'" class="mb-2 border-slate-100 elevation-2">
                 <v-icon
                   :icon="isColorProperty(attribute.name) ? 'ri-palette-fill' : 'ri-list-settings-fill'"
                   size="48"
@@ -290,7 +290,7 @@
               </div>
             </v-expand-transition>
 
-            <div v-if="!formData.values.length" class="text-center pa-6 text-grey-darken-1 border border-dashed rounded-md bg-grey-lighten-5">
+            <div v-if="!formData.values.length" class="text-center pa-2 text-grey-darken-1 border border-dashed rounded-md bg-grey-lighten-5">
               <v-icon icon="ri-information-line" class="mb-2" size="24" />
               <div class="text-caption">يمكنك إضافة قيم لهذه الخاصية الآن أو لاحقاً</div>
             </div>

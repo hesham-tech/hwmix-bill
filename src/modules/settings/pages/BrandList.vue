@@ -1,7 +1,7 @@
 <template>
   <div class="brands-page">
     <!-- Page Header -->
-    <div class="page-header d-flex align-center justify-space-between mb-6">
+    <div class="page-header d-flex align-center justify-space-between mb-2">
       <div>
         <h1 class="text-h4 font-weight-bold ml-2">العلامات التجارية</h1>
         <p class="text-body-1 text-grey">إدارة وتحليل العلامات التجارية للمنتجات</p>
@@ -12,7 +12,7 @@
     </div>
 
     <!-- Filters & View Toggle -->
-    <AppCard class="mb-6">
+    <AppCard class="mb-2">
       <div class="d-flex align-center flex-wrap gap-4">
         <AppInput
           v-model="search"
@@ -57,7 +57,7 @@
         <v-row>
           <v-col v-for="brand in brands" :key="brand.id" cols="12" sm="6" md="4" lg="3">
             <AppCard class="brand-card h-100" no-padding>
-              <div class="brand-card-header d-flex align-center justify-center pa-6 bg-grey-lighten-4 position-relative">
+              <div class="brand-card-header d-flex align-center justify-center pa-2 bg-grey-lighten-4 position-relative">
                 <AppAvatar
                   v-model:img-url="brand.image_url"
                   :name="brand.name"
@@ -199,7 +199,7 @@
       <v-form ref="formRef" @submit.prevent="handleSave">
         <v-row>
           <!-- Logo Selection Section -->
-          <v-col cols="12" class="d-flex justify-center mb-6">
+          <v-col cols="12" class="d-flex justify-center mb-2">
             <div class="logo-preview-zone position-relative cursor-pointer" @click="showMediaGallery = true">
               <v-avatar size="140" rounded="md" color="grey-lighten-4" class="border-2 border-dashed elevation-1 hover-scale overflow-hidden">
                 <v-img v-if="imagePreview" :src="imagePreview" cover />
@@ -440,7 +440,7 @@ const onTableOptionsUpdate = options => {
 
 <style scoped>
 .brands-page {
-  padding: 24px;
+  padding: 0px;
   background-color: #f8f9fa;
   min-height: 100vh;
 }
@@ -451,7 +451,7 @@ const onTableOptionsUpdate = options => {
 
 .brand-card {
   transition: all 0.3s ease;
-  border-radius: 16px;
+  border-radius: 4px;
   border: 1px solid #eee;
 }
 

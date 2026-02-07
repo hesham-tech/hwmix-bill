@@ -1,6 +1,6 @@
 <template>
   <v-card class="rounded-md" border flat>
-    <v-card-text class="pa-6">
+    <v-card-text class="pa-2">
       <div class="d-flex align-center justify-space-between mb-4">
         <div>
           <h3 class="text-h6 font-weight-bold">صافي الربح - هذا الشهر</h3>

@@ -8,14 +8,14 @@
         <v-btn icon="ri-close-line" variant="text" @click="show = false" />
       </v-toolbar>
 
-      <v-card-text class="pa-6">
+      <v-card-text class="pa-2">
         <div v-if="loading" class="text-center py-4">
           <v-progress-circular indeterminate color="primary" />
           <div class="mt-2 text-grey">جاري تحميل بيانات المنتج...</div>
         </div>
 
         <template v-else-if="product">
-          <div class="d-flex align-center gap-4 mb-6 p-3 bg-grey-lighten-4 rounded-md border">
+          <div class="d-flex align-center gap-4 mb-2 p-3 bg-grey-lighten-4 rounded-md border">
             <AppAvatar :img-url="product.primary_image_url" :name="product.name" size="64" rounded="md" type="product" />
             <div>
               <div class="text-subtitle-1 font-weight-bold">{{ product.name }}</div>

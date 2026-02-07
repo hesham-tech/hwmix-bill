@@ -156,8 +156,8 @@ const handleConfirm = () => {
 
 <style scoped>
 .app-dialog-card {
-  border-radius: 12px !important;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+  border-radius: 4px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
 }
 
 .dialog-premium-header.variant-blue {

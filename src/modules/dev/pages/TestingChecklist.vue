@@ -1,7 +1,7 @@
 <template>
-  <v-container fluid class="pa-6">
+  <v-container fluid class="pa-2">
     <v-card class="rounded-md border border-grey-lighten-4 elevation-sm overflow-hidden">
-      <v-card-title class="pa-6 d-flex align-center gap-3 bg-grey-lighten-5">
+      <v-card-title class="pa-2 d-flex align-center gap-3 bg-grey-lighten-5">
         <v-icon icon="ri-checkbox-multiple-line" color="primary" size="28" />
         <div>
           <h2 class="text-h5 font-weight-bold">قائمة فحص النظام</h2>
@@ -18,7 +18,7 @@
 
       <v-divider />
 
-      <v-card-text class="pa-6" v-if="!loading">
+      <v-card-text class="pa-2" v-if="!loading">
         <v-list class="pa-0">
           <!-- Pending Items Section -->
           <div v-if="pendingItems.length > 0">
@@ -98,7 +98,7 @@
 
           <!-- Completed Section -->
           <div v-if="completedItems.length > 0" class="mt-8">
-            <v-divider class="mb-6" />
+            <v-divider class="mb-2" />
             <div class="d-flex align-center gap-2 mb-4 px-2">
               <v-icon icon="ri-checkbox-circle-fill" color="success" size="20" />
               <h3 class="text-subtitle-1 font-weight-bold text-success">الموديولات المكتملة</h3>
@@ -140,7 +140,7 @@
           </div>
         </v-list>
 
-        <div v-if="pendingItems.length === 0 && completedItems.length === 0" class="text-center pa-12">
+        <div v-if="pendingItems.length === 0 && completedItems.length === 0" class="text-center pa-4">
           <v-icon icon="ri-inbox-line" size="64" color="grey-lighten-2" />
           <p class="text-grey mt-4">لا توجد موديولات مبرمجة حالياً</p>
         </div>
@@ -152,7 +152,7 @@
         </div>
       </v-card-text>
 
-      <v-card-text v-else class="text-center pa-12">
+      <v-card-text v-else class="text-center pa-4">
         <v-progress-circular indeterminate color="primary" />
         <p class="text-grey mt-4">جاري تحميل البيانات من الباك إند...</p>
       </v-card-text>

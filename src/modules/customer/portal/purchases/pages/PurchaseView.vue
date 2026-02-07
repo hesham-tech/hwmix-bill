@@ -1,6 +1,6 @@
 <template>
   <v-container fluid :class="mobile ? 'pa-2' : 'pa-4'">
-    <div class="d-flex align-center justify-space-between mb-6 flex-wrap gap-3">
+    <div class="d-flex align-center justify-space-between mb-2 flex-wrap gap-3">
       <div class="d-flex align-center">
         <v-btn icon="ri-arrow-right-line" variant="text" color="secondary" @click="goBack" class="me-3" />
         <div>
@@ -26,7 +26,7 @@
         <!-- Main Content -->
         <v-col cols="12" md="8">
           <!-- Company Info (Vendor) -->
-          <v-card variant="flat" border class="pa-4 mb-6 bg-grey-lighten-5">
+          <v-card variant="flat" border class="pa-4 mb-2 bg-grey-lighten-5">
             <div class="d-flex align-center mb-4">
               <v-avatar color="primary" rounded="md" size="48" class="me-3">
                 <v-icon icon="ri-building-2-line" color="white" />
@@ -50,7 +50,7 @@
           </v-card>
 
           <!-- Financial Summary -->
-          <v-card variant="flat" border class="pa-4 mb-6">
+          <v-card variant="flat" border class="pa-4 mb-2">
             <div class="text-h6 font-weight-bold mb-4">الملخص المالي</div>
 
             <div class="d-flex justify-space-between mb-2">
@@ -86,7 +86,7 @@
             </div>
           </v-card>
           <!-- Items Table -->
-          <v-card variant="flat" border class="overflow-hidden mb-6">
+          <v-card variant="flat" border class="overflow-hidden mb-2">
             <div class="bg-grey-lighten-4 pa-4 font-weight-bold d-flex align-center">
               <v-icon icon="ri-list-check-2" class="me-2 text-primary" />
               تفاصيل المشتروات
@@ -160,7 +160,7 @@
         <!-- Sidebar Summary -->
         <v-col cols="12" md="4">
           <!-- Status Card -->
-          <v-card variant="flat" border class="mb-6 text-center">
+          <v-card variant="flat" border class="mb-2 text-center">
             <div class="text-caption text-grey text-right">حالة السداد</div>
             <div class="">
               <v-icon

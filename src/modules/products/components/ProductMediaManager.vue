@@ -2,7 +2,7 @@
   <div class="media-manager">
     <!-- Dropzone -->
     <div
-      class="upload-zone d-flex flex-column align-center justify-center border-dashed rounded-md pa-6 mb-4 cursor-pointer transition-all"
+      class="upload-zone d-flex flex-column align-center justify-center border-dashed rounded-md pa-2 mb-4 cursor-pointer transition-all"
       :class="{ 'border-primary bg-blue-lighten-5': isDragging, 'bg-grey-lighten-5': !isDragging }"
       @dragover.prevent="isDragging = true"
       @dragleave.prevent="isDragging = false"

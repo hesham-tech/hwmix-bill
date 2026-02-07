@@ -8,7 +8,7 @@
     <v-row class="pb-16 mb-16">
       <!-- Left Column: Avatar & Quick Info -->
       <v-col cols="12" lg="4">
-        <AppCard title="الصورة الشخصية" icon="ri-user-smile-line" class="mb-6" no-padding>
+        <AppCard title="الصورة الشخصية" icon="ri-user-smile-line" class="mb-2" no-padding>
           <v-card-text class="pa-8 text-center bg-grey-lighten-5">
             <AppAvatar
               :img-url="formData.avatar_url"
@@ -43,7 +43,7 @@
         </AppCard>
 
         <!-- Account Specs -->
-        <AppCard title="معلومات الحساب" icon="ri-key-line" class="mb-6">
+        <AppCard title="معلومات الحساب" icon="ri-key-line" class="mb-2">
           <AppInput
             v-model="formData.username"
             label="اسم المستخدم (Username)"
@@ -65,7 +65,7 @@
       <!-- Right Column: Profile Form -->
       <v-col cols="12" lg="8">
         <v-form ref="formRef" @submit.prevent="handleSave">
-          <AppCard title="البيانات الشخصية" icon="ri-profile-line" class="mb-6">
+          <AppCard title="البيانات الشخصية" icon="ri-profile-line" class="mb-2">
             <v-row>
               <v-col cols="12" md="8">
                 <AppInput

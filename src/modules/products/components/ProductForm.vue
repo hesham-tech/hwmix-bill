@@ -35,13 +35,13 @@
       </template>
     </AppPageHeader>
 
-    <v-row class="pa-6">
+    <v-row class="pa-2">
       <!-- Main Form Content -->
       <v-col cols="12" lg="8">
         <!-- Information Card -->
-        <v-card border flat class="mb-6 overflow-visible">
+        <v-card border flat class="mb-2 overflow-visible">
           <div
-            class="pa-4 mb-6 bg-grey-lighten-5 rounded-t-lg border-b d-flex flex-column-reverse flex-md-row align-md-center justify-md-space-between gap-4"
+            class="pa-4 mb-2 bg-grey-lighten-5 rounded-t-lg border-b d-flex flex-column-reverse flex-md-row align-md-center justify-md-space-between gap-4"
           >
             <div class="d-flex align-center">
               <v-icon icon="ri-information-line" color="primary" class="me-2" />
@@ -72,7 +72,7 @@
               </v-item>
             </v-item-group>
           </div>
-          <v-card-text class="pa-6">
+          <v-card-text class="pa-2">
             <v-row>
               <v-col cols="12">
                 <AppInput
@@ -115,12 +115,12 @@
 
         <!-- Digital Product Details (Smart Fields) -->
         <v-expand-transition>
-          <v-card v-if="productData.product_type === 'digital'" border flat class="mb-6">
-            <div class="pa-4 mb-6 bg-info-lighten-5 rounded-t-lg border-b d-flex align-center">
+          <v-card v-if="productData.product_type === 'digital'" border flat class="mb-2">
+            <div class="pa-4 mb-2 bg-info-lighten-5 rounded-t-lg border-b d-flex align-center">
               <v-icon icon="ri-download-cloud-2-line" color="info" class="me-2" />
               <span class="text-subtitle-2 font-weight-bold">تفاصيل المنتج الرقمي والتسليم</span>
             </div>
-            <v-card-text class="pa-6">
+            <v-card-text class="pa-2">
               <v-row>
                 <v-col cols="12" md="6">
                   <v-switch v-model="productData.is_downloadable" label="قابل للتنزيل المباشر" color="primary" inset hide-details />
@@ -177,7 +177,7 @@
       <!-- Sidebar Options -->
       <v-col cols="12" lg="4">
         <!-- Status Card -->
-        <v-card border flat class="mb-6">
+        <v-card border flat class="mb-2">
           <div class="pa-4 bg-grey-lighten-5 rounded-t-lg border-b d-flex align-center">
             <v-icon icon="ri-settings-4-line" color="grey-darken-1" class="me-2" />
             <span class="text-subtitle-2 font-weight-bold">حالة العرض والخيارات</span>

@@ -8,9 +8,9 @@
         <v-btn icon="ri-close-line" variant="text" @click="show = false" />
       </v-toolbar>
 
-      <v-card-text class="pa-6">
+      <v-card-text class="pa-2">
         <!-- Subscription Summary -->
-        <div class="d-flex align-center justify-space-between mb-6 p-4 bg-grey-lighten-4 rounded-md border">
+        <div class="d-flex align-center justify-space-between mb-2 p-4 bg-grey-lighten-4 rounded-md border">
           <div>
             <div class="text-caption text-grey">العميل</div>
             <div class="font-weight-bold">{{ subscription.user?.full_name }}</div>

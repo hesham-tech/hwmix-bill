@@ -63,7 +63,7 @@ const props = defineProps({
   },
   elevation: {
     type: Number,
-    default: 2,
+    default: 0,
   },
   showProgress: {
     type: Boolean,
@@ -87,7 +87,7 @@ const formattedValue = computed(() => {
 const iconStyle = computed(() => ({
   background: props.color,
   padding: '12px',
-  borderRadius: '12px',
+  borderRadius: '4px',
   display: 'inline-flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -111,7 +111,7 @@ const cardClass = computed(() => ({
 <style scoped>
 .stats-card {
   transition: all 0.3s ease;
-  border-radius: 12px;
+  border-radius: 4px;
   overflow: hidden;
 }
 

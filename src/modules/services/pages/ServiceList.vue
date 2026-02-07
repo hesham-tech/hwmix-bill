@@ -1,6 +1,6 @@
 <template>
   <div class="services-page">
-    <div class="mb-6 px-6 pt-6">
+    <div class="mb-2 px-6 pt-6">
       <h1 class="text-h4 font-weight-bold">الخدمات</h1>
       <p class="text-body-1 text-grey">إدارة الخدمات الإضافية (الشحن، الصيانة، التركيب، إلخ)</p>
     </div>

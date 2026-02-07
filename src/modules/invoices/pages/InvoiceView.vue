@@ -295,7 +295,7 @@
         <!-- Summary -->
         <v-col cols="12" md="4">
           <!-- Status -->
-          <AppCard title="الحالة والمتابعة" icon="ri-settings-4-line" class="mb-6" rounded="md">
+          <AppCard title="الحالة والمتابعة" icon="ri-settings-4-line" class="mb-2" rounded="md">
             <div class="d-flex flex-column gap-4">
               <div>
                 <div class="text-caption text-grey mb-1">حالة الفاتورة العامة</div>

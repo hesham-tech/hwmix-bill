@@ -50,7 +50,7 @@
         </template>
       </AppPageHeader>
 
-      <v-card-text class="pa-6 pa-md-10 content-area">
+      <v-card-text class="pa-2 pa-md-10 content-area">
         <v-fade-transition mode="out-in">
           <!-- Loading State -->
           <div v-if="loading && !values.length" :key="'loading'" class="d-flex flex-column align-center justify-center py-16">
@@ -86,10 +86,10 @@
                     <v-avatar
                       v-if="isColor && (item.color || item.value)"
                       size="80"
-                      class="mb-6 elevation-4 border-white-4"
+                      class="mb-2 elevation-4 border-white-4"
                       :style="{ backgroundColor: item.color || item.value }"
                     ></v-avatar>
-                    <v-avatar v-else size="80" color="slate-50" class="mb-6 border">
+                    <v-avatar v-else size="80" color="slate-50" class="mb-2 border">
                       <v-icon icon="ri-text-snippet-fill" size="36" color="primary" />
                     </v-avatar>
 
@@ -161,7 +161,7 @@
     >
       <v-form ref="formRef" class="pt-2">
         <!-- Visual Preview Cell -->
-        <div class="preview-cell mb-6 rounded-md pa-4 bg-slate-50 border border-dashed">
+        <div class="preview-cell mb-2 rounded-md pa-4 bg-slate-50 border border-dashed">
           <div class="d-flex align-center mb-4">
             <div class="text-caption font-weight-bold text-slate-400">معاينة القيمة</div>
             <v-spacer />
@@ -182,7 +182,7 @@
         <v-row>
           <v-col cols="12">
             <template v-if="isColor">
-              <div class="color-control mb-6">
+              <div class="color-control mb-2">
                 <v-color-picker v-model="formData.color" hide-inputs show-swatches width="100%" class="rounded-md border flat" elevation="0" />
               </div>
 

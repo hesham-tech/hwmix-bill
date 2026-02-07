@@ -1,8 +1,8 @@
 <template>
   <div class="installments-portal">
-    <v-container fluid class="pa-6">
+    <v-container fluid class="pa-2">
       <!-- Header -->
-      <div class="d-flex justify-space-between align-center mb-6">
+      <div class="d-flex justify-space-between align-center mb-2">
         <div>
           <h1 class="text-h4 font-weight-bold mb-1">خطط التقسيط</h1>
           <p class="text-subtitle-1 text-grey-darken-1">ادارة ومتابعة جداول الدفع الآجلة</p>
@@ -13,7 +13,7 @@
       </div>
 
       <!-- Stats -->
-      <v-row class="mb-6">
+      <v-row class="mb-2">
         <v-col cols="12" sm="4">
           <v-card variant="flat" border class="pa-4 bg-secondary-lighten-5 border-secondary">
             <div class="text-caption text-secondary-darken-2 font-weight-bold mb-1">إجمالي مبلغ التقسيط</div>

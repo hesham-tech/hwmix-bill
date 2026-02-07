@@ -26,13 +26,7 @@ export default function (app) {
     aliases: {
       IconBtn: VBtn,
     },
-    defaults: {
-      ...defaults,
-      global: {
-        ...defaults.global,
-        density: 'compact',
-      },
-    },
+    defaults,
     icons,
     theme: {
       defaultTheme: 'light',

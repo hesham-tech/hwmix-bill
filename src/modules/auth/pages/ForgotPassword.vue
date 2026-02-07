@@ -12,7 +12,7 @@
       <div class="forgot-form-wrapper">
         <div class="forgot-form">
           <h2 class="text-h4 font-weight-bold mb-2">نسيت كلمة المرور؟</h2>
-          <p class="text-body-1 text-grey mb-6">أدخل بريدك الإلكتروني</p>
+          <p class="text-body-1 text-grey mb-2">أدخل بريدك الإلكتروني</p>
 
           <v-form v-if="!sent" ref="formRef" @submit.prevent="handleSubmit">
             <AppInput
@@ -92,9 +92,9 @@ const handleSubmit = async () => {
   width: 100%;
   max-width: 900px;
   background: white;
-  border-radius: 16px;
+  border-radius: 4px;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
 }
 
 .forgot-brand {

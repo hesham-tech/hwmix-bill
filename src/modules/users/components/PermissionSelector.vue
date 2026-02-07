@@ -22,7 +22,7 @@
 
     <!-- Permissions List -->
     <div class="permissions-scroll-area pa-4 bg-grey-lighten-5">
-      <div v-for="(group, key) in filteredPermissions" :key="key" class="mb-6">
+      <div v-for="(group, key) in filteredPermissions" :key="key" class="mb-2">
         <div class="d-flex align-center gap-2 mb-3 px-2">
           <v-icon :icon="getGroupIcon(key)" color="primary" size="20" />
           <span class="font-weight-bold text-subtitle-1">{{ group.name?.label || key }}</span>
@@ -59,7 +59,7 @@
         </v-card>
       </div>
 
-      <div v-if="Object.keys(filteredPermissions).length === 0" class="text-center pa-12">
+      <div v-if="Object.keys(filteredPermissions).length === 0" class="text-center pa-4">
         <template v-if="search">
           <v-icon icon="ri-search-eye-line" size="48" color="grey-lighten-2" />
           <div class="text-body-1 text-grey mt-2">لا يوجد نتائج تطابق بحثك</div>
