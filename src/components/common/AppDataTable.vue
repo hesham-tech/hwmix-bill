@@ -10,8 +10,8 @@
       <div class="d-flex flex-wrap gap-1 flex-grow-1 justify-end align-center">
         <!-- View Mode Toggle -->
         <v-btn-toggle v-if="showViewToggle" v-model="viewMode" mandatory density="compact" variant="tonal" color="primary" class="border rounded">
-          <v-btn value="list" icon="ri-list-check" size="small" />
-          <v-btn value="grid" icon="ri-grid-fill" size="small" />
+          <AppButton value="list" tooltip="قائمة" icon="ri-list-check" size="small" />
+          <AppButton value="grid" tooltip="شبكة" icon="ri-grid-fill" size="small" />
         </v-btn-toggle>
 
         <!-- Advanced Toggle -->
