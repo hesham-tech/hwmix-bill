@@ -4,7 +4,7 @@
     class="installments-page"
   >
     <!-- Desktop: Side-by-side Layout -->
-    <v-row class="d-none d-md-flex ma-0">
+    <v-row class="ma-0">
       <!-- Table Column (8/12) - Shows first (left in RTL) -->
       <v-col cols="12" class="pa-0">
         <v-card rounded="md" class="border shadow-sm">
@@ -12,8 +12,11 @@
             :items="installments"
             :loading="loading"
             :total-items="total"
-            v-model:items-per-page="itemsPerPage"
+            :filters="advancedFilters"
             v-model:page="page"
+            v-model:items-per-page="itemsPerPage"
+            v-model:search="search"
+            v-model:filters="filters"
             v-model:sort-by="sortByVuetify"
             :auto-sort="false"
             title="جدول الأقساط"
@@ -24,6 +27,7 @@
             @view="handleView"
             @pay="handlePay"
             @print-receipt="handlePrintReceipt"
+            @click:row="handleView"
           />
         </v-card>
       </v-col>
@@ -78,22 +82,24 @@ const router = useRouter();
 const fetchInstallments = async params => {
   return await api.get(params, { showLoading: false });
 };
-
 // DataTable logic
 const {
   items: installments,
   loading,
+  total,
   currentPage: page,
   perPage: itemsPerPage,
-  total,
+  sortBy,
+  sortOrder,
+  sortByVuetify,
   search,
   filters,
-  sortBy,
-  sortByVuetify,
   changePage,
   changePerPage,
   changeSort,
+  performSearch,
   applyFilters,
+  resetFilters,
   refresh,
 } = useDataTable(fetchInstallments, {
   syncWithUrl: true,
@@ -101,6 +107,42 @@ const {
   initialSortOrder: 'asc',
   immediate: true,
 });
+
+// Advanced Filters Definition
+const advancedFilters = [
+  {
+    key: 'status',
+    title: 'الحالة',
+    type: 'select',
+    items: [
+      { title: 'في الانتظار', value: 'pending' },
+      { title: 'مدفوع', value: 'paid' },
+      { title: 'متأخر', value: 'overdue' },
+      { title: 'مدفوع جزئياً', value: 'partially_paid' },
+      { title: 'ملغي', value: 'canceled' },
+    ],
+  },
+  {
+    key: 'due_date_from',
+    title: 'من تاريخ استحقاق',
+    type: 'date',
+  },
+  {
+    key: 'due_date_to',
+    title: 'إلى تاريخ استحقاق',
+    type: 'date',
+  },
+  {
+    key: 'amount_min',
+    title: 'أقل مبلغ',
+    type: 'number',
+  },
+  {
+    key: 'amount_max',
+    title: 'أكبر مبلغ',
+    type: 'number',
+  },
+];
 
 // UI State
 const showAdvanced = ref(false);

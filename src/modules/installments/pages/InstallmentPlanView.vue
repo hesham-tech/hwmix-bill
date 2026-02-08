@@ -30,113 +30,233 @@
       </v-row>
 
       <template v-else-if="plan">
-        <v-row class="mb-2">
-          <!-- Main Plan Info -->
-          <v-col cols="12" md="8">
-            <v-card rounded="md" class="border shadow-sm overflow-hidden h-100">
-              <div class="bg-primary pa-4 text-white d-flex justify-space-between align-center">
-                <div class="d-flex align-center">
-                  <v-avatar color="white" size="48" class="me-4 shadow-sm">
-                    <v-icon icon="ri-user-heart-line" color="primary" size="24" />
-                  </v-avatar>
-                  <div>
-                    <div class="text-subtitle-2 opacity-80">العميل</div>
-                    <div class="text-h6 font-weight-bold">
-                      {{ plan.customer?.nickname || plan.customer?.full_name || 'غير متوفر' }}
+        <!-- Section 1: Customer Info & Quick Stats (The Face of the Plan) -->
+        <v-row class="mb-4">
+          <v-col cols="12">
+            <v-card rounded="lg" class="border shadow-sm overflow-hidden">
+              <v-row no-gutters>
+                <!-- Customer Profile Card -->
+                <v-col cols="12" md="4" class="bg-primary-lighten-5 pa-6 border-e">
+                  <div class="d-flex align-center h-100">
+                    <v-avatar color="primary" size="84" class="me-6 elevation-3 border border-white border-xl">
+                      <v-icon icon="ri-user-heart-line" color="white" size="42" />
+                    </v-avatar>
+                    <div>
+                      <div class="text-overline text-primary font-weight-black mb-1">العميل المرتبط بالخطة</div>
+                      <h2 class="text-h5 font-weight-bold mb-1">
+                        {{ plan.customer?.full_name || 'غير متوفر' }}
+                      </h2>
+                      <div class="d-flex align-center gap-2 mb-2">
+                        <v-chip
+                          v-if="plan.customer?.nickname && plan.customer.nickname !== plan.customer.full_name"
+                          color="primary"
+                          size="x-small"
+                          variant="flat"
+                          class="font-weight-bold px-2"
+                        >
+                          {{ plan.customer.nickname }}
+                        </v-chip>
+                        <v-chip :color="getStatusColor(plan.status)" size="x-small" variant="flat" class="font-weight-bold px-2">
+                          {{ plan.status_label || getStatusLabel(plan.status) }}
+                        </v-chip>
+                      </div>
+                      <AppPhone v-if="plan.customer?.phone" :phone="plan.customer.phone" class="text-primary font-weight-bold" />
                     </div>
                   </div>
-                </div>
-                <v-chip :color="getStatusColor(plan.status)" variant="flat" class="font-weight-bold px-4">
-                  {{ plan.status_label || getStatusLabel(plan.status) }}
-                </v-chip>
-              </div>
+                </v-col>
 
-              <v-card-text class="pa-2">
-                <v-row>
-                  <v-col cols="6" sm="3">
-                    <div class="text-caption text-grey mb-1">المبلغ الصافي</div>
-                    <div class="text-h6 font-weight-bold">{{ formatCurrency(plan.net_amount) }}</div>
-                  </v-col>
-                  <v-col cols="6" sm="3">
-                    <div class="text-caption text-grey mb-1">نسبة الفائدة</div>
-                    <div class="text-h6 font-weight-bold text-error">{{ plan.interest_rate }}%</div>
-                  </v-col>
-                  <v-col cols="6" sm="3">
-                    <div class="text-caption text-grey mb-1">مبلغ الفائدة</div>
-                    <div class="text-h6 font-weight-bold text-error">{{ formatCurrency(plan.interest_amount) }}</div>
-                  </v-col>
-                  <v-col cols="6" sm="3">
-                    <div class="text-caption text-grey mb-1">إجمالي المبلغ</div>
-                    <div class="text-h6 font-weight-bold text-primary">{{ formatCurrency(plan.total_amount) }}</div>
-                  </v-col>
-
-                  <v-col cols="12">
-                    <v-divider class="my-4" />
-                  </v-col>
-
-                  <v-col cols="6" sm="3">
-                    <div class="text-caption text-grey mb-1">المقدم</div>
-                    <div class="text-h6 font-weight-bold text-success">{{ formatCurrency(plan.down_payment) }}</div>
-                  </v-col>
-                  <v-col cols="6" sm="3">
-                    <div class="text-caption text-grey mb-1">عدد الأقساط</div>
-                    <div class="text-h6 font-weight-bold">{{ plan.number_of_installments }} قسط</div>
-                  </v-col>
-                  <v-col cols="6" sm="6">
-                    <div class="text-caption text-grey mb-1">دورية الأقساط</div>
-                    <div class="d-flex align-center gap-2">
-                      <v-icon icon="ri-refresh-line" size="small" color="secondary" />
-                      <span class="text-h6 font-weight-bold">{{ getFrequencyLabel(plan.frequency) }}</span>
-                    </div>
-                  </v-col>
-                </v-row>
-              </v-card-text>
-            </v-card>
-          </v-col>
-
-          <!-- Summary Cards -->
-          <v-col cols="12" md="4">
-            <v-card rounded="md" class="border shadow-sm h-100 pa-4 d-flex flex-column gap-4">
-              <div class="pa-4 rounded-md bg-info-lighten-5 border-info d-flex align-center">
-                <v-avatar color="info" rounded="md" size="48" class="me-4">
-                  <v-icon icon="ri-hand-coin-line" color="white" />
-                </v-avatar>
-                <div>
-                  <div class="text-caption text-info font-weight-bold">المحصل حتى الآن</div>
-                  <div class="text-h5 font-weight-bold">{{ formatCurrency(collectedAmount) }}</div>
-                </div>
-              </div>
-
-              <div class="pa-4 rounded-md bg-error-lighten-5 border-error d-flex align-center">
-                <v-avatar color="error" rounded="md" size="48" class="me-4">
-                  <v-icon icon="ri-alarm-warning-line" color="white" />
-                </v-avatar>
-                <div>
-                  <div class="text-caption text-error font-weight-bold">المتبقي المطلوب</div>
-                  <div class="text-h5 font-weight-bold">{{ formatCurrency(plan.remaining_amount) }}</div>
-                </div>
-              </div>
-
-              <v-spacer />
-              <AppButton block color="secondary" variant="tonal" prepend-icon="ri-history-line" @click="goToPayments"> عرض سجل الدفعات </AppButton>
+                <!-- Financial Progress Overview -->
+                <v-col cols="12" md="8" class="pa-6">
+                  <v-row dense>
+                    <v-col cols="12" sm="6" lg="3">
+                      <div class="pa-3 rounded-lg bg-grey-lighten-4 border h-100 d-flex flex-column justify-center border-soft">
+                        <div class="text-xxs text-grey-darken-1 font-weight-bold mb-1 d-flex align-center">
+                          <v-icon icon="ri-money-dollar-circle-line" size="14" class="me-1 text-primary" />
+                          إجمالي الخطة
+                        </div>
+                        <div class="text-h6 font-weight-black text-primary">{{ formatCurrency(plan.total_amount) }}</div>
+                      </div>
+                    </v-col>
+                    <v-col cols="12" sm="6" lg="3">
+                      <div class="pa-3 rounded-lg bg-indigo-lighten-5 border border-indigo-lighten-3 h-100 d-flex flex-column justify-center">
+                        <div class="text-xxs text-indigo-darken-1 font-weight-bold mb-1 d-flex align-center">
+                          <v-icon icon="ri-hand-coin-line" size="14" class="me-1" />
+                          المقدم المدفوع
+                        </div>
+                        <div class="text-h6 font-weight-black text-indigo">{{ formatCurrency(plan.down_payment) }}</div>
+                      </div>
+                    </v-col>
+                    <v-col cols="12" sm="6" lg="3">
+                      <div class="pa-3 rounded-lg bg-success-lighten-5 border border-success-lighten-3 h-100 d-flex flex-column justify-center">
+                        <div class="text-xxs text-success-darken-1 font-weight-bold mb-1 d-flex align-center">
+                          <v-icon icon="ri-checkbox-circle-line" size="14" class="me-1" />
+                          إجمالي المحصل
+                        </div>
+                        <div class="text-h6 font-weight-black text-success">{{ formatCurrency(plan.total_pay || collectedAmount) }}</div>
+                      </div>
+                    </v-col>
+                    <v-col cols="12" sm="6" lg="3">
+                      <div class="pa-3 rounded-lg bg-error-lighten-5 border border-error-lighten-3 h-100 d-flex flex-column justify-center">
+                        <div class="text-xxs text-error-darken-1 font-weight-bold mb-1 d-flex align-center">
+                          <v-icon icon="ri-alarm-warning-line" size="14" class="me-1" />
+                          المتبقي الكلي
+                        </div>
+                        <div class="text-h6 font-weight-black text-error">{{ formatCurrency(plan.remaining_amount) }}</div>
+                      </div>
+                    </v-col>
+                    <v-col cols="12" class="pt-3">
+                      <div class="d-flex align-center justify-space-between mb-1">
+                        <span class="text-xxs font-weight-bold text-grey-darken-1">تقدم سداد الأقساط</span>
+                        <span class="text-xxs font-weight-black text-primary">{{ Math.round(paymentProgress) }}%</span>
+                      </div>
+                      <v-progress-linear
+                        :model-value="paymentProgress"
+                        height="8"
+                        rounded
+                        color="primary"
+                        class="shadow-sm mt-1"
+                        :indeterminate="false"
+                      >
+                      </v-progress-linear>
+                    </v-col>
+                  </v-row>
+                </v-col>
+              </v-row>
             </v-card>
           </v-col>
         </v-row>
 
-        <!-- Installments List -->
+        <!-- Section 2: Detailed Info Tabs/Panels -->
         <v-row>
-          <v-col cols="12">
-            <InstallmentsTable
-              :items="plan.installments || []"
-              :loading="loading"
-              :show-customer="false"
-              :show-plan="false"
-              rounded="md"
-              class="border shadow-sm"
-              @view="openDetails"
-              @pay="openPaymentDialog"
-              @print-receipt="handlePrintReceipt"
-            />
+          <!-- Left Column: Installments & Products -->
+          <v-col cols="12" md="9">
+            <!-- Associated Products Summary -->
+            <v-card v-if="plan.invoice_items?.length" rounded="md" class="border shadow-sm mb-4">
+              <div class="pa-3 bg-secondary-lighten-5 border-b d-flex align-center">
+                <v-icon icon="ri-shopping-bag-3-line" color="secondary" size="18" class="me-2" />
+                <span class="text-subtitle-2 font-weight-bold text-secondary"
+                  >المنتجات المشمولة في الفاتورة (#{{ plan.invoice?.invoice_number }})</span
+                >
+              </div>
+              <v-table density="compact" class="text-caption">
+                <thead>
+                  <tr class="bg-grey-lighten-5">
+                    <th class="text-right">المنتج</th>
+                    <th class="text-center">الكمية</th>
+                    <th class="text-center">السعر</th>
+                    <th class="text-left">الإجمالي</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="item in plan.invoice_items" :key="item.id">
+                    <td class="font-weight-bold py-2">
+                      {{ item.name || item.variant?.product_name || item.product_name }}
+                      <div v-if="item.variant?.attribute_values_string" class="text-xxs text-grey">({{ item.variant.attribute_values_string }})</div>
+                    </td>
+                    <td class="text-center">{{ item.quantity }}</td>
+                    <td class="text-center">{{ formatCurrency(item.unit_price) }}</td>
+                    <td class="text-left font-weight-bold">{{ formatCurrency(item.total || item.total_price) }}</td>
+                  </tr>
+                </tbody>
+              </v-table>
+            </v-card>
+
+            <!-- Installments Table -->
+            <v-card rounded="md" class="border shadow-sm">
+              <div class="pa-3 bg-primary-lighten-5 border-b d-flex justify-space-between align-center">
+                <div class="d-flex align-center">
+                  <v-icon icon="ri-list-ordered" color="primary" size="18" class="me-2" />
+                  <span class="text-subtitle-2 font-weight-bold text-primary">جدول تحصيل الأقساط</span>
+                </div>
+                <v-chip size="x-small" density="comfortable" color="primary" variant="flat" class="font-weight-bold px-2">
+                  {{ plan.number_of_installments }} قسط
+                </v-chip>
+              </div>
+              <InstallmentsTable
+                :items="plan.installments || []"
+                :loading="loading"
+                :show-customer="false"
+                :show-plan="false"
+                variant="flat"
+                @view="openDetails"
+                @pay="openPaymentDialog"
+                @print-receipt="handlePrintReceipt"
+              />
+            </v-card>
+          </v-col>
+
+          <!-- Right Column: Sidebar Meta Info -->
+          <v-col cols="12" md="3">
+            <div class="d-flex flex-column gap-4">
+              <!-- Plan Setup Details -->
+              <v-card rounded="md" class="border shadow-sm pa-4">
+                <div class="text-subtitle-2 font-weight-bold text-grey-darken-2 mb-4 d-flex align-center border-b pb-2">
+                  <v-icon icon="ri-settings-4-line" size="18" class="me-2" />
+                  إعدادات الخطة
+                </div>
+
+                <div class="mb-4">
+                  <div class="text-caption text-grey mb-1">قيمة القسط الثابت</div>
+                  <div class="d-flex align-center gap-2">
+                    <v-icon icon="ri-coin-line" size="small" color="success" />
+                    <span class="font-weight-bold text-success">{{ formatCurrency(plan.installment_amount) }}</span>
+                  </div>
+                </div>
+
+                <div class="mb-4">
+                  <div class="text-caption text-grey mb-1">تاريخ البدء</div>
+                  <div class="d-flex align-center gap-2">
+                    <v-icon icon="ri-calendar-line" size="small" color="primary" />
+                    <span class="font-weight-bold">{{ formatDate(plan.start_date) }}</span>
+                  </div>
+                </div>
+
+                <div class="mb-4">
+                  <div class="text-caption text-grey mb-1">دورية السداد</div>
+                  <div class="d-flex align-center gap-2">
+                    <v-icon icon="ri-refresh-line" size="small" color="secondary" />
+                    <span class="font-weight-bold">{{ getFrequencyLabel(plan.frequency) }}</span>
+                  </div>
+                </div>
+
+                <div class="mb-4">
+                  <div class="text-caption text-grey mb-1">نسبة الفائدة</div>
+                  <div class="d-flex align-center gap-2">
+                    <v-icon icon="ri-percent-line" size="small" color="error" />
+                    <span class="font-weight-bold text-error">{{ plan.interest_rate }}% ({{ formatCurrency(plan.interest_amount) }})</span>
+                  </div>
+                </div>
+
+                <v-divider class="my-3 opacity-50" />
+
+                <div>
+                  <div class="text-caption text-grey mb-1">بواسطة الموظف</div>
+                  <div class="d-flex align-center gap-2">
+                    <v-avatar color="primary-lighten-4" size="24">
+                      <span class="text-xxs text-primary font-weight-black">{{ plan.creator?.full_name?.charAt(0) }}</span>
+                    </v-avatar>
+                    <span class="text-caption font-weight-bold">{{ plan.creator?.full_name || 'غير معروف' }}</span>
+                  </div>
+                </div>
+              </v-card>
+
+              <!-- Notes Card -->
+              <v-card v-if="plan.notes" rounded="md" class="border shadow-sm pa-4 bg-amber-lighten-5 border-amber">
+                <div class="text-subtitle-2 font-weight-bold text-amber-darken-3 mb-2 d-flex align-center">
+                  <v-icon icon="ri-sticky-note-line" size="18" class="me-2" />
+                  ملاحظات الخطة
+                </div>
+                <div class="text-body-2 text-grey-darken-3 italic">{{ plan.notes }}</div>
+              </v-card>
+
+              <!-- Quick Actions -->
+              <v-card rounded="md" class="border shadow-sm pa-3">
+                <AppButton block color="secondary" variant="tonal" prepend-icon="ri-history-line" class="mb-2" @click="goToPayments">
+                  سجل الدفعات
+                </AppButton>
+                <AppButton block color="primary" variant="outlined" prepend-icon="ri-printer-line"> طباعة الجدول </AppButton>
+              </v-card>
+            </div>
           </v-col>
         </v-row>
       </template>
@@ -164,8 +284,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useApi } from '@/composables/useApi';
 import { formatCurrency, formatDate } from '@/utils/formatters';
-import AppButton from '@/components/common/AppButton.vue';
-import AppSkeleton from '@/components/common/AppSkeleton.vue';
+import { AppButton, AppSkeleton, AppPhone } from '@/components';
 import InstallmentsTable from '../components/InstallmentsTable.vue';
 import InstallmentPaymentDialog from '../components/InstallmentPaymentDialog.vue';
 import InstallmentDetailsDialog from '../components/InstallmentDetailsDialog.vue';
@@ -197,6 +316,33 @@ const collectedAmount = computed(() => {
   if (!plan.value) return 0;
   return plan.value.total_amount - plan.value.remaining_amount;
 });
+
+const paymentProgress = computed(() => {
+  if (!plan.value || !plan.value.total_amount || plan.value.total_amount == 0) return 0;
+  return (parseFloat(collectedAmount.value) / parseFloat(plan.value.total_amount)) * 100;
+});
+
+const getFrequencyLabel = freq => {
+  const labels = {
+    monthly: 'شهرياً',
+    weekly: 'أسبوعياً',
+    daily: 'يومياً',
+  };
+  return labels[freq] || freq;
+};
+
+const getStatusColor = status => {
+  const colors = {
+    active: 'info',
+    pending: 'warning',
+    completed: 'success',
+    paid: 'success',
+    canceled: 'error',
+    overdue: 'error',
+    partially_paid: 'secondary',
+  };
+  return colors[status] || 'grey';
+};
 
 const headers = [
   { title: 'رقم القسط', key: 'installment_number' },

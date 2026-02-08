@@ -3,45 +3,16 @@
     v-if="canAny(PERMISSIONS.PAYMENTS_VIEW_ALL, PERMISSIONS.PAYMENTS_VIEW_CHILDREN, PERMISSIONS.PAYMENTS_VIEW_SELF)"
     class="installment-payments-page"
   >
-    <AppPageHeader
-      :title="`سجل دفعات الخطة #${planId || 'العامة'}`"
-      subtitle="مراجعة عمليات السداد المرتبطة بخطة التقسيط"
-      icon="ri-money-dollar-box-line"
-      sticky
-    >
-      <template #append>
-        <AppButton
-          v-if="can(PERMISSIONS.PAYMENTS_CREATE)"
-          color="primary"
-          prepend-icon="ri-add-line"
-          class="font-weight-bold"
-          @click="handleAddPayment"
-        >
-          تسجيل دفعة جديدة
-        </AppButton>
-      </template>
-      <template #controls>
-        <v-row align="center" class="w-100 mx-0">
-          <v-col cols="12">
-            <AppInput
-              v-model="search"
-              placeholder="بحث في الدفعات..."
-              prepend-inner-icon="ri-search-line"
-              clearable
-              hide-details
-              variant="solo-filled"
-              density="comfortable"
-              flat
-              class="rounded-md"
-              @update:model-value="debouncedSearch"
-            />
-          </v-col>
-        </v-row>
-      </template>
-    </AppPageHeader>
-
-    <v-container fluid class="pt-0">
-      <AppDataTable :headers="headers" :items="payments" :loading="loading" title="الدفعات المسجلة" icon="ri-history-line">
+    <div>
+      <AppDataTable
+        :headers="headers"
+        :items="payments"
+        :loading="loading"
+        :title="`سجل دفعات الخطة #${planId || 'العامة'}`"
+        subtitle="مراجعة عمليات السداد المرتبطة بخطة التقسيط"
+        icon="ri-history-line"
+        @click:row="handleViewDetails"
+      >
         <template #item.customer="{ item }">
           <div class="py-1">
             <div class="font-weight-bold">
@@ -86,7 +57,7 @@
           </span>
         </template>
       </AppDataTable>
-    </v-container>
+    </div>
 
     <!-- Payment Details Dialog -->
     <AppDialog v-model="showDetails" title="تفاصيل دفعة القسط" icon="ri-information-line" max-width="600" :show-confirm="false">

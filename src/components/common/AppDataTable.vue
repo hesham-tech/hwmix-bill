@@ -116,7 +116,7 @@
         :items-per-page-options="itemsPerPageOptions"
         :no-data-text="emptyText"
         :hide-default-footer="true"
-        :row-props="rowProps"
+        :row-props="processedRowProps"
         @update:options="handleOptionsUpdate"
         @click:row="(event, { item }) => $emit('click:row', item)"
         @contextmenu:row="handleContextMenu"
@@ -139,7 +139,7 @@
               variant="text"
               color="info"
               tooltip="عرض التفاصيل"
-              @click="$emit('view', item)"
+              @click.stop="$emit('view', item)"
             />
             <AppButton
               v-if="
@@ -152,7 +152,7 @@
               variant="text"
               color="primary"
               tooltip="تعديل"
-              @click="$emit('edit', item)"
+              @click.stop="$emit('edit', item)"
             />
             <AppButton
               v-if="
@@ -165,7 +165,7 @@
               variant="text"
               color="error"
               tooltip="حذف"
-              @click="$emit('delete', item)"
+              @click.stop="$emit('delete', item)"
             />
             <slot name="extra-actions" :item="item" />
           </div>
@@ -187,7 +187,7 @@
         hover
         striped="even"
         :no-data-text="emptyText"
-        :row-props="rowProps"
+        :row-props="processedRowProps"
         @click:row="(event, { item }) => $emit('click:row', item)"
         @contextmenu:row="handleContextMenu"
       >
@@ -209,7 +209,7 @@
               variant="text"
               color="info"
               tooltip="عرض التفاصيل"
-              @click="$emit('view', item)"
+              @click.stop="$emit('view', item)"
             />
             <AppButton
               v-if="
@@ -222,7 +222,7 @@
               variant="text"
               color="primary"
               tooltip="تعديل"
-              @click="$emit('edit', item)"
+              @click.stop="$emit('edit', item)"
             />
             <AppButton
               v-if="
@@ -235,7 +235,7 @@
               variant="text"
               color="error"
               tooltip="حذف"
-              @click="$emit('delete', item)"
+              @click.stop="$emit('delete', item)"
             />
             <slot name="extra-actions" :item="item" />
           </div>
@@ -365,7 +365,7 @@
 </template>
 
 <script setup>
-import { computed, ref, reactive, nextTick, watch, useSlots } from 'vue';
+import { computed, ref, reactive, nextTick, watch, useSlots, useAttrs } from 'vue';
 import { useRoute } from 'vue-router';
 import { useDisplay } from 'vuetify';
 import { useWindowSize, useElementSize, useLocalStorage } from '@vueuse/core';
@@ -427,6 +427,7 @@ const props = defineProps({
   },
   rowProps: { type: [Function, Object], default: null },
   showViewToggle: { type: Boolean, default: false },
+  rowClickable: { type: Boolean, default: null }, // Manual override for clickable rows
 });
 
 const emit = defineEmits([
@@ -580,6 +581,34 @@ const sortByModel = computed({
 const searchModel = computed({
   get: () => props.search,
   set: val => emit('update:search', val),
+});
+
+// --- Row Logic ---
+const isClickable = computed(() => {
+  if (props.rowClickable !== null) return props.rowClickable;
+  // If parent has @click:row listener
+  return !!slots['click:row'] || !!slots['update:options'] || !!route.query.auto_click || !!attrs['onClick:row'];
+});
+
+// Use attrs to detect listeners that might not be in slots
+const attrs = useAttrs();
+
+// Refined Row Props to include cursor if clickable
+const processedRowProps = computed(() => {
+  return scope => {
+    let base = {};
+    if (typeof props.rowProps === 'function') {
+      base = props.rowProps(scope) || {};
+    } else if (props.rowProps) {
+      base = { ...props.rowProps };
+    }
+
+    if (isClickable.value) {
+      base.class = [base.class, 'cursor-pointer'].filter(Boolean).join(' ');
+      base.style = { ...(base.style || {}), cursor: 'pointer' };
+    }
+    return base;
+  };
 });
 
 // --- Filters Logic ---

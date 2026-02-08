@@ -13,10 +13,23 @@ import '@layouts/styles/index.scss';
 const app = createApp(App);
 
 // كتم تحذيرات Suspense التجريبية
-app.config.warnHandler = msg => {
+app.config.warnHandler = (msg, vm, trace) => {
   if (msg.includes('Suspense is an experimental feature')) return;
-  console.warn(msg);
+  console.warn(msg, trace);
 };
+
+// كتم خطأ ResizeObserver المزعج والغير مؤثر
+window.addEventListener('error', e => {
+  if (e.message === 'ResizeObserver loop completed with undelivered notifications.') {
+    e.stopImmediatePropagation();
+  }
+});
+
+window.addEventListener('unhandledrejection', e => {
+  if (e.reason?.message === 'ResizeObserver loop completed with undelivered notifications.') {
+    e.stopImmediatePropagation();
+  }
+});
 
 // 1. التسجيل المتزامن للـ plugins الأساسية (Vuetify, Pinia, Router)
 // هذا ضروري قبل الـ mount لأن المكونات تعتمد عليها

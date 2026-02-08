@@ -20,6 +20,7 @@
           icon="ri-calendar-event-line"
           @update:options="handleOptionsUpdate"
           @update:filters="applyFilters"
+          @click:row="viewPlan"
         >
           <!-- Grid View Slot -->
           <template #grid="{ items }">
@@ -69,7 +70,7 @@
 
           <!-- List View Slots -->
           <template #item.invoice="{ item }">
-            <div @click="viewInvoice(item.invoice.id)" class="d-flex flex-column py-2 cursor-pointer">
+            <div class="d-flex flex-column py-2 cursor-pointer">
               <!-- Name & Status (Same Line) -->
               <div class="d-flex align-center gap-2 mb-1">
                 <span class="text-subtitle-1 font-weight-black text-primary">

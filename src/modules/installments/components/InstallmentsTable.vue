@@ -12,9 +12,14 @@
     :title="title"
     :subtitle="subtitle"
     :icon="icon"
+    :filters="filters"
   >
+    <!-- Relay all slots from parent to AppDataTable -->
+    <template v-for="(_, slot) in $slots" #[slot]="scope">
+      <slot :name="slot" v-bind="scope || {}" />
+    </template>
     <!-- Customer Column -->
-    <template #item.customer="{ item }">
+    <template #item.customer="{ item }" v-if="!$slots['item.customer']">
       <div v-if="showCustomer" class="d-flex align-center py-1">
         <AppAvatar :src="getCustomerData(item).avatar_url" :name="getCustomerData(item).full_name" size="36" class="me-3 shadow-sm border" />
         <div>
@@ -27,15 +32,23 @@
     </template>
 
     <!-- Installment Number Column -->
-    <template #item.installment_number="{ item }">
+    <template #item.installment_number="{ item }" v-if="!$slots['item.installment_number']">
       <div class="py-1">
         <v-chip variant="tonal" size="x-small" color="primary" class="font-weight-bold"> قسط #{{ item.installment_number }} </v-chip>
-        <div v-if="showRemaining" class="text-caption text-error font-weight-bold mt-1">المتبقي: {{ formatCurrency(item.remaining) }}</div>
+
+        <!-- Conditional Info: Remaining vs Commitment -->
+        <div v-if="item.remaining > 0 && showRemaining" class="text-caption text-error font-weight-bold mt-1">
+          المتبقي: {{ formatCurrency(item.remaining) }}
+        </div>
+        <div v-else-if="item.commitment_label" :class="getCommitmentClass(item)" class="text-caption font-weight-bold d-flex align-center gap-1 mt-1">
+          <v-icon :icon="getCommitmentIcon(item)" size="14" />
+          {{ item.commitment_label }}
+        </div>
       </div>
     </template>
 
     <!-- Plan/Products Column -->
-    <template #item.plan="{ item }">
+    <template #item.plan="{ item }" v-if="!$slots['item.plan']">
       <div v-if="showPlan" class="py-1 cursor-pointer" @click="$emit('view', item)">
         <div class="text-caption text-grey mb-1">
           <v-icon icon="ri-file-list-3-line" size="x-small" />
@@ -58,26 +71,26 @@
     </template>
 
     <!-- Amount Column -->
-    <template #item.amount="{ item }">
+    <template #item.amount="{ item }" v-if="!$slots['item.amount']">
       <div class="font-weight-bold text-body-1">{{ formatCurrency(item.amount) }}</div>
     </template>
 
     <!-- Due Date Column -->
-    <template #item.due_date="{ item }">
+    <template #item.due_date="{ item }" v-if="!$slots['item.due_date']">
       <div :class="[getDueDateClass(item.due_date, item.status), 'font-weight-medium']">
         {{ formatDate(item.due_date) }}
       </div>
     </template>
 
     <!-- Status Column -->
-    <template #item.status="{ item }">
+    <template #item.status="{ item }" v-if="!$slots['item.status']">
       <v-chip :color="getStatusColor(item.status)" size="small" variant="flat" class="font-weight-bold px-3">
         {{ item.status_label || getStatusLabel(item.status) }}
       </v-chip>
     </template>
 
     <!-- Actions -->
-    <template #extra-actions="{ item }">
+    <template #extra-actions="{ item }" v-if="!$slots['extra-actions']">
       <!-- Pay: Only if pending/overdue/partial AND has permission -->
       <AppButton
         v-if="
@@ -123,7 +136,7 @@
       </AppButton>
     </template>
     <!-- Grid View Integration -->
-    <template #grid="{ items }">
+    <template #grid="{ items }" v-if="!$slots['grid']">
       <v-col v-for="item in items" :key="item.id" cols="12" sm="6" md="4" lg="3">
         <v-card
           rounded="lg"
@@ -158,6 +171,13 @@
                 <span class="text-grey">المتبقي:</span>
                 <span class="text-error font-weight-bold">{{ formatCurrency(item.remaining) }}</span>
               </div>
+              <div v-else-if="item.commitment_label" class="d-flex align-center justify-space-between text-caption">
+                <span class="text-grey">الالتزام:</span>
+                <span :class="getCommitmentClass(item)" class="font-weight-bold d-flex align-center gap-1">
+                  <v-icon :icon="getCommitmentIcon(item)" size="12" />
+                  {{ item.commitment_label }}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -188,7 +208,7 @@
             >
               طباعة
             </AppButton>
-            <AppButton icon="ri-eye-line" size="x-small" color="info" variant="tonal" @click.stop="$emit('view', item)" />
+            <AppButton icon="ri-eye-line" size="x-small" color="info" variant="tonal" class="px-2" @click.stop="$emit('view', item)"> عرض </AppButton>
           </div>
         </v-card>
       </v-col>
@@ -216,6 +236,7 @@ const props = defineProps({
   title: { type: String, default: 'جدول الأقساط' },
   subtitle: { type: String, default: '' },
   icon: { type: String, default: 'ri-list-check-line' },
+  filters: { type: Array, default: () => [] },
 });
 
 const emit = defineEmits(['view', 'pay', 'print-receipt']);
@@ -360,6 +381,20 @@ const getDueDateClass = (dueDate, status) => {
   if (due < today) return 'text-error font-weight-bold';
   if (due.getTime() === today.getTime()) return 'text-error font-weight-bold';
   return '';
+};
+
+const getCommitmentClass = item => {
+  if (item.commitment_days === null) return 'text-grey';
+  if (item.commitment_days === 0) return 'text-primary';
+  if (item.commitment_days > 0) return 'text-error';
+  return 'text-success';
+};
+
+const getCommitmentIcon = item => {
+  if (item.commitment_days === null) return 'ri-calendar-line';
+  if (item.commitment_days === 0) return 'ri-checkbox-circle-line';
+  if (item.commitment_days > 0) return 'ri-alarm-warning-line';
+  return 'ri-medal-line';
 };
 </script>
 
