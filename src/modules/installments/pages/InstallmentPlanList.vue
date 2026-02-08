@@ -1,6 +1,6 @@
 <template>
   <div class="installment-plans-page">
-    <AppPageHeader title="خطط التقسيط" subtitle="متابعة وإدارة جدول تحصيل الأقساط والمدفوعات الآجلة" icon="ri-calendar-schedule-line" sticky />
+    <!-- <AppPageHeader title="خطط التقسيط" subtitle="متابعة وإدارة جدول تحصيل الأقساط والمدفوعات الآجلة" icon="ri-calendar-schedule-line" sticky /> -->
 
     <v-container fluid class="pt-0">
       <v-card rounded="md" class="border shadow-sm overflow-hidden mb-2">
@@ -12,12 +12,14 @@
           v-model:items-per-page="itemsPerPage"
           v-model:page="page"
           v-model:search="search"
+          v-model:sort-by="sortByVuetify"
           :filters="filtersConfig"
           show-view-toggle
           title="سجل خطط التقسيط"
+          subtitle="متابعة وإدارة جدول تحصيل الأقساط والمدفوعات الآجلة"
           icon="ri-calendar-event-line"
           @update:options="handleOptionsUpdate"
-          @update:filters="handleFiltersUpdate"
+          @update:filters="applyFilters"
         >
           <!-- Grid View Slot -->
           <template #grid="{ items }">
@@ -25,19 +27,19 @@
               <v-card variant="outlined" class="mx-auto h-100 d-flex flex-column border-soft cursor-pointer shadow-sm-hover" @click="viewPlan(item)">
                 <v-card-item class="pb-2">
                   <div class="d-flex justify-space-between align-center mb-1">
-                    <span class="text-caption font-weight-bold text-primary">#{{ item.invoice?.invoice_number || item.invoice_number }}</span>
+                    <span class="text-subtitle-2 font-weight-bold text-primary">
+                      {{ item.customer?.name || item.customer_name || 'غير معروف' }}
+                    </span>
                     <v-chip :color="getStatusColor(item.status)" size="x-small" density="comfortable" class="font-weight-bold">
                       {{ getStatusLabel(item.status) }}
                     </v-chip>
                   </div>
-                  <v-card-title class="pa-0 text-subtitle-2 font-weight-bold">
-                    {{ item.customer?.name || item.customer_name || 'غير معروف' }}
-                  </v-card-title>
+                  <div class="text-caption text-grey">#{{ item.invoice?.invoice_number || item.invoice_number }}</div>
                 </v-card-item>
 
                 <v-card-text class="pt-0 flex-grow-1">
                   <div class="d-flex align-center gap-2 mb-3 mt-1">
-                    <v-progress-linear :model-value="getPaymentProgress(item)" :color="getProgressColor(item)" height="6" rounded>
+                    <v-progress-linear :model-value="getPaymentProgress(item)" :color="getProgressColor(item)" height="12" rounded>
                       <template #default="{ value }">
                         <span class="text-xxs font-weight-black" style="font-size: 8px">{{ Math.ceil(value) }}%</span>
                       </template>
@@ -67,42 +69,56 @@
 
           <!-- List View Slots -->
           <template #item.invoice="{ item }">
-            <div class="d-flex flex-column py-2">
-              <span
-                v-if="item.invoice"
-                class="font-weight-bold text-primary cursor-pointer hover-underline mb-1"
-                @click="viewInvoice(item.invoice.id)"
-              >
-                فاتورة #{{ item.invoice.invoice_number }}
-              </span>
-              <div class="d-flex align-center gap-1">
-                <v-icon icon="ri-user-line" size="12" class="text-grey" />
-                <span class="text-caption text-grey">{{ item.customer?.name || item.invoice?.customer?.name || 'غير معروف' }}</span>
+            <div @click="viewInvoice(item.invoice.id)" class="d-flex flex-column py-2 cursor-pointer">
+              <!-- Name & Status (Same Line) -->
+              <div class="d-flex align-center gap-2 mb-1">
+                <span class="text-subtitle-1 font-weight-black text-primary">
+                  {{ item.customer?.name || item.invoice?.customer?.name || 'غير معروف' }}
+                </span>
+                <v-chip :color="getStatusColor(item.status)" size="x-small" variant="flat" class="font-weight-bold px-2">
+                  {{ item.status_label || getStatusLabel(item.status) }}
+                </v-chip>
               </div>
-              <div class="d-flex align-center gap-1 mt-1">
-                <v-icon icon="ri-calendar-line" size="12" class="text-grey" />
-                <span class="text-caption text-grey">{{ formatDate(item.start_date) }}</span>
+              <!-- Invoice Number -->
+              <div v-if="item.invoice" class="d-flex align-center gap-1">
+                <v-icon icon="ri-article-line" size="12" class="text-grey" />
+                <span class="text-caption text-grey">فاتورة #{{ item.invoice.invoice_number }}</span>
               </div>
             </div>
           </template>
 
-          <template #item.amounts="{ item }">
+          <!-- Date Column -->
+          <template #item.start_date="{ item }">
+            <div class="d-flex align-center justify-center gap-1">
+              <v-icon icon="ri-calendar-line" size="14" class="text-grey" />
+              <span class="text-caption font-weight-medium">{{ formatDate(item.start_date) }}</span>
+            </div>
+          </template>
+
+          <template #item.total_amount="{ item }">
             <div class="d-flex flex-column gap-1 py-2 cursor-pointer" @click="viewPlan(item)">
-              <div class="d-flex justify-space-between align-center">
-                <span class="text-caption text-grey">الإجمالي:</span>
-                <span class="font-weight-bold">{{ formatCurrency(item.total_amount) }}</span>
-              </div>
-              <div class="position-relative">
-                <v-progress-linear :model-value="getPaymentProgress(item)" :color="getProgressColor(item)" height="20" rounded class="my-1" />
-                <div class="position-absolute w-100 h-100 d-flex align-center justify-center" style="top: 0; left: 0">
-                  <span class="text-caption font-weight-bold" style="color: white; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5)">
-                    {{ Math.round(getPaymentProgress(item)) }}%
-                  </span>
+              <!-- Financial Row (Total, Paid, Remaining) -->
+              <div class="d-flex justify-space-between align-center flex-wrap gap-2 mb-1">
+                <div class="d-flex align-center gap-1">
+                  <span class="text-xxs text-grey">إجمالي:</span>
+                  <span class="text-caption font-weight-bold">{{ formatCurrency(item.total_amount) }}</span>
+                </div>
+                <div class="d-flex align-center gap-1">
+                  <span class="text-xxs text-grey">مدفوع:</span>
+                  <span class="text-caption font-weight-bold text-success">{{ formatCurrency(item.total_pay) }}</span>
+                </div>
+                <div class="d-flex align-center gap-1">
+                  <span class="text-xxs text-grey">متبقي:</span>
+                  <span class="text-caption font-weight-bold text-error">{{ formatCurrency(item.remaining_amount) }}</span>
                 </div>
               </div>
-              <div class="d-flex justify-space-between align-center">
-                <span class="text-caption text-success">مدفوع: {{ formatCurrency(item.total_pay) }}</span>
-                <span class="text-caption text-error">متبقي: {{ formatCurrency(item.remaining_amount) }}</span>
+
+              <!-- Progress Bar -->
+              <div class="position-relative">
+                <v-progress-linear :model-value="getPaymentProgress(item)" :color="getProgressColor(item)" height="12" rounded class="my-1" />
+                <div class="position-absolute w-100 h-100 d-flex align-center justify-center" style="top: 0; left: 0">
+                  <span class="text-caption font-weight-bold shadow-text" style="color: white"> {{ Math.round(getPaymentProgress(item)) }}% </span>
+                </div>
               </div>
             </div>
           </template>
@@ -116,12 +132,6 @@
               <div class="text-caption text-grey text-center mt-1">{{ formatCurrency(item.installment_amount) }} / شهرياً</div>
             </div>
           </template>
-
-          <template #item.status="{ item }">
-            <v-chip :color="getStatusColor(item.status)" size="small" variant="flat" class="font-weight-bold px-3">
-              {{ item.status_label || getStatusLabel(item.status) }}
-            </v-chip>
-          </template>
         </AppDataTable>
       </v-card>
     </v-container>
@@ -129,35 +139,34 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useApi } from '@/composables/useApi';
-import { usePermissions } from '@/composables/usePermissions';
+import { useDataTable } from '@/composables/useDataTable';
 import { formatCurrency } from '@/utils/formatters';
 import AppPageHeader from '@/components/common/AppPageHeader.vue';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 
 // --- Initialization ---
-const { canAny } = usePermissions();
 const router = useRouter();
 const api = useApi('/api/installment-plans');
 
-// --- State ---
-const plans = ref([]);
-const loading = ref(false);
-const total = ref(0);
-const page = ref(1);
-const itemsPerPage = ref(10);
-const search = ref('');
-const filters = ref({});
-
 // --- Configuration ---
 const headers = [
-  { title: 'المبالغ والتقدم', key: 'amounts', align: 'center', width: '250px' },
-  { title: 'الفاتورة والعميل', key: 'invoice', width: '280px' },
-  { title: 'الأقساط', key: 'installments', align: 'center', width: '140px' },
-  { title: 'الحالة', key: 'status', align: 'center', width: '120px' },
+  { title: 'العميل والحالة', key: 'invoice', width: '280px', sortable: false },
+  { title: 'المبالغ والتقدم', key: 'total_amount', align: 'center', width: '250px', sortable: true },
+  { title: 'تاريخ البدء', key: 'start_date', align: 'center', width: '130px', sortable: true },
+  { title: 'الأقساط', key: 'installments', align: 'center', width: '120px', sortable: false },
 ];
+
+/**
+ * Note: useDataTable expected key for sorting is the 'key' property of the header.
+ * But sometimes the API needs a different key.
+ * Let's map headers to the expected backend sort keys.
+ */
+const headersVuetify = headers.map(h => ({
+  ...h,
+  key: h.key_sort || h.key,
+}));
 
 const filtersConfig = [
   {
@@ -175,7 +184,32 @@ const filtersConfig = [
   { key: 'start_date', title: 'تاريخ البدء', type: 'date' },
 ];
 
-// --- Business Logic ---
+// --- Data Fetching Logic (useDataTable) ---
+const fetchPlans = async params => {
+  return await api.get(params, { showLoading: false });
+};
+
+const {
+  items: plans,
+  loading,
+  total,
+  currentPage: page,
+  perPage: itemsPerPage,
+  search,
+  sortByVuetify,
+  changePage,
+  changePerPage,
+  changeSort,
+  performSearch,
+  applyFilters,
+} = useDataTable(fetchPlans, {
+  syncWithUrl: true,
+  initialSortBy: 'start_date',
+  initialSortOrder: 'desc',
+  immediate: true,
+});
+
+// --- UI Helpers ---
 const getStatusColor = status => {
   const colors = {
     pending: 'warning',
@@ -216,23 +250,6 @@ const getProgressColor = item => {
 };
 
 // --- Actions ---
-const loadData = async () => {
-  loading.value = true;
-  try {
-    const params = {
-      page: page.value,
-      per_page: itemsPerPage.value,
-      search: search.value,
-      ...filters.value,
-    };
-    const response = await api.get(params, { showLoading: false });
-    plans.value = response.data || [];
-    total.value = response.total || 0;
-  } finally {
-    loading.value = false;
-  }
-};
-
 const editPlan = item => console.log('Edit plan', item);
 const viewPlan = plan => router.push(`/app/installment-plans/${plan.id}`);
 const viewInvoice = invoiceId => router.push(`/app/invoices/${invoiceId}`);
@@ -246,29 +263,10 @@ const formatDate = dateString => {
   });
 };
 
-const handleFiltersUpdate = newFilters => {
-  filters.value = newFilters;
-  page.value = 1;
-  loadData();
-};
-
 const handleOptionsUpdate = options => {
-  page.value = options.page;
-  itemsPerPage.value = options.itemsPerPage;
-  loadData();
+  // changeSort in useDataTable handles: page, itemsPerPage, and sortBy
+  changeSort(options);
 };
-
-// --- Watchers ---
-let searchTimeout;
-watch(search, () => {
-  clearTimeout(searchTimeout);
-  searchTimeout = setTimeout(() => {
-    page.value = 1;
-    loadData();
-  }, 500);
-});
-
-onMounted(loadData);
 </script>
 
 <style scoped>
@@ -282,5 +280,9 @@ onMounted(loadData);
 
 .shadow-sm-hover:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+}
+
+.shadow-text {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 </style>

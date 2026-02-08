@@ -9,8 +9,9 @@
     :can-delete="false"
     :can-view="false"
     :row-props="getRowProps"
-    title="جدول الأقساط"
-    icon="ri-list-check-line"
+    :title="title"
+    :subtitle="subtitle"
+    :icon="icon"
   >
     <!-- Customer Column -->
     <template #item.customer="{ item }">
@@ -141,6 +142,9 @@ const props = defineProps({
   showPlan: { type: Boolean, default: true },
   showRemaining: { type: Boolean, default: true },
   autoSort: { type: Boolean, default: true }, // Whether to sort locally
+  title: { type: String, default: 'جدول الأقساط' },
+  subtitle: { type: String, default: '' },
+  icon: { type: String, default: 'ri-list-check-line' },
 });
 
 const emit = defineEmits(['view', 'pay', 'print-receipt']);

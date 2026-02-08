@@ -19,7 +19,7 @@ export function useDataTable(fetchFunction, options = {}) {
     initialPerPage = 10,
     initialSortBy = 'id',
     initialSortOrder = 'desc',
-    initialFilters = {}, // ✅ دعم فلاتر أولية
+    initialFilters = {},
     syncWithUrl = true,
     immediate = true,
   } = options;
@@ -44,19 +44,17 @@ export function useDataTable(fetchFunction, options = {}) {
   const sortBy = ref(syncWithUrl ? route.query.sort_by || initialSortBy : initialSortBy);
   const sortOrder = ref(syncWithUrl ? route.query.sort_order || initialSortOrder : initialSortOrder);
 
-  // Search & Filters with parsing safety
+  // Search & Filters
   const search = ref(syncWithUrl ? route.query.search || '' : '');
 
   const getInitialFilters = () => {
     if (!syncWithUrl || !route.query.filters) return { ...initialFilters };
     try {
       return { ...initialFilters, ...JSON.parse(route.query.filters) };
-    } catch (e) {
-      console.warn('[DataTable] Failed to parse filters from URL:', e);
+    } catch {
       return { ...initialFilters };
     }
   };
-
   const filters = ref(getInitialFilters());
 
   // Selection
@@ -67,18 +65,14 @@ export function useDataTable(fetchFunction, options = {}) {
   const hasItems = computed(() => items.value.length > 0);
   const isEmpty = computed(() => !loading.value && items.value.length === 0);
   const hasSelection = computed(() => selectedIds.value.length > 0);
-  const totalPages = computed(() => {
-    const pp = perPage.value || 10;
-    return Math.max(1, Math.ceil(total.value / pp));
-  });
+  const totalPages = computed(() => lastPage.value);
 
-  // ✅ Vuetify Compatible Sorting (v-model:sort-by)
   const sortByVuetify = computed({
     get: () => [{ key: sortBy.value, order: sortOrder.value }],
     set: val => {
       if (val && val.length > 0) {
         sortBy.value = val[0].key;
-        sortOrder.value = val[0].order;
+        sortOrder.value = val[0].order || 'asc';
       }
     },
   });
@@ -93,16 +87,10 @@ export function useDataTable(fetchFunction, options = {}) {
 
   /**
    * جلب البيانات من API
-   * @param {Object} fetchOptions - خيارات إضافية للجلب (مثل append)
    */
   const fetchData = async (fetchOptions = {}) => {
     const { append = false } = fetchOptions;
-
-    // Prevent duplicate calls if already loading
-    if (loading.value && !append) {
-      console.debug('DataTable is already loading, skipping request.');
-      return;
-    }
+    if (loading.value && !append) return;
 
     loading.value = true;
     error.value = null;
@@ -115,42 +103,24 @@ export function useDataTable(fetchFunction, options = {}) {
         sort_order: sortOrder.value,
       };
 
-      // إضافة search إذا موجود
-      if (search.value) {
-        params.search = search.value;
-      }
-
-      // إضافة filters
+      if (search.value) params.search = search.value;
       Object.entries(filters.value).forEach(([key, value]) => {
-        if (value !== null && value !== undefined && value !== '') {
-          params[key] = value;
-        }
+        if (value !== null && value !== undefined && value !== '') params[key] = value;
       });
 
       const response = await fetchFunction(params);
-
-      // تحديث البيانات
       const newData = response.data || [];
-      if (append) {
-        items.value = [...items.value, ...newData];
-      } else {
-        items.value = newData;
-      }
+      if (append) items.value = [...items.value, ...newData];
+      else items.value = newData;
 
-      total.value = response.meta?.total ?? response.total ?? 0;
-      lastPage.value = response.meta?.last_page ?? response.last_page ?? 1;
+      const responseTotal = response.meta?.total ?? response.total ?? response.data?.length ?? 0;
+      total.value = responseTotal;
+      const calcLastPage = Math.ceil(responseTotal / (params.per_page > 0 ? params.per_page : 1)) || 1;
+      lastPage.value = response.meta?.last_page ?? response.last_page ?? calcLastPage;
 
-      const newPage = response.meta?.current_page ?? response.current_page ?? 1;
-
-      // Don't override currentPage during append operations
-      // This prevents infinite loops if API returns page 1 for page 2 request
-      if (!append && currentPage.value !== newPage) {
-        currentPage.value = newPage;
-      }
-
-      // مزامنة مع URL
-      if (syncWithUrl) {
-        updateUrl();
+      const responsePage = response.meta?.current_page ?? response.current_page ?? params.page;
+      if (!append && currentPage.value !== responsePage) {
+        currentPage.value = responsePage;
       }
     } catch (err) {
       error.value = err.message || 'حدث خطأ في تحميل البيانات';
@@ -163,202 +133,195 @@ export function useDataTable(fetchFunction, options = {}) {
   /**
    * تحديث URL query params
    */
-  const updateUrl = () => {
+  const updateUrl = (overrides = {}) => {
+    if (!syncWithUrl) return;
     const query = {
-      page: String(currentPage.value),
-      per_page: String(perPage.value),
-      sort_by: sortBy.value,
-      sort_order: sortOrder.value,
+      ...route.query,
+      page: String(overrides.page ?? currentPage.value),
+      per_page: String(overrides.per_page ?? perPage.value),
+      sort_by: overrides.sort_by ?? sortBy.value,
+      sort_order: overrides.sort_order ?? sortOrder.value,
     };
 
-    if (search.value) {
-      query.search = search.value;
-    }
+    if (overrides.search !== undefined) overrides.search ? (query.search = overrides.search) : delete query.search;
+    else search.value ? (query.search = search.value) : delete query.search;
 
-    if (Object.keys(filters.value).length > 0) {
-      query.filters = JSON.stringify(filters.value);
-    }
+    if (overrides.filters !== undefined)
+      overrides.filters && Object.keys(overrides.filters).length > 0 ? (query.filters = JSON.stringify(overrides.filters)) : delete query.filters;
+    else Object.keys(filters.value).length > 0 ? (query.filters = JSON.stringify(filters.value)) : delete query.filters;
 
-    // ✅ تجنب التحديث إذا كان كائن الـ query مطابقاً تماماً للحالي
-    const currentQuery = route.query;
-    const isSame =
-      Object.keys(query).length === Object.keys(currentQuery).length && Object.keys(query).every(key => query[key] === currentQuery[key]);
-
-    if (!isSame) {
-      router.replace({ query }).catch(err => {
-        if (err.name !== 'NavigationDuplicated') {
-          console.error('DataTable URL update error:', err);
-        }
-      });
-    }
+    const keys = ['page', 'per_page', 'sort_by', 'sort_order', 'search', 'filters'];
+    const hasChanged = keys.some(key => String(query[key] || '') !== String(route.query[key] || ''));
+    if (hasChanged) router.push({ query }).catch(() => {});
   };
 
   /**
-   * تغيير الصفحة
+   * العمليات الأساسية
    */
   const changePage = page => {
-    if (currentPage.value === page) return;
-    currentPage.value = page;
-    fetchData();
-  };
-
-  /**
-   * تغيير عدد العناصر لكل صفحة
-   */
-  const changePerPage = value => {
-    if (perPage.value === value) return;
-    perPage.value = value;
-    currentPage.value = 1; // العودة للصفحة الأولى
-    fetchData();
-  };
-
-  /**
-   * تغيير الترتيب أو خيارات الجدول (Vuetify update:options)
-   */
-  const changeSort = column => {
-    let newSortBy = sortBy.value;
-    let newSortOrder = sortOrder.value;
-    let hasPaginationChanged = false;
-
-    // 1. إذا كانت مصفوفة (نمط Vuetify 3: [{ key, order }])
-    if (Array.isArray(column) && column.length > 0) {
-      newSortBy = column[0].key;
-      newSortOrder = column[0].order || 'asc';
-    }
-    // 2. إذا كان كائن الخيارات بالكامل (update:options event)
-    else if (column && typeof column === 'object' && Array.isArray(column.sortBy)) {
-      // ✅ تحديث عدد العناصر والصفحة إذا تم تمريرهما مع الترتيب
-      if (column.itemsPerPage !== undefined && perPage.value !== column.itemsPerPage) {
-        perPage.value = column.itemsPerPage;
-        currentPage.value = 1;
-        hasPaginationChanged = true;
-      } else if (column.page !== undefined && currentPage.value !== column.page) {
-        currentPage.value = column.page;
-        hasPaginationChanged = true;
-      }
-
-      if (column.sortBy.length > 0) {
-        newSortBy = column.sortBy[0].key;
-        newSortOrder = column.sortBy[0].order || 'asc';
-      }
-    }
-    // 3. إذا كان اسم العمود كسلسلة نصية (النمط الكلاسيكي)
-    else if (typeof column === 'string') {
-      if (sortBy.value === column) {
-        newSortOrder = sortOrder.value === 'asc' ? 'desc' : 'asc';
-      } else {
-        newSortBy = column;
-        newSortOrder = 'asc';
-      }
-    }
-
-    // ✅ التحقق من التغيير الفعلي قبل إعادة الجلب (Prevent Double Fetch)
-    const hasSortChanged = newSortBy !== sortBy.value || newSortOrder !== sortOrder.value;
-
-    if (!hasSortChanged && !hasPaginationChanged) {
-      return;
-    }
-
-    sortBy.value = newSortBy;
-    sortOrder.value = newSortOrder;
-    fetchData();
-  };
-
-  /**
-   * البحث (مع debounce)
-   */
-  let searchTimeout;
-  const performSearch = searchValue => {
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => {
-      search.value = searchValue;
-      currentPage.value = 1; // العودة للصفحة الأولى
+    if (syncWithUrl) updateUrl({ page });
+    else {
+      currentPage.value = page;
       fetchData();
-    }, 500); // 500ms debounce
-  };
-
-  /**
-   * تطبيق الفلاتر
-   */
-  const applyFilters = (newFilters = null) => {
-    if (newFilters !== null && newFilters !== undefined) {
-      filters.value = { ...filters.value, ...newFilters };
     }
-    currentPage.value = 1;
-    fetchData();
   };
 
-  /**
-   * إعادة تعيين الفلاتر
-   */
+  const changePerPage = value => {
+    if (syncWithUrl) updateUrl({ per_page: value, page: 1 });
+    else {
+      perPage.value = value;
+      currentPage.value = 1;
+      fetchData();
+    }
+  };
+
+  const changeSort = column => {
+    let ns = sortBy.value,
+      no = sortOrder.value,
+      np = currentPage.value,
+      npp = perPage.value;
+    if (Array.isArray(column) && column.length > 0) {
+      ns = column[0].key;
+      no = column[0].order || 'asc';
+    } else if (column && typeof column === 'object') {
+      const { sortBy: sb, page: p, itemsPerPage: ip } = column;
+      if (sb?.length > 0) {
+        ns = sb[0].key;
+        no = sb[0].order || 'asc';
+      }
+      if (p !== undefined) np = p;
+      if (ip !== undefined) npp = ip;
+    } else if (typeof column === 'string') {
+      if (sortBy.value === column) no = sortOrder.value === 'asc' ? 'desc' : 'asc';
+      else {
+        ns = column;
+        no = 'asc';
+      }
+    }
+    if (syncWithUrl) updateUrl({ sort_by: ns, sort_order: no, page: np, per_page: npp });
+    else {
+      sortBy.value = ns;
+      sortOrder.value = no;
+      currentPage.value = np;
+      perPage.value = npp;
+      fetchData();
+    }
+  };
+
+  const performSearch = v => {
+    if (syncWithUrl) updateUrl({ search: v, page: 1 });
+    else {
+      search.value = v;
+      currentPage.value = 1;
+      fetchData();
+    }
+  };
+
+  const applyFilters = f => {
+    const finalF = f ? { ...filters.value, ...f } : filters.value;
+    if (syncWithUrl) updateUrl({ filters: finalF, page: 1 });
+    else {
+      filters.value = finalF;
+      currentPage.value = 1;
+      fetchData();
+    }
+  };
+
   const resetFilters = () => {
-    filters.value = {};
-    search.value = '';
-    currentPage.value = 1;
-    fetchData();
-  };
-
-  /**
-   * تحديث عنصر واحد في الجدول
-   */
-  const updateItem = (id, updatedData) => {
-    const index = items.value.findIndex(item => item.id === id);
-    if (index !== -1) {
-      items.value[index] = { ...items.value[index], ...updatedData };
+    if (syncWithUrl) updateUrl({ filters: { ...initialFilters }, search: '', page: 1 });
+    else {
+      filters.value = { ...initialFilters };
+      search.value = '';
+      currentPage.value = 1;
+      fetchData();
     }
   };
 
-  /**
-   * حذف عنصر من الجدول
-   */
+  // مساعدات إضافية
+  const updateItem = (id, data) => {
+    const idx = items.value.findIndex(i => i.id === id);
+    if (idx !== -1) items.value[idx] = { ...items.value[idx], ...data };
+  };
+
   const removeItem = id => {
-    items.value = items.value.filter(item => item.id !== id);
+    items.value = items.value.filter(i => i.id !== id);
     total.value--;
   };
 
-  /**
-   * تحديد/إلغاء تحديد عنصر
-   */
   const toggleSelection = id => {
-    const index = selectedIds.value.indexOf(id);
-    if (index === -1) {
-      selectedIds.value.push(id);
-    } else {
-      selectedIds.value.splice(index, 1);
-    }
+    const idx = selectedIds.value.indexOf(id);
+    if (idx === -1) selectedIds.value.push(id);
+    else selectedIds.value.splice(idx, 1);
   };
 
-  /**
-   * تحديد/إلغاء تحديد الكل
-   */
   const toggleSelectAll = () => {
-    if (selectAll.value) {
-      selectedIds.value = items.value.map(item => item.id);
-    } else {
-      selectedIds.value = [];
-    }
+    selectedIds.value = selectAll.value ? items.value.map(i => i.id) : [];
   };
 
-  /**
-   * مسح التحديد
-   */
   const clearSelection = () => {
     selectedIds.value = [];
     selectAll.value = false;
   };
+  const refresh = () => fetchData();
 
-  /**
-   * تحديث البيانات (refresh)
-   */
-  const refresh = () => {
-    fetchData();
-  };
-
-  // ✅ Watchers
+  // ✅ Watchers للتزامن التلقائي (عند استخدام v-model)
   watch(selectAll, toggleSelectAll);
 
-  // جلب البيانات عند التحميل
-  if (immediate) {
+  // مراقبة البحث مع debounce
+  let searchTimeout;
+  watch(search, newVal => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      // فقط إذا كان هناك اختلاف حقيقي عن الرابط الحالي
+      if (syncWithUrl && String(newVal) !== String(route.query.search || '')) {
+        updateUrl({ search: newVal, page: 1 });
+      } else if (!syncWithUrl) {
+        currentPage.value = 1;
+        fetchData();
+      }
+    }, 500);
+  });
+
+  // مراقبة الفلاتر
+  watch(
+    filters,
+    newVal => {
+      if (syncWithUrl) {
+        const urlFilters = route.query.filters ? JSON.parse(route.query.filters) : {};
+        if (JSON.stringify(newVal) !== JSON.stringify(urlFilters)) {
+          updateUrl({ filters: newVal, page: 1 });
+        }
+      } else {
+        currentPage.value = 1;
+        fetchData();
+      }
+    },
+    { deep: true }
+  );
+
+  if (syncWithUrl) {
+    watch(
+      () => route.query,
+      (newQ, oldQ) => {
+        const keys = ['page', 'per_page', 'sort_by', 'sort_order', 'search', 'filters'];
+        const changed = !oldQ || keys.some(k => String(newQ[k] || '') !== String(oldQ[k] || ''));
+        if (changed) {
+          currentPage.value = parseNum(newQ.page, initialPage);
+          perPage.value = parseNum(newQ.per_page, initialPerPage);
+          sortBy.value = newQ.sort_by || initialSortBy;
+          sortOrder.value = newQ.sort_order || initialSortOrder;
+          search.value = newQ.search || '';
+          try {
+            filters.value = newQ.filters ? JSON.parse(newQ.filters) : { ...initialFilters };
+          } catch {
+            filters.value = { ...initialFilters };
+          }
+          fetchData();
+        }
+      },
+      { deep: true, immediate: true }
+    );
+  } else if (immediate) {
     fetchData();
   }
 
@@ -378,14 +341,12 @@ export function useDataTable(fetchFunction, options = {}) {
     filters,
     selectedIds,
     selectAll,
-
     // Computed
     hasItems,
     isEmpty,
     hasSelection,
     totalPages,
     paginationInfo,
-
     // Methods
     fetchData,
     changePage,

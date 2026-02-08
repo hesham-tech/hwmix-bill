@@ -2,11 +2,13 @@
   <v-card ref="tableRootRef">
     <!-- Header with title and actions -->
     <v-card-title v-if="title" class="d-flex flex-wrap align-center justify-space-between gap-2 border-bottom">
-      <div class="d-flex align-center gap-2">
-        <v-icon v-if="icon" :icon="icon" color="primary" size="20" />
-        <span class="text-subtitle-1 font-weight-bold">{{ title }}</span>
+      <div class="d-flex align-center gap-3">
+        <v-icon v-if="icon" :icon="icon" color="primary" size="24" class="opacity-80" />
+        <div class="d-flex flex-column">
+          <span class="text-h6 font-weight-bold lh-1">{{ title }}</span>
+          <span v-if="subtitle" class="text-caption text-grey-darken-1 mt-n1">{{ subtitle }}</span>
+        </div>
       </div>
-
       <div class="d-flex flex-wrap gap-1 flex-grow-1 justify-end align-center">
         <!-- View Mode Toggle -->
         <v-btn-toggle v-if="showViewToggle" v-model="viewMode" mandatory density="compact" variant="tonal" color="primary" class="border rounded">
@@ -113,7 +115,7 @@
         striped="even"
         :items-per-page-options="itemsPerPageOptions"
         :no-data-text="emptyText"
-        :hide-default-footer="hidePagination"
+        :hide-default-footer="true"
         :row-props="rowProps"
         @update:options="handleOptionsUpdate"
         @click:row="(event, { item }) => $emit('click:row', item)"
@@ -239,6 +241,32 @@
           </div>
         </template>
       </v-data-table-virtual>
+
+      <!-- Manual Pagination for List Mode (Universal for Server-side) -->
+      <div v-if="!virtual && !hidePagination" class="d-flex align-center flex-wrap justify-center py-2 px-4 border-top bg-surface gap-4">
+        <div class="d-flex align-center gap-2 text-caption text-grey">
+          <span>عدد الصفوف:</span>
+          <v-select
+            v-model="itemsPerPageModel"
+            :items="itemsPerPageOptions"
+            density="compact"
+            variant="plain"
+            hide-details
+            class="items-per-page-select"
+            style="width: 70px"
+          />
+        </div>
+
+        <v-pagination
+          v-model="pageModel"
+          :length="Math.ceil(totalItems / itemsPerPageModel)"
+          :total-visible="mobile ? 3 : 5"
+          show-first-last-page
+          density="compact"
+        />
+
+        <div class="text-caption text-grey d-none d-sm-block">{{ paginationInfo.from }}-{{ paginationInfo.to }} من {{ paginationInfo.total }}</div>
+      </div>
     </template>
 
     <!-- Grid View Area -->
@@ -249,9 +277,30 @@
         </v-row>
       </div>
 
-      <!-- Manual Pagination for Grid Mode (If not virtual) -->
-      <div v-if="!virtual && !hidePagination && totalItems > itemsPerPageModel" class="d-flex align-center justify-center py-3 border-top bg-surface">
-        <v-pagination v-model="pageModel" :length="Math.ceil(totalItems / itemsPerPageModel)" :total-visible="5" density="compact" />
+      <!-- Manual Pagination for Grid Mode (Universal) -->
+      <div v-if="!virtual && !hidePagination" class="d-flex align-center flex-wrap justify-center py-2 px-4 border-top bg-surface gap-4">
+        <div class="d-flex align-center gap-2 text-caption text-grey">
+          <span>عدد الصفوف:</span>
+          <v-select
+            v-model="itemsPerPageModel"
+            :items="itemsPerPageOptions"
+            density="compact"
+            variant="plain"
+            hide-details
+            class="items-per-page-select"
+            style="width: 70px"
+          />
+        </div>
+
+        <v-pagination
+          v-model="pageModel"
+          :length="Math.ceil(totalItems / itemsPerPageModel)"
+          :total-visible="mobile ? 3 : 5"
+          show-first-last-page
+          density="compact"
+        />
+
+        <div class="text-caption text-grey d-none d-sm-block">{{ paginationInfo.from }}-{{ paginationInfo.to }} من {{ paginationInfo.total }}</div>
       </div>
     </div>
 
@@ -309,8 +358,9 @@
 
 <script setup>
 import { computed, ref, reactive, nextTick, watch, useSlots } from 'vue';
+import { useRoute } from 'vue-router';
 import { useDisplay } from 'vuetify';
-import { useWindowSize, useElementSize } from '@vueuse/core';
+import { useWindowSize, useElementSize, useLocalStorage } from '@vueuse/core';
 import { usePermissions } from '@/composables/usePermissions';
 import AppButton from '@/components/common/AppButton.vue';
 import AppInput from '@/components/common/AppInput.vue';
@@ -336,6 +386,7 @@ const props = defineProps({
 
   // Header & Styling
   title: { type: String, default: '' },
+  subtitle: { type: String, default: '' },
   icon: { type: String, default: '' },
   fullHeight: { type: Boolean, default: true },
   extraOffset: { type: Number, default: 0 },
@@ -372,7 +423,7 @@ const props = defineProps({
 
 const emit = defineEmits([
   'update:page',
-  'update:itemsPerPage',
+  'update:items-per-page',
   'update:sortBy',
   'update:search',
   'update:options',
@@ -384,6 +435,7 @@ const emit = defineEmits([
 ]);
 
 // --- Core Composables ---
+const route = useRoute();
 const { canAny } = usePermissions();
 const { mobile } = useDisplay();
 const { height: windowHeight } = useWindowSize();
@@ -392,8 +444,18 @@ const slots = useSlots();
 // --- Elements Measurement ---
 const tableRootRef = ref(null);
 // Lazy internal size measurement
-const { height: internalHeaderHeight } = useElementSize(computed(() => tableRootRef.value?.querySelector('.v-card-title')));
-const { height: internalPaginationHeight } = useElementSize(computed(() => tableRootRef.value?.querySelector('.v-pagination')?.parentElement));
+const { height: internalHeaderHeight } = useElementSize(
+  computed(() => {
+    const el = tableRootRef.value?.$el || tableRootRef.value;
+    return el?.querySelector?.('.v-card-title');
+  })
+);
+const { height: internalPaginationHeight } = useElementSize(
+  computed(() => {
+    const el = tableRootRef.value?.$el || tableRootRef.value;
+    return el?.querySelector?.('.v-pagination')?.parentElement;
+  })
+);
 
 const calculatedTableHeight = computed(() => {
   if (!props.fullHeight) return '400px';
@@ -414,6 +476,13 @@ const calculatedTableHeight = computed(() => {
   const remaining = windowHeight.value - occupied;
 
   return `${Math.max(remaining, 300)}px`;
+});
+
+const paginationInfo = computed(() => {
+  const pp = props.itemsPerPage <= 0 ? props.totalItems : props.itemsPerPage;
+  const from = props.totalItems === 0 ? 0 : (props.page - 1) * pp + 1;
+  const to = Math.min(props.page * pp, props.totalItems);
+  return { from, to, total: props.totalItems };
 });
 
 // --- Table Headers Processing ---
@@ -450,19 +519,53 @@ const hiddenHeaders = computed(() => {
   return props.headers.filter(h => !visibleKeys.includes(h.key) && h.key !== 'actions');
 });
 
-// --- State & Models ---
-const viewMode = ref('list');
+// --- Persistent View Preferences (Centralized) ---
+const tablePreferences = useLocalStorage('app-table-preferences', {
+  viewModes: {},
+});
+
+const pageId = computed(() => `${route.path}-${props.title || 'default'}`);
+
+const viewMode = computed({
+  get: () => tablePreferences.value.viewModes[pageId.value] || 'list',
+  set: val => {
+    tablePreferences.value.viewModes[pageId.value] = val;
+  },
+});
+
 const showAdvancedSearch = ref(false);
 const filtersModel = reactive({});
 
 const pageModel = computed({
   get: () => props.page,
-  set: val => emit('update:page', val),
+  set: val => {
+    if (val === props.page) return;
+    emit('update:page', val);
+    // Notify parent about options change
+    nextTick(() => {
+      emit('update:options', {
+        page: val,
+        itemsPerPage: itemsPerPageModel.value,
+        sortBy: sortByModel.value,
+      });
+    });
+  },
 });
 
 const itemsPerPageModel = computed({
   get: () => props.itemsPerPage,
-  set: val => emit('update:itemsPerPage', val),
+  set: val => {
+    if (val === props.itemsPerPage) return;
+    emit('update:items-per-page', val);
+    // Notify parent about options change
+    nextTick(() => {
+      emit('update:options', {
+        page: 1, // Reset to first page on per-page change
+        itemsPerPage: val,
+        sortBy: sortByModel.value,
+      });
+    });
+  },
 });
 
 const sortByModel = computed({
@@ -519,6 +622,18 @@ const handleContextMenu = (event, { item }) => {
     menuModel.value = true;
   });
 };
+
+// Reset pagination when view mode changes (only on user interaction)
+let isInitialLoad = true;
+watch(viewMode, (newVal, oldVal) => {
+  if (isInitialLoad) {
+    isInitialLoad = false;
+    return;
+  }
+  if (newVal !== oldVal) {
+    pageModel.value = 1;
+  }
+});
 </script>
 
 <style scoped>
@@ -534,8 +649,12 @@ const handleContextMenu = (event, { item }) => {
   white-space: nowrap !important;
 }
 
+:deep(.v-data-table__tr:nth-child(even)) {
+  background: rgba(var(--v-theme-primary), 0.03) !important;
+}
+
 :deep(.v-data-table__tr:hover) {
-  background: rgba(var(--v-theme-primary), 0.02) !important;
+  background: rgba(var(--v-theme-primary), 0.06) !important;
 }
 
 /* Context Menu Styling */

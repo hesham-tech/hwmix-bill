@@ -3,78 +3,11 @@
     v-if="canAny(PERMISSIONS.INSTALLMENT_PLANS_VIEW_ALL, PERMISSIONS.INSTALLMENT_PLANS_VIEW_CHILDREN, PERMISSIONS.INSTALLMENT_PLANS_VIEW_SELF)"
     class="installments-page"
   >
-    <AppPageHeader title="جدول الأقساط" subtitle="متابعة جميع الأقساط المستحقة والتحصيلات" icon="ri-calendar-todo-line" sticky>
-      <template #controls>
-        <v-col cols="12" md="8" class="pa-0">
-          <AppInput
-            v-model="search"
-            placeholder="بحث في الأقساط..."
-            prepend-inner-icon="ri-search-line"
-            clearable
-            hide-details
-            variant="solo-filled"
-            density="comfortable"
-            flat
-            class="rounded-md"
-            @update:model-value="debouncedSearch"
-          />
-        </v-col>
-        <v-col cols="12" md="4" class="text-end d-md-none">
-          <AppButton
-            variant="tonal"
-            color="primary"
-            prepend-icon="ri-equalizer-line"
-            class="rounded-md font-weight-bold"
-            @click="showAdvanced = !showAdvanced"
-          >
-            {{ showAdvanced ? 'إخفاء البحث المتقدم' : 'بحث متقدم' }}
-          </AppButton>
-        </v-col>
-      </template>
-    </AppPageHeader>
-
-    <v-container fluid class="pa-0">
-      <!-- Mobile: Expandable Filters -->
-      <div class="d-md-none">
-        <v-expand-transition>
-          <div v-if="showAdvanced" class="mb-4">
-            <InstallmentFilters v-model="filters" @apply="handleFiltersChange" />
-          </div>
-        </v-expand-transition>
-      </div>
-
-      <!-- Desktop: Side-by-side Layout -->
-      <v-row class="d-none d-md-flex ma-0">
-        <!-- Table Column (8/12) - Shows first (left in RTL) -->
-        <v-col cols="12" md="8" class="pa-0">
-          <v-card rounded="md" class="border shadow-sm">
-            <InstallmentsTable
-              :items="installments"
-              :loading="loading"
-              :total-items="total"
-              v-model:items-per-page="itemsPerPage"
-              v-model:page="page"
-              v-model:sort-by="sortByVuetify"
-              :auto-sort="false"
-              @update:options="changeSort"
-              @view="handleView"
-              @pay="handlePay"
-              @print-receipt="handlePrintReceipt"
-            />
-          </v-card>
-        </v-col>
-
-        <!-- Filters Column (4/12) - Shows second (right in RTL) -->
-        <v-col cols="12" md="4" class="pa-0">
-          <div class="sticky-filters">
-            <InstallmentFilters v-model="filters" @apply="handleFiltersChange" />
-          </div>
-        </v-col>
-      </v-row>
-
-      <!-- Mobile: Full-width Table -->
-      <div class="d-md-none">
-        <v-card rounded="md" class="border shadow-sm overflow-hidden mb-2">
+    <!-- Desktop: Side-by-side Layout -->
+    <v-row class="d-none d-md-flex ma-0">
+      <!-- Table Column (8/12) - Shows first (left in RTL) -->
+      <v-col cols="12" class="pa-0">
+        <v-card rounded="md" class="border shadow-sm">
           <InstallmentsTable
             :items="installments"
             :loading="loading"
@@ -82,14 +15,19 @@
             v-model:items-per-page="itemsPerPage"
             v-model:page="page"
             v-model:sort-by="sortByVuetify"
+            :auto-sort="false"
+            title="جدول الأقساط"
+            subtitle="متابعة جميع الأقساط المستحقة والتحصيلات"
+            icon="ri-calendar-todo-line"
+            show-view-toggle
             @update:options="changeSort"
             @view="handleView"
             @pay="handlePay"
             @print-receipt="handlePrintReceipt"
           />
         </v-card>
-      </div>
-    </v-container>
+      </v-col>
+    </v-row>
 
     <!-- Payment Dialog -->
     <InstallmentPaymentDialog v-model="showPaymentDialog" :installment="selectedInstallment" @success="handlePaySuccess" />
