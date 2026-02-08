@@ -243,7 +243,11 @@
       </v-data-table-virtual>
 
       <!-- Manual Pagination for List Mode (Universal for Server-side) -->
-      <div v-if="!virtual && !hidePagination" class="d-flex align-center flex-wrap justify-center py-2 px-4 border-top bg-surface gap-4">
+      <div
+        v-if="!virtual && !hidePagination"
+        ref="paginationRef"
+        class="d-flex align-center flex-wrap justify-center py-2 px-4 border-top bg-surface gap-4"
+      >
         <div class="d-flex align-center gap-2 text-caption text-grey">
           <span>عدد الصفوف:</span>
           <v-select
@@ -278,7 +282,11 @@
       </div>
 
       <!-- Manual Pagination for Grid Mode (Universal) -->
-      <div v-if="!virtual && !hidePagination" class="d-flex align-center flex-wrap justify-center py-2 px-4 border-top bg-surface gap-4">
+      <div
+        v-if="!virtual && !hidePagination"
+        ref="paginationRef"
+        class="d-flex align-center flex-wrap justify-center py-2 px-4 border-top bg-surface gap-4"
+      >
         <div class="d-flex align-center gap-2 text-caption text-grey">
           <span>عدد الصفوف:</span>
           <v-select
@@ -450,12 +458,8 @@ const { height: internalHeaderHeight } = useElementSize(
     return el?.querySelector?.('.v-card-title');
   })
 );
-const { height: internalPaginationHeight } = useElementSize(
-  computed(() => {
-    const el = tableRootRef.value?.$el || tableRootRef.value;
-    return el?.querySelector?.('.v-pagination')?.parentElement;
-  })
-);
+const paginationRef = ref(null);
+const { height: internalPaginationHeight } = useElementSize(paginationRef);
 
 const calculatedTableHeight = computed(() => {
   if (!props.fullHeight) return '400px';
@@ -469,7 +473,7 @@ const calculatedTableHeight = computed(() => {
   const breadcrumbsH = breadcrumbsEl?.offsetHeight || 0;
   const pageHeaderH = pageHeaderEl?.offsetHeight || 0;
   const tableHeaderH = internalHeaderHeight.value || 48;
-  const paginationH = internalPaginationHeight.value || 56;
+  const paginationH = props.hidePagination ? 0 : internalPaginationHeight.value || 56;
 
   const basePadding = 48; // Total vertical padding/margins in common layouts
   const occupied = navbarH + breadcrumbsH + pageHeaderH + tableHeaderH + paginationH + basePadding + props.extraOffset;

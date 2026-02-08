@@ -122,6 +122,77 @@
         عرض
       </AppButton>
     </template>
+    <!-- Grid View Integration -->
+    <template #grid="{ items }">
+      <v-col v-for="item in items" :key="item.id" cols="12" sm="6" md="4" lg="3">
+        <v-card
+          rounded="lg"
+          class="border shadow-sm h-100 d-flex flex-column hover-shadow transition-all overflow-hidden"
+          @click="$emit('view', item)"
+        >
+          <!-- Card Header: Status & Amount -->
+          <div class="pa-3 d-flex align-center justify-space-between bg-grey-lighten-4 border-bottom">
+            <v-chip :color="getStatusColor(item.status)" size="x-small" variant="flat" class="font-weight-bold px-2">
+              {{ item.status_label || getStatusLabel(item.status) }}
+            </v-chip>
+            <div class="text-body-2 font-weight-black text-primary">{{ formatCurrency(item.amount) }}</div>
+          </div>
+
+          <!-- Card Body: Customer Info -->
+          <div class="pa-3 flex-grow-1">
+            <div class="d-flex align-center mb-3">
+              <AppAvatar :src="getCustomerData(item).avatar_url" :name="getCustomerData(item).full_name" size="40" class="me-3 border shadow-sm" />
+              <div class="overflow-hidden">
+                <div class="text-subtitle-2 font-weight-bold truncate">{{ getCustomerData(item).full_name || '---' }}</div>
+                <div class="text-caption text-grey">قسط #{{ item.installment_number }}</div>
+              </div>
+            </div>
+
+            <!-- Meta Info -->
+            <div class="d-flex flex-column gap-1">
+              <div class="d-flex align-center justify-space-between text-caption">
+                <span class="text-grey">تاريخ الاستحقاق:</span>
+                <span :class="getDueDateClass(item.due_date, item.status)">{{ formatDate(item.due_date) }}</span>
+              </div>
+              <div v-if="item.remaining > 0" class="d-flex align-center justify-space-between text-caption">
+                <span class="text-grey">المتبقي:</span>
+                <span class="text-error font-weight-bold">{{ formatCurrency(item.remaining) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card Footer: Quick Actions -->
+          <div class="pa-2 border-top d-flex gap-1 bg-grey-lighten-5">
+            <AppButton
+              v-if="
+                ['pending', 'partially_paid', 'partial', 'overdue'].includes(item.status) &&
+                canAny(PERMISSIONS.PAYMENTS_CREATE, PERMISSIONS.INSTALLMENT_PAYMENTS_CREATE)
+              "
+              icon="ri-hand-coin-line"
+              size="x-small"
+              color="success"
+              variant="flat"
+              class="flex-grow-1"
+              @click.stop="$emit('pay', item)"
+            >
+              دفع
+            </AppButton>
+            <AppButton
+              v-if="['paid', 'partially_paid', 'partial'].includes(item.status)"
+              icon="ri-printer-line"
+              size="x-small"
+              color="teal-darken-1"
+              variant="flat"
+              class="flex-grow-1"
+              @click.stop="$emit('print-receipt', item)"
+            >
+              طباعة
+            </AppButton>
+            <AppButton icon="ri-eye-line" size="x-small" color="info" variant="tonal" @click.stop="$emit('view', item)" />
+          </div>
+        </v-card>
+      </v-col>
+    </template>
   </AppDataTable>
 </template>
 
