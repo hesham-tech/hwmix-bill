@@ -2,7 +2,7 @@
   <div class="installment-plan-view">
     <AppPageHeader
       :title="`خطة التقسيط #${plan?.id}`"
-      :subtitle="`فاتورة رقم #${plan?.invoice?.invoice_number}`"
+      :subtitle="`فاتورة رقم #${plan?.invoice?.invoice_number}${plan?.down_payment > 0 ? ' - دفعة مقدمة: ' + formatCurrency(plan.down_payment) : ''}`"
       icon="ri-calendar-event-line"
       sticky
     >
@@ -36,10 +36,13 @@
           <!-- Top Stats Row -->
           <v-col cols="12">
             <v-row dense>
-              <v-col cols="12" sm="6" md="3">
+              <v-col cols="12" sm="6" md="2" class="flex-grow-1">
                 <StatsCard title="إجمالي مبلغ الخطة" :value="plan.total_amount" type="currency" icon="ri-money-dollar-circle-line" color="primary" />
               </v-col>
-              <v-col cols="12" sm="6" md="3">
+              <v-col v-if="plan.down_payment > 0" cols="12" sm="6" md="2" class="flex-grow-1">
+                <StatsCard title="الدفعة المقدمة" :value="plan.down_payment" type="currency" icon="ri-hand-coin-line" color="warning-darken-1" />
+              </v-col>
+              <v-col cols="12" sm="6" md="2" class="flex-grow-1">
                 <StatsCard
                   title="المبلغ المحصل"
                   :value="plan.total_pay"
@@ -50,10 +53,10 @@
                   :progress="plan.payment_progress"
                 />
               </v-col>
-              <v-col cols="12" sm="6" md="3">
+              <v-col cols="12" sm="6" md="2" class="flex-grow-1">
                 <StatsCard title="المتبقي للتحصيل" :value="plan.remaining_amount" type="currency" icon="ri-error-warning-line" color="error" />
               </v-col>
-              <v-col cols="12" sm="6" md="3">
+              <v-col cols="12" sm="6" md="2" class="flex-grow-1">
                 <StatsCard
                   title="الأقساط المتبقية"
                   :value="remainingInstallmentsCount"

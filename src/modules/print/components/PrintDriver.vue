@@ -28,8 +28,9 @@ const printIframe = ref(null);
 const previewIframe = ref(null);
 const showPreview = ref(false);
 
-const printData = ref({ html: '', css: '' });
+const printData = ref({ html: '', css: '', documentTitle: '' });
 const printType = ref('thermal');
+const originalTitle = ref('');
 let currentOptions = ref({});
 
 const onIframeLoad = () => {
@@ -46,6 +47,7 @@ const handlePrintEvent = event => {
     printData.value = {
       html: data.html,
       css: data.css,
+      documentTitle: data.documentTitle || 'Hwnix Print',
     };
     printType.value = data.format || 'thermal';
 
@@ -88,12 +90,12 @@ const getDocumentContent = (isForPreview = false) => {
   let typeStyles = '';
   if (printType.value === 'thermal' || printType.value === 'thermal_80') {
     typeStyles = `
-      body { width: 80mm; padding: 2mm; margin: 0 auto; }
+      body { width: 80mm; padding: 0.5mm; margin: 0 auto; }
       @page { margin: 0; size: 80mm auto; }
     `;
   } else if (printType.value === 'thermal_58') {
     typeStyles = `
-      body { width: 58mm; padding: 1mm; margin: 0 auto; }
+      body { width: 58mm; padding: 0.2mm; margin: 0 auto; }
       @page { margin: 0; size: 58mm auto; }
     `;
   } else if (printType.value === 'sticker') {
@@ -117,7 +119,7 @@ const getDocumentContent = (isForPreview = false) => {
     <!DOCTYPE html>
     <html dir="rtl">
     <head>
-      <title>Hwnix Print</title>
+      <title>${printData.value.documentTitle}</title>
       <style>
         ${globalStyles}
         ${typeStyles}
@@ -163,6 +165,13 @@ const triggerPrint = () => {
   }
 
   const doc = iframe.contentWindow.document;
+
+  // Set main window title temporarily for PDF naming
+  if (printData.value.documentTitle) {
+    originalTitle.value = document.title;
+    document.title = printData.value.documentTitle;
+  }
+
   doc.open();
   doc.write(getDocumentContent(false));
   doc.close();
@@ -171,8 +180,13 @@ const triggerPrint = () => {
 // Listen for message from iframe (since it's same-origin)
 window.addEventListener('message', event => {
   if (event.data === 'print-finished') {
+    // Restore original title
+    if (originalTitle.value) {
+      document.title = originalTitle.value;
+    }
+
     // Reset local state if needed
-    printData.value = { html: '', css: '' };
+    printData.value = { html: '', css: '', documentTitle: '' };
     if (currentOptions.value.autoClose) {
       showPreview.value = false;
     }

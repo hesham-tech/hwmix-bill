@@ -74,6 +74,7 @@ class PrintService implements IPrintService {
                 printFormat,
                 companyLogo,
                 companyName,
+                options.documentTitle,
                 options.additionalCss
             );
 
@@ -111,6 +112,7 @@ class PrintService implements IPrintService {
         format: PrintFormat,
         logo: string | undefined,
         companyName: string,
+        documentTitle?: string,
         additionalCss?: string
     ): Promise<PrintData> {
         // Create temporary container
@@ -196,7 +198,8 @@ class PrintService implements IPrintService {
             return {
                 html,
                 css,
-                format: format
+                format: format,
+                documentTitle
             };
 
         } catch (error) {

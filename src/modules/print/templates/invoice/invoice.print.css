@@ -55,58 +55,71 @@
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 5px;
+  border: 1px solid #ccc; /* تغميق الإطار الخارجي */
 }
 
 .data-table td {
-  padding: 2px 5px;
-  border-bottom: 1px solid #666;
+  padding: 5px 10px;
+  border-bottom: 1px solid #e0e0e0;
   font-weight: normal !important;
-  font-size: 10px;
+  font-size: 10.5px;
 }
 
 .data-table .label {
-  width: 50%;
-  color: #000;
+  width: 40%;
+  color: #333;
+  background-color: #f7f7f7; /* خلفية أوضح */
+  border-left: 1px solid #e0e0e0;
   white-space: nowrap;
 }
 
 .data-table .value {
   text-align: left;
   font-weight: bold !important;
+  padding-left: 12px;
 }
 
 .hero-row td {
-  background-color: #f5f5f5 !important;
-  border-bottom: 1.5px solid #000 !important;
+  background-color: #f0f0f0 !important;
+  border-bottom: 2px solid #000 !important;
+  font-weight: 900 !important;
 }
 
 .section-title {
   font-weight: bold !important;
-  margin: 10px 0 2px 0;
-  text-decoration: underline;
-  font-size: 11px;
+  margin: 15px 0 8px 0;
+  padding: 4px 8px;
+  background: #eee;
+  font-size: 12px;
+  border-right: 4px solid #000;
 }
 
 .items-table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .items-table th {
-  background: #f0f0f0;
-  padding: 4px;
+  background: #333; /* رأس جدول أغمق وأرقى */
+  color: #fff;
+  padding: 6px;
   text-align: right;
-  border: 1px solid #000;
+  border: 1px solid #222;
   font-weight: bold !important;
-  font-size: 10px;
+  font-size: 10.5px;
 }
 
 .items-table td {
-  padding: 4px;
-  border: 0.5px solid #000;
+  padding: 6px;
+  border: 1px solid #d0d0d0;
   font-weight: normal !important;
-  font-size: 9px;
+  font-size: 10px;
+}
+
+/* صفوف متبادلة الألوان (Zebra) أكثر وضوحاً */
+.items-table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
 }
 
 .font-bold {
@@ -152,54 +165,63 @@
   color: #666;
 }
 
-/* التنسيق للورق العادي A4 / A5 / Standard */
-.invoice-print.format-a4,
-.invoice-print.format-a5,
-.invoice-print.format-standard {
-  max-width: 800px;
-  margin: 0 auto;
-  border: 1px solid #eee;
-  padding: 30px !important;
-  min-height: 297mm;
+/* Thermal Format Adjustments - Simplified for better roll printing */
+.invoice-print.format-thermal,
+.invoice-print.format-thermal_58 {
+  padding: 0 !important;
+  font-size: 9px;
 }
 
-.invoice-print.format-a4 .company-logo,
-.invoice-print.format-a5 .company-logo,
-.invoice-print.format-standard .company-logo {
-  max-width: 150px !important;
-  max-height: 80px !important;
+.invoice-print.format-thermal .data-table,
+.invoice-print.format-thermal_58 .data-table {
+  border: none;
+  border-bottom: 2px solid #000;
+  margin-bottom: 3px;
 }
 
-.invoice-print.format-a4 .company-name,
-.invoice-print.format-a5 .company-name,
-.invoice-print.format-standard .company-name {
-  font-size: 22px !important;
+.invoice-print.format-thermal .data-table tr,
+.invoice-print.format-thermal_58 .data-table tr {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  border-bottom: 1px solid #d0d0d0;
 }
 
-.invoice-print.format-a4 .invoice-title-box,
-.invoice-print.format-a5 .invoice-title-box,
-.invoice-print.format-standard .invoice-title-box {
-  font-size: 18px;
-  padding: 4px 30px;
+.invoice-print.format-thermal .data-table td,
+.invoice-print.format-thermal_58 .data-table td {
+  display: block;
+  flex: 0 0 55%;
+  padding: 3px 2px;
+  font-size: 9.5px;
+  border: none !important;
 }
 
-.invoice-print.format-a4 .data-table td,
-.invoice-print.format-a5 .data-table td,
-.invoice-print.format-standard .data-table td {
-  padding: 8px 12px;
-  font-size: 14px;
+.invoice-print.format-thermal .data-table .label,
+.invoice-print.format-thermal_58 .data-table .label {
+  flex: 0 0 45%;
+  background-color: #f7f7f7;
 }
 
-.invoice-print.format-a4 .items-table th,
-.invoice-print.format-a5 .items-table th,
-.invoice-print.format-standard .items-table th {
-  font-size: 14px;
+.invoice-print.format-thermal .items-table th,
+.invoice-print.format-thermal_58 .items-table th {
+  padding: 3px 1px;
+  font-size: 9px;
+  background: #000;
+  color: #fff;
+  border: 1px solid #000;
 }
 
-.invoice-print.format-a4 .items-table td,
-.invoice-print.format-a5 .items-table td,
-.invoice-print.format-standard .items-table td {
-  font-size: 13px;
+.invoice-print.format-thermal .items-table td,
+.invoice-print.format-thermal_58 .items-table td {
+  padding: 3px 1px;
+  border: 1px solid #999;
+  font-size: 8.5px;
+}
+
+.invoice-print.format-thermal .section-title,
+.invoice-print.format-thermal_58 .section-title {
+  margin: 8px 0 4px 0;
+  padding: 2px 4px;
+  font-size: 10px;
 }
 
 @media print {
@@ -207,5 +229,8 @@
     padding: 0 !important;
     border: none !important;
     width: 100% !important;
+    background: white !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
   }
 }

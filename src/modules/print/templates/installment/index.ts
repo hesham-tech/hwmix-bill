@@ -1,6 +1,6 @@
 import InstallmentTemplate from './InstallmentTemplate.vue';
 import InstallmentPlanTemplate from './InstallmentPlanTemplate.vue';
-import { installmentStyles } from './installmentStyles';
+import { installmentStyles, installmentPlanStyles } from './installmentStyles';
 import { templateRegistry } from '../TemplateRegistry';
 
 // 1. تسجيل إيصال التحصيل (Installment Receipt)
@@ -26,7 +26,7 @@ templateRegistry.register('installment', {
 // 2. تسجيل عقد خطة التقسيط بالكامل (Full Installment Plan / Contract)
 templateRegistry.register('installment_plan', {
     component: InstallmentPlanTemplate,
-    styles: installmentStyles,
+    styles: installmentPlanStyles,
     formats: ['a4', 'a5', 'thermal'],
     transformData: (data) => {
         return {

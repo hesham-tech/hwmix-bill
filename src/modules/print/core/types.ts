@@ -41,8 +41,8 @@ export interface PrintOptions {
     /** Additional CSS to inject */
     additionalCss?: string;
 
-    /** Whether to auto-close after printing */
-    autoClose?: boolean;
+    /** Document title (used for PDF filename) */
+    documentTitle?: string;
 
     /** Callback after successful print */
     onSuccess?: () => void;
@@ -72,6 +72,9 @@ export interface PrintData {
 
     /** Print format type */
     format: PrintFormat;
+
+    /** Document title */
+    documentTitle?: string;
 }
 
 /**

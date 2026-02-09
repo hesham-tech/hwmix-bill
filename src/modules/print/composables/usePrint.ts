@@ -57,10 +57,14 @@ export function usePrint() {
      * Convenience method with type safety
      */
     const printInstallment = async (
-        data: InstallmentReceiptData,
+        data: any,
         options: PrintOptions = {}
     ): Promise<PrintResult> => {
-        return print('installment', data, options);
+        const customerName = data.payment?.customer?.full_name || data.payment?.customer?.name || data.customer?.name || '';
+        const paymentId = data.payment?.id || '';
+        const title = `إيصال دفع #$${paymentId}${customerName ? ' - ' + customerName : ''}`;
+
+        return print('installment', data, { documentTitle: title, ...options });
     };
 
     /**
@@ -71,7 +75,12 @@ export function usePrint() {
         data: { plan: any },
         options: PrintOptions = {}
     ): Promise<PrintResult> => {
-        return print('installment_plan', data, options);
+        const plan = data.plan;
+        const customerName = plan?.customer?.full_name || plan?.customer?.name || '';
+        const planId = plan?.id || '';
+        const title = `خطة تقسيط #$${planId}${customerName ? ' - ' + customerName : ''}`;
+
+        return print('installment_plan', data, { documentTitle: title, ...options });
     };
 
     /**
@@ -79,10 +88,15 @@ export function usePrint() {
      * Convenience method with type safety
      */
     const printInvoice = async (
-        data: InvoiceData,
+        data: any,
         options: PrintOptions = {}
     ): Promise<PrintResult> => {
-        return print('invoice', data, options);
+        const invoice = data.invoice || data;
+        const customerName = invoice.customer?.full_name || invoice.customer?.name || '';
+        const invoiceNo = invoice.invoice_number || '';
+        const title = `فاتورة #$${invoiceNo}${customerName ? ' - ' + customerName : ''}`;
+
+        return print('invoice', data, { documentTitle: title, ...options });
     };
 
     return {

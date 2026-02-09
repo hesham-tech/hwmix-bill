@@ -147,6 +147,7 @@
           </template>
 
           <v-divider class="my-1" />
+          <v-list-item prepend-icon="ri-refresh-line" title="تحديث بيانات النظام" @click="showClearCacheDialog = true" class="text-info" />
           <v-list-item prepend-icon="ri-logout-box-line" title="تسجيل الخروج" @click="handleLogout" class="text-error" />
         </v-list>
       </v-menu>
@@ -243,6 +244,18 @@
       confirm-text="خروج"
       confirm-color="error"
     />
+
+    <!-- Cache Clearing Confirmation Dialog -->
+    <AppConfirmDialog
+      ref="confirmCacheDialog"
+      v-model="showClearCacheDialog"
+      title="تحديث ذاكرة النظام"
+      message="هل تريد تحديث بيانات النظام ومسح الذاكرة المؤقتة؟ سيتم إعادة تحميل الصفحة والتوجه للرئيسية لحل أي مشاكل فنية ناتجة عن التحديثات."
+      confirm-text="تحديث الآن"
+      confirm-color="info"
+      icon="ri-refresh-line"
+      @confirm="handleClearCache"
+    />
   </v-main>
 </template>
 
@@ -262,6 +275,7 @@ import InstallmentCalc from '@/components/tools/InstallmentCalc.vue';
 import { toast } from 'vue3-toastify';
 import { useDisplay } from 'vuetify';
 import { formatCurrency } from '@/utils/formatters';
+import { clearAppCache } from '@/utils/maintenance';
 
 const { xs } = useDisplay();
 const route = useRoute();
@@ -359,6 +373,13 @@ const handleLogout = async () => {
 
 const isQuickToolsMenuOpen = ref(false);
 const confirmLogoutDialog = ref(null);
+const confirmCacheDialog = ref(null);
+const showClearCacheDialog = ref(false);
+
+const handleClearCache = async () => {
+  toast.info('جاري تحديث بيانات النظام...', { autoClose: 2000 });
+  await clearAppCache();
+};
 
 // التفاعل مع النوافذ العائمة
 const activeTool = ref(null);

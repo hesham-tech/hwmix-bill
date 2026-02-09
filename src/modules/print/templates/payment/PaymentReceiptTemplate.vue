@@ -147,13 +147,26 @@ const props = defineProps({
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 8px;
+  border: 1px solid #eee;
 }
 
 .data-table td {
-  padding: 4px 8px;
-  border-bottom: 1px solid #eee;
+  padding: 6px 12px;
+  border-bottom: 1px solid #f5f5f5;
   font-weight: 700;
   font-size: 0.85rem;
+}
+
+.data-table .label {
+  width: 45%;
+  color: #555;
+  background-color: #fafafa;
+  border-left: 1px solid #f5f5f5;
+  white-space: nowrap;
+}
+
+.data-table .value {
+  text-align: left;
 }
 
 .hero-row td {
@@ -162,7 +175,7 @@ const props = defineProps({
 }
 
 .total-amount {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 900;
 }
 
