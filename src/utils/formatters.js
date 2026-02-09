@@ -8,25 +8,21 @@
 export const formatDate = (date, options = {}) => {
   if (!date) return '-';
 
-  const defaultOptions = {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    ...options,
-  };
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return '-';
 
-  return new Date(date).toLocaleDateString('ar-EG', defaultOptions);
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const year = d.getFullYear();
+
+  return `${day}-${month}-${year}`;
 };
 
 /**
  * Format date to short format
  */
 export const formatDateShort = date => {
-  return formatDate(date, {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  });
+  return formatDate(date);
 };
 
 /**
@@ -35,13 +31,10 @@ export const formatDateShort = date => {
 export const formatDateTime = date => {
   if (!date) return '-';
 
-  return new Date(date).toLocaleString('ar-EG', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  const datePart = formatDate(date);
+  const timePart = formatTime(date);
+
+  return `${datePart} | ${timePart}`;
 };
 
 /**

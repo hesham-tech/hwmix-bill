@@ -70,39 +70,8 @@
       <v-row v-if="invoice">
         <!-- Invoice Details -->
         <v-col cols="12" md="8">
-          <!-- Customer Info -->
-          <AppCard title="معلومات العميل" icon="ri-user-line" class="mb-4 mb-sm-6" rounded="md">
-            <div class="d-flex align-center flex-column flex-sm-row py-2" v-if="invoice.customer">
-              <AppAvatar
-                :img-url="invoice.customer.avatar_url"
-                :name="invoice.customer.nickname || invoice.customer.full_name"
-                :size="mobile ? 80 : 64"
-                rounded="circle"
-                class="mb-4 mb-sm-0 me-sm-4 border shadow-sm"
-              />
-              <v-row class="flex-grow-1 mx-0">
-                <v-col cols="12" sm="6" class="py-1 py-sm-2">
-                  <div class="text-caption text-grey mb-0 mb-sm-1">الاسم / اللقب</div>
-                  <div :class="[mobile ? 'text-body-1' : 'text-h6', 'font-weight-bold']">
-                    {{ invoice.customer.nickname || invoice.customer.full_name }}
-                  </div>
-                </v-col>
-                <v-col cols="12" sm="6" class="py-1 py-sm-2">
-                  <div class="text-caption text-grey mb-0 mb-sm-1">رقم الهاتف</div>
-                  <AppPhone :phone="invoice.customer.phone" />
-                </v-col>
-                <v-col v-if="invoice.customer.email" cols="12" sm="6" class="py-1 py-sm-2">
-                  <div class="text-caption text-grey mb-0 mb-sm-1">البريد الإلكتروني</div>
-                  <div class="font-weight-medium text-body-1">{{ invoice.customer.email || '---' }}</div>
-                </v-col>
-                <v-col v-if="invoice.customer.position" cols="12" sm="6" class="py-1 py-sm-2">
-                  <div class="text-caption text-grey mb-0 mb-sm-1">المسمى الوظيفي / الموقع</div>
-                  <div class="font-weight-medium text-body-1">{{ invoice.customer.position }}</div>
-                </v-col>
-              </v-row>
-            </div>
-            <div v-else class="text-center py-4 text-grey">لا توجد بيانات عميل مرتبطة</div>
-          </AppCard>
+          <!-- Unified Customer Card -->
+          <FinancialCustomerCard v-if="invoice.customer" :customer="invoice.customer" :balance="invoice.customer.balance" class="mb-4 mb-sm-6" />
 
           <!-- Items -->
           <AppCard title="عناصر الفاتورة" icon="ri-list-check-2" class="mb-4 mb-sm-6" padding="0" rounded="md">
@@ -295,7 +264,7 @@
         <!-- Summary -->
         <v-col cols="12" md="4">
           <!-- Status -->
-          <AppCard title="الحالة والمتابعة" icon="ri-settings-4-line" class="mb-2" rounded="md">
+          <AppCard title="الحالة والمتابعة" icon="ri-settings-4-line" class="mb-4" rounded="md">
             <div class="d-flex flex-column gap-4">
               <div>
                 <div class="text-caption text-grey mb-1">حالة الفاتورة العامة</div>
@@ -326,95 +295,85 @@
             </div>
           </AppCard>
 
-          <!-- Totals -->
-          <AppCard title="الملخص المالي" icon="ri-money-dollar-box-line" rounded="md">
+          <!-- Totals & Balance Flow -->
+          <AppCard title="الملخص المالي والتدقق" icon="ri-money-dollar-box-line" rounded="md" class="mb-4">
             <div class="d-flex flex-column gap-2 mb-4">
               <div class="d-flex justify-space-between text-body-2">
-                <span class="text-grey">المجموع الإجمالي (قبل الخصم):</span>
+                <span class="text-grey">إجمالي العناصر:</span>
                 <span class="font-weight-medium text-body-1">{{ formatCurrency(invoice.gross_amount) }}</span>
               </div>
               <div v-if="invoice.total_discount > 0" class="d-flex justify-space-between text-body-2 text-error italic">
-                <span>إجمالي الخصومات:</span>
+                <span>الخصومات والتعويضات:</span>
                 <span>-{{ formatCurrency(invoice.total_discount) }}</span>
               </div>
               <div v-if="invoice.total_tax > 0" class="d-flex justify-space-between text-body-2">
-                <span class="text-grey">إجمالي الضريبة:</span>
+                <span class="text-grey">الضرائب (VAT):</span>
                 <span>{{ formatCurrency(invoice.total_tax) }}</span>
               </div>
 
               <v-divider class="my-2" />
 
               <div class="d-flex justify-space-between align-center">
-                <span class="text-h6 font-weight-bold">صافي الفاتورة:</span>
+                <span class="text-h6 font-weight-bold">صافي المديونية:</span>
                 <span class="text-h5 font-weight-bold text-primary">{{ formatCurrency(invoice.net_amount) }}</span>
               </div>
             </div>
 
-            <v-divider class="my-4" />
-
-            <div class="d-flex flex-column gap-2 mb-4 p-3 rounded-md bg-grey-lighten-4 border-s-dark">
-              <div class="d-flex justify-space-between text-body-2">
-                <span class="text-grey">رصيد العميل قبل:</span>
-                <span :class="parseFloat(invoice.previous_balance) < 0 ? 'text-error' : 'text-success'" class="font-weight-bold">
+            <div class="pa-4 rounded-lg bg-grey-lighten-4 border-s-4 border-s-primary mb-4">
+              <div class="d-flex justify-space-between text-caption mb-1">
+                <span class="text-grey">رصيد العميل قبل هذه الفاتورة:</span>
+                <span class="font-weight-bold" :class="parseFloat(invoice.previous_balance) < 0 ? 'text-error' : 'text-success'">
                   {{ formatCurrency(invoice.previous_balance) }}
                 </span>
               </div>
-              <div class="d-flex justify-space-between text-body-1 pt-1 border-top mt-1">
-                <span class="text-grey font-weight-bold">إجمالي المستحق:</span>
-                <span class="font-weight-bold">{{ formatCurrency(invoice.total_required) }}</span>
+              <div class="d-flex justify-space-between text-body-1 font-weight-black border-t pt-2 mt-1">
+                <span>صافي المطلوب تحصيله:</span>
+                <span>{{ formatCurrency(invoice.total_required) }}</span>
               </div>
             </div>
 
-            <v-divider class="mb-4" />
-
-            <div class="d-flex flex-column gap-2 p-3 rounded-md bg-grey-lighten-4 border">
+            <div class="pa-4 rounded-lg bg-primary-lighten-5 border mb-4">
+              <div class="d-flex justify-space-between text-body-2 mb-2">
+                <span class="text-primary-darken-2">إجمالي المسدد:</span>
+                <span class="font-weight-black text-success text-body-1">{{ formatCurrency(invoice.paid_amount) }}</span>
+              </div>
               <div class="d-flex justify-space-between text-body-2">
-                <span class="text-grey">ما تم تحصيله:</span>
-                <span class="font-weight-bold text-info text-body-1">{{ formatCurrency(invoice.paid_amount) }}</span>
-              </div>
-              <div v-if="parseFloat(invoice.remaining_amount) > 0" class="d-flex justify-space-between text-body-1 pt-1 border-top mt-1">
-                <span class="text-grey font-weight-bold">المبلغ المتبقي:</span>
-                <span class="font-weight-bold text-error">{{ formatCurrency(invoice.remaining_amount) }}</span>
-              </div>
-              <div v-else-if="invoice.remaining_amount < 0" class="text-center text-indigo font-weight-bold py-1">
-                <v-icon icon="ri-add-circle-fill" size="small" class="me-1" />
-                مدفوعة بزيادة
-              </div>
-              <div v-else class="text-center text-success font-weight-bold py-1">
-                <v-icon icon="ri-checkbox-circle-fill" size="small" class="me-1" />
-                مدفوعة بالكامل
+                <span class="text-grey">المتبقي المطلوب:</span>
+                <span class="font-weight-black text-error">{{ formatCurrency(invoice.remaining_amount) }}</span>
               </div>
 
-              <v-divider class="my-2" />
+              <v-divider class="my-3 opacity-25" />
 
-              <div class="d-flex justify-space-between text-body-1">
-                <span class="text-grey font-weight-bold">رصيد العميل بعد:</span>
-                <span class="font-weight-bold text-primary">{{ formatCurrency(invoice.user_balance_after || 0) }}</span>
+              <div class="d-flex justify-space-between text-body-1 font-weight-black">
+                <span class="text-primary-darken-4">رصيد العميل النهائي:</span>
+                <span class="text-primary-darken-4">{{ formatCurrency(invoice.user_balance_after || 0) }}</span>
               </div>
             </div>
 
-            <!-- Initial Snapshot (Read Only) -->
-            <div class="mt-4 p-3 rounded-md bg-blue-grey-lighten-5">
-              <div class="text-caption text-grey mb-1 font-weight-bold">حالة الفاتورة عند الإنشاء</div>
-              <div class="d-flex justify-space-between text-caption border-bottom pb-1 mb-1">
-                <span>المدفوع الابتدائي:</span>
-                <span>{{ formatCurrency(invoice.initial_paid_amount) }}</span>
-              </div>
-              <div class="d-flex justify-space-between text-caption">
-                <span>المتبقي الابتدائي:</span>
-                <span>{{ formatCurrency(invoice.initial_remaining_amount) }}</span>
-              </div>
-            </div>
-
-            <!-- Installment Plan Context -->
-            <div v-if="invoice.installment_plan" class="mt-4 pa-3 rounded-md border-primary border-dashed border-sm bg-primary-lighten-5">
-              <div class="text-primary font-weight-bold mb-1 d-flex align-center">
-                <v-icon icon="ri-calendar-todo-line" size="small" class="me-2" />
-                خطة تقسيط نشطة
-              </div>
-              <div class="text-caption text-primary">مبلغ القسط: {{ formatCurrency(invoice.installment_plan.installment_amount) }}</div>
-            </div>
+            <!-- Initial Snapshot -->
+            <v-expansion-panels flat variant="accordion">
+              <v-expansion-panel bg-color="blue-grey-lighten-5">
+                <v-expansion-panel-title class="text-caption font-weight-bold py-1"> حالة الفاتورة عند الإنشاء (Snapshot) </v-expansion-panel-title>
+                <v-expansion-panel-text class="text-caption pb-2">
+                  <div class="d-flex justify-space-between mb-1">
+                    <span>المدفوع الابتدائي:</span>
+                    <span>{{ formatCurrency(invoice.initial_paid_amount) }}</span>
+                  </div>
+                  <div class="d-flex justify-space-between">
+                    <span>المتبقي الابتدائي:</span>
+                    <span>{{ formatCurrency(invoice.initial_remaining_amount) }}</span>
+                  </div>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+            </v-expansion-panels>
           </AppCard>
+
+          <!-- Installment Plan Summary (Conditional) -->
+          <InstallmentPlanSummaryCard
+            v-if="invoice.installment_plan"
+            :plan="invoice.installment_plan"
+            @view-plan="id => router.push(`/app/installment-plans/${id}`)"
+          />
         </v-col>
       </v-row>
     </div>
@@ -442,6 +401,8 @@ import { useApi } from '@/composables/useApi';
 import { usePermissions } from '@/composables/usePermissions';
 import { useUserStore } from '@/stores/user';
 import AppAvatar from '@/components/common/AppAvatar.vue';
+import FinancialCustomerCard from '@/components/common/FinancialCustomerCard.vue';
+import InstallmentPlanSummaryCard from '@/modules/installments/components/InstallmentPlanSummaryCard.vue';
 import InstallmentsTable from '@/modules/installments/components/InstallmentsTable.vue';
 import PrintInvoiceItemsStickersDialog from '../components/PrintInvoiceItemsStickersDialog.vue';
 import { toast } from 'vue3-toastify';

@@ -20,6 +20,7 @@ export default function (app) {
   };
 
   const currentLocale = getLocale();
+  localStorage.setItem('theme', 'light'); // فرض الثيم الفاتح
 
   const vuetify = createVuetify({
     // Auto-import handles components and directives automatically

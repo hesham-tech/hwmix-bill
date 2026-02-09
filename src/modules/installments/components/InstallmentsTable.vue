@@ -36,13 +36,9 @@
       <div class="py-1">
         <v-chip variant="tonal" size="x-small" color="primary" class="font-weight-bold"> قسط #{{ item.installment_number }} </v-chip>
 
-        <!-- Conditional Info: Remaining vs Commitment -->
+        <!-- Only Remaining Amount here to keep it clean -->
         <div v-if="item.remaining > 0 && showRemaining" class="text-caption text-error font-weight-bold mt-1">
           المتبقي: {{ formatCurrency(item.remaining) }}
-        </div>
-        <div v-else-if="item.commitment_label" :class="getCommitmentClass(item)" class="text-caption font-weight-bold d-flex align-center gap-1 mt-1">
-          <v-icon :icon="getCommitmentIcon(item)" size="14" />
-          {{ item.commitment_label }}
         </div>
       </div>
     </template>
@@ -77,8 +73,19 @@
 
     <!-- Due Date Column -->
     <template #item.due_date="{ item }" v-if="!$slots['item.due_date']">
-      <div :class="[getDueDateClass(item.due_date, item.status), 'font-weight-medium']">
-        {{ formatDate(item.due_date) }}
+      <div class="py-1">
+        <div :class="[getDueDateClass(item.due_date, item.status), 'font-weight-bold text-caption']">
+          {{ formatDate(item.due_date) }}
+        </div>
+        <!-- Payment Date & Commitment -->
+        <div v-if="item.paid_at" class="text-xxs text-grey mt-1">
+          <v-icon icon="ri-checkbox-circle-line" size="12" color="success" class="me-1" />
+          تم في: {{ formatDate(item.paid_at) }}
+        </div>
+        <div v-if="item.commitment_label" :class="getCommitmentClass(item)" class="text-xxs font-weight-bold d-flex align-center gap-1 mt-1">
+          <v-icon :icon="getCommitmentIcon(item)" size="12" />
+          {{ item.commitment_label }}
+        </div>
       </div>
     </template>
 

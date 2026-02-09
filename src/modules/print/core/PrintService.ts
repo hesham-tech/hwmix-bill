@@ -196,7 +196,7 @@ class PrintService implements IPrintService {
             return {
                 html,
                 css,
-                format: template.formats[0]
+                format: format
             };
 
         } catch (error) {

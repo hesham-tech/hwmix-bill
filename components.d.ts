@@ -36,6 +36,7 @@ declare module 'vue' {
     DefaultTextarea: typeof import('./src/@ui/components/DefaultTextarea.vue')['default']
     EmptyState: typeof import('./src/components/common/EmptyState.vue')['default']
     ErrorMessage: typeof import('./src/components/common/ErrorMessage.vue')['default']
+    FinancialCustomerCard: typeof import('./src/components/common/FinancialCustomerCard.vue')['default']
     FormActions: typeof import('./src/components/forms/FormActions.vue')['default']
     FormField: typeof import('./src/components/forms/FormField.vue')['default']
     FormSection: typeof import('./src/components/forms/FormSection.vue')['default']

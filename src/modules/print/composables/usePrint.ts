@@ -53,7 +53,7 @@ export function usePrint() {
     };
 
     /**
-     * Print installment receipt
+     * Print installment receipt (Single Payment)
      * Convenience method with type safety
      */
     const printInstallment = async (
@@ -61,6 +61,17 @@ export function usePrint() {
         options: PrintOptions = {}
     ): Promise<PrintResult> => {
         return print('installment', data, options);
+    };
+
+    /**
+     * Print full installment plan (Account Statement / Contract)
+     * Convenience method with type safety
+     */
+    const printInstallmentPlan = async (
+        data: { plan: any },
+        options: PrintOptions = {}
+    ): Promise<PrintResult> => {
+        return print('installment_plan', data, options);
     };
 
     /**
@@ -77,6 +88,7 @@ export function usePrint() {
     return {
         print,
         printInstallment,
+        printInstallmentPlan,
         printInvoice,
         // Expose settings for inspection (Reactive)
         printFormat,

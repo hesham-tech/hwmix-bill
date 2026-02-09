@@ -10,271 +10,186 @@
         <AppButton icon="ri-arrow-right-line" variant="text" @click="router.back()" />
       </template>
       <template #append>
-        <AppButton
-          v-if="plan?.status === 'active'"
-          color="success"
-          prepend-icon="ri-hand-coin-line"
-          class="font-weight-bold"
-          @click="openPaymentDialog"
-        >
-          تحصيل قسط
-        </AppButton>
+        <div class="d-flex gap-2">
+          <AppButton
+            v-if="plan?.status === 'active'"
+            color="success"
+            prepend-icon="ri-hand-coin-line"
+            class="font-weight-bold"
+            @click="openPaymentDialog()"
+          >
+            تحصيل قسط
+          </AppButton>
+          <AppButton color="primary" variant="tonal" prepend-icon="ri-printer-line" @click="printFullPlan"> طباعة العقد </AppButton>
+        </div>
       </template>
     </AppPageHeader>
 
-    <v-container fluid class="pt-0">
-      <v-row v-if="loading && !plan">
-        <v-col cols="12">
-          <AppSkeleton type="card" />
-        </v-col>
-      </v-row>
+    <v-container fluid class="pt-2">
+      <!-- Error/Loading -->
+      <div v-if="loading && !plan" class="d-flex justify-center align-center py-12">
+        <LoadingSpinner />
+      </div>
 
-      <template v-else-if="plan">
-        <!-- Section 1: Customer Info & Quick Stats (The Face of the Plan) -->
-        <v-row class="mb-4">
-          <v-col cols="12">
-            <v-card rounded="lg" class="border shadow-sm overflow-hidden">
-              <v-row no-gutters>
-                <!-- Customer Profile Card -->
-                <v-col cols="12" md="4" class="bg-primary-lighten-5 pa-6 border-e">
-                  <div class="d-flex align-center h-100">
-                    <v-avatar color="primary" size="84" class="me-6 elevation-3 border border-white border-xl">
-                      <v-icon icon="ri-user-heart-line" color="white" size="42" />
-                    </v-avatar>
-                    <div>
-                      <div class="text-overline text-primary font-weight-black mb-1">العميل المرتبط بالخطة</div>
-                      <h2 class="text-h5 font-weight-bold mb-1">
-                        {{ plan.customer?.full_name || 'غير متوفر' }}
-                      </h2>
-                      <div class="d-flex align-center gap-2 mb-2">
-                        <v-chip
-                          v-if="plan.customer?.nickname && plan.customer.nickname !== plan.customer.full_name"
-                          color="primary"
-                          size="x-small"
-                          variant="flat"
-                          class="font-weight-bold px-2"
-                        >
-                          {{ plan.customer.nickname }}
-                        </v-chip>
-                        <v-chip :color="getStatusColor(plan.status)" size="x-small" variant="flat" class="font-weight-bold px-2">
-                          {{ plan.status_label || getStatusLabel(plan.status) }}
-                        </v-chip>
-                      </div>
-                      <AppPhone v-if="plan.customer?.phone" :phone="plan.customer.phone" class="text-primary font-weight-bold" />
-                    </div>
-                  </div>
-                </v-col>
-
-                <!-- Financial Progress Overview -->
-                <v-col cols="12" md="8" class="pa-6">
-                  <v-row dense>
-                    <v-col cols="12" sm="6" lg="3">
-                      <div class="pa-3 rounded-lg bg-grey-lighten-4 border h-100 d-flex flex-column justify-center border-soft">
-                        <div class="text-xxs text-grey-darken-1 font-weight-bold mb-1 d-flex align-center">
-                          <v-icon icon="ri-money-dollar-circle-line" size="14" class="me-1 text-primary" />
-                          إجمالي الخطة
-                        </div>
-                        <div class="text-h6 font-weight-black text-primary">{{ formatCurrency(plan.total_amount) }}</div>
-                      </div>
-                    </v-col>
-                    <v-col cols="12" sm="6" lg="3">
-                      <div class="pa-3 rounded-lg bg-indigo-lighten-5 border border-indigo-lighten-3 h-100 d-flex flex-column justify-center">
-                        <div class="text-xxs text-indigo-darken-1 font-weight-bold mb-1 d-flex align-center">
-                          <v-icon icon="ri-hand-coin-line" size="14" class="me-1" />
-                          المقدم المدفوع
-                        </div>
-                        <div class="text-h6 font-weight-black text-indigo">{{ formatCurrency(plan.down_payment) }}</div>
-                      </div>
-                    </v-col>
-                    <v-col cols="12" sm="6" lg="3">
-                      <div class="pa-3 rounded-lg bg-success-lighten-5 border border-success-lighten-3 h-100 d-flex flex-column justify-center">
-                        <div class="text-xxs text-success-darken-1 font-weight-bold mb-1 d-flex align-center">
-                          <v-icon icon="ri-checkbox-circle-line" size="14" class="me-1" />
-                          إجمالي المحصل
-                        </div>
-                        <div class="text-h6 font-weight-black text-success">{{ formatCurrency(plan.total_pay || collectedAmount) }}</div>
-                      </div>
-                    </v-col>
-                    <v-col cols="12" sm="6" lg="3">
-                      <div class="pa-3 rounded-lg bg-error-lighten-5 border border-error-lighten-3 h-100 d-flex flex-column justify-center">
-                        <div class="text-xxs text-error-darken-1 font-weight-bold mb-1 d-flex align-center">
-                          <v-icon icon="ri-alarm-warning-line" size="14" class="me-1" />
-                          المتبقي الكلي
-                        </div>
-                        <div class="text-h6 font-weight-black text-error">{{ formatCurrency(plan.remaining_amount) }}</div>
-                      </div>
-                    </v-col>
-                    <v-col cols="12" class="pt-3">
-                      <div class="d-flex align-center justify-space-between mb-1">
-                        <span class="text-xxs font-weight-bold text-grey-darken-1">تقدم سداد الأقساط</span>
-                        <span class="text-xxs font-weight-black text-primary">{{ Math.round(paymentProgress) }}%</span>
-                      </div>
-                      <v-progress-linear
-                        :model-value="paymentProgress"
-                        height="8"
-                        rounded
-                        color="primary"
-                        class="shadow-sm mt-1"
-                        :indeterminate="false"
-                      >
-                      </v-progress-linear>
-                    </v-col>
-                  </v-row>
-                </v-col>
-              </v-row>
-            </v-card>
-          </v-col>
-        </v-row>
-
-        <!-- Section 2: Detailed Info Tabs/Panels -->
+      <div v-else-if="plan" class="installment-plan-dashboard">
         <v-row>
-          <!-- Left Column: Installments & Products -->
-          <v-col cols="12" md="9">
-            <!-- Associated Products Summary -->
-            <v-card v-if="plan.invoice_items?.length" rounded="md" class="border shadow-sm mb-4">
-              <div class="pa-3 bg-secondary-lighten-5 border-b d-flex align-center">
-                <v-icon icon="ri-shopping-bag-3-line" color="secondary" size="18" class="me-2" />
-                <span class="text-subtitle-2 font-weight-bold text-secondary"
-                  >المنتجات المشمولة في الفاتورة (#{{ plan.invoice?.invoice_number }})</span
-                >
-              </div>
-              <v-table density="compact" class="text-caption">
+          <!-- Top Stats Row -->
+          <v-col cols="12">
+            <v-row dense>
+              <v-col cols="12" sm="6" md="3">
+                <StatsCard title="إجمالي مبلغ الخطة" :value="plan.total_amount" type="currency" icon="ri-money-dollar-circle-line" color="primary" />
+              </v-col>
+              <v-col cols="12" sm="6" md="3">
+                <StatsCard
+                  title="المبلغ المحصل"
+                  :value="plan.total_pay"
+                  type="currency"
+                  icon="ri-checkbox-circle-line"
+                  color="success"
+                  show-progress
+                  :progress="plan.payment_progress"
+                />
+              </v-col>
+              <v-col cols="12" sm="6" md="3">
+                <StatsCard title="المتبقي للتحصيل" :value="plan.remaining_amount" type="currency" icon="ri-error-warning-line" color="error" />
+              </v-col>
+              <v-col cols="12" sm="6" md="3">
+                <StatsCard
+                  title="الأقساط المتبقية"
+                  :value="remainingInstallmentsCount"
+                  icon="ri-calendar-event-line"
+                  color="indigo"
+                  :subtitle="`من إجمالي ${plan.number_of_installments} أقساط`"
+                />
+              </v-col>
+            </v-row>
+          </v-col>
+
+          <!-- Main Content -->
+          <v-col cols="12" md="8">
+            <!-- Unified Customer Card -->
+            <FinancialCustomerCard v-if="plan.customer" :customer="plan.customer" :balance="plan.customer.balance" class="mb-6" />
+
+            <!-- Products Included -->
+            <AppCard v-if="plan.invoice_items?.length" title="المنتجات المشمولة في العقد" icon="ri-shopping-bag-3-line" class="mb-6" rounded="lg">
+              <v-table density="compact">
                 <thead>
-                  <tr class="bg-grey-lighten-5">
+                  <tr>
                     <th class="text-right">المنتج</th>
                     <th class="text-center">الكمية</th>
-                    <th class="text-center">السعر</th>
                     <th class="text-left">الإجمالي</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr v-for="item in plan.invoice_items" :key="item.id">
-                    <td class="font-weight-bold py-2">
-                      {{ item.name || item.variant?.product_name || item.product_name }}
-                      <div v-if="item.variant?.attribute_values_string" class="text-xxs text-grey">({{ item.variant.attribute_values_string }})</div>
-                    </td>
+                    <td class="font-weight-bold py-2">{{ item.name }}</td>
                     <td class="text-center">{{ item.quantity }}</td>
-                    <td class="text-center">{{ formatCurrency(item.unit_price) }}</td>
-                    <td class="text-left font-weight-bold">{{ formatCurrency(item.total || item.total_price) }}</td>
+                    <td class="text-left font-weight-black text-primary">{{ formatCurrency(item.total) }}</td>
                   </tr>
                 </tbody>
               </v-table>
-            </v-card>
+            </AppCard>
 
-            <!-- Installments Table -->
-            <v-card rounded="md" class="border shadow-sm">
-              <div class="pa-3 bg-primary-lighten-5 border-b d-flex justify-space-between align-center">
-                <div class="d-flex align-center">
-                  <v-icon icon="ri-list-ordered" color="primary" size="18" class="me-2" />
-                  <span class="text-subtitle-2 font-weight-bold text-primary">جدول تحصيل الأقساط</span>
-                </div>
-                <v-chip size="x-small" density="comfortable" color="primary" variant="flat" class="font-weight-bold px-2">
-                  {{ plan.number_of_installments }} قسط
-                </v-chip>
-              </div>
+            <!-- Installment Schedule Table -->
+            <AppCard title="جدول سداد الأقساط" icon="ri-calendar-todo-line" padding="0" rounded="lg">
               <InstallmentsTable
                 :items="plan.installments || []"
-                :loading="loading"
                 :show-customer="false"
                 :show-plan="false"
-                variant="flat"
-                @view="openDetails"
+                @refresh="loadPlan"
                 @pay="openPaymentDialog"
+                @view="openDetails"
                 @print-receipt="handlePrintReceipt"
+                class="border-0"
+                :highlight-next="true"
               />
-            </v-card>
+            </AppCard>
           </v-col>
 
-          <!-- Right Column: Sidebar Meta Info -->
-          <v-col cols="12" md="3">
+          <!-- Sidebar -->
+          <v-col cols="12" md="4">
             <div class="d-flex flex-column gap-4">
               <!-- Plan Setup Details -->
-              <v-card rounded="md" class="border shadow-sm pa-4">
-                <div class="text-subtitle-2 font-weight-bold text-grey-darken-2 mb-4 d-flex align-center border-b pb-2">
+              <v-card rounded="lg" class="border shadow-sm pa-4">
+                <div class="text-subtitle-2 font-weight-bold text-primary mb-4 d-flex align-center border-b border-primary border-opacity-25 pb-2">
                   <v-icon icon="ri-settings-4-line" size="18" class="me-2" />
-                  إعدادات الخطة
+                  بيانات التعاقد الثابتة
                 </div>
 
-                <div class="mb-4">
-                  <div class="text-caption text-grey mb-1">قيمة القسط الثابت</div>
-                  <div class="d-flex align-center gap-2">
-                    <v-icon icon="ri-coin-line" size="small" color="success" />
-                    <span class="font-weight-bold text-success">{{ formatCurrency(plan.installment_amount) }}</span>
+                <div class="d-flex flex-column gap-4">
+                  <div class="d-flex justify-space-between align-center">
+                    <span class="text-caption text-grey">قيمة القسط الثابت:</span>
+                    <span class="font-weight-black text-h6 text-success">{{ formatCurrency(plan.installment_amount) }}</span>
                   </div>
-                </div>
-
-                <div class="mb-4">
-                  <div class="text-caption text-grey mb-1">تاريخ البدء</div>
-                  <div class="d-flex align-center gap-2">
-                    <v-icon icon="ri-calendar-line" size="small" color="primary" />
+                  <div class="d-flex justify-space-between">
+                    <span class="text-caption text-grey">دورية السداد:</span>
+                    <span class="font-weight-bold">{{ getFrequencyLabel(plan.frequency) }}</span>
+                  </div>
+                  <div class="d-flex justify-space-between">
+                    <span class="text-caption text-grey">نسبة الفائدة:</span>
+                    <span class="font-weight-bold text-error">{{ plan.interest_rate }}%</span>
+                  </div>
+                  <div class="d-flex justify-space-between">
+                    <span class="text-caption text-grey">تاريخ بدء الخطة:</span>
                     <span class="font-weight-bold">{{ formatDate(plan.start_date) }}</span>
                   </div>
                 </div>
 
-                <div class="mb-4">
-                  <div class="text-caption text-grey mb-1">دورية السداد</div>
-                  <div class="d-flex align-center gap-2">
-                    <v-icon icon="ri-refresh-line" size="small" color="secondary" />
-                    <span class="font-weight-bold">{{ getFrequencyLabel(plan.frequency) }}</span>
-                  </div>
-                </div>
+                <v-divider class="my-4 opacity-50" />
 
-                <div class="mb-4">
-                  <div class="text-caption text-grey mb-1">نسبة الفائدة</div>
-                  <div class="d-flex align-center gap-2">
-                    <v-icon icon="ri-percent-line" size="small" color="error" />
-                    <span class="font-weight-bold text-error">{{ plan.interest_rate }}% ({{ formatCurrency(plan.interest_amount) }})</span>
-                  </div>
-                </div>
-
-                <v-divider class="my-3 opacity-50" />
-
-                <div>
-                  <div class="text-caption text-grey mb-1">بواسطة الموظف</div>
-                  <div class="d-flex align-center gap-2">
-                    <v-avatar color="primary-lighten-4" size="24">
-                      <span class="text-xxs text-primary font-weight-black">{{ plan.creator?.full_name?.charAt(0) }}</span>
-                    </v-avatar>
-                    <span class="text-caption font-weight-bold">{{ plan.creator?.full_name || 'غير معروف' }}</span>
+                <div class="d-flex align-center gap-2">
+                  <v-avatar color="primary-lighten-4" size="28">
+                    <span class="text-xs text-primary font-weight-black">{{ plan.creator?.full_name?.charAt(0) }}</span>
+                  </v-avatar>
+                  <div>
+                    <div class="text-xxs text-grey">أنشئت بواسطة</div>
+                    <div class="text-caption font-weight-bold">{{ plan.creator?.full_name || 'موظف غير معروف' }}</div>
                   </div>
                 </div>
               </v-card>
 
-              <!-- Notes Card -->
-              <v-card v-if="plan.notes" rounded="md" class="border shadow-sm pa-4 bg-amber-lighten-5 border-amber">
+              <!-- Quick Link to Invoice -->
+              <v-card
+                v-if="plan.invoice"
+                rounded="lg"
+                class="border shadow-sm pa-4 bg-blue-grey-lighten-5 cursor-pointer"
+                @click="router.push(`/app/invoices/${plan.invoice.id}`)"
+              >
+                <div class="d-flex align-center justify-space-between">
+                  <div class="d-flex align-center">
+                    <v-icon icon="ri-file-list-3-line" color="blue-grey" class="me-3" />
+                    <div>
+                      <div class="text-caption text-blue-grey">الفاتورة الأصلية</div>
+                      <div class="text-subtitle-2 font-weight-black">#{{ plan.invoice.invoice_number }}</div>
+                    </div>
+                  </div>
+                  <v-icon icon="ri-arrow-left-s-line" color="blue-grey" />
+                </div>
+              </v-card>
+
+              <!-- Notes -->
+              <v-card v-if="plan.notes" rounded="lg" class="border shadow-sm pa-4 bg-amber-lighten-5 border-amber">
                 <div class="text-subtitle-2 font-weight-bold text-amber-darken-3 mb-2 d-flex align-center">
                   <v-icon icon="ri-sticky-note-line" size="18" class="me-2" />
-                  ملاحظات الخطة
+                  ملاحظات إضافية
                 </div>
                 <div class="text-body-2 text-grey-darken-3 italic">{{ plan.notes }}</div>
-              </v-card>
-
-              <!-- Quick Actions -->
-              <v-card rounded="md" class="border shadow-sm pa-3">
-                <AppButton block color="secondary" variant="tonal" prepend-icon="ri-history-line" class="mb-2" @click="goToPayments">
-                  سجل الدفعات
-                </AppButton>
-                <AppButton block color="primary" variant="outlined" prepend-icon="ri-printer-line"> طباعة الجدول </AppButton>
               </v-card>
             </div>
           </v-col>
         </v-row>
-      </template>
+      </div>
 
       <v-row v-else-if="!loading">
         <v-col cols="12">
-          <v-alert type="error" variant="tonal" class="rounded-md"> عذراً، لم يتم العثور على خطة التقسيط المطلوبة. </v-alert>
+          <v-alert type="error" variant="tonal">عذراً، لم يتم العثور على خطة التقسيط المطلوبة.</v-alert>
         </v-col>
       </v-row>
     </v-container>
 
-    <!-- Payment Dialog -->
+    <!-- Dialogs -->
     <InstallmentPaymentDialog v-model="showPaymentDialog" :installment="selectedInstallment" @success="handlePaySuccess" />
-
-    <!-- Success Dialog -->
     <PaymentSuccessDialog v-model="showSuccessDialog" :payment-details="paymentResult" @close="loadPlan" />
-
-    <!-- Details Dialog -->
     <InstallmentDetailsDialog v-model="showDetailsDialog" :installment="selectedInstallment" />
   </div>
 </template>
@@ -283,19 +198,25 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useApi } from '@/composables/useApi';
+import { useDisplay } from 'vuetify';
 import { formatCurrency, formatDate } from '@/utils/formatters';
-import { AppButton, AppSkeleton, AppPhone } from '@/components';
+import { AppButton, AppSkeleton, AppPhone, AppCard, AppAvatar, StatsCard } from '@/components';
+import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
+import FinancialCustomerCard from '@/components/common/FinancialCustomerCard.vue';
 import InstallmentsTable from '../components/InstallmentsTable.vue';
 import InstallmentPaymentDialog from '../components/InstallmentPaymentDialog.vue';
 import InstallmentDetailsDialog from '../components/InstallmentDetailsDialog.vue';
 import PaymentSuccessDialog from '../components/PaymentSuccessDialog.vue';
 import { usePermissions } from '@/composables/usePermissions';
+import { usePrint } from '@/modules/print/composables/usePrint';
 import installmentService from '@/api/services/installment.service';
 import { PERMISSIONS } from '@/config/permissions';
 
 const route = useRoute();
 const router = useRouter();
-const { canAny } = usePermissions();
+const { mobile } = useDisplay();
+const { can } = usePermissions();
+const { printInstallmentPlan } = usePrint();
 const api = useApi('/api/installment-plans');
 const installmentApi = useApi('/api/installments');
 
@@ -307,27 +228,18 @@ const showSuccessDialog = ref(false);
 const selectedInstallment = ref(null);
 const paymentResult = ref(null);
 
+const remainingInstallmentsCount = computed(() => {
+  if (!plan.value?.installments) return 0;
+  return plan.value.installments.filter(i => i.status === 'pending' || i.status === 'overdue' || i.status === 'partially_paid').length;
+});
+
 const handlePaySuccess = data => {
   paymentResult.value = data;
   showSuccessDialog.value = true;
 };
 
-const collectedAmount = computed(() => {
-  if (!plan.value) return 0;
-  return plan.value.total_amount - plan.value.remaining_amount;
-});
-
-const paymentProgress = computed(() => {
-  if (!plan.value || !plan.value.total_amount || plan.value.total_amount == 0) return 0;
-  return (parseFloat(collectedAmount.value) / parseFloat(plan.value.total_amount)) * 100;
-});
-
 const getFrequencyLabel = freq => {
-  const labels = {
-    monthly: 'شهرياً',
-    weekly: 'أسبوعياً',
-    daily: 'يومياً',
-  };
+  const labels = { monthly: 'شهرياً', weekly: 'أسبوعياً', daily: 'يومياً' };
   return labels[freq] || freq;
 };
 
@@ -339,18 +251,10 @@ const getStatusColor = status => {
     paid: 'success',
     canceled: 'error',
     overdue: 'error',
-    partially_paid: 'secondary',
+    partially_paid: 'primary',
   };
   return colors[status] || 'grey';
 };
-
-const headers = [
-  { title: 'رقم القسط', key: 'installment_number' },
-  { title: 'المبلغ', key: 'amount', align: 'end' },
-  { title: 'تاريخ الاستحقاق', key: 'due_date' },
-  { title: 'الحالة', key: 'status' },
-  { title: 'الإجراءات', key: 'actions', sortable: false, align: 'end' },
-];
 
 const loadPlan = async () => {
   loading.value = true;
@@ -362,39 +266,13 @@ const loadPlan = async () => {
   }
 };
 
-const getStatusLabel = status => {
-  const labels = {
-    active: 'نشط',
-    pending: 'معلق',
-    completed: 'مكتمل',
-    canceled: 'ملغي',
-    paid: 'مدفوع',
-    overdue: 'متأخر',
-    partially_paid: 'مدفوع جزئياً',
-  };
-  return labels[status] || status;
-};
-
-const markAsPaid = async installment => {
-  try {
-    await installmentApi.update(installment.id, { status: 'paid' }, { successMessage: 'تم تسجيل دفع القسط بنجاح' });
-    loadPlan();
-  } catch (error) {
-    console.error('Error marking installment as paid:', error);
-  }
-};
-
-const goToPayments = () => {
-  router.push({ name: 'installment-payments', query: { plan_id: plan.value.id } });
-};
-
 const openPaymentDialog = installment => {
   if (installment?.id) {
     selectedInstallment.value = installment;
-    showPaymentDialog.value = true;
   } else {
-    router.push({ name: 'installment-payments', query: { plan_id: plan.value.id, action: 'pay' } });
+    selectedInstallment.value = null; // General payment
   }
+  showPaymentDialog.value = true;
 };
 
 const openDetails = installment => {
@@ -407,11 +285,9 @@ const handlePrintReceipt = async installment => {
     const response = await installmentService.getPaymentDetails({ installment_id: installment.id });
     if (response.data && response.data.length > 0) {
       const detail = response.data[0];
-      // Reconstruct the structure expected by PaymentSuccessDialog
       paymentResult.value = {
         payment_record: detail.installment_payment,
         paid_installments: response.data.map(d => d.installment),
-        // These might be missing but PaymentSuccessDialog handles missing data gracefully
         excess_amount: 0,
         next_installment: null,
       };
@@ -422,12 +298,37 @@ const handlePrintReceipt = async installment => {
   }
 };
 
+const printFullPlan = async () => {
+  if (!plan.value) return;
+  await printInstallmentPlan({ plan: plan.value });
+};
+
 onMounted(loadPlan);
 </script>
 
 <style scoped>
-.installment-plan-view :deep(.v-container) {
-  max-width: 100% !important;
+.installment-plan-dashboard {
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.cursor-pointer {
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.cursor-pointer:hover {
+  background-color: #f1f5f9 !important;
 }
 
 .gap-2 {
@@ -435,5 +336,15 @@ onMounted(loadPlan);
 }
 .gap-4 {
   gap: 16px;
+}
+
+.border-soft {
+  border-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+.text-xxs {
+  font-size: 0.65rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 </style>

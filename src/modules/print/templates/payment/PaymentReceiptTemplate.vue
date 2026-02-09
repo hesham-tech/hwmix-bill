@@ -203,5 +203,43 @@ const props = defineProps({
   max-width: 800px;
   margin: 0 auto;
   padding: 40px !important;
+  border: 1px solid #eee;
+  min-height: 200mm;
+}
+
+.payment-receipt-print.format-a4 .company-logo,
+.payment-receipt-print.format-a5 .company-logo {
+  max-width: 180px !important;
+  max-height: 90px !important;
+}
+
+.payment-receipt-print.format-a4 .company-name,
+.payment-receipt-print.format-a5 .company-name {
+  font-size: 24px !important;
+}
+
+.payment-receipt-print.format-a4 .receipt-title-box,
+.payment-receipt-print.format-a5 .receipt-title-box {
+  font-size: 20px;
+  padding: 5px 35px;
+}
+
+.payment-receipt-print.format-a4 .data-table td,
+.payment-receipt-print.format-a5 .data-table td {
+  padding: 10px 15px;
+  font-size: 1.1rem;
+}
+
+.payment-receipt-print.format-a4 .total-amount,
+.payment-receipt-print.format-a5 .total-amount {
+  font-size: 26px;
+}
+
+@media print {
+  .payment-receipt-print {
+    padding: 0 !important;
+    border: none !important;
+    width: 100% !important;
+  }
 }
 </style>
