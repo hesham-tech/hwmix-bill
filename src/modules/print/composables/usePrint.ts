@@ -68,7 +68,7 @@ export function usePrint() {
     };
 
     /**
-     * Print full installment plan (Account Statement / Contract)
+     * Print full installment plan (Account Statement / Invoice Style)
      * Convenience method with type safety
      */
     const printInstallmentPlan = async (
@@ -84,8 +84,27 @@ export function usePrint() {
     };
 
     /**
+     * Print Legal Sales Contract (Forced A4)
+     */
+    const printLegalContract = async (
+        data: { plan: any },
+        options: PrintOptions = {}
+    ): Promise<PrintResult> => {
+        const plan = data.plan;
+        const customerName = plan?.customer?.full_name || plan?.customer?.name || '';
+        const planId = plan?.id || '';
+        const title = `عقد بيع بالتقسيط #$${planId}${customerName ? ' - ' + customerName : ''}`;
+
+        // Force A4 format for legal contracts
+        return print('legal_contract', data, {
+            documentTitle: title,
+            format: 'a4',
+            ...options
+        });
+    };
+
+    /**
      * Print invoice
-     * Convenience method with type safety
      */
     const printInvoice = async (
         data: any,
@@ -103,6 +122,7 @@ export function usePrint() {
         print,
         printInstallment,
         printInstallmentPlan,
+        printLegalContract,
         printInvoice,
         // Expose settings for inspection (Reactive)
         printFormat,

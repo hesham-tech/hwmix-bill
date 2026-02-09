@@ -10,7 +10,7 @@
         <AppButton icon="ri-arrow-right-line" variant="text" @click="router.back()" />
       </template>
       <template #append>
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2 flex-wrap justify-end">
           <AppButton
             v-if="plan?.status === 'active'"
             color="success"
@@ -20,7 +20,10 @@
           >
             تحصيل قسط
           </AppButton>
-          <AppButton color="primary" variant="tonal" prepend-icon="ri-printer-line" @click="printFullPlan"> طباعة العقد </AppButton>
+
+          <AppButton color="primary" variant="tonal" prepend-icon="ri-file-list-3-line" @click="printFullPlan"> طباعة الفاتورة </AppButton>
+
+          <AppButton color="black" prepend-icon="ri-scales-3-line" @click="printContract"> طباعة العقد </AppButton>
         </div>
       </template>
     </AppPageHeader>
@@ -219,7 +222,7 @@ const route = useRoute();
 const router = useRouter();
 const { mobile } = useDisplay();
 const { can } = usePermissions();
-const { printInstallmentPlan } = usePrint();
+const { printInstallmentPlan, printLegalContract } = usePrint();
 const api = useApi('/api/installment-plans');
 const installmentApi = useApi('/api/installments');
 
@@ -304,6 +307,11 @@ const handlePrintReceipt = async installment => {
 const printFullPlan = async () => {
   if (!plan.value) return;
   await printInstallmentPlan({ plan: plan.value });
+};
+
+const printContract = async () => {
+  if (!plan.value) return;
+  await printLegalContract({ plan: plan.value });
 };
 
 onMounted(loadPlan);

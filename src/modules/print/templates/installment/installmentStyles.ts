@@ -1,4 +1,7 @@
-import installmentStyles from './installment.print.css?raw';
-import installmentPlanStyles from './installmentPlan.print.css?raw';
+import installmentCss from './installment.print.css?inline';
+import installmentPlanCss from './installmentPlan.print.css?inline';
+import legalContractCss from './legalContract.print.css?inline';
 
-export { installmentStyles, installmentPlanStyles };
+export const installmentStyles = installmentCss;
+export const installmentPlanStyles = installmentPlanCss;
+export const legalContractStyles = legalContractCss;
