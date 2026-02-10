@@ -117,8 +117,8 @@
           />
         </v-col>
 
-        <!-- Security Section (Hide if linking existing user) -->
-        <v-col v-if="!form.id" cols="12" class="mt-4">
+        <!-- Security Section (Visible if new user OR during edit mode) -->
+        <v-col v-if="!form.id || isEditMode" cols="12" class="mt-4">
           <div class="d-flex align-center gap-2 mb-2 text-warning font-weight-bold">
             <v-icon icon="ri-lock-password-line" />
             <span>الأمان والحالة</span>
@@ -126,10 +126,10 @@
           <v-divider class="mb-4" />
         </v-col>
 
-        <v-col v-if="!form.id" cols="12" md="6">
+        <v-col v-if="!form.id || isEditMode" cols="12" md="6">
           <AppPasswordInput
             v-model="form.password"
-            :label="isEditMode ? 'كلمة المرور (اتركها فارغة للتخطي)' : 'كلمة المرور *'"
+            :label="isEditMode ? 'كلمة المرور الجديدة (اتركها فارغة للتخطي)' : 'كلمة المرور *'"
             :rules="isEditMode ? [] : [required, minLength(8)]"
             prepend-inner-icon="ri-lock-line"
           />
