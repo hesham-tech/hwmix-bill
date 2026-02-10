@@ -3,10 +3,13 @@
     <v-row no-gutters>
       <v-col cols="12" class="bg-primary-lighten-5 pa-4 pa-sm-6">
         <div class="d-flex align-center flex-column flex-sm-row text-center text-sm-right">
-          <v-avatar color="primary" size="84" class="mb-4 mb-sm-0 me-sm-6 elevation-3 border border-white border-xl">
-            <v-img v-if="customer.avatar_url" :src="customer.avatar_url" alt="Avatar" />
-            <v-icon v-else icon="ri-user-heart-line" color="white" size="42" />
-          </v-avatar>
+          <AppAvatar
+            :img-url="customer.avatar_url"
+            :name="customer.full_name || customer.name"
+            :size="84"
+            class="mb-4 mb-sm-0 me-sm-6 elevation-3 border border-white border-xl"
+            type="user"
+          />
           <div class="flex-grow-1">
             <div class="text-overline text-primary font-weight-black mb-1">ملف العميل المالي</div>
             <h2 class="text-h5 font-weight-bold mb-1">
@@ -47,6 +50,7 @@
 import { computed } from 'vue';
 import { formatCurrency } from '@/utils/formatters';
 import AppPhone from '@/components/common/AppPhone.vue';
+import AppAvatar from '@/components/common/AppAvatar.vue';
 
 const props = defineProps({
   customer: {

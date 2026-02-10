@@ -1,11 +1,18 @@
 <template>
   <div id="plan-print-area-content" :class="['installment-plan-print', `format-${printFormat}`]">
+    <!-- Watermark -->
+    <div v-if="companyLogo" class="watermark-container">
+      <img :src="companyLogo" class="watermark-logo" />
+    </div>
+
     <!-- Header -->
     <div class="header-section">
-      <div v-if="companyLogo" class="logo-box">
-        <img :src="companyLogo" alt="Logo" class="company-logo" />
+      <div class="branding-block">
+        <div v-if="companyLogo" class="logo-box">
+          <img :src="companyLogo" alt="Logo" class="company-logo" />
+        </div>
+        <div class="company-name">شركة {{ companyName }}</div>
       </div>
-      <div v-else class="company-name">{{ companyName }}</div>
       <div class="document-title">عقد وخطة تقسيط مالي</div>
     </div>
 

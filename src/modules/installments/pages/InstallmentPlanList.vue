@@ -133,13 +133,80 @@
               <div class="text-caption text-grey text-center mt-1">{{ formatCurrency(item.installment_amount) }} / شهرياً</div>
             </div>
           </template>
+
+          <!-- Products Column Slot -->
+          <template #item.products="{ item }">
+            <div class="d-flex flex-column py-2 gap-1">
+              <div
+                v-for="(prod, index) in item.invoice_items?.slice(0, 2)"
+                :key="prod.id"
+                class="text-caption font-weight-medium text-truncate"
+                style="max-width: 140px"
+              >
+                <v-icon icon="ri-checkbox-blank-circle-fill" size="6" color="primary" class="me-1" />
+                {{ prod.name }}
+              </div>
+              <v-btn
+                v-if="item.invoice_items?.length > 2"
+                variant="tonal"
+                density="compact"
+                size="x-small"
+                color="primary"
+                class="rounded-pill mt-1"
+                @click.stop="openProductsDetail(item)"
+              >
+                <v-icon icon="ri-add-line" size="12" class="me-1" />
+                {{ item.invoice_items.length - 2 }} آخرين
+              </v-btn>
+              <div v-else-if="!item.invoice_items?.length" class="text-caption text-grey">لا يوجد أصناف</div>
+            </div>
+          </template>
         </AppDataTable>
       </v-card>
     </v-container>
+
+    <!-- Products Detail Dialog -->
+    <v-dialog v-model="productsDialog" max-width="500">
+      <v-card v-if="selectedPlanForProducts" rounded="lg">
+        <v-card-title class="d-flex align-center pa-4 text-primary font-weight-black border-bottom">
+          <v-icon icon="ri-shopping-bag-3-line" class="me-2" />
+          أصناف الفاتورة #{{ selectedPlanForProducts.invoice?.invoice_number }}
+          <v-spacer />
+          <v-btn icon="ri-close-line" variant="text" density="comfortable" @click="productsDialog = false" />
+        </v-card-title>
+
+        <v-card-text class="pa-0">
+          <v-list class="pa-0">
+            <v-list-item v-for="prod in selectedPlanForProducts.invoice_items" :key="prod.id" class="border-bottom py-3">
+              <template #prepend>
+                <div class="bg-primary-lighten-5 rounded pa-2 me-3">
+                  <v-icon icon="ri-box-3-line" color="primary" />
+                </div>
+              </template>
+              <v-list-item-title class="font-weight-bold">{{ prod.name }}</v-list-item-title>
+              <v-list-item-subtitle class="text-caption"> الكمية: {{ prod.quantity }} × {{ formatCurrency(prod.unit_price) }} </v-list-item-subtitle>
+              <template #append>
+                <div class="font-weight-black text-primary">{{ formatCurrency(prod.total) }}</div>
+              </template>
+            </v-list-item>
+          </v-list>
+        </v-card-text>
+
+        <v-card-actions class="pa-4 bg-grey-lighten-4">
+          <div class="d-flex justify-space-between w-100 align-center">
+            <span class="text-subtitle-2 font-weight-bold">إجمالي الأصناف:</span>
+            <span class="text-h6 font-weight-black text-primary">{{
+              formatCurrency(selectedPlanForProducts.invoice?.gross_amount || selectedPlanForProducts.total_amount)
+            }}</span>
+          </div>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
 <script setup>
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useApi } from '@/composables/useApi';
 import { useDataTable } from '@/composables/useDataTable';
@@ -154,6 +221,7 @@ const api = useApi('/api/installment-plans');
 // --- Configuration ---
 const headers = [
   { title: 'العميل والحالة', key: 'invoice', width: '280px', sortable: false },
+  { title: 'المنتجات', key: 'products', width: '180px', sortable: false },
   { title: 'المبالغ والتقدم', key: 'total_amount', align: 'center', width: '250px', sortable: true },
   { title: 'تاريخ البدء', key: 'start_date', align: 'center', width: '130px', sortable: true },
   { title: 'الأقساط', key: 'installments', align: 'center', width: '120px', sortable: false },
@@ -248,6 +316,15 @@ const getProgressColor = item => {
   if (progress >= 50) return 'info';
   if (progress >= 25) return 'warning';
   return 'error';
+};
+
+// --- Products Dialog UI ---
+const productsDialog = ref(false);
+const selectedPlanForProducts = ref(null);
+
+const openProductsDetail = plan => {
+  selectedPlanForProducts.value = plan;
+  productsDialog.value = true;
 };
 
 // --- Actions ---

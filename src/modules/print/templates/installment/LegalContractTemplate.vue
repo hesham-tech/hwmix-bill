@@ -9,11 +9,11 @@
       <!-- Header -->
       <div class="header-section">
         <div class="header-main">
-          <img v-if="companyLogo" :src="companyLogo" class="company-logo" />
-          <div class="company-info-text">
-            <div class="company-name">{{ companyName }}</div>
-            <div class="document-title">عقد بيع بالتقسيط</div>
+          <div class="branding-block">
+            <img v-if="companyLogo" :src="companyLogo" class="company-logo" />
+            <div class="company-name">شركة {{ companyName }}</div>
           </div>
+          <div class="document-title">عقد بيع بالتقسيط</div>
         </div>
         <div class="contract-meta">رقم العقد: #{{ planData?.id }} | التاريخ: {{ formatDate(new Date()) }}</div>
       </div>

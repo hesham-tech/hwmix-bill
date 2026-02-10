@@ -37,39 +37,37 @@
       <div v-else-if="plan" class="installment-plan-dashboard">
         <v-row>
           <!-- Top Stats Row -->
-          <v-col cols="12">
-            <v-row dense>
-              <v-col cols="12" sm="6" md="2" class="flex-grow-1">
-                <StatsCard title="إجمالي مبلغ الخطة" :value="plan.total_amount" type="currency" icon="ri-money-dollar-circle-line" color="primary" />
-              </v-col>
-              <v-col v-if="plan.down_payment > 0" cols="12" sm="6" md="2" class="flex-grow-1">
-                <StatsCard title="الدفعة المقدمة" :value="plan.down_payment" type="currency" icon="ri-hand-coin-line" color="warning-darken-1" />
-              </v-col>
-              <v-col cols="12" sm="6" md="2" class="flex-grow-1">
-                <StatsCard
-                  title="المبلغ المحصل"
-                  :value="plan.total_pay"
-                  type="currency"
-                  icon="ri-checkbox-circle-line"
-                  color="success"
-                  show-progress
-                  :progress="plan.payment_progress"
-                />
-              </v-col>
-              <v-col cols="12" sm="6" md="2" class="flex-grow-1">
-                <StatsCard title="المتبقي للتحصيل" :value="plan.remaining_amount" type="currency" icon="ri-error-warning-line" color="error" />
-              </v-col>
-              <v-col cols="12" sm="6" md="2" class="flex-grow-1">
-                <StatsCard
-                  title="الأقساط المتبقية"
-                  :value="remainingInstallmentsCount"
-                  icon="ri-calendar-event-line"
-                  color="indigo"
-                  :subtitle="`من إجمالي ${plan.number_of_installments} أقساط`"
-                />
-              </v-col>
-            </v-row>
-          </v-col>
+          <v-row dense>
+            <v-col cols="4" sm="4" md="2" class="flex-grow-1">
+              <StatsCard
+                title="الأقساط المتبقية"
+                :value="remainingInstallmentsCount"
+                icon="ri-calendar-event-line"
+                color="#3F51B5"
+                :subtitle="`من إجمالي ${plan.number_of_installments} أقساط`"
+              />
+            </v-col>
+            <v-col cols="4" sm="4" md="2" class="flex-grow-1">
+              <StatsCard title="إجمالي مبلغ الخطة" :value="plan.total_amount" type="currency" icon="ri-money-dollar-circle-line" color="primary" />
+            </v-col>
+            <v-col cols="4" sm="4" md="2" class="flex-grow-1">
+              <StatsCard title="الدفعة المقدمة" :value="plan.down_payment" type="currency" icon="ri-hand-coin-line" color="#FB8C00" />
+            </v-col>
+            <v-col cols="6" sm="4" md="2" class="flex-grow-1">
+              <StatsCard
+                title="المبلغ المحصل"
+                :value="plan.total_pay"
+                type="currency"
+                icon="ri-checkbox-circle-line"
+                color="success"
+                show-progress
+                :progress="plan.payment_progress"
+              />
+            </v-col>
+            <v-col cols="6" sm="4" md="2" class="flex-grow-1">
+              <StatsCard title="المتبقي للتحصيل" :value="plan.remaining_amount" type="currency" icon="ri-error-warning-line" color="error" />
+            </v-col>
+          </v-row>
 
           <!-- Main Content -->
           <v-col cols="12" md="8">

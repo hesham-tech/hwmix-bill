@@ -1,23 +1,26 @@
 <template>
   <v-card :elevation="elevation" class="stats-card" :class="cardClass">
     <v-card-text>
-      <div class="d-flex align-center justify-space-between mb-2">
-        <div class="stats-icon" :style="iconStyle">
-          <v-icon :icon="icon" size="32" color="white" />
+      <div class="d-flex align-center justify-center mb-4">
+        <div
+          class="stats-icon rounded-circle d-flex align-center justify-center elevation-3"
+          :style="{ backgroundColor: colorValue + ' !important', width: '72px', height: '72px' }"
+        >
+          <v-icon :icon="icon" size="55" color="white" />
         </div>
-
-        <v-chip v-if="trend" :color="trendColor" size="small" variant="flat">
-          <v-icon :icon="trendIcon" size="16" class="me-1" />
-          {{ trend }}
-        </v-chip>
       </div>
 
-      <div class="stats-content">
-        <div class="text-h4 font-weight-bold mb-1" :style="{ color: color }">
+      <v-chip v-if="trend" :color="trendColor" size="small" variant="flat">
+        <v-icon :icon="trendIcon" size="16" class="me-1" />
+        {{ trend }}
+      </v-chip>
+
+      <div class="stats-content text-center">
+        <div class="text-h5 font-weight-black mb-1" :style="{ color: colorValue }">
           {{ formattedValue }}
         </div>
-        <div class="text-body-2 text-grey">{{ title }}</div>
-        <div v-if="subtitle" class="text-caption text-grey-darken-1 mt-1">
+        <div class="text-caption font-weight-bold text-grey-darken-1">{{ title }}</div>
+        <div v-if="subtitle" class="text-xxs text-grey-darken-1 mt-1 font-weight-medium">
           {{ subtitle }}
         </div>
       </div>
@@ -106,6 +109,14 @@ const trendIcon = computed(() => {
 const cardClass = computed(() => ({
   'stats-card-hover': true,
 }));
+
+const colorValue = computed(() => {
+  const themeColors = ['primary', 'secondary', 'success', 'info', 'warning', 'error', 'indigo', 'purple', 'orange', 'teal', 'cyan'];
+  if (themeColors.includes(props.color)) {
+    return `rgb(var(--v-theme-${props.color}))`;
+  }
+  return props.color;
+});
 </script>
 
 <style scoped>
@@ -127,5 +138,8 @@ const cardClass = computed(() => ({
 
 .stats-card:hover .stats-icon {
   transform: scale(1.1);
+}
+.text-xxs {
+  font-size: 0.65rem;
 }
 </style>

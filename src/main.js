@@ -18,15 +18,42 @@ app.config.warnHandler = (msg, vm, trace) => {
   console.warn(msg, trace);
 };
 
-// كتم خطأ ResizeObserver المزعج والغير مؤثر
+// معالج أخطاء النظام الشامل (Error Sentinel)
+const handleGlobalError = error => {
+  const errorMessage = error?.message || error?.toString() || '';
+
+  // 1. كتم خطأ ResizeObserver المزعج
+  if (errorMessage.includes('ResizeObserver loop completed with undelivered notifications.')) {
+    return true;
+  }
+
+  // 2. معالجة فشل تحميل الملفات (Chunk Load Error)
+  // يحدث هذا عند تحديث النظام ووجود ملفات قديمة في كاش المتصفح
+  const chunkFailedWords = ['Failed to fetch dynamically imported module', 'Loading chunk', 'MIME type of "text/html"'];
+  const isChunkError = chunkFailedWords.some(word => errorMessage.includes(word));
+
+  if (isChunkError) {
+    const lastReload = sessionStorage.getItem('last-chunk-reload');
+    const now = Date.now();
+
+    // منع حلقة إعادة تحميل لانهائية (لا نكرر العملية إلا بعد 10 ثواني على الأقل)
+    if (!lastReload || now - parseInt(lastReload) > 10000) {
+      sessionStorage.setItem('last-chunk-reload', now.toString());
+      console.warn('Chunk loading failed! Auto-reloading to fetch latest version...', errorMessage);
+      window.location.reload();
+    }
+  }
+  return false;
+};
+
 window.addEventListener('error', e => {
-  if (e.message === 'ResizeObserver loop completed with undelivered notifications.') {
+  if (handleGlobalError(e)) {
     e.stopImmediatePropagation();
   }
 });
 
 window.addEventListener('unhandledrejection', e => {
-  if (e.reason?.message === 'ResizeObserver loop completed with undelivered notifications.') {
+  if (handleGlobalError(e.reason)) {
     e.stopImmediatePropagation();
   }
 });
