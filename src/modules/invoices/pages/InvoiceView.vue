@@ -39,15 +39,7 @@
         >
           {{ mobile ? '' : 'الملصقات' }}
         </AppButton>
-        <AppButton
-          color="info"
-          :prepend-icon="!mobile ? 'ri-printer-line' : ''"
-          :icon="mobile ? 'ri-printer-line' : false"
-          :size="mobile ? 'small' : 'default'"
-          @click="printInvoice"
-        >
-          {{ mobile ? '' : 'طباعة' }}
-        </AppButton>
+        <AppPrintShare v-if="invoice" type="invoice" :data="{ invoice }" label="طباعة الفاتورة" color="info" :size="mobile ? 'small' : 'default'" />
         <AppButton
           v-if="can('invoices.delete_all')"
           color="error"
@@ -407,8 +399,8 @@ import InstallmentsTable from '@/modules/installments/components/InstallmentsTab
 import PrintInvoiceItemsStickersDialog from '../components/PrintInvoiceItemsStickersDialog.vue';
 import { toast } from 'vue3-toastify';
 import { formatCurrency, formatDate } from '@/utils/formatters';
-import { usePrint } from '@/modules/print/composables/usePrint';
 import { PERMISSIONS } from '@/config/permissions';
+import { AppPrintShare } from '@/components';
 
 const router = useRouter();
 const route = useRoute();
@@ -434,19 +426,6 @@ const statusOptions = [
 
 const goBack = () => router.push('/app/invoices');
 const editInvoice = () => router.push(`/app/invoices/${route.params.id}/edit`);
-
-const printInvoice = async () => {
-  const { printInvoice: print } = usePrint();
-
-  try {
-    await print({
-      invoice: invoice.value,
-    });
-  } catch (error) {
-    console.error('[InvoiceView] Print error:', error);
-    toast.error('فشل في طباعة الفاتورة');
-  }
-};
 
 const deleteInvoice = async () => {
   try {
@@ -542,6 +521,9 @@ onMounted(async () => {
 .gap-2 {
   gap: 8px;
 }
+.gap-3 {
+  gap: 12px;
+}
 .gap-4 {
   gap: 16px;
 }
@@ -553,5 +535,18 @@ onMounted(async () => {
 }
 .border-sm {
   border-width: 1px !important;
+}
+
+.rotating {
+  animation: rotate 1.5s linear infinite;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>

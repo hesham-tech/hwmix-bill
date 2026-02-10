@@ -75,9 +75,9 @@
 
       <!-- Purchases Grid -->
       <template v-else>
-        <v-row>
-          <v-col v-for="item in items" :key="item.id" cols="12" md="6" lg="4">
-            <PurchaseCard :purchase="item" @view="viewInvoice" @print="printInvoice" />
+        <v-row class="dense-grid">
+          <v-col v-for="item in purchases" :key="item.id" cols="12" sm="6" lg="4" class="pa-2">
+            <PortalPurchaseCard :purchase="item" @view="viewPurchase" />
           </v-col>
         </v-row>
 
@@ -103,7 +103,7 @@ import { useRouter } from 'vue-router';
 import { useDataTable } from '@/composables/useDataTable';
 import { useApi } from '@/composables/useApi';
 import { formatCurrency } from '@/utils/formatters';
-import PurchaseCard from '../components/PurchaseCard.vue';
+import PortalPurchaseCard from '../../components/PortalPurchaseCard.vue';
 import { toast } from 'vue3-toastify';
 
 const router = useRouter();
@@ -113,7 +113,17 @@ const fetchInvoices = async params => {
   return await invoiceApi.get(params, { showLoading: false });
 };
 
-const { items, loading, currentPage, perPage, total, filters, changePage, applyFilters, refresh } = useDataTable(fetchInvoices, {
+const {
+  items: purchases,
+  loading,
+  currentPage,
+  perPage,
+  total,
+  filters,
+  changePage,
+  applyFilters,
+  refresh,
+} = useDataTable(fetchInvoices, {
   initialPerPage: 9,
   syncWithUrl: true,
   immediate: true,
@@ -121,7 +131,7 @@ const { items, loading, currentPage, perPage, total, filters, changePage, applyF
 
 // Summary Stats Calculation
 const summary = computed(() => {
-  return items.value.reduce(
+  return purchases.value.reduce(
     (acc, item) => {
       acc.total_amount += parseFloat(item.net_amount || 0);
       acc.due_amount += parseFloat(item.remaining_amount || 0);
@@ -141,17 +151,8 @@ const debouncedSearch = () => {
 };
 
 // Navigation
-const viewInvoice = invoice => {
-  router.push(`/app/purchases/${invoice.id}`);
-};
-
-const printInvoice = async invoice => {
-  try {
-    toast.info('جاري تجهيز الفاتورة للطباعة...');
-    window.open(`/api/invoice/${invoice.id}/pdf`, '_blank');
-  } catch (error) {
-    toast.error('فشل في طباعة الفاتورة');
-  }
+const viewPurchase = purchase => {
+  router.push(`/app/purchases/${purchase.id}`);
 };
 </script>
 

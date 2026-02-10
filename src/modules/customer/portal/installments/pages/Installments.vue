@@ -2,37 +2,32 @@
   <div class="installments-portal">
     <v-container fluid class="pa-2">
       <!-- Header -->
-      <div class="d-flex justify-space-between align-center mb-2">
+      <div class="d-flex flex-column flex-sm-row justify-space-between align-sm-center mb-6 gap-4">
         <div>
-          <h1 class="text-h4 font-weight-bold mb-1">خطط التقسيط</h1>
-          <p class="text-subtitle-1 text-grey-darken-1">ادارة ومتابعة جداول الدفع الآجلة</p>
+          <div class="text-overline font-weight-black text-secondary line-height-1 mb-1">جدولة المدفوعات</div>
+          <h1 class="text-h3 font-weight-black text-slate-900">خطط التقسيط الرقمية</h1>
+          <p class="text-body-2 text-slate-500">إدارة ومتابعة جداول الدفع الآجلة والمدفوعات</p>
         </div>
-        <v-avatar color="secondary" rounded="md" size="56" class="elevation-4">
-          <v-icon icon="ri-calendar-schedule-line" color="white" size="32" />
-        </v-avatar>
+        <v-btn color="secondary" variant="tonal" prepend-icon="ri-history-line" class="rounded-lg font-weight-black" to="/app/customer-payments">
+          سجل المدفوعات
+        </v-btn>
       </div>
 
       <!-- Stats -->
-      <v-row class="mb-2">
-        <v-col cols="12" sm="4">
-          <v-card variant="flat" border class="pa-4 bg-secondary-lighten-5 border-secondary">
-            <div class="text-caption text-secondary-darken-2 font-weight-bold mb-1">إجمالي مبلغ التقسيط</div>
-            <div class="text-h5 font-weight-bold">{{ formatCurrency(summary.total) }}</div>
-          </v-card>
-        </v-col>
-        <v-col cols="12" sm="4">
-          <v-card variant="flat" border class="pa-4 bg-info-lighten-5 border-info">
-            <div class="text-caption text-info-darken-2 font-weight-bold mb-1">الخطط المكتملة</div>
-            <div class="text-h5 font-weight-bold">{{ summary.completed }}</div>
-          </v-card>
-        </v-col>
-        <v-col cols="12" sm="4">
-          <v-card variant="flat" border class="pa-4 bg-primary-lighten-5 border-primary">
-            <div class="text-caption text-primary-darken-2 font-weight-bold mb-1">الخطط النشطة</div>
-            <div class="text-h5 font-weight-bold">{{ summary.active }}</div>
-          </v-card>
-        </v-col>
-      </v-row>
+      <div class="stats-tray d-flex gap-4 mb-8 overflow-x-auto pb-2">
+        <div class="stat-card bg-secondary-lighten-5 border-secondary border-dashed px-6 py-4 rounded-xl flex-grow-1 min-w-200">
+          <div class="text-xxs font-weight-bold text-secondary-darken-2 mb-1">إجمالي التزامات التقسيط</div>
+          <div class="text-h4 font-weight-black text-secondary-darken-4">{{ formatCurrency(summary.total) }}</div>
+        </div>
+        <div class="stat-card bg-success-lighten-5 border-success border-dashed px-6 py-4 rounded-xl min-w-160">
+          <div class="text-xxs font-weight-bold text-success-darken-2 mb-1">الخطط المكتملة</div>
+          <div class="text-h4 font-weight-black text-success-darken-4">{{ summary.completed }}</div>
+        </div>
+        <div class="stat-card bg-primary-lighten-5 border-primary border-dashed px-6 py-4 rounded-xl min-w-160">
+          <div class="text-xxs font-weight-bold text-primary-darken-2 mb-1">الخطط النشطة</div>
+          <div class="text-h4 font-weight-black text-primary-darken-4">{{ summary.active }}</div>
+        </div>
+      </div>
 
       <!-- Loading -->
       <div v-if="loading && plans.length === 0" class="d-flex justify-center py-12">
@@ -46,9 +41,9 @@
       </div>
 
       <!-- Grid -->
-      <v-row v-else>
-        <v-col v-for="plan in plans" :key="plan.id" cols="12" md="6" lg="4">
-          <InstallmentPlanCard :plan="plan" @view="viewPlan" />
+      <v-row v-else class="dense-grid">
+        <v-col v-for="plan in plans" :key="plan.id" cols="12" sm="6" lg="4" class="pa-2">
+          <PortalInstallmentPlanCard :plan="plan" @view="viewPlan" />
         </v-col>
       </v-row>
 
@@ -72,7 +67,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useApi } from '@/composables/useApi';
 import { formatCurrency } from '@/utils/formatters';
-import InstallmentPlanCard from '../components/InstallmentPlanCard.vue';
+import PortalInstallmentPlanCard from '../components/PortalInstallmentPlanCard.vue';
 
 const router = useRouter();
 const api = useApi('/api/installment-plans');
@@ -118,3 +113,48 @@ const viewPlan = plan => {
 
 onMounted(fetchData);
 </script>
+<style scoped>
+.installments-portal {
+  background-color: #f8fafc;
+  min-height: 100vh;
+}
+
+.dense-grid {
+  margin: -8px;
+}
+.gap-4 {
+  gap: 16px;
+}
+
+.line-height-1 {
+  line-height: 1;
+}
+.text-xxs {
+  font-size: 0.65rem;
+}
+.text-slate-500 {
+  color: #64748b;
+}
+.text-slate-900 {
+  color: #0f172a;
+}
+
+.stats-tray::-webkit-scrollbar {
+  display: none;
+}
+.stats-tray {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.min-w-200 {
+  min-width: 200px;
+}
+.min-w-160 {
+  min-width: 160px;
+}
+
+.border-dashed {
+  border-style: dashed !important;
+}
+</style>

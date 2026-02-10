@@ -1,18 +1,15 @@
 <template>
   <v-container fluid :class="mobile ? 'pa-2' : 'pa-4'">
-    <div class="d-flex align-center justify-space-between mb-2 flex-wrap gap-3">
+    <div class="d-flex align-center justify-space-between mb-6 flex-wrap gap-3">
       <div class="d-flex align-center">
-        <v-btn icon="ri-arrow-right-line" variant="text" color="secondary" @click="goBack" class="me-3" />
+        <v-btn icon="ri-arrow-right-line" variant="tonal" color="slate-600" @click="goBack" class="me-4 rounded-lg" />
         <div>
-          <h1 class="text-h4 font-weight-bold">الفاتورة #{{ invoice?.invoice_number }}</h1>
-          <p class="text-body-1 text-grey mb-0" v-if="invoice">
-            <v-icon icon="ri-calendar-line" size="small" class="me-1" />
-            {{ formatDate(invoice.issue_date) }}
-          </p>
+          <div class="text-overline font-weight-black text-primary line-height-1 mb-1">تفاصيل المشتريات المصدقة</div>
+          <h1 class="text-h4 font-weight-black text-slate-900">إيصال رقم #{{ invoice?.invoice_number }}</h1>
         </div>
       </div>
       <div class="no-print">
-        <v-btn color="primary" prepend-icon="ri-printer-line" variant="elevated" class="px-6" @click="printInvoice"> طباعة الفاتورة </v-btn>
+        <PortalStatusBadge v-if="invoice" :status="invoice.payment_status" size="large" />
       </div>
     </div>
 
@@ -159,45 +156,45 @@
 
         <!-- Sidebar Summary -->
         <v-col cols="12" md="4">
-          <!-- Status Card -->
-          <v-card variant="flat" border class="mb-2 text-center">
-            <div class="text-caption text-grey text-right">حالة السداد</div>
-            <div class="">
-              <v-icon
-                :icon="getPaymentStatusIcon(invoice.payment_status)"
-                size="48"
-                :color="getPaymentStatusColor(invoice.payment_status)"
-                class="mb-3"
-              />
-              <div class="text-h5 font-weight-bold" :class="`text-${getPaymentStatusColor(invoice.payment_status)}`">
-                {{ getPaymentStatusLabel(invoice.payment_status) }}
-              </div>
+          <!-- Digital Trust Certificate Card -->
+          <v-card variant="flat" border class="pa-6 rounded-xl mb-4 bg-primary text-white text-center balance-hero shadow-lg border-0">
+            <v-icon icon="ri-verified-badge-fill" size="64" color="white" class="mb-4 opacity-40 shadow-sm" />
+            <div class="text-subtitle-1 font-weight-bold mb-1">إجمالي المستحق</div>
+            <div class="text-h3 font-weight-black mb-4">{{ formatCurrency(invoice.net_amount) }}</div>
+            <v-divider class="border-white opacity-20 mb-4" />
+            <div class="d-flex justify-space-between align-center mb-2 px-2">
+              <span class="text-caption opacity-80">تم سداد</span>
+              <span class="text-subtitle-1 font-weight-black">{{ formatCurrency(invoice.paid_amount) }}</span>
+            </div>
+            <div class="d-flex justify-space-between align-center px-2">
+              <span class="text-caption opacity-80">المتبقي</span>
+              <span class="text-subtitle-1 font-weight-black">{{ formatCurrency(invoice.remaining_amount) }}</span>
             </div>
           </v-card>
-          <!-- Payment History (Moved to Bottom) -->
-          <v-card v-if="invoice.payments?.length" variant="flat" border class="pa-4">
-            <div class="text-h6 font-weight-bold mb-4 d-flex align-center">
+
+          <!-- Payment History (Digital Proof) -->
+          <v-card v-if="invoice.payments?.length" variant="flat" border class="pa-4 rounded-xl bg-white border-slate-200 shadow-sm">
+            <div class="text-subtitle-1 font-weight-black mb-4 d-flex align-center text-slate-900 border-bottom pb-2">
               <v-icon icon="ri-history-line" class="me-2 text-success" />
-              سجل المدفوعات
+              سجل السداد الرقمي
             </div>
-            <v-list class="pa-0">
-              <v-list-item
-                v-for="(payment, index) in invoice.payments"
-                :key="payment.id"
-                class="px-0 py-3"
-                :class="{ 'border-bottom': index < invoice.payments.length - 1 }"
-              >
-                <template #prepend>
-                  <v-avatar color="success-lighten-5" size="40" class="me-3">
-                    <v-icon icon="ri-money-dollar-circle-line" color="success" />
-                  </v-avatar>
-                </template>
-                <v-list-item-title class="font-weight-bold text-success">
-                  {{ formatCurrency(payment.amount) }}
-                </v-list-item-title>
-                <v-list-item-subtitle> {{ formatDate(payment.payment_date) }} - {{ payment.payment_method?.name }} </v-list-item-subtitle>
-              </v-list-item>
-            </v-list>
+            <div
+              v-for="(payment, index) in invoice.payments"
+              :key="payment.id"
+              class="d-flex align-center gap-3 py-3"
+              :class="{ 'border-bottom': index < invoice.payments.length - 1 }"
+            >
+              <v-avatar color="success-lighten-5" size="40" rounded="lg">
+                <v-icon icon="ri-checkbox-circle-line" color="success" size="20" />
+              </v-avatar>
+              <div class="flex-grow-1">
+                <div class="d-flex justify-space-between align-center">
+                  <span class="font-weight-black text-slate-900">{{ formatCurrency(payment.amount) }}</span>
+                  <span class="text-xxs text-grey">{{ formatDate(payment.payment_date) }}</span>
+                </div>
+                <div class="text-caption text-grey">{{ payment.payment_method?.name }}</div>
+              </div>
+            </div>
           </v-card>
         </v-col>
       </v-row>
@@ -206,54 +203,17 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
-import { useDisplay } from 'vuetify';
-import { useApi } from '@/composables/useApi';
-import { formatCurrency, formatDate } from '@/utils/formatters';
-import { usePrintExport } from '@/composables/usePrintExport';
+import PortalStatusBadge from '../../components/PortalStatusBadge.vue';
 
 const router = useRouter();
 const route = useRoute();
 const { mobile } = useDisplay();
-const { printElement } = usePrintExport();
 const invoiceApi = useApi('/api/invoices');
 
 const loading = ref(true);
 const invoice = ref(null);
 
 const goBack = () => router.push('/app/purchases');
-
-const printInvoice = () => {
-  printElement('purchase-content', `فاتورة #${invoice.value?.invoice_number}`);
-};
-
-const getPaymentStatusColor = status => {
-  const colors = { unpaid: 'error', partial: 'warning', partially_paid: 'warning', paid: 'success', overpaid: 'indigo' };
-  return colors[status] || 'grey';
-};
-
-const getPaymentStatusIcon = status => {
-  const icons = {
-    unpaid: 'ri-error-warning-line',
-    partial: 'ri-pie-chart-2-line',
-    partially_paid: 'ri-pie-chart-2-line',
-    paid: 'ri-checkbox-circle-line',
-    overpaid: 'ri-add-circle-line',
-  };
-  return icons[status] || 'ri-question-line';
-};
-
-const getPaymentStatusLabel = status => {
-  const labels = {
-    unpaid: 'بانتظار السداد',
-    partial: 'سداد جزئي',
-    partially_paid: 'سداد جزئي',
-    paid: 'تم السداد بالكامل',
-    overpaid: 'مدفوع بزيادة',
-  };
-  return labels[status] || status;
-};
 
 onMounted(async () => {
   try {
@@ -266,16 +226,36 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.balance-hero {
+  background: linear-gradient(135deg, rgb(var(--v-theme-primary)) 0%, #303f9f 100%);
+}
+
 .gap-1 {
   gap: 4px;
 }
 .gap-3 {
   gap: 12px;
 }
+
 .border-bottom {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+  border-bottom: 1px solid #f1f5f9 !important;
 }
-.border-dashed {
-  border-style: dashed !important;
+
+.text-xxs {
+  font-size: 0.65rem;
+}
+
+.text-slate-900 {
+  color: #0f172a;
+}
+.text-slate-600 {
+  color: #475569;
+}
+.border-slate-200 {
+  border-color: #e2e8f0 !important;
+}
+
+.line-height-1 {
+  line-height: 1;
 }
 </style>

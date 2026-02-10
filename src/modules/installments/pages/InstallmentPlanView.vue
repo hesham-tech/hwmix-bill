@@ -21,9 +21,9 @@
             تحصيل قسط
           </AppButton>
 
-          <AppButton color="primary" variant="tonal" prepend-icon="ri-file-list-3-line" @click="printFullPlan"> طباعة الفاتورة </AppButton>
+          <AppPrintShare v-if="plan" type="installment_plan" :data="{ plan }" label="طباعة الفاتورة" color="primary" variant="tonal" />
 
-          <AppButton color="black" prepend-icon="ri-scales-3-line" @click="printContract"> طباعة العقد </AppButton>
+          <AppPrintShare v-if="plan" type="contract" :data="{ plan }" label="طباعة العقد" color="black" />
         </div>
       </template>
     </AppPageHeader>
@@ -204,7 +204,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useApi } from '@/composables/useApi';
 import { useDisplay } from 'vuetify';
 import { formatCurrency, formatDate } from '@/utils/formatters';
-import { AppButton, AppSkeleton, AppPhone, AppCard, AppAvatar, StatsCard } from '@/components';
+import { AppButton, AppSkeleton, AppPhone, AppCard, AppAvatar, StatsCard, AppPrintShare } from '@/components';
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import FinancialCustomerCard from '@/components/common/FinancialCustomerCard.vue';
 import InstallmentsTable from '../components/InstallmentsTable.vue';
@@ -212,7 +212,6 @@ import InstallmentPaymentDialog from '../components/InstallmentPaymentDialog.vue
 import InstallmentDetailsDialog from '../components/InstallmentDetailsDialog.vue';
 import PaymentSuccessDialog from '../components/PaymentSuccessDialog.vue';
 import { usePermissions } from '@/composables/usePermissions';
-import { usePrint } from '@/modules/print/composables/usePrint';
 import installmentService from '@/api/services/installment.service';
 import { PERMISSIONS } from '@/config/permissions';
 
@@ -220,9 +219,7 @@ const route = useRoute();
 const router = useRouter();
 const { mobile } = useDisplay();
 const { can } = usePermissions();
-const { printInstallmentPlan, printLegalContract } = usePrint();
 const api = useApi('/api/installment-plans');
-const installmentApi = useApi('/api/installments');
 
 const plan = ref(null);
 const loading = ref(true);
@@ -245,19 +242,6 @@ const handlePaySuccess = data => {
 const getFrequencyLabel = freq => {
   const labels = { monthly: 'شهرياً', weekly: 'أسبوعياً', daily: 'يومياً' };
   return labels[freq] || freq;
-};
-
-const getStatusColor = status => {
-  const colors = {
-    active: 'info',
-    pending: 'warning',
-    completed: 'success',
-    paid: 'success',
-    canceled: 'error',
-    overdue: 'error',
-    partially_paid: 'primary',
-  };
-  return colors[status] || 'grey';
 };
 
 const loadPlan = async () => {
@@ -300,16 +284,6 @@ const handlePrintReceipt = async installment => {
   } catch (error) {
     console.error('Error fetching payment details for print:', error);
   }
-};
-
-const printFullPlan = async () => {
-  if (!plan.value) return;
-  await printInstallmentPlan({ plan: plan.value });
-};
-
-const printContract = async () => {
-  if (!plan.value) return;
-  await printLegalContract({ plan: plan.value });
 };
 
 onMounted(loadPlan);

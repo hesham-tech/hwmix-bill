@@ -115,19 +115,16 @@
         دفع
       </AppButton>
 
-      <!-- Print Receipt: Only if paid or partially paid -->
-      <AppButton
+      <AppPrintShare
         v-if="['paid', 'partially_paid', 'partial'].includes(item.status)"
-        icon="ri-printer-line"
+        type="installment"
+        :data="{ installment: item, payment: item.installment_payment }"
+        icon-only
         size="small"
         variant="elevated"
         color="teal-darken-1"
-        class="font-weight-bold ms-1 px-3"
-        tooltip="طباعة الإيصال"
-        @click.stop="$emit('print-receipt', item)"
-      >
-        طباعة
-      </AppButton>
+        class="ms-1"
+      />
 
       <!-- View Details -->
       <AppButton
@@ -204,17 +201,16 @@
             >
               دفع
             </AppButton>
-            <AppButton
+            <AppPrintShare
               v-if="['paid', 'partially_paid', 'partial'].includes(item.status)"
-              icon="ri-printer-line"
+              type="installment"
+              :data="{ installment: item, payment: item.installment_payment }"
+              icon-only
               size="x-small"
               color="teal-darken-1"
               variant="flat"
               class="flex-grow-1"
-              @click.stop="$emit('print-receipt', item)"
-            >
-              طباعة
-            </AppButton>
+            />
             <AppButton icon="ri-eye-line" size="x-small" color="info" variant="tonal" class="px-2" @click.stop="$emit('view', item)"> عرض </AppButton>
           </div>
         </v-card>
@@ -225,7 +221,7 @@
 
 <script setup>
 import { computed } from 'vue';
-import { AppDataTable, AppButton, AppAvatar, AppPhone } from '@/components';
+import { AppDataTable, AppButton, AppAvatar, AppPhone, AppPrintShare } from '@/components';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import { usePermissions } from '@/composables/usePermissions';
 import { PERMISSIONS } from '@/config/permissions';

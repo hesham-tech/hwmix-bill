@@ -16,6 +16,8 @@ export { default as AppAvatar } from './common/AppAvatar.vue';
 export { default as AppPhone } from './common/AppPhone.vue';
 export { default as AppSwitch } from './common/AppSwitch.vue';
 export { default as AppPasswordInput } from './common/AppPasswordInput.vue';
+export { default as AppPrintShare } from './common/AppPrintShare.vue';
+export { default as AppShareDialog } from './common/AppShareDialog.vue';
 
 /**
  * Export all form components

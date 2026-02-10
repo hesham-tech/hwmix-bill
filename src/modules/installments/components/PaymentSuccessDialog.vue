@@ -24,10 +24,7 @@
         <div class="receipt-top-edge"></div>
 
         <div class="receipt-body pa-8">
-          <!-- Print Only Header -->
-          <!-- This section is now handled by AppReceipt for printing -->
-
-          <!-- Fields Grid (Table-like, border-bottom) -->
+          <!-- fields ... -->
           <div class="receipt-fields">
             <div class="field-row">
               <span class="field-label">اسم العميل</span>
@@ -66,11 +63,6 @@
               <span class="field-label">طريقة الدفع</span>
               <span class="field-value">{{ paymentMethodName }}</span>
             </div>
-
-            <div v-if="paymentData?.reference_number" class="field-row">
-              <span class="field-label">رقم المرجع / الشيك</span>
-              <span class="field-value font-weight-bold">{{ paymentData?.reference_number }}</span>
-            </div>
           </div>
 
           <!-- Paid Installments Section -->
@@ -99,33 +91,26 @@
           </div>
         </div>
 
-        <!-- Receipt Bottom Edge -->
         <div class="receipt-bottom-edge"></div>
-      </div>
-
-      <!-- Quick Tips / Info -->
-      <div v-if="nextInstallment" class="mx-auto max-w-sm px-4 text-center opacity-80">
-        <p class="text-caption text-slate-500">
-          <v-icon icon="ri-calendar-check-line" size="14" class="me-1" />
-          تم تحديد القسط القادم بتاريخ <strong>{{ formatDate(nextInstallment.due_date) }}</strong>
-        </p>
       </div>
     </div>
 
-    <!-- Redesigned Action Buttons -->
+    <!-- Actions -->
     <template #actions>
-      <div class="flex-column gap-2 w-full no-print px-1 pb-2">
-        <v-btn
-          block
-          size="large"
+      <div class="d-flex flex-column gap-2 w-100 no-print px-1 pb-2">
+        <AppPrintShare
+          type="installment"
+          :data="{
+            payment: paymentData,
+            customer: { name: customerName },
+            installments: paidInstallments,
+            plan: { remaining_amount: remainingAmount },
+          }"
+          label="طباعة الإيصال"
           color="primary"
-          variant="elevated"
-          class="rounded-md font-weight-bold mb-2"
-          prepend-icon="ri-printer-fill"
-          @click="handlePrint"
-        >
-          طباعة
-        </v-btn>
+          size="large"
+          class="mb-2"
+        />
 
         <v-btn block size="large" variant="tonal" color="secondary" class="rounded-md font-weight-bold" @click="close"> إغلاق </v-btn>
       </div>
@@ -135,9 +120,8 @@
 
 <script setup>
 import { computed } from 'vue';
-import { AppDialog } from '@/components';
+import { AppDialog, AppPrintShare } from '@/components';
 import { formatCurrency, formatDate } from '@/utils/formatters';
-import { usePrint } from '@/modules/print/composables/usePrint';
 
 const props = defineProps({
   modelValue: Boolean,
@@ -149,31 +133,20 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'close']);
 
-const { printInstallment } = usePrint();
-
 const internalValue = computed({
   get: () => props.modelValue,
   set: val => emit('update:modelValue', val),
 });
 
 const paymentData = computed(() => {
-  // BaseService wraps single results in an array. Handle both array and object.
   const details = Array.isArray(props.paymentDetails) ? props.paymentDetails[0] : props.paymentDetails;
-
-  // Robust check for the record itself (handling possible Laravel resource wrapping)
   const record = details?.payment_record || details;
-
   return record?.data || record || {};
 });
 
 const nextInstallment = computed(() => {
   const details = Array.isArray(props.paymentDetails) ? props.paymentDetails[0] : props.paymentDetails;
   return details?.next_installment;
-});
-
-const excessAmount = computed(() => {
-  const details = Array.isArray(props.paymentDetails) ? props.paymentDetails[0] : props.paymentDetails;
-  return details?.excess_amount || 0;
 });
 
 const paidInstallments = computed(() => {
@@ -190,7 +163,6 @@ const remainingAmount = computed(() => {
 });
 
 const customerName = computed(() => {
-  // استخدام الحقل الموحد "name" الذي يضمنه الباك إند الآن
   const customer = paymentData.value?.customer || paymentData.value?.plan?.invoice?.customer;
   return customer?.name || 'عميل غير معروف';
 });
@@ -200,49 +172,13 @@ const paymentMethodName = computed(() => {
   return typeof method === 'object' ? method.name : method || 'نقدي';
 });
 
-const cashBoxName = computed(() => {
-  return paymentData.value?.cash_box?.name || 'الخزنة الرئيسية';
-});
-
-const companyName = computed(() => {
-  return userStore.currentCompany?.name || paymentData.value?.plan?.invoice?.company?.name || 'المتجر الإلكتروني';
-});
-
-const companyLogo = computed(() => {
-  return userStore.currentCompany?.logo_url || userStore.currentCompany?.logo || paymentData.value?.plan?.invoice?.company?.logo_url;
-});
-
-const printFormat = computed(() => {
-  return userStore.currentCompany?.print_settings?.print_format || 'thermal';
-});
-
 const close = () => {
   internalValue.value = false;
   emit('close');
 };
-
-const handlePrint = async () => {
-  try {
-    await printInstallment({
-      payment: paymentData.value,
-      customer: { name: customerName.value },
-      installments: paidInstallments.value,
-      plan: { remaining_amount: remainingAmount.value },
-    });
-
-    // Close dialog after print
-    setTimeout(() => close(), 300);
-  } catch (error) {
-    console.error('[PaymentSuccessDialog] Print error:', error);
-  }
-};
 </script>
 
 <style scoped>
-.success-content {
-  max-width: 100%;
-}
-
 .success-icon-container {
   position: relative;
   display: inline-block;
@@ -271,7 +207,6 @@ const handlePrint = async () => {
   }
 }
 
-/* Premium Receipt Styles */
 .premium-receipt {
   max-width: 460px;
   background: white;
@@ -303,21 +238,6 @@ const handlePrint = async () => {
   border-bottom: 1px solid #f1f5f9;
 }
 
-.field-row:last-child {
-  border-bottom: none;
-}
-
-.field-label {
-  font-size: 0.9rem;
-  color: #64748b;
-  font-weight: 500;
-}
-
-.field-value {
-  font-size: 0.95rem;
-  color: #0f172a;
-}
-
 .hero-row {
   background-color: #f8fafc;
   margin: 10px -15px;
@@ -326,16 +246,18 @@ const handlePrint = async () => {
   border-bottom: none !important;
 }
 
+.field-label {
+  font-size: 0.9rem;
+  color: #64748b;
+  font-weight: 500;
+}
+.field-value {
+  font-size: 0.95rem;
+  color: #0f172a;
+}
+
 .mini-row {
   border-bottom: 1px solid #f1f5f9;
-}
-
-.border-b-light {
-  border-bottom: 1px solid #f1f5f9;
-}
-
-.bg-slate-50 {
-  background-color: #f8fafc;
 }
 .bg-emerald-50 {
   background-color: #ecfdf5;
@@ -356,30 +278,12 @@ const handlePrint = async () => {
   color: #0f172a;
 }
 
-.dashed-divider {
-  border-top: 2px dashed #e2e8f0;
-}
-
 .gap-2 {
   gap: 8px;
 }
 
 @media print {
-  /* Standard Print Hiding */
-  .v-overlay-container,
-  .v-navigation-drawer,
-  .v-app-bar,
-  .v-footer,
-  .no-print,
-  .v-overlay__scrim {
-    display: none !important;
-  }
-
-  /* Force the receipt to show */
-  #receipt-print-area {
-    display: none !important;
-  }
-  .print-only {
+  .no-print {
     display: none !important;
   }
 }

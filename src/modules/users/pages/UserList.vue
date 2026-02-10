@@ -124,6 +124,10 @@
                       </v-chip>
                     </template>
                     <span v-else class="text-caption text-grey italic">عميل</span>
+                    <div v-if="item.company_name" class="text-xxs text-grey mt-1 w-100 italic d-flex align-center gap-1">
+                      <v-icon icon="ri-building-line" size="10" color="primary" />
+                      {{ item.company_name }}
+                    </div>
                   </div>
                 </template>
 
@@ -307,6 +311,10 @@
                     </v-chip>
                   </template>
                   <span v-else class="text-caption text-grey italic">عميل</span>
+                  <div v-if="item.company_name" class="text-xxs text-grey mt-1 w-100 italic d-flex align-center gap-1">
+                    <v-icon icon="ri-building-line" size="10" color="primary" />
+                    {{ item.company_name }}
+                  </div>
                 </div>
               </template>
 

@@ -19,32 +19,47 @@
       </v-btn>
     </div>
 
-    <!-- Stats Grid -->
-    <v-row class="mb-8">
-      <v-col cols="12">
-        <v-card variant="flat" border class="stats-card pa-2 text-center h-100 bg-primary-lighten-5 border-primary">
-          <v-icon icon="ri-wallet-3-line" size="48" color="primary" class="mb-3" />
-          <div class="text-body-2 text-primary-darken-2 font-weight-bold mb-1">رصيدك</div>
-          <div class="text-h4 font-weight-bold text-primary-darken-4">{{ formatCurrency(stats.remainingBalance) }}</div>
-        </v-card>
-      </v-col>
+    <!-- Dynamic Stats Grid (Horizontal Scrolling on mobile, tight layout) -->
+    <div class="stats-tray d-flex gap-4 mb-8 overflow-x-auto pb-2">
+      <div class="stat-card-premium balance-hero px-6 py-4 rounded-xl shadow-sm d-flex flex-column justify-center min-w-280 flex-grow-1">
+        <div class="d-flex align-center gap-3 mb-2">
+          <v-avatar color="white" size="32" class="shadow-sm">
+            <v-icon icon="ri-wallet-3-line" color="primary" size="18" />
+          </v-avatar>
+          <span class="text-subtitle-2 font-weight-bold text-white opacity-80">رصيدك الحالي</span>
+        </div>
+        <div class="text-h3 font-weight-black text-white line-height-1">
+          {{ formatCurrency(stats.remainingBalance) }}
+        </div>
+      </div>
 
-      <!-- <v-col cols="12" md="4">
-        <v-card variant="flat" border class="stats-card pa-2 text-center h-100 bg-success-lighten-5 border-success">
-          <v-icon icon="ri-checkbox-circle-line" size="48" color="success" class="mb-3" />
-          <div class="text-body-2 text-success-darken-2 font-weight-bold mb-1">إجمالي ما تم سداده</div>
-          <div class="text-h4 font-weight-bold text-success-darken-4">{{ formatCurrency(stats.totalPaid) }}</div>
-        </v-card>
-      </v-col> -->
+      <div class="stat-card-premium bg-white border px-6 py-4 rounded-xl shadow-sm d-flex flex-column justify-center min-w-200">
+        <div class="d-flex align-center gap-3 mb-2">
+          <v-avatar color="orange-lighten-5" size="32">
+            <v-icon icon="ri-calendar-todo-line" color="orange" size="18" />
+          </v-avatar>
+          <span class="text-subtitle-2 font-weight-bold text-slate-500">خطط التقسيط</span>
+        </div>
+        <div class="text-h4 font-weight-black text-slate-900 line-height-1">
+          {{ stats.activeInstallmentPlans || 0 }} <span class="text-body-2 font-weight-bold text-grey">خطة</span>
+        </div>
+      </div>
 
-      <v-col v-if="userStore.hasInstallments" cols="12" md="4">
-        <v-card variant="flat" border class="stats-card pa-2 text-center h-100 bg-orange-lighten-5 border-orange">
-          <v-icon icon="ri-calendar-todo-line" size="48" color="orange" class="mb-3" />
-          <div class="text-body-2 text-orange-darken-2 font-weight-bold mb-1">فواتير قيد التقسيط</div>
-          <div class="text-h4 font-weight-bold text-orange-darken-4">{{ stats.activeInstallmentPlans || 0 }} خطط</div>
-        </v-card>
-      </v-col>
-    </v-row>
+      <div
+        class="stat-card-premium bg-white border px-6 py-4 rounded-xl shadow-sm d-flex flex-column justify-center min-w-200"
+        v-if="upcomingInstallments?.length > 0"
+      >
+        <div class="d-flex align-center gap-3 mb-2">
+          <v-avatar color="error-lighten-5" size="32">
+            <v-icon icon="ri-alarm-warning-line" color="error" size="18" />
+          </v-avatar>
+          <span class="text-subtitle-2 font-weight-bold text-slate-500">أقساط قادمة</span>
+        </div>
+        <div class="text-h4 font-weight-black text-error line-height-1">
+          {{ upcomingInstallments.length }} <span class="text-body-2 font-weight-bold text-grey">قسط</span>
+        </div>
+      </div>
+    </div>
 
     <v-row>
       <!-- Recent Purchases -->
@@ -69,69 +84,64 @@
           <div class="text-grey font-weight-bold">لا يوجد مشتريات حديثة</div>
         </div>
 
-        <v-row v-else>
-          <v-col v-for="item in recentInvoices.slice(0, 4)" :key="item.id" cols="12" sm="6">
-            <PurchaseCard :purchase="item" @view="viewInvoice" @print="printInvoice" />
+        <v-row v-else class="dense-grid">
+          <v-col v-for="item in recentInvoices.slice(0, 4)" :key="item.id" cols="12" sm="6" class="pa-2">
+            <PortalPurchaseCard :purchase="item" @view="viewInvoice" />
           </v-col>
         </v-row>
       </v-col>
 
-      <!-- Sidebar: Quick Actions & Alerts -->
+      <!-- Sidebar: Quick Alerts & Portal Tools -->
       <v-col cols="12" lg="4">
-        <v-card variant="flat" border class="pa-4 rounded-md mb-2">
-          <h3 class="text-h6 font-weight-bold mb-4 d-flex align-center gap-2">
-            <v-icon icon="ri-flashlight-line" color="warning" />
-            إجراءات سريعة
+        <!-- Quick Alerts: Installment Timeline -->
+        <v-card variant="flat" border class="pa-4 rounded-xl mb-4 bg-white shadow-sm border-slate-200">
+          <h3 class="text-subtitle-1 font-weight-bold mb-4 d-flex align-center gap-2 text-slate-900 border-bottom pb-2">
+            <v-icon icon="ri-calendar-todo-line" color="orange" />
+            تتبع أقساطك القادمة
           </h3>
-          <div class="d-flex flex-column gap-3">
+          <PortalInstallmentTimeline :installments="upcomingInstallments?.slice(0, 5)" />
+          <v-btn
+            v-if="upcomingInstallments?.length > 5"
+            block
+            variant="text"
+            color="secondary"
+            size="small"
+            to="/app/customer-installments"
+            class="mt-2 font-weight-bold"
+          >
+            عرض كافة الأقساط
+          </v-btn>
+        </v-card>
+
+        <v-card variant="flat" border class="pa-4 rounded-xl mb-4 bg-white shadow-sm border-slate-200">
+          <h3 class="text-subtitle-1 font-weight-bold mb-4 d-flex align-center gap-2 text-slate-900 border-bottom pb-2">
+            <v-icon icon="ri-flashlight-line" color="warning" />
+            روابط سريعة
+          </h3>
+          <div class="d-flex flex-column gap-2">
             <v-btn
               block
               color="primary"
               variant="tonal"
               prepend-icon="ri-file-search-line"
               to="/app/purchases"
-              height="48"
-              class="font-weight-bold justify-start rounded-md"
+              height="40"
+              class="font-weight-bold justify-start rounded-lg text-caption"
             >
               البحث عن فاتورة
             </v-btn>
             <v-btn
               v-if="userStore.hasInstallments"
               block
-              color="secondary"
-              variant="tonal"
-              prepend-icon="ri-calendar-check-line"
-              to="/app/customer-installments"
-              height="48"
-              class="font-weight-bold justify-start rounded-md"
-            >
-              متابعة الأقساط
-            </v-btn>
-            <v-btn
-              block
               color="success"
               variant="tonal"
               prepend-icon="ri-money-dollar-circle-line"
               to="/app/customer-payments"
-              height="48"
-              class="font-weight-bold justify-start rounded-md"
+              height="40"
+              class="font-weight-bold justify-start rounded-lg text-caption"
             >
               سجل مدفوعاتي
             </v-btn>
-          </div>
-        </v-card>
-
-        <!-- Upcoming Installments Alert if any -->
-        <v-card v-if="upcomingInstallments.length > 0" variant="flat" border color="error" class="bg-error-lighten-5 pa-4 rounded-md">
-          <div class="d-flex align-start gap-3">
-            <v-icon icon="ri-error-warning-fill" size="24" color="error" />
-            <div>
-              <div class="text-subtitle-2 font-weight-bold text-error mb-1">تنبيه أقساط قادمة</div>
-              <div class="text-body-2 text-error-darken-1 mb-3">لديك أقساط تستحق السداد قريباً، يرجى مراجعة الجدول.</div>
-              <v-btn size="small" color="error" variant="flat" to="/app/customer-installments" class="font-weight-bold rounded-md px-4">
-                مراجعة الآن
-              </v-btn>
-            </div>
           </div>
         </v-card>
       </v-col>
@@ -145,8 +155,8 @@ import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 import { useDashboardData } from '@/modules/reports/composables/useDashboardData';
 import { formatCurrency, formatDate } from '@/utils/formatters';
-import PurchaseCard from '../../purchases/components/PurchaseCard.vue';
-import { toast } from 'vue3-toastify';
+import PortalPurchaseCard from '../../components/PortalPurchaseCard.vue';
+import PortalInstallmentTimeline from '../../components/PortalInstallmentTimeline.vue';
 
 const userStore = useUserStore();
 const router = useRouter();
@@ -155,22 +165,14 @@ const { stats, recentInvoices, upcomingInstallments, refreshing, loading, refres
 const userName = computed(() => userStore.currentUser?.full_name?.split(' ')[0] || 'أهلاً بك');
 const dynamicGreeting = computed(() => {
   const hour = new Date().getHours();
+  if (hour < 5) return 'ليلة سعيدة';
   if (hour < 12) return 'صباح الخير';
   if (hour < 18) return 'مساء الخير';
-  return 'أهلاً بك';
+  return 'ليلة سعيدة';
 });
 
 const viewInvoice = invoice => {
   router.push(`/app/purchases/${invoice.id}`);
-};
-
-const printInvoice = async invoice => {
-  try {
-    toast.info('جاري تجهيز الفاتورة للطباعة...');
-    window.open(`/api/invoice/${invoice.id}/pdf`, '_blank');
-  } catch (error) {
-    toast.error('فشل في طباعة الفاتورة');
-  }
 };
 
 onMounted(() => {
@@ -191,6 +193,17 @@ onMounted(() => {
   -webkit-text-fill-color: transparent;
 }
 
+.balance-hero {
+  background: linear-gradient(135deg, rgb(var(--v-theme-primary)) 0%, #303f9f 100%);
+}
+
+.stat-card-premium {
+  transition: all 0.2s ease;
+}
+
+.gap-1 {
+  gap: 4px;
+}
 .gap-2 {
   gap: 8px;
 }
@@ -201,14 +214,43 @@ onMounted(() => {
   gap: 16px;
 }
 
-.stats-card {
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+.min-w-280 {
+  min-width: 280px;
+}
+.min-w-200 {
+  min-width: 200px;
 }
 
-.stats-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+.line-height-1 {
+  line-height: 1;
+}
+
+.stats-tray::-webkit-scrollbar {
+  display: none;
+}
+.stats-tray {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.dense-grid {
+  margin: -8px;
+}
+
+.shadow-sm {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+.text-slate-500 {
+  color: #64748b;
+}
+.text-slate-600 {
+  color: #475569;
+}
+.text-slate-900 {
+  color: #0f172a;
+}
+.border-slate-200 {
+  border-color: #e2e8f0 !important;
 }
 </style>

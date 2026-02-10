@@ -104,6 +104,48 @@ class PrintService implements IPrintService {
     }
 
     /**
+     * Get raw print data (HTML/CSS) for a template without triggering print
+     * Used for PDF generation and sharing
+     */
+    async getPrintData<T = any>(
+        type: string,
+        data: T,
+        options: PrintOptions = {}
+    ): Promise<PrintData> {
+        const template = await templateRegistry.get(type);
+        if (!template) {
+            throw new Error(`قالب الطباعة "${type}" غير موجود.`);
+        }
+
+        const userStore = useUserStore();
+
+        // Force A4 for PDF sharing as requested
+        const printFormat: PrintFormat = 'a4';
+
+        const companyLogo = options.logo ||
+            userStore.currentCompany?.logo_url ||
+            userStore.currentCompany?.logo;
+
+        const companyName = options.companyName ||
+            userStore.currentCompany?.name ||
+            PRINT_CONFIG.DEFAULTS.COMPANY_NAME;
+
+        const transformedData = template.transformData
+            ? template.transformData(data)
+            : data;
+
+        return await this.buildPrintData(
+            template,
+            transformedData,
+            printFormat,
+            companyLogo,
+            companyName,
+            options.documentTitle,
+            options.additionalCss
+        );
+    }
+
+    /**
      * Build complete print data from template
      */
     private async buildPrintData(
