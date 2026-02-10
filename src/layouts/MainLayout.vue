@@ -10,12 +10,18 @@
     <div class="d-flex align-center px-1 px-sm-2 ga-3">
       <!-- عرض الرصيد للمستحدم الحالى -->
       <div v-if="userStore.currentUser" class="d-flex align-center">
-        <div class="d-flex flex-column align-end line-height-tight">
-          <span class="text-caption text-grey d-none d-sm-inline">رصيدك الحالي</span>
-          <span class="font-weight-bold text-body-2 text-sm-body-1" :class="userStore.currentUser.balance < 0 ? 'text-error' : 'text-success'">
+        <v-chip
+          :color="userStore.currentUser.balance < 0 ? 'error' : 'success'"
+          variant="tonal"
+          class="rounded-pill font-weight-black px-4"
+          height="36"
+        >
+          <v-icon start icon="ri-wallet-3-line" size="16" class="me-1" />
+          <span class="text-caption text-sm-body-2">
+            <span class="d-none d-sm-inline opacity-70 me-1">الرصيد:</span>
             {{ formatCurrency(userStore.currentUser.balance) }}
           </span>
-        </div>
+        </v-chip>
       </div>
 
       <v-tooltip location="bottom">

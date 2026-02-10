@@ -17,9 +17,20 @@
         ></div>
 
         <div class="d-flex justify-space-between align-center mb-1">
-          <span class="text-caption font-weight-bold" :class="inst.status === 'paid' ? 'text-success' : 'text-slate-700'">
-            قسط #{{ inst.installment_number }}
-          </span>
+          <div class="d-flex flex-column">
+            <span class="text-caption font-weight-bold" :class="inst.status === 'paid' ? 'text-success' : 'text-slate-700'">
+              قسط #{{ inst.installment_number }}
+            </span>
+            <!-- المنتجات المرتبطة -->
+            <div v-if="inst.installment_plan?.invoice?.items?.length" class="text-xxs text-grey-darken-1 opacity-70 mt-n1">
+              {{
+                inst.installment_plan.invoice.items
+                  .map(i => i.product?.name)
+                  .filter(Boolean)
+                  .join(' + ')
+              }}
+            </div>
+          </div>
           <span class="text-caption font-weight-black">{{ formatCurrency(inst.amount) }}</span>
         </div>
 

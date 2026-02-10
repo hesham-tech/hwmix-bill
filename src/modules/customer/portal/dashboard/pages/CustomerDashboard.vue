@@ -21,10 +21,13 @@
 
     <!-- Dynamic Stats Grid (Horizontal Scrolling on mobile, tight layout) -->
     <div class="stats-tray d-flex gap-4 mb-8 overflow-x-auto pb-2">
-      <div class="stat-card-premium balance-hero px-6 py-4 rounded-xl shadow-sm d-flex flex-column justify-center min-w-280 flex-grow-1">
+      <div
+        class="stat-card-premium px-6 py-4 rounded-xl shadow-sm d-flex flex-column justify-center min-w-280 flex-grow-1"
+        :class="stats.remainingBalance < 0 ? 'bg-error-gradient' : 'balance-hero'"
+      >
         <div class="d-flex align-center gap-3 mb-2">
           <v-avatar color="white" size="32" class="shadow-sm">
-            <v-icon icon="ri-wallet-3-line" color="primary" size="18" />
+            <v-icon icon="ri-wallet-3-line" :color="stats.remainingBalance < 0 ? 'error' : 'primary'" size="18" />
           </v-avatar>
           <span class="text-subtitle-2 font-weight-bold text-white opacity-80">رصيدك الحالي</span>
         </div>
@@ -195,6 +198,10 @@ onMounted(() => {
 
 .balance-hero {
   background: linear-gradient(135deg, rgb(var(--v-theme-primary)) 0%, #303f9f 100%);
+}
+
+.bg-error-gradient {
+  background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%);
 }
 
 .stat-card-premium {
