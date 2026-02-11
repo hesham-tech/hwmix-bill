@@ -21,6 +21,7 @@ const config = computed(() => {
     confirmed: { label: 'مؤكدة', color: 'primary', icon: 'ri-checkbox-circle-line' },
     paid: { label: 'مدفوعة بالكامل', color: 'success', icon: 'ri-verified-badge-line' },
     partially_paid: { label: 'مدفوعة جزئياً', color: 'warning', icon: 'ri-pie-chart-line' },
+    unpaid: { label: 'غير مدفوعة', color: 'error', icon: 'ri-error-warning-line' },
     canceled: { label: 'ملغاة', color: 'error', icon: 'ri-close-circle-line' },
 
     // Installment Statuses

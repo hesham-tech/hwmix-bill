@@ -64,7 +64,7 @@
 
             <div class="d-flex justify-space-between mb-2">
               <span class="text-grey">الإجمالي</span>
-              <span class="font-weight-medium">{{ formatCurrency(invoice.gross_amount) }}</span>
+              <span class="font-weight-medium">{{ formatCurrency(displayTotalAmount) }}</span>
             </div>
 
             <div v-if="invoice.total_discount > 0" class="d-flex justify-space-between mb-2 text-error">
@@ -76,13 +76,13 @@
 
             <div class="d-flex justify-space-between align-center mb-4">
               <span class="text-subtitle-1 font-weight-bold">صافي المشتريات</span>
-              <span class="text-h5 font-weight-bold text-primary">{{ formatCurrency(invoice.net_amount) }}</span>
+              <span class="text-h5 font-weight-bold text-primary">{{ formatCurrency(displayTotalAmount) }}</span>
             </div>
 
             <div class="bg-primary-lighten-5 pa-4 text-center">
               <div class="text-caption text-primary-darken-2 font-weight-bold mb-1">المبلغ المتبقي للسداد</div>
               <div class="text-h4 font-weight-bold text-primary-darken-3">
-                {{ formatCurrency(invoice.remaining_amount) }}
+                {{ formatCurrency(displayRemainingAmount) }}
               </div>
             </div>
 
@@ -172,15 +172,15 @@
           <v-card variant="flat" border class="pa-6 rounded-xl mb-4 bg-primary text-white text-center balance-hero shadow-lg border-0">
             <v-icon icon="ri-verified-badge-fill" size="64" color="white" class="mb-4 opacity-40 shadow-sm" />
             <div class="text-subtitle-1 font-weight-bold mb-1">إجمالي المستحق</div>
-            <div class="text-h3 font-weight-black mb-4">{{ formatCurrency(invoice.net_amount) }}</div>
+            <div class="text-h3 font-weight-black mb-4">{{ formatCurrency(displayTotalAmount) }}</div>
             <v-divider class="border-white opacity-20 mb-4" />
             <div class="d-flex justify-space-between align-center mb-2 px-2">
-              <span class="text-caption opacity-80">تم سداد</span>
-              <span class="text-subtitle-1 font-weight-black">{{ formatCurrency(invoice.paid_amount) }}</span>
+              <span class="text-caption opacity-80">تم سداده</span>
+              <span class="text-subtitle-1 font-weight-black">{{ formatCurrency(displayPaidAmount) }}</span>
             </div>
             <div class="d-flex justify-space-between align-center px-2">
               <span class="text-caption opacity-80">المتبقي</span>
-              <span class="text-subtitle-1 font-weight-black">{{ formatCurrency(invoice.remaining_amount) }}</span>
+              <span class="text-subtitle-1 font-weight-black">{{ formatCurrency(displayRemainingAmount) }}</span>
             </div>
           </v-card>
 
@@ -215,7 +215,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useDisplay } from 'vuetify';
 import { useApi } from '@/composables/useApi';
@@ -232,6 +232,27 @@ const invoiceApi = useApi('/api/invoices');
 
 const loading = ref(true);
 const invoice = ref(null);
+
+// التوحيد البرمجي مع لوحة التحكم
+const displayTotalAmount = computed(() => {
+  if (!invoice.value) return 0;
+  const plan = invoice.value.installment_plan || invoice.value.installmentPlan;
+  return plan ? (plan.total_amount ?? plan.totalAmount) : invoice.value.net_amount || 0;
+});
+
+const displayRemainingAmount = computed(() => {
+  if (!invoice.value) return 0;
+  const plan = invoice.value.installment_plan || invoice.value.installmentPlan;
+  return plan
+    ? (plan.actual_remaining ?? plan.actualRemaining ?? plan.remaining_amount ?? plan.remainingAmount)
+    : invoice.value.remaining_amount || 0;
+});
+
+const displayPaidAmount = computed(() => {
+  if (!invoice.value) return 0;
+  const plan = invoice.value.installment_plan || invoice.value.installmentPlan;
+  return plan ? (plan.total_collected ?? plan.totalCollected) : invoice.value.paid_amount || 0;
+});
 
 const goBack = () => router.push('/app/purchases');
 
