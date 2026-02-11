@@ -14,7 +14,8 @@
     </template>
 
     <template #item.customer="{ item }">
-      <div class="font-weight-medium">{{ item.customer?.name || '---' }}</div>
+      <AppUserBalanceProfile v-if="item.customer" :user="item.customer" mode="horizontal" />
+      <div v-else class="text-caption text-grey">---</div>
     </template>
 
     <template #item.total="{ item }">
@@ -39,7 +40,7 @@
 </template>
 
 <script setup>
-import AppDataTable from '@/components/common/AppDataTable.vue';
+import { AppDataTable, AppUserBalanceProfile } from '@/components';
 import { formatCurrency } from '@/utils/formatters';
 
 defineProps({

@@ -88,25 +88,7 @@
                 @view="item => $router.push(`/users/${item.id}`)"
               >
                 <template #item.full_name="{ item }">
-                  <div class="d-flex align-center py-2">
-                    <AppAvatar :img-url="item.avatar_url" :name="item.nickname || item.full_name" size="45" class="me-3 border shadow-sm" />
-                    <div class="d-flex flex-column">
-                      <span
-                        class="font-weight-bold text-body-1 text-primary cursor-pointer hover-underline"
-                        @click="$router.push(`/app/users/${item.id}`)"
-                      >
-                        {{ item.nickname || item.full_name }}
-                      </span>
-                      <span class="text-caption text-grey d-flex align-center gap-1">
-                        <v-icon icon="ri-mail-line" size="12" />
-                        {{ item.email || 'لا يوجد بريد' }}
-                      </span>
-                    </div>
-                  </div>
-                </template>
-
-                <template #item.phone="{ item }">
-                  <AppPhone :phone="item.phone" />
+                  <AppUserBalanceProfile :user="item" @click="$router.push(`/app/users/${item.id}`)" />
                 </template>
 
                 <template #item.roles="{ item }">
@@ -140,12 +122,6 @@
                   >
                     {{ [1, '1', true, 'active'].includes(item.status) ? 'نشط' : 'معطل' }}
                   </v-chip>
-                </template>
-
-                <template #item.balance="{ item }">
-                  <div :class="['font-weight-bold text-end', item.balance < 0 ? 'text-error' : 'text-success']">
-                    {{ formatCurrency(item.balance) }}
-                  </div>
                 </template>
 
                 <template #extra-actions="{ item, inMenu }">
@@ -278,22 +254,7 @@
               @view="item => $router.push(`/users/${item.id}`)"
             >
               <template #item.full_name="{ item }">
-                <div class="d-flex align-center py-2">
-                  <AppAvatar :img-url="item.avatar_url" :name="item.nickname || item.full_name" size="45" class="me-3 border shadow-sm" />
-                  <div class="d-flex flex-column">
-                    <span class="font-weight-bold text-body-1 text-primary cursor-pointer hover-underline" @click="$router.push(`/users/${item.id}`)">
-                      {{ item.nickname || item.full_name }}
-                    </span>
-                    <span class="text-caption text-grey d-flex align-center gap-1">
-                      <v-icon icon="ri-mail-line" size="12" />
-                      {{ item.email || 'لا يوجد بريد' }}
-                    </span>
-                  </div>
-                </div>
-              </template>
-
-              <template #item.phone="{ item }">
-                <AppPhone :phone="item.phone" />
+                <AppUserBalanceProfile :user="item" @click="$router.push(`/users/${item.id}`)" />
               </template>
 
               <template #item.roles="{ item }">
@@ -327,12 +288,6 @@
                 >
                   {{ [1, '1', true, 'active'].includes(item.status) ? 'نشط' : 'معطل' }}
                 </v-chip>
-              </template>
-
-              <template #item.balance="{ item }">
-                <div :class="['font-weight-bold text-end', item.balance < 0 ? 'text-error' : 'text-success']">
-                  {{ formatCurrency(item.balance) }}
-                </div>
               </template>
 
               <template #extra-actions="{ item, inMenu }">
@@ -409,12 +364,7 @@
         <template #header>
           <header class="dialog-premium-header variant-purple pa-5 d-flex align-center justify-space-between text-white">
             <div class="d-flex align-center gap-4">
-              <AppAvatar
-                :img-url="permissionUser?.avatar_url"
-                :name="permissionUser?.nickname || permissionUser?.full_name"
-                size="56"
-                class="border shadow-sm avatar-white-border"
-              />
+              <AppUserBalanceProfile :user="permissionUser" mode="horizontal" hide-balance :clickable="false" />
               <div class="header-text">
                 <span class="text-h6 font-weight-bold d-block title-text">إدارة صلاحيات الوصول</span>
                 <div class="d-flex align-center gap-2">
@@ -446,14 +396,17 @@ import { useUser } from '../composables/useUser';
 import UserForm from '../components/UserForm.vue';
 import UserFilters from '../components/UserFilters.vue';
 import UserPermissionManager from '../components/UserPermissionManager.vue';
-import AppDataTable from '@/components/common/AppDataTable.vue';
-import AppButton from '@/components/common/AppButton.vue';
-import AppDialog from '@/components/common/AppDialog.vue';
-import AppInfiniteScroll from '@/components/common/AppInfiniteScroll.vue';
-import AppConfirmDialog from '@/components/common/AppConfirmDialog.vue';
-import AppSwitch from '@/components/common/AppSwitch.vue';
-import AppAvatar from '@/components/common/AppAvatar.vue';
-import AppPhone from '@/components/common/AppPhone.vue';
+import {
+  AppDataTable,
+  AppButton,
+  AppDialog,
+  AppInfiniteScroll,
+  AppConfirmDialog,
+  AppSwitch,
+  AppAvatar,
+  AppPhone,
+  AppUserBalanceProfile,
+} from '@/components';
 import { PERMISSIONS } from '@/config/permissions';
 import { getInitials } from '@/utils/helpers';
 import { formatCurrency } from '@/utils/formatters';
@@ -547,14 +500,9 @@ const onPermissionSaved = async () => {
 
 const headers = computed(() => {
   const base = [
-    { title: 'المستخدم', key: 'full_name', sortable: true },
-    { title: 'الهاتف', key: 'phone', sortable: true },
+    { title: 'بيانات العميل ورصيده', key: 'full_name', sortable: true },
     { title: 'الأدوار', key: 'roles', sortable: false },
   ];
-
-  if (canAny(PERMISSIONS.USERS_VIEW_ALL, PERMISSIONS.USERS_VIEW_CHILDREN, PERMISSIONS.USERS_VIEW_SELF)) {
-    base.push({ title: 'الرصيد', key: 'balance', sortable: true, align: 'end' });
-  }
 
   base.push({ title: 'الحالة', key: 'status', sortable: true });
   base.push({ title: 'تاريخ الإضافة', key: 'created_at', sortable: true });

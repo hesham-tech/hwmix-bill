@@ -86,6 +86,10 @@
           </v-chip>
         </template>
 
+        <template #[`item.creator`]="{ item }">
+          <AppUserBalanceProfile v-if="item.creator" :user="item.creator" mode="horizontal" hide-balance />
+          <span v-else class="text-caption text-grey">---</span>
+        </template>
         <template #[`item.actions`]="{ item }">
           <div class="d-flex ga-1">
             <AppButton v-if="canUpdate(item)" icon="ri-edit-line" variant="text" size="small" color="info" @click="openEditDialog(item)" />
@@ -104,12 +108,7 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue';
-import AppPageHeader from '@/components/common/AppPageHeader.vue';
-import AppDataTable from '@/components/common/AppDataTable.vue';
-import AppButton from '@/components/common/AppButton.vue';
-import AppInput from '@/components/common/AppInput.vue';
-import AppAutocomplete from '@/components/common/AppAutocomplete.vue';
-import AppDatePicker from '@/components/common/AppDatePicker.vue';
+import { AppPageHeader, AppDataTable, AppButton, AppInput, AppAutocomplete, AppDatePicker, AppUserBalanceProfile } from '@/components';
 import { formatCurrency } from '@/utils/formatters';
 import ExpenseDialog from '../components/ExpenseDialog.vue';
 import ExpenseCategoryDialog from '../components/ExpenseCategoryDialog.vue';
@@ -160,7 +159,7 @@ const headers = [
   { title: 'الوصف', key: 'notes', sortable: false },
   { title: 'المبلغ', key: 'amount', sortable: true, align: 'end' },
   { title: 'المرجع', key: 'reference_number', sortable: false },
-  { title: 'بواسطة', key: 'creator.full_name', sortable: false },
+  { title: 'بواسطة', key: 'creator', sortable: false },
   { title: 'إجراءات', key: 'actions', sortable: false, align: 'center' },
 ];
 

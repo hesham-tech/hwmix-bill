@@ -65,7 +65,20 @@
                   <v-avatar color="primary-lighten-5" size="32" rounded="md" class="me-3">
                     <v-icon icon="ri-safe-2-line" size="18" color="primary" />
                   </v-avatar>
-                  <span class="font-weight-bold text-slate-700">{{ item.cash_box?.name || 'خزينة غير محددة' }}</span>
+                  <span class="font-weight-bold text-slate-700 text-truncate" style="max-width: 120px">{{
+                    item.cash_box?.name || item.cashbox_name || 'خزينة غير محددة'
+                  }}</span>
+                </div>
+              </template>
+
+              <template #item.customer="{ item }">
+                <div class="d-flex flex-column py-1">
+                  <AppUserBalanceProfile v-if="item.customer" :user="item.customer" mode="horizontal" :avatar-size="32" />
+                  <div v-if="item.target_customer" class="mt-1 border-top pt-1 opacity-80">
+                    <div class="text-xxs text-grey mb-1">إلى الطرف:</div>
+                    <AppUserBalanceProfile :user="item.target_customer" mode="horizontal" :avatar-size="24" hide-balance />
+                  </div>
+                  <span v-if="!item.customer && !item.target_customer" class="text-caption text-grey">غير مرتبطة بمستخدم</span>
                 </div>
               </template>
 
@@ -173,10 +186,7 @@ import { useDataTable } from '@/composables/useDataTable';
 import { useApi } from '@/composables/useApi';
 import { PERMISSIONS } from '@/config/permissions';
 import { formatCurrency, formatDate, formatTime } from '@/utils/formatters';
-import AppPageHeader from '@/components/common/AppPageHeader.vue';
-import AppDataTable from '@/components/common/AppDataTable.vue';
-import AppButton from '@/components/common/AppButton.vue';
-import AppInput from '@/components/common/AppInput.vue';
+import { AppPageHeader, AppDataTable, AppButton, AppInput, AppUserBalanceProfile } from '@/components';
 import TransactionFilters from '../components/TransactionFilters.vue';
 
 const { can, canAny } = usePermissions();
@@ -227,6 +237,7 @@ const loadCashBoxes = async () => {
 const headers = [
   { title: 'النوع', key: 'type', sortable: true },
   { title: 'الخزينة', key: 'cash_box', sortable: false },
+  { title: 'العميل / الطرف الآخر', key: 'customer', sortable: false },
   { title: 'المبلغ', key: 'amount', align: 'end', sortable: true },
   { title: 'التاريخ', key: 'transaction_date', sortable: true },
   { title: 'الوصف', key: 'description', sortable: false },

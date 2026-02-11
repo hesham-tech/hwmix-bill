@@ -15,7 +15,28 @@
 
       <!-- Stats -->
       <div class="stats-tray d-flex gap-4 mb-8 overflow-x-auto pb-2">
-        <div class="stat-card bg-secondary-lighten-5 border-secondary border-dashed px-6 py-4 rounded-xl flex-grow-1 min-w-200">
+        <!-- Unified Account Balance -->
+        <div
+          class="stat-card px-6 py-4 rounded-xl flex-grow-1 min-w-280 shadow-sm transition-all"
+          :class="userStore.currentUser?.balance < 0 ? 'bg-error-lighten-5 border-error' : 'bg-primary-lighten-5 border-primary'"
+          style="border: 1px dashed"
+        >
+          <div class="d-flex align-center gap-2 mb-1">
+            <v-icon
+              :icon="userStore.currentUser?.balance < 0 ? 'ri-error-warning-line' : 'ri-checkbox-circle-line'"
+              :color="userStore.currentUser?.balance < 0 ? 'error' : 'primary'"
+              size="16"
+            />
+            <div class="text-xxs font-weight-bold" :class="userStore.currentUser?.balance < 0 ? 'text-error-darken-2' : 'text-primary-darken-2'">
+              رصيد الحساب الجاري الموحد
+            </div>
+          </div>
+          <div class="text-h4 font-weight-black" :class="userStore.currentUser?.balance < 0 ? 'text-error-darken-4' : 'text-primary-darken-4'">
+            {{ formatCurrency(userStore.currentUser?.balance) }}
+          </div>
+        </div>
+
+        <div class="stat-card bg-secondary-lighten-5 border-secondary border-dashed px-6 py-4 rounded-xl min-w-200">
           <div class="text-xxs font-weight-bold text-secondary-darken-2 mb-1">إجمالي التزامات التقسيط</div>
           <div class="text-h4 font-weight-black text-secondary-darken-4">{{ formatCurrency(summary.total) }}</div>
         </div>
@@ -66,8 +87,11 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useApi } from '@/composables/useApi';
+import { useUserStore } from '@/stores/user';
 import { formatCurrency } from '@/utils/formatters';
 import PortalInstallmentPlanCard from '../components/PortalInstallmentPlanCard.vue';
+
+const userStore = useUserStore();
 
 const router = useRouter();
 const api = useApi('/api/installment-plans');

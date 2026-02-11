@@ -8,7 +8,19 @@
           <h1 class="text-h4 font-weight-black text-slate-900">إيصال رقم #{{ invoice?.invoice_number }}</h1>
         </div>
       </div>
-      <div class="no-print">
+      <div class="no-print d-flex gap-2">
+        <!-- Global Account Balance Info -->
+        <v-card
+          variant="tonal"
+          :color="userStore.currentUser?.balance < 0 ? 'error' : 'success'"
+          class="pa-2 px-4 rounded-xl d-flex align-center gap-2"
+        >
+          <v-icon :icon="userStore.currentUser?.balance < 0 ? 'ri-error-warning-line' : 'ri-checkbox-circle-line'" size="20" />
+          <div class="text-right">
+            <div class="text-xxs font-weight-bold opacity-70">رصيد الحساب الجاري</div>
+            <div class="text-subtitle-2 font-weight-black line-height-1">{{ formatCurrency(userStore.currentUser?.balance) }}</div>
+          </div>
+        </v-card>
         <PortalStatusBadge v-if="invoice" :status="invoice.payment_status" size="large" />
       </div>
     </div>
@@ -203,8 +215,16 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { useDisplay } from 'vuetify';
+import { useApi } from '@/composables/useApi';
+import { formatCurrency, formatDate } from '@/utils/formatters';
 import PortalStatusBadge from '../../components/PortalStatusBadge.vue';
 
+import { useUserStore } from '@/stores/user';
+
+const userStore = useUserStore();
 const router = useRouter();
 const route = useRoute();
 const { mobile } = useDisplay();

@@ -28,15 +28,12 @@
         </template>
 
         <template #item.invoice="{ item }">
-          <div class="d-flex flex-column">
-            <span v-if="item.invoice" class="font-weight-bold text-primary">فاتورة #{{ item.invoice.invoice_number }}</span>
-            <span class="text-caption text-grey">{{
-              item.customer?.nickname ||
-              item.customer?.full_name ||
-              item.invoice?.customer?.nickname ||
-              item.invoice?.customer?.full_name ||
-              'بدون عميل'
-            }}</span>
+          <div class="d-flex align-center gap-3 py-1">
+            <AppUserBalanceProfile :user="item.customer || item.invoice?.customer" mode="horizontal" />
+            <div v-if="item.invoice" class="d-flex flex-column border-right pr-3 ms-2">
+              <span class="text-xxs text-grey">عن فاتورة:</span>
+              <span class="font-weight-bold text-primary text-caption">#{{ item.invoice.invoice_number }}</span>
+            </div>
           </div>
         </template>
 
@@ -101,10 +98,7 @@ import { useRouter } from 'vue-router';
 import { usePaymentsData } from '../composables/usePaymentsData';
 import { usePermissions } from '@/composables/usePermissions';
 import { PERMISSIONS } from '@/config/permissions';
-import AppDataTable from '@/components/common/AppDataTable.vue';
-import AppButton from '@/components/common/AppButton.vue';
-import AppCard from '@/components/common/AppCard.vue';
-import AppDialog from '@/components/common/AppDialog.vue';
+import { AppDataTable, AppButton, AppDialog, AppUserBalanceProfile } from '@/components';
 import { usePrint } from '@/modules/print/composables/usePrint';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 

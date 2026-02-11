@@ -33,20 +33,11 @@
       <v-col cols="12" md="4">
         <v-card class="user-sidebar-card rounded-md overflow-hidden border-0 elevation-sm h-100">
           <!-- Gradient Header -->
-          <div class="user-card-header pa-8 text-center position-relative">
-            <AppAvatar
-              :img-url="user.avatar_url"
-              :name="user.nickname || user.full_name"
-              size="150"
-              rounded="circle"
-              class="mx-auto border-4 border-white shadow-xl mb-4 position-relative"
-              style="z-index: 2"
-              type="user"
-            />
-            <h2 class="text-h5 font-weight-bold mb-1 text-white position-relative" style="z-index: 2">
-              {{ user.nickname || user.full_name }}
-            </h2>
-            <div class="d-flex justify-center gap-1 flex-wrap mb-4 position-relative" style="z-index: 2">
+          <!-- Hero Component -->
+          <div class="user-card-header pa-8 pb-4 text-center position-relative overflow-hidden">
+            <AppUserBalanceProfile :user="user" mode="vertical" :avatar-size="160" class="position-relative" style="z-index: 2" />
+
+            <div class="d-flex justify-center gap-1 flex-wrap mt-4 mb-2 position-relative" style="z-index: 2">
               <v-chip
                 v-for="role in user.roles"
                 :key="role.id"
@@ -59,24 +50,10 @@
               </v-chip>
               <v-chip v-if="!user.roles?.length" size="small" variant="flat" color="rgba(255,255,255,0.2)" class="text-white"> عميل </v-chip>
             </div>
-            <!-- Status Badge overlay -->
-            <div
-              class="status-overlay py-1 px-4 rounded-pill elevation-2"
-              :class="[1, '1', true, 'active'].includes(user.status) ? 'bg-success' : 'bg-error'"
-            >
-              <span class="text-caption font-weight-bold text-white">
-                {{ [1, '1', true, 'active'].includes(user.status) ? 'نشط' : 'معطل' }}
-              </span>
-            </div>
           </div>
 
           <!-- Basic Info List -->
-          <v-list class="pa-4 pt-8 bg-transparent">
-            <v-list-item prepend-icon="ri-phone-line" class="rounded-md mb-2" subtitle="رقم الهاتف">
-              <template #append>
-                <AppPhone v-if="user.phone" :phone="user.phone" hide-text icon-only />
-              </template>
-            </v-list-item>
+          <v-list class="pa-4 bg-transparent">
             <v-list-item prepend-icon="ri-mail-line" class="rounded-md mb-2" :title="user.email || 'لا يوجد بريد'" subtitle="البريد الإلكتروني" />
             <v-list-item prepend-icon="ri-at-line" class="rounded-md mb-2" :title="user.username" subtitle="اسم المستخدم" />
             <v-list-item prepend-icon="ri-calendar-line" class="rounded-md mb-2" :title="formatDate(user.created_at)" subtitle="تاريخ الانضمام" />
@@ -84,21 +61,8 @@
 
           <v-divider class="mx-6 opacity-20" />
 
-          <!-- Financial Card -->
-          <div class="pa-2">
-            <div class="balance-card pa-2 rounded-md overflow-hidden position-relative">
-              <div class="d-flex align-center gap-3">
-                <div class="pa-2 rounded-md bg-white-transparent">
-                  <v-icon icon="ri-wallet-3-line" color="white" />
-                </div>
-                <div>
-                  <div class="text-caption text-white-70">الرصيد الحالي</div>
-                  <div class="text-h4 font-weight-bold text-white">{{ formatCurrency(user.balance) }}</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="stats-grid mt-6">
+          <div class="pa-6">
+            <div class="stats-grid">
               <div class="stat-item text-center pa-3 rounded-md border border-dashed">
                 <div class="text-caption text-grey">نوع العميل</div>
                 <div class="text-body-2 font-weight-bold mt-1" :class="user.customer_type === 'wholesale' ? 'text-purple' : 'text-info'">
@@ -223,11 +187,7 @@ import { usePermissions } from '@/composables/usePermissions';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import { PERMISSIONS } from '@/config/permissions';
 import UserForm from '../components/UserForm.vue';
-import AppDialog from '@/components/common/AppDialog.vue';
-import AppConfirmDialog from '@/components/common/AppConfirmDialog.vue';
-import AppAvatar from '@/components/common/AppAvatar.vue';
-import AppButton from '@/components/common/AppButton.vue';
-import AppPhone from '@/components/common/AppPhone.vue';
+import { AppDialog, AppConfirmDialog, AppAvatar, AppButton, AppPhone, AppUserBalanceProfile } from '@/components';
 
 const route = useRoute();
 const router = useRouter();
@@ -299,44 +259,8 @@ onMounted(fetchUserData);
 }
 
 .user-card-header {
-  background: linear-gradient(135deg, #1a237e 0%, #3949ab 100%);
-  padding-bottom: 60px !important;
-}
-
-.user-card-header::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 50%;
-  background: linear-gradient(to top, white 0%, transparent 100%);
-  z-index: 1;
-}
-
-.shadow-xl {
-  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15) !important;
-}
-
-.status-overlay {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  z-index: 10;
-}
-
-/* Financial Balance Card */
-.balance-card {
-  background: linear-gradient(135deg, #00c853 0%, #2e7d32 100%);
-  box-shadow: 0 8px 16px rgba(46, 125, 50, 0.2);
-}
-
-.bg-white-transparent {
-  background: rgba(255, 255, 255, 0.15);
-}
-
-.text-white-70 {
-  color: rgba(255, 255, 255, 0.7);
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 /* Stats Grid */

@@ -20,15 +20,7 @@
     </template>
     <!-- Customer Column -->
     <template #item.customer="{ item }" v-if="!$slots['item.customer']">
-      <div v-if="showCustomer" class="d-flex align-center py-1">
-        <AppAvatar :src="getCustomerData(item).avatar_url" :name="getCustomerData(item).full_name" size="36" class="me-3 shadow-sm border" />
-        <div>
-          <div class="font-weight-bold text-no-wrap text-caption">
-            {{ getCustomerData(item).full_name || '---' }}
-          </div>
-          <AppPhone :phone="getCustomerData(item).phone" />
-        </div>
-      </div>
+      <AppUserBalanceProfile v-if="showCustomer" :user="getCustomerData(item)" mode="horizontal" />
     </template>
 
     <!-- Installment Number Column -->
@@ -157,12 +149,8 @@
 
           <!-- Card Body: Customer Info -->
           <div class="pa-3 flex-grow-1">
-            <div class="d-flex align-center mb-3">
-              <AppAvatar :src="getCustomerData(item).avatar_url" :name="getCustomerData(item).full_name" size="40" class="me-3 border shadow-sm" />
-              <div class="overflow-hidden">
-                <div class="text-subtitle-2 font-weight-bold truncate">{{ getCustomerData(item).full_name || '---' }}</div>
-                <div class="text-caption text-grey">قسط #{{ item.installment_number }}</div>
-              </div>
+            <div class="mb-3">
+              <AppUserBalanceProfile :user="getCustomerData(item)" mode="horizontal" hide-balance />
             </div>
 
             <!-- Meta Info -->
@@ -221,7 +209,7 @@
 
 <script setup>
 import { computed } from 'vue';
-import { AppDataTable, AppButton, AppAvatar, AppPhone, AppPrintShare } from '@/components';
+import { AppDataTable, AppButton, AppAvatar, AppPhone, AppPrintShare, AppUserBalanceProfile } from '@/components';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import { usePermissions } from '@/composables/usePermissions';
 import { PERMISSIONS } from '@/config/permissions';
@@ -330,9 +318,8 @@ const computedHeaders = computed(() => {
 const getCustomerData = item => {
   const customer = item.customer || item.installment_plan?.customer || item.installment_plan?.invoice?.customer;
   return {
+    ...customer,
     full_name: customer?.nickname || customer?.full_name || '---',
-    avatar_url: customer?.avatar_url,
-    phone: customer?.phone,
   };
 };
 

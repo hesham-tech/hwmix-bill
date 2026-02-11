@@ -28,14 +28,12 @@
               <v-card variant="outlined" class="mx-auto h-100 d-flex flex-column border-soft cursor-pointer shadow-sm-hover" @click="viewPlan(item)">
                 <v-card-item class="pb-2">
                   <div class="d-flex justify-space-between align-center mb-1">
-                    <span class="text-subtitle-2 font-weight-bold text-primary">
-                      {{ item.customer?.name || item.customer_name || 'غير معروف' }}
-                    </span>
+                    <AppUserBalanceProfile :user="item.customer || item.invoice?.customer" mode="horizontal" hide-balance :avatar-size="32" />
                     <v-chip :color="getStatusColor(item.status)" size="x-small" density="comfortable" class="font-weight-bold">
                       {{ getStatusLabel(item.status) }}
                     </v-chip>
                   </div>
-                  <div class="text-caption text-grey">#{{ item.invoice?.invoice_number || item.invoice_number }}</div>
+                  <div class="text-caption text-grey ms-11 mt-n1">#{{ item.invoice?.invoice_number || item.invoice_number }}</div>
                 </v-card-item>
 
                 <v-card-text class="pt-0 flex-grow-1">
@@ -70,20 +68,18 @@
 
           <!-- List View Slots -->
           <template #item.invoice="{ item }">
-            <div class="d-flex flex-column py-2 cursor-pointer">
-              <!-- Name & Status (Same Line) -->
-              <div class="d-flex align-center gap-2 mb-1">
-                <span class="text-subtitle-1 font-weight-black text-primary">
-                  {{ item.customer?.name || item.invoice?.customer?.name || 'غير معروف' }}
-                </span>
-                <v-chip :color="getStatusColor(item.status)" size="x-small" variant="flat" class="font-weight-bold px-2">
-                  {{ item.status_label || getStatusLabel(item.status) }}
-                </v-chip>
-              </div>
-              <!-- Invoice Number -->
-              <div v-if="item.invoice" class="d-flex align-center gap-1">
-                <v-icon icon="ri-article-line" size="12" class="text-grey" />
-                <span class="text-caption text-grey">فاتورة #{{ item.invoice.invoice_number }}</span>
+            <div class="d-flex align-center gap-3 py-2 cursor-pointer" @click="viewPlan(item)">
+              <AppUserBalanceProfile :user="item.customer || item.invoice?.customer" mode="horizontal" />
+              <div v-if="item.invoice" class="d-flex flex-column border-right pr-3 ms-2">
+                <div class="d-flex align-center gap-1">
+                  <v-chip :color="getStatusColor(item.status)" size="x-small" variant="flat" class="font-weight-bold px-2">
+                    {{ item.status_label || getStatusLabel(item.status) }}
+                  </v-chip>
+                </div>
+                <div class="d-flex align-center gap-1 mt-1">
+                  <v-icon icon="ri-article-line" size="12" class="text-grey" />
+                  <span class="text-caption text-grey">#{{ item.invoice.invoice_number }}</span>
+                </div>
               </div>
             </div>
           </template>
@@ -211,8 +207,7 @@ import { useRouter } from 'vue-router';
 import { useApi } from '@/composables/useApi';
 import { useDataTable } from '@/composables/useDataTable';
 import { formatCurrency } from '@/utils/formatters';
-import AppPageHeader from '@/components/common/AppPageHeader.vue';
-import AppDataTable from '@/components/common/AppDataTable.vue';
+import { AppPageHeader, AppDataTable, AppUserBalanceProfile } from '@/components';
 
 // --- Initialization ---
 const router = useRouter();

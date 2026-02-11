@@ -55,6 +55,7 @@ export function useDashboardData() {
             totalInvoices: data.kpis?.total_invoices || 0,
             totalPaid: data.kpis?.total_paid || 0,
             remainingBalance: data.kpis?.remaining_balance || 0,
+            activeInstallmentPlans: data.kpis?.active_installment_plans || 0,
             upcomingInstallmentsCount: data.kpis?.upcoming_installments_count || 0,
           };
           recentPayments.value = data.recent_payments || [];
@@ -82,21 +83,20 @@ export function useDashboardData() {
   };
 
   /**
-   * Fetch upcoming payments (due within 5 days)
-   * Remains separate as it might not be in the general summary or needs specific filters
+   * Fetch upcoming payments (due within 10 days)
    */
   const fetchUpcomingPayments = async () => {
     loadingUpcoming.value = true;
     try {
       const today = new Date();
-      const fiveDaysLater = new Date();
-      fiveDaysLater.setDate(today.getDate() + 5);
+      const tenDaysLater = new Date();
+      tenDaysLater.setDate(today.getDate() + 10);
 
       const response = await invoiceApi.get(
         {
-          payment_status: 'unpaid,partial',
+          payment_status: 'unpaid,partially_paid',
           due_date_from: today.toISOString().split('T')[0],
-          due_date_to: fiveDaysLater.toISOString().split('T')[0],
+          due_date_to: tenDaysLater.toISOString().split('T')[0],
           per_page: 5,
         },
         { showLoading: false }
@@ -108,21 +108,20 @@ export function useDashboardData() {
   };
 
   /**
-   * Fetch upcoming installments
+   * Fetch upcoming installments (late and within 10 days)
    */
   const fetchUpcomingInstallments = async () => {
     loadingInstallments.value = true;
     try {
       const today = new Date();
-      const fiveDaysLater = new Date();
-      fiveDaysLater.setDate(today.getDate() + 5);
+      const tenDaysLater = new Date();
+      tenDaysLater.setDate(today.getDate() + 10);
 
       const response = await installmentApi.get(
         {
-          status: 'pending',
-          due_date_from: today.toISOString().split('T')[0],
-          due_date_to: fiveDaysLater.toISOString().split('T')[0],
-          per_page: 5,
+          status: 'pending,partially_paid', // شمول المعلق والمدفوع جزئياً
+          due_date_to: tenDaysLater.toISOString().split('T')[0], // لا نحتاج due_date_from لشمول المتأخرة
+          per_page: 10,
         },
         { showLoading: false }
       );

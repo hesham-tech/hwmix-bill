@@ -11,51 +11,37 @@
     <div v-if="installment" class="installment-details">
       <!-- Header Info -->
       <v-row class="mb-2">
-        <v-col cols="12" md="6">
-          <div class="d-flex align-center pa-4 rounded-md border bg-light">
-            <AppAvatar :src="customer?.avatar_url" :name="customer?.full_name" size="64" class="me-4 shadow-sm" />
-            <div>
-              <div class="text-h6 font-weight-bold mb-1">{{ customer?.full_name || '---' }}</div>
-              <AppPhone :number="customer?.phone" />
-            </div>
-          </div>
-        </v-col>
-        <v-col cols="12" md="6">
-          <div class="pa-4 rounded-md border h-100 d-flex flex-column justify-center">
-            <div class="d-flex justify-space-between align-center mb-2">
-              <span class="text-grey">رقم القسط:</span>
-              <v-chip color="secondary" size="small" variant="tonal" class="font-weight-bold">
-                {{ installment.installment_number }}
-              </v-chip>
-            </div>
-            <div class="d-flex justify-space-between align-center">
-              <span class="text-grey">الحالة:</span>
-              <v-chip :color="getStatusColor(installment.status)" size="small" variant="flat" class="font-weight-bold">
-                {{ getStatusLabel(installment.status) }}
-              </v-chip>
-            </div>
+        <v-col cols="12" md="12">
+          <div class="pa-4 rounded-md border bg-light">
+            <AppUserBalanceProfile :user="customer" mode="horizontal" :clickable="false" />
           </div>
         </v-col>
       </v-row>
 
       <!-- Financial Info -->
       <v-row class="mb-2">
-        <v-col cols="4">
-          <div class="pa-4 rounded-md border text-center">
-            <div class="text-caption text-grey mb-1">قيمة القسط</div>
-            <div class="text-h6 font-weight-bold text-primary">{{ formatCurrency(installment.amount) }}</div>
+        <v-col cols="3">
+          <div class="pa-3 rounded-md border text-center h-100 d-flex flex-column justify-center">
+            <div class="text-xxs text-grey mb-1">قسط #</div>
+            <div class="text-body-2 font-weight-bold text-secondary">{{ installment.installment_number }}</div>
           </div>
         </v-col>
-        <v-col cols="4">
-          <div class="pa-4 rounded-md border text-center bg-error-lighten-5 border-error border-opacity-25">
-            <div class="text-caption text-error font-weight-bold mb-1">المبلغ المتبقي</div>
-            <div class="text-h6 font-weight-bold text-error">{{ formatCurrency(installment.remaining) }}</div>
+        <v-col cols="3">
+          <div class="pa-3 rounded-md border text-center h-100 d-flex flex-column justify-center">
+            <div class="text-xxs text-grey mb-1">القيمة</div>
+            <div class="text-body-2 font-weight-bold text-primary">{{ formatCurrency(installment.amount) }}</div>
           </div>
         </v-col>
-        <v-col cols="4">
-          <div class="pa-4 rounded-md border text-center">
-            <div class="text-caption text-grey mb-1">تاريخ الاستحقاق</div>
-            <div class="text-h6 font-weight-bold">{{ formatDate(installment.due_date) }}</div>
+        <v-col cols="3">
+          <div class="pa-3 rounded-md border text-center bg-error-lighten-5 border-error border-opacity-25 h-100 d-flex flex-column justify-center">
+            <div class="text-xxs text-error font-weight-bold mb-1">المتبقي</div>
+            <div class="text-body-2 font-weight-bold text-error">{{ formatCurrency(installment.remaining) }}</div>
+          </div>
+        </v-col>
+        <v-col cols="3">
+          <div class="pa-3 rounded-md border text-center h-100 d-flex flex-column justify-center">
+            <div class="text-xxs text-grey mb-1">الاستحقاق</div>
+            <div class="text-body-2 font-weight-bold">{{ formatDate(installment.due_date) }}</div>
           </div>
         </v-col>
       </v-row>
@@ -161,7 +147,7 @@
 <script setup>
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { AppDialog, AppAvatar, AppPhone } from '@/components';
+import { AppDialog, AppAvatar, AppPhone, AppUserBalanceProfile } from '@/components';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 
 const props = defineProps({

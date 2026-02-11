@@ -4,18 +4,24 @@
     class="portal-purchase-card border rounded-xl overflow-hidden shadow-sm hover-shadow transition-all bg-white"
     @click="$emit('view', purchase)"
   >
-    <!-- Header: Date & Status -->
-    <div class="pa-4 pb-0 d-flex justify-space-between align-center">
-      <div class="d-flex align-center gap-2">
-        <div class="date-badge pa-2 rounded-lg bg-grey-lighten-4 text-center">
-          <div class="text-caption font-weight-bold text-grey-darken-2 line-height-1">
+    <!-- Header: Date & Product Initial Name -->
+    <div class="pa-4 pb-0 d-flex justify-space-between align-start">
+      <div class="d-flex align-center gap-3">
+        <div class="date-badge pa-2 rounded-xl bg-primary-lighten-5 text-center border">
+          <div class="text-xxs font-weight-black text-primary line-height-1 mb-1">
             {{ formatDate(purchase.issue_date, 'MMM') }}
           </div>
-          <div class="text-h6 font-weight-black line-height-1">{{ formatDate(purchase.issue_date, 'DD') }}</div>
+          <div class="text-subtitle-1 font-weight-black text-primary line-height-1">{{ formatDate(purchase.issue_date, 'DD') }}</div>
         </div>
-        <div>
-          <div class="text-caption text-grey">فاتورة رقم</div>
-          <div class="text-subtitle-1 font-weight-black">#{{ purchase.invoice_number }}</div>
+        <div class="overflow-hidden">
+          <div class="text-h6 font-weight-black text-slate-900 truncate line-height-1-2 mb-1">
+            {{ purchase.items?.[0]?.name || 'مشتريات متنوعة' }}
+            <span v-if="purchase.items?.length > 1" class="text-caption font-weight-bold text-primary"> (+{{ purchase.items.length - 1 }}) </span>
+          </div>
+          <div class="text-caption text-grey-darken-1 d-flex align-center gap-1">
+            <v-icon icon="ri-bill-line" size="14" />
+            فواتير رقم #{{ purchase.invoice_number }}
+          </div>
         </div>
       </div>
       <PortalStatusBadge :status="purchase.status" size="x-small" />
@@ -38,13 +44,13 @@
       <div class="financial-summary mb-1">
         <div class="d-flex justify-space-between align-center mb-1">
           <span class="text-caption font-weight-bold text-grey">المبلغ الإجمالي</span>
-          <span class="text-subtitle-2 font-weight-black text-primary">{{ formatCurrency(purchase.net_amount) }}</span>
+          <span class="text-subtitle-2 font-weight-black text-primary">{{ formatCurrency(displayTotalAmount) }}</span>
         </div>
         <v-progress-linear :model-value="paymentProgress" color="success" height="6" rounded class="bg-grey-lighten-3" />
         <div class="d-flex justify-space-between mt-1">
           <span class="text-xxs font-weight-bold text-success">تم سداد {{ paymentProgress }}%</span>
-          <span class="text-xxs font-weight-bold text-error" v-if="purchase.remaining_amount > 0">
-            متبقي: {{ formatCurrency(purchase.remaining_amount) }}
+          <span class="text-xxs font-weight-bold text-error" v-if="displayRemainingAmount > 0">
+            متبقي: {{ formatCurrency(displayRemainingAmount) }}
           </span>
         </div>
       </div>
@@ -72,10 +78,35 @@ const props = defineProps({
 defineEmits(['view']);
 
 const paymentProgress = computed(() => {
+  // استخدام النسبة المحسوبة ديناميكياً من الباك إند لضمان الدقة
+  const plan = props.purchase.installment_plan || props.purchase.installmentPlan;
+  if (plan) {
+    const progress = plan.payment_progress ?? plan.paymentProgress;
+    if (progress !== undefined && progress !== null) {
+      return Math.round(progress);
+    }
+  }
+
   const total = parseFloat(props.purchase.net_amount) || 0;
-  const paid = parseFloat(props.purchase.paid_amount) || 0;
-  if (total === 0) return 0;
+  const remaining = parseFloat(props.purchase.remaining_amount) || 0;
+  const paid = total - remaining;
+
+  if (total <= 0) return 0;
   return Math.round((paid / total) * 100);
+});
+
+const displayRemainingAmount = computed(() => {
+  const plan = props.purchase.installment_plan || props.purchase.installmentPlan;
+  if (!plan) return props.purchase.remaining_amount;
+
+  // إعطاء الأولوية القصوى للتسميات المحسوبة ديناميكياً (actual_remaining)
+  // والتحقق من التنسيقين (snake_case و camelCase) لضمان الدقة وتفادي مشاكل المزامنة
+  return plan.actual_remaining ?? plan.actualRemaining ?? plan.remaining_amount ?? plan.remainingAmount;
+});
+
+const displayTotalAmount = computed(() => {
+  const plan = props.purchase.installment_plan || props.purchase.installmentPlan;
+  return plan ? (plan.total_amount ?? plan.totalAmount) : props.purchase.net_amount;
 });
 </script>
 

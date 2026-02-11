@@ -31,19 +31,7 @@
 
     <!-- العميل -->
     <template #item.customer="{ item }">
-      <div class="d-flex align-center py-2" v-if="item.customer">
-        <AppAvatar
-          :img-url="item.customer.avatar_url"
-          :name="item.customer.nickname || item.customer.full_name"
-          size="32"
-          rounded="circle"
-          class="me-2 border"
-        />
-        <div class="d-flex flex-column">
-          <span class="font-weight-bold text-body-2">{{ item.customer.nickname || item.customer.full_name }}</span>
-          <AppPhone :phone="item.customer.phone" />
-        </div>
-      </div>
+      <AppUserBalanceProfile v-if="item.customer" :user="item.customer" mode="horizontal" />
       <span v-else class="text-caption text-grey">بدون عميل</span>
     </template>
 
@@ -111,6 +99,7 @@ import { computed } from 'vue';
 import { usePermissions } from '@/composables/usePermissions';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import { PERMISSIONS } from '@/config/permissions';
+import { AppUserBalanceProfile, AppButton, AppAvatar, AppPhone } from '@/components';
 
 const props = defineProps({
   items: {

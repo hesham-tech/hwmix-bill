@@ -26,6 +26,7 @@ declare module 'vue' {
     AppSkeleton: typeof import('./src/components/common/AppSkeleton.vue')['default']
     AppSwitch: typeof import('./src/components/common/AppSwitch.vue')['default']
     AppTextarea: typeof import('./src/components/common/AppTextarea.vue')['default']
+    AppUserBalanceProfile: typeof import('./src/components/common/AppUserBalanceProfile.vue')['default']
     Calculator: typeof import('./src/components/tools/Calculator.vue')['default']
     CanView: typeof import('./src/components/common/CanView.vue')['default']
     CardStatisticsHorizontal: typeof import('./src/@ui/components/cards/CardStatisticsHorizontal.vue')['default']

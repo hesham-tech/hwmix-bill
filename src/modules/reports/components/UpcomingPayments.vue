@@ -10,21 +10,15 @@
     :items-per-page="5"
   >
     <template #actions>
-      <v-chip v-if="upcomingCount > 0" color="error" size="small" variant="flat" class="font-weight-bold">
-        {{ upcomingCount }} فواتير متأخرة
-      </v-chip>
+      <v-chip v-if="upcomingCount > 0" color="error" size="small" variant="flat" class="font-weight-bold"> {{ upcomingCount }} فواتير متأخرة </v-chip>
     </template>
 
     <template #item.customer="{ item }">
-      <div class="d-flex align-center py-2">
-        <v-avatar size="36" color="primary-lighten-5" class="me-3">
-          <span class="text-primary font-weight-bold text-caption">
-            {{ item.customer?.name?.charAt(0) }}
-          </span>
-        </v-avatar>
-        <div class="d-flex flex-column">
-          <span class="font-weight-bold text-body-1">{{ item.customer?.name }}</span>
-          <span class="text-caption text-grey">فاتورة #{{ item.invoice_number }}</span>
+      <div class="d-flex align-center gap-3 py-2">
+        <AppUserBalanceProfile v-if="item.customer" :user="item.customer" mode="horizontal" />
+        <div class="d-flex flex-column border-right pr-3 ms-2">
+          <span class="text-xxs text-grey">فاتورة:</span>
+          <span class="font-weight-bold text-primary text-caption">#{{ item.invoice_number }}</span>
         </div>
       </div>
     </template>
@@ -62,7 +56,7 @@
 
 <script setup>
 import { computed } from 'vue';
-import AppDataTable from '@/components/common/AppDataTable.vue';
+import { AppDataTable, AppUserBalanceProfile } from '@/components';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 
 const props = defineProps({

@@ -29,10 +29,13 @@
           <v-avatar color="white" size="32" class="shadow-sm">
             <v-icon icon="ri-wallet-3-line" :color="stats.remainingBalance < 0 ? 'error' : 'primary'" size="18" />
           </v-avatar>
-          <span class="text-subtitle-2 font-weight-bold text-white opacity-80">رصيدك الحالي</span>
+          <span class="text-subtitle-2 font-weight-bold text-white opacity-80">رصيد الحساب الجاري</span>
         </div>
         <div class="text-h3 font-weight-black text-white line-height-1">
           {{ formatCurrency(stats.remainingBalance) }}
+        </div>
+        <div class="text-caption text-white opacity-60 mt-1">
+          {{ stats.remainingBalance < 0 ? 'مديونية مستحقة' : 'رصيد دائن متوفر' }}
         </div>
       </div>
 
@@ -56,10 +59,10 @@
           <v-avatar color="error-lighten-5" size="32">
             <v-icon icon="ri-alarm-warning-line" color="error" size="18" />
           </v-avatar>
-          <span class="text-subtitle-2 font-weight-bold text-slate-500">أقساط قادمة</span>
+          <span class="text-subtitle-2 font-weight-bold text-slate-500">أقساط متأخرة وقادمة</span>
         </div>
         <div class="text-h4 font-weight-black text-error line-height-1">
-          {{ upcomingInstallments.length }} <span class="text-body-2 font-weight-bold text-grey">قسط</span>
+          {{ upcomingInstallments?.length || 0 }} <span class="text-body-2 font-weight-bold text-grey">قسط</span>
         </div>
       </div>
     </div>
@@ -82,16 +85,59 @@
           <v-progress-circular indeterminate color="primary" size="48" />
         </div>
 
-        <div v-else-if="recentInvoices.length === 0" class="empty-state text-center py-12 border rounded-md bg-grey-lighten-5 border-dashed">
+        <div
+          v-else-if="!recentInvoices || recentInvoices.length === 0"
+          class="empty-state text-center py-12 border rounded-md bg-grey-lighten-5 border-dashed"
+        >
           <v-icon icon="ri-inbox-line" size="48" color="grey" class="mb-2 opacity-50" />
           <div class="text-grey font-weight-bold">لا يوجد مشتريات حديثة</div>
         </div>
 
-        <v-row v-else class="dense-grid">
-          <v-col v-for="item in recentInvoices.slice(0, 4)" :key="item.id" cols="12" sm="6" class="pa-2">
+        <v-row v-else class="dense-grid mb-8">
+          <v-col v-for="item in (recentInvoices || []).slice(0, 4)" :key="item.id" cols="12" sm="6" class="pa-2">
             <PortalPurchaseCard :purchase="item" @view="viewInvoice" />
           </v-col>
         </v-row>
+
+        <!-- Recent Payments Section -->
+        <div class="d-flex align-center justify-space-between mb-4">
+          <h2 class="text-h5 font-weight-bold d-flex align-center gap-2">
+            <v-icon icon="ri-money-dollar-circle-line" color="success" />
+            أحدث المدفوعات
+          </h2>
+          <v-btn variant="text" color="primary" to="/app/customer-payments" class="font-weight-bold">
+            سجل المدفوعات
+            <v-icon end icon="ri-arrow-left-s-line" />
+          </v-btn>
+        </div>
+
+        <v-card variant="flat" border class="rounded-xl overflow-hidden bg-white">
+          <v-table hover>
+            <thead>
+              <tr class="bg-grey-lighten-4">
+                <th class="text-right text-caption font-weight-bold text-grey-darken-1">التاريخ</th>
+                <th class="text-right text-caption font-weight-bold text-grey-darken-1">المبلغ</th>
+                <th class="text-right text-caption font-weight-bold text-grey-darken-1">طريقة الدفع</th>
+                <th class="text-right text-caption font-weight-bold text-grey-darken-1">المستلم</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-if="!recentPayments || recentPayments.length === 0">
+                <td colspan="4" class="text-center py-8 text-grey">لا توجد مدفوعات مسجلة</td>
+              </tr>
+              <tr v-for="payment in recentPayments" :key="payment.id" class="cursor-pointer">
+                <td class="text-body-2">{{ formatDate(payment.payment_date) }}</td>
+                <td class="text-body-2 font-weight-bold text-success">{{ formatCurrency(payment.amount) }}</td>
+                <td class="text-body-2">
+                  <v-chip size="x-small" label color="primary" variant="tonal">
+                    {{ payment.payment_method?.name || payment.method || 'نقدي' }}
+                  </v-chip>
+                </td>
+                <td class="text-body-2 text-grey">{{ payment.creator?.full_name || 'النظام' }}</td>
+              </tr>
+            </tbody>
+          </v-table>
+        </v-card>
       </v-col>
 
       <!-- Sidebar: Quick Alerts & Portal Tools -->
@@ -100,7 +146,7 @@
         <v-card variant="flat" border class="pa-4 rounded-xl mb-4 bg-white shadow-sm border-slate-200">
           <h3 class="text-subtitle-1 font-weight-bold mb-4 d-flex align-center gap-2 text-slate-900 border-bottom pb-2">
             <v-icon icon="ri-calendar-todo-line" color="orange" />
-            تتبع أقساطك القادمة
+            الأقساط القادمة والمتأخرة
           </h3>
           <PortalInstallmentTimeline :installments="upcomingInstallments?.slice(0, 5)" />
           <v-btn
@@ -163,7 +209,7 @@ import PortalInstallmentTimeline from '../../components/PortalInstallmentTimelin
 
 const userStore = useUserStore();
 const router = useRouter();
-const { stats, recentInvoices, upcomingInstallments, refreshing, loading, refreshAll } = useDashboardData();
+const { stats, recentInvoices, recentPayments, upcomingInstallments, refreshing, loading, refreshAll } = useDashboardData();
 
 const userName = computed(() => userStore.currentUser?.full_name?.split(' ')[0] || 'أهلاً بك');
 const dynamicGreeting = computed(() => {

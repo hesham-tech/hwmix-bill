@@ -29,13 +29,8 @@
         @update:items-per-page="handleItemsPerPageChange"
       >
         <template #item.customer="{ item }">
-          <div class="d-flex align-center py-1">
-            <AppAvatar :img-url="item.user?.avatar_url" :name="item.user?.nickname || item.user?.full_name" size="40" class="me-3 border shadow-sm" />
-            <div class="d-flex flex-column">
-              <span class="font-weight-bold text-body-1">{{ item.user?.nickname || item.user?.full_name || 'عميل غير معروف' }}</span>
-              <AppPhone :phone="item.user?.phone" class="text-caption" />
-            </div>
-          </div>
+          <AppUserBalanceProfile v-if="item.user" :user="item.user" mode="horizontal" />
+          <span v-else class="text-caption text-grey">عميل غير معروف</span>
         </template>
 
         <template #item.service="{ item }">
@@ -131,15 +126,7 @@
 import { ref, onMounted } from 'vue';
 import { subscriptionApiService } from '@/api';
 import { formatDate, formatCurrency } from '@/utils/formatters';
-import AppDataTable from '@/components/common/AppDataTable.vue';
-import AppButton from '@/components/common/AppButton.vue';
-import AppConfirmDialog from '@/components/common/AppConfirmDialog.vue';
-import AppDialog from '@/components/common/AppDialog.vue';
-import AppPageHeader from '@/components/common/AppPageHeader.vue';
-import SubscriptionForm from '../components/SubscriptionForm.vue';
-import SubscriptionDetails from '../components/SubscriptionDetails.vue';
-import AppAvatar from '@/components/common/AppAvatar.vue';
-import AppPhone from '@/components/common/AppPhone.vue';
+import { AppDataTable, AppButton, AppConfirmDialog, AppDialog, AppPageHeader, AppAvatar, AppPhone, AppUserBalanceProfile } from '@/components';
 import RenewSubscriptionDialog from '../components/RenewSubscriptionDialog.vue';
 import { toast } from 'vue3-toastify';
 

@@ -127,7 +127,26 @@ apiClient.interceptors.response.use(
     if (error?.response?.status === 400 || error?.response?.status >= 500 || error?.response?.status === 404 || !error.response) {
       const isConnectivityError = !error.response || error.code === 'ERR_NETWORK' || error.message === 'Network Error';
 
-      // Use a more direct approach to avoid dynamic import delays for UI
+      // Silent logging to background
+      import('@/utils/logger').then(({ default: logger }) => {
+        logger.reportError({
+          message: `API Error: ${error.config?.method?.toUpperCase()} ${error.config?.url} (${error.response?.status || 'Network'})`,
+          type: 'api_error',
+          severity: error.response?.status >= 500 ? 'high' : 'medium',
+          payload: {
+            status: error.response?.status,
+            config: {
+              url: error.config?.url,
+              method: error.config?.method,
+              params: error.config?.params,
+              data: error.config?.data,
+            },
+            responseData: error.response?.data,
+          },
+        });
+      });
+
+      // Show interactive capture UI if needed (legacy behavior maintained)
       import('@/stores/appState').then(storeModule => {
         const appState = storeModule.useappState();
 
