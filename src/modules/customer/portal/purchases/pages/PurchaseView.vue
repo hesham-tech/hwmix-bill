@@ -251,7 +251,7 @@ const displayRemainingAmount = computed(() => {
 const displayPaidAmount = computed(() => {
   if (!invoice.value) return 0;
   const plan = invoice.value.installment_plan || invoice.value.installmentPlan;
-  return plan ? (plan.total_collected ?? plan.totalCollected) : invoice.value.paid_amount || 0;
+  return plan ? (plan.total_pay ?? plan.total_collected ?? plan.totalCollected) : invoice.value.paid_amount || 0;
 });
 
 const goBack = () => router.push('/app/purchases');
