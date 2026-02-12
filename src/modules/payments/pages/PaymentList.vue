@@ -93,9 +93,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { usePaymentsData } from '../composables/usePaymentsData';
+import { useDataTable } from '@/composables/useDataTable';
+import { useApi } from '@/composables/useApi';
 import { usePermissions } from '@/composables/usePermissions';
 import { PERMISSIONS } from '@/config/permissions';
 import { AppDataTable, AppButton, AppDialog, AppUserBalanceProfile } from '@/components';
@@ -106,16 +107,41 @@ const { can } = usePermissions();
 
 const router = useRouter();
 const { print } = usePrint();
-const { payments, loading, total, fetchPayments, deletePayment } = usePaymentsData();
 
-const page = ref(1);
-const itemsPerPage = ref(10);
+// API
+const paymentApi = useApi('/api/payments');
+
+// Fetch function for useDataTable
+const fetchPayments = async params => {
+  return await paymentApi.get(params, { showLoading: false });
+};
+
+// DataTable composable
+const {
+  items: payments,
+  loading,
+  currentPage: page,
+  perPage: itemsPerPage,
+  total,
+  search,
+  sortByVuetify,
+  changeSort,
+  removeItem,
+  refresh,
+} = useDataTable(fetchPayments, {
+  initialPerPage: 10,
+  initialSortBy: 'payment_date',
+  initialSortOrder: 'desc',
+  syncWithUrl: true,
+  immediate: true,
+});
+
 const showDeleteDialog = ref(false);
 const selectedItem = ref(null);
 const deleting = ref(false);
 
 const headers = [
-  { title: 'الفاتورة', key: 'invoice' },
+  { title: 'الفاتورة والعميل', key: 'invoice' },
   { title: 'المبلغ', key: 'amount', align: 'end' },
   { title: 'طريقة الدفع', key: 'payment_method' },
   { title: 'تاريخ الدفع', key: 'payment_date' },
@@ -134,9 +160,12 @@ const handleDelete = item => {
 const confirmDelete = async () => {
   deleting.value = true;
   try {
-    await deletePayment(selectedItem.value.id);
+    await paymentApi.remove(selectedItem.value.id);
+    removeItem(selectedItem.value.id);
     showDeleteDialog.value = false;
-    loadData();
+    selectedItem.value = null;
+  } catch (error) {
+    // Error handled in useApi
   } finally {
     deleting.value = false;
   }
@@ -145,16 +174,6 @@ const confirmDelete = async () => {
 const handlePrint = async item => {
   await print('payment', item);
 };
-
-const handleItemsPerPageChange = value => {
-  itemsPerPage.value = value;
-  page.value = 1;
-  loadData();
-};
-
-const loadData = () => fetchPayments({ page: page.value, per_page: itemsPerPage.value });
-
-onMounted(loadData);
 </script>
 
 <style scoped></style>

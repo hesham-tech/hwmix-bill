@@ -9,7 +9,7 @@
       <template #controls>
         <v-col cols="12" md="8">
           <AppInput
-            v-model="filters.search"
+            v-model="search"
             placeholder="بحث سريع برقم الفاتورة أو اسم العميل..."
             prepend-inner-icon="ri-search-line"
             clearable

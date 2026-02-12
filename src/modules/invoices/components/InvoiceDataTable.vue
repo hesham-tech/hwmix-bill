@@ -31,8 +31,9 @@
 
     <!-- العميل -->
     <template #item.customer="{ item }">
-      <AppUserBalanceProfile v-if="item.customer" :user="item.customer" mode="horizontal" :avatar-size="36" />
-      <span v-else class="text-caption text-grey">بدون عميل</span>
+      <div class="d-flex align-center gap-3 py-2">
+        <AppUserBalanceProfile :user="item.customer || item.user" mode="horizontal" :avatar-size="36" />
+      </div>
     </template>
 
     <!-- التاريخ -->
