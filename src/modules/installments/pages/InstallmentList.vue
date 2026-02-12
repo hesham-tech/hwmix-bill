@@ -57,6 +57,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/user';
 import { usePermissions } from '@/composables/usePermissions';
 import { useDataTable } from '@/composables/useDataTable';
 import { useApi } from '@/composables/useApi';
@@ -75,6 +76,7 @@ import { useNotifications } from '@/plugins/notification';
 const { can, canAny } = usePermissions();
 const { notify } = useNotifications();
 const { printInstallment } = usePrint();
+const userStore = useUserStore();
 const api = useApi('/api/installments');
 const router = useRouter();
 

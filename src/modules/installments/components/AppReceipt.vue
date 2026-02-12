@@ -19,7 +19,7 @@
         </tr>
         <tr>
           <td class="label">رقم العملية:</td>
-          <td class="value">#{{ paymentData?.id }}</td>
+          <td class="value">#{{ paymentData?.id || '---' }}</td>
         </tr>
         <tr class="hero-row">
           <td class="label">المبلغ المحصل:</td>
@@ -31,7 +31,7 @@
         </tr>
         <tr>
           <td class="label">تاريخ الاستحقاق:</td>
-          <td class="value font-bold">{{ formatDate(paidInstallments[0]?.due_date) }}</td>
+          <td class="value font-bold">{{ paidInstallments?.[0]?.due_date ? formatDate(paidInstallments[0].due_date) : '---' }}</td>
         </tr>
         <tr>
           <td class="label">طريقة الدفع:</td>
@@ -54,7 +54,7 @@
         </tr>
       </thead>
       <tbody>
-        <template v-for="inst in paidInstallments" :key="inst?.id">
+        <template v-for="inst in paidInstallments || []" :key="inst?.id || Math.random()">
           <tr v-if="inst">
             <td>قسط رقم #{{ inst.installment_number }}</td>
             <td class="text-left">{{ formatCurrency(inst.amount) }}</td>

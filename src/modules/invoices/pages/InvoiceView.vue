@@ -11,10 +11,10 @@
           :size="mobile ? 'small' : 'default'"
         />
         <div>
-          <h1 :class="[mobile ? 'text-h6' : 'text-h4', 'font-weight-bold']">الفاتورة #{{ invoice?.invoice_number }}</h1>
+          <h1 :class="[mobile ? 'text-h6' : 'text-h4', 'font-weight-bold']">الفاتورة #{{ invoice?.invoice_number || '---' }}</h1>
           <p :class="[mobile ? 'text-caption' : 'text-body-1', 'text-grey mb-0']" v-if="invoice">
             <v-icon icon="ri-calendar-line" size="small" class="me-1" />
-            {{ formatDate(invoice.issue_date) }}
+            {{ invoice?.issue_date ? formatDate(invoice.issue_date) : '---' }}
           </p>
         </div>
       </div>

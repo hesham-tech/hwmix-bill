@@ -189,7 +189,7 @@ const fetchedItems = ref([]);
 const mergedItems = computed(() => {
   if (!props.apiEndpoint) return props.items;
 
-  const all = [...props.items, ...fetchedItems.value];
+  const all = [...(props.items || []), ...(Array.isArray(fetchedItems.value) ? fetchedItems.value : [])];
   const unique = [];
   const map = new Map();
   for (const item of all) {

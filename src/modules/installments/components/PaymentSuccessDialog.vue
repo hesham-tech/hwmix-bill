@@ -32,9 +32,17 @@
             </div>
 
             <div class="field-row">
+              <span class="field-label">الفاتورة</span>
+              <h1 :class="[mobile ? 'text-h6' : 'text-h4', 'font-weight-bold']">
+                الفاتورة #{{ paymentData?.plan?.invoice?.invoice_number || '---' }}
+              </h1>
+            </div>
+
+            <div class="field-row">
               <span class="field-label">رقم العملية</span>
               <span class="field-value">
-                <v-chip size="small" variant="flat" color="primary" class="font-weight-bold"> #{{ paymentData?.id }} </v-chip>
+                <v-chip v-if="paymentData?.id" size="small" variant="flat" color="primary" class="font-weight-bold"> #{{ paymentData.id }} </v-chip>
+                <span v-else>---</span>
               </span>
             </div>
 
@@ -61,7 +69,7 @@
 
             <div class="field-row">
               <span class="field-label">طريقة الدفع</span>
-              <span class="field-value">{{ paymentMethodName }}</span>
+              <span class="field-value">{{ paymentMethodName || 'نقدي' }}</span>
             </div>
           </div>
 
