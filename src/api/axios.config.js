@@ -130,7 +130,7 @@ apiClient.interceptors.response.use(
       // Silent logging to background
       import('@/utils/logger').then(({ default: logger }) => {
         logger.reportError({
-          message: `API Error: ${error.config?.method?.toUpperCase()} ${error.config?.url} (${error.response?.status || 'Network'})`,
+          message: `API Error: ${(error.config?.method || 'unknown').toUpperCase()} ${error.config?.url || 'unknown'} (${error.response?.status || 'Network'})`,
           type: 'api_error',
           severity: error.response?.status >= 500 ? 'high' : 'medium',
           payload: {

@@ -12,10 +12,18 @@
         <!-- Loading State -->
         <v-progress-linear v-if="loading" indeterminate color="primary" class="rounded-t" />
 
+        <!-- High Performance Analytics -->
+        <AnalyticsStatsCards :stats="advancedStats" :loading="analyticsLoading" class="mb-4" />
+
         <!-- Statistics Cards -->
         <StatsCards :stats="stats" />
       </div>
     </ShareView>
+
+    <!-- Product Intelligence Section -->
+    <div class="px-6 mb-6">
+      <ProductIntelligenceTable :data="advancedTopProducts" :loading="analyticsLoading" @sort-change="handleSortChange" />
+    </div>
 
     <!-- Charts and Tasks Row -->
     <v-row class="px-6 mx-0 mb-2">
@@ -34,7 +42,7 @@
     <!-- Top Products row -->
     <v-row class="px-6 mx-0 mb-2">
       <v-col cols="12">
-        <TopProductsChart :data="topProducts" :loading="loading" />
+        <TopProductsChart :data="basicTopProducts" :loading="loading" />
       </v-col>
     </v-row>
 
@@ -74,12 +82,15 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useDashboardData } from '../composables/useDashboardData';
+import { useAnalytics } from '../composables/useAnalytics';
 import AppButton from '@/components/common/AppButton.vue';
 import ShareView from '@/modules/capture/components/ShareView.vue';
 import StatsCards from '../components/StatsCards.vue';
+import AnalyticsStatsCards from '../components/AnalyticsStatsCards.vue';
+import ProductIntelligenceTable from '../components/ProductIntelligenceTable.vue';
 import QuickActions from '../components/QuickActions.vue';
 import RecentInvoices from '../components/RecentInvoices.vue';
 import UpcomingPayments from '../components/UpcomingPayments.vue';
@@ -99,13 +110,31 @@ const {
   upcomingPayments,
   upcomingInstallments,
   salesTrend,
-  topProducts,
-  loading,
+  topProducts: basicTopProducts,
+  loading: dashboardLoading,
   loadingUpcoming,
   loadingInstallments,
   refreshing,
-  refreshAll,
+  refreshAll: refreshBasic,
 } = useDashboardData();
+
+const {
+  loading: analyticsLoading,
+  dashboardStats: advancedStats,
+  topProducts: advancedTopProducts,
+  fetchDashboardStats,
+  fetchTopProducts,
+} = useAnalytics();
+
+const loading = computed(() => dashboardLoading.value || analyticsLoading.value);
+
+const handleSortChange = sortBy => {
+  fetchTopProducts({ sort_by: sortBy });
+};
+
+const refreshAll = async () => {
+  await Promise.all([refreshBasic(), fetchDashboardStats(), fetchTopProducts()]);
+};
 
 // Quick actions configuration
 const quickActions = [
