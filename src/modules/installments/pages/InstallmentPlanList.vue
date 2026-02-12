@@ -268,7 +268,7 @@ const {
   applyFilters,
 } = useDataTable(fetchPlans, {
   syncWithUrl: true,
-  initialSortBy: 'start_date',
+  initialSortBy: 'created_at',
   initialSortOrder: 'desc',
   immediate: true,
 });

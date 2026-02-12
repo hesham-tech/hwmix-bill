@@ -170,6 +170,8 @@ const {
   refresh,
 } = useDataTable(fetchInvoices, {
   initialPerPage: 10,
+  initialSortBy: 'id',
+  initialSortOrder: 'desc',
   syncWithUrl: true,
   immediate: true,
 });
