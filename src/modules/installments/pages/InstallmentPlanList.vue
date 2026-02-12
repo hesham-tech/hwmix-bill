@@ -11,7 +11,7 @@
           :total-items="total"
           v-model:items-per-page="itemsPerPage"
           v-model:page="page"
-          v-model:search="search"
+          v-model:search="searchText"
           v-model:sort-by="sortByVuetify"
           :filters="filtersConfig"
           show-view-toggle
@@ -259,7 +259,7 @@ const {
   total,
   currentPage: page,
   perPage: itemsPerPage,
-  search,
+  search: searchText,
   sortByVuetify,
   changePage,
   changePerPage,

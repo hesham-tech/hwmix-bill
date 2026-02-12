@@ -10,7 +10,7 @@
       <template #controls>
         <v-col cols="12" md="8">
           <AppInput
-            v-model="search"
+            v-model="searchText"
             placeholder="بحث سريح بالاسم، الهاتف، أو البريد..."
             prepend-inner-icon="ri-search-line"
             clearable
@@ -450,7 +450,7 @@ const {
   perPage: itemsPerPage,
   total: totalItems,
   lastPage,
-  search,
+  search: searchText,
   filters,
   sortBy,
   sortByVuetify,

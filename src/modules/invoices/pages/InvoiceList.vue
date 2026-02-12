@@ -9,7 +9,7 @@
       <template #controls>
         <v-col cols="12" md="8">
           <AppInput
-            v-model="search"
+            v-model="searchText"
             placeholder="بحث سريع برقم الفاتورة أو اسم العميل..."
             prepend-inner-icon="ri-search-line"
             clearable
@@ -159,6 +159,7 @@ const {
   currentPage,
   perPage,
   total,
+  search: searchText,
   filters,
   selectedIds,
   hasSelection,

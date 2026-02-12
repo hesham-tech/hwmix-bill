@@ -94,7 +94,7 @@ const {
   sortBy,
   sortOrder,
   sortByVuetify,
-  search,
+  search: searchText,
   filters,
   changePage,
   changePerPage,

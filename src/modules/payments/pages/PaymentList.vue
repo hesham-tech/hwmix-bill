@@ -10,16 +10,13 @@
         :headers="headers"
         :items="payments"
         :loading="loading"
-        :items-length="total"
-        :items-per-page="itemsPerPage"
-        :page="page"
+        v-model:page="page"
+        v-model:items-per-page="itemsPerPage"
+        v-model:search="searchText"
+        v-model:sort-by="sortByVuetify"
         title="سجل المدفوعات"
         icon="ri-bank-card-2-line"
-        @update:page="
-          page = $event;
-          loadData();
-        "
-        @update:items-per-page="handleItemsPerPageChange"
+        @update:options="changeSort"
       >
         <template #actions>
           <AppButton v-if="can(PERMISSIONS.PAYMENTS_CREATE)" color="primary" prepend-icon="ri-add-line" @click="handleCreate">
@@ -123,7 +120,7 @@ const {
   currentPage: page,
   perPage: itemsPerPage,
   total,
-  search,
+  search: searchText,
   sortByVuetify,
   changeSort,
   removeItem,
