@@ -174,6 +174,7 @@
 </template>
 
 <script setup>
+import { ref } from 'vue';
 import { usePermissions } from '@/composables/usePermissions';
 import { PERMISSIONS } from '@/config/permissions';
 import { useApi } from '@/composables/useApi';

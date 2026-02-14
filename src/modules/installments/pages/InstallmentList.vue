@@ -15,7 +15,7 @@
             :filters="advancedFilters"
             v-model:page="page"
             v-model:items-per-page="itemsPerPage"
-            v-model:search="search"
+            v-model:search="searchText"
             v-model:filters="filters"
             v-model:sort-by="sortByVuetify"
             :auto-sort="false"

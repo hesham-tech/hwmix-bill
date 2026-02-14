@@ -25,6 +25,34 @@
 
       <!-- Main Content Area with Glassmorphism -->
       <div class="flex-grow-1 content-glass-bg">
+        <!-- شريط اختيار الشركة للمزامنة -->
+        <div class="px-6 py-3 bg-white border-b d-flex align-center justify-space-between flex-wrap gap-2">
+          <div class="d-flex align-center gap-2">
+            <v-icon icon="ri-community-line" color="primary" size="20" />
+            <div>
+              <span class="text-subtitle-2 font-weight-bold d-block">نطاق مزامنة الصلاحيات</span>
+              <span class="text-xxs text-grey">اختر الشركة التي سيتم تطبيق هذه الأدوار فيها للمستخدم</span>
+            </div>
+          </div>
+          <v-select
+            v-model="selectedSyncCompanyId"
+            :items="props.user.companies || []"
+            item-title="name"
+            item-value="id"
+            variant="solo"
+            flat
+            density="compact"
+            hide-details
+            class="sync-company-select rounded-md"
+            style="min-width: 250px"
+            bg-color="grey-lighten-4"
+          >
+            <template #prepend-inner>
+              <v-icon icon="ri-focus-3-line" size="14" color="primary" class="me-1" />
+            </template>
+          </v-select>
+        </div>
+
         <v-window v-model="tab" class="content-window">
           <!-- Roles Segment -->
           <v-window-item value="roles" class="h-100">
@@ -235,8 +263,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useUserStore } from '../store/user.store';
+import { useUserStore as useGlobalUserStore } from '@/stores/user';
+import { userService } from '@/api';
 
 const props = defineProps({
   user: {
@@ -248,12 +278,14 @@ const props = defineProps({
 const emit = defineEmits(['save', 'cancel']);
 
 const store = useUserStore();
+const globalUserStore = useGlobalUserStore();
 const loading = ref(false);
 const tab = ref('roles');
 const expertMode = ref(false);
 const permissionSearch = ref('');
 const selectedRoles = ref([]);
 const selectedPermissions = ref([]);
+const selectedSyncCompanyId = ref(null);
 
 const navigationItems = computed(() => [
   {
@@ -278,8 +310,38 @@ onMounted(async () => {
     await Promise.all([store.fetchRoles(), store.fetchAvailablePermissions()]);
     selectedRoles.value = props.user.roles?.map(r => (typeof r === 'object' ? r.name : r)) || [];
     selectedPermissions.value = props.user.direct_permissions?.map(p => (typeof p === 'object' ? p.name : p)) || [];
+
+    // تهيئة الشركة المستهدفة للمزامنة: الشركة الحالية للأوث يوزر (إن وُجدت في شركات المستخدم المعدل) أو أول شركة للمستخدم المعدل
+    const userCompanyIds = props.user.companies?.map(c => c.id) || [];
+    const authActiveCompanyId = globalUserStore.currentCompany?.id;
+
+    if (authActiveCompanyId && userCompanyIds.includes(authActiveCompanyId)) {
+      selectedSyncCompanyId.value = authActiveCompanyId;
+    } else {
+      selectedSyncCompanyId.value = userCompanyIds[0] || authActiveCompanyId;
+    }
   } finally {
     store.loading = false;
+  }
+});
+
+// مراقبة تغيير الشركة المختارة للمزامنة لجلب الأدوار الحالية للمستخدم فيها
+watch(selectedSyncCompanyId, async newId => {
+  if (newId) {
+    loading.value = true;
+    try {
+      // جلب بيانات المستخدم مع تحديد سياق الشركة المطلوبة لرؤية أدوارها
+      const response = await userService.getOne(props.user.id, { sync_company_id: newId });
+      const userData = response.data[0] || response.data;
+
+      // تحديث الأدوار والصلاحيات المختارة محلياً بناءً على بيانات الشركة المحددة
+      selectedRoles.value = userData.roles?.map(r => (typeof r === 'object' ? r.name : r)) || [];
+      selectedPermissions.value = userData.direct_permissions?.map(p => (typeof p === 'object' ? p.name : p)) || [];
+    } catch (error) {
+      console.error('Failed to refresh user roles for company:', newId, error);
+    } finally {
+      loading.value = false;
+    }
   }
 });
 
@@ -403,6 +465,7 @@ const handleSave = async () => {
     const payload = {
       roles: selectedRoles.value,
       permissions: selectedPermissions.value,
+      sync_company_id: selectedSyncCompanyId.value,
     };
     await store.updateUser(props.user.id, payload);
     emit('save');

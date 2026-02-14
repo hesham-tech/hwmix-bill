@@ -112,17 +112,15 @@
             </v-row>
           </AppCard>
 
-          <div class="d-flex justify-end gap-3 mt-6">
-            <AppButton size="large" prepend-icon="ri-save-fill" :loading="saving" class="px-8 font-weight-bold" type="submit">
-              حفظ التغييرات
-            </AppButton>
-          </div>
+          <!-- Removed old save button container because we are now using the sticky footer -->
         </v-form>
       </v-col>
+
+      <!-- Quick Actions Column -->
       <v-col cols="12" lg="4">
         <AppCard title="إجراءات سريعة" icon="ri-flashlight-line">
           <v-list density="compact" nav>
-            <v-list-item prepend-icon="ri-lock-password-line" title="تغيير كلمة المرور" to="/forgot-password" />
+            <v-list-item prepend-icon="ri-lock-password-line" title="تغيير كلمة المرور" @click="showPasswordDialog = true" />
             <v-list-item prepend-icon="ri-history-line" title="سجل نشاطاتي" :to="`/app/activity-logs?user_id=${userStore.currentUser?.id}`" />
           </v-list>
         </AppCard>
@@ -134,6 +132,61 @@
 
     <!-- Image Cropper for existing images -->
     <AppImageCropper v-model="showCropper" :image-src="cropperImageSrc" crop-type="circle" @cropped="handleCroppedImage" />
+
+    <!-- Sticky Save Footer -->
+    <v-footer app border class="sticky-save-footer pa-4 px-8 bg-white elevation-10">
+      <div class="max-width-container d-flex align-center justify-space-between w-100">
+        <div class="d-none d-md-flex align-center gap-2">
+          <v-icon icon="ri-information-line" color="grey" size="sm" />
+          <span class="text-caption text-grey">تأكد من مراجعة كافة البيانات قبل الحفظ</span>
+        </div>
+        <div class="d-flex align-center gap-3 ms-auto">
+          <AppButton v-if="userStore.currentUser" variant="tonal" color="grey" @click="initForm"> إعادة تعيين </AppButton>
+          <AppButton
+            size="large"
+            prepend-icon="ri-save-fill"
+            :loading="saving"
+            class="px-8 font-weight-bold shadow-md rounded-pill"
+            @click="handleSave"
+          >
+            حفظ كافة التغييرات
+          </AppButton>
+        </div>
+      </div>
+    </v-footer>
+
+    <!-- Change Password Dialog -->
+    <AppDialog
+      v-model="showPasswordDialog"
+      title="تغيير كلمة المرور"
+      subtitle="قم بتعيين كلمة مرور جديدة قوية لحماية حسابك"
+      icon="ri-lock-password-line"
+      max-width="500"
+    >
+      <v-form ref="passwordFormRef" @submit.prevent="handleUpdatePassword">
+        <v-alert type="info" variant="tonal" class="mb-6 rounded-lg text-caption" density="compact">
+          يجب أن تحتوي كلمة المرور على 8 أحرف على الأقل.
+        </v-alert>
+
+        <AppInput
+          v-model="passwordForm.password"
+          label="كلمة المرور الجديدة"
+          :type="showPassword ? 'text' : 'password'"
+          prepend-inner-icon="ri-lock-2-line"
+          :append-inner-icon="showPassword ? 'ri-eye-line' : 'ri-eye-off-line'"
+          @click:append-inner="showPassword = !showPassword"
+          :rules="[rules.required, rules.minLength(8)]"
+          required
+        />
+      </v-form>
+
+      <template #actions>
+        <AppButton variant="tonal" color="grey" @click="closePasswordDialog">إلغاء</AppButton>
+        <AppButton :loading="passwordSaving" color="primary" class="px-6 font-weight-bold rounded-pill" @click="handleUpdatePassword">
+          تحديث كلمة المرور
+        </AppButton>
+      </template>
+    </AppDialog>
   </div>
 </template>
 
@@ -145,6 +198,7 @@ import { toast } from 'vue3-toastify';
 import AppCard from '@/components/common/AppCard.vue';
 import AppInput from '@/components/common/AppInput.vue';
 import AppButton from '@/components/common/AppButton.vue';
+import AppDialog from '@/components/common/AppDialog.vue';
 import MediaGallery from '@/components/common/MediaGallery.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
 import AppImageCropper from '@/components/common/AppImageCropper.vue';
@@ -152,8 +206,12 @@ import AppImageCropper from '@/components/common/AppImageCropper.vue';
 const userStore = useUserStore();
 const api = useApi('/api/users');
 const formRef = ref(null);
+const passwordFormRef = ref(null);
 const saving = ref(false);
+const passwordSaving = ref(false);
 const showMediaGallery = ref(false);
+const showPasswordDialog = ref(false);
+const showPassword = ref(false);
 const errors = ref({});
 
 const formData = reactive({
@@ -172,9 +230,14 @@ const formData = reactive({
 const showCropper = ref(false);
 const cropperImageSrc = ref('');
 
+const passwordForm = reactive({
+  password: '',
+});
+
 const rules = {
   required: v => !!v || 'هذا الحقل مطلوب',
   email: v => /.+@.+\..+/.test(v) || 'يرجى إدخال بريد إلكتروني صحيح',
+  minLength: min => v => (v && v.length >= min) || `يجب أن لا يقل عن ${min} أحرف`,
 };
 
 const handleImageSelect = image => {
@@ -214,22 +277,6 @@ const handleCroppedImage = async blob => {
   }
 };
 
-const initForm = () => {
-  const user = userStore.currentUser;
-  if (!user) return;
-
-  formData.id = user.id;
-  formData.full_name = user.full_name || '';
-  formData.nickname = user.nickname || '';
-  formData.username = user.username || '';
-  formData.position = user.position || '';
-  formData.email = user.email || '';
-  formData.phone = user.phone || '';
-  formData.avatar_url = user.avatar_url || '';
-  formData.name = user.name || '';
-  formData.images_ids = [];
-};
-
 const handleSave = async () => {
   const { valid } = await formRef.value.validate();
   if (!valid) return;
@@ -247,6 +294,7 @@ const handleSave = async () => {
 
     // Refresh user data in store
     await userStore.fetchUser();
+    toast.success('تم حفظ التغييرات بنجاح');
   } catch (error) {
     if (error.response?.data?.errors) {
       errors.value = error.response.data.errors;
@@ -254,6 +302,48 @@ const handleSave = async () => {
   } finally {
     saving.value = false;
   }
+};
+
+const initForm = () => {
+  const user = userStore.currentUser;
+  if (!user) return;
+
+  formData.id = user.id;
+  formData.full_name = user.full_name || '';
+  formData.nickname = user.nickname || '';
+  formData.username = user.username || '';
+  formData.position = user.position || '';
+  formData.email = user.email || '';
+  formData.phone = user.phone || '';
+  formData.avatar_url = user.avatar_url || '';
+  formData.name = user.name || '';
+  formData.images_ids = [];
+};
+
+const handleUpdatePassword = async () => {
+  const { valid } = await passwordFormRef.value.validate();
+  if (!valid) return;
+
+  passwordSaving.value = true;
+  try {
+    await api.update(formData.id, {
+      password: passwordForm.password,
+    });
+    toast.success('تم تحديث كلمة المرور بنجاح');
+    closePasswordDialog();
+  } catch (error) {
+    if (error.response?.data?.errors) {
+      toast.error(Object.values(error.response.data.errors)[0][0]);
+    }
+  } finally {
+    passwordSaving.value = false;
+  }
+};
+
+const closePasswordDialog = () => {
+  showPasswordDialog.value = false;
+  passwordForm.password = '';
+  showPassword.value = false;
 };
 
 onMounted(() => {
@@ -312,5 +402,31 @@ onMounted(() => {
 
 .gap-3 {
   gap: 12px;
+}
+
+.sticky-save-footer {
+  z-index: 100;
+  height: 80px;
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(8px);
+  border-top: 1px solid #eee !important;
+}
+
+.max-width-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.shadow-md {
+  box-shadow: 0 4px 12px rgba(var(--v-theme-primary), 0.2) !important;
+}
+
+.rounded-pill {
+  border-radius: 9999px !important;
+}
+
+/* Ensure content doesn't get hidden behind the sticky footer */
+.pb-16 {
+  padding-bottom: 100px !important;
 }
 </style>

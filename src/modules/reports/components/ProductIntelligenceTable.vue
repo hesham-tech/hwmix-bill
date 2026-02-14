@@ -1,15 +1,23 @@
 <template>
   <v-card border flat class="rounded-lg overflow-hidden mt-4">
-    <v-card-title class="pa-4 d-flex align-center justify-space-between">
+    <div class="pa-4 d-flex flex-column flex-sm-row align-start align-sm-center justify-space-between" style="gap: 16px">
       <div class="d-flex align-center">
-        <v-icon icon="ri-funds-box-line" color="primary" class="me-2" />
-        <span class="text-h6 font-weight-bold">تحليل أداء المنتجات المتقدم</span>
+        <v-icon icon="ri-funds-box-line" color="primary" size="24" class="me-2" />
+        <h3 class="text-h6 font-weight-bold mb-0">تحليل أداء المنتجات المتقدم</h3>
       </div>
-      <v-btn-toggle v-model="sortBy" mandatory density="compact" color="primary" variant="tonal" @update:model-value="onSortChange">
-        <v-btn value="total_sold_quantity" size="small">الأكثر مبيعاً</v-btn>
-        <v-btn value="total_profit" size="small">الأكثر ربحية</v-btn>
+
+      <v-btn-toggle
+        v-model="sortBy"
+        mandatory
+        color="primary"
+        variant="tonal"
+        class="analytics-toggle border rounded-lg overflow-hidden"
+        @update:model-value="onSortChange"
+      >
+        <v-btn value="total_sold_quantity" size="small" class="px-4" style="min-width: 110px">الأكثر مبيعاً</v-btn>
+        <v-btn value="total_profit" size="small" class="px-4" style="min-width: 110px">الأكثر ربحية</v-btn>
       </v-btn-toggle>
-    </v-card-title>
+    </div>
 
     <v-divider />
 

@@ -8,63 +8,31 @@
       </template>
 
       <template #controls>
-        <v-col cols="12" md="8">
-          <AppInput
-            v-model="searchText"
-            placeholder="بحث سريح بالاسم، الهاتف، أو البريد..."
-            prepend-inner-icon="ri-search-line"
-            clearable
-            hide-details
-            variant="solo-filled"
-            density="comfortable"
-            flat
-            class="rounded-md"
-            @update:model-value="debouncedSearch"
-          />
-        </v-col>
-        <v-col cols="auto" class="d-md-none">
-          <AppButton icon="ri-filter-line" color="primary" @click="showAdvanced = !showAdvanced" />
-        </v-col>
+        <!-- Mode Switch: Current Company vs Global -->
+        <div v-if="userStore.permissions.includes(PERMISSIONS.ADMIN_SUPER)" class="d-flex align-center">
+          <v-card variant="tonal" :color="currentCompanyOnly ? 'primary' : 'warning'" class="rounded-pill px-4 py-1 border-primary">
+            <div class="d-flex align-center gap-2">
+              <v-icon :icon="currentCompanyOnly ? 'ri-building-line' : 'ri-global-line'" size="18" />
+              <span class="text-caption font-weight-bold">
+                {{ currentCompanyOnly ? 'الشركة الحالية فقط' : 'عرض كافة الشركات' }}
+              </span>
+              <AppSwitch
+                v-model="currentCompanyOnly"
+                :color="currentCompanyOnly ? 'primary' : 'warning'"
+                hide-details
+                inset
+                density="compact"
+                class="ms-2"
+              />
+            </div>
+          </v-card>
+        </div>
       </template>
     </AppPageHeader>
 
     <v-container fluid class="pa-0">
-      <!-- Mobile Expandable Filters -->
-      <div>
-        <v-expand-transition>
-          <div v-show="showAdvanced" class="d-md-none">
-            <UserFilters v-model="filters" @apply="handleFiltersChange" />
-          </div>
-        </v-expand-transition>
-      </div>
-
-      <!-- Desktop Layout (8/4) -->
-      <v-row class="d-none d-md-flex ma-0">
-        <!-- Table Column (8/12) -->
-        <v-col cols="12" md="8" class="pa-0">
-          <!-- Mode Switch: Current Company vs Global -->
-          <div
-            v-if="userStore.isAdmin || canAny(PERMISSIONS.USERS_VIEW_ALL, PERMISSIONS.USERS_VIEW_CHILDREN, PERMISSIONS.USERS_VIEW_SELF)"
-            class="d-flex align-center justify-end mb-4 px-2"
-          >
-            <v-card variant="tonal" :color="currentCompanyOnly ? 'primary' : 'warning'" class="rounded-pill px-4 py-1 border-primary">
-              <div class="d-flex align-center gap-2">
-                <v-icon :icon="currentCompanyOnly ? 'ri-building-line' : 'ri-global-line'" size="18" />
-                <span class="text-caption font-weight-bold">
-                  {{ currentCompanyOnly ? 'الشركة الحالية فقط' : 'عرض كافة الشركات' }}
-                </span>
-                <AppSwitch
-                  v-model="currentCompanyOnly"
-                  :color="currentCompanyOnly ? 'primary' : 'warning'"
-                  hide-details
-                  inset
-                  density="compact"
-                  class="ms-2"
-                />
-              </div>
-            </v-card>
-          </div>
-
+      <v-row class="ma-0">
+        <v-col cols="12" class="pa-0">
           <v-card rounded="md" class="border shadow-sm">
             <AppInfiniteScroll
               :loading="loading && users?.length > 0"
@@ -74,6 +42,9 @@
             >
               <AppDataTable
                 v-model:sort-by="sortByVuetify"
+                v-model:search="searchText"
+                @update:filters="applyFilters"
+                :filters="advancedFilters"
                 :items-per-page="-1"
                 :headers="headers"
                 :items="users || []"
@@ -82,11 +53,16 @@
                 :table-height="'calc(100vh - 350px)'"
                 hide-pagination
                 permission-module="users"
+                title="جدول المستخدمين"
+                subtitle="إدارة بيانات الفريق والعملاء مع ميزات البحث المتقدم"
+                icon="ri-group-line"
                 @update:options="onTableOptionsUpdate"
                 @edit="handleEdit"
                 @delete="handleDelete"
-                @view="item => $router.push(`/users/${item.id}`)"
+                @view="item => $router.push(`/app/users/${item.id}`)"
+                @update:search="debouncedSearch"
               >
+                <!-- Existing Templates -->
                 <template #item.full_name="{ item }">
                   <AppUserBalanceProfile :user="item" @click="$router.push(`/app/users/${item.id}`)" />
                 </template>
@@ -131,7 +107,7 @@
                     prepend-icon="ri-money-dollar-circle-line"
                     title="سداد دفعة"
                     class="text-success"
-                    @click="$router.push(`/payments/create?user_id=${item.id}`)"
+                    @click="$router.push(`/app/payments/create?user_id=${item.id}`)"
                   />
                   <AppButton
                     v-else-if="can(PERMISSIONS.PAYMENTS_CREATE)"
@@ -140,10 +116,10 @@
                     variant="text"
                     color="success"
                     tooltip="سداد دفعة"
-                    @click="$router.push(`/payments/create?user_id=${item.id}`)"
+                    @click="$router.push(`/app/payments/create?user_id=${item.id}`)"
                   />
 
-                  <!-- Use v-list-item in context menu for perfect alignment -->
+                  <!-- Permission Management Action -->
                   <v-list-item
                     v-if="inMenu && can(PERMISSIONS.ROLES_PAGE)"
                     prepend-icon="ri-shield-user-line"
@@ -151,7 +127,6 @@
                     class="text-warning"
                     @click="handleManagePermissions(item)"
                   />
-                  <!-- Use AppButton in table for icon-only display -->
                   <AppButton
                     v-else-if="can(PERMISSIONS.ROLES_PAGE)"
                     icon="ri-shield-user-line"
@@ -165,174 +140,12 @@
               </AppDataTable>
             </AppInfiniteScroll>
           </v-card>
-        </v-col>
 
-        <!-- Filters Column (4/12) -->
-        <v-col cols="12" md="4" class="pa-0">
-          <div class="sticky-filters">
-            <h3 class="text-body-2 font-weight-bold mb-2 px-2">
-              <v-icon icon="ri-pie-chart-line" color="primary" size="small" class="me-1" />
-              نظرة عامة
-            </h3>
-
-            <!-- Statistics Grid -->
-            <v-row dense class="mb-3">
-              <v-col cols="6" md="6">
-                <div class="d-flex align-center gap-1 rounded-md border bg-white shadow-sm">
-                  <v-avatar color="primary-lighten-5" rounded="md" size="32">
-                    <v-icon icon="ri-team-line" color="primary" size="16" />
-                  </v-avatar>
-                  <div class="overflow-hidden">
-                    <div class="text-caption text-grey-darken-1 text-truncate" style="font-size: 0.65rem">إجمالي</div>
-                    <div class="text-subtitle-2 font-weight-bold">{{ totalItems || 0 }}</div>
-                  </div>
-                </div>
-              </v-col>
-              <v-col cols="6" md="6">
-                <div class="d-flex align-center gap-1 rounded-md border bg-white shadow-sm">
-                  <v-avatar color="success-lighten-5" rounded="md" size="32">
-                    <v-icon icon="ri-user-follow-line" color="success" size="16" />
-                  </v-avatar>
-                  <div class="overflow-hidden">
-                    <div class="text-caption text-grey-darken-1 text-truncate" style="font-size: 0.65rem">نشطين</div>
-                    <div class="text-subtitle-2 font-weight-bold text-success">{{ activeCount }}</div>
-                  </div>
-                </div>
-              </v-col>
-              <v-col cols="6" md="6">
-                <div class="d-flex align-center gap-1 rounded-md border bg-white shadow-sm">
-                  <v-avatar color="warning-lighten-5" rounded="md" size="32">
-                    <v-icon icon="ri-admin-line" color="warning" size="16" />
-                  </v-avatar>
-                  <div class="overflow-hidden">
-                    <div class="text-caption text-grey-darken-1 text-truncate" style="font-size: 0.65rem">المدراء</div>
-                    <div class="text-subtitle-2 font-weight-bold text-warning">{{ adminCount }}</div>
-                  </div>
-                </div>
-              </v-col>
-              <v-col cols="6" md="6">
-                <div class="d-flex align-center gap-1 rounded-md border bg-white shadow-sm">
-                  <v-avatar color="error-lighten-5" rounded="md" size="32">
-                    <v-icon icon="ri-user-forbid-line" color="error" size="16" />
-                  </v-avatar>
-                  <div class="overflow-hidden">
-                    <div class="text-caption text-grey-darken-1 text-truncate" style="font-size: 0.65rem">معطلين</div>
-                    <div class="text-subtitle-2 font-weight-bold text-error">{{ inactiveCount }}</div>
-                  </div>
-                </div>
-              </v-col>
-            </v-row>
-
-            <!-- Filters Section -->
-            <UserFilters v-model="filters" @apply="handleFiltersChange" />
+          <div class="px-6 pb-6 mt-4">
+            <AppConfirmDialog v-model="showConfirm" :message="confirmMessage" @confirm="handleConfirm" @cancel="handleCancel" />
           </div>
         </v-col>
       </v-row>
-
-      <!-- Mobile: Full Width Table -->
-      <div class="d-md-none">
-        <v-card rounded="md" class="border shadow-sm">
-          <AppInfiniteScroll
-            :loading="loading && users?.length > 0"
-            :has-more="(users?.length || 0) < (totalItems || 0)"
-            no-more-text="لا يوجد المزيد"
-            @load="handleLoadMore"
-          >
-            <AppDataTable
-              v-model:sort-by="sortByVuetify"
-              :items-per-page="-1"
-              :headers="headers"
-              :items="users || []"
-              :total-items="totalItems || 0"
-              :table-height="'calc(100vh - 350px)'"
-              :loading="loading"
-              hide-pagination
-              permission-module="users"
-              @update:options="onTableOptionsUpdate"
-              @edit="handleEdit"
-              @delete="handleDelete"
-              @view="item => $router.push(`/users/${item.id}`)"
-            >
-              <template #item.full_name="{ item }">
-                <AppUserBalanceProfile :user="item" @click="$router.push(`/users/${item.id}`)" />
-              </template>
-
-              <template #item.roles="{ item }">
-                <div class="d-flex flex-wrap gap-1">
-                  <template v-if="item.roles?.length">
-                    <v-chip
-                      v-for="role in item.roles"
-                      :key="typeof role === 'object' ? role.id : role"
-                      size="x-small"
-                      variant="tonal"
-                      :color="getRoleColor(role)"
-                      class="font-weight-bold px-2 rounded"
-                    >
-                      {{ typeof role === 'object' ? role.label || role.name : role }}
-                    </v-chip>
-                  </template>
-                  <span v-else class="text-caption text-grey italic">عميل</span>
-                  <div v-if="item.company_name" class="text-xxs text-grey mt-1 w-100 italic d-flex align-center gap-1">
-                    <v-icon icon="ri-building-line" size="10" color="primary" />
-                    {{ item.company_name }}
-                  </div>
-                </div>
-              </template>
-
-              <template #item.status="{ item }">
-                <v-chip
-                  :color="[1, '1', true, 'active'].includes(item.status) ? 'success' : 'error'"
-                  size="x-small"
-                  variant="flat"
-                  class="font-weight-bold px-2"
-                >
-                  {{ [1, '1', true, 'active'].includes(item.status) ? 'نشط' : 'معطل' }}
-                </v-chip>
-              </template>
-
-              <template #extra-actions="{ item, inMenu }">
-                <v-list-item
-                  v-if="inMenu && can(PERMISSIONS.PAYMENTS_CREATE)"
-                  prepend-icon="ri-money-dollar-circle-line"
-                  title="سداد دفعة"
-                  class="text-success"
-                  @click="$router.push(`/payments/create?user_id=${item.id}`)"
-                />
-                <AppButton
-                  v-else-if="can(PERMISSIONS.PAYMENTS_CREATE)"
-                  icon="ri-money-dollar-circle-line"
-                  size="small"
-                  variant="text"
-                  color="success"
-                  tooltip="سداد"
-                  @click="$router.push(`/payments/create?user_id=${item.id}`)"
-                />
-
-                <v-list-item
-                  v-if="inMenu && can(PERMISSIONS.ROLES_PAGE)"
-                  prepend-icon="ri-shield-user-line"
-                  title="إدارة الصلاحيات"
-                  class="text-warning"
-                  @click="handleManagePermissions(item)"
-                />
-                <AppButton
-                  v-else-if="can(PERMISSIONS.ROLES_PAGE)"
-                  icon="ri-shield-user-line"
-                  size="small"
-                  variant="text"
-                  color="warning"
-                  tooltip="صلاحيات"
-                  @click="handleManagePermissions(item)"
-                />
-              </template>
-            </AppDataTable>
-          </AppInfiniteScroll>
-        </v-card>
-      </div>
-
-      <div class="px-6 pb-6">
-        <AppConfirmDialog v-model="showConfirm" :message="confirmMessage" @confirm="handleConfirm" @cancel="handleCancel" />
-      </div>
 
       <!-- User Form Dialog -->
       <AppDialog
@@ -394,29 +207,42 @@ import { useDataTable } from '@/composables/useDataTable';
 import { userService } from '@/api';
 import { useUser } from '../composables/useUser';
 import UserForm from '../components/UserForm.vue';
-import UserFilters from '../components/UserFilters.vue';
 import UserPermissionManager from '../components/UserPermissionManager.vue';
-import {
-  AppDataTable,
-  AppButton,
-  AppDialog,
-  AppInfiniteScroll,
-  AppConfirmDialog,
-  AppSwitch,
-  AppAvatar,
-  AppPhone,
-  AppUserBalanceProfile,
-} from '@/components';
+import { AppDataTable, AppButton, AppDialog, AppInfiniteScroll, AppConfirmDialog, AppSwitch, AppUserBalanceProfile } from '@/components';
 import { PERMISSIONS } from '@/config/permissions';
-import { getInitials } from '@/utils/helpers';
-import { formatCurrency } from '@/utils/formatters';
 
 const { can, canAny } = usePermissions();
 const { smAndDown: isMobile } = useDisplay();
 const store = useUserStore();
 const userStore = useGlobalUserStore();
 const userFormRef = ref(null);
-const showAdvanced = ref(false);
+
+// Advanced Filters Definition
+const advancedFilters = [
+  {
+    key: 'role',
+    title: 'الدور',
+    type: 'select',
+    items: [
+      { title: 'مدير عام', value: 'admin.super' },
+      { title: 'مدير شركة', value: 'admin.company' },
+      { title: 'مدير', value: 'manager' },
+      { title: 'موظف مبيعات', value: 'sales' },
+      { title: 'أمين مخزن', value: 'stock' },
+      { title: 'محاسب', value: 'accountant' },
+      { title: 'عميل', value: 'customer' },
+    ],
+  },
+  {
+    key: 'status',
+    title: 'الحالة',
+    type: 'select',
+    items: [
+      { title: 'نشط', value: 'active' },
+      { title: 'معطل', value: 'inactive' },
+    ],
+  },
+];
 
 const {
   formData,
@@ -483,10 +309,6 @@ const onTableOptionsUpdate = options => {
   changeSort(options);
 };
 
-const handleFiltersChange = newFilters => {
-  applyFilters(newFilters);
-};
-
 const handleSave = async data => {
   await saveUser(data);
   fetchData();
@@ -511,7 +333,7 @@ const headers = computed(() => {
   return base;
 });
 
-// Statistics counters
+// Statistics counters (synced with global filters)
 const activeCount = computed(() => store.stats?.active || 0);
 const adminCount = computed(() => store.stats?.admins || 0);
 const inactiveCount = computed(() => store.stats?.inactive || 0);
