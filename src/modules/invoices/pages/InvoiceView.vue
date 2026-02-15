@@ -22,7 +22,7 @@
         <AppButton
           v-if="can('invoices.update_all')"
           color="primary"
-          prepend-icon="ri-edit-line"
+          :prepend-icon="!mobile ? 'ri-edit-line' : false"
           :icon="mobile ? 'ri-edit-line' : false"
           :size="mobile ? 'small' : 'default'"
           @click="editInvoice"
@@ -32,7 +32,7 @@
         <AppButton
           v-if="invoice?.invoice_type?.code === 'purchase'"
           color="warning"
-          prepend-icon="ri-ticket-line"
+          :prepend-icon="!mobile ? 'ri-ticket-line' : false"
           :icon="mobile ? 'ri-ticket-line' : false"
           :size="mobile ? 'small' : 'default'"
           @click="stickersDialog?.open(invoice)"
@@ -43,7 +43,7 @@
         <AppButton
           v-if="can('invoices.delete_all')"
           color="error"
-          prepend-icon="ri-delete-bin-line"
+          :prepend-icon="!mobile ? 'ri-delete-bin-line' : false"
           :icon="mobile ? 'ri-delete-bin-line' : false"
           :size="mobile ? 'small' : 'default'"
           @click="showDeleteDialog = true"
