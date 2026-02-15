@@ -51,6 +51,7 @@ declare module 'vue' {
     NoteForm: typeof import('./src/components/forms/NoteForm.vue')['default']
     PagePlaceholder: typeof import('./src/components/common/PagePlaceholder.vue')['default']
     PaymentForm: typeof import('./src/components/forms/PaymentForm.vue')['default']
+    PercentageTool: typeof import('./src/components/tools/PercentageTool.vue')['default']
     PrintTemplate: typeof import('./src/components/common/PrintTemplate.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

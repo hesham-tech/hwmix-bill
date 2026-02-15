@@ -93,21 +93,27 @@
         <v-list density="compact" min-width="200" class="pa-2">
           <div class="text-caption text-grey px-2 mb-2">أدوات الوصول السريع</div>
           <v-row no-gutters>
-            <v-col cols="6" class="pa-1">
-              <v-card variant="tonal" color="primary" class="text-center pa-3 cursor-pointer" @click="appState.openCalculator()">
-                <v-icon icon="ri-calculator-line" size="24" />
+            <v-col cols="4" class="pa-1">
+              <v-card variant="tonal" color="success" class="text-center pa-2 cursor-pointer" @click="appState.openPercentageTool()">
+                <v-icon icon="ri-percent-line" size="20" />
+                <div class="text-caption mt-1">حساب نسبة</div>
+              </v-card>
+            </v-col>
+            <v-col cols="4" class="pa-1">
+              <v-card variant="tonal" color="primary" class="text-center pa-2 cursor-pointer" @click="appState.openCalculator()">
+                <v-icon icon="ri-calculator-line" size="20" />
                 <div class="text-caption mt-1">آلة حاسبة</div>
               </v-card>
             </v-col>
-            <v-col cols="6" class="pa-1">
+            <v-col cols="4" class="pa-1">
               <v-card
                 variant="tonal"
                 color="info"
-                class="text-center pa-3 cursor-pointer"
+                class="text-center pa-2 cursor-pointer"
                 @click="appState.openInstallmentCalc({ mode: 'standalone' })"
               >
-                <v-icon icon="ri-calendar-2-line" size="24" />
-                <div class="text-caption mt-1">حساب أقساط</div>
+                <v-icon icon="ri-calendar-2-line" size="20" />
+                <div class="text-caption mt-1">أقساط</div>
               </v-card>
             </v-col>
           </v-row>
@@ -157,6 +163,7 @@
 
             <!-- <v-list-item prepend-icon="ri-translate-2" :title="localeStore.locale === 'ar' ? 'English' : 'عربي'" @click="toggleLanguage" />
             <v-list-item prepend-icon="ri-customer-service-2-line" title="الدعم الفني" @click="handleManualReport('feedback')" /> -->
+            <v-list-item prepend-icon="ri-percent-line" title="حساب نسبة مئوية" @click="appState.openPercentageTool()" />
             <v-list-item prepend-icon="ri-calculator-line" title="آلة حاسبة" @click="appState.openCalculator()" />
             <v-list-item prepend-icon="ri-calendar-2-line" title="حساب أقساط" @click="appState.openInstallmentCalc({ mode: 'standalone' })" />
           </template>
@@ -251,6 +258,30 @@
           </v-card>
         </div>
       </transition>
+      <!-- Global Percentage Tool -->
+      <transition name="scale">
+        <div
+          v-if="appState.percentageTool.isOpen"
+          v-draggable="{ id: 'percent', position: toolPositions.percent }"
+          class="floating-tool-window"
+          :style="{ zIndex: activeTool === 'percent' ? 2001 : 2000 }"
+          @mousedown="setActiveTool('percent')"
+          @touchstart="setActiveTool('percent')"
+        >
+          <v-card width="300" class="tool-premium-card elevation-2">
+            <header class="dialog-premium-header pa-3 d-flex align-center justify-space-between text-white drag-handle cursor-move variant-blue">
+              <div class="d-flex align-center gap-2">
+                <v-icon icon="ri-percent-line" color="white" size="20" />
+                <span class="text-subtitle-2 font-weight-bold">حساب النسبة الذكي</span>
+              </div>
+              <v-btn icon="ri-close-line" variant="tonal" color="white" class="no-drag" size="x-small" @click="appState.closePercentageTool" />
+            </header>
+            <div class="tool-content">
+              <PercentageTool @close="appState.closePercentageTool" />
+            </div>
+          </v-card>
+        </div>
+      </transition>
     </div>
     <AppConfirmDialog
       ref="confirmLogoutDialog"
@@ -291,6 +322,7 @@ import AppAvatar from '@/components/common/AppAvatar.vue';
 import AppConfirmDialog from '@/components/common/AppConfirmDialog.vue';
 import Calculator from '@/components/tools/Calculator.vue';
 import InstallmentCalc from '@/components/tools/InstallmentCalc.vue';
+import PercentageTool from '@/components/tools/PercentageTool.vue';
 import { toast } from 'vue3-toastify';
 import { useDisplay } from 'vuetify';
 import { formatCurrency } from '@/utils/formatters';
@@ -450,6 +482,7 @@ const getDefaultPos = (width, estimatedHeight = 500) => {
 const toolPositions = ref({
   calc: JSON.parse(localStorage.getItem('tool_pos_calc')),
   installment: JSON.parse(localStorage.getItem('tool_pos_installment')),
+  percent: JSON.parse(localStorage.getItem('tool_pos_percent')),
 });
 
 // مراقبة فتح الأدوات لتحديد الموقع الافتراضي إذا لم يكن موجوداً
@@ -458,6 +491,16 @@ watch(
   isOpen => {
     if (isOpen && !toolPositions.value.calc) {
       toolPositions.value.calc = getDefaultPos(320, 450);
+    }
+  },
+  { immediate: true }
+);
+
+watch(
+  () => appState.percentageTool.isOpen,
+  isOpen => {
+    if (isOpen && !toolPositions.value.percent) {
+      toolPositions.value.percent = getDefaultPos(300, 400);
     }
   },
   { immediate: true }
@@ -552,6 +595,10 @@ watch(
 
 .dialog-premium-header.variant-purple {
   background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+}
+
+.dialog-premium-header.variant-green {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
 }
 
 .gap-2 {

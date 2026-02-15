@@ -51,23 +51,24 @@ const justCalculated = ref(false); // لتتبع ما إذا كان المستخ
 
 const buttons = [
   { label: 'C', val: 'C', color: 'error', variant: 'tonal' },
-  { label: '÷', val: '/', color: 'primary', variant: 'tonal' },
-  { label: '×', val: '*', color: 'primary', variant: 'tonal' },
+  { label: '%', val: '%', color: 'primary', variant: 'tonal' },
   { label: '⌫', val: 'del', color: 'grey', variant: 'tonal' },
+  { label: '÷', val: '/', color: 'primary', variant: 'tonal' },
   { label: '7', val: '7' },
   { label: '8', val: '8' },
   { label: '9', val: '9' },
-  { label: '-', val: '-', color: 'primary', variant: 'tonal' },
+  { label: '×', val: '*', color: 'primary', variant: 'tonal' },
   { label: '4', val: '4' },
   { label: '5', val: '5' },
   { label: '6', val: '6' },
-  { label: '+', val: '+', color: 'primary', variant: 'tonal' },
+  { label: '-', val: '-', color: 'primary', variant: 'tonal' },
   { label: '1', val: '1' },
   { label: '2', val: '2' },
   { label: '3', val: '3' },
-  { label: '=', val: '=', color: 'primary', cols: 3 },
+  { label: '+', val: '+', color: 'primary', variant: 'tonal' },
   { label: '0', val: '0', cols: 6 },
   { label: '.', val: '.' },
+  { label: '=', val: '=', color: 'primary' },
 ];
 
 const loadSavedData = () => {
@@ -104,6 +105,10 @@ const handleInput = val => {
       saveCurrentData();
       return;
     }
+    // إذا ضغط على نسبة مئوية، استمر على النتيجة الحالية
+    else if (val === '%') {
+      justCalculated.value = false;
+    }
     // إذا ضغط على عملية، استمر على النتيجة الحالية
     else if (['+', '-', '*', '/'].includes(val)) {
       current.value += val;
@@ -120,6 +125,16 @@ const handleInput = val => {
   } else if (val === 'del') {
     current.value = current.value.slice(0, -1);
     justCalculated.value = false;
+  } else if (val === '%') {
+    if (current.value) {
+      // Find the last number in the expression
+      const matches = current.value.match(/(\d+\.?\d*)$/);
+      if (matches) {
+        const lastNumber = matches[0];
+        const percentValue = String(Number(lastNumber) / 100);
+        current.value = current.value.slice(0, -lastNumber.length) + percentValue;
+      }
+    }
   } else if (val === '=') {
     try {
       const expr = current.value;

@@ -21,6 +21,10 @@ export const useappState = defineStore('appState', {
       initialTotal: 0,
       onSave: null,
     },
+    // Percentage Tool Global State
+    percentageTool: {
+      isOpen: false,
+    },
   }),
   actions: {
     openCalculator() {
@@ -28,6 +32,12 @@ export const useappState = defineStore('appState', {
     },
     closeCalculator() {
       this.calculator.isOpen = false;
+    },
+    openPercentageTool() {
+      this.percentageTool.isOpen = true;
+    },
+    closePercentageTool() {
+      this.percentageTool.isOpen = false;
     },
     openInstallmentCalc(options = {}) {
       this.installmentCalc = {
