@@ -94,8 +94,21 @@
               <v-icon icon="ri-add-line" color="primary" />
             </v-avatar>
           </template>
-          <v-list-item-title class="text-primary font-weight-bold">إضافة منتج جديد غير موجود...</v-list-item-title>
+          <v-list-item-title class="text-primary font-weight-bold">إضافة منتج غير موجود...</v-list-item-title>
           <v-list-item-subtitle>سيفتح نافذة إضافة منتج سريع</v-list-item-subtitle>
+        </v-list-item>
+      </template>
+
+      <!-- No data state -->
+      <template #no-data>
+        <v-list-item class="py-3" @click="$emit('create-product')">
+          <template #prepend>
+            <v-avatar color="primary-lighten-5" size="32">
+              <v-icon icon="ri-add-line" color="primary" />
+            </v-avatar>
+          </template>
+          <v-list-item-title class="text-primary font-weight-bold">لا توجد نتائج. إضافة منتج جديد؟</v-list-item-title>
+          <v-list-item-subtitle>اضغط هنا لإنشاء "{{ searchQuery }}" كمنتج جديد</v-list-item-subtitle>
         </v-list-item>
       </template>
     </AppAutocomplete>
@@ -119,7 +132,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['add']);
+const emit = defineEmits(['add', 'create-product']);
 
 // API
 const variantApi = useApi('/api/product-variants/search-by-product');

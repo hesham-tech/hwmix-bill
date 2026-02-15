@@ -67,6 +67,14 @@
     <template v-if="$slots['append-inner']" #append-inner>
       <slot name="append-inner" />
     </template>
+
+    <template v-if="$slots['prepend-item']" #prepend-item>
+      <slot name="prepend-item" />
+    </template>
+
+    <template v-if="$slots['append-item']" #append-item>
+      <slot name="append-item" />
+    </template>
   </v-autocomplete>
 </template>
 

@@ -19,11 +19,8 @@
       {{ tooltip }}
     </v-tooltip>
     <!-- For icon-only buttons (icon prop without content) -->
-    <v-icon v-if="icon && !$slots.default" :icon="icon" />
-    <!-- For buttons with prepend-icon or append-icon + content -->
-    <template v-else>
-      <slot />
-    </template>
+    <v-icon v-if="typeof icon === 'string' && icon" :icon="icon" />
+    <slot />
   </v-btn>
 </template>
 

@@ -1,6 +1,6 @@
 <template>
   <v-form ref="form" v-model="isValid" @submit.prevent="handleSubmit">
-    <AppPageHeader sticky>
+    <AppPageHeader :sticky-top="isDialog ? 0 : 79" sticky>
       <template #prepend>
         <div class="d-flex align-center gap-3">
           <AppButton icon="ri-arrow-right-line" variant="tonal" color="primary" size="small" class="" @click="emit('cancel')" />
@@ -254,6 +254,10 @@ const props = defineProps({
   productId: {
     type: [String, Number],
     default: null,
+  },
+  isDialog: {
+    type: Boolean,
+    default: false,
   },
 });
 

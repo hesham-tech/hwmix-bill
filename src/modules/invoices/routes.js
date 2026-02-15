@@ -40,6 +40,7 @@ export default [
     path: 'invoices/:id/edit',
     name: 'invoice-edit',
     component: () => import('@/modules/invoices/pages/InvoiceEdit.vue'),
+    props: true,
     meta: {
       title: 'تعديل الفاتورة',
       permission: [PERMISSIONS.INVOICES_UPDATE_ALL, PERMISSIONS.INVOICES_UPDATE_CHILDREN, PERMISSIONS.INVOICES_UPDATE_SELF],

@@ -67,7 +67,7 @@
             density="comfortable"
             prepend-inner-icon="ri-building-2-line"
             required
-            :status-messages="errors.warehouse_id"
+            :error-messages="errors.warehouse_id"
             @update:model-value="$emit('update:prop', { key: 'warehouse_id', value: $event })"
           />
         </v-col>

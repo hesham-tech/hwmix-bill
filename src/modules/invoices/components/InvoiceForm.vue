@@ -86,7 +86,7 @@
       draggable
       no-padding
     >
-      <ProductForm v-if="isQuickAddProductOpen" @success="handleQuickProductSave" @cancel="isQuickAddProductOpen = false" />
+      <ProductForm v-if="isQuickAddProductOpen" is-dialog @success="handleQuickProductSave" @cancel="isQuickAddProductOpen = false" />
     </AppDialog>
   </div>
 </template>
@@ -460,39 +460,45 @@ const fetchInvoice = async () => {
 
   loading.value = true;
   try {
-    const response = await invoiceApi.getOne(props.invoiceId);
+    const response = await invoiceApi.getById(props.invoiceId);
     const invoice = response.data;
 
-    invoiceData.value = {
+    // Direct assignment to ensure reactivity and correctness
+    const data = {
       user_id: invoice.user_id,
       invoice_type_id: invoice.invoice_type_id,
-      issue_date: invoice.issue_date?.split(' ')[0],
-      due_date: invoice.due_date?.split(' ')[0],
-      warehouse_id: invoice.warehouse_id,
+      issue_date: invoice.issue_date?.substring(0, 10), // Ensure YYYY-MM-DD
+      due_date: invoice.due_date?.substring(0, 10),
+      warehouse_id: invoice.warehouse_id ? Number(invoice.warehouse_id) : null,
+      reference_number: invoice.reference_number || '',
       tax_rate: parseFloat(invoice.tax_rate || 0),
-      tax_inclusive: invoice.tax_inclusive,
+      tax_inclusive: !!invoice.tax_inclusive,
+      header_discount: parseFloat(invoice.total_discount || 0),
       paid_amount: parseFloat(invoice.paid_amount || 0),
+      cash_box_id: invoice.cash_box_id ? Number(invoice.cash_box_id) : null,
       notes: invoice.notes || '',
-      items: invoice.items.map(item => ({
+      items: (invoice.items || []).map(item => ({
         product_id: item.product_id,
         variant_id: item.variant_id,
         name: item.name,
-        quantity: parseFloat(item.quantity),
-        // Map current stock for validation
-        max_quantity: item.quantity || 0,
+        quantity: parseFloat(item.quantity || 0),
+        max_quantity: parseFloat(item.quantity || 0),
         requires_stock: item.requires_stock ?? true,
-        unit_price: parseFloat(item.unit_price),
-        retail_price: parseFloat(item.retail_price || item.unit_price),
+        unit_price: parseFloat(item.unit_price || 0),
+        retail_price: parseFloat(item.retail_price || item.unit_price || 0),
         wholesale_price: parseFloat(item.wholesale_price || 0),
+        profit_margin: parseFloat(item.profit_margin || 0),
         discount: parseFloat(item.discount || 0),
-        total: parseFloat(item.total),
-        primary_image_url: item.variant?.primary_image_url || item.product?.primary_image_url,
+        total: parseFloat(item.total || 0),
+        primary_image_url: item.primary_image_url || item.variant?.primary_image_url || item.product?.primary_image_url,
       })),
     };
 
+    invoiceData.value = { ...invoiceData.value, ...data };
+
     // Pre-populate selected customer object for UI logic
-    if (invoice.user) {
-      selectedCustomerObj.value = invoice.user;
+    if (invoice.customer) {
+      selectedCustomerObj.value = invoice.customer;
     }
   } catch (error) {
     console.error('Error fetching invoice:', error);
@@ -501,23 +507,12 @@ const fetchInvoice = async () => {
   }
 };
 
-// Watch for route/type changes to switch invoice type dynamically
-watch(
-  () => props.initialType,
-  newType => {
-    if (!isEdit.value && newType && invoiceTypes.value.length > 0) {
-      const targetType = invoiceTypes.value.find(t => t.code === newType);
-      if (targetType) {
-        invoiceData.value.invoice_type_id = targetType.id;
-      }
-    }
-  }
-);
+// ... watch ...
 
-onMounted(() => {
-  loadLookups();
+onMounted(async () => {
+  await loadLookups();
   if (isEdit.value) {
-    fetchInvoice();
+    await fetchInvoice();
   }
 });
 </script>

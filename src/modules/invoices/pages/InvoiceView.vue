@@ -22,33 +22,33 @@
         <AppButton
           v-if="can('invoices.update_all')"
           color="primary"
-          :prepend-icon="!mobile ? 'ri-edit-line' : ''"
+          prepend-icon="ri-edit-line"
           :icon="mobile ? 'ri-edit-line' : false"
           :size="mobile ? 'small' : 'default'"
           @click="editInvoice"
         >
-          {{ mobile ? '' : 'تعديل' }}
+          <span v-if="!mobile">تعديل</span>
         </AppButton>
         <AppButton
           v-if="invoice?.invoice_type?.code === 'purchase'"
           color="warning"
-          :prepend-icon="!mobile ? 'ri-ticket-line' : ''"
+          prepend-icon="ri-ticket-line"
           :icon="mobile ? 'ri-ticket-line' : false"
           :size="mobile ? 'small' : 'default'"
           @click="stickersDialog?.open(invoice)"
         >
-          {{ mobile ? '' : 'الملصقات' }}
+          <span v-if="!mobile">الملصقات</span>
         </AppButton>
         <AppPrintShare v-if="invoice" type="invoice" :data="{ invoice }" label="طباعة الفاتورة" color="info" :size="mobile ? 'small' : 'default'" />
         <AppButton
           v-if="can('invoices.delete_all')"
           color="error"
-          :prepend-icon="!mobile ? 'ri-delete-bin-line' : ''"
+          prepend-icon="ri-delete-bin-line"
           :icon="mobile ? 'ri-delete-bin-line' : false"
           :size="mobile ? 'small' : 'default'"
           @click="showDeleteDialog = true"
         >
-          {{ mobile ? '' : 'حذف' }}
+          <span v-if="!mobile">حذف</span>
         </AppButton>
       </div>
     </div>
