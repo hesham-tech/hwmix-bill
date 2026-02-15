@@ -10,7 +10,7 @@
     <div class="d-flex align-center px-0 px-sm-1 ga-0">
       <!-- عرض الرصيد للمستحدم الحالى -->
       <div v-if="userStore.currentUser" class="d-flex align-center">
-        <v-btn icon="ri-search-line" variant="text" @click="isSearchOpen = true" class="me-1" />
+        <v-btn icon="ri-search-line" variant="tonal" color="primary" @click="isSearchOpen = true" class="me-2 rounded-lg" size="38" />
         <v-chip
           :color="userStore.currentUser.balance < 0 ? 'error' : 'success'"
           variant="tonal"
@@ -44,8 +44,16 @@
         <template #activator="{ props }">
           <v-tooltip location="bottom">
             <template #activator="{ props: tooltipProps }">
-              <AppButton v-bind="{ ...props, ...tooltipProps }" icon variant="text" class="d-none d-sm-flex" :loading="isUpdatingPrint">
-                <v-icon>{{ getPrintFormatIcon(userStore.currentCompany?.print_settings?.print_format) }}</v-icon>
+              <AppButton
+                v-bind="{ ...props, ...tooltipProps }"
+                icon
+                variant="tonal"
+                color="primary"
+                class="d-none d-sm-flex rounded-lg me-2"
+                size="38"
+                :loading="isUpdatingPrint"
+              >
+                <v-icon size="20">{{ getPrintFormatIcon(userStore.currentCompany?.print_settings?.print_format) }}</v-icon>
               </AppButton>
             </template>
             إعدادات الطباعة: {{ getPrintFormatLabel(userStore.currentCompany?.print_settings?.print_format) }}
@@ -78,8 +86,8 @@
       <!-- أدوات سريعة -->
       <v-menu v-model="isQuickToolsMenuOpen" :close-on-content-click="false">
         <template #activator="{ props }">
-          <AppButton v-bind="props" icon variant="text" class="d-none d-sm-flex">
-            <v-icon>ri-apps-2-line</v-icon>
+          <AppButton v-bind="props" icon variant="tonal" color="primary" class="d-none d-sm-flex rounded-lg me-2" size="38">
+            <v-icon size="20">ri-apps-2-line</v-icon>
           </AppButton>
         </template>
         <v-list density="compact" min-width="200" class="pa-2">
@@ -320,6 +328,19 @@ const handleKeyDown = e => {
 
 onMounted(() => {
   window.addEventListener('keydown', handleKeyDown);
+
+  // تصفير المواقع الافتراضية القديمة لضمان تفعيل التوسيط الجديد
+  const oldCalc = localStorage.getItem('tool_pos_calc');
+  if (oldCalc === '{"x":50,"y":100}') {
+    localStorage.removeItem('tool_pos_calc');
+    toolPositions.value.calc = null;
+  }
+
+  const oldInst = localStorage.getItem('tool_pos_installment');
+  if (oldInst === '{"x":400,"y":100}') {
+    localStorage.removeItem('tool_pos_installment');
+    toolPositions.value.installment = null;
+  }
 });
 
 onUnmounted(() => {
@@ -417,10 +438,40 @@ const setActiveTool = toolId => {
   activeTool.value = toolId;
 };
 
+// الاحداثيات الافتراضية في منتصف الشاشة
+const getDefaultPos = (width, estimatedHeight = 500) => {
+  if (typeof window === 'undefined') return { x: 50, y: 100 };
+  return {
+    x: Math.max(10, (window.innerWidth - width) / 2),
+    y: Math.max(10, (window.innerHeight - estimatedHeight) / 2),
+  };
+};
+
 const toolPositions = ref({
-  calc: JSON.parse(localStorage.getItem('tool_pos_calc')) || { x: 50, y: 100 },
-  installment: JSON.parse(localStorage.getItem('tool_pos_installment')) || { x: 400, y: 100 },
+  calc: JSON.parse(localStorage.getItem('tool_pos_calc')),
+  installment: JSON.parse(localStorage.getItem('tool_pos_installment')),
 });
+
+// مراقبة فتح الأدوات لتحديد الموقع الافتراضي إذا لم يكن موجوداً
+watch(
+  () => appState.calculator.isOpen,
+  isOpen => {
+    if (isOpen && !toolPositions.value.calc) {
+      toolPositions.value.calc = getDefaultPos(320, 450);
+    }
+  },
+  { immediate: true }
+);
+
+watch(
+  () => appState.installmentCalc.isOpen,
+  isOpen => {
+    if (isOpen && !toolPositions.value.installment) {
+      toolPositions.value.installment = getDefaultPos(350, 550);
+    }
+  },
+  { immediate: true }
+);
 </script>
 
 <style scoped>
@@ -508,7 +559,7 @@ const toolPositions = ref({
 }
 
 .tool-content {
-  background: white;
+  background: #f8fafc;
 }
 
 /* Tool Scale Transition */

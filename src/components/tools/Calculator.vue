@@ -1,5 +1,5 @@
 <template>
-  <div class="calculator-content">
+  <div class="calculator-content pa-2">
     <div class="calculator-display pa-4 text-right position-relative">
       <!-- زر السجل عائم فوق الشاشة -->
       <v-menu v-if="history.length > 0" offset="5">
@@ -209,7 +209,7 @@ watch(history, saveCurrentData, { deep: true });
   overflow: hidden;
 }
 .calculator-display {
-  background: #f8fafc;
+  background: #f1f5f9;
   min-height: 90px;
   display: flex;
   flex-direction: column;
