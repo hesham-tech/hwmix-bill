@@ -206,6 +206,10 @@ export default {
 </script>
 
 <style scoped>
+.installment-calculator {
+  background: transparent;
+  height: 100%;
+}
 .installment-calc-card {
   border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
 }

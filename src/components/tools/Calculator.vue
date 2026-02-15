@@ -223,6 +223,11 @@ watch(history, saveCurrentData, { deep: true });
   border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
   overflow: hidden;
 }
+.calculator-content {
+  background: transparent;
+  border-radius: 12px;
+  overflow: hidden;
+}
 .calculator-display {
   background: #f1f5f9;
   min-height: 90px;

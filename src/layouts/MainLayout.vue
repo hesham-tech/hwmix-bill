@@ -94,26 +94,39 @@
           <div class="text-caption text-grey px-2 mb-2">أدوات الوصول السريع</div>
           <v-row no-gutters>
             <v-col cols="4" class="pa-1">
-              <v-card variant="tonal" color="success" class="text-center pa-2 cursor-pointer" @click="appState.openPercentageTool()">
-                <v-icon icon="ri-percent-line" size="20" />
-                <div class="text-caption mt-1">حساب نسبة</div>
-              </v-card>
-            </v-col>
-            <v-col cols="4" class="pa-1">
-              <v-card variant="tonal" color="primary" class="text-center pa-2 cursor-pointer" @click="appState.openCalculator()">
-                <v-icon icon="ri-calculator-line" size="20" />
-                <div class="text-caption mt-1">آلة حاسبة</div>
+              <v-card
+                variant="tonal"
+                color="primary"
+                class="text-center pa-2 cursor-pointer d-flex flex-column align-center justify-center"
+                height="70"
+                @click="appState.openPercentageTool()"
+              >
+                <v-icon icon="ri-percent-line" size="20" class="mb-1" />
+                <div class="text-caption text-no-wrap">حساب نسبة</div>
               </v-card>
             </v-col>
             <v-col cols="4" class="pa-1">
               <v-card
                 variant="tonal"
-                color="info"
-                class="text-center pa-2 cursor-pointer"
+                color="primary"
+                class="text-center pa-2 cursor-pointer d-flex flex-column align-center justify-center"
+                height="70"
+                @click="appState.openCalculator()"
+              >
+                <v-icon icon="ri-calculator-line" size="20" class="mb-1" />
+                <div class="text-caption text-no-wrap">آلة حاسبة</div>
+              </v-card>
+            </v-col>
+            <v-col cols="4" class="pa-1">
+              <v-card
+                variant="tonal"
+                color="primary"
+                class="text-center pa-2 cursor-pointer d-flex flex-column align-center justify-center"
+                height="70"
                 @click="appState.openInstallmentCalc({ mode: 'standalone' })"
               >
-                <v-icon icon="ri-calendar-2-line" size="20" />
-                <div class="text-caption mt-1">أقساط</div>
+                <v-icon icon="ri-calendar-2-line" size="20" class="mb-1" />
+                <div class="text-caption text-no-wrap">أقساط</div>
               </v-card>
             </v-col>
           </v-row>
@@ -607,6 +620,8 @@ watch(
 
 .tool-content {
   background: #f8fafc;
+  border-radius: 4px !important;
+  border: 4px solid rgba(var(--v-border-color), 0.1) !important;
 }
 
 /* Tool Scale Transition */
