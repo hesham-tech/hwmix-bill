@@ -144,6 +144,7 @@ const services = ref([]);
 const loading = ref(false);
 const searchQuery = ref('');
 const selectedItem = ref(null);
+let searchTimeout = null;
 
 const combinedItems = computed(() => {
   const result = [];
@@ -177,7 +178,7 @@ const combinedItems = computed(() => {
 
 // Methods
 const getVariantPrice = variant => {
-  if (props.invoiceType === 'purchases') {
+  if (props.invoiceType === 'purchase') {
     return variant.purchase_price || 0;
   }
 
@@ -206,7 +207,13 @@ const handleSearch = query => {
 const loadResults = async (search = '') => {
   loading.value = true;
   try {
-    const params = { search };
+    // has_stock: 0 means show everything (for purchases)
+    // has_stock: 1 means show only available (for sales)
+    const params = {
+      search,
+      has_stock: props.invoiceType === 'purchase' ? 0 : 1,
+    };
+
     const [variantsRes, servicesRes] = await Promise.all([
       variantApi.get(params, { showLoading: false, showError: false }),
       serviceApi.get({ name: search }, { showLoading: false, showError: false }),

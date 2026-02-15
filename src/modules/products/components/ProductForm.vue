@@ -75,13 +75,29 @@
           <v-card-text class="pa-2">
             <v-row>
               <v-col cols="12">
-                <AppInput
+                <AppAutocomplete
                   v-model="productData.name"
                   label="اسم المنتج"
                   placeholder="ادخل اسم المنتج (مثال: طقم بيجامة قطن)"
                   required
                   variant="outlined"
-                />
+                  api-endpoint="products"
+                  item-title="name"
+                  item-value="name"
+                  :clearable="false"
+                  no-filter
+                  hide-no-data
+                  @update:model-value="handleNameSelect"
+                  @update:search="productData.name = $event"
+                >
+                  <template #item="{ props, item }">
+                    <v-list-item v-bind="props" :subtitle="item.raw.category?.name || 'بدون تصنيف'">
+                      <template #prepend>
+                        <AppAvatar :img-url="item.raw.primary_image_url" :name="item.raw.name" size="32" class="me-2" />
+                      </template>
+                    </v-list-item>
+                  </template>
+                </AppAutocomplete>
               </v-col>
               <v-col cols="12" md="6">
                 <AppAutocomplete
@@ -227,6 +243,30 @@
         </v-card>
       </v-col>
     </v-row>
+
+    <!-- Duplicate Detection Dialog -->
+    <AppDialog
+      v-model="showDuplicateDialog"
+      title="هذا المنتج موجود بالفعل!"
+      icon="ri-error-warning-line"
+      confirm-text="تعديل المنتج الموجود"
+      cancel-text="تجاهل والبحث عن اسم آخر"
+      confirm-color="warning"
+      max-width="500"
+      @confirm="confirmSwitchToEdit"
+      @cancel="cancelNameSelection"
+    >
+      <div class="pa-4 text-center">
+        <v-avatar color="warning-lighten-5" size="64" class="mb-4">
+          <v-icon icon="ri-file-search-line" color="warning" size="32" />
+        </v-avatar>
+        <div class="text-h6 font-weight-bold mb-2">هل تقصد "{{ existingProduct?.name }}"؟</div>
+        <p class="text-body-2 text-grey-darken-1">تم العثور على منتج مسجل مسبقاً بهذا الاسم. هل ترغب في التحميل والبدء في تعديله؟</p>
+        <v-chip v-if="existingProduct?.category" size="small" color="primary" variant="tonal" class="mt-2">
+          {{ existingProduct.category.name }}
+        </v-chip>
+      </div>
+    </AppDialog>
   </v-form>
 </template>
 
@@ -266,10 +306,68 @@ const emit = defineEmits(['success', 'cancel']);
 const productStore = useProductStore();
 const { saveProduct, fetchProduct } = productStore;
 
-const isEdit = computed(() => !!props.productId);
+const currentProductId = ref(props.productId);
+const isEdit = computed(() => !!currentProductId.value);
 const loading = ref(false);
 const isValid = ref(false);
 const form = ref(null);
+
+// Duplicate detection state
+const showDuplicateDialog = ref(false);
+const existingProduct = ref(null);
+
+const handleNameSelect = val => {
+  // If it's an object (from autocomplete), user selected an existing item
+  if (val && typeof val === 'object') {
+    existingProduct.value = val;
+    showDuplicateDialog.value = true;
+    // Temporarily revert to string if possible, or clear
+    productData.value.name = val.name;
+  }
+};
+
+const confirmSwitchToEdit = () => {
+  if (existingProduct.value) {
+    currentProductId.value = existingProduct.value.id;
+    loadProductData(existingProduct.value.id);
+  }
+  showDuplicateDialog.value = false;
+};
+
+const cancelNameSelection = () => {
+  productData.value.name = '';
+  existingProduct.value = null;
+  showDuplicateDialog.value = false;
+};
+
+const loadProductData = async id => {
+  loading.value = true;
+  try {
+    const data = await fetchProduct(id);
+    if (data) {
+      productData.value = {
+        ...data,
+        category_id: data.category?.id || data.category_id,
+        brand_id: data.brand?.id || data.brand_id,
+        images: data.images || [],
+        primary_image_id: data.images?.find(img => img.is_primary)?.id || null,
+        variants: data.variants?.map(v => ({
+          ...v,
+          purchase_price: v.purchase_price || v.cost || 0,
+          images: v.images || [],
+          primary_image_id: v.images?.find(img => img.is_primary)?.id || null,
+          stocks:
+            v.stocks?.map(s => ({
+              ...s,
+              warehouse_id: s.warehouse?.id || s.warehouse_id,
+            })) || [],
+        })),
+      };
+    }
+  } finally {
+    loading.value = false;
+  }
+};
 
 const primaryImageUrl = computed(() => {
   if (productData.value.images?.length > 0) {
@@ -338,7 +436,7 @@ const handleSubmit = async () => {
       })),
     };
 
-    const response = await saveProduct(payload, props.productId);
+    const response = await saveProduct(payload, currentProductId.value);
     if (response.status) {
       emit('success', response.data);
     }
@@ -368,32 +466,7 @@ onMounted(async () => {
   window.addEventListener('keydown', handleKeyboardShortcuts);
 
   if (isEdit.value) {
-    loading.value = true;
-    try {
-      const data = await fetchProduct(props.productId);
-      if (data) {
-        productData.value = {
-          ...data,
-          category_id: data.category?.id || data.category_id,
-          brand_id: data.brand?.id || data.brand_id,
-          images: data.images || [],
-          primary_image_id: data.images?.find(img => img.is_primary)?.id || null,
-          variants: data.variants?.map(v => ({
-            ...v,
-            purchase_price: v.purchase_price || v.cost || 0,
-            images: v.images || [],
-            primary_image_id: v.images?.find(img => img.is_primary)?.id || null,
-            stocks:
-              v.stocks?.map(s => ({
-                ...s,
-                warehouse_id: s.warehouse?.id || s.warehouse_id,
-              })) || [],
-          })),
-        };
-      }
-    } finally {
-      loading.value = false;
-    }
+    await loadProductData(currentProductId.value);
   } else {
     // Set default warehouse for new products
     const warehouseId = await productStore.fetchDefaultWarehouse();

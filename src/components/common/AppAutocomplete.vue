@@ -20,6 +20,7 @@
     :density="density"
     :variant="variant"
     :no-filter="!!apiEndpoint || noFilter"
+    :hide-no-data="hideNoData"
     v-bind="$attrs"
     @update:model-value="handleChange"
   >
@@ -181,6 +182,10 @@ const props = defineProps({
     default: true,
   },
   noFilter: {
+    type: Boolean,
+    default: false,
+  },
+  hideNoData: {
     type: Boolean,
     default: false,
   },

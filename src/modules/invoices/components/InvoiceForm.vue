@@ -247,6 +247,21 @@ const formTitle = computed(() => {
 });
 
 // Methods
+const getItemPrice = item => {
+  if (item.product_type === 'service') return item.unit_price || 0;
+
+  if (currentContext.value === 'purchase') {
+    return item.purchase_price || 0;
+  }
+
+  const customerType = selectedCustomerObj.value?.customer_type || 'retail';
+  if (customerType === 'wholesale') {
+    return item.wholesale_price || item.retail_price || 0;
+  }
+
+  return item.retail_price || 0;
+};
+
 const addItem = productItem => {
   const existing = invoiceData.value.items.find(i => i.product_id === productItem.product_id && i.variant_id === productItem.variant_id);
 
@@ -261,12 +276,9 @@ const addItem = productItem => {
       max_quantity: productItem.max_quantity || 0,
     };
 
-    // Use purchase_price if it's a purchase invoice
-    if (currentContext.value === 'purchases') {
-      newItem.unit_price = newItem.purchase_price || 0;
-    }
-
+    newItem.unit_price = getItemPrice(newItem);
     newItem.quantity = productItem.quantity || 1;
+
     calculateItem(newItem);
     invoiceData.value.items.push(newItem);
   }
@@ -288,7 +300,6 @@ const handleQuickProductSave = product => {
         .join(' - '),
       quantity: 1,
       max_quantity: variant.quantity || 0,
-      unit_price: currentContext.value === 'purchases' ? variant.purchase_price : variant.retail_price,
       retail_price: variant.retail_price || 0,
       wholesale_price: variant.wholesale_price || 0,
       purchase_price: variant.purchase_price || 0,
@@ -297,6 +308,7 @@ const handleQuickProductSave = product => {
       product_type: product.product_type,
       requires_stock: product.require_stock,
     };
+    item.unit_price = getItemPrice(item);
     addItem(item);
   } else if (product) {
     // Fallback for simple product structure if any
@@ -304,30 +316,26 @@ const handleQuickProductSave = product => {
       product_id: product.id,
       name: product.name,
       quantity: 1,
-      unit_price: currentContext.value === 'purchases' ? product.purchase_price : product.retail_price,
+      purchase_price: product.purchase_price || 0,
+      retail_price: product.retail_price || 0,
+      wholesale_price: product.wholesale_price || 0,
       product_type: product.product_type,
     };
+    item.unit_price = getItemPrice(item);
     addItem(item);
   }
   isQuickAddProductOpen.value = false;
 };
 
-// Watch for customer changes to update prices dynamically
-watch(
-  () => selectedCustomerObj.value?.customer_type,
-  newType => {
-    if (!newType || (currentContext.value !== 'sale' && currentContext.value !== 'installment_sale')) return;
+// Watch for changes that require price updates (Invoice Type or Customer Type)
+watch([() => currentContext.value, () => selectedCustomerObj.value?.customer_type], () => {
+  if (!invoiceData.value.items.length) return;
 
-    invoiceData.value.items.forEach(item => {
-      if (newType === 'wholesale') {
-        item.unit_price = item.wholesale_price || item.retail_price || 0;
-      } else {
-        item.unit_price = item.retail_price || 0;
-      }
-      calculateItem(item);
-    });
-  }
-);
+  invoiceData.value.items.forEach(item => {
+    item.unit_price = getItemPrice(item);
+    calculateItem(item);
+  });
+});
 
 // Sync installment calculator total if it's open
 watch(

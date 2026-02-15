@@ -338,7 +338,9 @@
 
               <div class="d-flex justify-space-between text-body-1 font-weight-black">
                 <span class="text-primary-darken-4">رصيد العميل النهائي:</span>
-                <span class="text-primary-darken-4">{{ formatCurrency(invoice.user_balance_after || 0) }}</span>
+                <span :class="parseFloat(invoice.user_balance_after || 0) < 0 ? 'text-error' : 'text-primary-darken-4'">
+                  {{ formatCurrency(invoice.user_balance_after || 0) }}
+                </span>
               </div>
             </div>
 
