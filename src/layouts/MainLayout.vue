@@ -619,9 +619,9 @@ watch(
 }
 
 .tool-content {
-  background: #f8fafc;
   border-radius: 4px !important;
-  border: 4px solid rgba(var(--v-border-color), 0.1) !important;
+  border: 4px solid rgba(var(--v-theme-primary), 0.08) !important;
+  background: #f1f5f9;
 }
 
 /* Tool Scale Transition */
