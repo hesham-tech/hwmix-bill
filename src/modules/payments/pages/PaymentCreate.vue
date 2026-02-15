@@ -270,7 +270,7 @@ const rules = {
 };
 
 const invoicesEndpoint = computed(() => {
-  let endpoint = '/invoices?due_only=1';
+  let endpoint = 'invoices?due_only=1';
   if (formData.value.user_id) {
     endpoint += `&user_id=${formData.value.user_id}`;
   }

@@ -1,144 +1,166 @@
 <template>
   <div class="users-page">
-    <AppPageHeader title="إدارة المستخدمين" subtitle="إدارة أعضاء الفريق، الصلاحيات، وحسابات العملاء" icon="ri-group-line" sticky>
-      <template #append>
-        <AppButton v-if="can(PERMISSIONS.USERS_CREATE)" color="primary" prepend-icon="ri-user-add-line" size="large" @click="handleCreate">
-          مستخدم جديد
-        </AppButton>
-      </template>
-
-      <template #controls>
-        <!-- Mode Switch: Current Company vs Global -->
-        <div v-if="userStore.permissions.includes(PERMISSIONS.ADMIN_SUPER)" class="d-flex align-center">
-          <v-card variant="tonal" :color="currentCompanyOnly ? 'primary' : 'warning'" class="rounded-pill px-4 py-1 border-primary">
-            <div class="d-flex align-center gap-2">
-              <v-icon :icon="currentCompanyOnly ? 'ri-building-line' : 'ri-global-line'" size="18" />
-              <span class="text-caption font-weight-bold">
-                {{ currentCompanyOnly ? 'الشركة الحالية فقط' : 'عرض كافة الشركات' }}
-              </span>
-              <AppSwitch
-                v-model="currentCompanyOnly"
-                :color="currentCompanyOnly ? 'primary' : 'warning'"
-                hide-details
-                inset
-                density="compact"
-                class="ms-2"
-              />
-            </div>
-          </v-card>
-        </div>
-      </template>
-    </AppPageHeader>
+    <!-- Removed redundant AppPageHeader -->
 
     <v-container fluid class="pa-0">
       <v-row class="ma-0">
         <v-col cols="12" class="pa-0">
           <v-card rounded="md" class="border shadow-sm">
-            <AppInfiniteScroll
-              :loading="loading && users?.length > 0"
+            <AppDataTable
+              v-model:sort-by="sortByVuetify"
+              v-model:search="searchText"
+              :filters="advancedFilters"
+              :items-per-page="-1"
+              :headers="headers"
+              :items="users || []"
+              :total-items="totalItems || 0"
+              :loading="loading"
+              :table-height="'calc(100vh - 220px)'"
+              hide-pagination
+              grid-enabled
+              :grid-options="{
+                titleKey: 'full_name',
+                avatarKey: 'image_url',
+                bodyKeys: ['roles', 'status', 'created_at'],
+              }"
+              infinite-scroll
               :has-more="(users?.length || 0) < (totalItems || 0)"
-              no-more-text="لا يوجد المزيد من المستخدمين"
+              permission-module="users"
+              title="جدول المستخدمين"
+              subtitle="إدارة بيانات الفريق والعملاء مع ميزات البحث المتقدم"
+              icon="ri-group-line"
+              @update:filters="applyFilters"
+              @update:options="onTableOptionsUpdate"
+              @edit="handleEdit"
+              @delete="handleDelete"
+              @view="item => $router.push(`/app/users/${item.id}`)"
+              @update:search="debouncedSearch"
               @load="handleLoadMore"
             >
-              <AppDataTable
-                v-model:sort-by="sortByVuetify"
-                v-model:search="searchText"
-                @update:filters="applyFilters"
-                :filters="advancedFilters"
-                :items-per-page="-1"
-                :headers="headers"
-                :items="users || []"
-                :total-items="totalItems || 0"
-                :loading="loading"
-                :table-height="'calc(100vh - 350px)'"
-                hide-pagination
-                permission-module="users"
-                title="جدول المستخدمين"
-                subtitle="إدارة بيانات الفريق والعملاء مع ميزات البحث المتقدم"
-                icon="ri-group-line"
-                @update:options="onTableOptionsUpdate"
-                @edit="handleEdit"
-                @delete="handleDelete"
-                @view="item => $router.push(`/app/users/${item.id}`)"
-                @update:search="debouncedSearch"
-              >
-                <!-- Existing Templates -->
-                <template #item.full_name="{ item }">
-                  <AppUserBalanceProfile :user="item" @click="$router.push(`/app/users/${item.id}`)" />
-                </template>
-
-                <template #item.roles="{ item }">
-                  <div class="d-flex flex-wrap gap-1">
-                    <template v-if="item.roles?.length">
-                      <v-chip
-                        v-for="role in item.roles"
-                        :key="typeof role === 'object' ? role.id : role"
-                        size="x-small"
-                        variant="tonal"
-                        :color="getRoleColor(role)"
-                        class="font-weight-bold px-2 rounded"
-                      >
-                        {{ typeof role === 'object' ? role.label || role.name : role }}
-                      </v-chip>
-                    </template>
-                    <span v-else class="text-caption text-grey italic">عميل</span>
-                    <div v-if="item.company_name" class="text-xxs text-grey mt-1 w-100 italic d-flex align-center gap-1">
-                      <v-icon icon="ri-building-line" size="10" color="primary" />
-                      {{ item.company_name }}
-                    </div>
-                  </div>
-                </template>
-
-                <template #item.status="{ item }">
-                  <v-chip
-                    :color="[1, '1', true, 'active'].includes(item.status) ? 'success' : 'error'"
-                    size="x-small"
-                    variant="flat"
-                    class="font-weight-bold px-2"
+              <!-- Actions Slot for Consolidated Controls -->
+              <template #actions>
+                <div class="d-flex align-center gap-2">
+                  <!-- Mode Switch: Current Company vs Global -->
+                  <!-- Mode Switch: Current Company vs Global -->
+                  <div
+                    v-if="userStore.permissions.includes(PERMISSIONS.ADMIN_SUPER)"
+                    class="d-inline-flex bg-grey-lighten-4 rounded-pill pa-1 border shadow-inner align-center ga-1"
+                    style="height: 40px"
                   >
-                    {{ [1, '1', true, 'active'].includes(item.status) ? 'نشط' : 'معطل' }}
-                  </v-chip>
-                </template>
+                    <v-btn
+                      size="small"
+                      :variant="currentCompanyOnly ? 'flat' : 'text'"
+                      :color="currentCompanyOnly ? 'primary' : 'transparent'"
+                      class="rounded-pill px-4 font-weight-bold transition-all"
+                      :class="{ 'text-grey-darken-1': !currentCompanyOnly }"
+                      @click="currentCompanyOnly = true"
+                    >
+                      <v-icon icon="ri-building-line" start size="16" />
+                      الشركة
+                    </v-btn>
+                    <v-btn
+                      size="small"
+                      :variant="!currentCompanyOnly ? 'flat' : 'text'"
+                      :color="!currentCompanyOnly ? 'warning' : 'transparent'"
+                      class="rounded-pill px-4 font-weight-bold transition-all"
+                      :class="{ 'text-grey-darken-1': currentCompanyOnly }"
+                      @click="currentCompanyOnly = false"
+                    >
+                      <v-icon icon="ri-global-line" start size="16" />
+                      الكل
+                    </v-btn>
+                  </div>
 
-                <template #extra-actions="{ item, inMenu }">
-                  <!-- Record Payment Action -->
-                  <v-list-item
-                    v-if="inMenu && can(PERMISSIONS.PAYMENTS_CREATE)"
-                    prepend-icon="ri-money-dollar-circle-line"
-                    title="سداد دفعة"
-                    class="text-success"
-                    @click="$router.push(`/app/payments/create?user_id=${item.id}`)"
-                  />
                   <AppButton
-                    v-else-if="can(PERMISSIONS.PAYMENTS_CREATE)"
-                    icon="ri-money-dollar-circle-line"
+                    v-if="can(PERMISSIONS.USERS_CREATE)"
+                    color="primary"
+                    prepend-icon="ri-user-add-line"
                     size="small"
-                    variant="text"
-                    color="success"
-                    tooltip="سداد دفعة"
-                    @click="$router.push(`/app/payments/create?user_id=${item.id}`)"
-                  />
+                    class="rounded-pill shadow-sm"
+                    style="height: 40px"
+                    @click="handleCreate"
+                  >
+                    مستخدم جديد
+                  </AppButton>
+                </div>
+              </template>
 
-                  <!-- Permission Management Action -->
-                  <v-list-item
-                    v-if="inMenu && can(PERMISSIONS.ROLES_PAGE)"
-                    prepend-icon="ri-shield-user-line"
-                    title="إدارة الصلاحيات"
-                    class="text-warning"
-                    @click="handleManagePermissions(item)"
-                  />
-                  <AppButton
-                    v-else-if="can(PERMISSIONS.ROLES_PAGE)"
-                    icon="ri-shield-user-line"
-                    size="small"
-                    variant="text"
-                    color="warning"
-                    tooltip="إدارة الصلاحيات"
-                    @click="handleManagePermissions(item)"
-                  />
-                </template>
-              </AppDataTable>
-            </AppInfiniteScroll>
+              <!-- Existing Templates -->
+              <template #item.full_name="{ item }">
+                <AppUserBalanceProfile :user="item" @click="$router.push(`/app/users/${item.id}`)" />
+              </template>
+
+              <template #item.roles="{ item }">
+                <div class="d-flex flex-wrap gap-1">
+                  <template v-if="item.roles?.length">
+                    <v-chip
+                      v-for="role in item.roles"
+                      :key="typeof role === 'object' ? role.id : role"
+                      size="x-small"
+                      variant="tonal"
+                      :color="getRoleColor(role)"
+                      class="font-weight-bold px-2 rounded"
+                    >
+                      {{ typeof role === 'object' ? role.label || role.name : role }}
+                    </v-chip>
+                  </template>
+                  <span v-else class="text-caption text-grey italic">عميل</span>
+                  <div v-if="item.company_name" class="text-xxs text-grey mt-1 w-100 italic d-flex align-center gap-1">
+                    <v-icon icon="ri-building-line" size="10" color="primary" />
+                    {{ item.company_name }}
+                  </div>
+                </div>
+              </template>
+
+              <template #item.status="{ item }">
+                <v-chip
+                  :color="[1, '1', true, 'active'].includes(item.status) ? 'success' : 'error'"
+                  size="x-small"
+                  variant="flat"
+                  class="font-weight-bold px-2"
+                >
+                  {{ [1, '1', true, 'active'].includes(item.status) ? 'نشط' : 'معطل' }}
+                </v-chip>
+              </template>
+
+              <template #extra-actions="{ item, inMenu }">
+                <!-- Record Payment Action -->
+                <v-list-item
+                  v-if="inMenu && can(PERMISSIONS.PAYMENTS_CREATE)"
+                  prepend-icon="ri-money-dollar-circle-line"
+                  title="سداد دفعة"
+                  class="text-success"
+                  @click="$router.push(`/app/payments/create?user_id=${item.id}`)"
+                />
+                <AppButton
+                  v-else-if="can(PERMISSIONS.PAYMENTS_CREATE)"
+                  icon="ri-money-dollar-circle-line"
+                  size="small"
+                  variant="text"
+                  color="success"
+                  tooltip="سداد دفعة"
+                  @click="$router.push(`/app/payments/create?user_id=${item.id}`)"
+                />
+
+                <!-- Permission Management Action -->
+                <v-list-item
+                  v-if="inMenu && can(PERMISSIONS.ROLES_PAGE)"
+                  prepend-icon="ri-shield-user-line"
+                  title="إدارة الصلاحيات"
+                  class="text-warning"
+                  @click="handleManagePermissions(item)"
+                />
+                <AppButton
+                  v-else-if="can(PERMISSIONS.ROLES_PAGE)"
+                  icon="ri-shield-user-line"
+                  size="small"
+                  variant="text"
+                  color="warning"
+                  tooltip="إدارة الصلاحيات"
+                  @click="handleManagePermissions(item)"
+                />
+              </template>
+            </AppDataTable>
           </v-card>
 
           <div class="px-6 pb-6 mt-4">

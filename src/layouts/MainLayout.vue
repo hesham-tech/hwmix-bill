@@ -7,9 +7,10 @@
     <v-spacer />
 
     <!-- Right-side tools container -->
-    <div class="d-flex align-center px-1 px-sm-2 ga-3">
+    <div class="d-flex align-center px-0 px-sm-1 ga-0">
       <!-- عرض الرصيد للمستحدم الحالى -->
       <div v-if="userStore.currentUser" class="d-flex align-center">
+        <v-btn icon="ri-search-line" variant="text" @click="isSearchOpen = true" class="me-1" />
         <v-chip
           :color="userStore.currentUser.balance < 0 ? 'error' : 'success'"
           variant="tonal"
@@ -18,13 +19,13 @@
         >
           <v-icon start icon="ri-wallet-3-line" size="16" class="me-1" />
           <span class="text-caption text-sm-body-2">
-            <span class="d-none d-sm-inline opacity-70 me-1">الرصيد:</span>
+            <span class="d-none d-sm-inline opacity-70 me-1"></span>
             {{ formatCurrency(userStore.currentUser.balance) }}
           </span>
         </v-chip>
       </div>
 
-      <v-tooltip location="bottom">
+      <!-- <v-tooltip location="bottom">
         <template #activator="{ props: tooltipProps }">
           <v-btn
             v-bind="tooltipProps"
@@ -36,14 +37,14 @@
           />
         </template>
         الدعم الفني والاقتراحات
-      </v-tooltip>
+      </v-tooltip> -->
 
       <!-- Print Format Selection Menu -->
       <v-menu location="bottom end">
         <template #activator="{ props }">
           <v-tooltip location="bottom">
             <template #activator="{ props: tooltipProps }">
-              <AppButton v-bind="{ ...props, ...tooltipProps }" icon variant="text" class="mx-1 d-none d-sm-flex" :loading="isUpdatingPrint">
+              <AppButton v-bind="{ ...props, ...tooltipProps }" icon variant="text" class="d-none d-sm-flex" :loading="isUpdatingPrint">
                 <v-icon>{{ getPrintFormatIcon(userStore.currentCompany?.print_settings?.print_format) }}</v-icon>
               </AppButton>
             </template>
@@ -65,19 +66,19 @@
         </v-list>
       </v-menu>
 
-      <v-tooltip location="bottom">
+      <!-- <v-tooltip location="bottom">
         <template #activator="{ props: tooltipProps }">
           <AppButton v-bind="tooltipProps" icon variant="text" @click="toggleLanguage" class="mx-1 d-none d-sm-flex">
             <v-icon>ri-translate-2</v-icon>
           </AppButton>
         </template>
         {{ localeStore.locale === 'ar' ? 'English' : 'عربي' }}
-      </v-tooltip>
+      </v-tooltip> -->
 
       <!-- أدوات سريعة -->
       <v-menu v-model="isQuickToolsMenuOpen" :close-on-content-click="false">
         <template #activator="{ props }">
-          <AppButton v-bind="props" icon variant="text" class="mx-1 d-none d-sm-flex">
+          <AppButton v-bind="props" icon variant="text" class="d-none d-sm-flex">
             <v-icon>ri-apps-2-line</v-icon>
           </AppButton>
         </template>
@@ -107,7 +108,7 @@
 
       <v-menu>
         <template #activator="{ props }">
-          <AppButton v-bind="props" variant="text" class="user-menu-btn px-1 px-sm-2 ms-1">
+          <AppButton v-bind="props" variant="text" class="user-menu-btn px-1 ms-0">
             <AppAvatar
               :img-url="userStore.currentUser?.avatar_url"
               :name="userStore.currentUser?.full_name"
@@ -146,8 +147,8 @@
               />
             </v-list-group>
 
-            <v-list-item prepend-icon="ri-translate-2" :title="localeStore.locale === 'ar' ? 'English' : 'عربي'" @click="toggleLanguage" />
-            <v-list-item prepend-icon="ri-customer-service-2-line" title="الدعم الفني" @click="handleManualReport('feedback')" />
+            <!-- <v-list-item prepend-icon="ri-translate-2" :title="localeStore.locale === 'ar' ? 'English' : 'عربي'" @click="toggleLanguage" />
+            <v-list-item prepend-icon="ri-customer-service-2-line" title="الدعم الفني" @click="handleManualReport('feedback')" /> -->
             <v-list-item prepend-icon="ri-calculator-line" title="آلة حاسبة" @click="appState.openCalculator()" />
             <v-list-item prepend-icon="ri-calendar-2-line" title="حساب أقساط" @click="appState.openInstallmentCalc({ mode: 'standalone' })" />
           </template>
@@ -262,6 +263,9 @@
       icon="ri-refresh-line"
       @confirm="handleClearCache"
     />
+
+    <!-- Global Search Dialog -->
+    <GlobalSearchDialog v-model="isSearchOpen" />
   </v-main>
 </template>
 
@@ -273,6 +277,7 @@ import { useLocaleStore } from '@/stores/locale';
 import { useappState } from '@/stores/appState';
 import { authService } from '@/api';
 import Sidebar from '@/components/layout/Sidebar.vue';
+import GlobalSearchDialog from '@/layouts/components/GlobalSearchDialog.vue';
 import AppButton from '@/components/common/AppButton.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
 import AppConfirmDialog from '@/components/common/AppConfirmDialog.vue';
@@ -282,6 +287,7 @@ import { toast } from 'vue3-toastify';
 import { useDisplay } from 'vuetify';
 import { formatCurrency } from '@/utils/formatters';
 import { clearAppCache } from '@/utils/maintenance';
+import { onMounted, onUnmounted } from 'vue';
 
 const { xs } = useDisplay();
 const route = useRoute();
@@ -289,6 +295,8 @@ const router = useRouter();
 const userStore = useUserStore();
 const localeStore = useLocaleStore();
 const appState = useappState();
+
+const isSearchOpen = ref(false);
 
 // نجعل القائمة مغلقة افتراضياً في الجوال ومفتوحة في الحاسوب
 const drawer = ref(!xs.value);
@@ -301,6 +309,22 @@ watch(
   },
   { immediate: true }
 );
+
+// Keyboard shortcuts
+const handleKeyDown = e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault();
+    isSearchOpen.value = true;
+  }
+};
+
+onMounted(() => {
+  window.addEventListener('keydown', handleKeyDown);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeyDown);
+});
 
 const userName = computed(() => userStore.currentUser?.full_name || 'المستخدم');
 

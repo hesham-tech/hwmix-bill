@@ -2,18 +2,21 @@
   <div :class="['app-user-balance-profile', mode]">
     <!-- Horizontal Mode (Table/List) -->
     <template v-if="mode === 'horizontal'">
-      <div class="d-flex align-center gap-3 py-1">
-        <AppAvatar :img-url="user?.avatar_url" :name="user?.nickname || user?.full_name" :size="avatarSize" class="border shadow-sm flex-shrink-0" />
+      <div class="d-flex align-center">
+        <AppAvatar :img-url="user?.avatar_url" :name="user?.nickname || user?.full_name" :size="avatarSize" class="shadow-sm flex-shrink-0" />
         <div class="d-flex flex-column overflow-hidden text-right">
           <div
-            class="text-body-2 font-weight-black text-slate-900 truncate line-height-1-2 mb-1"
+            class="text-body-2 font-weight-black text-slate-900 truncate line-height-1-2"
             :class="{ 'cursor-pointer hover-text-primary transition-all': clickable }"
             @click="handleClick"
           >
-            {{ user?.nickname || user?.full_name || '---' }}
+            {{ user?.full_name || '---' }}
+            <span v-if="user?.nickname && user?.nickname !== user?.full_name" class="text-xxs text-grey ms-1 font-weight-medium opacity-70">
+              ({{ user.nickname }})
+            </span>
           </div>
 
-          <div v-if="!hidePhone && user?.phone" class="mb-1">
+          <div v-if="!hidePhone && user?.phone" class="">
             <AppPhone :phone="user.phone" />
           </div>
 
@@ -51,8 +54,11 @@
           <div class="status-dot-large" :class="[1, '1', true, 'active'].includes(user?.status) ? 'bg-success' : 'bg-error'"></div>
         </div>
 
-        <h2 class="text-h4 font-weight-black mb-1 text-slate-900 drop-shadow-sm">
-          {{ user?.nickname || user?.full_name }}
+        <h2 class="text-h4 font-weight-black text-slate-900 drop-shadow-sm">
+          {{ user?.full_name }}
+          <div v-if="user?.nickname && user?.nickname !== user?.full_name" class="text-subtitle-1 text-grey font-weight-medium opacity-70">
+            ({{ user.nickname }})
+          </div>
         </h2>
 
         <div v-if="!hidePhone && user?.phone" class="mb-5">
@@ -67,9 +73,7 @@
           style="border: 1px dashed; max-width: 300px"
           :style="{ borderColor: user?.balance < 0 ? 'rgba(var(--v-theme-error), 0.5)' : 'rgba(var(--v-theme-primary), 0.5)' }"
         >
-          <div class="text-xxs font-weight-bold opacity-70 mb-1" :class="user?.balance < 0 ? 'text-error' : 'text-primary'">
-            رصيد الحساب الجاري الموحد
-          </div>
+          <div class="text-xxs font-weight-bold opacity-70" :class="user?.balance < 0 ? 'text-error' : 'text-primary'">رصيد الحساب الجاري الموحد</div>
           <div class="text-h4 font-weight-black line-height-1" :class="user?.balance < 0 ? 'text-error' : 'text-primary'">
             {{ formatCurrency(user?.balance) }}
           </div>

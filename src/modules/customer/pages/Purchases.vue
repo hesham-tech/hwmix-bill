@@ -79,7 +79,7 @@ const debouncedSearch = () => {
 
 // Navigation
 const viewInvoice = invoice => {
-  router.push(`/invoices/${invoice.id}`);
+  router.push(`/app/invoices/${invoice.id}`);
 };
 
 const printInvoice = async invoice => {

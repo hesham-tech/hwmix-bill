@@ -11,6 +11,15 @@ export default [
     },
   },
   {
+    path: 'customers',
+    name: 'customers',
+    component: () => import('@/modules/users/pages/CustomerList.vue'),
+    meta: {
+      title: 'العملاء',
+      permission: [PERMISSIONS.USERS_VIEW_ALL],
+    },
+  },
+  {
     path: 'users/:id',
     name: 'user-view',
     component: () => import('@/modules/users/pages/UserView.vue'),

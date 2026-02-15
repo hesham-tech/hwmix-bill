@@ -66,6 +66,11 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   response => response,
   error => {
+    // 0. Ignore canceled requests (e.g. AbortController)
+    if (axios.isCancel(error)) {
+      return Promise.reject(error);
+    }
+
     // 401: Unauthorized - Token expired
     if (error?.response?.status === 401 || error?.response?.data?.message === 'Unauthenticated.') {
       // Avoid spamming notifications

@@ -278,6 +278,12 @@ export default [
         icon: 'ri-shield-user-line',
         permission: [PERMISSIONS.ROLES_VIEW_ALL, PERMISSIONS.ROLES_VIEW_CHILDREN, PERMISSIONS.ROLES_VIEW_SELF],
       },
+      {
+        title: 'قائمة العملاء',
+        to: '/app/customers',
+        icon: 'ri-team-line',
+        permission: [PERMISSIONS.USERS_VIEW_ALL],
+      },
     ],
   },
 

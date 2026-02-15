@@ -1,192 +1,95 @@
 <template>
-  <div class="brands-page">
-    <!-- Page Header -->
-    <div class="page-header d-flex align-center justify-space-between mb-2">
-      <div>
-        <h1 class="text-h4 font-weight-bold ml-2">العلامات التجارية</h1>
-        <p class="text-body-1 text-grey">إدارة وتحليل العلامات التجارية للمنتجات</p>
-      </div>
-      <AppButton v-if="can(PERMISSIONS.BRANDS_CREATE)" prepend-icon="ri-add-line" size="large" elevation="2" @click="handleCreate">
-        علامة جديدة
-      </AppButton>
-    </div>
+  <div v-if="canAny(PERMISSIONS.BRANDS_VIEW_ALL, PERMISSIONS.BRANDS_VIEW_CHILDREN, PERMISSIONS.BRANDS_VIEW_SELF)" class="brands-page">
+    <v-container fluid class="pa-0">
+      <v-row class="ma-0">
+        <v-col cols="12" class="pa-0">
+          <v-card rounded="md" class="border shadow-sm">
+            <AppDataTable
+              v-model:sort-by="sortByVuetify"
+              v-model:search="search"
+              :headers="headers"
+              :items="brands"
+              :total-items="total"
+              :loading="loading"
+              :table-height="'calc(100vh - 220px)'"
+              grid-enabled
+              :grid-options="{
+                titleKey: 'name',
+                imageKey: 'image_url',
+                bodyKeys: ['products_count', 'active'],
+              }"
+              infinite-scroll
+              :has-more="brands.length < total"
+              permission-module="brands"
+              title="العلامات التجارية"
+              subtitle="إدارة وتحليل العلامات التجارية للمنتجات"
+              icon="ri-award-line"
+              @update:options="onTableOptionsUpdate"
+              @edit="handleEdit"
+              @delete="handleDelete"
+              @load="handleLoadMore"
+            >
+              <!-- Actions Slot -->
+              <template #actions>
+                <AppButton v-if="can(PERMISSIONS.BRANDS_CREATE)" prepend-icon="ri-add-line" size="small" @click="handleCreate">
+                  علامة جديدة
+                </AppButton>
+              </template>
 
-    <!-- Filters & View Toggle -->
-    <AppCard class="mb-2">
-      <div class="d-flex align-center flex-wrap gap-4">
-        <AppInput
-          v-model="search"
-          label="بحث عن ماركة..."
-          prepend-inner-icon="ri-search-line"
-          class="max-width-300 flex-grow-1"
-          hide-details
-          @update:model-value="handleSearch"
-        />
-
-        <v-spacer />
-
-        <v-btn-group variant="outlined" density="comfortable" color="primary">
-          <AppButton :active="viewMode === 'grid'" icon="ri-grid-fill" @click="viewMode = 'grid'" title="عرض شبكي" />
-          <AppButton :active="viewMode === 'list'" icon="ri-list-check" @click="viewMode = 'list'" title="عرض قائمة" />
-        </v-btn-group>
-      </div>
-    </AppCard>
-
-    <!-- Content Area -->
-    <LoadingSpinner v-if="loading && !brands.length" size="64" text="جاري تحميل العلامات التجارية..." />
-
-    <EmptyState
-      v-else-if="!brands.length"
-      icon="ri-award-line"
-      title="لا توجد علامات تجارية حالياً"
-      message="ابدأ بإضافة أول علامة تجارية لنظامك"
-      :show-action="can(PERMISSIONS.BRANDS_CREATE)"
-      action-text="إضافة ماركة"
-      @action="handleCreate"
-    />
-
-    <template v-else>
-      <!-- Grid View with Infinite Scroll -->
-      <AppInfiniteScroll
-        v-if="viewMode === 'grid'"
-        :loading="loading && brands.length > 0"
-        :has-more="brands.length < total"
-        no-more-text="لا يوجد المزيد من العلامات التجارية"
-        @load="handleLoadMore"
-      >
-        <v-row>
-          <v-col v-for="brand in brands" :key="brand.id" cols="12" sm="6" md="4" lg="3">
-            <AppCard class="brand-card h-100" no-padding>
-              <div class="brand-card-header d-flex align-center justify-center pa-2 bg-grey-lighten-4 position-relative">
-                <AppAvatar
-                  v-model:img-url="brand.image_url"
-                  :name="brand.name"
-                  type="brand"
-                  size="120"
-                  :custom-class="brand.active ? 'bg-white' : 'grey-lighten-3'"
-                  class="elevation-1"
-                />
-              </div>
-
-              <v-card-item class="position-relative pt-4">
-                <v-card-title class="text-h6 font-weight-bold pa-0 mb-1">{{ brand.name }}</v-card-title>
-
-                <div class="d-flex align-center justify-space-between mb-1" style="height: 32px">
-                  <div class="d-flex align-center">
-                    <span class="text-caption text-grey-darken-1 me-2">الحالة:</span>
-                    <v-chip :color="brand.active ? 'success' : 'error'" size="x-small" class="font-weight-bold" variant="flat">
-                      {{ brand.active ? 'نشط' : 'معطل' }}
-                    </v-chip>
+              <!-- List View Customizations -->
+              <template #[`item.name`]="{ item }">
+                <div class="d-flex align-center py-2">
+                  <AppAvatar :img-url="item.image_url" :name="item.name" type="brand" size="48" class="me-3 border" />
+                  <div class="d-flex flex-column">
+                    <span class="font-weight-bold text-subtitle-1">{{ item.name }}</span>
+                    <span class="text-caption text-grey text-truncate max-width-200">
+                      {{ item.description || 'بدون وصف' }}
+                    </span>
                   </div>
+                </div>
+              </template>
 
+              <template #[`item.products_count`]="{ item }">
+                <v-chip size="small" variant="tonal" prepend-icon="ri-box-3-line" color="primary">
+                  {{ item.products_count || 0 }}
+                </v-chip>
+              </template>
+
+              <template #[`item.active`]="{ item }">
+                <div class="d-flex align-center justify-center">
+                  <span
+                    v-if="
+                      canAny(PERMISSIONS.BRANDS_UPDATE_ALL, PERMISSIONS.BRANDS_UPDATE_CHILDREN, PERMISSIONS.BRANDS_UPDATE_SELF, { resource: item })
+                    "
+                    class="text-caption me-2 font-weight-bold"
+                    :class="item.active ? 'text-success' : 'text-error'"
+                  >
+                    {{ item.active ? 'نشط' : 'معطل' }}
+                  </span>
                   <AppSwitch
                     v-if="
-                      canAny(PERMISSIONS.BRANDS_UPDATE_ALL, PERMISSIONS.BRANDS_UPDATE_CHILDREN, PERMISSIONS.BRANDS_UPDATE_SELF, { resource: brand })
+                      canAny(PERMISSIONS.BRANDS_UPDATE_ALL, PERMISSIONS.BRANDS_UPDATE_CHILDREN, PERMISSIONS.BRANDS_UPDATE_SELF, {
+                        resource: item,
+                      })
                     "
-                    :model-value="!!brand.active"
-                    :loading="togglingId === brand.id"
-                    @update:model-value="handleToggleStatus(brand)"
+                    :model-value="!!item.active"
+                    :loading="togglingId === item.id"
+                    @update:model-value="handleToggleStatus(item)"
                   />
+                  <v-chip v-else :color="item.active ? 'success' : 'error'" size="x-small">
+                    {{ item.active ? 'نشط' : 'معطل' }}
+                  </v-chip>
                 </div>
-
-                <v-card-subtitle class="pa-0 d-flex align-center">
-                  <v-icon icon="ri-box-3-line" size="14" class="me-1" />
-                  {{ brand.products_count || 0 }} منتج مربوط
-                </v-card-subtitle>
-              </v-card-item>
-
-              <v-card-text class="pt-0 pb-2">
-                <p class="text-body-2 text-grey-darken-1 text-truncate-2 height-40 mb-0">
-                  {{ brand.description || 'لا يوجد وصف متاح لهذه العلامة التجارية.' }}
-                </p>
-              </v-card-text>
-
-              <template #actions>
-                <v-spacer />
-                <AppButton
-                  v-if="
-                    canAny(PERMISSIONS.BRANDS_UPDATE_ALL, PERMISSIONS.BRANDS_UPDATE_CHILDREN, PERMISSIONS.BRANDS_UPDATE_SELF, { resource: brand })
-                  "
-                  icon="ri-edit-line"
-                  variant="text"
-                  color="primary"
-                  @click="handleEdit(brand)"
-                />
-                <AppButton
-                  v-if="
-                    canAny(PERMISSIONS.BRANDS_DELETE_ALL, PERMISSIONS.BRANDS_DELETE_CHILDREN, PERMISSIONS.BRANDS_DELETE_SELF, { resource: brand })
-                  "
-                  icon="ri-delete-bin-line"
-                  variant="text"
-                  color="error"
-                  @click="handleDelete(brand)"
-                />
               </template>
-            </AppCard>
-          </v-col>
-        </v-row>
-      </AppInfiniteScroll>
+            </AppDataTable>
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-container>
+  </div>
 
-      <!-- List View -->
-      <AppDataTable
-        v-else
-        :headers="headers"
-        :items="brands"
-        :total-items="total"
-        :loading="loading"
-        v-model:page="page"
-        v-model:items-per-page="itemsPerPage"
-        v-model:sort-by="sortByVuetify"
-        :searchable="false"
-        :can-view="false"
-        permission-module="brands"
-        @update:options="onTableOptionsUpdate"
-        @edit="handleEdit"
-        @delete="handleDelete"
-      >
-        <template #[`item.name`]="{ item }">
-          <div class="d-flex align-center py-2">
-            <AppAvatar :img-url="item.image_url" :name="item.name" type="brand" size="48" class="me-3 border" />
-            <div class="d-flex flex-column">
-              <span class="font-weight-bold text-subtitle-1">{{ item.name }}</span>
-              <span class="text-caption text-grey text-truncate max-width-200">
-                {{ item.description || 'بدون وصف' }}
-              </span>
-            </div>
-          </div>
-        </template>
-
-        <template #[`item.products_count`]="{ item }">
-          <v-chip size="small" variant="tonal" prepend-icon="ri-box-3-line" color="primary">
-            {{ item.products_count || 0 }}
-          </v-chip>
-        </template>
-
-        <template #[`item.active`]="{ item }">
-          <div class="d-flex align-center justify-center">
-            <span
-              v-if="canAny(PERMISSIONS.BRANDS_UPDATE_ALL, PERMISSIONS.BRANDS_UPDATE_CHILDREN, PERMISSIONS.BRANDS_UPDATE_SELF, { resource: item })"
-              class="text-caption me-2 font-weight-bold"
-              :class="item.active ? 'text-success' : 'text-error'"
-            >
-              {{ item.active ? 'نشط' : 'معطل' }}
-            </span>
-            <AppSwitch
-              v-if="canAny(PERMISSIONS.BRANDS_UPDATE_ALL, PERMISSIONS.BRANDS_UPDATE_CHILDREN, PERMISSIONS.BRANDS_UPDATE_SELF, { resource: item })"
-              :model-value="!!item.active"
-              :loading="togglingId === item.id"
-              @update:model-value="handleToggleStatus(item)"
-            />
-            <v-chip v-else :color="item.active ? 'success' : 'error'" size="small" variant="flat" class="font-weight-bold">
-              {{ item.active ? 'نشط' : 'معطل' }}
-            </v-chip>
-          </div>
-        </template>
-      </AppDataTable>
-
-      <!-- No grid pagination -->
-    </template>
-
+  <!-- Access Denied State (Updated with AppButton) -->
+  <div v-else class="pa-4 text-center d-flex flex-column align-center justify-center" style="min-height: 400px">
     <!-- Brand Form Dialog -->
     <AppDialog
       v-model="showDialog"
@@ -282,9 +185,6 @@ import AppButton from '@/components/common/AppButton.vue';
 import AppInput from '@/components/common/AppInput.vue';
 import AppDialog from '@/components/common/AppDialog.vue';
 import AppDataTable from '@/components/common/AppDataTable.vue';
-import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
-import EmptyState from '@/components/common/EmptyState.vue';
-import AppInfiniteScroll from '@/components/common/AppInfiniteScroll.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
 import { PERMISSIONS } from '@/config/permissions';
 const { can, canAny } = usePermissions();
@@ -320,7 +220,6 @@ const {
 });
 
 // UI State
-const viewMode = ref('list');
 const showDialog = ref(false);
 const showDeleteDialog = ref(false);
 const showMediaGallery = ref(false);
@@ -426,15 +325,9 @@ onMounted(() => {
   // Initial load is handled by useDataTable unless specified otherwise
 });
 
-watch(viewMode, () => {
-  page.value = 1;
-  fetchData();
-});
-
 const onTableOptionsUpdate = options => {
-  if (viewMode.value === 'list') {
-    changeSort(options);
-  }
+  // standardized handling
+  changeSort(options);
 };
 </script>
 

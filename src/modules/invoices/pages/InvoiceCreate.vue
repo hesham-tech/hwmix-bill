@@ -16,11 +16,11 @@ const route = useRoute();
 const invoiceType = computed(() => route.query.type || 'sales');
 
 const goBack = () => {
-  router.push('/invoices');
+  router.push('/app/invoices');
 };
 
 const handleSuccess = invoice => {
-  router.push(`/invoices/${invoice.id}`);
+  router.push(`/app/invoices/${invoice.id}`);
 };
 </script>
 

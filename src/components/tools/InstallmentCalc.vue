@@ -163,7 +163,7 @@ const handleSave = () => {
     ...plan.value,
     frequency: frequency.value,
     net_amount: totalAmount.value,
-    total_amount: totalWithInterest.value,
+    total_amount: totalWithInterest.value + (plan.value.down_payment || 0),
     interest_amount: interestAmount.value,
   });
 };

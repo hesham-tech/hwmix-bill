@@ -1,22 +1,40 @@
 <template>
   <v-card ref="tableRootRef">
     <!-- Header with title and actions -->
-    <v-card-title v-if="title" class="d-flex flex-wrap align-center justify-space-between gap-2 border-bottom">
-      <div class="d-flex align-center gap-3">
-        <v-icon v-if="icon" :icon="icon" color="primary" size="24" class="opacity-80" />
-        <div class="d-flex flex-column">
-          <span class="text-h6 font-weight-bold lh-1">{{ title }}</span>
-          <span v-if="subtitle" class="text-caption text-grey-darken-1 mt-n1">{{ subtitle }}</span>
+    <v-card-title v-if="title" class="px-4 pt-4 pb-2 border-bottom d-flex flex-column ga-3">
+      <!-- Row 1: Title and Actions -->
+      <div class="d-flex flex-wrap align-center justify-space-between w-100 gap-2">
+        <div class="d-flex align-center gap-3">
+          <v-icon v-if="icon" :icon="icon" color="primary" size="24" class="opacity-80" />
+          <div class="d-flex flex-column">
+            <span class="text-h6 font-weight-bold lh-1">{{ title }}</span>
+            <span v-if="subtitle" class="text-caption text-grey-darken-1 mt-n1">{{ subtitle }}</span>
+          </div>
+        </div>
+
+        <div class="d-flex flex-wrap gap-1 flex-grow-1 justify-end align-center">
+          <!-- View Mode Toggle (Only if gridEnabled or showViewToggle is true) -->
+          <v-btn-toggle
+            v-if="showViewToggle || gridEnabled"
+            v-model="viewMode"
+            mandatory
+            density="compact"
+            variant="tonal"
+            color="primary"
+            class="border rounded"
+            style="height: 28px"
+          >
+            <AppButton value="list" tooltip="قائمة" icon="ri-list-check" size="small" />
+            <AppButton value="grid" tooltip="شبكة" icon="ri-grid-fill" size="small" />
+          </v-btn-toggle>
+
+          <slot name="actions" />
         </div>
       </div>
-      <div class="d-flex flex-wrap gap-1 flex-grow-1 justify-end align-center">
-        <!-- View Mode Toggle -->
-        <v-btn-toggle v-if="showViewToggle" v-model="viewMode" mandatory density="compact" variant="tonal" color="primary" class="border rounded">
-          <AppButton value="list" tooltip="قائمة" icon="ri-list-check" size="small" />
-          <AppButton value="grid" tooltip="شبكة" icon="ri-grid-fill" size="small" />
-        </v-btn-toggle>
 
-        <!-- Advanced Toggle -->
+      <!-- Row 2: Search Controls -->
+      <div v-if="searchable || hasAdvancedFilters" class="d-flex flex-wrap align-center gap-3 w-100 pb-2">
+        <!-- Advanced Toggle (Priority Right in RTL) -->
         <AppButton
           v-if="hasAdvancedFilters"
           variant="tonal"
@@ -29,18 +47,19 @@
           {{ showAdvancedSearch ? 'إخفاء الفلاتر' : 'بحث متقدم' }}
         </AppButton>
 
-        <!-- Simple Search -->
+        <v-spacer class="d-none d-sm-block" />
+
+        <!-- Simple Search (Wider/Main) -->
         <AppInput
           v-if="searchable"
           v-model="searchModel"
           placeholder="بحث . . ."
           prepend-inner-icon="ri-search-line"
-          class="search-input-mini"
+          class="flex-grow-1 search-input-mini"
+          style="max-width: 100%"
           hide-details
           density="compact"
         />
-
-        <slot name="actions" />
       </div>
     </v-card-title>
 
@@ -73,12 +92,27 @@
                   density="compact"
                   class="filter-input-compact"
                 />
+                <!-- Autocomplete Type -->
+                <AppAutocomplete
+                  v-else-if="item.filterType === 'autocomplete' || item.type === 'autocomplete'"
+                  v-model="filtersModel[item.key]"
+                  :label="item.title"
+                  :api-endpoint="item.apiEndpoint"
+                  :item-title="item.itemTitle || 'name'"
+                  :item-value="item.itemValue || 'id'"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                  clearable
+                  class="filter-input-compact"
+                />
                 <!-- Default Text Type -->
                 <AppInput
                   v-else
                   v-model="filtersModel[item.key]"
                   :label="item.title"
                   :placeholder="`ابحث بـ ${item.title}...`"
+                  :type="item.inputType || 'text'"
                   hide-details
                   density="compact"
                   class="filter-input-compact"
@@ -87,7 +121,7 @@
             </slot>
             <v-col cols="12" class="d-flex justify-end gap-2 mt-2">
               <AppButton variant="text" size="small" color="grey" @click="resetFilters">إعادة ضبط</AppButton>
-              <AppButton variant="flat" size="small" color="primary" @click="applyFilters">تطبيق الفلاتر</AppButton>
+              <AppButton v-if="manualFilter" variant="flat" size="small" color="primary" @click="applyFilters"> تطبيق الفلاتر </AppButton>
             </v-col>
           </v-row>
         </v-container>
@@ -123,7 +157,7 @@
       >
         <!-- Common Slots -->
         <template v-for="(_, slot) in $slots" #[slot]="scope">
-          <slot :name="slot" v-bind="scope || {}" />
+          <slot :name="slot" v-bind="{ ...(scope || {}), isGrid: false, viewMode: 'list' }" />
         </template>
 
         <!-- Actions column (Server) -->
@@ -170,6 +204,27 @@
             <slot name="extra-actions" :item="item" />
           </div>
         </template>
+
+        <!-- [NEW] Internal Infinite Scroll for List Mode -->
+        <template v-if="infiniteScroll" #body.append>
+          <tr v-if="items.length > 0">
+            <td colspan="100" class="pa-0 border-0">
+              <AppInfiniteScroll :loading="loading" :has-more="hasMore" :show-no-more="showNoMore" @load="$emit('load')" />
+            </td>
+          </tr>
+        </template>
+
+        <!-- [NEW] Consistent Empty State Slot -->
+        <template #no-data>
+          <div class="d-flex flex-column align-center justify-center py-10 text-center">
+            <div class="bg-grey-lighten-5 rounded-circle pa-4 mb-3">
+              <v-icon icon="ri-search-eye-line" size="32" color="grey-lighten-1" />
+            </div>
+            <div class="text-subtitle-1 font-weight-bold text-grey-darken-2">{{ emptyText }}</div>
+            <div class="text-caption text-grey mb-3" style="max-width: 300px">{{ emptySubtext }}</div>
+            <slot name="empty-actions" />
+          </div>
+        </template>
       </v-data-table-server>
 
       <!-- Data Table (Virtual Scrolling) -->
@@ -193,7 +248,7 @@
       >
         <!-- Common Slots -->
         <template v-for="(_, slot) in $slots" #[slot]="scope">
-          <slot :name="slot" v-bind="scope || {}" />
+          <slot :name="slot" v-bind="{ ...(scope || {}), isGrid: false, viewMode: 'list' }" />
         </template>
 
         <!-- Actions column (Virtual) -->
@@ -240,6 +295,18 @@
             <slot name="extra-actions" :item="item" />
           </div>
         </template>
+
+        <!-- [NEW] Consistent Empty State Slot for Virtual -->
+        <template #no-data>
+          <div class="d-flex flex-column align-center justify-center py-10 text-center">
+            <div class="bg-grey-lighten-5 rounded-circle pa-4 mb-3">
+              <v-icon icon="ri-search-eye-line" size="32" color="grey-lighten-1" />
+            </div>
+            <div class="text-subtitle-1 font-weight-bold text-grey-darken-2">{{ emptyText }}</div>
+            <div class="text-caption text-grey mb-3" style="max-width: 300px">{{ emptySubtext }}</div>
+            <slot name="empty-actions" />
+          </div>
+        </template>
       </v-data-table-virtual>
 
       <!-- Manual Pagination for List Mode (Universal for Server-side) -->
@@ -276,9 +343,124 @@
     <!-- Grid View Area -->
     <div v-else-if="viewMode === 'grid'" class="grid-view-wrapper d-flex flex-column">
       <div :style="{ height: calculatedTableHeight, overflowY: 'auto' }" class="grid-view-scroll-container pa-4">
-        <v-row dense>
-          <slot name="grid" :items="items" />
-        </v-row>
+        <!-- [NEW] Auto-Grid Generation -->
+        <slot name="grid" :items="items">
+          <v-container fluid class="pa-0 min-height-400">
+            <v-row v-if="items.length > 0" dense>
+              <v-col v-for="item in items" :key="item.id" cols="12" sm="6" md="4" lg="3">
+                <v-card
+                  rounded="lg"
+                  class="grid-card border h-100 d-flex flex-column transition-all-cubic overflow-hidden"
+                  @click="$emit('view', item)"
+                >
+                  <!-- [NEW] Card Media Group (Avatar/Image) -->
+                  <div
+                    v-if="gridOptions.avatarKey || gridOptions.imageKey"
+                    class="pa-4 pb-0 d-flex justify-center"
+                    :class="{ 'bg-grey-lighten-4': gridOptions.imageKey }"
+                  >
+                    <AppAvatar
+                      v-if="gridOptions.avatarKey"
+                      :img-url="item[gridOptions.avatarKey]"
+                      :name="item[gridOptions.titleKey || headers[0]?.key]"
+                      size="80"
+                      class="border shadow-sm elevation-1"
+                    />
+                    <v-img
+                      v-else-if="gridOptions.imageKey"
+                      :src="item[gridOptions.imageKey] || '/placeholder-product.png'"
+                      height="180"
+                      width="100%"
+                      cover
+                      class="rounded-md elevation-1 bg-grey-lighten-4"
+                    >
+                      <template #placeholder>
+                        <div class="d-flex align-center justify-center fill-height bg-grey-lighten-4">
+                          <v-icon icon="ri-image-2-line" color="grey-lighten-1" size="48" />
+                        </div>
+                      </template>
+                    </v-img>
+                  </div>
+
+                  <!-- Card Header -->
+                  <div class="pa-3 bg-white d-flex flex-column align-center text-center">
+                    <span class="text-subtitle-1 font-weight-black text-primary text-truncate w-100 px-2">
+                      <slot :name="`item.${gridOptions.titleKey || headers[0]?.key}`" :item="item" :is-grid="true" view-mode="grid">
+                        {{ item[gridOptions.titleKey || headers[0]?.key] || '---' }}
+                      </slot>
+                    </span>
+                    <span v-if="gridOptions.subtitleKey && item[gridOptions.subtitleKey]" class="text-caption text-grey mt-n1">
+                      <slot :name="`item.${gridOptions.subtitleKey}`" :item="item" :is-grid="true" view-mode="grid">
+                        {{ item[gridOptions.subtitleKey] }}
+                      </slot>
+                    </span>
+                  </div>
+
+                  <v-divider class="opacity-10" />
+
+                  <!-- Card Content -->
+                  <v-card-text class="pa-3 flex-grow-1 bg-white">
+                    <div class="d-flex flex-column ga-2">
+                      <template v-if="gridOptions.bodyKeys?.length">
+                        <div v-for="key in gridOptions.bodyKeys" :key="key" class="d-flex align-center justify-space-between text-caption ga-1">
+                          <span class="text-grey">{{ headers.find(h => h.key === key)?.title || key }}:</span>
+                          <span class="font-weight-medium text-right text-truncate" style="max-width: 140px">
+                            <slot :name="`item.${key}`" :item="item" :is-grid="true" view-mode="grid">
+                              {{ item[key] || '---' }}
+                            </slot>
+                          </span>
+                        </div>
+                      </template>
+                      <template v-else>
+                        <div
+                          v-for="(header, idx) in headers.slice(1).filter(h => h.key !== 'actions' && h.key !== gridOptions.subtitleKey)"
+                          :key="header.key"
+                          class="d-flex align-center justify-space-between text-caption"
+                        >
+                          <span v-if="idx < 4" class="text-grey">{{ header.title }}:</span>
+                          <span v-if="idx < 4" class="font-weight-medium text-right text-truncate" style="max-width: 140px">
+                            <slot :name="`item.${header.key}`" :item="item" :is-grid="true" view-mode="grid">
+                              {{ item[header.key] || '---' }}
+                            </slot>
+                          </span>
+                        </div>
+                      </template>
+                    </div>
+                  </v-card-text>
+
+                  <!-- Card Actions -->
+                  <v-card-actions class="pa-1 bg-grey-lighten-5 border-top d-flex justify-center gap-1">
+                    <AppButton icon="ri-eye-line" size="x-small" color="info" variant="text" @click.stop="$emit('view', item)" />
+                    <AppButton v-if="canEdit" icon="ri-edit-line" size="x-small" color="primary" variant="text" @click.stop="$emit('edit', item)" />
+                    <AppButton
+                      v-if="canDelete"
+                      icon="ri-delete-bin-line"
+                      size="x-small"
+                      color="error"
+                      variant="text"
+                      @click.stop="$emit('delete', item)"
+                    />
+                    <slot name="extra-actions" :item="item" />
+                  </v-card-actions>
+                </v-card>
+              </v-col>
+            </v-row>
+          </v-container>
+        </slot>
+
+        <div v-if="infiniteScroll" class="px-4 pb-4">
+          <AppInfiniteScroll :loading="loading" :has-more="hasMore" :show-no-more="showNoMore" @load="$emit('load')" />
+        </div>
+
+        <!-- [NEW] Empty State for Grid Mode -->
+        <div v-if="!loading && items.length === 0" class="d-flex flex-column align-center justify-center py-12 text-center h-100">
+          <div class="bg-grey-lighten-5 rounded-circle pa-6 mb-4">
+            <v-icon icon="ri-search-eye-line" size="48" color="grey-lighten-1" />
+          </div>
+          <div class="text-h6 font-weight-bold text-grey-darken-2 mb-1">{{ emptyText }}</div>
+          <div class="text-body-2 text-grey mb-4" style="max-width: 300px">{{ emptySubtext }}</div>
+          <slot name="empty-actions" />
+        </div>
       </div>
 
       <!-- Manual Pagination for Grid Mode (Universal) -->
@@ -372,6 +554,9 @@ import { useWindowSize, useElementSize, useLocalStorage } from '@vueuse/core';
 import { usePermissions } from '@/composables/usePermissions';
 import AppButton from '@/components/common/AppButton.vue';
 import AppInput from '@/components/common/AppInput.vue';
+import AppInfiniteScroll from '@/components/common/AppInfiniteScroll.vue';
+import AppAvatar from '@/components/common/AppAvatar.vue';
+import AppAutocomplete from '@/components/common/AppAutocomplete.vue';
 
 // --- Props & Emits ---
 const props = defineProps({
@@ -397,6 +582,7 @@ const props = defineProps({
   subtitle: { type: String, default: '' },
   icon: { type: String, default: '' },
   fullHeight: { type: Boolean, default: true },
+  tableHeight: { type: String, default: undefined },
   extraOffset: { type: Number, default: 0 },
 
   // Permissions & Actions
@@ -427,7 +613,29 @@ const props = defineProps({
   },
   rowProps: { type: [Function, Object], default: null },
   showViewToggle: { type: Boolean, default: false },
+  gridEnabled: { type: Boolean, default: false }, // Automatically enable Grid view support
   rowClickable: { type: Boolean, default: null }, // Manual override for clickable rows
+
+  infiniteScroll: { type: Boolean, default: false },
+  hasMore: { type: Boolean, default: false },
+  showNoMore: { type: Boolean, default: false },
+
+  // Grid View Configuration
+  gridOptions: {
+    type: Object,
+    default: () => ({
+      titleKey: null,
+      subtitleKey: null,
+      imageKey: null,
+      avatarKey: null,
+      bodyKeys: [], // If empty, falls back to headers
+    }),
+  },
+  // If true, disables auto-filtering and shows 'Apply' button
+  manualFilter: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 const emit = defineEmits([
@@ -463,9 +671,13 @@ const paginationRef = ref(null);
 const { height: internalPaginationHeight } = useElementSize(paginationRef);
 
 const calculatedTableHeight = computed(() => {
-  if (!props.fullHeight) return '400px';
+  // Manual override takes precedence
+  if (props.tableHeight) return props.tableHeight;
 
-  // Find environment elements
+  // If not full height and no manual height, return undefined to allow natural expansion
+  if (!props.fullHeight) return undefined;
+
+  // Find environment elements for dynamic calculation
   const navbarEl = document.querySelector('.v-app-bar');
   const breadcrumbsEl = document.querySelector('.sticky-breadcrumbs-container');
   const pageHeaderEl = document.querySelector('.app-page-header');
@@ -633,6 +845,26 @@ watch(
 );
 
 const applyFilters = () => emit('update:filters', { ...filtersModel });
+
+let filterTimeout;
+const debouncedApplyFilters = () => {
+  clearTimeout(filterTimeout);
+  filterTimeout = setTimeout(() => {
+    applyFilters();
+  }, 500);
+};
+
+// Deep watch for auto-submit
+watch(
+  filtersModel,
+  () => {
+    if (!props.manualFilter) {
+      debouncedApplyFilters();
+    }
+  },
+  { deep: true }
+);
+
 const resetFilters = () => {
   Object.keys(filtersModel).forEach(key => (filtersModel[key] = null));
   emit('update:filters', {});
@@ -778,5 +1010,23 @@ watch(viewMode, (newVal, oldVal) => {
   transform: translateY(-50%) scale(0.8) !important;
   background-color: var(--v-theme-surface) !important;
   padding: 0 4px !important;
+}
+
+/* Premium Grid Card Styles */
+.grid-card {
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+}
+
+.grid-card:hover {
+  transform: translateY(-8px) scale(1.01) !important;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1) !important;
+  border-color: rgba(var(--v-theme-primary), 0.2) !important;
+  z-index: 10;
+}
+
+.transition-all-cubic {
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
 }
 </style>

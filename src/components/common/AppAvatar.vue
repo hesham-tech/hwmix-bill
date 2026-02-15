@@ -4,13 +4,13 @@
       :size="size"
       :rounded="isStandardRounded ? rounded : undefined"
       :color="imgUrl ? undefined : bgcolor"
-      :class="['app-avatar shadow-sm border', { 'hover-scale': hoverable, 'cursor-zoom-in': shouldBePreviewable }, customClass]"
+      :class="['app-avatar shadow-sm', { 'hover-scale': hoverable, 'cursor-zoom-in': shouldBePreviewable }, customClass]"
       :style="avatarStyle"
       v-bind="$attrs"
       @click="editable ? handleEditClick() : handlePreview($event)"
     >
       <!-- Priority 1: Image -->
-      <v-img v-if="imgUrl" :src="imgUrl" cover crossorigin="anonymous" @error="handleImgError">
+      <v-img v-if="imgUrl && !hasImgError" :src="imgUrl" cover crossorigin="anonymous" @error="handleImgError">
         <template #placeholder>
           <div class="d-flex align-center justify-center fill-height bg-grey-lighten-4">
             <v-progress-circular indeterminate size="16" width="2" color="primary" />
@@ -111,7 +111,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 
 const props = defineProps({
   /**
@@ -218,6 +218,14 @@ const emit = defineEmits(['edit', 'crop']);
 const handleImgError = () => {
   hasImgError.value = true;
 };
+
+// Reset error state when URL changes to try loading new image
+watch(
+  () => props.imgUrl,
+  () => {
+    hasImgError.value = false;
+  }
+);
 
 const shouldBePreviewable = computed(() => {
   return props.previewable && props.imgUrl && typeof props.imgUrl === 'string' && props.imgUrl.trim().length > 0 && !hasImgError.value;
