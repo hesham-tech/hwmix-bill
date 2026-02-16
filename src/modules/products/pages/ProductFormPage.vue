@@ -1,6 +1,6 @@
 <template>
   <v-container fluid class="pa-0 bg-transparent">
-    <ProductForm :product-id="productId" @success="handleSuccess" @cancel="handleCancel" />
+    <ProductForm :key="productId || 'new'" :product-id="productId" @success="handleSuccess" @cancel="handleCancel" />
   </v-container>
 </template>
 

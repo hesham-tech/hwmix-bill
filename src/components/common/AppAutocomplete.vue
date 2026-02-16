@@ -191,7 +191,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['update:modelValue', 'update:search', 'created']);
+const emit = defineEmits(['update:modelValue', 'update:search', 'created', 'select']);
 
 const selectedValue = ref(props.modelValue);
 const searchQuery = ref('');
@@ -297,6 +297,14 @@ const handleCreate = async () => {
 
 const handleChange = value => {
   emit('update:modelValue', value);
+
+  // Emit full object if found
+  if (value && !props.multiple) {
+    const item = mergedItems.value.find(i => i[props.itemValue] === value);
+    if (item) {
+      emit('select', item);
+    }
+  }
 };
 
 watch(searchQuery, val => {

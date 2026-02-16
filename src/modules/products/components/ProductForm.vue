@@ -87,7 +87,7 @@
                   :clearable="false"
                   no-filter
                   hide-no-data
-                  @update:model-value="handleNameSelect"
+                  @select="handleNameSelect"
                   @update:search="productData.name = $event"
                 >
                   <template #item="{ props, item }">
@@ -187,7 +187,7 @@
         </v-expand-transition>
 
         <!-- Variant Manager -->
-        <VariantManager v-model="productData.variants" :product-type="productData.product_type" />
+        <VariantManager :key="currentProductId || 'new'" v-model="productData.variants" :product-type="productData.product_type" />
       </v-col>
 
       <!-- Sidebar Options -->
@@ -250,7 +250,7 @@
       title="هذا المنتج موجود بالفعل!"
       icon="ri-error-warning-line"
       confirm-text="تعديل المنتج الموجود"
-      cancel-text="تجاهل والبحث عن اسم آخر"
+      cancel-text="تجاهل الاستمرار في الإضافة"
       confirm-color="warning"
       max-width="500"
       @confirm="confirmSwitchToEdit"
@@ -260,8 +260,8 @@
         <v-avatar color="warning-lighten-5" size="64" class="mb-4">
           <v-icon icon="ri-file-search-line" color="warning" size="32" />
         </v-avatar>
-        <div class="text-h6 font-weight-bold mb-2">هل تقصد "{{ existingProduct?.name }}"؟</div>
-        <p class="text-body-2 text-grey-darken-1">تم العثور على منتج مسجل مسبقاً بهذا الاسم. هل ترغب في التحميل والبدء في تعديله؟</p>
+        <div class="text-h6 font-weight-bold mb-2">هل تريد تعديل "{{ existingProduct?.name }}"؟</div>
+        <p class="text-body-2 text-grey-darken-1">تم العثور على المنتج "{{ existingProduct?.name }}" مسجل مسبقاً بهذا الاسم. هل ترغب في تعديله؟</p>
         <v-chip v-if="existingProduct?.category" size="small" color="primary" variant="tonal" class="mt-2">
           {{ existingProduct.category.name }}
         </v-chip>
@@ -271,7 +271,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import { useProductStore } from '../store/product.store';
 import AppInput from '@/components/common/AppInput.vue';
 import AppAutocomplete from '@/components/common/AppAutocomplete.vue';
@@ -303,10 +304,21 @@ const props = defineProps({
 
 const emit = defineEmits(['success', 'cancel']);
 
+const router = useRouter();
 const productStore = useProductStore();
 const { saveProduct, fetchProduct } = productStore;
 
 const currentProductId = ref(props.productId);
+
+// Sync internal ID if prop changes (for robustness)
+watch(
+  () => props.productId,
+  newId => {
+    currentProductId.value = newId;
+  },
+  { immediate: true }
+);
+
 const isEdit = computed(() => !!currentProductId.value);
 const loading = ref(false);
 const isValid = ref(false);
@@ -316,68 +328,8 @@ const form = ref(null);
 const showDuplicateDialog = ref(false);
 const existingProduct = ref(null);
 
-const handleNameSelect = val => {
-  // If it's an object (from autocomplete), user selected an existing item
-  if (val && typeof val === 'object') {
-    existingProduct.value = val;
-    showDuplicateDialog.value = true;
-    // Temporarily revert to string if possible, or clear
-    productData.value.name = val.name;
-  }
-};
-
-const confirmSwitchToEdit = () => {
-  if (existingProduct.value) {
-    currentProductId.value = existingProduct.value.id;
-    loadProductData(existingProduct.value.id);
-  }
-  showDuplicateDialog.value = false;
-};
-
-const cancelNameSelection = () => {
-  productData.value.name = '';
-  existingProduct.value = null;
-  showDuplicateDialog.value = false;
-};
-
-const loadProductData = async id => {
-  loading.value = true;
-  try {
-    const data = await fetchProduct(id);
-    if (data) {
-      productData.value = {
-        ...data,
-        category_id: data.category?.id || data.category_id,
-        brand_id: data.brand?.id || data.brand_id,
-        images: data.images || [],
-        primary_image_id: data.images?.find(img => img.is_primary)?.id || null,
-        variants: data.variants?.map(v => ({
-          ...v,
-          purchase_price: v.purchase_price || v.cost || 0,
-          images: v.images || [],
-          primary_image_id: v.images?.find(img => img.is_primary)?.id || null,
-          stocks:
-            v.stocks?.map(s => ({
-              ...s,
-              warehouse_id: s.warehouse?.id || s.warehouse_id,
-            })) || [],
-        })),
-      };
-    }
-  } finally {
-    loading.value = false;
-  }
-};
-
-const primaryImageUrl = computed(() => {
-  if (productData.value.images?.length > 0) {
-    const primary = productData.value.images.find(img => img.id === productData.value.primary_image_id || img.is_primary);
-    return primary ? primary.url : productData.value.images[0].url;
-  }
-  return null;
-});
-
-const productData = ref({
+// --- State Initialization ---
+const getInitialProductData = () => ({
   name: '',
   product_type: 'physical',
   require_stock: true,
@@ -395,21 +347,101 @@ const productData = ref({
   returnable: true,
   images: [],
   primary_image_id: null,
-  variants: [
-    {
-      purchase_price: 0,
-      wholesale_price: 0,
-      retail_price: 0,
-      profit_margin: 0,
-      sku: '',
-      barcode: '',
-      stocks: [{ warehouse_id: null, quantity: 0 }],
-      attributes: [{ attribute_id: null, attribute_value_id: null }],
-      images: [],
-      primary_image_id: null,
-    },
-  ],
+  variants: [], // Start empty, will be populated by onMounted or loadProductData
 });
+
+const productData = ref(getInitialProductData());
+
+const handleNameSelect = val => {
+  // Only trigger if we are not already editing
+  if (val && typeof val === 'object' && !isEdit.value) {
+    existingProduct.value = val;
+    showDuplicateDialog.value = true;
+    productData.value.name = val.name;
+  }
+};
+
+const confirmSwitchToEdit = () => {
+  if (existingProduct.value) {
+    // Navigate and let ProductFormPage remount this component
+    router.replace({
+      name: 'product-edit',
+      params: { id: existingProduct.value.id },
+    });
+  }
+  showDuplicateDialog.value = false;
+};
+
+const cancelNameSelection = () => {
+  productData.value.name = '';
+  existingProduct.value = null;
+  showDuplicateDialog.value = false;
+};
+
+const loadProductData = async id => {
+  if (!id) return;
+  loading.value = true;
+  try {
+    const data = await fetchProduct(id);
+    if (data) {
+      // Create a fresh object to ensure no state leakage
+      const mappedData = {
+        ...getInitialProductData(), // Start with clean defaults
+        ...data,
+        category_id: data.category?.id || data.category_id,
+        brand_id: data.brand?.id || data.brand_id,
+        images: data.images || [],
+        primary_image_id: data.images?.find(img => img.is_primary)?.id || null,
+        variants:
+          data.variants?.map(v => {
+            // Deduplicate stocks by warehouse_id
+            const stockMap = new Map();
+
+            (v.stocks || []).forEach(s => {
+              const wid = s.warehouse?.id || s.warehouse_id;
+              if (!wid) return;
+
+              const existing = stockMap.get(wid);
+              // Priority: 1. Has ID, 2. Has quantity > 0, 3. Priority to first found
+              if (!existing || (!existing.id && s.id) || (existing.quantity === 0 && s.quantity > 0)) {
+                stockMap.set(wid, {
+                  ...s,
+                  warehouse_id: wid,
+                });
+              }
+            });
+
+            return {
+              ...v,
+              purchase_price: v.purchase_price || v.cost || 0,
+              images: v.images || [],
+              primary_image_id: v.images?.find(img => img.is_primary)?.id || null,
+              stocks: Array.from(stockMap.values()),
+            };
+          }) || [],
+      };
+
+      // Force set the value
+      productData.value = mappedData;
+    }
+  } catch (error) {
+    console.error('Failed to load product data:', error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+// ... existing logic ...
+
+const primaryImageUrl = computed(() => {
+  if (productData.value.images?.length > 0) {
+    const primary = productData.value.images.find(img => img.id === productData.value.primary_image_id || img.is_primary);
+    return primary ? primary.url : productData.value.images[0].url;
+  }
+  return null;
+});
+
+// This part is now handled by getInitialProductData and loadProductData
 
 const handleTypeChange = type => {
   // Logic to handle defaults when switching types
@@ -468,15 +500,28 @@ onMounted(async () => {
   if (isEdit.value) {
     await loadProductData(currentProductId.value);
   } else {
-    // Set default warehouse for new products
+    // Initialization for NEW product
     const warehouseId = await productStore.fetchDefaultWarehouse();
-    if (warehouseId) {
-      productData.value.variants[0].stocks[0].warehouse_id = warehouseId;
-    }
-    // Ensure initial variant has at least one attribute for new products
-    if (!productData.value.variants[0].attributes?.length) {
-      productData.value.variants[0].attributes = [{ attribute_id: null, attribute_value_id: null }];
-    }
+
+    // Critical: Re-check isEdit after async await to avoid race condition
+    // when user selects an existing product while we were fetching the default warehouse
+    if (isEdit.value) return;
+
+    // Population of initial variant ONLY for new product
+    productData.value.variants = [
+      {
+        purchase_price: 0,
+        wholesale_price: 0,
+        retail_price: 0,
+        profit_margin: 0,
+        sku: '',
+        barcode: '',
+        stocks: [{ warehouse_id: warehouseId, quantity: 0 }],
+        attributes: [{ attribute_id: null, attribute_value_id: null }],
+        images: [],
+        primary_image_id: null,
+      },
+    ];
   }
 });
 
