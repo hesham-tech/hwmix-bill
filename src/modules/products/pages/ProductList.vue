@@ -34,16 +34,28 @@
               <template #actions>
                 <div class="d-flex gap-2">
                   <AppButton
+                    color="grey-darken-1"
+                    variant="tonal"
+                    prepend-icon="ri-download-2-line"
+                    size="small"
+                    class="rounded-pill shadow-sm"
+                    style="height: 40px"
+                    :loading="exportLoading"
+                    @click="handleExport"
+                  >
+                    تحميل منتجات
+                  </AppButton>
+                  <AppButton
                     v-if="canAny(PERMISSIONS.PRODUCTS_CREATE)"
                     color="secondary"
                     variant="tonal"
-                    prepend-icon="ri-file-excel-2-line"
+                    prepend-icon="ri-upload-cloud-2-line"
                     size="small"
                     class="rounded-pill shadow-sm"
                     style="height: 40px"
                     @click="importDialog?.open()"
                   >
-                    استيراد إكسيل
+                    رفع منتجات
                   </AppButton>
                   <AppButton
                     v-if="canAny(PERMISSIONS.PRODUCTS_CREATE)"
@@ -236,6 +248,33 @@ const confirmDelete = async item => {
   if (confirmed) {
     await productStore.deleteProduct(item.id);
     refresh();
+  }
+};
+
+const exportLoading = ref(false);
+
+const handleExport = async () => {
+  exportLoading.value = true;
+  try {
+    const response = await productService.export({
+      ...filters.value,
+      search: search.value,
+      sort_by: sortByVuetify.value[0]?.key || 'created_at',
+      sort_order: sortByVuetify.value[0]?.order || 'desc',
+    });
+
+    // Create a download link for the blob
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `products_export_${new Date().getTime()}.xlsx`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } catch (error) {
+    console.error('Export error:', error);
+  } finally {
+    exportLoading.value = false;
   }
 };
 </script>

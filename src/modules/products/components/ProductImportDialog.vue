@@ -1,5 +1,5 @@
 <template>
-  <AppDialog v-model="isOpen" title="استيراد منتجات من إكسيل" icon="ri-file-excel-2-line" width="1000" :loading="importing" persistent>
+  <AppDialog v-model="isOpen" title="رفع منتجات من إكسيل" icon="ri-upload-cloud-2-line" width="1000" :loading="importing" persistent>
     <div class="pa-4 import-container">
       <!-- Step 1: Upload -->
       <div v-if="step === 1" class="d-flex flex-column align-center justify-center py-10">
@@ -109,7 +109,7 @@
       <!-- Step 3: Success -->
       <div v-else-if="step === 3" class="d-flex flex-column align-center justify-center py-10">
         <v-icon icon="ri-checkbox-circle-fill" size="80" color="success" class="mb-4" />
-        <h3 class="text-h5 font-weight-bold mb-2">تم الاستيراد بنجاح!</h3>
+        <h3 class="text-h5 font-weight-bold mb-2">تم الرفع بنجاح!</h3>
         <p class="text-grey mb-6">تمت إضافة {{ resultCount }} منتج إلى نظامك بنجاح.</p>
 
         <AppButton color="primary" @click="close"> إغلاق </AppButton>
@@ -120,7 +120,7 @@
       <AppButton v-if="step === 1" variant="text" @click="close">إلغاء</AppButton>
       <div v-if="step === 2" class="d-flex gap-2">
         <AppButton variant="text" color="grey" @click="step = 1">السابق</AppButton>
-        <AppButton color="primary" prepend-icon="ri-rocket-2-line" :loading="importing" @click="startImport"> بدء الاستيراد الفعلي </AppButton>
+        <AppButton color="primary" prepend-icon="ri-rocket-2-line" :loading="importing" @click="startImport"> تنفيذ الرفع والربط </AppButton>
       </div>
     </template>
   </AppDialog>

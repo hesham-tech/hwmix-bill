@@ -76,6 +76,22 @@ class ProductService extends BaseService {
       return this.handleError(error, showToast);
     }
   }
+
+  /**
+   * Export products to Excel
+   */
+  async export(params = {}) {
+    try {
+      const response = await apiClient.get('products/export', {
+        params,
+        responseType: 'blob',
+      });
+      return response;
+    } catch (error) {
+      console.error('Export failed:', error);
+      throw error;
+    }
+  }
 }
 
 export default new ProductService();
