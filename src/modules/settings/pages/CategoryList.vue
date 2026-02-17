@@ -265,7 +265,18 @@
           </v-col>
 
           <v-col cols="12">
-            <AppInput v-model="formData.name" label="اسم الفئة *" :rules="[rules.required]" />
+            <AppAutocomplete
+              v-if="!isEdit"
+              v-model="formData.name"
+              label="اسم الفئة (بحث أو إضافة) *"
+              placeholder="ابحث عن فئة موجودة أو اكتب اسماً جديداً"
+              api-endpoint="/api/categories"
+              item-title="name"
+              item-value="name"
+              can-create
+              :rules="[rules.required]"
+            />
+            <AppInput v-else v-model="formData.name" label="اسم الفئة *" :rules="[rules.required]" />
           </v-col>
           <v-col cols="12">
             <v-autocomplete

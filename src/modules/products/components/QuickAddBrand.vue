@@ -16,26 +16,18 @@
 
       <v-card-text class="mt-4">
         <v-form ref="form" v-model="isValid">
-          <v-text-field
+          <AppAutocomplete
             v-model="name"
-            label="اسم العلامة التجارية (AR)"
-            placeholder="مثال: سامسونج"
-            variant="solo-filled"
-            flat
-            rounded="md"
+            label="اسم العلامة التجارية (بحث أو إضافة)"
+            placeholder="ابحث عن علامة موجودة أو اكتب اسماً جديداً"
+            api-endpoint="/api/brands"
+            item-title="name"
+            item-value="name"
+            can-create
             :rules="[required]"
             autofocus
           />
-          <v-text-field
-            v-model="nameEn"
-            label="اسم العلامة التجارية (EN)"
-            placeholder="Samsung"
-            variant="solo-filled"
-            flat
-            rounded="md"
-            class="mt-2 text-left"
-            dir="ltr"
-          />
+          <AppInput v-model="nameEn" label="اسم العلامة التجارية (EN)" placeholder="Samsung" class="mt-2 text-left" dir="ltr" />
         </v-form>
       </v-card-text>
 
@@ -52,6 +44,8 @@
 import { ref } from 'vue';
 import { required } from '@/utils/validators';
 import brandService from '@/api/services/brand.service';
+import AppAutocomplete from '@/components/common/AppAutocomplete.vue';
+import AppInput from '@/components/common/AppInput.vue';
 
 const emit = defineEmits(['saved']);
 

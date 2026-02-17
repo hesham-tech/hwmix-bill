@@ -44,7 +44,17 @@
       <slot v-if="$slots.item" name="item" v-bind="{ props, item }" />
       <v-list-item v-else v-bind="props" :title="undefined">
         <template #title>
-          <div v-html="highlightText(item.title, searchQuery)"></div>
+          <div class="d-flex align-center">
+            <div v-html="highlightText(item.raw[itemTitle] || item.title, searchQuery)"></div>
+            <v-chip v-if="!item.raw.company_id" size="x-small" color="info" variant="flat" class="ms-2 px-1" style="height: 16px; font-size: 10px">
+              عالمي
+            </v-chip>
+          </div>
+        </template>
+        <template v-if="item.raw.synonyms && item.raw.synonyms.length" #subtitle>
+          <span class="text-caption text-grey">
+            {{ item.raw.synonyms.join(', ') }}
+          </span>
         </template>
       </v-list-item>
     </template>

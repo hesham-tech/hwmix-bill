@@ -16,26 +16,18 @@
 
       <v-card-text class="mt-4">
         <v-form ref="form" v-model="isValid">
-          <v-text-field
+          <AppAutocomplete
             v-model="name"
-            label="اسم القسم (AR)"
-            placeholder="مثال: الهواتف الذكية"
-            variant="solo-filled"
-            flat
-            rounded="md"
+            label="اسم القسم (بحث أو إضافة)"
+            placeholder="ابحث عن قسم موجود أو اكتب اسماً جديداً"
+            api-endpoint="/api/categories"
+            item-title="name"
+            item-value="name"
+            can-create
             :rules="[required]"
             autofocus
           />
-          <v-text-field
-            v-model="nameEn"
-            label="اسم القسم (EN)"
-            placeholder="Smartphones"
-            variant="solo-filled"
-            flat
-            rounded="md"
-            class="mt-2 text-left"
-            dir="ltr"
-          />
+          <AppInput v-model="nameEn" label="اسم القسم (EN)" placeholder="Smartphones" class="mt-2 text-left" dir="ltr" />
         </v-form>
       </v-card-text>
 
@@ -52,6 +44,8 @@
 import { ref } from 'vue';
 import { required } from '@/utils/validators';
 import categoryService from '@/api/services/category.service';
+import AppAutocomplete from '@/components/common/AppAutocomplete.vue';
+import AppInput from '@/components/common/AppInput.vue';
 
 const emit = defineEmits(['saved']);
 

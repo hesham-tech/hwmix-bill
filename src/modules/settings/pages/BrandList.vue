@@ -119,7 +119,19 @@
           </v-col>
 
           <v-col cols="12">
-            <AppInput v-model="formData.name" label="اسم العلامة التجارية *" prepend-inner-icon="ri-award-line" :rules="[rules.required]" />
+            <AppAutocomplete
+              v-if="!isEdit"
+              v-model="formData.name"
+              label="اسم العلامة التجارية (بحث أو إضافة) *"
+              prepend-inner-icon="ri-award-line"
+              placeholder="ابحث عن علامة موجودة أو اكتب اسماً جديداً"
+              api-endpoint="/api/brands"
+              item-title="name"
+              item-value="name"
+              can-create
+              :rules="[rules.required]"
+            />
+            <AppInput v-else v-model="formData.name" label="اسم العلامة التجارية *" prepend-inner-icon="ri-award-line" :rules="[rules.required]" />
           </v-col>
 
           <v-col cols="12">
@@ -186,6 +198,7 @@ import AppInput from '@/components/common/AppInput.vue';
 import AppDialog from '@/components/common/AppDialog.vue';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
+import AppAutocomplete from '@/components/common/AppAutocomplete.vue';
 import { PERMISSIONS } from '@/config/permissions';
 const { can, canAny } = usePermissions();
 const api = useApi('/api/brands');
