@@ -170,6 +170,8 @@ export const PERMISSIONS = {
   CATEGORIES_DELETE_ALL: 'categories.delete_all',
   CATEGORIES_DELETE_CHILDREN: 'categories.delete_children',
   CATEGORIES_DELETE_SELF: 'categories.delete_self',
+  CATEGORIES_MERGE: 'categories.merge',
+  CATEGORIES_GLOBALIZE: 'categories.globalize',
 
   // ==================== Brands ====================
   BRANDS_PAGE: 'brands.page',
@@ -183,6 +185,8 @@ export const PERMISSIONS = {
   BRANDS_DELETE_ALL: 'brands.delete_all',
   BRANDS_DELETE_CHILDREN: 'brands.delete_children',
   BRANDS_DELETE_SELF: 'brands.delete_self',
+  BRANDS_MERGE: 'brands.merge',
+  BRANDS_GLOBALIZE: 'brands.globalize',
 
   // ==================== Attributes ====================
   ATTRIBUTES_PAGE: 'attributes.page',

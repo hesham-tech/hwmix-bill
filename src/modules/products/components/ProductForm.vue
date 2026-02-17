@@ -105,11 +105,21 @@
                   :items="productData.category ? [productData.category] : []"
                   label="التصنيف"
                   api-endpoint="categories"
-                  item-title="name"
+                  item-title="full_path"
                   item-value="id"
-                  required
                   can-create
-                />
+                >
+                  <template #item="{ props, item }">
+                    <v-list-item v-bind="props" :title="item.raw.full_path">
+                      <template #subtitle>
+                        <div v-if="item.raw.synonyms?.length" class="text-caption text-grey">
+                          <v-icon icon="ri-price-tag-3-line" size="12" class="me-1" />
+                          {{ item.raw.synonyms.join(', ') }}
+                        </div>
+                      </template>
+                    </v-list-item>
+                  </template>
+                </AppAutocomplete>
               </v-col>
               <v-col cols="12" md="6">
                 <AppAutocomplete
@@ -120,7 +130,18 @@
                   item-title="name"
                   item-value="id"
                   can-create
-                />
+                >
+                  <template #item="{ props, item }">
+                    <v-list-item v-bind="props">
+                      <template #subtitle>
+                        <div v-if="item.raw.synonyms?.length" class="text-caption text-grey">
+                          <v-icon icon="ri-price-tag-3-line" size="12" class="me-1" />
+                          {{ item.raw.synonyms.join(', ') }}
+                        </div>
+                      </template>
+                    </v-list-item>
+                  </template>
+                </AppAutocomplete>
               </v-col>
               <v-col cols="12">
                 <AppTextarea v-model="productData.desc" label="وصف موجز" placeholder="اكتب وصفاً مختصراً للمنتج يظهر في قوائم البحث..." rows="3" />

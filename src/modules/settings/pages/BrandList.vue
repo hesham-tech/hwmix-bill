@@ -42,6 +42,10 @@
                   <AppAvatar :img-url="item.image_url" :name="item.name" type="brand" size="48" class="me-3 border" />
                   <div class="d-flex flex-column">
                     <span class="font-weight-bold text-subtitle-1">{{ item.name }}</span>
+                    <div v-if="item.synonyms?.length" class="text-caption text-grey-darken-1 d-flex align-center gap-1">
+                      <v-icon icon="ri-price-tag-3-line" size="12" />
+                      <span class="text-truncate" style="max-width: 250px">{{ item.synonyms.join(', ') }}</span>
+                    </div>
                     <span class="text-caption text-grey text-truncate max-width-200">
                       {{ item.description || 'بدون وصف' }}
                     </span>
@@ -68,9 +72,8 @@
                   </span>
                   <AppSwitch
                     v-if="
-                      canAny(PERMISSIONS.BRANDS_UPDATE_ALL, PERMISSIONS.BRANDS_UPDATE_CHILDREN, PERMISSIONS.BRANDS_UPDATE_SELF, {
-                        resource: item,
-                      })
+                      canAny(PERMISSIONS.BRANDS_UPDATE_ALL, PERMISSIONS.BRANDS_UPDATE_CHILDREN) ||
+                      can(PERMISSIONS.BRANDS_UPDATE_SELF, { resource: item })
                     "
                     :model-value="!!item.active"
                     :loading="togglingId === item.id"
@@ -81,15 +84,39 @@
                   </v-chip>
                 </div>
               </template>
+
+              <!-- Extra Actions Slot -->
+              <template #extra-actions="{ item }">
+                <template v-if="canAny(PERMISSIONS.BRANDS_GLOBALIZE, PERMISSIONS.BRANDS_MERGE)">
+                  <AppButton
+                    v-if="item.company_id && can(PERMISSIONS.BRANDS_GLOBALIZE)"
+                    icon="ri-global-line"
+                    variant="text"
+                    color="warning"
+                    size="small"
+                    :loading="globalizingId === item.id"
+                    @click="handleGlobalize(item)"
+                    title="تحويل لسجل عالمي"
+                    tooltip="تحويل لنظام عالمي"
+                  />
+                  <AppButton
+                    v-if="can(PERMISSIONS.BRANDS_MERGE)"
+                    icon="ri-merge-cells-horizontal"
+                    variant="text"
+                    color="secondary"
+                    size="small"
+                    @click="openMergeDialog(item)"
+                    title="دمج الماركة"
+                    tooltip="دمج مع ماركة أخرى"
+                  />
+                </template>
+              </template>
             </AppDataTable>
           </v-card>
         </v-col>
       </v-row>
     </v-container>
-  </div>
 
-  <!-- Access Denied State (Updated with AppButton) -->
-  <div v-else class="pa-4 text-center d-flex flex-column align-center justify-center" style="min-height: 400px">
     <!-- Brand Form Dialog -->
     <AppDialog
       v-model="showDialog"
@@ -181,6 +208,16 @@
 
     <!-- Media Gallery -->
     <MediaGallery v-model="showMediaGallery" type="logo" @select="handleImageSelect" />
+
+    <!-- Admin Merge Dialog -->
+    <MergeDialog
+      v-model="showMergeDialog"
+      :source-item="mergingItem"
+      api-endpoint="brands"
+      title="الماركة"
+      :loading="merging"
+      @confirm="handleMergeConfirm"
+    />
   </div>
 </template>
 
@@ -199,6 +236,7 @@ import AppDialog from '@/components/common/AppDialog.vue';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
 import AppAutocomplete from '@/components/common/AppAutocomplete.vue';
+import MergeDialog from '../components/MergeDialog.vue';
 import { PERMISSIONS } from '@/config/permissions';
 const { can, canAny } = usePermissions();
 const api = useApi('/api/brands');
@@ -245,6 +283,12 @@ const imagePreview = ref(null);
 const formData = ref({ name: '', active: true, description: '', image_id: null });
 const isEdit = computed(() => !!selectedItem.value?.id);
 const togglingId = ref(null);
+
+// Admin UI State
+const globalizingId = ref(null);
+const showMergeDialog = ref(false);
+const mergingItem = ref(null);
+const merging = ref(false);
 
 const handleToggleStatus = async item => {
   togglingId.value = item.id;
@@ -341,6 +385,33 @@ onMounted(() => {
 const onTableOptionsUpdate = options => {
   // standardized handling
   changeSort(options);
+};
+
+// Admin Handlers
+const handleGlobalize = async item => {
+  globalizingId.value = item.id;
+  try {
+    await api.request('post', `/${item.id}/globalize`, {}, { successMessage: 'تم التحويل لنظام عالمي بنجاح' });
+    fetchData();
+  } finally {
+    globalizingId.value = null;
+  }
+};
+
+const openMergeDialog = item => {
+  mergingItem.value = item;
+  showMergeDialog.value = true;
+};
+
+const handleMergeConfirm = async ({ source_id, target_id }) => {
+  merging.value = true;
+  try {
+    await api.request('post', '/merge', { source_id, target_id }, { successMessage: 'تم الدمج بنجاح' });
+    showMergeDialog.value = false;
+    fetchData();
+  } finally {
+    merging.value = false;
+  }
 };
 </script>
 

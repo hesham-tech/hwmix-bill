@@ -649,6 +649,7 @@ const emit = defineEmits([
   'delete',
   'click:row',
   'update:filters',
+  'load',
 ]);
 
 // --- Core Composables ---

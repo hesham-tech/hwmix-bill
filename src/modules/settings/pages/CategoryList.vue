@@ -1,14 +1,16 @@
 <template>
-  <div class="categories-page">
+  <div v-if="canAny(PERMISSIONS.CATEGORIES_VIEW_ALL, PERMISSIONS.CATEGORIES_VIEW_CHILDREN, PERMISSIONS.CATEGORIES_VIEW_SELF)" class="categories-page">
     <!-- Page Header -->
     <div class="page-header d-flex align-center justify-space-between mb-2">
       <div>
         <h1 class="text-h4 font-weight-bold ml-2">الفئات</h1>
         <p class="text-body-1 text-grey">إدارة وتحليل فئات المنتجات</p>
       </div>
-      <AppButton v-if="can(PERMISSIONS.CATEGORIES_CREATE)" prepend-icon="ri-add-line" size="large" elevation="2" @click="handleCreate">
-        فئة جديدة
-      </AppButton>
+      <div class="d-flex align-center gap-2">
+        <AppButton v-if="can(PERMISSIONS.CATEGORIES_CREATE)" prepend-icon="ri-add-line" size="large" elevation="2" @click="handleCreate">
+          فئة جديدة
+        </AppButton>
+      </div>
     </div>
 
     <!-- Filters & View Toggle -->
@@ -84,7 +86,9 @@
                 </div>
 
                 <v-card-item class="position-relative pt-4">
-                  <v-card-title class="text-h6 font-weight-bold pa-0 mb-1 text-truncate">{{ category.name }}</v-card-title>
+                  <v-card-title class="text-h6 font-weight-bold pa-0 mb-1 text-truncate" :title="category.full_path || category.name">
+                    {{ category.name }}
+                  </v-card-title>
 
                   <div class="d-flex align-center justify-space-between mb-1" style="height: 32px">
                     <div class="d-flex align-center">
@@ -127,15 +131,37 @@
                   <v-spacer />
                   <AppButton
                     v-if="
-                      canAny(PERMISSIONS.CATEGORIES_UPDATE_ALL, PERMISSIONS.CATEGORIES_UPDATE_CHILDREN, PERMISSIONS.CATEGORIES_UPDATE_SELF, {
-                        resource: category,
-                      })
+                      canAny(PERMISSIONS.CATEGORIES_UPDATE_ALL, PERMISSIONS.CATEGORIES_UPDATE_CHILDREN) ||
+                      can(PERMISSIONS.CATEGORIES_UPDATE_SELF, { resource: category })
                     "
                     icon="ri-edit-line"
                     variant="text"
                     color="primary"
                     @click.stop="handleEdit(category)"
                   />
+
+                  <!-- Admin Actions -->
+                  <template v-if="canAny(PERMISSIONS.CATEGORIES_GLOBALIZE, PERMISSIONS.CATEGORIES_MERGE)">
+                    <AppButton
+                      v-if="category.company_id && can(PERMISSIONS.CATEGORIES_GLOBALIZE)"
+                      icon="ri-global-line"
+                      variant="text"
+                      color="warning"
+                      :loading="globalizingId === category.id"
+                      @click.stop="handleGlobalize(category)"
+                      title="تحويل لسجل عالمي"
+                      tooltip="تحويل لنظام عالمي"
+                    />
+                    <AppButton
+                      v-if="can(PERMISSIONS.CATEGORIES_MERGE)"
+                      icon="ri-merge-cells-horizontal"
+                      variant="text"
+                      color="secondary"
+                      @click.stop="openMergeDialog(category)"
+                      title="دمج الفئة"
+                      tooltip="دمج مع فئة أخرى"
+                    />
+                  </template>
                   <AppButton
                     v-if="
                       canAny(PERMISSIONS.CATEGORIES_DELETE_ALL, PERMISSIONS.CATEGORIES_DELETE_CHILDREN, PERMISSIONS.CATEGORIES_DELETE_SELF, {
@@ -170,6 +196,9 @@
           @edit="handleEdit"
           @delete="handleDelete"
         >
+          <template #actions>
+            <AppButton v-if="can(PERMISSIONS.CATEGORIES_CREATE)" prepend-icon="ri-add-line" size="small" @click="handleCreate"> فئة جديدة </AppButton>
+          </template>
           <template #[`item.name`]="{ item }">
             <div class="d-flex align-center py-2 cursor-pointer" @click="handleCategoryClick(item)">
               <v-avatar size="48" rounded="circle" :color="item.active ? 'bg-white' : 'grey-lighten-4'" class="me-3 border overflow-hidden">
@@ -182,7 +211,11 @@
                 />
               </v-avatar>
               <div class="d-flex flex-column">
-                <span class="font-weight-bold text-subtitle-1">{{ item.name }}</span>
+                <span class="font-weight-bold text-subtitle-1 line-clamp-1">{{ item.full_path || item.name }}</span>
+                <div v-if="item.synonyms?.length" class="text-caption text-grey-darken-1 d-flex align-center gap-1">
+                  <v-icon icon="ri-price-tag-3-line" size="12" />
+                  <span class="text-truncate" style="max-width: 250px">{{ item.synonyms.join(', ') }}</span>
+                </div>
                 <span class="text-caption text-grey">كود: {{ item.id }}</span>
               </div>
             </div>
@@ -234,6 +267,29 @@
               title="دخول القسم"
               tooltip="دخول القسم"
             />
+            <!-- Admin Actions -->
+            <template v-if="can(PERMISSIONS.ADMIN_SUPER)">
+              <AppButton
+                v-if="item.company_id"
+                icon="ri-global-line"
+                variant="text"
+                color="warning"
+                size="small"
+                :loading="globalizingId === item.id"
+                @click="handleGlobalize(item)"
+                title="تحويل لسجل عالمي"
+                tooltip="تحويل لنظام عالمي"
+              />
+              <AppButton
+                icon="ri-merge-cells-horizontal"
+                variant="text"
+                color="secondary"
+                size="small"
+                @click="openMergeDialog(item)"
+                title="دمج الفئة"
+                tooltip="دمج مع فئة أخرى"
+              />
+            </template>
           </template>
         </AppDataTable>
       </template>
@@ -270,7 +326,7 @@
               v-model="formData.name"
               label="اسم الفئة (بحث أو إضافة) *"
               placeholder="ابحث عن فئة موجودة أو اكتب اسماً جديداً"
-              api-endpoint="/api/categories"
+              api-endpoint="categories"
               item-title="name"
               item-value="name"
               can-create
@@ -317,6 +373,16 @@
 
     <!-- Media Gallery -->
     <MediaGallery v-model="showMediaGallery" type="category" @select="handleImageSelect" />
+
+    <!-- Admin Merge Dialog -->
+    <MergeDialog
+      v-model="showMergeDialog"
+      :source-item="mergingItem"
+      api-endpoint="categories"
+      title="الفئة"
+      :loading="merging"
+      @confirm="handleMergeConfirm"
+    />
   </div>
 </template>
 
@@ -338,6 +404,8 @@ import EmptyState from '@/components/common/EmptyState.vue';
 import AppInfiniteScroll from '@/components/common/AppInfiniteScroll.vue';
 import CategoryExplorerDialog from '../components/CategoryExplorerDialog.vue';
 import MediaGallery from '@/components/common/MediaGallery.vue';
+import AppAutocomplete from '@/components/common/AppAutocomplete.vue';
+import MergeDialog from '../components/MergeDialog.vue';
 import { PERMISSIONS } from '@/config/permissions';
 const { can, canAny } = usePermissions();
 const api = useApi('/api/categories');
@@ -392,6 +460,12 @@ const showExplorer = ref(false);
 const explorerTarget = ref(null);
 const showMediaGallery = ref(false);
 const imagePreview = ref(null);
+
+// Admin UI State
+const globalizingId = ref(null);
+const showMergeDialog = ref(false);
+const mergingItem = ref(null);
+const merging = ref(false);
 
 const formData = ref({ name: '', parent_id: null, active: 1, image_id: null });
 const isEdit = computed(() => !!selectedItem.value?.id);
@@ -463,6 +537,33 @@ const handleLoadMore = () => {
 const handleCategoryClick = category => {
   explorerTarget.value = category;
   showExplorer.value = true;
+};
+
+// Admin Handlers
+const handleGlobalize = async category => {
+  globalizingId.value = category.id;
+  try {
+    await api.request('post', `/${category.id}/globalize`, {}, { successMessage: 'تم التحويل لنظام عالمي بنجاح' });
+    fetchData();
+  } finally {
+    globalizingId.value = null;
+  }
+};
+
+const openMergeDialog = category => {
+  mergingItem.value = category;
+  showMergeDialog.value = true;
+};
+
+const handleMergeConfirm = async ({ source_id, target_id }) => {
+  merging.value = true;
+  try {
+    await api.request('post', '/merge', { source_id, target_id }, { successMessage: 'تم الدمج بنجاح' });
+    showMergeDialog.value = false;
+    fetchData();
+  } finally {
+    merging.value = false;
+  }
 };
 
 const onTableOptionsUpdate = options => {

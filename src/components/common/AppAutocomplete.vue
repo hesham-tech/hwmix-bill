@@ -209,6 +209,16 @@ const internalLoading = ref(false);
 const creating = ref(false);
 const fetchedItems = ref([]);
 
+const normalizedEndpoint = computed(() => {
+  if (!props.apiEndpoint) return null;
+  const url = props.apiEndpoint.startsWith('/api/')
+    ? props.apiEndpoint.substring(5)
+    : props.apiEndpoint.startsWith('api/')
+      ? props.apiEndpoint.substring(4)
+      : props.apiEndpoint;
+  return url;
+});
+
 const mergedItems = computed(() => {
   if (!props.apiEndpoint) return props.items;
 
@@ -240,11 +250,11 @@ const computedRules = computed(() => {
 });
 
 const fetchItems = debounce(async query => {
-  if (!props.apiEndpoint) return;
+  if (!normalizedEndpoint.value) return;
 
   internalLoading.value = true;
   try {
-    const response = await apiClient.get(props.apiEndpoint, {
+    const response = await apiClient.get(normalizedEndpoint.value, {
       params: { search: query, per_page: 50 },
     });
     const resData = response.data?.data || response.data || [];
@@ -257,22 +267,28 @@ const fetchItems = debounce(async query => {
 }, 500);
 
 const handleCreate = async () => {
-  if (!searchQuery.value || creating.value || !props.apiEndpoint) return;
+  if (!searchQuery.value || creating.value || !normalizedEndpoint.value) return;
 
   creating.value = true;
   try {
     // Extract base endpoint if there's a query param (e.g. for attribute values)
-    const baseEndpoint = props.apiEndpoint.split('?')[0];
+    const baseEndpoint = normalizedEndpoint.value.split('?')[0];
     const payload = { [props.createField]: searchQuery.value };
 
     // If it's something like attribute-values?attribute_id=X, we need that ID too
-    if (props.apiEndpoint.includes('attribute_id=')) {
-      const match = props.apiEndpoint.match(/attribute_id=(\d+)/);
+    if (normalizedEndpoint.value.includes('attribute_id=')) {
+      const match = normalizedEndpoint.value.match(/attribute_id=(\d+)/);
       if (match) payload.attribute_id = match[1];
     }
 
     const response = await apiClient.post(baseEndpoint, payload);
     const newItem = response.data?.data || response.data;
+
+    // Show message if it's a similarity match or existing found
+    if (response.data?.message && response.status === 200) {
+      const { toast } = await import('vue3-toastify');
+      toast.info(response.data.message);
+    }
 
     if (!newItem) throw new Error('Failed to retrieve new item data');
 

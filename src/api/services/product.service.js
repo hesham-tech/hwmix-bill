@@ -63,6 +63,19 @@ class ProductService extends BaseService {
       return this.handleError(error, showToast);
     }
   }
+
+  /**
+   * Import products from Excel with mapping
+   */
+  async import(data, options = {}) {
+    const { showToast = true } = options;
+    try {
+      const response = await apiClient.post('products/import', data);
+      return this.handleSuccess(response, showToast);
+    } catch (error) {
+      return this.handleError(error, showToast);
+    }
+  }
 }
 
 export default new ProductService();
