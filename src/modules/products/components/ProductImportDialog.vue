@@ -5,7 +5,7 @@
       <div v-if="step === 1" class="d-flex flex-column align-center justify-center py-10">
         <v-icon icon="ri-upload-cloud-2-line" size="80" color="primary" class="mb-4 opa-5" />
         <h3 class="text-h5 font-weight-bold mb-2">اختر ملف الإكسيل</h3>
-        <p class="text-grey mb-6">يمكنك رفع ملف بأي تنسيق، سنقوم بربط الأعمدة في الخطوة التالية</p>
+        <p class="text-grey mb-6">يمكنك رفع أي ملف إكسيل (XLSX, XLS, CSV) مهما كان ترتيب أعمدته، سنقوم بربطها في الخطوة التالية</p>
 
         <input type="file" ref="fileInput" accept=".xlsx, .xls, .csv" class="d-none" @change="handleFileChange" />
 
@@ -148,13 +148,12 @@ const rawFileBuffer = ref(null);
 const currentFileName = ref('');
 
 const systemFields = [
-  { key: 'name', label: 'اسم المنتج (عربي)', icon: 'ri-text', required: true },
-  { key: 'name_en', label: 'اسم المنتج (إنجليزي)', icon: 'ri-text' },
+  { key: 'name', label: 'اسم المنتج', icon: 'ri-text', required: true },
   { key: 'sku', label: 'الباركود / SKU', icon: 'ri-barcode-line' },
   { key: 'category', label: 'التصنيف', icon: 'ri-folder-line' },
   { key: 'brand', label: 'الماركة', icon: 'ri-price-tag-3-line' },
-  { key: 'sale_price', label: 'سعر البيع', icon: 'ri-money-dollar-circle-line' },
-  { key: 'cost_price', label: 'سعر التكلفة', icon: 'ri-hand-coin-line' },
+  { key: 'retail_price', label: 'سعر البيع', icon: 'ri-money-dollar-circle-line' },
+  { key: 'purchase_price', label: 'سعر التكلفة', icon: 'ri-hand-coin-line' },
   { key: 'opening_stock', label: 'الرصيد الافتتاحي', icon: 'ri-stack-line' },
   { key: 'desc', label: 'الوصف القصير', icon: 'ri-file-text-line' },
 ];

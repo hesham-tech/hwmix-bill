@@ -34,6 +34,7 @@
               <template #actions>
                 <div class="d-flex gap-2">
                   <AppButton
+                    v-if="canAny(PERMISSIONS.PRODUCTS_EXPORT)"
                     color="grey-darken-1"
                     variant="tonal"
                     prepend-icon="ri-download-2-line"
@@ -46,7 +47,7 @@
                     تحميل منتجات
                   </AppButton>
                   <AppButton
-                    v-if="canAny(PERMISSIONS.PRODUCTS_CREATE)"
+                    v-if="canAny(PERMISSIONS.PRODUCTS_IMPORT)"
                     color="secondary"
                     variant="tonal"
                     prepend-icon="ri-upload-cloud-2-line"

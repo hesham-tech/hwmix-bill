@@ -434,7 +434,7 @@ const loadProductData = async id => {
 
             return {
               ...v,
-              purchase_price: v.purchase_price || v.cost || 0,
+              purchase_price: v.purchase_price || 0,
               images: v.images || [],
               primary_image_id: v.images?.find(img => img.is_primary)?.id || null,
               stocks: Array.from(stockMap.values()),

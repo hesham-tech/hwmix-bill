@@ -12,6 +12,7 @@
     clearable
     :return-object="returnObject"
     @update:search="handleSearch"
+    no-filter
     class="customer-selector"
   >
     <!-- Selection slot for the input field -->

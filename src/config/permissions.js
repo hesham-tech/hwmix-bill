@@ -229,6 +229,8 @@ export const PERMISSIONS = {
   PRODUCTS_VIEW_WHOLESALE_PRICE: 'products.view_wholesale_price',
   PRODUCTS_VIEW_PURCHASE_PRICE: 'products.view_purchase_price',
   PRODUCTS_PRINT_LABELS: 'products.print_labels',
+  PRODUCTS_IMPORT: 'products.import',
+  PRODUCTS_EXPORT: 'products.export',
 
   // ==================== Product Variants ====================
   PRODUCT_VARIANTS_PAGE: 'product_variants.page',
