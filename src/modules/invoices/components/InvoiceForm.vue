@@ -161,6 +161,8 @@ const invoiceData = ref({
   notes: '',
   items: [],
   installment_plan: null,
+  price_type: 'retail', // 'retail' or 'wholesale'
+  include_previous_balance: true,
 });
 
 const isInstallmentFinalized = ref(false);
@@ -208,8 +210,10 @@ const financials = computed(() => {
     }
   }
 
-  const previous_balance = parseFloat(selectedCustomerObj.value?.balance || 0);
-  const total_balance = net_amount - previous_balance;
+  const raw_previous_balance = parseFloat(selectedCustomerObj.value?.balance || 0);
+  const effective_previous_balance = invoiceData.value.include_previous_balance ? raw_previous_balance : 0;
+
+  const total_balance = net_amount - effective_previous_balance;
   const remaining_amount = total_balance - (invoiceData.value.paid_amount || 0);
 
   return {
@@ -218,7 +222,7 @@ const financials = computed(() => {
     taxable_amount,
     total_tax,
     net_amount,
-    previous_balance,
+    previous_balance: effective_previous_balance,
     total_balance,
     remaining_amount,
     total_profit,
@@ -254,8 +258,7 @@ const getItemPrice = item => {
     return item.purchase_price || 0;
   }
 
-  const customerType = selectedCustomerObj.value?.customer_type || 'retail';
-  if (customerType === 'wholesale') {
+  if (invoiceData.value.price_type === 'wholesale') {
     return item.wholesale_price || item.retail_price || 0;
   }
 
@@ -327,15 +330,37 @@ const handleQuickProductSave = product => {
   isQuickAddProductOpen.value = false;
 };
 
-// Watch for changes that require price updates (Invoice Type or Customer Type)
-watch([() => currentContext.value, () => selectedCustomerObj.value?.customer_type], () => {
-  if (!invoiceData.value.items.length) return;
+// Watch for changes that require price updates (Price Type Override)
+watch(
+  () => invoiceData.value.price_type,
+  () => {
+    if (!invoiceData.value.items.length) return;
 
-  invoiceData.value.items.forEach(item => {
-    item.unit_price = getItemPrice(item);
-    calculateItem(item);
-  });
-});
+    invoiceData.value.items.forEach(item => {
+      item.unit_price = getItemPrice(item);
+      calculateItem(item);
+    });
+  }
+);
+
+// Watch for customer changes to update default price type
+watch(
+  () => selectedCustomerObj.value?.id,
+  newId => {
+    if (newId) {
+      invoiceData.value.price_type = selectedCustomerObj.value?.customer_type === 'wholesale' ? 'wholesale' : 'retail';
+    }
+  }
+);
+
+// Watch for context changes to update include_previous_balance
+watch(
+  () => currentContext.value,
+  newContext => {
+    invoiceData.value.include_previous_balance = newContext !== 'installment_sale';
+  },
+  { immediate: true }
+);
 
 // Sync installment calculator total if it's open
 watch(

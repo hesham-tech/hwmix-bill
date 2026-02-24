@@ -2,7 +2,7 @@
   <v-card variant="outlined" class="mb-2 rounded-md bg-card border-dashed">
     <v-card-text>
       <v-row class="mx-0">
-        <v-col cols="12" sm="6">
+        <v-col cols="12" sm="4">
           <CustomerSelector
             :model-value="selectedCustomer"
             label="العميل / المورد *"
@@ -11,6 +11,15 @@
             :error-messages="errors.user_id"
             @update:model-value="$emit('update:selectedCustomer', $event)"
             @create="$emit('create-customer')"
+          />
+        </v-col>
+        <v-col cols="12" sm="2" class="d-flex align-center ps-2">
+          <AppSwitch
+            label="سعر الجملة"
+            hide-details
+            density="compact"
+            color="primary"
+            @update:model-value="$emit('update:prop', { key: 'price_type', value: $event ? 'wholesale' : 'retail' })"
           />
         </v-col>
         <v-col cols="12" sm="6">

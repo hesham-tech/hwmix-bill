@@ -85,8 +85,19 @@
 
         <!-- Row 5: Previous Balance & Total Required -->
         <v-col cols="6" class="mb-1">
-          <div class="d-flex flex-column">
-            <span class="text-secondary text-caption">رصيد سابق</span>
+          <div class="d-flex flex-column h-100">
+            <div class="d-flex justify-space-between align-center">
+              <span class="text-secondary text-caption">رصيد سابق</span>
+              <AppSwitch
+                :model-value="modelValue.include_previous_balance"
+                label="تشمل الرصيد"
+                hide-details
+                density="compact"
+                color="success"
+                class="mt-0"
+                @update:model-value="$emit('update:prop', { key: 'include_previous_balance', value: $event })"
+              />
+            </div>
             <span class="font-weight-medium" :class="financials.previous_balance < 0 ? 'text-error' : 'text-success'">
               {{ formatCurrency(financials.previous_balance) }}
             </span>
