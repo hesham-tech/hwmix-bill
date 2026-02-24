@@ -13,12 +13,14 @@
             @create="$emit('create-customer')"
           />
         </v-col>
-        <v-col cols="12" sm="2" class="d-flex align-center ps-2">
+        <v-col cols="12" sm="2" class="d-flex align-center justify-center px-1">
           <AppSwitch
+            :model-value="modelValue.price_type === 'wholesale'"
             label="سعر الجملة"
             hide-details
             density="compact"
             color="primary"
+            class="mt-n1"
             @update:model-value="$emit('update:prop', { key: 'price_type', value: $event ? 'wholesale' : 'retail' })"
           />
         </v-col>
