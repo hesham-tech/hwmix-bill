@@ -1,5 +1,20 @@
 <template>
-  <div class="d-inline-flex align-center no-print">
+  <div v-if="mode === 'menu'" class="d-contents no-print">
+    <v-list-item prepend-icon="ri-printer-line" title="طباعة" :loading="isPrintLoading" @click="handlePrint" />
+    <v-list-item prepend-icon="ri-share-forward-line" title="مشاركة PDF" :loading="isGenerating" @click="handleShare" />
+
+    <!-- Share Dialog -->
+    <AppShareDialog
+      v-model="showShareDialog"
+      :pdf-blob="pdfBlob"
+      :file-name="currentFileName"
+      @download="download"
+      @share="share"
+      @copy="handleCopy"
+    />
+  </div>
+
+  <div v-else class="d-inline-flex align-center no-print">
     <!-- Main Print Button -->
     <v-btn
       :color="color"
@@ -74,6 +89,9 @@ const props = defineProps({
 
   // Additional options for PrintService
   printOptions: { type: Object, default: () => ({}) },
+
+  // Mode: 'default' or 'menu'
+  mode: { type: String, default: 'default' },
 });
 
 /**

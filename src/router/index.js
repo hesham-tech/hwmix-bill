@@ -18,6 +18,7 @@ import userRoutes from '@/modules/users/routes';
 import warehouseRoutes from '@/modules/warehouses/routes';
 import settingRoutes from '@/modules/settings/routes';
 import taskRoutes from '@/modules/tasks/routes';
+import financialsRoutes from '@/modules/financials/routes';
 import devRoutes from '@/modules/dev/routes';
 import errorRoutes from './errorRoutes';
 
@@ -65,6 +66,7 @@ const router = createRouter({
         ...warehouseRoutes,
         ...settingRoutes,
         ...taskRoutes,
+        ...financialsRoutes,
         ...devRoutes,
         ...errorRoutes,
       ],

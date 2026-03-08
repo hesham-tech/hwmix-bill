@@ -45,193 +45,175 @@
       @action="handleCreate"
     />
 
-    <template v-else>
-      <!-- Grid View -->
-      <v-row v-if="viewMode === 'grid'">
-        <v-col v-for="warehouse in warehouses" :key="warehouse.id" cols="12" sm="6" md="4" lg="3">
-          <AppCard class="warehouse-card h-100" no-padding>
-            <div class="warehouse-card-header d-flex align-center justify-center bg-primary-lighten-5 position-relative">
-              <v-avatar color="primary" size="80" class="elevation-2">
-                <v-icon icon="ri-building-4-line" size="40" color="white" />
-              </v-avatar>
+    <AppDataTable
+      v-else
+      v-model:page="page"
+      v-model:items-per-page="itemsPerPage"
+      v-model:sort-by="sortBy"
+      :headers="headers"
+      :items="warehouses"
+      :total-items="totalItems"
+      :loading="loading"
+      :searchable="false"
+      :grid-enabled="viewMode === 'grid'"
+      @update:options="loadWarehouses"
+      @edit="handleEdit"
+      @delete="handleDelete"
+    >
+      <!-- Grid View Slot -->
+      <template #grid="{ items, handleContextMenu }">
+        <v-row dense>
+          <v-col v-for="warehouse in items" :key="warehouse.id" cols="12" sm="6" md="4" lg="3">
+            <AppCard class="warehouse-card h-100" no-padding @contextmenu.prevent="handleContextMenu($event, { item: warehouse })">
+              <div class="warehouse-card-header d-flex align-center justify-center bg-primary-lighten-5 position-relative">
+                <v-avatar color="primary" size="80" class="elevation-2">
+                  <v-icon icon="ri-building-4-line" size="40" color="white" />
+                </v-avatar>
 
-              <v-chip
-                :color="warehouse.is_active ? 'success' : 'error'"
-                size="x-small"
-                class="position-absolute top-2 right-2 font-weight-bold"
-                variant="flat"
-              >
-                {{ warehouse.is_active ? 'نشط' : 'معطل' }}
-              </v-chip>
-            </div>
-
-            <v-card-item>
-              <div class="d-flex align-center justify-space-between w-100">
-                <v-card-title class="text-h6 font-weight-bold">{{ warehouse.name }}</v-card-title>
-                <v-tooltip v-if="warehouse.is_default" text="المستودع الافتراضي">
-                  <template #activator="{ props }">
-                    <v-icon v-bind="props" icon="ri-star-fill" color="warning" size="24" />
-                  </template>
-                </v-tooltip>
+                <v-chip
+                  :color="warehouse.is_active ? 'success' : 'error'"
+                  size="x-small"
+                  class="position-absolute top-2 right-2 font-weight-bold"
+                  variant="flat"
+                >
+                  {{ warehouse.is_active ? 'نشط' : 'معطل' }}
+                </v-chip>
               </div>
-              <v-card-subtitle class="d-flex align-center mt-1">
-                <v-icon icon="ri-map-pin-line" size="14" class="me-1" color="primary" />
-                {{ warehouse.location || 'عنوان غير محدد' }}
-              </v-card-subtitle>
-            </v-card-item>
 
-            <v-card-text class="pt-0">
-              <p class="text-body-2 text-grey-darken-1 text-truncate-2 height-40">
-                {{ warehouse.description || 'لا يوجد وصف إضافي لهذا المخزن.' }}
-              </p>
-            </v-card-text>
+              <v-card-item>
+                <div class="d-flex align-center justify-space-between w-100">
+                  <v-card-title class="text-h6 font-weight-bold">{{ warehouse.name }}</v-card-title>
+                  <v-tooltip v-if="warehouse.is_default" text="المستودع الافتراضي">
+                    <template #activator="{ props }">
+                      <v-icon v-bind="props" icon="ri-star-fill" color="warning" size="24" />
+                    </template>
+                  </v-tooltip>
+                </div>
+                <v-card-subtitle class="d-flex align-center mt-1">
+                  <v-icon icon="ri-map-pin-line" size="14" class="me-1" color="primary" />
+                  {{ warehouse.location || 'عنوان غير محدد' }}
+                </v-card-subtitle>
+              </v-card-item>
 
-            <v-divider />
+              <v-card-text class="pt-0">
+                <p class="text-body-2 text-grey-darken-1 text-truncate-2 height-40">
+                  {{ warehouse.description || 'لا يوجد وصف إضافي لهذا المخزن.' }}
+                </p>
+              </v-card-text>
 
-            <div class="d-flex align-center justify-space-between">
-              <v-btn
-                v-if="canAny(PERMISSIONS.STOCKS_VIEW_ALL, PERMISSIONS.STOCKS_VIEW_CHILDREN, PERMISSIONS.STOCKS_VIEW_SELF)"
-                variant="tonal"
-                color="secondary"
-                size="small"
-                prepend-icon="ri-eye-line"
-                class="rounded-pill font-weight-bold"
-                @click="handleViewStock(warehouse)"
-              >
-                جرد المخزون
-              </v-btn>
-              <div class="d-flex gap-2">
-                <AppButton
-                  v-if="
-                    !warehouse.is_default &&
-                    canAny(PERMISSIONS.WAREHOUSES_UPDATE_ALL, PERMISSIONS.WAREHOUSES_UPDATE_CHILDREN, PERMISSIONS.WAREHOUSES_UPDATE_SELF)
-                  "
-                  icon="ri-star-line"
-                  variant="text"
-                  color="warning"
-                  @click="handleSetDefault(warehouse)"
-                  title="تعيين كافتراضي"
-                />
-                <AppButton
-                  v-if="canAny(PERMISSIONS.WAREHOUSES_UPDATE_ALL, PERMISSIONS.WAREHOUSES_UPDATE_CHILDREN, PERMISSIONS.WAREHOUSES_UPDATE_SELF)"
-                  icon="ri-edit-line"
-                  variant="text"
-                  color="primary"
-                  @click="handleEdit(warehouse)"
-                />
-                <AppButton
-                  v-if="canAny(PERMISSIONS.WAREHOUSES_DELETE_ALL, PERMISSIONS.WAREHOUSES_DELETE_CHILDREN, PERMISSIONS.WAREHOUSES_DELETE_SELF)"
-                  icon="ri-delete-bin-line"
-                  variant="text"
-                  color="error"
-                  @click="handleDelete(warehouse)"
-                />
+              <v-divider />
+
+              <div class="d-flex align-center justify-space-between px-3 py-2">
+                <v-btn
+                  v-if="canAny(PERMISSIONS.STOCKS_VIEW_ALL, PERMISSIONS.STOCKS_VIEW_CHILDREN, PERMISSIONS.STOCKS_VIEW_SELF)"
+                  variant="tonal"
+                  color="secondary"
+                  size="small"
+                  prepend-icon="ri-eye-line"
+                  class="rounded-pill font-weight-bold"
+                  @click="handleViewStock(warehouse)"
+                >
+                  جرد المخزون
+                </v-btn>
+                <div class="d-flex gap-2">
+                  <AppButton
+                    v-if="
+                      !warehouse.is_default &&
+                      canAny(PERMISSIONS.WAREHOUSES_UPDATE_ALL, PERMISSIONS.WAREHOUSES_UPDATE_CHILDREN, PERMISSIONS.WAREHOUSES_UPDATE_SELF)
+                    "
+                    icon="ri-star-line"
+                    variant="text"
+                    color="warning"
+                    @click="handleSetDefault(warehouse)"
+                    title="تعيين كافتراضي"
+                  />
+                  <AppButton
+                    v-if="canAny(PERMISSIONS.WAREHOUSES_UPDATE_ALL, PERMISSIONS.WAREHOUSES_UPDATE_CHILDREN, PERMISSIONS.WAREHOUSES_UPDATE_SELF)"
+                    icon="ri-edit-line"
+                    variant="text"
+                    color="primary"
+                    @click="handleEdit(warehouse)"
+                  />
+                  <AppButton
+                    v-if="canAny(PERMISSIONS.WAREHOUSES_DELETE_ALL, PERMISSIONS.WAREHOUSES_DELETE_CHILDREN, PERMISSIONS.WAREHOUSES_DELETE_SELF)"
+                    icon="ri-delete-bin-line"
+                    variant="text"
+                    color="error"
+                    @click="handleDelete(warehouse)"
+                  />
+                </div>
               </div>
+            </AppCard>
+          </v-col>
+        </v-row>
+      </template>
+      <template #item.name="{ item }">
+        <div class="d-flex align-center py-2">
+          <v-avatar color="primary-lighten-5" size="40" class="me-3 border">
+            <v-icon icon="ri-building-4-line" color="primary" size="small" />
+          </v-avatar>
+          <div>
+            <div class="d-flex align-center">
+              <div class="font-weight-bold text-body-1">{{ item.name }}</div>
+              <v-tooltip v-if="item.is_default" text="المستودع الافتراضي">
+                <template #activator="{ props }">
+                  <v-icon v-bind="props" icon="ri-star-fill" color="warning" size="16" class="ms-2" />
+                </template>
+              </v-tooltip>
             </div>
-          </AppCard>
-        </v-col>
-      </v-row>
-
-      <!-- List View -->
-      <AppDataTable
-        v-else
-        v-model:page="page"
-        v-model:items-per-page="itemsPerPage"
-        v-model:sort-by="sortBy"
-        :headers="headers"
-        :items="warehouses"
-        :total-items="totalItems"
-        :loading="loading"
-        :searchable="false"
-        @update:options="loadWarehouses"
-        @edit="handleEdit"
-        @delete="handleDelete"
-      >
-        <template #item.name="{ item }">
-          <div class="d-flex align-center py-2">
-            <v-avatar color="primary-lighten-5" size="40" class="me-3 border">
-              <v-icon icon="ri-building-4-line" color="primary" size="small" />
-            </v-avatar>
-            <div>
-              <div class="d-flex align-center">
-                <div class="font-weight-bold text-body-1">{{ item.name }}</div>
-                <v-tooltip v-if="item.is_default" text="المستودع الافتراضي">
-                  <template #activator="{ props }">
-                    <v-icon v-bind="props" icon="ri-star-fill" color="warning" size="16" class="ms-2" />
-                  </template>
-                </v-tooltip>
-              </div>
-              <div class="text-caption text-grey">{{ item.description || 'بدون وصف' }}</div>
-            </div>
+            <div class="text-caption text-grey">{{ item.description || 'بدون وصف' }}</div>
           </div>
-        </template>
+        </div>
+      </template>
 
-        <template #item.location="{ item }">
-          <div class="d-flex align-center text-body-2">
-            <v-icon icon="ri-map-pin-line" size="small" color="secondary" class="me-2" />
-            <span class="text-secondary">{{ item.location || 'غير محدد' }}</span>
-          </div>
-        </template>
+      <template #item.location="{ item }">
+        <div class="d-flex align-center text-body-2">
+          <v-icon icon="ri-map-pin-line" size="small" color="secondary" class="me-2" />
+          <span class="text-secondary">{{ item.location || 'غير محدد' }}</span>
+        </div>
+      </template>
 
-        <template #item.status="{ item }">
-          <v-chip :color="item.is_active ? 'success' : 'error'" size="small" variant="flat" class="font-weight-bold">
-            {{ item.is_active ? 'نشط' : 'معطل' }}
-          </v-chip>
-        </template>
+      <template #item.status="{ item }">
+        <v-chip :color="item.is_active ? 'success' : 'error'" size="small" variant="flat" class="font-weight-bold">
+          {{ item.is_active ? 'نشط' : 'معطل' }}
+        </v-chip>
+      </template>
 
-        <template #item.actions="{ item }">
-          <div class="d-flex gap-2 justify-end">
-            <AppButton
-              v-if="canAny(PERMISSIONS.STOCKS_VIEW_ALL, PERMISSIONS.STOCKS_VIEW_CHILDREN, PERMISSIONS.STOCKS_VIEW_SELF)"
-              icon="ri-eye-line"
-              variant="text"
-              color="secondary"
-              @click="handleViewStock(item)"
-              title="جرد المخزون"
-            />
-            <AppButton
-              v-if="
-                !item.is_default &&
-                canAny(PERMISSIONS.WAREHOUSES_UPDATE_ALL, PERMISSIONS.WAREHOUSES_UPDATE_CHILDREN, PERMISSIONS.WAREHOUSES_UPDATE_SELF)
-              "
-              icon="ri-star-line"
-              variant="text"
-              color="warning"
-              @click="handleSetDefault(item)"
-              title="تعيين كافتراضي"
-            />
-            <AppButton
-              v-if="canAny(PERMISSIONS.WAREHOUSES_UPDATE_ALL, PERMISSIONS.WAREHOUSES_UPDATE_CHILDREN, PERMISSIONS.WAREHOUSES_UPDATE_SELF)"
-              icon="ri-edit-line"
-              variant="text"
-              color="primary"
-              @click="handleEdit(item)"
-            />
-            <AppButton
-              v-if="canAny(PERMISSIONS.WAREHOUSES_DELETE_ALL, PERMISSIONS.WAREHOUSES_DELETE_CHILDREN, PERMISSIONS.WAREHOUSES_DELETE_SELF)"
-              icon="ri-delete-bin-line"
-              variant="text"
-              color="error"
-              @click="handleDelete(item)"
-            />
-          </div>
-        </template>
-      </AppDataTable>
-
-      <!-- Pagination for Grid View -->
-      <div v-if="viewMode === 'grid'" class="mt-8 d-flex align-center justify-space-between flex-wrap gap-4 px-2">
-        <div class="text-body-2 text-grey">عرض {{ warehouses.length }} من إجمالي {{ totalItems }} مخزن</div>
-        <v-pagination
-          v-model="page"
-          :length="Math.ceil(totalItems / itemsPerPage)"
-          :total-visible="5"
-          rounded="pill"
-          size="small"
-          active-color="primary"
-          @update:model-value="loadWarehouses"
+      <template #extra-actions="{ item }">
+        <v-list-item
+          v-if="canAny(PERMISSIONS.STOCKS_VIEW_ALL, PERMISSIONS.STOCKS_VIEW_CHILDREN, PERMISSIONS.STOCKS_VIEW_SELF)"
+          prepend-icon="ri-eye-line"
+          title="جرد المخزون"
+          class="text-secondary"
+          @click="handleViewStock(item)"
         />
-      </div>
-    </template>
+        <v-list-item
+          v-if="
+            !item.is_default && canAny(PERMISSIONS.WAREHOUSES_UPDATE_ALL, PERMISSIONS.WAREHOUSES_UPDATE_CHILDREN, PERMISSIONS.WAREHOUSES_UPDATE_SELF)
+          "
+          prepend-icon="ri-star-line"
+          title="تعيين كافتراضي"
+          class="text-warning"
+          @click="handleSetDefault(item)"
+        />
+        <v-list-item
+          v-if="canAny(PERMISSIONS.WAREHOUSES_UPDATE_ALL, PERMISSIONS.WAREHOUSES_UPDATE_CHILDREN, PERMISSIONS.WAREHOUSES_UPDATE_SELF)"
+          prepend-icon="ri-edit-line"
+          title="تعديل"
+          class="text-primary"
+          @click="handleEdit(item)"
+        />
+        <v-list-item
+          v-if="canAny(PERMISSIONS.WAREHOUSES_DELETE_ALL, PERMISSIONS.WAREHOUSES_DELETE_CHILDREN, PERMISSIONS.WAREHOUSES_DELETE_SELF)"
+          prepend-icon="ri-delete-bin-line"
+          title="حذف"
+          class="text-error"
+          @click="handleDelete(item)"
+        />
+      </template>
+    </AppDataTable>
+
+    <!-- Warehouse Form Dialog -->
 
     <!-- Warehouse Form Dialog -->
     <AppDialog

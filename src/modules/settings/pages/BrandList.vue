@@ -87,29 +87,20 @@
 
               <!-- Extra Actions Slot -->
               <template #extra-actions="{ item }">
-                <template v-if="canAny(PERMISSIONS.BRANDS_GLOBALIZE, PERMISSIONS.BRANDS_MERGE)">
-                  <AppButton
-                    v-if="item.company_id && can(PERMISSIONS.BRANDS_GLOBALIZE)"
-                    icon="ri-global-line"
-                    variant="text"
-                    color="warning"
-                    size="small"
-                    :loading="globalizingId === item.id"
-                    @click="handleGlobalize(item)"
-                    title="تحويل لسجل عالمي"
-                    tooltip="تحويل لنظام عالمي"
-                  />
-                  <AppButton
-                    v-if="can(PERMISSIONS.BRANDS_MERGE)"
-                    icon="ri-merge-cells-horizontal"
-                    variant="text"
-                    color="secondary"
-                    size="small"
-                    @click="openMergeDialog(item)"
-                    title="دمج الماركة"
-                    tooltip="دمج مع ماركة أخرى"
-                  />
-                </template>
+                <v-list-item
+                  v-if="item.company_id && can(PERMISSIONS.BRANDS_GLOBALIZE)"
+                  prepend-icon="ri-global-line"
+                  title="تحويل لسجل عالمي"
+                  class="text-warning"
+                  @click="handleGlobalize(item)"
+                />
+                <v-list-item
+                  v-if="can(PERMISSIONS.BRANDS_MERGE)"
+                  prepend-icon="ri-merge-cells-horizontal"
+                  title="دمج الماركة"
+                  class="text-secondary"
+                  @click="openMergeDialog(item)"
+                />
               </template>
             </AppDataTable>
           </v-card>

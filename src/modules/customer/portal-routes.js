@@ -47,4 +47,13 @@ export default [
       permission: ['payments.view_self', PERMISSIONS.PAYMENTS_VIEW_ALL],
     },
   },
+  {
+    path: 'customer-transactions',
+    name: 'customer-transactions',
+    component: () => import('@/modules/customer/portal/financials/pages/TransactionsList.vue'),
+    meta: {
+      title: 'سجل المعاملات',
+      permission: ['transactions.view_self', PERMISSIONS.TRANSACTIONS_VIEW_ALL],
+    },
+  },
 ];

@@ -8,21 +8,19 @@
               v-model:sort-by="sortByVuetify"
               v-model:search="searchText"
               :filters="advancedFilters"
-              :items-per-page="-1"
+              v-model:items-per-page="itemsPerPage"
+              v-model:page="page"
               :headers="headers"
               :items="users || []"
               :total-items="totalItems || 0"
               :loading="loading"
               :table-height="'calc(100vh - 220px)'"
-              hide-pagination
               grid-enabled
               :grid-options="{
                 titleKey: 'full_name',
                 avatarKey: 'image_url',
                 bodyKeys: ['phone', 'balance_display', 'status'],
               }"
-              infinite-scroll
-              :has-more="(users?.length || 0) < (totalItems || 0)"
               permission-module="users"
               title="العملاء"
               subtitle="إدارة بيانات العملاء والبحث في سجلاتهم"
@@ -32,7 +30,6 @@
               @edit="handleEdit"
               @delete="handleDelete"
               @view="item => $router.push(`/app/users/${item.id}`)"
-              @load="handleLoadMore"
             >
               <template #actions>
                 <AppButton
@@ -54,7 +51,7 @@
               </template>
 
               <template #item.phone="{ item }">
-                <div dir="ltr" class="text-caption font-weight-medium">{{ item.phone }}</div>
+                <div dir="ltr" class="text-caption font-weight-medium text-grey-darken-1">{{ item.phone }}</div>
               </template>
 
               <template #item.balance_display="{ item }">
@@ -74,42 +71,48 @@
                 </v-chip>
               </template>
 
-              <template #extra-actions="{ item, inMenu }">
-                <!-- Payment Action -->
+              <template #extra-actions="{ item }">
+                <!-- Balance Management Actions -->
                 <v-list-item
-                  v-if="inMenu && can(PERMISSIONS.PAYMENTS_CREATE)"
+                  v-if="can(PERMISSIONS.BALANCE_DEPOSIT) || can(PERMISSIONS.BALANCE_DEPOSIT_ANY)"
+                  prepend-icon="ri-qr-code-line"
+                  title="إيداع رصيد"
+                  class="text-info"
+                  @click="handleBalanceOperation(item, 'deposit')"
+                />
+                <v-list-item
+                  v-if="can(PERMISSIONS.BALANCE_WITHDRAW) || can(PERMISSIONS.BALANCE_WITHDRAW_ANY)"
+                  prepend-icon="ri-hand-coin-line"
+                  title="سحب رصيد"
+                  class="text-error"
+                  @click="handleBalanceOperation(item, 'withdraw')"
+                />
+                <v-list-item
+                  v-if="can(PERMISSIONS.BALANCE_TRANSFER) || can(PERMISSIONS.BALANCE_TRANSFER_ANY)"
+                  prepend-icon="ri-swap-box-line"
+                  title="تحويل رصيد"
+                  class="text-warning"
+                  @click="handleBalanceOperation(item, 'transfer')"
+                />
+
+                <v-divider class="my-1" />
+
+                <!-- Existing Actions -->
+                <v-list-item
+                  v-if="can(PERMISSIONS.PAYMENTS_CREATE)"
                   prepend-icon="ri-money-dollar-circle-line"
                   title="سداد دفعة"
                   class="text-success"
                   @click="$router.push(`/app/payments/create?user_id=${item.id}`)"
                 />
-                <AppButton
-                  v-else-if="can(PERMISSIONS.PAYMENTS_CREATE)"
-                  icon="ri-money-dollar-circle-line"
-                  size="small"
-                  variant="text"
-                  color="success"
-                  tooltip="سداد دفعة"
-                  @click="$router.push(`/app/payments/create?user_id=${item.id}`)"
-                />
-
-                <!-- Installment Plan Action -->
                 <v-list-item
-                  v-if="inMenu && can(PERMISSIONS.INSTALLMENT_PLANS_CREATE)"
+                  v-if="can(PERMISSIONS.INSTALLMENT_PLANS_CREATE)"
                   prepend-icon="ri-calendar-todo-line"
                   title="خطة تقسيط"
                   class="text-primary"
                   @click="$router.push(`/app/invoices/create?type=installment_sale&user_id=${item.id}`)"
                 />
-                <AppButton
-                  v-else-if="can(PERMISSIONS.INSTALLMENT_PLANS_CREATE)"
-                  icon="ri-calendar-todo-line"
-                  size="small"
-                  variant="text"
-                  color="primary"
-                  tooltip="خطة تقسيط"
-                  @click="$router.push(`/app/invoices/create?type=installment_sale&user_id=${item.id}`)"
-                />
+                <v-list-item v-if="can(PERMISSIONS.USERS_EDIT)" prepend-icon="ri-edit-line" title="تعديل البيانات" @click="handleEdit(item)" />
               </template>
             </AppDataTable>
           </v-card>
@@ -125,12 +128,7 @@
         max-width="800"
         hide-actions
       >
-        <UserForm ref="userFormRef" v-model="formData" :is-edit-mode="isEditMode" hide-actions @save="handleSave" @cancel="close">
-          <!-- Inject role hidden field -->
-          <template #extra-fields>
-            <input type="hidden" :value="'customer'" name="role" />
-          </template>
-        </UserForm>
+        <UserForm ref="userFormRef" v-model="formData" :is-edit-mode="isEditMode" hide-actions @save="handleSave" @cancel="close" />
 
         <template #actions>
           <AppButton variant="tonal" color="grey" @click="close">إلغاء</AppButton>
@@ -144,6 +142,9 @@
       <div class="px-6 pb-6 mt-4">
         <AppConfirmDialog v-model="showConfirm" :message="confirmMessage" @confirm="handleConfirm" @cancel="handleCancel" />
       </div>
+
+      <!-- Balance Operations Dialog -->
+      <BalanceOperations v-model="isBalanceOpen" :user="balanceUser" :initial-type="balanceType" @success="onBalanceSuccess" />
     </v-container>
   </div>
 </template>
@@ -155,6 +156,7 @@ import { useDataTable } from '@/composables/useDataTable';
 import { userService } from '@/api';
 import { useUser } from '../composables/useUser';
 import UserForm from '../components/UserForm.vue';
+import BalanceOperations from '@/modules/financials/components/BalanceOperations.vue';
 import { AppDataTable, AppButton, AppDialog, AppConfirmDialog, AppUserBalanceProfile } from '@/components';
 import { PERMISSIONS } from '@/config/permissions';
 import { formatCurrency } from '@/utils/formatters';
@@ -207,6 +209,7 @@ const {
   items: users,
   loading,
   currentPage: page,
+  perPage: itemsPerPage,
   total: totalItems,
   lastPage,
   search: searchText,
@@ -214,18 +217,13 @@ const {
   changeSort,
   applyFilters,
   fetchData,
+  refresh,
 } = useDataTable(fetchUsersApi, {
   syncWithUrl: true,
   initialSortBy: 'created_at',
   initialSortOrder: 'desc',
   immediate: true,
 });
-
-const handleLoadMore = () => {
-  if (loading.value || users.value.length >= totalItems.value || page.value >= (lastPage.value || Infinity)) return;
-  page.value++;
-  fetchData({ append: true });
-};
 
 const onTableOptionsUpdate = options => {
   changeSort(options);
@@ -247,18 +245,32 @@ const handleSave = async data => {
     data.role = 'customer';
   }
   await saveUser(data);
-  fetchData();
+  refresh();
   close();
 };
 
 const headers = [
-  { title: 'العميل', key: 'full_name', sortable: true },
-  { title: 'رقم الهاتف', key: 'phone', sortable: true },
-  { title: 'الرصيد', key: 'balance_display', sortable: true, align: 'end' },
+  { title: 'بيانات العميل ورصيده', key: 'full_name', sortable: true },
+  { title: 'رقم الهاتف', key: 'phone', sortable: false },
+  { title: 'الرصيد', key: 'balance_display', sortable: true },
   { title: 'الحالة', key: 'status', sortable: true },
-  { title: 'تاريخ الإضافة', key: 'created_at', sortable: true },
   { title: 'الإجراءات', key: 'actions', sortable: false, align: 'end' },
 ];
+
+// Balance Operations
+const isBalanceOpen = ref(false);
+const balanceUser = ref(null);
+const balanceType = ref('deposit');
+
+const handleBalanceOperation = (user, type) => {
+  balanceUser.value = user;
+  balanceType.value = type;
+  isBalanceOpen.value = true;
+};
+
+const onBalanceSuccess = () => {
+  refresh();
+};
 </script>
 
 <style scoped>

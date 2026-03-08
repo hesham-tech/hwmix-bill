@@ -213,6 +213,12 @@ export default [
         permission: [PERMISSIONS.EXPENSES_VIEW_ALL, PERMISSIONS.EXPENSES_VIEW_CHILDREN, PERMISSIONS.EXPENSES_VIEW_SELF],
       },
       {
+        title: 'سجل المعاملات',
+        to: '/app/financials',
+        icon: 'ri-exchange-funds-line',
+        permission: [PERMISSIONS.TRANSACTIONS_VIEW_ALL],
+      },
+      {
         title: 'دفتر الأستاذ',
         to: '/app/financial-ledger',
         icon: 'ri-book-open-line',

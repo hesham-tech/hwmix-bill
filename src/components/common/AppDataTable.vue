@@ -129,185 +129,143 @@
     </v-expand-transition>
 
     <template v-if="viewMode === 'list'">
-      <!-- Data Table (Server Side) -->
-      <v-data-table-server
-        v-if="!virtual"
-        v-model:items-per-page="itemsPerPageModel"
-        v-model:page="pageModel"
-        v-model:sort-by="sortByModel"
-        :headers="processedHeaders"
-        :items="items"
-        :items-length="totalItems"
-        :loading="loading"
-        :search="searchModel"
-        :height="calculatedTableHeight"
-        fixed-header
-        fixed-footer
-        class="elevation-0"
-        density="compact"
-        hover
-        striped="even"
-        :items-per-page-options="itemsPerPageOptions"
-        :no-data-text="emptyText"
-        :hide-default-footer="true"
-        :row-props="processedRowProps"
-        @update:options="handleOptionsUpdate"
-        @click:row="(event, { item }) => $emit('click:row', item)"
-        @contextmenu:row="handleContextMenu"
-      >
-        <!-- Common Slots -->
-        <template v-for="(_, slot) in $slots" #[slot]="scope">
-          <slot :name="slot" v-bind="{ ...(scope || {}), isGrid: false, viewMode: 'list' }" />
-        </template>
+      <!-- Container to handle horizontal overflow -->
+      <div class="app-table-overflow">
+        <!-- Data Table (Server Side) -->
+        <v-data-table-server
+          v-if="!virtual"
+          v-model:items-per-page="itemsPerPageModel"
+          v-model:page="pageModel"
+          v-model:sort-by="sortByModel"
+          :headers="processedHeaders"
+          :items="items"
+          :items-length="totalItems"
+          :loading="loading"
+          :search="searchModel"
+          :height="calculatedTableHeight"
+          fixed-header
+          fixed-footer
+          class="elevation-0"
+          density="compact"
+          hover
+          striped="even"
+          :items-per-page-options="itemsPerPageOptions"
+          :no-data-text="emptyText"
+          :hide-default-footer="true"
+          :row-props="processedRowProps"
+          @update:options="handleOptionsUpdate"
+          @click:row="(event, { item }) => $emit('click:row', item)"
+          @contextmenu:row="handleContextMenu"
+        >
+          <!-- Common Slots -->
+          <template v-for="(_, slot) in $slots" #[slot]="scope">
+            <slot :name="slot" v-bind="{ ...(scope || {}), isGrid: false, viewMode: 'list' }" />
+          </template>
+          <!-- Actions column (Server) -->
+          <template v-if="showActions && !$slots['item.actions']" #item.actions="{ item }">
+            <v-menu transition="scale-transition" offset="5">
+              <template #activator="{ props }">
+                <v-btn icon="ri-more-2-fill" variant="text" size="small" color="grey-darken-1" v-bind="props" @click.stop />
+              </template>
+              <AppTableActions
+                :item="item"
+                :permission-module="permissionModule"
+                :can-view="canView"
+                :can-edit="canEdit"
+                :can-delete="canDelete"
+                @view="$emit('view', $event)"
+                @edit="$emit('edit', $event)"
+                @delete="$emit('delete', $event)"
+              >
+                <template #extra-actions="slotProps">
+                  <slot name="extra-actions" v-bind="slotProps" />
+                </template>
+              </AppTableActions>
+            </v-menu>
+          </template>
 
-        <!-- Actions column (Server) -->
-        <template v-if="showActions && !$slots['item.actions']" #item.actions="{ item }">
-          <div class="d-flex align-center gap-1">
-            <AppButton
-              v-if="
-                canView &&
-                (!permissionModule || canAny(`${permissionModule}.view_all`, `${permissionModule}.view_children`, `${permissionModule}.view_self`))
-              "
-              icon="ri-eye-line"
-              :size="mobile ? 'x-small' : 'small'"
-              variant="text"
-              color="info"
-              tooltip="عرض التفاصيل"
-              @click.stop="$emit('view', item)"
-            />
-            <AppButton
-              v-if="
-                canEdit &&
-                (!permissionModule ||
-                  canAny(`${permissionModule}.update_all`, `${permissionModule}.update_children`, `${permissionModule}.update_self`))
-              "
-              icon="ri-edit-line"
-              :size="mobile ? 'x-small' : 'small'"
-              variant="text"
-              color="primary"
-              tooltip="تعديل"
-              @click.stop="$emit('edit', item)"
-            />
-            <AppButton
-              v-if="
-                canDelete &&
-                (!permissionModule ||
-                  canAny(`${permissionModule}.delete_all`, `${permissionModule}.delete_children`, `${permissionModule}.delete_self`))
-              "
-              icon="ri-delete-bin-line"
-              :size="mobile ? 'x-small' : 'small'"
-              variant="text"
-              color="error"
-              tooltip="حذف"
-              @click.stop="$emit('delete', item)"
-            />
-            <slot name="extra-actions" :item="item" />
-          </div>
-        </template>
+          <!-- [NEW] Internal Infinite Scroll for List Mode -->
+          <template v-if="infiniteScroll" #body.append>
+            <tr v-if="items.length > 0">
+              <td colspan="100" class="pa-0 border-0">
+                <AppInfiniteScroll :loading="loading" :has-more="hasMore" :show-no-more="showNoMore" @load="$emit('load')" />
+              </td>
+            </tr>
+          </template>
 
-        <!-- [NEW] Internal Infinite Scroll for List Mode -->
-        <template v-if="infiniteScroll" #body.append>
-          <tr v-if="items.length > 0">
-            <td colspan="100" class="pa-0 border-0">
-              <AppInfiniteScroll :loading="loading" :has-more="hasMore" :show-no-more="showNoMore" @load="$emit('load')" />
-            </td>
-          </tr>
-        </template>
-
-        <!-- [NEW] Consistent Empty State Slot -->
-        <template #no-data>
-          <div class="d-flex flex-column align-center justify-center py-10 text-center">
-            <div class="bg-grey-lighten-5 rounded-circle pa-4 mb-3">
-              <v-icon icon="ri-search-eye-line" size="32" color="grey-lighten-1" />
+          <!-- [NEW] Consistent Empty State Slot -->
+          <template #no-data>
+            <div class="d-flex flex-column align-center justify-center py-10 text-center">
+              <div class="bg-grey-lighten-5 rounded-circle pa-4 mb-3">
+                <v-icon icon="ri-search-eye-line" size="32" color="grey-lighten-1" />
+              </div>
+              <div class="text-subtitle-1 font-weight-bold text-grey-darken-2">{{ emptyText }}</div>
+              <div class="text-caption text-grey mb-3" style="max-width: 300px">{{ emptySubtext }}</div>
+              <slot name="empty-actions" />
             </div>
-            <div class="text-subtitle-1 font-weight-bold text-grey-darken-2">{{ emptyText }}</div>
-            <div class="text-caption text-grey mb-3" style="max-width: 300px">{{ emptySubtext }}</div>
-            <slot name="empty-actions" />
-          </div>
-        </template>
-      </v-data-table-server>
+          </template>
+        </v-data-table-server>
 
-      <!-- Data Table (Virtual Scrolling) -->
-      <v-data-table-virtual
-        v-else
-        v-model:sort-by="sortByModel"
-        :headers="processedHeaders"
-        :items="items"
-        :loading="loading"
-        :search="searchModel"
-        :height="calculatedTableHeight"
-        fixed-header
-        class="elevation-0"
-        density="compact"
-        hover
-        striped="even"
-        :no-data-text="emptyText"
-        :row-props="processedRowProps"
-        @click:row="(event, { item }) => $emit('click:row', item)"
-        @contextmenu:row="handleContextMenu"
-      >
-        <!-- Common Slots -->
-        <template v-for="(_, slot) in $slots" #[slot]="scope">
-          <slot :name="slot" v-bind="{ ...(scope || {}), isGrid: false, viewMode: 'list' }" />
-        </template>
+        <!-- Data Table (Virtual Scrolling) -->
+        <v-data-table-virtual
+          v-else
+          v-model:sort-by="sortByModel"
+          :headers="processedHeaders"
+          :items="items"
+          :loading="loading"
+          :search="searchModel"
+          :height="calculatedTableHeight"
+          fixed-header
+          class="elevation-0"
+          density="compact"
+          hover
+          striped="even"
+          :no-data-text="emptyText"
+          :row-props="processedRowProps"
+          @click:row="(event, { item }) => $emit('click:row', item)"
+          @contextmenu:row="handleContextMenu"
+        >
+          <!-- Common Slots -->
+          <template v-for="(_, slot) in $slots" #[slot]="scope">
+            <slot :name="slot" v-bind="{ ...(scope || {}), isGrid: false, viewMode: 'list' }" />
+          </template>
 
-        <!-- Actions column (Virtual) -->
-        <template v-if="showActions && !$slots['item.actions']" #item.actions="{ item }">
-          <div class="d-flex align-center gap-1">
-            <AppButton
-              v-if="
-                canView &&
-                (!permissionModule || canAny(`${permissionModule}.view_all`, `${permissionModule}.view_children`, `${permissionModule}.view_self`))
-              "
-              icon="ri-eye-line"
-              :size="mobile ? 'x-small' : 'small'"
-              variant="text"
-              color="info"
-              tooltip="عرض التفاصيل"
-              @click.stop="$emit('view', item)"
-            />
-            <AppButton
-              v-if="
-                canEdit &&
-                (!permissionModule ||
-                  canAny(`${permissionModule}.update_all`, `${permissionModule}.update_children`, `${permissionModule}.update_self`))
-              "
-              icon="ri-edit-line"
-              :size="mobile ? 'x-small' : 'small'"
-              variant="text"
-              color="primary"
-              tooltip="تعديل"
-              @click.stop="$emit('edit', item)"
-            />
-            <AppButton
-              v-if="
-                canDelete &&
-                (!permissionModule ||
-                  canAny(`${permissionModule}.delete_all`, `${permissionModule}.delete_children`, `${permissionModule}.delete_self`))
-              "
-              icon="ri-delete-bin-line"
-              :size="mobile ? 'x-small' : 'small'"
-              variant="text"
-              color="error"
-              tooltip="حذف"
-              @click.stop="$emit('delete', item)"
-            />
-            <slot name="extra-actions" :item="item" />
-          </div>
-        </template>
+          <!-- Actions column (Virtual) -->
+          <template v-if="showActions && !$slots['item.actions']" #item.actions="{ item }">
+            <v-menu transition="scale-transition" offset="5">
+              <template #activator="{ props }">
+                <v-btn icon="ri-more-2-fill" variant="text" size="small" color="grey-darken-1" v-bind="props" @click.stop />
+              </template>
+              <AppTableActions
+                :item="item"
+                :permission-module="permissionModule"
+                :can-view="canView"
+                :can-edit="canEdit"
+                :can-delete="canDelete"
+                @view="$emit('view', $event)"
+                @edit="$emit('edit', $event)"
+                @delete="$emit('delete', $event)"
+              >
+                <template #extra-actions="slotProps">
+                  <slot name="extra-actions" v-bind="slotProps" />
+                </template>
+              </AppTableActions>
+            </v-menu>
+          </template>
 
-        <!-- [NEW] Consistent Empty State Slot for Virtual -->
-        <template #no-data>
-          <div class="d-flex flex-column align-center justify-center py-10 text-center">
-            <div class="bg-grey-lighten-5 rounded-circle pa-4 mb-3">
-              <v-icon icon="ri-search-eye-line" size="32" color="grey-lighten-1" />
+          <!-- [NEW] Consistent Empty State Slot for Virtual -->
+          <template #no-data>
+            <div class="d-flex flex-column align-center justify-center py-10 text-center">
+              <div class="bg-grey-lighten-5 rounded-circle pa-4 mb-3">
+                <v-icon icon="ri-search-eye-line" size="32" color="grey-lighten-1" />
+              </div>
+              <div class="text-subtitle-1 font-weight-bold text-grey-darken-2">{{ emptyText }}</div>
+              <div class="text-caption text-grey mb-3" style="max-width: 300px">{{ emptySubtext }}</div>
+              <slot name="empty-actions" />
             </div>
-            <div class="text-subtitle-1 font-weight-bold text-grey-darken-2">{{ emptyText }}</div>
-            <div class="text-caption text-grey mb-3" style="max-width: 300px">{{ emptySubtext }}</div>
-            <slot name="empty-actions" />
-          </div>
-        </template>
-      </v-data-table-virtual>
+          </template>
+        </v-data-table-virtual>
+      </div>
 
       <!-- Manual Pagination for List Mode (Universal for Server-side) -->
       <div
@@ -344,7 +302,7 @@
     <div v-else-if="viewMode === 'grid'" class="grid-view-wrapper d-flex flex-column">
       <div :style="{ height: calculatedTableHeight, overflowY: 'auto' }" class="grid-view-scroll-container pa-4">
         <!-- [NEW] Auto-Grid Generation -->
-        <slot name="grid" :items="items">
+        <slot name="grid" :items="items" :handle-context-menu="handleContextMenu">
           <v-container fluid class="pa-0 min-height-400">
             <v-row v-if="items.length > 0" dense>
               <v-col v-for="item in items" :key="item.id" cols="12" sm="6" md="4" lg="3">
@@ -352,6 +310,7 @@
                   rounded="lg"
                   class="grid-card border h-100 d-flex flex-column transition-all-cubic overflow-hidden"
                   @click="$emit('view', item)"
+                  @contextmenu.prevent="handleContextMenu($event, { item })"
                 >
                   <!-- [NEW] Card Media Group (Avatar/Image) -->
                   <div
@@ -429,18 +388,26 @@
                   </v-card-text>
 
                   <!-- Card Actions -->
-                  <v-card-actions class="pa-1 bg-grey-lighten-5 border-top d-flex justify-center gap-1">
-                    <AppButton icon="ri-eye-line" size="x-small" color="info" variant="text" @click.stop="$emit('view', item)" />
-                    <AppButton v-if="canEdit" icon="ri-edit-line" size="x-small" color="primary" variant="text" @click.stop="$emit('edit', item)" />
-                    <AppButton
-                      v-if="canDelete"
-                      icon="ri-delete-bin-line"
-                      size="x-small"
-                      color="error"
-                      variant="text"
-                      @click.stop="$emit('delete', item)"
-                    />
-                    <slot name="extra-actions" :item="item" />
+                  <v-card-actions class="pa-1 bg-grey-lighten-5 border-top d-flex justify-end">
+                    <v-menu transition="scale-transition" offset="5">
+                      <template #activator="{ props: menuProps }">
+                        <v-btn icon="ri-more-2-fill" variant="text" size="small" color="grey-darken-1" v-bind="menuProps" @click.stop />
+                      </template>
+                      <AppTableActions
+                        :item="item"
+                        :permission-module="permissionModule"
+                        :can-view="canView"
+                        :can-edit="canEdit"
+                        :can-delete="canDelete"
+                        @view="$emit('view', $event)"
+                        @edit="$emit('edit', $event)"
+                        @delete="$emit('delete', $event)"
+                      >
+                        <template #extra-actions="slotProps">
+                          <slot name="extra-actions" v-bind="slotProps" />
+                        </template>
+                      </AppTableActions>
+                    </v-menu>
                   </v-card-actions>
                 </v-card>
               </v-col>
@@ -495,53 +462,29 @@
     </div>
 
     <!-- Context Menu -->
-    <v-menu v-model="menuModel" :target="[menuProps.x, menuProps.y]" transition="scale-transition" offset="5">
-      <v-list density="compact" min-width="180" class="rounded-md border shadow-lg context-menu-list">
-        <div class="px-4 py-2 text-caption text-grey-darken-1 border-bottom d-flex align-center gap-2 bg-grey-lighten-4">
-          <v-icon icon="ri-settings-4-line" size="14" />
-          <span>الإجراءات</span>
-        </div>
-
-        <v-list-item
-          v-if="
-            canView &&
-            (!permissionModule || canAny(`${permissionModule}.view_all`, `${permissionModule}.view_children`, `${permissionModule}.view_self`))
-          "
-          prepend-icon="ri-eye-line"
-          title="عرض التفاصيل"
-          @click="$emit('view', menuProps.item)"
-        />
-        <v-list-item
-          v-if="
-            canEdit &&
-            (!permissionModule || canAny(`${permissionModule}.update_all`, `${permissionModule}.update_children`, `${permissionModule}.update_self`))
-          "
-          prepend-icon="ri-edit-line"
-          title="تعديل"
-          class="text-primary"
-          @click="$emit('edit', menuProps.item)"
-        />
-
-        <!-- Render Extra Actions in Menu -->
-        <template v-if="$slots['extra-actions']">
-          <div class="extra-actions-container">
-            <slot name="extra-actions" :item="menuProps.item" :in-menu="true" />
-          </div>
+    <v-menu
+      v-model="menuModel"
+      :target="[menuProps.x, menuProps.y]"
+      transition="scale-transition"
+      offset="5"
+      :close-on-content-click="true"
+      persistent
+    >
+      <AppTableActions
+        v-if="menuProps.item"
+        :item="menuProps.item"
+        :permission-module="permissionModule"
+        :can-view="canView"
+        :can-edit="canEdit"
+        :can-delete="canDelete"
+        @view="$emit('view', $event)"
+        @edit="$emit('edit', $event)"
+        @delete="$emit('delete', $event)"
+      >
+        <template #extra-actions="slotProps">
+          <slot name="extra-actions" v-bind="slotProps" />
         </template>
-
-        <v-divider v-if="canDelete" />
-
-        <v-list-item
-          v-if="
-            canDelete &&
-            (!permissionModule || canAny(`${permissionModule}.delete_all`, `${permissionModule}.delete_children`, `${permissionModule}.delete_self`))
-          "
-          prepend-icon="ri-delete-bin-line"
-          title="حذف"
-          class="text-error"
-          @click="$emit('delete', menuProps.item)"
-        />
-      </v-list>
+      </AppTableActions>
     </v-menu>
   </v-card>
 </template>
@@ -557,6 +500,7 @@ import AppInput from '@/components/common/AppInput.vue';
 import AppInfiniteScroll from '@/components/common/AppInfiniteScroll.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
 import AppAutocomplete from '@/components/common/AppAutocomplete.vue';
+import AppTableActions from '@/components/common/AppTableActions.vue';
 
 // --- Props & Emits ---
 const props = defineProps({
@@ -820,6 +764,10 @@ const processedRowProps = computed(() => {
       base.class = [base.class, 'cursor-pointer'].filter(Boolean).join(' ');
       base.style = { ...(base.style || {}), cursor: 'pointer' };
     }
+
+    // Add context menu listener directly to the row
+    base.onContextmenu = event => handleContextMenu(event, scope);
+
     return base;
   };
 });
@@ -878,7 +826,10 @@ const menuModel = ref(false);
 const menuProps = reactive({ x: 0, y: 0, item: null });
 
 const handleContextMenu = (event, { item }) => {
-  if (mobile.value) return;
+  // Allow context menu even on mobile if it's a right click
+  // (Vuetify's mobile detection might be aggressive)
+  if (mobile.value && event.type !== 'contextmenu') return;
+
   event.preventDefault();
   menuModel.value = false;
   nextTick(() => {
@@ -1029,5 +980,28 @@ watch(viewMode, (newVal, oldVal) => {
 
 .transition-all-cubic {
   transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+}
+
+/* Horizontal Scroll Fix */
+.app-table-overflow {
+  width: 100%;
+  overflow-x: auto;
+  position: relative;
+  /* Scrollbar styles for better visibility */
+}
+
+.app-table-overflow :deep(.v-table__wrapper) {
+  overflow-x: visible !important;
+}
+
+/* Ensure minimum width for tables to trigger scroll earlier if needed */
+.app-table-overflow :deep(.v-table) {
+  min-width: 100%;
+}
+
+@media (max-width: 600px) {
+  .app-table-overflow :deep(.v-table) {
+    min-width: 800px; /* Force scroll on small screens for data accessibility */
+  }
 }
 </style>

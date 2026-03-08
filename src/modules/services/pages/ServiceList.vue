@@ -10,7 +10,9 @@
         :headers="headers"
         :items="services"
         :loading="loading"
-        :items-length="total"
+        :total-items="total"
+        :can-edit="false"
+        :can-delete="false"
         :items-per-page="itemsPerPage"
         :page="page"
         title="قائمة الخدمات"
@@ -20,6 +22,8 @@
           loadData();
         "
         @update:items-per-page="handleItemsPerPageChange"
+        @edit="handleEdit"
+        @delete="handleDelete"
       >
         <template #actions>
           <AppButton color="primary" prepend-icon="ri-add-line" @click="handleCreate"> إضافة خدمة </AppButton>
@@ -43,11 +47,14 @@
           </div>
         </template>
 
-        <template #item.actions="{ item }">
-          <div class="d-flex justify-end gap-1">
-            <AppButton icon="ri-pencil-line" size="x-small" variant="text" color="info" tooltip="تعديل" @click="handleEdit(item)" />
-            <AppButton icon="ri-delete-bin-line" size="x-small" variant="text" color="error" tooltip="حذف" @click="handleDelete(item)" />
-          </div>
+        <template #extra-actions="{ item }">
+          <!-- Default View/Edit/Delete are handled by AppDataTable if we listen to events. 
+               But if we want to customize them, we can use extra-actions.
+               In this case, handleEdit and handleDelete are custom so we use v-list-item. 
+               We also need to set :can-edit="false" and :can-delete="false" on the table to avoid duplication if we use custom items.
+          -->
+          <v-list-item prepend-icon="ri-pencil-line" title="تعديل" class="text-info" @click="handleEdit(item)" />
+          <v-list-item prepend-icon="ri-delete-bin-line" title="حذف" class="text-error" @click="handleDelete(item)" />
         </template>
       </AppDataTable>
     </div>

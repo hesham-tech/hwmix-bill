@@ -102,7 +102,7 @@ const transactions = ref([]);
 const trendData = ref([]);
 
 const headers = [
-  { title: 'التاريخ', key: 'transaction_date' },
+  { title: 'التاريخ', key: 'created_at' },
   { title: 'الخزينة', key: 'cash_box.name' },
   { title: 'المبلغ', key: 'amount', align: 'end' },
   { title: 'البيان', key: 'description' },
@@ -144,7 +144,7 @@ const handleExport = () => {
     return;
   }
   const data = transactions.value.map(t => ({
-    التاريخ: t.transaction_date,
+    التاريخ: t.created_at,
     الخزينة: t.cash_box?.name || '-',
     المقدار: t.amount,
     البيان: t.description,

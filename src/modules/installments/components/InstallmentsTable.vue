@@ -87,49 +87,29 @@
         {{ item.status_label || getStatusLabel(item.status) }}
       </v-chip>
     </template>
-
     <!-- Actions -->
     <template #extra-actions="{ item }" v-if="!$slots['extra-actions']">
       <!-- Pay: Only if pending/overdue/partial AND has permission -->
-      <AppButton
+      <v-list-item
         v-if="
           ['pending', 'partially_paid', 'partial', 'overdue'].includes(item.status) &&
           canAny(PERMISSIONS.PAYMENTS_CREATE, PERMISSIONS.INSTALLMENT_PAYMENTS_CREATE)
         "
-        icon="ri-hand-coin-line"
-        size="small"
-        variant="elevated"
-        color="success"
-        class="font-weight-bold ms-1 px-3"
-        tooltip="تحصيل المبلغ"
+        prepend-icon="ri-hand-coin-line"
+        title="دفع"
+        class="text-success"
         @click.stop="$emit('pay', item)"
-      >
-        دفع
-      </AppButton>
+      />
 
       <AppPrintShare
         v-if="['paid', 'partially_paid', 'partial'].includes(item.status)"
         type="installment"
         :data="{ installment: item, payment: item.installment_payment }"
-        icon-only
-        size="small"
-        variant="elevated"
-        color="teal-darken-1"
-        class="ms-1"
+        mode="menu"
       />
 
       <!-- View Details -->
-      <AppButton
-        icon="ri-eye-line"
-        size="small"
-        variant="tonal"
-        color="info"
-        class="font-weight-bold ms-1"
-        tooltip="عرض التفاصيل"
-        @click.stop="$emit('view', item)"
-      >
-        عرض
-      </AppButton>
+      <v-list-item prepend-icon="ri-eye-line" title="عرض التفاصيل" class="text-info" @click.stop="$emit('view', item)" />
     </template>
     <!-- Grid View Integration -->
     <template #grid="{ items }" v-if="!$slots['grid']">

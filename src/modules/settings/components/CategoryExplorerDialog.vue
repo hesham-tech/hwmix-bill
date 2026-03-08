@@ -225,18 +225,16 @@
                 <AppSwitch :model-value="!!item.active" :loading="togglingId === item.id" @update:model-value="handleToggleStatus(item)" />
               </template>
               <template #extra-actions="{ item }">
-                <v-btn
+                <v-list-item
                   v-if="item.products_count > 0"
-                  icon="ri-shopping-bag-3-line"
-                  variant="text"
-                  color="secondary"
-                  size="small"
+                  prepend-icon="ri-shopping-bag-3-line"
                   title="عرض المنتجات"
+                  class="text-secondary"
                   @click="handleViewProducts(item)"
                 />
-                <v-btn icon="ri-arrow-right-up-line" variant="text" color="info" size="small" @click="handleCategoryClick(item)" />
-                <v-btn icon="ri-edit-line" variant="text" color="primary" size="small" @click="handleEdit(item)" />
-                <v-btn icon="ri-delete-bin-line" variant="text" color="error" size="small" @click="handleDelete(item)" />
+                <v-list-item prepend-icon="ri-arrow-right-up-line" title="دخول القسم" class="text-info" @click="handleCategoryClick(item)" />
+                <v-list-item prepend-icon="ri-edit-line" title="تعديل" class="text-primary" @click="handleEdit(item)" />
+                <v-list-item prepend-icon="ri-delete-bin-line" title="حذف" class="text-error" @click="handleDelete(item)" />
               </template>
             </AppDataTable>
           </template>

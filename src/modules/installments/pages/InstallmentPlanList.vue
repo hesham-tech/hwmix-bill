@@ -18,52 +18,72 @@
           title="سجل خطط التقسيط"
           subtitle="متابعة وإدارة جدول تحصيل الأقساط والمدفوعات الآجلة"
           icon="ri-calendar-event-line"
+          permission-module="installment-plans"
           @update:options="handleOptionsUpdate"
           @update:filters="applyFilters"
           @click:row="viewPlan"
+          @edit="editPlan"
+          @view="viewPlan"
         >
           <!-- Grid View Slot -->
-          <template #grid="{ items }">
-            <v-col v-for="item in items" :key="item.id" cols="12" sm="6" md="4" lg="3">
-              <v-card variant="outlined" class="mx-auto h-100 d-flex flex-column border-soft cursor-pointer shadow-sm-hover" @click="viewPlan(item)">
-                <v-card-item class="pb-2">
-                  <div class="d-flex justify-space-between align-center mb-1">
-                    <AppUserBalanceProfile :user="item.customer || item.invoice?.customer" mode="horizontal" hide-balance :avatar-size="32" />
-                    <v-chip :color="getStatusColor(item.status)" size="x-small" density="comfortable" class="font-weight-bold">
-                      {{ getStatusLabel(item.status) }}
-                    </v-chip>
-                  </div>
-                  <div class="text-caption text-grey ms-11 mt-n1">#{{ item.invoice?.invoice_number || item.invoice_number }}</div>
-                </v-card-item>
+          <template #grid="{ items, handleContextMenu }">
+            <v-row dense>
+              <v-col v-for="item in items" :key="item.id" cols="12" sm="6" md="4" lg="3">
+                <v-card
+                  variant="outlined"
+                  class="mx-auto h-100 d-flex flex-column border-soft cursor-pointer shadow-sm-hover"
+                  @click="viewPlan(item)"
+                  @contextmenu.prevent="handleContextMenu($event, { item })"
+                >
+                  <v-card-item class="pb-2">
+                    <div class="d-flex justify-space-between align-center mb-1">
+                      <AppUserBalanceProfile :user="item.customer || item.invoice?.customer" mode="horizontal" hide-balance :avatar-size="32" />
+                      <v-chip :color="getStatusColor(item.status)" size="x-small" density="comfortable" class="font-weight-bold">
+                        {{ getStatusLabel(item.status) }}
+                      </v-chip>
+                    </div>
+                    <div class="text-caption text-grey ms-11 mt-n1">#{{ item.invoice?.invoice_number || item.invoice_number }}</div>
+                  </v-card-item>
 
-                <v-card-text class="pt-0 flex-grow-1">
-                  <div class="d-flex align-center gap-2 mb-3 mt-1">
-                    <v-progress-linear :model-value="getPaymentProgress(item)" :color="getProgressColor(item)" height="12" rounded>
-                      <template #default="{ value }">
-                        <span class="text-xxs font-weight-black" style="font-size: 8px">{{ Math.ceil(value) }}%</span>
+                  <v-card-text class="pt-0 flex-grow-1">
+                    <div class="d-flex align-center gap-2 mb-3 mt-1">
+                      <v-progress-linear :model-value="getPaymentProgress(item)" :color="getProgressColor(item)" height="12" rounded>
+                        <template #default="{ value }">
+                          <span class="text-xxs font-weight-black" style="font-size: 8px">{{ Math.ceil(value) }}%</span>
+                        </template>
+                      </v-progress-linear>
+                    </div>
+
+                    <div class="d-flex justify-space-between text-caption mb-1">
+                      <span class="text-grey">الإجمالي:</span>
+                      <span class="font-weight-bold">{{ formatCurrency(item.total_amount) }}</span>
+                    </div>
+                    <div class="d-flex justify-space-between text-caption">
+                      <span class="text-grey">المتبقي:</span>
+                      <span class="text-error font-weight-bold">{{
+                        formatCurrency(item.remaining_amount || item.total_amount - item.total_pay)
+                      }}</span>
+                    </div>
+                  </v-card-text>
+
+                  <v-divider class="mx-4 opacity-50" />
+
+                  <v-card-actions class="pa-1 px-2 bg-grey-lighten-5">
+                    <v-spacer />
+                    <v-menu transition="scale-transition" offset="5">
+                      <template #activator="{ props }">
+                        <v-btn icon="ri-more-2-fill" variant="text" size="small" color="grey-darken-1" v-bind="props" @click.stop />
                       </template>
-                    </v-progress-linear>
-                  </div>
-
-                  <div class="d-flex justify-space-between text-caption mb-1">
-                    <span class="text-grey">الإجمالي:</span>
-                    <span class="font-weight-bold">{{ formatCurrency(item.total_amount) }}</span>
-                  </div>
-                  <div class="d-flex justify-space-between text-caption">
-                    <span class="text-grey">المتبقي:</span>
-                    <span class="text-error font-weight-bold">{{ formatCurrency(item.remaining_amount || item.total_amount - item.total_pay) }}</span>
-                  </div>
-                </v-card-text>
-
-                <v-divider class="mx-4 opacity-50" />
-
-                <v-card-actions class="pa-2 px-3">
-                  <v-btn variant="text" size="x-small" color="info" @click.stop="viewPlan(item)">عرض</v-btn>
-                  <v-spacer />
-                  <v-btn variant="text" size="x-small" color="primary" @click.stop="editPlan(item)">تعديل</v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-col>
+                      <AppTableActions :item="item" permission-module="installment-plans" @view="viewPlan" @edit="editPlan">
+                        <template #extra-actions="slotProps">
+                          <slot name="extra-actions" v-bind="slotProps" />
+                        </template>
+                      </AppTableActions>
+                    </v-menu>
+                  </v-card-actions>
+                </v-card>
+              </v-col>
+            </v-row>
           </template>
 
           <!-- List View Slots -->
@@ -220,6 +240,7 @@ const headers = [
   { title: 'المبالغ والتقدم', key: 'total_amount', align: 'center', width: '250px', sortable: true },
   { title: 'تاريخ البدء', key: 'start_date', align: 'center', width: '130px', sortable: true },
   { title: 'الأقساط', key: 'installments', align: 'center', width: '120px', sortable: false },
+  { title: 'الإجراءات', key: 'actions', sortable: false, align: 'end', width: '120px' },
 ];
 
 /**

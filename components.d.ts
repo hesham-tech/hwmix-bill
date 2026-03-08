@@ -25,6 +25,7 @@ declare module 'vue' {
     AppShareDialog: typeof import('./src/components/common/AppShareDialog.vue')['default']
     AppSkeleton: typeof import('./src/components/common/AppSkeleton.vue')['default']
     AppSwitch: typeof import('./src/components/common/AppSwitch.vue')['default']
+    AppTableActions: typeof import('./src/components/common/AppTableActions.vue')['default']
     AppTextarea: typeof import('./src/components/common/AppTextarea.vue')['default']
     AppUserBalanceProfile: typeof import('./src/components/common/AppUserBalanceProfile.vue')['default']
     Calculator: typeof import('./src/components/tools/Calculator.vue')['default']

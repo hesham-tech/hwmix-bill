@@ -29,6 +29,7 @@ export { default as backupService } from './services/backup.service';
 export { default as errorReportService } from './services/error-report.service';
 export { default as serviceApiService } from './services/service.service';
 export { default as subscriptionApiService } from './services/subscription.service';
+export { default as transactionService } from './services/transaction.service';
 
 // Export axios instance for custom calls
 export { default as apiClient } from './axios.config';

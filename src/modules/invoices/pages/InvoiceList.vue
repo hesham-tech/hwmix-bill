@@ -98,9 +98,7 @@
 
       <!-- الإجراءات الإضافية -->
       <template #extra-actions="{ item }">
-        <AppButton size="x-small" variant="text" color="warning" tooltip="طباعة الفاتورة" @click.stop="printInvoice(item)">
-          <v-icon size="16">ri-printer-line</v-icon>
-        </AppButton>
+        <v-list-item prepend-icon="ri-printer-line" title="طباعة الفاتورة" class="text-warning" @click.stop="printInvoice(item)" />
       </template>
     </AppDataTable>
 

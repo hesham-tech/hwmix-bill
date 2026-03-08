@@ -90,8 +90,8 @@
 
               <template #item.date="{ item }">
                 <div class="d-flex flex-column py-1">
-                  <span class="font-weight-bold text-slate-800">{{ formatDate(item.transaction_date) }}</span>
-                  <span class="text-caption text-grey">{{ formatTime(item.transaction_date) }}</span>
+                  <span class="font-weight-bold text-slate-800">{{ formatDate(item.created_at) }}</span>
+                  <span class="text-caption text-grey">{{ formatTime(item.created_at) }}</span>
                 </div>
               </template>
 
@@ -151,8 +151,8 @@
 
             <template #item.date="{ item }">
               <div class="d-flex flex-column py-1">
-                <span class="font-weight-bold text-slate-800">{{ formatDate(item.transaction_date) }}</span>
-                <span class="text-caption text-grey">{{ formatTime(item.transaction_date) }}</span>
+                <span class="font-weight-bold text-slate-800">{{ formatDate(item.created_at) }}</span>
+                <span class="text-caption text-grey">{{ formatTime(item.created_at) }}</span>
               </div>
             </template>
 
@@ -216,7 +216,7 @@ const {
   applyFilters,
 } = useDataTable(fetchTransactions, {
   syncWithUrl: true,
-  initialSortBy: 'transaction_date',
+  initialSortBy: 'created_at',
   initialSortOrder: 'desc',
   immediate: true,
 });
@@ -239,7 +239,7 @@ const headers = [
   { title: 'الخزينة', key: 'cash_box', sortable: false },
   { title: 'العميل / الطرف الآخر', key: 'customer', sortable: false },
   { title: 'المبلغ', key: 'amount', align: 'end', sortable: true },
-  { title: 'التاريخ', key: 'transaction_date', sortable: true },
+  { title: 'التاريخ', key: 'created_at', sortable: true },
   { title: 'الوصف', key: 'description', sortable: false },
 ];
 

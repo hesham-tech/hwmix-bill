@@ -36,127 +36,105 @@
     </AppCard>
 
     <!-- Content Area -->
-    <LoadingSpinner v-if="loading && !paymentMethods.length" size="64" text="جاري تحميل طرق الدفع..." />
-
-    <EmptyState
-      v-else-if="!paymentMethods.length"
-      icon="ri-bank-card-line"
-      title="لا توجد طرق دفع حالياً"
-      message="ابدأ بإضافة أول طريقة دفع لنظامك"
-      :show-action="canCreate"
-      action-text="إضافة طريقة دفع"
-      @action="handleCreate"
-    />
-
-    <template v-else>
-      <!-- Grid View with Infinite Scroll -->
-      <AppInfiniteScroll
-        v-if="viewMode === 'grid'"
-        :loading="loading && paymentMethods.length > 0"
-        :has-more="paymentMethods.length < total"
-        no-more-text="لا يوجد المزيد من طرق الدفع"
-        @load="handleLoadMore"
-      >
-        <v-row>
-          <v-col v-for="item in paymentMethods" :key="item.id" cols="12" sm="6" md="4" lg="3">
-            <AppCard class="method-card h-100" no-padding>
-              <div class="method-card-header d-flex align-center justify-center pa-2 bg-grey-lighten-4 position-relative">
-                <AppAvatar
-                  :img-url="item.image_url"
-                  :name="item.name"
-                  type="payment"
-                  size="120"
-                  :custom-class="item.active ? 'bg-white' : 'grey-lighten-3'"
-                  class="elevation-1"
-                />
-              </div>
-
-              <v-card-item class="position-relative pt-4">
-                <v-card-title class="text-h6 font-weight-bold pa-0 mb-1">{{ item.name }}</v-card-title>
-
-                <div class="d-flex align-center justify-space-between mb-1" style="height: 32px">
-                  <div class="d-flex align-center">
-                    <span class="text-caption text-grey-darken-1 me-2">الحالة:</span>
-                    <v-chip :color="item.active ? 'success' : 'error'" size="x-small" class="font-weight-bold" variant="flat">
-                      {{ item.active ? 'نشط' : 'معطل' }}
-                    </v-chip>
-                  </div>
-
-                  <AppSwitch
-                    v-if="canToggle(item)"
-                    :model-value="item.active"
-                    :loading="togglingId === item.id"
-                    @update:model-value="handleToggleStatus(item)"
+    <AppDataTable
+      :headers="headers"
+      :items="paymentMethods"
+      :total-items="total"
+      :loading="loading"
+      v-model:page="page"
+      v-model:items-per-page="itemsPerPage"
+      :view-mode="viewMode"
+      :searchable="false"
+      :can-view="false"
+      @update:options="onTableOptionsUpdate"
+      @edit="handleEdit"
+      @delete="handleDelete"
+    >
+      <!-- Grid View Slot -->
+      <template #grid="{ items, handleContextMenu }">
+        <AppInfiniteScroll
+          :loading="loading && items.length > 0"
+          :has-more="items.length < total"
+          no-more-text="لا يوجد المزيد من طرق الدفع"
+          @load="handleLoadMore"
+        >
+          <v-row dense>
+            <v-col v-for="item in items" :key="item.id" cols="12" sm="6" md="4" lg="3">
+              <AppCard class="method-card h-100" no-padding @contextmenu.prevent="handleContextMenu($event, { item })">
+                <div class="method-card-header d-flex align-center justify-center pa-2 bg-grey-lighten-4 position-relative">
+                  <AppAvatar
+                    :img-url="item.image_url"
+                    :name="item.name"
+                    type="payment"
+                    size="120"
+                    :custom-class="item.active ? 'bg-white' : 'grey-lighten-3'"
+                    class="elevation-1"
                   />
+                  <!-- Essential/System Chip -->
+                  <v-chip v-if="item.is_system" color="info" size="x-small" class="position-absolute" style="top: 10px; left: 10px" variant="tonal">
+                    اساسي
+                  </v-chip>
                 </div>
 
-                <v-card-subtitle class="pa-0">كود: {{ item.code }}</v-card-subtitle>
+                <v-card-item class="position-relative pt-4">
+                  <v-card-title class="text-h6 font-weight-bold pa-0 mb-1">{{ item.name }}</v-card-title>
 
-                <!-- Essential/System Chip -->
-                <v-chip v-if="item.is_system" color="info" size="x-small" class="position-absolute" style="top: 16px; left: 16px" variant="tonal">
-                  اساسي
-                </v-chip>
-              </v-card-item>
+                  <div class="d-flex align-center justify-space-between mb-1" style="height: 32px">
+                    <div class="d-flex align-center">
+                      <span class="text-caption text-grey-darken-1 me-2">الحالة:</span>
+                      <v-chip :color="item.active ? 'success' : 'error'" size="x-small" class="font-weight-bold" variant="flat">
+                        {{ item.active ? 'نشط' : 'معطل' }}
+                      </v-chip>
+                    </div>
 
-              <template #actions>
-                <v-spacer />
-                <AppButton icon="ri-edit-line" variant="text" color="primary" @click="handleEdit(item)" />
-                <AppButton v-if="canDelete(item)" icon="ri-delete-bin-line" variant="text" color="error" @click="handleDelete(item)" />
-              </template>
-            </AppCard>
-          </v-col>
-        </v-row>
-      </AppInfiniteScroll>
+                    <AppSwitch
+                      v-if="canToggle(item)"
+                      :model-value="item.active"
+                      :loading="togglingId === item.id"
+                      @update:model-value="handleToggleStatus(item)"
+                    />
+                  </div>
 
-      <!-- List View -->
-      <AppDataTable
-        v-else
-        :headers="headers"
-        :items="paymentMethods"
-        :total-items="total"
-        :loading="loading"
-        v-model:page="page"
-        v-model:items-per-page="itemsPerPage"
-        :searchable="false"
-        :can-view="false"
-        :can-delete="false"
-        @update:options="onTableOptionsUpdate"
-        @edit="handleEdit"
-      >
-        <template #item.name="{ item }">
-          <div class="d-flex align-center py-2">
-            <AppAvatar :img-url="item.image_url" :name="item.name" type="payment" size="48" class="me-3 border" />
-            <div class="d-flex flex-column">
-              <span class="font-weight-bold">{{ item.name }}</span>
-              <v-chip v-if="item.is_system" size="x-small" color="info" variant="tonal" class="mt-1" style="width: fit-content">أساسي</v-chip>
-            </div>
+                  <v-card-subtitle class="pa-0">كود: {{ item.code }}</v-card-subtitle>
+                </v-card-item>
+              </AppCard>
+            </v-col>
+          </v-row>
+        </AppInfiniteScroll>
+      </template>
+
+      <!-- List View Slots -->
+      <template #item.name="{ item }">
+        <div class="d-flex align-center py-2">
+          <AppAvatar :img-url="item.image_url" :name="item.name" type="payment" size="48" class="me-3 border" />
+          <div class="d-flex flex-column">
+            <span class="font-weight-bold">{{ item.name }}</span>
+            <v-chip v-if="item.is_system" size="x-small" color="info" variant="tonal" class="mt-1" style="width: fit-content">أساسي</v-chip>
           </div>
-        </template>
+        </div>
+      </template>
 
-        <template #item.active="{ item }">
-          <div class="d-flex align-center justify-center">
-            <span v-if="canToggle(item)" class="text-caption me-2 font-weight-bold" :class="item.active ? 'text-success' : 'text-error'">
-              {{ item.active ? 'نشط' : 'معطل' }}
-            </span>
-            <AppSwitch
-              v-if="canToggle(item)"
-              :model-value="item.active"
-              :loading="togglingId === item.id"
-              @update:model-value="handleToggleStatus(item)"
-            />
-            <v-chip v-else :color="item.active ? 'success' : 'error'" size="small" variant="flat" class="font-weight-bold">
-              {{ item.active ? 'نشط' : 'معطل' }}
-            </v-chip>
-          </div>
-        </template>
+      <template #item.active="{ item }">
+        <div class="d-flex align-center justify-center">
+          <span v-if="canToggle(item)" class="text-caption me-2 font-weight-bold" :class="item.active ? 'text-success' : 'text-error'">
+            {{ item.active ? 'نشط' : 'معطل' }}
+          </span>
+          <AppSwitch
+            v-if="canToggle(item)"
+            :model-value="item.active"
+            :loading="togglingId === item.id"
+            @update:model-value="handleToggleStatus(item)"
+          />
+          <v-chip v-else :color="item.active ? 'success' : 'error'" size="small" variant="flat" class="font-weight-bold">
+            {{ item.active ? 'نشط' : 'معطل' }}
+          </v-chip>
+        </div>
+      </template>
 
-        <template #extra-actions="{ item }">
-          <AppButton v-if="canDelete(item)" icon="ri-delete-bin-line" variant="text" color="error" size="small" @click="handleDelete(item)" />
-        </template>
-      </AppDataTable>
-
-      <!-- No grid pagination, using infinite scroll above -->
-    </template>
+      <template #extra-actions="{ item }">
+        <v-list-item v-if="canDelete(item)" prepend-icon="ri-delete-bin-line" title="حذف" class="text-error" @click="handleDelete(item)" />
+      </template>
+    </AppDataTable>
 
     <!-- Payment Method Form Dialog -->
     <PaymentMethodForm v-model="showDialog" :payment-method="selectedItem" @saved="loadData" />

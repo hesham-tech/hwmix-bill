@@ -517,6 +517,14 @@ export const PERMISSIONS = {
   ORDERS_PAGE: 'orders.page',
   ORDERS_VIEW_ALL: 'orders.view_all',
   ORDERS_CREATE: 'orders.create',
+
+  // ==================== Balance ====================
+  BALANCE_DEPOSIT_ANY: 'balance.deposit_any',
+  BALANCE_WITHDRAW_ANY: 'balance.withdraw_any',
+  BALANCE_TRANSFER_ANY: 'balance.transfer_any',
+  BALANCE_DEPOSIT: 'balance.deposit',
+  BALANCE_WITHDRAW: 'balance.withdraw',
+  BALANCE_TRANSFER: 'balance.transfer',
 };
 
 /**

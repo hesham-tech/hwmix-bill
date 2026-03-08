@@ -180,6 +180,17 @@
               البحث عن فاتورة
             </v-btn>
             <v-btn
+              block
+              color="info"
+              variant="tonal"
+              prepend-icon="ri-exchange-funds-line"
+              to="/app/customer-transactions"
+              height="40"
+              class="font-weight-bold justify-start rounded-lg text-caption"
+            >
+              سجل المعاملات
+            </v-btn>
+            <v-btn
               v-if="userStore.hasInstallments"
               block
               color="success"

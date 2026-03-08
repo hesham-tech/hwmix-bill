@@ -59,150 +59,146 @@
       @action="handleCreate"
     />
 
-    <template v-else>
-      <!-- Grid View (Replicated Cards) -->
-      <v-row v-if="viewMode === 'grid'">
-        <v-col v-for="attribute in attributes" :key="attribute.id" cols="12" sm="6" md="4" lg="3">
-          <v-card class="image-style-card border-slate-50" @click="openValuesDialog(attribute)">
-            <v-card-text class="pa-10 d-flex flex-column align-center">
-              <v-avatar size="100" :color="isColorProperty(attribute.name) ? 'primary' : 'slate-50'" class="mb-2 border-slate-100 elevation-2">
-                <v-icon
-                  :icon="isColorProperty(attribute.name) ? 'ri-palette-fill' : 'ri-list-settings-fill'"
-                  size="48"
-                  :color="isColorProperty(attribute.name) ? 'white' : 'primary'"
+    <AppDataTable
+      v-else
+      :headers="headers"
+      :items="attributes"
+      :total-items="total"
+      :loading="loading"
+      v-model:page="page"
+      v-model:items-per-page="itemsPerPage"
+      :searchable="false"
+      :can-view="false"
+      :can-edit="false"
+      :can-delete="false"
+      permission-module="attributes"
+      grid-enabled
+      :view-mode="viewMode"
+      class="minimal-table"
+      @update:options="onTableOptionsUpdate"
+    >
+      <template #grid="{ items, handleContextMenu }">
+        <v-row dense>
+          <v-col v-for="attribute in items" :key="attribute.id" cols="12" sm="6" md="4" lg="3">
+            <v-card
+              class="image-style-card border-slate-50 h-100 d-flex flex-column"
+              @click="openValuesDialog(attribute)"
+              @contextmenu.prevent="handleContextMenu($event, { item: attribute })"
+            >
+              <v-card-text class="pa-10 d-flex flex-column align-center flex-grow-1">
+                <v-avatar size="100" :color="isColorProperty(attribute.name) ? 'primary' : 'slate-50'" class="mb-2 border-slate-100 elevation-2">
+                  <v-icon
+                    :icon="isColorProperty(attribute.name) ? 'ri-palette-fill' : 'ri-list-settings-fill'"
+                    size="48"
+                    :color="isColorProperty(attribute.name) ? 'white' : 'primary'"
+                  />
+                </v-avatar>
+                <h3 class="text-h6 font-weight-bold text-slate-800">{{ attribute.name }}</h3>
+                <div class="mt-4 d-flex align-center text-caption text-slate-400 font-weight-bold">
+                  <span>{{ getAttributeValues(attribute).length }} قيم</span>
+                  <v-icon icon="ri-arrow-left-s-line" class="ms-1" />
+                </div>
+              </v-card-text>
+              <v-card-actions class="card-quick-actions pa-3 d-flex align-center border-t border-slate-50">
+                <AppSwitch
+                  v-if="
+                    canAny(PERMISSIONS.ATTRIBUTES_UPDATE_ALL, PERMISSIONS.ATTRIBUTES_UPDATE_CHILDREN, PERMISSIONS.ATTRIBUTES_UPDATE_SELF, {
+                      resource: attribute,
+                    })
+                  "
+                  v-model="attribute.active"
+                  :loading="togglingId === attribute.id"
+                  @update:model-value="() => handleToggleStatus(attribute)"
+                  density="compact"
                 />
-              </v-avatar>
-              <h3 class="text-h6 font-weight-bold text-slate-800">{{ attribute.name }}</h3>
+                <v-spacer />
+                <v-btn icon="ri-edit-2-line" variant="text" size="small" color="slate-400" @click.stop="handleEdit(attribute)" />
+                <v-btn icon="ri-delete-bin-6-line" variant="text" size="small" color="error-lighten-1" @click.stop="handleDelete(attribute)" />
+              </v-card-actions>
+            </v-card>
+          </v-col>
+        </v-row>
+      </template>
 
-              <!-- Action summary - tiny line -->
-              <div class="mt-4 d-flex align-center text-caption text-slate-400 font-weight-bold">
-                <span>{{ getAttributeValues(attribute).length }} قيم</span>
-                <v-icon icon="ri-arrow-left-s-line" class="ms-1" />
-              </div>
-            </v-card-text>
-
-            <!-- Fast Action Toggle -->
-            <v-card-actions class="card-quick-actions pa-3 d-flex align-center border-t border-slate-50">
-              <AppSwitch
-                v-if="
-                  canAny(PERMISSIONS.ATTRIBUTES_UPDATE_ALL, PERMISSIONS.ATTRIBUTES_UPDATE_CHILDREN, PERMISSIONS.ATTRIBUTES_UPDATE_SELF, {
-                    resource: attribute,
-                  })
-                "
-                v-model="attribute.active"
-                :loading="togglingId === attribute.id"
-                @update:model-value="() => handleToggleStatus(attribute)"
-                density="compact"
-              />
-              <v-spacer />
-              <v-btn icon="ri-edit-2-line" variant="text" size="small" color="slate-400" @click.stop="handleEdit(attribute)" />
-              <v-btn icon="ri-delete-bin-6-line" variant="text" size="small" color="error-lighten-1" @click.stop="handleDelete(attribute)" />
-            </v-card-actions>
-          </v-card>
-        </v-col>
-      </v-row>
-
-      <!-- List View -->
-      <v-card v-else class="rounded-md border overflow-hidden flat">
-        <AppDataTable
-          :headers="headers"
-          :items="attributes"
-          :total-items="total"
-          :loading="loading"
-          v-model:page="page"
-          v-model:items-per-page="itemsPerPage"
-          :searchable="false"
-          :can-view="false"
-          :can-edit="false"
-          :can-delete="false"
-          permission-module="attributes"
-          class="minimal-table"
-          @update:options="onTableOptionsUpdate"
-        >
-          <template #[`item.name`]="{ item }">
-            <div class="d-flex align-center py-3">
-              <v-avatar size="44" :color="isColorProperty(item.name) ? 'primary' : 'slate-50'" class="me-3 border">
-                <v-icon
-                  :icon="isColorProperty(item.name) ? 'ri-palette-fill' : 'ri-list-settings-fill'"
-                  size="24"
-                  :color="isColorProperty(item.name) ? 'white' : 'primary'"
-                />
-              </v-avatar>
-              <div class="d-flex flex-column">
-                <span class="font-weight-bold text-slate-800">{{ item.name }}</span>
-                <span class="text-caption text-slate-400">#{{ item.id }}</span>
-              </div>
-            </div>
-          </template>
-
-          <template #[`item.values`]="{ item }">
-            <div class="d-flex flex-wrap gap-1 py-1 max-width-400">
-              <v-chip
-                v-for="(value, index) in getAttributeValues(item).slice(0, 8)"
-                :key="index"
-                size="x-small"
-                variant="tonal"
-                color="primary"
-                class="font-weight-bold"
-              >
-                <div
-                  v-if="isColorProperty(item.name) && (value.color || value.value)"
-                  class="color-dot me-1"
-                  :style="{ backgroundColor: value.color || value.value }"
-                ></div>
-                {{ value.name || value }}
-              </v-chip>
-              <v-chip v-if="getAttributeValues(item).length > 8" size="x-small" variant="flat" color="slate-100">
-                +{{ getAttributeValues(item).length - 8 }}
-              </v-chip>
-            </div>
-          </template>
-
-          <template #[`item.active`]="{ item }">
-            <AppSwitch
-              v-if="
-                canAny(PERMISSIONS.ATTRIBUTES_UPDATE_ALL, PERMISSIONS.ATTRIBUTES_UPDATE_CHILDREN, PERMISSIONS.ATTRIBUTES_UPDATE_SELF, {
-                  resource: item,
-                })
-              "
-              v-model="item.active"
-              :loading="togglingId === item.id"
-              @update:model-value="() => handleToggleStatus(item)"
+      <!-- List View Templates -->
+      <template #[`item.name`]="{ item }">
+        <div class="d-flex align-center py-3">
+          <v-avatar size="44" :color="isColorProperty(item.name) ? 'primary' : 'slate-50'" class="me-3 border">
+            <v-icon
+              :icon="isColorProperty(item.name) ? 'ri-palette-fill' : 'ri-list-settings-fill'"
+              size="24"
+              :color="isColorProperty(item.name) ? 'white' : 'primary'"
             />
-          </template>
+          </v-avatar>
+          <div class="d-flex flex-column">
+            <span class="font-weight-bold text-slate-800">{{ item.name }}</span>
+            <span class="text-caption text-slate-400">#{{ item.id }}</span>
+          </div>
+        </div>
+      </template>
 
-          <template #extra-actions="{ item }">
-            <div class="d-flex align-center">
-              <v-btn variant="text" icon="ri-list-settings-line" color="info" size="small" @click="openValuesDialog(item)" />
-              <v-btn
-                v-if="
-                  canAny(PERMISSIONS.ATTRIBUTES_UPDATE_ALL, PERMISSIONS.ATTRIBUTES_UPDATE_CHILDREN, PERMISSIONS.ATTMISSIONS_UPDATE_SELF, {
-                    resource: item,
-                  })
-                "
-                icon="ri-edit-2-line"
-                variant="text"
-                color="primary"
-                size="small"
-                @click="handleEdit(item)"
-              />
-              <v-btn
-                v-if="
-                  canAny(PERMISSIONS.ATTRIBUTES_DELETE_ALL, PERMISSIONS.ATTRIBUTES_DELETE_CHILDREN, PERMISSIONS.ATTRIBUTES_DELETE_SELF, {
-                    resource: item,
-                  })
-                "
-                icon="ri-delete-bin-6-line"
-                variant="text"
-                color="error"
-                size="small"
-                @click="handleDelete(item)"
-              />
-            </div>
-          </template>
-        </AppDataTable>
-      </v-card>
-    </template>
+      <template #[`item.values`]="{ item }">
+        <div class="d-flex flex-wrap gap-1 py-1 max-width-400">
+          <v-chip
+            v-for="(value, index) in getAttributeValues(item).slice(0, 8)"
+            :key="index"
+            size="x-small"
+            variant="tonal"
+            color="primary"
+            class="font-weight-bold"
+          >
+            <div
+              v-if="isColorProperty(item.name) && (value.color || value.value)"
+              class="color-dot me-1"
+              :style="{ backgroundColor: value.color || value.value }"
+            ></div>
+            {{ value.name || value }}
+          </v-chip>
+          <v-chip v-if="getAttributeValues(item).length > 8" size="x-small" variant="flat" color="slate-100">
+            +{{ getAttributeValues(item).length - 8 }}
+          </v-chip>
+        </div>
+      </template>
+
+      <template #[`item.active`]="{ item }">
+        <AppSwitch
+          v-if="
+            canAny(PERMISSIONS.ATTRIBUTES_UPDATE_ALL, PERMISSIONS.ATTRIBUTES_UPDATE_CHILDREN, PERMISSIONS.ATTRIBUTES_UPDATE_SELF, {
+              resource: item,
+            })
+          "
+          v-model="item.active"
+          :loading="togglingId === item.id"
+          @update:model-value="() => handleToggleStatus(item)"
+        />
+      </template>
+
+      <template #extra-actions="{ item }">
+        <v-list-item prepend-icon="ri-list-settings-line" title="القيم" class="text-info" @click="openValuesDialog(item)" />
+        <v-list-item
+          v-if="
+            canAny(PERMISSIONS.ATTRIBUTES_UPDATE_ALL, PERMISSIONS.ATTRIBUTES_UPDATE_CHILDREN, PERMISSIONS.ATTRIBUTES_UPDATE_SELF, {
+              resource: item,
+            })
+          "
+          prepend-icon="ri-edit-2-line"
+          title="تعديل"
+          class="text-primary"
+          @click="handleEdit(item)"
+        />
+        <v-list-item
+          v-if="
+            canAny(PERMISSIONS.ATTRIBUTES_DELETE_ALL, PERMISSIONS.ATTRIBUTES_DELETE_CHILDREN, PERMISSIONS.ATTRIBUTES_DELETE_SELF, {
+              resource: item,
+            })
+          "
+          prepend-icon="ri-delete-bin-6-line"
+          title="حذف"
+          class="text-error"
+          @click="handleDelete(item)"
+        />
+      </template>
+    </AppDataTable>
 
     <!-- Dialogs -->
     <AppDialog

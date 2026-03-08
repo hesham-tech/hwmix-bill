@@ -1,4 +1,5 @@
 export { default as AppDataTable } from './common/AppDataTable.vue';
+export { default as AppTableActions } from './common/AppTableActions.vue';
 export { default as AppDialog } from './common/AppDialog.vue';
 export { default as AppConfirmDialog } from './common/AppConfirmDialog.vue';
 export { default as AppPageHeader } from './common/AppPageHeader.vue';

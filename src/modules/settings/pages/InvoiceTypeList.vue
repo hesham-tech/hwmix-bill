@@ -30,123 +30,115 @@
     </AppCard>
 
     <!-- Content Area -->
-    <LoadingSpinner v-if="loading && !filteredTypes.length" size="64" text="جاري تحميل الأنواع..." />
+    <!-- Content Area -->
+    <AppDataTable
+      :headers="headers"
+      :items="filteredTypes"
+      :total-items="filteredTypes.length"
+      :loading="loading"
+      v-model:page="page"
+      v-model:items-per-page="itemsPerPage"
+      :view-mode="viewMode"
+      :searchable="false"
+      :can-edit="false"
+      :can-delete="false"
+      :can-view="false"
+      @update:options="loadData"
+    >
+      <!-- Grid View Slot -->
+      <template #grid="{ items, handleContextMenu }">
+        <v-row dense>
+          <v-col v-for="type in items" :key="type.id" cols="12" sm="6" md="4" lg="3">
+            <AppCard class="type-card h-100" no-padding @contextmenu.prevent="handleContextMenu($event, { item: type })">
+              <div class="type-card-image d-flex align-center justify-center pa-4 bg-primary-lighten-5 position-relative">
+                <v-avatar size="100" rounded="md" class="elevation-1 bg-white">
+                  <v-icon :icon="getTypeIcon(type.type)" size="48" :color="getTypeColor(type.type)" />
+                </v-avatar>
 
-    <EmptyState v-else-if="!filteredTypes.length" icon="ri-file-list-line" title="لا توجد أنواع فواتير" message="لم يتم العثور على أنواع مطابقة" />
+                <v-chip
+                  :color="type.is_active ? 'success' : 'error'"
+                  size="x-small"
+                  class="position-absolute top-2 right-2 font-weight-bold"
+                  variant="flat"
+                >
+                  {{ type.is_active ? 'نشط' : 'معطل' }}
+                </v-chip>
+              </div>
 
-    <template v-else>
-      <!-- Grid View -->
-      <v-row v-if="viewMode === 'grid'">
-        <v-col v-for="type in filteredTypes" :key="type.id" cols="12" sm="6" md="4" lg="3">
-          <AppCard class="type-card h-100" no-padding>
-            <div class="type-card-image d-flex align-center justify-center pa-4 bg-primary-lighten-5 position-relative">
-              <v-avatar size="100" rounded="md" class="elevation-1 bg-white">
-                <v-icon :icon="getTypeIcon(type.type)" size="48" :color="getTypeColor(type.type)" />
-              </v-avatar>
+              <v-card-item>
+                <v-card-title class="text-h6 font-weight-bold">{{ type.name }}</v-card-title>
+                <v-card-subtitle class="d-flex align-center mt-1">
+                  <v-icon icon="ri-information-line" size="14" class="me-1" />
+                  {{ getTypeLabel(type.type) }}
+                </v-card-subtitle>
+              </v-card-item>
 
-              <v-chip
-                :color="type.is_active ? 'success' : 'error'"
-                size="x-small"
-                class="position-absolute top-2 right-2 font-weight-bold"
-                variant="flat"
-              >
-                {{ type.is_active ? 'نشط' : 'معطل' }}
-              </v-chip>
-            </div>
+              <v-card-text class="pt-0">
+                <p class="text-body-2 text-grey-darken-1 text-truncate-3 height-60">
+                  {{ getTypeDescription(type.type) }}
+                </p>
+              </v-card-text>
 
-            <v-card-item>
-              <v-card-title class="text-h6 font-weight-bold">{{ type.name }}</v-card-title>
-              <v-card-subtitle class="d-flex align-center mt-1">
-                <v-icon icon="ri-information-line" size="14" class="me-1" />
-                {{ getTypeLabel(type.type) }}
-              </v-card-subtitle>
-            </v-card-item>
+              <template #actions>
+                <v-spacer />
+                <AppSwitch
+                  v-if="
+                    canAny(PERMISSIONS.INVOICE_TYPES_UPDATE_ALL, PERMISSIONS.INVOICE_TYPES_UPDATE_CHILDREN, PERMISSIONS.INVOICE_TYPES_UPDATE_SELF, {
+                      resource: type,
+                    })
+                  "
+                  v-model="type.is_active"
+                  hide-details
+                  :loading="toggling[type.id]"
+                  density="compact"
+                  @update:model-value="confirmToggle(type, $event)"
+                />
+              </template>
+            </AppCard>
+          </v-col>
+        </v-row>
+      </template>
 
-            <v-card-text class="pt-0">
-              <p class="text-body-2 text-grey-darken-1 text-truncate-3 height-60">
-                {{ getTypeDescription(type.type) }}
-              </p>
-            </v-card-text>
-
-            <template #actions>
-              <v-spacer />
-              <AppSwitch
-                v-if="
-                  canAny(PERMISSIONS.INVOICE_TYPES_UPDATE_ALL, PERMISSIONS.INVOICE_TYPES_UPDATE_CHILDREN, PERMISSIONS.INVOICE_TYPES_UPDATE_SELF, {
-                    resource: type,
-                  })
-                "
-                v-model="type.is_active"
-                hide-details
-                :loading="toggling[type.id]"
-                density="compact"
-                @update:model-value="confirmToggle(type, $event)"
-              />
-            </template>
-          </AppCard>
-        </v-col>
-      </v-row>
-
-      <!-- List View -->
-      <AppDataTable
-        v-else
-        :headers="headers"
-        :items="filteredTypes"
-        :total-items="filteredTypes.length"
-        :loading="loading"
-        v-model:page="page"
-        v-model:items-per-page="itemsPerPage"
-        :searchable="false"
-        :can-edit="false"
-        :can-delete="false"
-        :can-view="false"
-        @update:options="loadData"
-      >
-        <template #item.name="{ item }">
-          <div class="d-flex align-center py-2">
-            <v-avatar color="primary-lighten-5" size="40" class="me-3 border">
-              <v-icon :icon="getTypeIcon(item.type)" :color="getTypeColor(item.type)" size="small" />
-            </v-avatar>
-            <div>
-              <div class="font-weight-bold text-body-1">{{ item.name }}</div>
-              <div class="text-caption text-grey">{{ getTypeDescription(item.type) }}</div>
-            </div>
+      <!-- List View Slots -->
+      <template #item.name="{ item }">
+        <div class="d-flex align-center py-2">
+          <v-avatar color="primary-lighten-5" size="40" class="me-3 border">
+            <v-icon :icon="getTypeIcon(item.type)" :color="getTypeColor(item.type)" size="small" />
+          </v-avatar>
+          <div>
+            <div class="font-weight-bold text-body-1">{{ item.name }}</div>
+            <div class="text-caption text-grey">{{ getTypeDescription(item.type) }}</div>
           </div>
-        </template>
+        </div>
+      </template>
 
-        <template #item.type="{ item }">
-          <v-chip :color="getTypeColor(item.type)" size="small" variant="tonal">
-            {{ getTypeLabel(item.type) }}
-          </v-chip>
-        </template>
+      <template #item.type="{ item }">
+        <v-chip :color="getTypeColor(item.type)" size="small" variant="tonal">
+          {{ getTypeLabel(item.type) }}
+        </v-chip>
+      </template>
 
-        <template #item.is_active="{ item }">
-          <v-chip :color="item.is_active ? 'success' : 'error'" size="small" variant="flat" class="font-weight-bold">
-            {{ item.is_active ? 'نشط' : 'معطل' }}
-          </v-chip>
-        </template>
+      <template #item.is_active="{ item }">
+        <v-chip :color="item.is_active ? 'success' : 'error'" size="small" variant="flat" class="font-weight-bold">
+          {{ item.is_active ? 'نشط' : 'معطل' }}
+        </v-chip>
+      </template>
 
-        <template #extra-actions="{ item }">
-          <AppSwitch
-            v-if="
-              canAny(PERMISSIONS.INVOICE_TYPES_UPDATE_ALL, PERMISSIONS.INVOICE_TYPES_UPDATE_CHILDREN, PERMISSIONS.INVOICE_TYPES_UPDATE_SELF, {
-                resource: item,
-              })
-            "
-            v-model="item.is_active"
-            hide-details
-            :loading="toggling[item.id]"
-            density="compact"
-            @update:model-value="confirmToggle(item, $event)"
-          />
-        </template>
-      </AppDataTable>
-
-      <!-- Pagination for Grid View -->
-      <div v-if="viewMode === 'grid'" class="mt-8 d-flex align-center justify-space-between flex-wrap gap-4 px-2">
-        <div class="text-body-2 text-grey">عرض {{ filteredTypes.length }} من إجمالي {{ filteredTypes.length }} نوع</div>
-      </div>
-    </template>
+      <template #extra-actions="{ item }">
+        <AppSwitch
+          v-if="
+            canAny(PERMISSIONS.INVOICE_TYPES_UPDATE_ALL, PERMISSIONS.INVOICE_TYPES_UPDATE_CHILDREN, PERMISSIONS.INVOICE_TYPES_UPDATE_SELF, {
+              resource: item,
+            })
+          "
+          v-model="item.is_active"
+          hide-details
+          :loading="toggling[item.id]"
+          density="compact"
+          @update:model-value="confirmToggle(item, $event)"
+        />
+      </template>
+    </AppDataTable>
 
     <!-- Confirmation Dialog -->
     <AppConfirmDialog

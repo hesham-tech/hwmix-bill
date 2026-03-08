@@ -1,7 +1,5 @@
 <template>
   <div class="users-page">
-    <!-- Removed redundant AppPageHeader -->
-
     <v-container fluid class="pa-0">
       <v-row class="ma-0">
         <v-col cols="12" class="pa-0">
@@ -10,67 +8,40 @@
               v-model:sort-by="sortByVuetify"
               v-model:search="searchText"
               :filters="advancedFilters"
-              :items-per-page="-1"
-              :headers="headers"
+              v-model:items-per-page="itemsPerPage"
+              v-model:page="page"
+              :headers="computedHeaders"
               :items="users || []"
               :total-items="totalItems || 0"
               :loading="loading"
               :table-height="'calc(100vh - 220px)'"
-              hide-pagination
               grid-enabled
               :grid-options="{
                 titleKey: 'full_name',
                 avatarKey: 'image_url',
-                bodyKeys: ['roles', 'status', 'created_at'],
+                bodyKeys: ['phone', 'roles', 'status'],
               }"
-              infinite-scroll
-              :has-more="(users?.length || 0) < (totalItems || 0)"
               permission-module="users"
-              title="جدول المستخدمين"
-              subtitle="إدارة بيانات الفريق والعملاء مع ميزات البحث المتقدم"
+              title="المستخدمين"
+              subtitle="إدارة الحسابات والصلاحيات في النظام"
               icon="ri-group-line"
               @update:filters="applyFilters"
               @update:options="onTableOptionsUpdate"
               @edit="handleEdit"
               @delete="handleDelete"
               @view="item => $router.push(`/app/users/${item.id}`)"
-              @update:search="debouncedSearch"
-              @load="handleLoadMore"
             >
-              <!-- Actions Slot for Consolidated Controls -->
               <template #actions>
-                <div class="d-flex align-center gap-2">
-                  <!-- Mode Switch: Current Company vs Global -->
-                  <!-- Mode Switch: Current Company vs Global -->
-                  <div
-                    v-if="userStore.permissions.includes(PERMISSIONS.ADMIN_SUPER)"
-                    class="d-inline-flex bg-grey-lighten-4 rounded-pill pa-1 border shadow-inner align-center ga-1"
-                    style="height: 40px"
-                  >
-                    <v-btn
-                      size="small"
-                      :variant="currentCompanyOnly ? 'flat' : 'text'"
-                      :color="currentCompanyOnly ? 'primary' : 'transparent'"
-                      class="rounded-pill px-4 font-weight-bold transition-all"
-                      :class="{ 'text-grey-darken-1': !currentCompanyOnly }"
-                      @click="currentCompanyOnly = true"
-                    >
-                      <v-icon icon="ri-building-line" start size="16" />
-                      الشركة
-                    </v-btn>
-                    <v-btn
-                      size="small"
-                      :variant="!currentCompanyOnly ? 'flat' : 'text'"
-                      :color="!currentCompanyOnly ? 'warning' : 'transparent'"
-                      class="rounded-pill px-4 font-weight-bold transition-all"
-                      :class="{ 'text-grey-darken-1': currentCompanyOnly }"
-                      @click="currentCompanyOnly = false"
-                    >
-                      <v-icon icon="ri-global-line" start size="16" />
-                      الكل
-                    </v-btn>
-                  </div>
-
+                <div class="d-flex align-center gap-3">
+                  <v-checkbox
+                    v-if="can(PERMISSIONS.ADMIN_SUPER)"
+                    v-model="currentCompanyOnly"
+                    label="المستخدمين في هذه الشركة فقط"
+                    hide-details
+                    density="compact"
+                    class="me-4"
+                    color="primary"
+                  />
                   <AppButton
                     v-if="can(PERMISSIONS.USERS_CREATE)"
                     color="primary"
@@ -85,30 +56,27 @@
                 </div>
               </template>
 
-              <!-- Existing Templates -->
+              <!-- Custom Templates -->
               <template #item.full_name="{ item }">
                 <AppUserBalanceProfile :user="item" @click="$router.push(`/app/users/${item.id}`)" />
               </template>
 
+              <template #item.phone="{ item }">
+                <div dir="ltr" class="text-caption font-weight-medium text-grey-darken-1">{{ item.phone }}</div>
+              </template>
+
               <template #item.roles="{ item }">
                 <div class="d-flex flex-wrap gap-1">
-                  <template v-if="item.roles?.length">
-                    <v-chip
-                      v-for="role in item.roles"
-                      :key="typeof role === 'object' ? role.id : role"
-                      size="x-small"
-                      variant="tonal"
-                      :color="getRoleColor(role)"
-                      class="font-weight-bold px-2 rounded"
-                    >
-                      {{ typeof role === 'object' ? role.label || role.name : role }}
-                    </v-chip>
-                  </template>
-                  <span v-else class="text-caption text-grey italic">عميل</span>
-                  <div v-if="item.company_name" class="text-xxs text-grey mt-1 w-100 italic d-flex align-center gap-1">
-                    <v-icon icon="ri-building-line" size="10" color="primary" />
-                    {{ item.company_name }}
-                  </div>
+                  <v-chip
+                    v-for="role in item.roles || []"
+                    :key="typeof role === 'object' ? role.name : role"
+                    size="x-small"
+                    :color="getRoleColor(role)"
+                    variant="tonal"
+                    class="font-weight-bold px-2"
+                  >
+                    {{ typeof role === 'object' ? role.label : role }}
+                  </v-chip>
                 </div>
               </template>
 
@@ -123,49 +91,59 @@
                 </v-chip>
               </template>
 
-              <template #extra-actions="{ item, inMenu }">
-                <!-- Record Payment Action -->
+              <template #extra-actions="{ item }">
+                <!-- Balance Management Actions -->
                 <v-list-item
-                  v-if="inMenu && can(PERMISSIONS.PAYMENTS_CREATE)"
-                  prepend-icon="ri-money-dollar-circle-line"
-                  title="سداد دفعة"
-                  class="text-success"
-                  @click="$router.push(`/app/payments/create?user_id=${item.id}`)"
+                  v-if="can(PERMISSIONS.BALANCE_DEPOSIT) || can(PERMISSIONS.BALANCE_DEPOSIT_ANY)"
+                  prepend-icon="ri-qr-code-line"
+                  title="إيداع رصيد"
+                  class="text-info"
+                  @click="handleBalanceOperation(item, 'deposit')"
                 />
-                <AppButton
-                  v-else-if="can(PERMISSIONS.PAYMENTS_CREATE)"
-                  icon="ri-money-dollar-circle-line"
-                  size="small"
-                  variant="text"
-                  color="success"
-                  tooltip="سداد دفعة"
-                  @click="$router.push(`/app/payments/create?user_id=${item.id}`)"
+                <v-list-item
+                  v-if="can(PERMISSIONS.BALANCE_WITHDRAW) || can(PERMISSIONS.BALANCE_WITHDRAW_ANY)"
+                  prepend-icon="ri-hand-coin-line"
+                  title="سحب رصيد"
+                  class="text-error"
+                  @click="handleBalanceOperation(item, 'withdraw')"
+                />
+                <v-list-item
+                  v-if="can(PERMISSIONS.BALANCE_TRANSFER) || can(PERMISSIONS.BALANCE_TRANSFER_ANY)"
+                  prepend-icon="ri-swap-box-line"
+                  title="تحويل رصيد"
+                  class="text-warning"
+                  @click="handleBalanceOperation(item, 'transfer')"
                 />
 
-                <!-- Permission Management Action -->
+                <v-divider class="my-1" />
+
+                <!-- Role/Permission Actions -->
                 <v-list-item
-                  v-if="inMenu && can(PERMISSIONS.ROLES_PAGE)"
+                  v-if="can(PERMISSIONS.USERS_EDIT)"
                   prepend-icon="ri-shield-user-line"
                   title="إدارة الصلاحيات"
-                  class="text-warning"
-                  @click="handleManagePermissions(item)"
+                  class="text-purple"
+                  @click="openPermissions(item)"
                 />
-                <AppButton
-                  v-else-if="can(PERMISSIONS.ROLES_PAGE)"
-                  icon="ri-shield-user-line"
-                  size="small"
-                  variant="text"
-                  color="warning"
-                  tooltip="إدارة الصلاحيات"
-                  @click="handleManagePermissions(item)"
-                />
+                <v-list-item v-if="can(PERMISSIONS.USERS_EDIT)" prepend-icon="ri-edit-line" title="تعديل البيانات" @click="handleEdit(item)" />
+              </template>
+
+              <template #empty>
+                <div class="d-flex flex-column align-center justify-center py-12">
+                  <v-icon icon="ri-user-search-line" size="64" color="grey-lighten-1" class="mb-4" />
+                  <div class="text-h6 text-grey-darken-1">لم يتم العثور على مستخدمين</div>
+                  <div class="text-caption text-grey">حاول تغيير فلاتر البحث أو إضافة مستخدم جديد</div>
+                  <AppButton v-if="can(PERMISSIONS.USERS_CREATE)" color="primary" variant="tonal" class="mt-6" @click="handleCreate">
+                    إضافة أول مستخدم
+                  </AppButton>
+                </div>
+              </template>
+
+              <template #footer-append>
+                <div class="px-4 py-2 opacity-60 text-caption">إجمالي المسجلين: {{ totalItems }}</div>
               </template>
             </AppDataTable>
           </v-card>
-
-          <div class="px-6 pb-6 mt-4">
-            <AppConfirmDialog v-model="showConfirm" :message="confirmMessage" @confirm="handleConfirm" @cancel="handleCancel" />
-          </div>
         </v-col>
       </v-row>
 
@@ -173,7 +151,7 @@
       <AppDialog
         v-model="isOpen"
         :title="isEditMode ? `تعديل بيانات: ${formData.nickname || formData.full_name || ''}` : 'إضافة مستخدم جديد'"
-        :subtitle="isEditMode ? 'تحديث المعلومات الأساسية وصلاحيات الوصول' : 'إنشاء حساب مستخدم جديد وتحديد صلاحياته'"
+        :subtitle="isEditMode ? 'تحديث المعلومات والمجموعات' : 'إنشاء حساب مستخدم جديد في النظام'"
         :icon="isEditMode ? 'ri-user-edit-line' : 'ri-user-add-line'"
         max-width="800"
         hide-actions
@@ -182,14 +160,9 @@
 
         <template #actions>
           <AppButton variant="tonal" color="grey" @click="close">إلغاء</AppButton>
-          <AppButton
-            :loading="userFormRef?.loading"
-            color="primary"
-            class="px-8 font-weight-bold rounded-pill shadow-md"
-            @click="userFormRef?.handleSubmit()"
-          >
+          <AppButton :loading="userFormRef?.loading" color="primary" class="px-8 font-weight-bold rounded-pill shadow-md" @click="handleSubmit">
             <v-icon :icon="userFormRef?.form?.id ? 'ri-user-received-line' : 'ri-save-line'" class="me-2" />
-            {{ isEditMode ? 'تحديث البيانات' : userFormRef?.form?.id ? 'ربط الحساب' : 'إنشاء المستخدم' }}
+            {{ isEditMode ? 'تحديث البيانات' : userFormRef?.form?.id ? 'ربط الحساب' : 'حفظ المستخدم' }}
           </AppButton>
         </template>
       </AppDialog>
@@ -197,64 +170,58 @@
       <!-- Permission Management Dialog -->
       <AppDialog v-model="isPermissionOpen" title="إدارة صلاحيات الوصول" variant="purple" max-width="900" hide-actions fluid :fullscreen="isMobile">
         <template #header>
-          <header class="dialog-premium-header variant-purple pa-5 d-flex align-center justify-space-between text-white">
-            <div class="d-flex align-center gap-4">
-              <AppUserBalanceProfile :user="permissionUser" mode="horizontal" hide-balance :clickable="false" />
-              <div class="header-text">
-                <span class="text-h6 font-weight-bold d-block title-text">إدارة صلاحيات الوصول</span>
-                <div class="d-flex align-center gap-2">
-                  <v-icon icon="ri-user-smile-line" size="14" color="white" class="opacity-80" />
-                  <span class="text-caption text-white opacity-90 font-weight-medium">
-                    {{ permissionUser?.nickname || permissionUser?.full_name || permissionUser?.username }}
-                  </span>
-                </div>
-              </div>
+          <div class="d-flex align-center gap-3 w-100 pa-5 text-white">
+            <v-avatar color="white" variant="tonal" size="48">
+              <v-icon icon="ri-shield-keyhole-line" color="white" />
+            </v-avatar>
+            <div class="flex-grow-1">
+              <span class="text-h6 font-weight-bold d-block">إدارة صلاحيات الوصول</span>
+              <span v-if="permissionUser" class="text-caption opacity-80">{{ permissionUser.full_name }} ({{ permissionUser.username }})</span>
             </div>
-            <v-btn icon="ri-close-line" variant="tonal" color="white" class="close-btn-hover" @click="closePermissions" />
-          </header>
+            <v-btn icon="ri-close-line" variant="text" color="white" @click="closePermissions" />
+          </div>
         </template>
-        <UserPermissionManager v-if="isPermissionOpen" :user="permissionUser" @save="onPermissionSaved" @cancel="closePermissions" />
+
+        <v-divider class="border-opacity-10" />
+
+        <div class="pa-6 bg-grey-lighten-4 border-b">
+          <AppUserBalanceProfile v-if="permissionUser" :user="permissionUser" mode="horizontal" hide-balance :clickable="false" />
+        </div>
+
+        <UserPermissionManager v-if="permissionUser" :user="permissionUser" @save="closePermissions" @cancel="closePermissions" />
       </AppDialog>
+
+      <div class="px-6 pb-6 mt-4">
+        <AppConfirmDialog v-model="showConfirm" :message="confirmMessage" @confirm="handleConfirm" @cancel="handleCancel" />
+      </div>
+
+      <!-- Balance Operations Dialog -->
+      <BalanceOperations v-model="isBalanceOpen" :user="balanceUser" :initial-type="balanceType" @success="onBalanceSuccess" />
     </v-container>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, watch, computed } from 'vue';
+import { ref, computed } from 'vue';
 import { useDisplay } from 'vuetify';
-import { useUserStore as useGlobalUserStore } from '@/stores/user';
-import { useUserStore } from '../store/user.store';
 import { usePermissions } from '@/composables/usePermissions';
 import { useDataTable } from '@/composables/useDataTable';
 import { userService } from '@/api';
 import { useUser } from '../composables/useUser';
 import UserForm from '../components/UserForm.vue';
 import UserPermissionManager from '../components/UserPermissionManager.vue';
-import { AppDataTable, AppButton, AppDialog, AppInfiniteScroll, AppConfirmDialog, AppSwitch, AppUserBalanceProfile } from '@/components';
+import BalanceOperations from '@/modules/financials/components/BalanceOperations.vue';
+import { AppDataTable, AppButton, AppDialog, AppConfirmDialog, AppUserBalanceProfile } from '@/components';
 import { PERMISSIONS } from '@/config/permissions';
+import { useAuthStore } from '@/stores/auth';
 
-const { can, canAny } = usePermissions();
-const { smAndDown: isMobile } = useDisplay();
-const store = useUserStore();
-const userStore = useGlobalUserStore();
+const { mobile: isMobile } = useDisplay();
+const { can } = usePermissions();
+const userStore = useAuthStore();
 const userFormRef = ref(null);
 
-// Advanced Filters Definition
+// Advanced Filters
 const advancedFilters = [
-  {
-    key: 'role',
-    title: 'الدور',
-    type: 'select',
-    items: [
-      { title: 'مدير عام', value: 'admin.super' },
-      { title: 'مدير شركة', value: 'admin.company' },
-      { title: 'مدير', value: 'manager' },
-      { title: 'موظف مبيعات', value: 'sales' },
-      { title: 'أمين مخزن', value: 'stock' },
-      { title: 'محاسب', value: 'accountant' },
-      { title: 'عميل', value: 'customer' },
-    ],
-  },
   {
     key: 'status',
     title: 'الحالة',
@@ -285,7 +252,7 @@ const {
   handleCreate,
 } = useUser();
 
-// API fetch function for useDataTable
+// API fetch function
 const fetchUsersApi = async params => {
   return await userService.getAll(params, { showToast: false });
 };
@@ -300,12 +267,11 @@ const {
   lastPage,
   search: searchText,
   filters,
-  sortBy,
   sortByVuetify,
-  changePage,
   changeSort,
   applyFilters,
   fetchData,
+  refresh,
 } = useDataTable(fetchUsersApi, {
   syncWithUrl: true,
   initialSortBy: 'created_at',
@@ -313,6 +279,11 @@ const {
   immediate: true,
 });
 
+const onTableOptionsUpdate = options => {
+  changeSort(options);
+};
+
+// Computed for company visibility filter
 const currentCompanyOnly = computed({
   get: () => !filters.value.global,
   set: val => {
@@ -321,81 +292,50 @@ const currentCompanyOnly = computed({
   },
 });
 
-const handleLoadMore = () => {
-  if (loading.value || users.value.length >= totalItems.value || page.value >= (lastPage.value || Infinity)) return;
-  page.value++;
-  fetchData({ append: true });
-};
-
-const onTableOptionsUpdate = options => {
-  changeSort(options);
+const handleSubmit = () => {
+  userFormRef.value?.handleSubmit();
 };
 
 const handleSave = async data => {
   await saveUser(data);
-  fetchData();
+  refresh();
   close();
 };
 
-const onPermissionSaved = async () => {
-  closePermissions();
-  fetchData();
-};
-
-const headers = computed(() => {
-  const base = [
-    { title: 'بيانات العميل ورصيده', key: 'full_name', sortable: true },
-    { title: 'الأدوار', key: 'roles', sortable: false },
-  ];
-
-  base.push({ title: 'الحالة', key: 'status', sortable: true });
-  base.push({ title: 'تاريخ الإضافة', key: 'created_at', sortable: true });
-  base.push({ title: 'الإجراءات', key: 'actions', sortable: false, align: 'end' });
-
-  return base;
-});
-
-// Statistics counters (synced with global filters)
-const activeCount = computed(() => store.stats?.active || 0);
-const adminCount = computed(() => store.stats?.admins || 0);
-const inactiveCount = computed(() => store.stats?.inactive || 0);
-
-const handleManagePermissions = user => {
-  openPermissions(user);
-};
+const computedHeaders = [
+  { title: 'المستخدم', key: 'full_name', sortable: true },
+  { title: 'الهاتف', key: 'phone', sortable: false },
+  { title: 'الأدوار', key: 'roles', sortable: false },
+  { title: 'الحالة', key: 'status', sortable: true },
+  { title: 'الإجراءات', key: 'actions', sortable: false, align: 'end' },
+];
 
 const getRoleColor = role => {
   const roleName = typeof role === 'object' ? role.name : role;
   const colors = {
-    'admin.super': '#EE4B2B', // Vivid Red
-    'admin.company': '#1A73E8', // Google Blue
-    manager: '#00BFA5', // Teal
-    sales: '#4CAF50', // Green
-    stock: '#FB8C00', // Orange
-    accountant: '#8E24AA', // Purple
+    'admin.super': '#EE4B2B',
+    'admin.company': '#1A73E8',
+    manager: '#00BFA5',
+    sales: '#4CAF50',
+    stock: '#FB8C00',
+    accountant: '#8E24AA',
   };
   return colors[roleName] || '#78909C';
 };
 
-// Update stats when global filter changes
-watch(
-  () => filters.value.global,
-  newVal => {
-    store.fetchStats({ global: newVal });
-  }
-);
+// Balance Operations
+const isBalanceOpen = ref(false);
+const balanceUser = ref(null);
+const balanceType = ref('deposit');
 
-onMounted(() => {
-  store.fetchStats({ global: filters.value.global });
-});
+const handleBalanceOperation = (user, type) => {
+  balanceUser.value = user;
+  balanceType.value = type;
+  isBalanceOpen.value = true;
+};
 
-// Debounce search
-let searchTimeout;
-const debouncedSearch = () => {
-  clearTimeout(searchTimeout);
-  searchTimeout = setTimeout(() => {
-    applyFilters();
-  }, 500);
+const onBalanceSuccess = () => {
+  refresh();
 };
 </script>
 
@@ -404,7 +344,7 @@ const debouncedSearch = () => {
   max-width: 100% !important;
 }
 
-.hover-underline:hover {
-  text-decoration: underline;
+.gap-3 {
+  gap: 12px;
 }
 </style>

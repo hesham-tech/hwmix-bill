@@ -13,55 +13,45 @@
       </div>
     </div>
 
-    <!-- Filters & View Toggle -->
-    <AppCard class="mb-2">
-      <div class="d-flex align-center flex-wrap gap-4">
-        <AppInput
-          v-model="search"
-          label="بحث عن فئة..."
-          prepend-inner-icon="ri-search-line"
-          class="max-width-300 flex-grow-1"
-          hide-details
-          @update:model-value="handleSearch"
-        />
+    <AppDataTable
+      v-model:page="page"
+      v-model:items-per-page="itemsPerPage"
+      v-model:sort-by="sortByVuetify"
+      :headers="headers"
+      :items="categories"
+      :total-items="total"
+      :loading="loading"
+      :searchable="true"
+      v-model:search="search"
+      :grid-enabled="true"
+      :show-view-toggle="true"
+      :can-view="false"
+      permission-module="categories"
+      @update:options="onTableOptionsUpdate"
+      @update:search="handleSearch"
+      @edit="handleEdit"
+      @delete="handleDelete"
+    >
+      <template #actions>
+        <AppButton v-if="can(PERMISSIONS.CATEGORIES_CREATE)" prepend-icon="ri-add-line" size="small" @click="handleCreate"> فئة جديدة </AppButton>
+      </template>
 
-        <v-spacer />
-
-        <v-btn-group variant="outlined" density="comfortable" color="primary">
-          <AppButton :active="viewMode === 'grid'" icon="ri-grid-fill" @click="viewMode = 'grid'" title="عرض شبكي" />
-          <AppButton :active="viewMode === 'list'" icon="ri-list-check" @click="viewMode = 'list'" title="عرض قائمة" />
-        </v-btn-group>
-      </div>
-    </AppCard>
-
-    <!-- Content Area -->
-    <LoadingSpinner v-if="loading && !categories.length" size="64" text="جاري تحميل الفئات..." />
-
-    <div v-else class="content-container">
-      <!-- Root categories don't have breadcrumbs here anymore -->
-
-      <EmptyState
-        v-if="!categories.length"
-        icon="ri-folder-line"
-        title="لا توجد فئات حالياً"
-        :message="search ? 'لا توجد نتائج تطابق بحثك' : 'ابدأ بإضافة أول فئة لنظامك'"
-        :show-action="can(PERMISSIONS.CATEGORIES_CREATE)"
-        action-text="إضافة فئة"
-        @action="handleCreate"
-      />
-
-      <template v-else>
-        <!-- Grid View with Infinite Scroll -->
+      <!-- Grid View Slot -->
+      <template #grid="{ items, handleContextMenu }">
         <AppInfiniteScroll
-          v-if="viewMode === 'grid'"
-          :loading="loading && categories.length > 0"
-          :has-more="categories.length < total"
+          :loading="loading && items.length > 0"
+          :has-more="items.length < total"
           no-more-text="لا يوجد المزيد من الفئات"
           @load="handleLoadMore"
         >
-          <v-row>
-            <v-col v-for="category in categories" :key="category.id" cols="12" sm="6" md="4" lg="3">
-              <AppCard class="category-card h-100" no-padding @click="handleCategoryClick(category)">
+          <v-row dense>
+            <v-col v-for="category in items" :key="category.id" cols="12" sm="6" md="4" lg="3">
+              <AppCard
+                class="category-card h-100"
+                no-padding
+                @click="handleCategoryClick(category)"
+                @contextmenu.prevent="handleContextMenu($event, { item: category })"
+              >
                 <div class="category-card-header d-flex align-center justify-center pa-2 bg-grey-lighten-4 position-relative">
                   <v-avatar
                     size="100"
@@ -178,122 +168,86 @@
             </v-col>
           </v-row>
         </AppInfiniteScroll>
-
-        <!-- List View -->
-        <AppDataTable
-          v-else
-          :headers="headers"
-          :items="categories"
-          :total-items="total"
-          :loading="loading"
-          v-model:page="page"
-          v-model:items-per-page="itemsPerPage"
-          v-model:sort-by="sortByVuetify"
-          :searchable="false"
-          :can-view="false"
-          permission-module="categories"
-          @update:options="onTableOptionsUpdate"
-          @edit="handleEdit"
-          @delete="handleDelete"
-        >
-          <template #actions>
-            <AppButton v-if="can(PERMISSIONS.CATEGORIES_CREATE)" prepend-icon="ri-add-line" size="small" @click="handleCreate"> فئة جديدة </AppButton>
-          </template>
-          <template #[`item.name`]="{ item }">
-            <div class="d-flex align-center py-2 cursor-pointer" @click="handleCategoryClick(item)">
-              <v-avatar size="48" rounded="circle" :color="item.active ? 'bg-white' : 'grey-lighten-4'" class="me-3 border overflow-hidden">
-                <v-img v-if="item.image_url" :src="item.image_url" cover />
-                <v-icon
-                  v-else
-                  :icon="item.children_count > 0 ? 'ri-folder-fill' : 'ri-folder-line'"
-                  size="24"
-                  :color="item.active ? (item.children_count > 0 ? 'primary' : 'info') : 'grey'"
-                />
-              </v-avatar>
-              <div class="d-flex flex-column">
-                <span class="font-weight-bold text-subtitle-1 line-clamp-1">{{ item.full_path || item.name }}</span>
-                <div v-if="item.synonyms?.length" class="text-caption text-grey-darken-1 d-flex align-center gap-1">
-                  <v-icon icon="ri-price-tag-3-line" size="12" />
-                  <span class="text-truncate" style="max-width: 250px">{{ item.synonyms.join(', ') }}</span>
-                </div>
-                <span class="text-caption text-grey">كود: {{ item.id }}</span>
-              </div>
-            </div>
-          </template>
-
-          <template #[`item.parent`]="{ item }">
-            <v-chip v-if="item.parent?.name" size="small" variant="tonal" color="info" prepend-icon="ri-corner-down-right-line">
-              {{ item.parent.name }}
-            </v-chip>
-            <span v-else class="text-grey text-caption">قسم رئيسي</span>
-          </template>
-
-          <template #[`item.active`]="{ item }">
-            <div class="d-flex align-center justify-center">
-              <span
-                v-if="
-                  canAny(PERMISSIONS.CATEGORIES_UPDATE_ALL, PERMISSIONS.CATEGORIES_UPDATE_CHILDREN, PERMISSIONS.CATEGORIES_UPDATE_SELF, {
-                    resource: item,
-                  })
-                "
-                class="text-caption me-2 font-weight-bold"
-                :class="item.active ? 'text-success' : 'text-error'"
-              >
-                {{ item.active ? 'نشط' : 'معطل' }}
-              </span>
-              <AppSwitch
-                v-if="
-                  canAny(PERMISSIONS.CATEGORIES_UPDATE_ALL, PERMISSIONS.CATEGORIES_UPDATE_CHILDREN, PERMISSIONS.CATEGORIES_UPDATE_SELF, {
-                    resource: item,
-                  })
-                "
-                :model-value="!!item.active"
-                :loading="togglingId === item.id"
-                @update:model-value="handleToggleStatus(item)"
-              />
-              <v-chip v-else :color="item.active ? 'success' : 'error'" size="small" variant="flat" class="font-weight-bold">
-                {{ item.active ? 'نشط' : 'معطل' }}
-              </v-chip>
-            </div>
-          </template>
-
-          <template #extra-actions="{ item }">
-            <AppButton
-              icon="ri-arrow-right-up-line"
-              variant="text"
-              color="info"
-              size="small"
-              @click="handleCategoryClick(item)"
-              title="دخول القسم"
-              tooltip="دخول القسم"
-            />
-            <!-- Admin Actions -->
-            <template v-if="can(PERMISSIONS.ADMIN_SUPER)">
-              <AppButton
-                v-if="item.company_id"
-                icon="ri-global-line"
-                variant="text"
-                color="warning"
-                size="small"
-                :loading="globalizingId === item.id"
-                @click="handleGlobalize(item)"
-                title="تحويل لسجل عالمي"
-                tooltip="تحويل لنظام عالمي"
-              />
-              <AppButton
-                icon="ri-merge-cells-horizontal"
-                variant="text"
-                color="secondary"
-                size="small"
-                @click="openMergeDialog(item)"
-                title="دمج الفئة"
-                tooltip="دمج مع فئة أخرى"
-              />
-            </template>
-          </template>
-        </AppDataTable>
       </template>
-    </div>
+
+      <!-- List View Slots -->
+      <template #[`item.name`]="{ item }">
+        <div class="d-flex align-center py-2 cursor-pointer" @click="handleCategoryClick(item)">
+          <v-avatar size="48" rounded="circle" :color="item.active ? 'bg-white' : 'grey-lighten-4'" class="me-3 border overflow-hidden">
+            <v-img v-if="item.image_url" :src="item.image_url" cover />
+            <v-icon
+              v-else
+              :icon="item.children_count > 0 ? 'ri-folder-fill' : 'ri-folder-line'"
+              size="24"
+              :color="item.active ? (item.children_count > 0 ? 'primary' : 'info') : 'grey'"
+            />
+          </v-avatar>
+          <div class="d-flex flex-column">
+            <span class="font-weight-bold text-subtitle-1 line-clamp-1">{{ item.full_path || item.name }}</span>
+            <div v-if="item.synonyms?.length" class="text-caption text-grey-darken-1 d-flex align-center gap-1">
+              <v-icon icon="ri-price-tag-3-line" size="12" />
+              <span class="text-truncate" style="max-width: 250px">{{ item.synonyms.join(', ') }}</span>
+            </div>
+            <span class="text-caption text-grey">كود: {{ item.id }}</span>
+          </div>
+        </div>
+      </template>
+
+      <template #[`item.parent`]="{ item }">
+        <v-chip v-if="item.parent?.name" size="small" variant="tonal" color="info" prepend-icon="ri-corner-down-right-line">
+          {{ item.parent.name }}
+        </v-chip>
+        <span v-else class="text-grey text-caption">قسم رئيسي</span>
+      </template>
+
+      <template #[`item.active`]="{ item }">
+        <div class="d-flex align-center justify-center">
+          <span
+            v-if="
+              canAny(PERMISSIONS.CATEGORIES_UPDATE_ALL, PERMISSIONS.CATEGORIES_UPDATE_CHILDREN, PERMISSIONS.CATEGORIES_UPDATE_SELF, {
+                resource: item,
+              })
+            "
+            class="text-caption me-2 font-weight-bold"
+            :class="item.active ? 'text-success' : 'text-error'"
+          >
+            {{ item.active ? 'نشط' : 'معطل' }}
+          </span>
+          <AppSwitch
+            v-if="
+              canAny(PERMISSIONS.CATEGORIES_UPDATE_ALL, PERMISSIONS.CATEGORIES_UPDATE_CHILDREN, PERMISSIONS.CATEGORIES_UPDATE_SELF, {
+                resource: item,
+              })
+            "
+            :model-value="!!item.active"
+            :loading="togglingId === item.id"
+            @update:model-value="handleToggleStatus(item)"
+          />
+          <v-chip v-else :color="item.active ? 'success' : 'error'" size="small" variant="flat" class="font-weight-bold">
+            {{ item.active ? 'نشط' : 'معطل' }}
+          </v-chip>
+        </div>
+      </template>
+
+      <template #extra-actions="{ item }">
+        <v-list-item prepend-icon="ri-arrow-right-up-line" title="دخول القسم" class="text-info" @click="handleCategoryClick(item)" />
+        <!-- Admin Actions -->
+        <v-list-item
+          v-if="can(PERMISSIONS.ADMIN_SUPER) && item.company_id"
+          prepend-icon="ri-global-line"
+          title="تحويل لسجل عالمي"
+          class="text-warning"
+          @click="handleGlobalize(item)"
+        />
+        <v-list-item
+          v-if="can(PERMISSIONS.ADMIN_SUPER)"
+          prepend-icon="ri-merge-cells-horizontal"
+          title="دمج الفئة"
+          class="text-secondary"
+          @click="openMergeDialog(item)"
+        />
+      </template>
+    </AppDataTable>
 
     <!-- Form Dialog -->
     <AppDialog

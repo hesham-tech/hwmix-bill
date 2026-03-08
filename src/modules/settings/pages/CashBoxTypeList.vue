@@ -36,138 +36,105 @@
     </AppCard>
 
     <!-- Content Area -->
-    <LoadingSpinner v-if="loading && !cashBoxTypes.length" size="64" text="جاري تحميل أنواع الخزائن..." />
-
-    <EmptyState
-      v-else-if="!cashBoxTypes.length"
-      icon="ri-inbox-archive-line"
-      title="لا توجد أنواع خزائن حالياً"
-      message="ابدأ بإضافة أول نوع خزينة لنظامك"
-      :show-action="canCreate"
-      action-text="إضافة نوع جديد"
-      @action="handleCreate"
-    />
-
-    <template v-else>
-      <!-- Grid View with Infinite Scroll -->
-      <AppInfiniteScroll
-        v-if="viewMode === 'grid'"
-        :loading="loading && cashBoxTypes.length > 0"
-        :has-more="cashBoxTypes.length < total"
-        no-more-text="لا يوجد المزيد من أنواع الخزائن"
-        @load="handleLoadMore"
-      >
-        <v-row>
-          <v-col v-for="item in cashBoxTypes" :key="item.id" cols="12" sm="6" md="4" lg="3">
-            <AppCard class="type-card h-100" no-padding>
-              <div class="type-card-header d-flex align-center justify-center pa-2 bg-grey-lighten-4 position-relative">
-                <v-avatar size="120" rounded="circle" :color="item.is_active ? 'bg-white' : 'grey-lighten-3'" class="elevation-1 bg-white">
-                  <v-img v-if="item.image_url" :src="item.image_url" cover />
-                  <v-icon v-else icon="ri-inbox-archive-line" size="60" :color="item.is_active ? 'primary' : 'grey'" />
-                </v-avatar>
-              </div>
-
-              <v-card-item class="position-relative pt-4">
-                <v-card-title class="text-h6 font-weight-bold pa-0 mb-1">{{ item.name }}</v-card-title>
-
-                <span class="text-caption text-grey-darken-1 me-2">{{ item.description }}</span>
-                <div class="d-flex align-center justify-space-between mb-1" style="height: 32px">
-                  <div class="d-flex align-center">
-                    <span class="text-caption text-grey-darken-1 me-2">الحالة:</span>
-                    <v-chip :color="item.is_active ? 'success' : 'error'" size="x-small" class="font-weight-bold" variant="flat">
-                      {{ item.is_active ? 'نشط' : 'معطل' }}
-                    </v-chip>
-                  </div>
-
-                  <AppSwitch
-                    v-if="canToggle(item)"
-                    :model-value="item.is_active"
-                    :loading="togglingId === item.id"
-                    @update:model-value="handleToggleStatus(item)"
-                  />
+    <AppDataTable
+      :headers="headers"
+      :items="cashBoxTypes"
+      :total-items="total"
+      :loading="loading"
+      v-model:page="page"
+      v-model:items-per-page="itemsPerPage"
+      :view-mode="viewMode"
+      :searchable="false"
+      :can-view="false"
+      :can-delete="false"
+      @update:options="onTableOptionsUpdate"
+      @edit="handleEdit"
+    >
+      <!-- Grid View Slot -->
+      <template #grid="{ items, handleContextMenu }">
+        <AppInfiniteScroll
+          :loading="loading && items.length > 0"
+          :has-more="items.length < total"
+          no-more-text="لا يوجد المزيد من أنواع الخزائن"
+          @load="handleLoadMore"
+        >
+          <v-row dense>
+            <v-col v-for="item in items" :key="item.id" cols="12" sm="6" md="4" lg="3">
+              <AppCard class="type-card h-100" no-padding @contextmenu.prevent="handleContextMenu($event, { item })">
+                <div class="type-card-header d-flex align-center justify-center pa-2 bg-grey-lighten-4 position-relative">
+                  <v-avatar size="120" rounded="circle" :color="item.is_active ? 'bg-white' : 'grey-lighten-3'" class="elevation-1 bg-white">
+                    <v-img v-if="item.image_url" :src="item.image_url" cover />
+                    <v-icon v-else icon="ri-inbox-archive-line" size="60" :color="item.is_active ? 'primary' : 'grey'" />
+                  </v-avatar>
+                  <!-- Essential/System Chip -->
+                  <v-chip v-if="item.is_system" color="info" size="x-small" class="position-absolute" style="top: 10px; left: 10px" variant="tonal">
+                    أساسي
+                  </v-chip>
                 </div>
 
-                <v-card-subtitle class="pa-0">الخزائن: {{ item.cash_boxes_count || 0 }}</v-card-subtitle>
+                <v-card-item class="position-relative pt-4">
+                  <v-card-title class="text-h6 font-weight-bold pa-0 mb-1">{{ item.name }}</v-card-title>
 
-                <!-- Essential/System Chip -->
-                <v-chip v-if="item.is_system" color="info" size="x-small" class="position-absolute" style="top: 16px; left: 16px" variant="tonal">
-                  أساسي
-                </v-chip>
-              </v-card-item>
+                  <span class="text-caption text-grey-darken-1 me-2">{{ item.description }}</span>
+                  <div class="d-flex align-center justify-space-between mb-1" style="height: 32px">
+                    <div class="d-flex align-center">
+                      <span class="text-caption text-grey-darken-1 me-2">الحالة:</span>
+                      <v-chip :color="item.is_active ? 'success' : 'error'" size="x-small" class="font-weight-bold" variant="flat">
+                        {{ item.is_active ? 'نشط' : 'معطل' }}
+                      </v-chip>
+                    </div>
 
-              <template #actions>
-                <v-spacer />
-                <AppButton
-                  v-if="
-                    canAny(
-                      PERMISSIONS.CASH_BOX_TYPES_UPDATE_ALL,
-                      PERMISSIONS.CASH_BOX_TYPES_UPDATE_CHILDREN,
-                      PERMISSIONS.CASH_BOX_TYPES_UPDATE_SELF,
-                      { resource: item }
-                    )
-                  "
-                  icon="ri-edit-line"
-                  variant="text"
-                  color="primary"
-                  @click="handleEdit(item)"
-                />
-                <AppButton v-if="canDelete(item)" icon="ri-delete-bin-line" variant="text" color="error" @click="handleDelete(item)" />
-              </template>
-            </AppCard>
-          </v-col>
-        </v-row>
-      </AppInfiniteScroll>
+                    <AppSwitch
+                      v-if="canToggle(item)"
+                      :model-value="item.is_active"
+                      :loading="togglingId === item.id"
+                      @update:model-value="handleToggleStatus(item)"
+                    />
+                  </div>
 
-      <!-- List View -->
-      <AppDataTable
-        v-else
-        :headers="headers"
-        :items="cashBoxTypes"
-        :total-items="total"
-        :loading="loading"
-        v-model:page="page"
-        v-model:items-per-page="itemsPerPage"
-        :searchable="false"
-        :can-view="false"
-        :can-delete="false"
-        @update:options="onTableOptionsUpdate"
-        @edit="handleEdit"
-      >
-        <template #item.name="{ item }">
-          <div class="d-flex align-center py-2">
-            <v-avatar size="48" rounded="circle" :color="item.is_active ? 'bg-white' : 'grey-lighten-4'" class="me-3 border">
-              <v-img v-if="item.image_url" :src="item.image_url" cover />
-              <v-icon v-else icon="ri-inbox-archive-line" size="24" :color="item.is_active ? 'primary' : 'grey'" />
-            </v-avatar>
-            <div class="d-flex flex-column">
-              <span class="font-weight-bold">{{ item.name }}</span>
-              <v-chip v-if="item.is_system" size="x-small" color="info" variant="tonal" class="mt-1" style="width: fit-content">أساسي</v-chip>
-            </div>
+                  <v-card-subtitle class="pa-0">الخزائن: {{ item.cash_boxes_count || 0 }}</v-card-subtitle>
+                </v-card-item>
+              </AppCard>
+            </v-col>
+          </v-row>
+        </AppInfiniteScroll>
+      </template>
+
+      <!-- List View Slots -->
+      <template #item.name="{ item }">
+        <div class="d-flex align-center py-2">
+          <v-avatar size="48" rounded="circle" :color="item.is_active ? 'bg-white' : 'grey-lighten-4'" class="me-3 border">
+            <v-img v-if="item.image_url" :src="item.image_url" cover />
+            <v-icon v-else icon="ri-inbox-archive-line" size="24" :color="item.is_active ? 'primary' : 'grey'" />
+          </v-avatar>
+          <div class="d-flex flex-column">
+            <span class="font-weight-bold">{{ item.name }}</span>
+            <v-chip v-if="item.is_system" size="x-small" color="info" variant="tonal" class="mt-1" style="width: fit-content">أساسي</v-chip>
           </div>
-        </template>
+        </div>
+      </template>
 
-        <template #item.is_active="{ item }">
-          <div class="d-flex align-center justify-center">
-            <span v-if="canToggle(item)" class="text-caption me-2 font-weight-bold" :class="item.is_active ? 'text-success' : 'text-error'">
-              {{ item.is_active ? 'نشط' : 'معطل' }}
-            </span>
-            <AppSwitch
-              v-if="canToggle(item)"
-              :model-value="item.is_active"
-              :loading="togglingId === item.id"
-              @update:model-value="handleToggleStatus(item)"
-            />
-            <v-chip v-else :color="item.is_active ? 'success' : 'error'" size="small" variant="flat" class="font-weight-bold">
-              {{ item.is_active ? 'نشط' : 'معطل' }}
-            </v-chip>
-          </div>
-        </template>
+      <template #item.is_active="{ item }">
+        <div class="d-flex align-center justify-center">
+          <span v-if="canToggle(item)" class="text-caption me-2 font-weight-bold" :class="item.is_active ? 'text-success' : 'text-error'">
+            {{ item.is_active ? 'نشط' : 'معطل' }}
+          </span>
+          <AppSwitch
+            v-if="canToggle(item)"
+            :model-value="item.is_active"
+            :loading="togglingId === item.id"
+            @update:model-value="handleToggleStatus(item)"
+          />
+          <v-chip v-else :color="item.is_active ? 'success' : 'error'" size="small" variant="flat" class="font-weight-bold">
+            {{ item.is_active ? 'نشط' : 'معطل' }}
+          </v-chip>
+        </div>
+      </template>
 
-        <template #extra-actions="{ item }">
-          <AppButton v-if="canDelete(item)" icon="ri-delete-bin-line" variant="text" color="error" size="small" @click="handleDelete(item)" />
-        </template>
-      </AppDataTable>
-    </template>
+      <template #extra-actions="{ item }">
+        <v-list-item v-if="canDelete(item)" prepend-icon="ri-delete-bin-line" title="حذف" class="text-error" @click="handleDelete(item)" />
+      </template>
+    </AppDataTable>
 
     <!-- CashBoxType Form Dialog -->
     <CashBoxTypeForm v-model="showDialog" :cash-box-type="selectedItem" @saved="loadData" />
