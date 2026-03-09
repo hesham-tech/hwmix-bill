@@ -66,14 +66,14 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useAuthStore } from '@/stores/auth';
-import AppDataTable from '@/components/AppDataTable.vue';
+import AppDataTable from '@/components/common/AppDataTable.vue';
 import BalanceOperations from '@/modules/financials/components/BalanceOperations.vue';
-import { useFormatter } from '@/composables/useFormatter';
+import { formatCurrency, formatDate } from '@/utils/formatters';
 import { usePermissions } from '@/composables/usePermissions';
-import api from '@/api';
+import { apiClient as api } from '@/api';
 
 const authStore = useAuthStore();
-const { formatCurrency, formatDate } = useFormatter();
+// const { formatCurrency, formatDate } = useFormatter();
 
 const { can } = usePermissions();
 const currentUser = computed(() => authStore.user);

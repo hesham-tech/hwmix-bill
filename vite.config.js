@@ -18,7 +18,7 @@ export default defineConfig({
     // PWA Configuration
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'robots.txt', 'manifest.json'],
+      includeAssets: ['favicon.ico', 'robots.txt'],
       manifest: {
         name: 'HWNix Bill',
         short_name: 'HWNix',
@@ -33,9 +33,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        // Only pre-cache essential "App Shell" assets to avoid huge request waterfalls
         globPatterns: ['index.html', 'assets/main-*.js', 'assets/index-*.js', 'assets/*.css', '**/*.{ico,png,svg}'],
-        // Exclude large or non-essential chunks from pre-caching
         globIgnores: ['**/vendor-*.js', '**/Dashboard-*.js', '**/InvoiceList-*.js'],
         runtimeCaching: [
           {
@@ -45,7 +43,7 @@ export default defineConfig({
               cacheName: 'google-fonts-cache',
               expiration: {
                 maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365, // < 1 year
+                maxAgeSeconds: 60 * 60 * 24 * 365,
               },
               cacheableResponse: {
                 statuses: [0, 200],
@@ -68,41 +66,25 @@ export default defineConfig({
       ext: '.br',
     }),
 
-    // Docs: https://github.com/vuetifyjs/vuetify-loader/tree/master/packages/vite-plugin
     vuetify({
-      autoImport: true, // Enable auto-import for better tree-shaking
+      autoImport: true,
       styles: {
         configFile: 'src/assets/styles/variables/_vuetify.scss',
-      },
-      defaults: {
-        VTextField: {
-          hideDetails: 'auto',
-        },
-        VSelect: {
-          hideDetails: 'auto',
-        },
-        VTextarea: {
-          hideDetails: 'auto',
-        },
       },
     }),
     Components({
       dirs: ['src/@ui/components', 'src/components'],
-      dts: true,
+      dts: false,
       resolvers: [
         componentName => {
-          // Auto import `VueApexCharts`
           if (componentName === 'VueApexCharts') return { name: 'default', from: 'vue3-apexcharts', as: 'VueApexCharts' };
         },
       ],
     }),
 
-    // Docs: https://github.com/antfu/unplugin-auto-import#unplugin-auto-import
     AutoImport({
       imports: ['vue', 'vue-router', '@vueuse/core', '@vueuse/math', 'pinia'],
       vueTemplate: true,
-
-      // ℹ️ Disabled to avoid confusion & accidental usage
       ignore: ['useCookies', 'useStorage'],
       eslintrc: {
         enabled: true,
@@ -113,7 +95,6 @@ export default defineConfig({
   ],
   define: {
     'process.env': {},
-    // Vue feature flags - suppress warnings
     __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false',
     __VUE_OPTIONS_API__: 'true',
     __VUE_PROD_DEVTOOLS__: 'false',
@@ -131,54 +112,18 @@ export default defineConfig({
       '@configured-variables': fileURLToPath(new URL('./src/assets/styles/variables/_template.scss', import.meta.url)),
     },
   },
-  server: {
-    proxy: {
-      '/api': {
-        target: 'http://127.0.0.1:8000',
-        changeOrigin: true,
-        secure: false,
-      },
-      '/storage': {
-        target: 'http://127.0.0.1:8000',
-        changeOrigin: true,
-        secure: false,
-      },
-    },
-  },
   build: {
     chunkSizeWarningLimit: 5000,
-    // CSS Code Splitting
-    cssCodeSplit: true,
-    // Terser minification disabled temporarily due to build issues
-    // Will use default esbuild minification
-    // minify: 'terser',
-    // terserOptions: {
-    //   compress: {
-    //     drop_console: true,
-    //     drop_debugger: true,
-    //   },
-    // },
-    // Manual chunks for better code splitting
     rollupOptions: {
       output: {
         manualChunks: {
-          // Vue core libraries
           'vendor-vue': ['vue', 'vue-router', 'pinia'],
-          // Vuetify
           'vendor-vuetify': ['vuetify'],
-          // Charts libraries
           'vendor-charts': ['apexcharts', 'vue3-apexcharts', 'chart.js', 'vue-chartjs'],
-          // Utility libraries
           'vendor-utils': ['dayjs', 'axios', '@vueuse/core', '@vueuse/math'],
-          // Print/image related
           'vendor-print': ['jsbarcode', 'qrcode.vue', 'html2canvas'],
         },
       },
     },
-  },
-  optimizeDeps: {
-    entries: ['./src/**/*.vue'],
-    include: ['vue', 'vue-router', 'pinia', 'vuetify', 'axios', 'dayjs', '@vueuse/core'],
-    exclude: ['chart.js', 'html2canvas'],
   },
 });
