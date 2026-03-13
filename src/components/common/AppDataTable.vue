@@ -131,9 +131,71 @@
     <template v-if="viewMode === 'list'">
       <!-- Container to handle horizontal overflow -->
       <div class="app-table-overflow">
+        <!-- Data Table (Local / Client Side) -->
+        <v-data-table
+          v-if="local"
+          v-model:items-per-page="itemsPerPageModel"
+          v-model:page="pageModel"
+          v-model:sort-by="sortByModel"
+          :headers="processedHeaders"
+          :items="items"
+          :loading="loading"
+          :search="searchModel"
+          :height="calculatedTableHeight"
+          fixed-header
+          class="elevation-0"
+          density="compact"
+          hover
+          striped="even"
+          :items-per-page-options="itemsPerPageOptions"
+          :no-data-text="emptyText"
+          :hide-default-footer="hidePagination"
+          :row-props="processedRowProps"
+          @click:row="(event, { item }) => $emit('click:row', item)"
+          @contextmenu:row="handleContextMenu"
+        >
+          <!-- Common Slots -->
+          <template v-for="(_, slot) in $slots" #[slot]="scope">
+            <slot :name="slot" v-bind="{ ...(scope || {}), isGrid: false, viewMode: 'list' }" />
+          </template>
+
+          <template v-if="showActions && !$slots['item.actions']" #item.actions="{ item }">
+            <v-menu transition="scale-transition" offset="5">
+              <template #activator="{ props }">
+                <v-btn icon="ri-more-2-fill" variant="text" size="small" color="grey-darken-1" v-bind="props" @click.stop />
+              </template>
+              <AppTableActions
+                :item="item"
+                :permission-module="permissionModule"
+                :can-view="canView"
+                :can-edit="canEdit"
+                :can-delete="canDelete"
+                @view="$emit('view', $event)"
+                @edit="$emit('edit', $event)"
+                @delete="$emit('delete', $event)"
+              >
+                <template #extra-actions="slotProps">
+                  <slot name="extra-actions" v-bind="slotProps" />
+                </template>
+              </AppTableActions>
+            </v-menu>
+          </template>
+
+          <template #no-data>
+            <div class="d-flex flex-column align-center justify-center py-10 text-center">
+              <div class="bg-grey-lighten-5 rounded-circle pa-4 mb-3">
+                <v-icon icon="ri-search-eye-line" size="32" color="grey-lighten-1" />
+              </div>
+              <div class="text-subtitle-1 font-weight-bold text-grey-darken-2">{{ emptyText }}</div>
+              <div class="text-caption text-grey mb-3" style="max-width: 300px">{{ emptySubtext }}</div>
+              <slot name="empty-actions" />
+            </div>
+          </template>
+        </v-data-table>
+
         <!-- Data Table (Server Side) -->
         <v-data-table-server
-          v-if="!virtual"
+          v-else-if="!virtual"
           v-model:items-per-page="itemsPerPageModel"
           v-model:page="pageModel"
           v-model:sort-by="sortByModel"
@@ -580,6 +642,7 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  local: { type: Boolean, default: false }, // If true, uses standard client-side v-data-table
 });
 
 const emit = defineEmits([

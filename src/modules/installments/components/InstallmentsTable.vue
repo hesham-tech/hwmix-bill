@@ -1,7 +1,7 @@
 <template>
   <AppDataTable
     :headers="computedHeaders"
-    :items="displayItems"
+    :items="items"
     :loading="loading"
     :total-items="totalItems"
     v-bind="$attrs"
@@ -13,6 +13,8 @@
     :subtitle="subtitle"
     :icon="icon"
     :filters="filters"
+    :local="!showCustomer && !showPlan"
+    v-model:sort-by="sortByModel"
   >
     <!-- Relay all slots from parent to AppDataTable -->
     <template v-for="(_, slot) in $slots" #[slot]="scope">
@@ -208,9 +210,15 @@ const props = defineProps({
   subtitle: { type: String, default: '' },
   icon: { type: String, default: 'ri-list-check-line' },
   filters: { type: Array, default: () => [] },
+  sortBy: { type: Array, default: () => [] },
 });
 
-const emit = defineEmits(['view', 'pay', 'print-receipt']);
+const emit = defineEmits(['view', 'pay', 'print-receipt', 'update:sortBy']);
+
+const sortByModel = computed({
+  get: () => props.sortBy,
+  set: val => emit('update:sortBy', val),
+});
 
 // Logic for Row Decoration
 const getRowProps = ({ item }) => {
@@ -234,54 +242,6 @@ const getRowProps = ({ item }) => {
   return {};
 };
 
-// Logic for Sorting: Overdue first, then oldest pending
-const displayItems = computed(() => {
-  // If autoSort is true, we keep local sorting (useful for small widgets like dashboard)
-  if (props.autoSort) {
-    const list = [...props.items];
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    return list.sort((a, b) => {
-      const aDue = new Date(a.due_date);
-      const bDue = new Date(b.due_date);
-      aDue.setHours(0, 0, 0, 0);
-      bDue.setHours(0, 0, 0, 0);
-
-      // 1. Critical Priority (Overdue/Today)
-      const aCritical = !['paid', 'canceled', 'cancelled'].includes(a.status) && aDue <= today;
-      const bCritical = !['paid', 'canceled', 'cancelled'].includes(b.status) && bDue <= today;
-
-      if (aCritical && !bCritical) return -1;
-      if (!aCritical && bCritical) return 1;
-
-      // 2. Status Priority
-      const priority = {
-        pending: 1,
-        'في الانتظار': 1,
-        'لم يتم الدفع': 1,
-        partially_paid: 2,
-        partial: 2,
-        'مدفوع جزئياً': 2,
-        paid: 3,
-        'تم الدفع': 3,
-        canceled: 4,
-        cancelled: 4,
-        ملغي: 4,
-      };
-      const aPrio = priority[a.status] ?? 99;
-      const bPrio = priority[b.status] ?? 99;
-
-      if (aPrio !== bPrio) return aPrio - bPrio;
-
-      // 3. Date
-      return aDue - bDue;
-    });
-  }
-
-  // Otherwise, strictly follow server order
-  return props.items;
-});
 
 const computedHeaders = computed(() => {
   const h = [];
