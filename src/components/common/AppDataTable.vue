@@ -143,6 +143,7 @@
           :search="searchModel"
           :height="calculatedTableHeight"
           fixed-header
+          multi-sort
           class="elevation-0"
           density="compact"
           hover

@@ -100,6 +100,7 @@
                 :items="plan.installments || []"
                 :show-customer="false"
                 :show-plan="false"
+                v-model:sort-by="sortBy"
                 @refresh="loadPlan"
                 @pay="openPaymentDialog"
                 @view="openDetails"
@@ -228,6 +229,7 @@ const showDetailsDialog = ref(false);
 const showSuccessDialog = ref(false);
 const selectedInstallment = ref(null);
 const paymentResult = ref(null);
+const sortBy = ref([]);
 
 const remainingInstallmentsCount = computed(() => {
   if (!plan.value?.installments) return 0;
