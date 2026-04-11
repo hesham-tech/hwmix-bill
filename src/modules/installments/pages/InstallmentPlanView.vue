@@ -100,6 +100,7 @@
                 :items="plan.installments || []"
                 :show-customer="false"
                 :show-plan="false"
+                :items-per-page="-1"
                 v-model:sort-by="sortBy"
                 @refresh="loadPlan"
                 @pay="openPaymentDialog"

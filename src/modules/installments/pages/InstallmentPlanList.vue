@@ -22,7 +22,6 @@
           @update:options="handleOptionsUpdate"
           @update:filters="applyFilters"
           @click:row="viewPlan"
-          @edit="editPlan"
           @view="viewPlan"
         >
           <!-- Grid View Slot -->
@@ -74,7 +73,7 @@
                       <template #activator="{ props }">
                         <v-btn icon="ri-more-2-fill" variant="text" size="small" color="grey-darken-1" v-bind="props" @click.stop />
                       </template>
-                      <AppTableActions :item="item" permission-module="installment-plans" @view="viewPlan" @edit="editPlan">
+                      <AppTableActions :item="item" permission-module="installment-plans" @view="viewPlan">
                         <template #extra-actions="slotProps">
                           <slot name="extra-actions" v-bind="slotProps" />
                         </template>
@@ -343,8 +342,6 @@ const openProductsDetail = plan => {
   productsDialog.value = true;
 };
 
-// --- Actions ---
-const editPlan = item => console.log('Edit plan', item);
 const viewPlan = plan => router.push(`/app/installment-plans/${plan.id}`);
 const viewInvoice = invoiceId => router.push(`/app/invoices/${invoiceId}`);
 

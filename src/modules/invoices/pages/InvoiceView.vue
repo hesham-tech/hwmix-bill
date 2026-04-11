@@ -235,6 +235,7 @@
               :show-customer="false"
               :show-plan="false"
               :show-actions="false"
+              :items-per-page="-1"
               hide-pagination
               class="border-0"
             />

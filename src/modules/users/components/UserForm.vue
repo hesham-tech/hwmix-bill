@@ -94,7 +94,13 @@
         </v-col>
 
         <v-col cols="12" md="6">
-          <AppInput v-model="form.nickname" label="الاسم المختصر (اللقب) *" :rules="[required]" prepend-inner-icon="ri-user-star-line" autocomplete="off" />
+          <AppInput
+            v-model="form.nickname"
+            label="الاسم المختصر (اللقب) *"
+            :rules="[required]"
+            prepend-inner-icon="ri-user-star-line"
+            autocomplete="off"
+          />
         </v-col>
 
         <v-col cols="12" md="6">
@@ -297,7 +303,7 @@ const form = ref({
   username: '',
   email: '',
   phone: '',
-  password: '',
+  password: '12345678',
   customer_type: 'retail',
   is_active: true,
   address: '',

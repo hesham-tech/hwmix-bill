@@ -23,6 +23,7 @@
                 imageKey: 'primary_image_url',
                 bodyKeys: ['price_range', 'total_available_quantity', 'category_brand', 'active'],
               }"
+              show-expand
               title="المنتجات"
               subtitle="إدارة المخزون والمنتجات والمتغيرات مع ميزات البحث المتقدم"
               icon="ri-box-3-line"
@@ -70,6 +71,50 @@
                     إضافة منتج
                   </AppButton>
                 </div>
+              </template>
+
+              <!-- Expanded Row for Variants -->
+              <template #expanded-row="{ columns, item }">
+                <tr>
+                  <td :colspan="columns.length" class="pa-4 bg-grey-lighten-4 border-bottom">
+                    <div v-if="item.product_variants && item.product_variants.length > 0" class="border rounded-md bg-white overflow-hidden shadow-sm">
+                      <v-table density="compact">
+                        <thead class="bg-grey-lighten-5">
+                          <tr>
+                            <th class="font-weight-bold">اسم المتغير / الخصائص</th>
+                            <th class="text-center font-weight-bold">سعر البيع</th>
+                            <th class="text-center font-weight-bold">المخزون</th>
+                            <th class="text-left font-weight-bold">الباركود</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr v-for="variant in item.product_variants" :key="variant.id">
+                            <td class="font-weight-medium">
+                              {{ variant.name || 'المتغير الافتراضي' }}
+                              <div v-if="variant.sku" class="text-caption text-grey">SKU: {{ variant.sku }}</div>
+                            </td>
+                            <td class="text-center text-primary font-weight-bold">{{ formatCurrency(variant.price) }}</td>
+                            <td class="text-center">
+                              <v-chip
+                                size="x-small"
+                                variant="flat"
+                                :color="variant.available_quantity > 0 ? 'success' : 'error'"
+                                class="font-weight-bold"
+                              >
+                                {{ variant.available_quantity || 0 }} قطعة
+                              </v-chip>
+                            </td>
+                            <td class="text-left text-caption code-font">{{ variant.barcode || '---' }}</td>
+                          </tr>
+                        </tbody>
+                      </v-table>
+                    </div>
+                    <div v-else class="text-center py-4 text-grey">
+                      <v-icon icon="ri-information-line" class="me-2" />
+                      لا توجد متغيرات مسجلة لهذا المنتج.
+                    </div>
+                  </td>
+                </tr>
               </template>
 
               <!-- ... existing slots ... -->
