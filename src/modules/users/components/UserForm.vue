@@ -1,6 +1,6 @@
 <template>
   <div class="user-form-container">
-    <v-form ref="formRef" @submit.prevent="handleSubmit" class="user-form">
+    <v-form ref="formRef" @submit.prevent="handleSubmit" class="user-form" autocomplete="off">
       <!-- Avatar Selection -->
       <div class="d-flex justify-center mb-4">
         <div class="avatar-selection-zone position-relative cursor-pointer" @click="showMediaGallery = true">
@@ -60,6 +60,7 @@
         <v-col cols="12" md="6">
           <AppInput
             v-model="form.phone"
+            autocomplete="off"
             label="رقم الهاتف *"
             :rules="[required, phone]"
             prepend-inner-icon="ri-phone-line"
@@ -77,6 +78,7 @@
         <v-col cols="12" md="6">
           <AppInput
             v-model="form.email"
+            autocomplete="off"
             label="البريد الإلكتروني"
             type="email"
             :rules="[email]"
@@ -92,15 +94,15 @@
         </v-col>
 
         <v-col cols="12" md="6">
-          <AppInput v-model="form.nickname" label="الاسم المختصر (اللقب) *" :rules="[required]" prepend-inner-icon="ri-user-star-line" />
+          <AppInput v-model="form.nickname" label="الاسم المختصر (اللقب) *" :rules="[required]" prepend-inner-icon="ri-user-star-line" autocomplete="off" />
         </v-col>
 
         <v-col cols="12" md="6">
-          <AppInput v-model="form.full_name" label="الاسم الكامل *" :rules="[required]" prepend-inner-icon="ri-user-line" />
+          <AppInput v-model="form.full_name" label="الاسم الكامل *" :rules="[required]" prepend-inner-icon="ri-user-line" autocomplete="off" />
         </v-col>
 
         <v-col cols="12" md="6">
-          <AppInput v-model="form.username" label="اسم المستخدم (Username)" :rules="[]" prepend-inner-icon="ri-at-line" />
+          <AppInput v-model="form.username" label="اسم المستخدم (Username)" :rules="[]" prepend-inner-icon="ri-at-line" autocomplete="off" />
         </v-col>
 
         <v-col cols="12" md="6">
@@ -129,6 +131,7 @@
         <v-col v-if="!form.id || isEditMode" cols="12" md="6">
           <AppPasswordInput
             v-model="form.password"
+            autocomplete="new-password"
             :label="isEditMode ? 'كلمة المرور الجديدة (اتركها فارغة للتخطي)' : 'كلمة المرور *'"
             :rules="isEditMode ? [] : [required, minLength(8)]"
             prepend-inner-icon="ri-lock-line"
