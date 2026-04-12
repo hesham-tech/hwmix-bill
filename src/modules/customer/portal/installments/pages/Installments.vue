@@ -18,21 +18,21 @@
         <!-- Unified Account Balance -->
         <div
           class="stat-card px-6 py-4 rounded-xl flex-grow-1 min-w-280 shadow-sm transition-all"
-          :class="userStore.currentUser?.balance < 0 ? 'bg-error-lighten-5 border-error' : 'bg-primary-lighten-5 border-primary'"
+          :class="userStore.currentUser?.balance > 0 ? 'bg-error-lighten-5 border-error' : 'bg-primary-lighten-5 border-primary'"
           style="border: 1px dashed"
         >
           <div class="d-flex align-center gap-2 mb-1">
-            <v-icon
-              :icon="userStore.currentUser?.balance < 0 ? 'ri-error-warning-line' : 'ri-checkbox-circle-line'"
-              :color="userStore.currentUser?.balance < 0 ? 'error' : 'primary'"
-              size="16"
+            <AppBalanceDisplay 
+              :amount="userStore.currentUser?.balance || 0" 
+              perspective="customer"
+              show-icon
+              hide-label
+              value-class="text-h4 font-weight-black"
+              custom-class="w-100"
             />
-            <div class="text-xxs font-weight-bold" :class="userStore.currentUser?.balance < 0 ? 'text-error-darken-2' : 'text-primary-darken-2'">
-              رصيد الحساب الجاري الموحد
-            </div>
           </div>
-          <div class="text-h4 font-weight-black" :class="userStore.currentUser?.balance < 0 ? 'text-error-darken-4' : 'text-primary-darken-4'">
-            {{ formatCurrency(userStore.currentUser?.balance) }}
+          <div class="text-xxs font-weight-bold opacity-70">
+            رصيد الحساب الجاري الموحد
           </div>
         </div>
 
@@ -89,6 +89,7 @@ import { useRouter } from 'vue-router';
 import { useApi } from '@/composables/useApi';
 import { useUserStore } from '@/stores/user';
 import { formatCurrency } from '@/utils/formatters';
+import AppBalanceDisplay from '@/components/common/AppBalanceDisplay.vue';
 import PortalInstallmentPlanCard from '../components/PortalInstallmentPlanCard.vue';
 
 const userStore = useUserStore();

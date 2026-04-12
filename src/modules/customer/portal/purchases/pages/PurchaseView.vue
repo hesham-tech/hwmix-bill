@@ -12,13 +12,19 @@
         <!-- Global Account Balance Info -->
         <v-card
           variant="tonal"
-          :color="userStore.currentUser?.balance < 0 ? 'error' : 'success'"
+          :color="userStore.currentUser?.balance > 0 ? 'error' : 'success'"
           class="pa-2 px-4 rounded-xl d-flex align-center gap-2"
         >
-          <v-icon :icon="userStore.currentUser?.balance < 0 ? 'ri-error-warning-line' : 'ri-checkbox-circle-line'" size="20" />
+          <AppBalanceDisplay 
+            :amount="userStore.currentUser?.balance || 0" 
+            perspective="customer"
+            show-icon
+            hide-label
+            value-class="text-subtitle-2 font-weight-black line-height-1"
+            custom-class="d-flex flex-column align-end"
+          />
           <div class="text-right">
             <div class="text-xxs font-weight-bold opacity-70">رصيد الحساب الجاري</div>
-            <div class="text-subtitle-2 font-weight-black line-height-1">{{ formatCurrency(userStore.currentUser?.balance) }}</div>
           </div>
         </v-card>
         <PortalStatusBadge v-if="invoice" :status="invoice.payment_status" size="large" />
@@ -221,6 +227,7 @@ import { useDisplay } from 'vuetify';
 import { useApi } from '@/composables/useApi';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import PortalStatusBadge from '../../components/PortalStatusBadge.vue';
+import AppBalanceDisplay from '@/components/common/AppBalanceDisplay.vue';
 
 import { useUserStore } from '@/stores/user';
 

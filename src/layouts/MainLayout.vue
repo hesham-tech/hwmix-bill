@@ -11,18 +11,14 @@
       <!-- عرض الرصيد للمستحدم الحالى -->
       <div v-if="userStore.currentUser" class="d-flex align-center">
         <v-btn icon="ri-search-line" variant="tonal" color="primary" @click="isSearchOpen = true" class="me-2 rounded-lg" size="38" />
-        <v-chip
-          :color="userStore.currentUser.balance < 0 ? 'error' : 'success'"
-          variant="tonal"
-          class="rounded-pill font-weight-black px-4"
+        <AppBalanceDisplay 
+          :amount="userStore.currentUser.balance" 
+          perspective="admin"
+          custom-class="rounded-pill font-weight-black px-4 bg-primary-lighten-5 border border-primary-lighten-3"
           height="36"
-        >
-          <v-icon start icon="ri-wallet-3-line" size="16" class="me-1" />
-          <span class="text-caption text-sm-body-2">
-            <span class="d-none d-sm-inline opacity-70 me-1"></span>
-            {{ formatCurrency(userStore.currentUser.balance) }}
-          </span>
-        </v-chip>
+          prepend-icon="ri-wallet-3-line"
+          value-class="text-caption text-sm-body-2"
+        />
       </div>
 
       <!-- <v-tooltip location="bottom">
@@ -333,6 +329,7 @@ import GlobalSearchDialog from '@/layouts/components/GlobalSearchDialog.vue';
 import AppButton from '@/components/common/AppButton.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
 import AppConfirmDialog from '@/components/common/AppConfirmDialog.vue';
+import AppBalanceDisplay from '@/components/common/AppBalanceDisplay.vue';
 import Calculator from '@/components/tools/Calculator.vue';
 import InstallmentCalc from '@/components/tools/InstallmentCalc.vue';
 import PercentageTool from '@/components/tools/PercentageTool.vue';

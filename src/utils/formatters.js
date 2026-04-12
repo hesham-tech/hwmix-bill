@@ -132,11 +132,15 @@ export const getRelativeTime = date => {
  */
 export const getBalanceMetadata = amount => {
   const numAmount = parseFloat(amount || 0);
+  const absValue = Math.abs(numAmount);
+  // Treat very small values as zero to avoid "-0" type displays
+  const isZero = absValue < 0.01;
+  
   return {
-    absValue: Math.abs(numAmount),
-    isAsset: numAmount > 0,
-    isLiability: numAmount < 0,
-    isZero: numAmount === 0,
+    absValue: isZero ? 0 : absValue,
+    isAsset: !isZero && numAmount > 0,
+    isLiability: !isZero && numAmount < 0,
+    isZero: isZero,
     raw: numAmount,
   };
 };

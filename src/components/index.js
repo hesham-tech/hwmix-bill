@@ -20,6 +20,7 @@ export { default as AppPasswordInput } from './common/AppPasswordInput.vue';
 export { default as AppPrintShare } from './common/AppPrintShare.vue';
 export { default as AppShareDialog } from './common/AppShareDialog.vue';
 export { default as AppUserBalanceProfile } from './common/AppUserBalanceProfile.vue';
+export { default as AppBalanceDisplay } from './common/AppBalanceDisplay.vue';
 export { default as AppInfiniteScroll } from './common/AppInfiniteScroll.vue';
 
 /**

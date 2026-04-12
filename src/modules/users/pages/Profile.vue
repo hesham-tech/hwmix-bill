@@ -36,7 +36,11 @@
               <v-divider vertical inset />
               <div class="text-center">
                 <div class="text-caption text-grey">الرصيد الحالي</div>
-                <div class="text-body-1 font-weight-bold text-success">{{ userStore.currentUser?.balance || 0 }}</div>
+                <AppBalanceDisplay 
+                  :amount="userStore.currentUser?.balance || 0" 
+                  perspective="admin"
+                  value-class="text-body-1 font-weight-bold"
+                />
               </div>
             </div>
           </v-card-text>
@@ -202,6 +206,7 @@ import AppDialog from '@/components/common/AppDialog.vue';
 import MediaGallery from '@/components/common/MediaGallery.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
 import AppImageCropper from '@/components/common/AppImageCropper.vue';
+import AppBalanceDisplay from '@/components/common/AppBalanceDisplay.vue';
 
 const userStore = useUserStore();
 const api = useApi('/api/users');

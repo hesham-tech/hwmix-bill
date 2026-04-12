@@ -103,6 +103,7 @@
               value-class="font-weight-bold"
               hide-label
             />
+            </div>
           </div>
         </v-col>
         <v-col cols="6" class="mb-1 text-left">

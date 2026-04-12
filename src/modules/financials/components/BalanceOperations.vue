@@ -3,13 +3,15 @@
     <v-form ref="formRef" @submit.prevent="handleSubmit">
       <v-container>
         <!-- User Info -->
-        <div v-if="user" class="mb-6 pa-4 bg-grey-lighten-4 rounded-lg d-flex align-center gap-4">
+        <div v-if="user" class="mb-6 pa-4 bg-grey-lighten-4 rounded-lg d-flex align-center justify-space-between">
           <AppUserBalanceProfile :user="user" hide-balance :clickable="false" />
-          <div>
+          <div class="text-right">
             <div class="text-caption text-grey">الرصيد الحالي</div>
-            <div class="text-h6 font-weight-bold" :class="user.balance < 0 ? 'text-error' : 'text-success'">
-              {{ formatCurrency(user.balance) }}
-            </div>
+            <AppBalanceDisplay 
+              :amount="user.balance || 0" 
+              perspective="admin"
+              value-class="text-h6 font-weight-bold"
+            />
           </div>
         </div>
 
@@ -89,6 +91,7 @@
 <script setup>
 import { ref, reactive, computed, watch } from 'vue';
 import { AppDialog, AppButton, AppUserBalanceProfile } from '@/components';
+import AppBalanceDisplay from '@/components/common/AppBalanceDisplay.vue';
 import { transactionService, userService } from '@/api';
 import { formatCurrency } from '@/utils/formatters';
 import { toast } from 'vue3-toastify';
