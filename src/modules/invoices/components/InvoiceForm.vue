@@ -357,7 +357,8 @@ watch(
 watch(
   () => currentContext.value,
   newContext => {
-    invoiceData.value.include_previous_balance = newContext !== 'installment_sale';
+    const disabledContexts = ['installment_sale', 'purchase'];
+    invoiceData.value.include_previous_balance = !disabledContexts.includes(newContext);
   },
   { immediate: true }
 );

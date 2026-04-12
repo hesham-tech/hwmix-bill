@@ -134,9 +134,11 @@
         <!-- Data Table (Local / Client Side) -->
         <v-data-table
           v-if="local"
+          :item-value="itemValue"
           v-model:items-per-page="itemsPerPageModel"
           v-model:page="pageModel"
           v-model:sort-by="sortByModel"
+          v-model:expanded="expandedModel"
           :headers="processedHeaders"
           :items="items"
           :loading="loading"
@@ -197,9 +199,11 @@
         <!-- Data Table (Server Side) -->
         <v-data-table-server
           v-else-if="!virtual"
+          :item-value="itemValue"
           v-model:items-per-page="itemsPerPageModel"
           v-model:page="pageModel"
           v-model:sort-by="sortByModel"
+          v-model:expanded="expandedModel"
           :headers="processedHeaders"
           :items="items"
           :items-length="totalItems"
@@ -272,7 +276,9 @@
         <!-- Data Table (Virtual Scrolling) -->
         <v-data-table-virtual
           v-else
+          :item-value="itemValue"
           v-model:sort-by="sortByModel"
+          v-model:expanded="expandedModel"
           :headers="processedHeaders"
           :items="items"
           :loading="loading"
@@ -643,7 +649,9 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
-  local: { type: Boolean, default: false }, // If true, uses standard client-side v-data-table
+  local: { type: Boolean, default: false },
+  itemValue: { type: String, default: 'id' },
+  expanded: { type: Array, default: () => [] },
 });
 
 const emit = defineEmits([
@@ -652,6 +660,7 @@ const emit = defineEmits([
   'update:sortBy',
   'update:search',
   'update:options',
+  'update:expanded',
   'view',
   'edit',
   'delete',
@@ -797,6 +806,11 @@ const itemsPerPageModel = computed({
 const sortByModel = computed({
   get: () => props.sortBy,
   set: val => emit('update:sortBy', val),
+});
+
+const expandedModel = computed({
+  get: () => props.expanded,
+  set: val => emit('update:expanded', val),
 });
 
 const searchModel = computed({

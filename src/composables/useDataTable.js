@@ -109,9 +109,28 @@ export function useDataTable(fetchFunction, options = {}) {
       });
 
       const response = await fetchFunction(params);
-      const newData = response.data || [];
-      if (append) items.value = [...items.value, ...newData];
-      else items.value = newData;
+      let newData = response.data || [];
+
+      // [FIX] Global Deduplication based on ID to prevent "Duplicate keys" warnings
+      // تنقية البيانات من التكرار بناءً على الـ ID لمنع تحذيرات Vue نهائياً
+      const deduplicate = (data) => {
+        const seen = new Set();
+        return data.filter(item => {
+          const id = item.id;
+          if (id === undefined || id === null) return true; // Keep items without ID
+          if (seen.has(id)) return false;
+          seen.add(id);
+          return true;
+        });
+      };
+
+      if (append) {
+        const existingIds = new Set(items.value.map(i => i.id));
+        const filteredNewData = deduplicate(newData).filter(i => !existingIds.has(i.id));
+        items.value = [...items.value, ...filteredNewData];
+      } else {
+        items.value = deduplicate(newData);
+      }
 
       const responseTotal = response.meta?.total ?? response.total ?? response.data?.length ?? 0;
       total.value = responseTotal;

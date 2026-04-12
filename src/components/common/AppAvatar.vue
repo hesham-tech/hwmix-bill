@@ -10,7 +10,7 @@
       @click="editable ? handleEditClick() : handlePreview($event)"
     >
       <!-- Priority 1: Image -->
-      <v-img v-if="imgUrl && !hasImgError" :src="imgUrl" cover crossorigin="anonymous" @error="handleImgError">
+      <v-img v-if="isValidImgUrl && !hasImgError" :src="imgUrl" cover crossorigin="anonymous" @error="handleImgError">
         <template #placeholder>
           <div class="d-flex align-center justify-center fill-height bg-grey-lighten-4">
             <v-progress-circular indeterminate size="16" width="2" color="primary" />
@@ -213,7 +213,18 @@ const props = defineProps({
 const hasImgError = ref(false);
 const showPreview = ref(false);
 
-const emit = defineEmits(['edit', 'crop']);
+// [FIX] More robust check for image URL validity
+// التحقق من صحة رابط الصورة بشكل أكثر دقة لتجنب أخطاء المتصفح والبيانات
+const isValidImgUrl = computed(() => {
+  const url = props.imgUrl;
+  if (!url || typeof url !== 'string') return false;
+  const trimmedUrl = url.trim().toLowerCase();
+  // Filter out common API artifacts
+  return trimmedUrl !== '' && 
+         trimmedUrl !== 'null' && 
+         trimmedUrl !== 'undefined' && 
+         trimmedUrl !== 'none';
+});
 
 const handleImgError = () => {
   hasImgError.value = true;

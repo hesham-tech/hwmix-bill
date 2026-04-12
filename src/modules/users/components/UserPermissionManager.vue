@@ -308,8 +308,6 @@ onMounted(async () => {
   store.loading = true;
   try {
     await Promise.all([store.fetchRoles(), store.fetchAvailablePermissions()]);
-    selectedRoles.value = props.user.roles?.map(r => (typeof r === 'object' ? r.name : r)) || [];
-    selectedPermissions.value = props.user.direct_permissions?.map(p => (typeof p === 'object' ? p.name : p)) || [];
 
     // تهيئة الشركة المستهدفة للمزامنة: الشركة الحالية للأوث يوزر (إن وُجدت في شركات المستخدم المعدل) أو أول شركة للمستخدم المعدل
     const userCompanyIds = props.user.companies?.map(c => c.id) || [];
@@ -325,23 +323,29 @@ onMounted(async () => {
   }
 });
 
+const lastFetchedId = ref(null);
+
 // مراقبة تغيير الشركة المختارة للمزامنة لجلب الأدوار الحالية للمستخدم فيها
 watch(selectedSyncCompanyId, async newId => {
-  if (newId) {
-    loading.value = true;
-    try {
-      // جلب بيانات المستخدم مع تحديد سياق الشركة المطلوبة لرؤية أدوارها
-      const response = await userService.getOne(props.user.id, { sync_company_id: newId });
-      const userData = response.data[0] || response.data;
+  if (!newId || (newId === lastFetchedId.value && loading.value)) return;
+  
+  lastFetchedId.value = newId;
+  loading.value = true;
+  try {
+    // جلب بيانات المستخدم مع تحديد سياق الشركة المطلوبة لرؤية أدوارها مع الصلاحيات التفصيلية
+    const response = await userService.getOne(props.user.id, {
+      sync_company_id: newId,
+      permissions: 1,
+    });
+    const userData = response.data[0] || response.data;
 
-      // تحديث الأدوار والصلاحيات المختارة محلياً بناءً على بيانات الشركة المحددة
-      selectedRoles.value = userData.roles?.map(r => (typeof r === 'object' ? r.name : r)) || [];
-      selectedPermissions.value = userData.direct_permissions?.map(p => (typeof p === 'object' ? p.name : p)) || [];
-    } catch (error) {
-      console.error('Failed to refresh user roles for company:', newId, error);
-    } finally {
-      loading.value = false;
-    }
+    // تحديث الأدوار والصلاحيات المختارة محلياً بناءً على بيانات الشركة المحددة من ريسورس UserWithPermissionsResource
+    selectedRoles.value = userData.roles?.map(r => (typeof r === 'object' ? r.name : r)) || [];
+    selectedPermissions.value = userData.direct_permissions?.map(p => (typeof p === 'object' ? p.name : p)) || [];
+  } catch (error) {
+    console.error('Failed to refresh user roles for company:', newId, error);
+  } finally {
+    loading.value = false;
   }
 });
 

@@ -24,6 +24,11 @@
                 bodyKeys: ['price_range', 'total_available_quantity', 'category_brand', 'active'],
               }"
               show-expand
+              :enable-mobile-expansion="false"
+              :expanded="expandedItems"
+              @update:expanded="handleExpand"
+              :row-props="getProductRowProps"
+              @click:row="handleRowClick"
               title="المنتجات"
               subtitle="إدارة المخزون والمنتجات والمتغيرات مع ميزات البحث المتقدم"
               icon="ri-box-3-line"
@@ -73,38 +78,63 @@
                 </div>
               </template>
 
+              <!-- Category & Brand Column -->
+              <template #item.category_brand="{ item }">
+                <div class="d-flex flex-column">
+                  <span class="text-caption font-weight-bold text-primary">{{ item.category?.name || 'بدون تصنيف' }}</span>
+                  <span class="text-caption text-grey">{{ item.brand?.name || 'بدون ماركة' }}</span>
+                </div>
+              </template>
+
+              <!-- Price Column -->
+              <template #item.price_range="{ item }">
+                <span class="font-weight-bold text-body-2">{{ formatCurrency(item.price_range) }}</span>
+              </template>
+
+              <!-- Active/Status Column -->
+              <template #item.active="{ item }">
+                <v-chip :color="item.active ? 'success' : 'grey-darken-1'" size="small" variant="flat" class="font-weight-bold px-3">
+                  {{ item.active ? 'نشط' : 'مؤرشف' }}
+                </v-chip>
+              </template>
+
               <!-- Expanded Row for Variants -->
               <template #expanded-row="{ columns, item }">
                 <tr>
                   <td :colspan="columns.length" class="pa-4 bg-grey-lighten-4 border-bottom">
-                    <div v-if="item.product_variants && item.product_variants.length > 0" class="border rounded-md bg-white overflow-hidden shadow-sm">
-                      <v-table density="compact">
+                    <div v-if="item.variants && item.variants.length > 0" class="border rounded-md bg-white overflow-hidden shadow-sm">
+                      <v-table density="compact" class="variants-table">
                         <thead class="bg-grey-lighten-5">
                           <tr>
-                            <th class="font-weight-bold">اسم المتغير / الخصائص</th>
-                            <th class="text-center font-weight-bold">سعر البيع</th>
-                            <th class="text-center font-weight-bold">المخزون</th>
-                            <th class="text-left font-weight-bold">الباركود</th>
+                            <th class="text-center font-weight-bold text-caption px-2 py-1">SKU</th>
+                            <th class="text-center font-weight-bold text-caption px-2 py-1">التكلفة</th>
+                            <th class="text-center font-weight-bold text-caption px-2 py-1">سعر البيع</th>
+                            <th class="text-center font-weight-bold text-caption px-2 py-1">سعر الجملة</th>
+                            <th class="text-center font-weight-bold text-caption px-2 py-1">الخصم</th>
+                            <th class="text-center font-weight-bold text-caption px-2 py-1">المخزون</th>
+                            <th class="text-center font-weight-bold text-caption px-2 py-1">الحد الأدنى</th>
+                            <th class="text-left font-weight-bold text-caption px-2 py-1">الباركود</th>
                           </tr>
                         </thead>
                         <tbody>
-                          <tr v-for="variant in item.product_variants" :key="variant.id">
-                            <td class="font-weight-medium">
-                              {{ variant.name || 'المتغير الافتراضي' }}
-                              <div v-if="variant.sku" class="text-caption text-grey">SKU: {{ variant.sku }}</div>
-                            </td>
-                            <td class="text-center text-primary font-weight-bold">{{ formatCurrency(variant.price) }}</td>
-                            <td class="text-center">
+                          <tr v-for="variant in item.variants" :key="variant.id">
+                            <td class="text-center text-caption text-grey-darken-1 px-2 py-1">{{ variant.sku || '---' }}</td>
+                            <td class="text-center text-caption px-2 py-1">{{ variant.cost > 0 ? formatCurrency(variant.cost) : '---' }}</td>
+                            <td class="text-center text-primary font-weight-bold text-caption px-2 py-1">{{ formatCurrency(variant.retail_price) }}</td>
+                            <td class="text-center text-success font-weight-bold text-caption px-2 py-1">{{ variant.wholesale_price ? formatCurrency(variant.wholesale_price) : '---' }}</td>
+                            <td class="text-center text-caption text-error px-2 py-1">{{ variant.discount ? variant.discount : '---' }}</td>
+                            <td class="text-center px-2 py-1">
                               <v-chip
                                 size="x-small"
                                 variant="flat"
-                                :color="variant.available_quantity > 0 ? 'success' : 'error'"
-                                class="font-weight-bold"
+                                :color="variant.quantity > 0 ? 'success' : 'error'"
+                                class="font-weight-bold px-1 py-0 h-auto"
                               >
-                                {{ variant.available_quantity || 0 }} قطعة
+                                {{ variant.quantity || 0 }}
                               </v-chip>
                             </td>
-                            <td class="text-left text-caption code-font">{{ variant.barcode || '---' }}</td>
+                            <td class="text-center text-caption text-grey-darken-1 px-2 py-1">{{ variant.min_quantity || '---' }}</td>
+                            <td class="text-left text-caption code-font px-2 py-1">{{ variant.barcode || '---' }}</td>
                           </tr>
                         </tbody>
                       </v-table>
@@ -257,6 +287,32 @@ const {
   immediate: true,
 });
 
+const expandedItems = ref([]);
+
+const handleExpand = (newExpanded) => {
+  // Keep only the last expanded item to ensure single-row expansion
+  expandedItems.value = newExpanded.length ? [newExpanded[newExpanded.length - 1]] : [];
+};
+
+const getProductRowProps = ({ item, internalItem }) => {
+  const itemId = internalItem ? internalItem.value : (item.id || item.raw?.id);
+  if (expandedItems.value.includes(itemId)) {
+    return { class: 'expanded-active-row text-primary' };
+  }
+  return {};
+};
+
+const handleRowClick = (item) => {
+  const itemId = item.id || item.raw?.id;
+  const isExpanded = expandedItems.value.includes(itemId);
+  
+  if (isExpanded) {
+    expandedItems.value = [];
+  } else {
+    expandedItems.value = [itemId];
+  }
+};
+
 const handleLoadMore = () => {
   if (loading.value || products.value.length >= totalItems.value || page.value >= (lastPage.value || Infinity)) return;
   page.value++;
@@ -268,6 +324,7 @@ const onTableOptionsUpdate = options => {
 };
 
 const headers = [
+  { title: '', key: 'data-table-expand', align: 'start', sortable: false, width: '48px' },
   { title: 'المنتج', key: 'name', sortable: true },
   { title: 'التصنيف / الماركة', key: 'category_brand', sortable: false },
   { title: 'السعر', key: 'price_range', sortable: false },
@@ -328,5 +385,26 @@ const handleExport = async () => {
 <style scoped>
 .product-list-page :deep(.v-container) {
   max-width: 100% !important;
+}
+
+/* الصف الموسع الأساسي (لون مغمق قليلاً للتمييز) */
+:deep(.expanded-active-row td) {
+  background-color: #bbdefb !important; /* Blue 100 */
+  transition: background-color 0.3s ease;
+}
+
+/* التبادل اللوني في جدول المتغيرات (Zebra Striping) */
+.variants-table tbody tr:nth-child(odd) {
+  background-color: #e3f2fd !important; /* أزرق خفيف جداً يظهر في الصف الأول فوراً */
+}
+.variants-table tbody tr:nth-child(even) {
+  background-color: #ffffff !important; /* أبيض (فاتح) للصف الثاني */
+}
+
+/* تصغير البادنج وحجم الخط لجدول المتغيرات */
+.variants-table th,
+.variants-table td {
+  height: 32px !important;
+  font-size: 0.75rem !important; /* text-caption */
 }
 </style>

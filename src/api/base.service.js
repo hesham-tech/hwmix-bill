@@ -113,15 +113,22 @@ class BaseService {
    * @param {Number|String} id
    * @param {Object} options
    */
-  async getOne(id, options = {}) {
-    const { showToast = false, loading = true, full = false } = options;
+  async getOne(id, params = {}, options = {}) {
+    // support old signature if second argument is options
+    const isOptions = params.hasOwnProperty('showToast') || params.hasOwnProperty('loading') || params.hasOwnProperty('full');
+    const actualParams = isOptions ? {} : params;
+    const actualOptions = isOptions ? params : options;
+
+    const { showToast = false, loading = true, full = false } = actualOptions;
     const userStore = useUserStore();
 
     if (loading) userStore.loadingApi = true;
 
     try {
-      const url = full ? `${this.resource}/${id}?full=1` : `${this.resource}/${id}`;
-      const response = await apiClient.get(url);
+      const config = { params: { ...actualParams } };
+      if (full) config.params.full = 1;
+
+      const response = await apiClient.get(`${this.resource}/${id}`, config);
       return this.handleSuccess(response, showToast);
     } catch (error) {
       return this.handleError(error, showToast);
