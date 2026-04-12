@@ -23,20 +23,21 @@
     <div class="stats-tray d-flex gap-4 mb-8 overflow-x-auto pb-2">
       <div
         class="stat-card-premium px-6 py-4 rounded-xl shadow-sm d-flex flex-column justify-center min-w-280 flex-grow-1"
-        :class="stats.remainingBalance < 0 ? 'bg-error-gradient' : 'balance-hero'"
+        :class="stats.remainingBalance > 0 ? 'bg-error-gradient' : 'balance-hero'"
       >
         <div class="d-flex align-center gap-3 mb-2">
           <v-avatar color="white" size="32" class="shadow-sm">
-            <v-icon icon="ri-wallet-3-line" :color="stats.remainingBalance < 0 ? 'error' : 'primary'" size="18" />
+            <v-icon icon="ri-wallet-3-line" :color="stats.remainingBalance > 0 ? 'error' : 'primary'" size="18" />
           </v-avatar>
-          <span class="text-subtitle-2 font-weight-bold text-white opacity-80">رصيد الحساب الجاري</span>
+          <span class="text-subtitle-2 font-weight-bold text-white opacity-80">رصيدك الحالي</span>
         </div>
-        <div class="text-h3 font-weight-black text-white line-height-1">
-          {{ formatCurrency(stats.remainingBalance) }}
-        </div>
-        <div class="text-caption text-white opacity-60 mt-1">
-          {{ stats.remainingBalance < 0 ? 'مديونية مستحقة' : 'رصيد دائن متوفر' }}
-        </div>
+        <AppBalanceDisplay
+          :amount="stats.remainingBalance"
+          perspective="customer"
+          value-class="text-h3 font-weight-black text-white"
+          label-class="text-caption text-white opacity-60 mt-1"
+          custom-class="d-flex flex-column"
+        />
       </div>
 
       <div class="stat-card-premium bg-white border px-6 py-4 rounded-xl shadow-sm d-flex flex-column justify-center min-w-200">
@@ -215,6 +216,7 @@ import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 import { useDashboardData } from '@/modules/reports/composables/useDashboardData';
 import { formatCurrency, formatDate } from '@/utils/formatters';
+import AppBalanceDisplay from '@/components/common/AppBalanceDisplay.vue';
 import PortalPurchaseCard from '../../components/PortalPurchaseCard.vue';
 import PortalInstallmentTimeline from '../../components/PortalInstallmentTimeline.vue';
 

@@ -89,7 +89,7 @@ const colorClass = computed(() => {
 });
 
 const icon = computed(() => {
-  if (metadata.value.isZero) return 'ri-subtract-line';
+  if (metadata.value.isZero) return null;
   if (metadata.value.isAsset) return 'ri-arrow-up-circle-line';
   return 'ri-arrow-down-circle-line';
 });

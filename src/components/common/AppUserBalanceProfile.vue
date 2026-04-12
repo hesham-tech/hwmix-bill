@@ -21,8 +21,8 @@
           </div>
 
           <div v-if="!hideBalance && user?.balance != null" class="d-flex align-center mt-1">
-            <AppBalanceDisplay 
-              :amount="user.balance" 
+            <AppBalanceDisplay
+              :amount="user.balance"
               perspective="admin"
               show-icon
               icon-size="12"
@@ -69,11 +69,11 @@
           class="rounded-xl px-8 py-4 border-dashed mx-auto shadow-sm bg-white"
           style="border: 1px dashed; max-width: 300px; border-color: rgba(var(--v-theme-primary), 0.2)"
         >
-          <div class="text-xxs font-weight-bold opacity-70 text-primary mb-1">رصيد الحساب الجاري الموحد</div>
-          
-          <AppBalanceDisplay 
-            :amount="user?.balance" 
-            perspective="admin"
+          <div class="text-xxs font-weight-bold opacity-70 text-primary mb-1">{{ balanceTitle }}</div>
+
+          <AppBalanceDisplay
+            :amount="user?.balance"
+            :perspective="perspective"
             show-icon
             icon-size="24"
             value-class="text-h4 font-weight-black"
@@ -87,6 +87,7 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { formatCurrency } from '@/utils/formatters';
 import AppAvatar from './AppAvatar.vue';
@@ -102,6 +103,11 @@ const props = defineProps({
     type: String,
     default: 'horizontal',
     validator: v => ['horizontal', 'vertical'].includes(v),
+  },
+  perspective: {
+    type: String,
+    default: 'admin',
+    validator: v => ['admin', 'customer', 'formal'].includes(v),
   },
   avatarSize: {
     type: [String, Number],
@@ -123,6 +129,11 @@ const props = defineProps({
 
 const router = useRouter();
 const emit = defineEmits(['click']);
+
+const balanceTitle = computed(() => {
+  if (props.perspective === 'customer') return 'رصيدك الحالي';
+  return 'رصيد العميل';
+});
 
 const handleClick = () => {
   if (props.clickable && props.user?.id) {

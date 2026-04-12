@@ -22,8 +22,8 @@
           style="border: 1px dashed"
         >
           <div class="d-flex align-center gap-2 mb-1">
-            <AppBalanceDisplay 
-              :amount="userStore.currentUser?.balance || 0" 
+            <AppBalanceDisplay
+              :amount="userStore.currentUser?.balance || 0"
               perspective="customer"
               show-icon
               hide-label
@@ -31,9 +31,7 @@
               custom-class="w-100"
             />
           </div>
-          <div class="text-xxs font-weight-bold opacity-70">
-            رصيد الحساب الجاري الموحد
-          </div>
+          <div class="text-xxs font-weight-bold opacity-70">رصيدك الحالي</div>
         </div>
 
         <div class="stat-card bg-secondary-lighten-5 border-secondary border-dashed px-6 py-4 rounded-xl min-w-200">

@@ -15,8 +15,8 @@
           :color="userStore.currentUser?.balance > 0 ? 'error' : 'success'"
           class="pa-2 px-4 rounded-xl d-flex align-center gap-2"
         >
-          <AppBalanceDisplay 
-            :amount="userStore.currentUser?.balance || 0" 
+          <AppBalanceDisplay
+            :amount="userStore.currentUser?.balance || 0"
             perspective="customer"
             show-icon
             hide-label
@@ -24,7 +24,7 @@
             custom-class="d-flex flex-column align-end"
           />
           <div class="text-right">
-            <div class="text-xxs font-weight-bold opacity-70">رصيد الحساب الجاري</div>
+            <div class="text-xxs font-weight-bold opacity-70">رصيدك الحالي</div>
           </div>
         </v-card>
         <PortalStatusBadge v-if="invoice" :status="invoice.payment_status" size="large" />
