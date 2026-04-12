@@ -97,16 +97,23 @@
                 class="mt-0"
                 @update:model-value="$emit('update:prop', { key: 'include_previous_balance', value: $event })"
               />
-            </div>
-            <span class="font-weight-medium" :class="financials.previous_balance < 0 ? 'text-error' : 'text-success'">
-              {{ formatCurrency(financials.previous_balance) }}
-            </span>
+            <AppBalanceDisplay 
+              :amount="financials.previous_balance" 
+              perspective="admin"
+              value-class="font-weight-bold"
+              hide-label
+            />
           </div>
         </v-col>
         <v-col cols="6" class="mb-1 text-left">
           <div class="d-flex flex-column align-end border-s-dark ps-2">
             <span class="text-secondary text-caption">إجمالي المستحق</span>
-            <span class="font-weight-bold text-body-1">{{ formatCurrency(financials.total_balance) }}</span>
+            <AppBalanceDisplay 
+              :amount="financials.total_balance" 
+              perspective="admin"
+              value-class="font-weight-bold text-body-1"
+              hide-label
+            />
           </div>
         </v-col>
       </v-row>
@@ -167,6 +174,7 @@
 
 <script setup>
 import CashBoxSelector from './CashBoxSelector.vue';
+import AppBalanceDisplay from '@/components/common/AppBalanceDisplay.vue';
 import { formatCurrency } from '@/utils/formatters';
 
 const props = defineProps({

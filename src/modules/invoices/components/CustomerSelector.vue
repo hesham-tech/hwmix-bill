@@ -58,9 +58,14 @@
               <v-icon icon="ri-mail-line" size="14" class="me-1" />
               {{ item.raw.email }}
             </span>
-            <v-chip v-if="item.raw.balance !== undefined" size="x-small" :color="item.raw.balance < 0 ? 'error' : 'success'" variant="tonal">
-              رصيد: {{ item.raw.balance }}
-            </v-chip>
+            <AppBalanceDisplay 
+              v-if="item.raw.balance !== undefined"
+              :amount="item.raw.balance" 
+              perspective="admin"
+              hide-label
+              value-class="text-xxs font-weight-bold"
+              custom-class="px-2 py-0-5 rounded-pill border border-opacity-25 bg-neutral-lighten-5"
+            />
           </div>
         </template>
       </v-list-item>
@@ -72,6 +77,7 @@
 import { ref, computed } from 'vue';
 import { useApi } from '@/composables/useApi';
 import { highlightText } from '@/utils/helpers';
+import AppBalanceDisplay from '@/components/common/AppBalanceDisplay.vue';
 
 const props = defineProps({
   modelValue: {

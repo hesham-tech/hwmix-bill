@@ -21,18 +21,16 @@
           </div>
 
           <div v-if="!hideBalance && user?.balance != null" class="d-flex align-center mt-1">
-            <div
-              :class="[
-                'px-2 py-0-5 rounded-pill d-flex align-center gap-1 border border-opacity-25',
-                Number(user.balance) < 0 ? 'bg-error-lighten-5 border-error' : 'bg-success-lighten-5 border-success',
-              ]"
+            <AppBalanceDisplay 
+              :amount="user.balance" 
+              perspective="admin"
+              show-icon
+              icon-size="12"
+              value-class="text-xxs font-weight-black"
+              label-class="text-xxs me-1"
+              custom-class="px-2 py-0-5 rounded-pill border border-opacity-25 bg-neutral-lighten-5"
               style="border-style: dashed !important"
-            >
-              <v-icon icon="ri-wallet-3-line" size="12" :color="Number(user.balance) < 0 ? 'error' : 'success'" />
-              <span :class="['text-xxs font-weight-black', Number(user.balance) < 0 ? 'text-error' : 'text-success']">
-                {{ formatCurrency(user.balance) }}
-              </span>
-            </div>
+            />
           </div>
         </div>
       </div>
@@ -68,19 +66,20 @@
         <v-card
           v-if="!hideBalance"
           variant="flat"
-          :color="user?.balance < 0 ? 'error-lighten-5' : 'primary-lighten-5'"
-          class="rounded-xl px-8 py-4 border-dashed mx-auto shadow-sm"
-          style="border: 1px dashed; max-width: 300px"
-          :style="{ borderColor: user?.balance < 0 ? 'rgba(var(--v-theme-error), 0.5)' : 'rgba(var(--v-theme-primary), 0.5)' }"
+          class="rounded-xl px-8 py-4 border-dashed mx-auto shadow-sm bg-white"
+          style="border: 1px dashed; max-width: 300px; border-color: rgba(var(--v-theme-primary), 0.2)"
         >
-          <div class="text-xxs font-weight-bold opacity-70" :class="user?.balance < 0 ? 'text-error' : 'text-primary'">رصيد الحساب الجاري الموحد</div>
-          <div class="text-h4 font-weight-black line-height-1" :class="user?.balance < 0 ? 'text-error' : 'text-primary'">
-            {{ formatCurrency(user?.balance) }}
-          </div>
-          <div v-if="user?.balance < 0" class="text-xxs font-weight-bold text-error mt-2">
-            <v-icon icon="ri-error-warning-line" size="10" class="me-1" />
-            ذمة مالية مستحقة
-          </div>
+          <div class="text-xxs font-weight-bold opacity-70 text-primary mb-1">رصيد الحساب الجاري الموحد</div>
+          
+          <AppBalanceDisplay 
+            :amount="user?.balance" 
+            perspective="admin"
+            show-icon
+            icon-size="24"
+            value-class="text-h4 font-weight-black"
+            label-class="text-subtitle-1 font-weight-bold"
+            custom-class="d-flex flex-column align-center"
+          />
         </v-card>
       </div>
     </template>
@@ -92,6 +91,7 @@ import { useRouter } from 'vue-router';
 import { formatCurrency } from '@/utils/formatters';
 import AppAvatar from './AppAvatar.vue';
 import AppPhone from './AppPhone.vue';
+import AppBalanceDisplay from './AppBalanceDisplay.vue';
 
 const props = defineProps({
   user: {

@@ -55,9 +55,12 @@
               </template>
 
               <template #item.balance_display="{ item }">
-                <v-chip :color="item.balance < 0 ? 'error' : 'success'" variant="tonal" size="small" class="font-weight-bold">
-                  {{ formatCurrency(Math.abs(item.balance)) }} {{ item.balance < 0 ? 'عليه' : 'له' }}
-                </v-chip>
+                <AppBalanceDisplay 
+                  :amount="item.balance" 
+                  perspective="admin"
+                  custom-class="px-2 py-0-5 rounded-pill border border-opacity-25 bg-neutral-lighten-5"
+                  style="border-style: solid !important"
+                />
               </template>
 
               <template #item.status="{ item }">
@@ -157,7 +160,7 @@ import { userService } from '@/api';
 import { useUser } from '../composables/useUser';
 import UserForm from '../components/UserForm.vue';
 import BalanceOperations from '@/modules/financials/components/BalanceOperations.vue';
-import { AppDataTable, AppButton, AppDialog, AppConfirmDialog, AppUserBalanceProfile } from '@/components';
+import { AppDataTable, AppButton, AppDialog, AppConfirmDialog, AppUserBalanceProfile, AppBalanceDisplay } from '@/components';
 import { PERMISSIONS } from '@/config/permissions';
 import { formatCurrency } from '@/utils/formatters';
 

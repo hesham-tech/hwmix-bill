@@ -126,3 +126,17 @@ export const getRelativeTime = date => {
 
   return formatDate(date);
 };
+/**
+ * Interpret balance as Asset (+) or Liability (-)
+ * returns { absValue, isAsset, isLiability }
+ */
+export const getBalanceMetadata = amount => {
+  const numAmount = parseFloat(amount || 0);
+  return {
+    absValue: Math.abs(numAmount),
+    isAsset: numAmount > 0,
+    isLiability: numAmount < 0,
+    isZero: numAmount === 0,
+    raw: numAmount,
+  };
+};

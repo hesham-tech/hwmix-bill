@@ -14,10 +14,16 @@
       <v-col cols="12" md="4">
         <v-card class="premium-card balance-card" elevation="4">
           <div class="card-glow"></div>
-          <v-card-text class="d-flex flex-column align-center py-8">
+          <v-card-text class="d-flex flex-column align-center py-8 text-center">
             <v-icon icon="ri-wallet-3-line" size="48" color="white" class="mb-4" />
-            <div class="text-overline text-white-50">مطلوب سداده (المديونية)</div>
-            <div class="text-h3 font-weight-bold text-white mt-1">{{ formatCurrency(stats.remainingBalance) }}</div>
+            <div class="text-overline text-white-50 mb-2">حالة الحساب الحالية</div>
+            <AppBalanceDisplay 
+              :amount="stats.remainingBalance" 
+              perspective="customer"
+              value-class="text-h2 font-weight-black text-white"
+              label-class="text-h5 font-weight-bold text-white mb-2"
+              custom-class="d-flex flex-column align-center"
+            />
           </v-card-text>
         </v-card>
       </v-col>
@@ -214,6 +220,7 @@ import { useDashboardData } from '../composables/useDashboardData';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 import AppButton from '@/components/common/AppButton.vue';
 import AppDialog from '@/components/common/AppDialog.vue';
+import AppBalanceDisplay from '@/components/common/AppBalanceDisplay.vue';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 
 const userStore = useUserStore();
