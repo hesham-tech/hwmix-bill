@@ -64,7 +64,7 @@ const label = computed(() => {
   if (metadata.value.isZero) return '';
 
   if (props.perspective === 'admin') {
-    return metadata.value.isAsset ? 'مدين' : 'دائن';
+    return metadata.value.isAsset ? 'عليه' : 'له';
   }
 
   if (props.perspective === 'customer') {
