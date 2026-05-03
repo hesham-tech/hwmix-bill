@@ -16,7 +16,7 @@
         <AnalyticsStatsCards :stats="advancedStats" :loading="analyticsLoading" class="mb-4" />
 
         <!-- Statistics Cards -->
-        <StatsCards :stats="stats" />
+        <StatsCards :stats="stats" :loading="loading" />
       </div>
     </ShareView>
 

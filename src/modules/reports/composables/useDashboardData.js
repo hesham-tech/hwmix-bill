@@ -27,6 +27,7 @@ export function useDashboardData() {
     totalSales: 0,
     monthlySales: 0,
     pendingPayments: 0,
+    unpaidInstallments: 0,
   });
 
   const recentInvoices = ref([]);
@@ -65,6 +66,7 @@ export function useDashboardData() {
             totalSales: data.kpis?.total_sales || 0,
             monthlySales: data.kpis?.monthly_sales || 0,
             pendingPayments: data.kpis?.pending_payments || 0,
+            unpaidInstallments: data.kpis?.unpaid_installments || 0,
             totalCustomers: data.kpis?.total_customers || 0,
             totalProducts: data.kpis?.total_products || 0,
             totalInvoices: data.recent_invoices?.length || 0,

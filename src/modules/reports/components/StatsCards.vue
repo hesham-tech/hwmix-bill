@@ -1,8 +1,9 @@
 <template>
   <v-row dense>
-    <v-col cols="12" sm="6" md="3">
-      <v-card border flat class="rounded-md overflow-hidden pa-1">
-        <v-card-text class="pa-4 bg-success-lighten-5">
+    <v-col cols="12" sm="6" md="4" lg="2">
+      <v-card border flat class="rounded-md overflow-hidden pa-1 h-100">
+        <v-skeleton-loader v-if="loading" type="list-item-avatar-two-line, text" />
+        <v-card-text v-else class="pa-4 bg-success-lighten-5 h-100 d-flex flex-column">
           <div class="d-flex align-center justify-space-between">
             <div>
               <div class="text-caption font-weight-bold text-success mb-1">إجمالي المبيعات</div>
@@ -12,14 +13,15 @@
               <v-icon icon="ri-money-dollar-box-line" color="white" size="28" />
             </v-avatar>
           </div>
-          <div class="mt-3 text-caption text-grey">تراكمي منذ البداية</div>
+          <div class="mt-auto pt-3 text-caption text-grey">تراكمي منذ البداية</div>
         </v-card-text>
       </v-card>
     </v-col>
 
-    <v-col cols="12" sm="6" md="3">
-      <v-card border flat class="rounded-md overflow-hidden pa-1">
-        <v-card-text class="pa-4 bg-primary-lighten-5">
+    <v-col cols="12" sm="6" md="4" lg="2">
+      <v-card border flat class="rounded-md overflow-hidden pa-1 h-100">
+        <v-skeleton-loader v-if="loading" type="list-item-avatar-two-line, text" />
+        <v-card-text v-else class="pa-4 bg-primary-lighten-5 h-100 d-flex flex-column">
           <div class="d-flex align-center justify-space-between">
             <div>
               <div class="text-caption font-weight-bold text-primary mb-1">مبيعات الشهر</div>
@@ -29,14 +31,15 @@
               <v-icon icon="ri-calendar-event-line" color="white" size="28" />
             </v-avatar>
           </div>
-          <div class="mt-3 text-caption text-grey">مبيعات الشهر الحالي</div>
+          <div class="mt-auto pt-3 text-caption text-grey">مبيعات الشهر الحالي</div>
         </v-card-text>
       </v-card>
     </v-col>
 
-    <v-col cols="12" sm="6" md="3">
-      <v-card border flat class="rounded-md overflow-hidden pa-1">
-        <v-card-text class="pa-4 bg-error-lighten-5">
+    <v-col cols="12" sm="6" md="4" lg="2">
+      <v-card border flat class="rounded-md overflow-hidden pa-1 h-100">
+        <v-skeleton-loader v-if="loading" type="list-item-avatar-two-line, text" />
+        <v-card-text v-else class="pa-4 bg-error-lighten-5 h-100 d-flex flex-column">
           <div class="d-flex align-center justify-space-between">
             <div>
               <div class="text-caption font-weight-bold text-error mb-1">تحصيل معلق</div>
@@ -46,14 +49,33 @@
               <v-icon icon="ri-hand-coin-line" color="white" size="28" />
             </v-avatar>
           </div>
-          <div class="mt-3 text-caption text-grey">مبالغ لم يتم تحصيلها</div>
+          <div class="mt-auto pt-3 text-caption text-grey">مبالغ لم يتم تحصيلها</div>
         </v-card-text>
       </v-card>
     </v-col>
 
-    <v-col cols="12" sm="6" md="3">
-      <v-card border flat class="rounded-md overflow-hidden pa-1">
-        <v-card-text class="pa-4 bg-info-lighten-5">
+    <v-col cols="12" sm="6" md="4" lg="2">
+      <v-card border flat class="rounded-md overflow-hidden pa-1 h-100">
+        <v-skeleton-loader v-if="loading" type="list-item-avatar-two-line, text" />
+        <v-card-text v-else class="pa-4 bg-warning-lighten-5 h-100 d-flex flex-column">
+          <div class="d-flex align-center justify-space-between">
+            <div>
+              <div class="text-caption font-weight-bold text-warning mb-1">أقساط غير مدفوعة</div>
+              <div class="text-h5 font-weight-bold text-warning">{{ formatCurrency(stats.unpaidInstallments) }}</div>
+            </div>
+            <v-avatar color="warning" size="48" variant="flat" class="rounded-md">
+              <v-icon icon="ri-calendar-check-line" color="white" size="28" />
+            </v-avatar>
+          </div>
+          <div class="mt-auto pt-3 text-caption text-grey">إجمالي الأقساط المتبقية</div>
+        </v-card-text>
+      </v-card>
+    </v-col>
+
+    <v-col cols="12" sm="6" md="4" lg="2">
+      <v-card border flat class="rounded-md overflow-hidden pa-1 h-100">
+        <v-skeleton-loader v-if="loading" type="list-item-avatar-two-line, text" />
+        <v-card-text v-else class="pa-4 bg-info-lighten-5 h-100 d-flex flex-column">
           <div class="d-flex align-center justify-space-between">
             <div>
               <div class="text-caption font-weight-bold text-info mb-1">العملاء</div>
@@ -63,7 +85,7 @@
               <v-icon icon="ri-team-line" color="white" size="28" />
             </v-avatar>
           </div>
-          <div class="mt-3 text-caption text-grey">عدد العملاء النشطين</div>
+          <div class="mt-auto pt-3 text-caption text-grey">عدد العملاء النشطين</div>
         </v-card-text>
       </v-card>
     </v-col>
@@ -77,6 +99,10 @@ defineProps({
   stats: {
     type: Object,
     required: true,
+  },
+  loading: {
+    type: Boolean,
+    default: false,
   },
 });
 </script>
