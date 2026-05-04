@@ -64,6 +64,11 @@
                         formatCurrency(item.remaining_amount || item.total_amount - item.total_pay)
                       }}</span>
                     </div>
+
+                    <div class="mt-4 d-flex align-center gap-1 text-xxs text-grey opacity-75">
+                      <v-icon icon="ri-information-line" size="10" />
+                      <span>فائدة: {{ item.interest_rate }}% | تقريب: {{ item.round_step || 1 }}</span>
+                    </div>
                   </v-card-text>
 
                   <v-divider class="mx-4 opacity-50" />

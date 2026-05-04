@@ -132,17 +132,14 @@
                     <span class="font-weight-bold">{{ getFrequencyLabel(plan.frequency) }}</span>
                   </div>
                   <div class="d-flex justify-space-between">
-                    <span class="text-caption text-grey">نسبة الفائدة:</span>
-                    <span class="font-weight-bold text-error">{{ plan.interest_rate }}%</span>
-                  </div>
-                  <div class="d-flex justify-space-between">
                     <span class="text-caption text-grey">تاريخ بدء الخطة:</span>
                     <span class="font-weight-bold">{{ formatDate(plan.start_date) }}</span>
                   </div>
-                  <div class="d-flex justify-space-between">
-                    <span class="text-caption text-grey">تقريب القسط لأقرب:</span>
-                    <span class="font-weight-bold">{{ plan.round_step || 1 }} ج.م</span>
-                  </div>
+                </div>
+
+                <div class="mt-4 pt-2 border-t border-dashed d-flex align-center gap-1 text-xxs text-grey">
+                  <v-icon icon="ri-information-line" size="12" />
+                  <span>نسبة الفائدة: {{ plan.interest_rate }}% | التقريب: {{ plan.round_step || 1 }} ج.م</span>
                 </div>
 
                 <v-divider class="my-4 opacity-50" />
