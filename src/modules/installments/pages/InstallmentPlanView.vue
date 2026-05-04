@@ -139,6 +139,10 @@
                     <span class="text-caption text-grey">تاريخ بدء الخطة:</span>
                     <span class="font-weight-bold">{{ formatDate(plan.start_date) }}</span>
                   </div>
+                  <div class="d-flex justify-space-between">
+                    <span class="text-caption text-grey">تقريب القسط لأقرب:</span>
+                    <span class="font-weight-bold">{{ plan.round_step || 1 }} ج.م</span>
+                  </div>
                 </div>
 
                 <v-divider class="my-4 opacity-50" />
@@ -250,7 +254,7 @@ const getFrequencyLabel = freq => {
 const loadPlan = async () => {
   loading.value = true;
   try {
-    const response = await api.getById(route.params.id);
+    const response = await api.getById(route.params.id, { showError: false });
     plan.value = response.data;
   } finally {
     loading.value = false;

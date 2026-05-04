@@ -23,6 +23,7 @@
           @update:filters="applyFilters"
           @click:row="viewPlan"
           @view="viewPlan"
+          @delete="confirmDelete"
         >
           <!-- Grid View Slot -->
           <template #grid="{ items, handleContextMenu }">
@@ -73,7 +74,7 @@
                       <template #activator="{ props }">
                         <v-btn icon="ri-more-2-fill" variant="text" size="small" color="grey-darken-1" v-bind="props" @click.stop />
                       </template>
-                      <AppTableActions :item="item" permission-module="installment-plans" @view="viewPlan">
+                      <AppTableActions :item="item" permission-module="installment-plans" @view="viewPlan" @delete="confirmDelete">
                         <template #extra-actions="slotProps">
                           <slot name="extra-actions" v-bind="slotProps" />
                         </template>
@@ -217,6 +218,25 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- Delete Confirmation Dialog -->
+    <v-dialog v-model="deleteDialog" max-width="450">
+      <v-card rounded="lg">
+        <v-card-title class="d-flex align-center pa-4 text-error font-weight-black">
+          <v-icon icon="ri-delete-bin-line" class="me-2" />
+          تأكيد حذف خطة التقسيط
+        </v-card-title>
+        <v-card-text class="pa-4 pt-0">
+          هل أنت متأكد من حذف هذه الخطة؟ 
+          <div class="mt-2 text-error font-weight-bold">تنبيه: سيتم أيضاً حذف الفاتورة المرتبطة بها وعكس جميع العمليات المالية والمخزنية.</div>
+        </v-card-text>
+        <v-card-actions class="pa-4 pt-0">
+          <v-spacer />
+          <v-btn variant="text" @click="deleteDialog = false">إلغاء</v-btn>
+          <v-btn color="error" variant="flat" :loading="deleting" @click="deletePlan">تأكيد الحذف النهائي</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -286,6 +306,7 @@ const {
   changeSort,
   performSearch,
   applyFilters,
+  removeItem, // ✅ تم إضافة removeItem هنا
 } = useDataTable(fetchPlans, {
   syncWithUrl: true,
   initialSortBy: 'created_at',
@@ -344,6 +365,44 @@ const openProductsDetail = plan => {
 
 const viewPlan = plan => router.push(`/app/installment-plans/${plan.id}`);
 const viewInvoice = invoiceId => router.push(`/app/invoices/${invoiceId}`);
+
+// --- Delete Logic ---
+const deleteDialog = ref(false);
+const planToDelete = ref(null);
+const deleting = ref(false);
+
+const confirmDelete = plan => {
+  planToDelete.value = plan;
+  deleteDialog.value = true;
+};
+
+const deletePlan = async () => {
+  if (!planToDelete.value) return;
+  deleting.value = true;
+  try {
+    await api.remove(planToDelete.value.id);
+    // useDataTable provides items as a reactive array, but we should use the removeItem if provided or manually filter
+    // In this useDataTable implementation, we can call performSearch to refresh or manually update
+    // If useDataTable doesn't export removeItem, we can just refresh
+    if (typeof removeItem === 'function') {
+      removeItem(planToDelete.value.id);
+    } else {
+      performSearch();
+    }
+
+    deleteDialog.value = false;
+    planToDelete.value = null;
+    import('vue3-toastify').then(({ toast }) => {
+      toast.success('تم حذف الخطة والفاتورة بنجاح');
+    });
+  } catch (error) {
+    import('vue3-toastify').then(({ toast }) => {
+      toast.error('فشل حذف الخطة: ' + (error.response?.data?.message || error.message));
+    });
+  } finally {
+    deleting.value = false;
+  }
+};
 
 const formatDate = dateString => {
   if (!dateString) return '-';

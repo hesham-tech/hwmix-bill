@@ -34,6 +34,9 @@ export function useApi(baseUrl) {
         error.value = translateErrors(err.response.data.errors);
       } else {
         error.value = err.response?.data?.message || err.message || 'حدث خطأ في تحميل البيانات';
+        if (err.response?.status === 404 && typeof error.value === 'string' && error.value.includes('No query results for model')) {
+          error.value = 'العنصر المطلوب غير موجود أو تم حذفه.';
+        }
       }
 
       if (showError) {
@@ -62,6 +65,9 @@ export function useApi(baseUrl) {
         error.value = translateErrors(err.response.data.errors);
       } else {
         error.value = err.response?.data?.message || err.message || 'حدث خطأ في تحميل البيانات';
+        if (err.response?.status === 404 && typeof error.value === 'string' && error.value.includes('No query results for model')) {
+          error.value = 'العنصر المطلوب غير موجود أو تم حذفه.';
+        }
       }
 
       if (showError) {
@@ -93,6 +99,9 @@ export function useApi(baseUrl) {
         error.value = translateErrors(err.response.data.errors);
       } else {
         error.value = err.response?.data?.message || err.message || 'حدث خطأ في الحفظ';
+        if (err.response?.status === 404 && typeof error.value === 'string' && error.value.includes('No query results for model')) {
+          error.value = 'العنصر المطلوب غير موجود أو تم حذفه.';
+        }
       }
 
       if (showError) {
@@ -124,6 +133,9 @@ export function useApi(baseUrl) {
         error.value = translateErrors(err.response.data.errors);
       } else {
         error.value = err.response?.data?.message || err.message || 'حدث خطأ في التحديث';
+        if (err.response?.status === 404 && typeof error.value === 'string' && error.value.includes('No query results for model')) {
+          error.value = 'العنصر المطلوب غير موجود أو تم حذفه.';
+        }
       }
 
       if (showError) {
@@ -155,6 +167,9 @@ export function useApi(baseUrl) {
         error.value = translateErrors(err.response.data.errors);
       } else {
         error.value = err.response?.data?.message || err.message || 'حدث خطأ في التحديث';
+        if (err.response?.status === 404 && typeof error.value === 'string' && error.value.includes('No query results for model')) {
+          error.value = 'العنصر المطلوب غير موجود أو تم حذفه.';
+        }
       }
 
       if (showError) {
@@ -186,6 +201,9 @@ export function useApi(baseUrl) {
         error.value = translateErrors(err.response.data.errors);
       } else {
         error.value = err.response?.data?.message || err.message || 'حدث خطأ في الحذف';
+        if (err.response?.status === 404 && typeof error.value === 'string' && error.value.includes('No query results for model')) {
+          error.value = 'العنصر المطلوب غير موجود أو تم حذفه.';
+        }
       }
 
       if (showError) {
@@ -214,6 +232,9 @@ export function useApi(baseUrl) {
       return response.data;
     } catch (err) {
       error.value = err.response?.data?.message || err.message || 'حدث خطأ في الحذف';
+      if (err.response?.status === 404 && typeof error.value === 'string' && error.value.includes('No query results for model')) {
+        error.value = 'العنصر المطلوب غير موجود أو تم حذفه.';
+      }
       if (showError) {
         toast.error(error.value);
       }
@@ -244,6 +265,9 @@ export function useApi(baseUrl) {
       return response.data;
     } catch (err) {
       error.value = err.response?.data?.message || err.message || 'حدث خطأ';
+      if (err.response?.status === 404 && typeof error.value === 'string' && error.value.includes('No query results for model')) {
+        error.value = 'العنصر المطلوب غير موجود أو تم حذفه.';
+      }
       if (showError) {
         toast.error(error.value);
       }

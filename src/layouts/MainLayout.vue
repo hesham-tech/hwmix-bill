@@ -255,6 +255,7 @@
               <InstallmentCalc
                 :mode="appState.installmentCalc.mode"
                 :initial-total="appState.installmentCalc.initialTotal"
+                :initial-data="appState.installmentCalc.initialData"
                 @close="appState.closeInstallmentCalc"
                 @save="
                   data => {

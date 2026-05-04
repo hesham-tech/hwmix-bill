@@ -418,6 +418,7 @@ const saveInvoice = async () => {
       appState.openInstallmentCalc({
         mode: 'invoice',
         initialTotal: financials.value.total_balance,
+        initialData: invoiceData.value.installment_plan, // ✅ تمرير البيانات الحالية
         onSave: handleInstallmentConfirmation,
       });
       loading.value = false;
@@ -526,6 +527,14 @@ const fetchInvoice = async () => {
         total: parseFloat(item.total || 0),
         primary_image_url: item.primary_image_url || item.variant?.primary_image_url || item.product?.primary_image_url,
       })),
+      installment_plan: invoice.installment_plan ? {
+        down_payment: parseFloat(invoice.installment_plan.down_payment || 0),
+        number_of_installments: parseInt(invoice.installment_plan.number_of_installments || 1),
+        interest_rate: parseFloat(invoice.installment_plan.interest_rate || 0),
+        round_step: parseInt(invoice.installment_plan.round_step || 1),
+        start_date: invoice.installment_plan.start_date?.substring(0, 10),
+        frequency: invoice.installment_plan.frequency || 'monthly',
+      } : null,
     };
 
     invoiceData.value = { ...invoiceData.value, ...data };

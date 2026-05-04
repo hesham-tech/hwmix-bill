@@ -44,6 +44,7 @@ export const useappState = defineStore('appState', {
         isOpen: true,
         mode: options.mode || 'standalone',
         initialTotal: options.initialTotal || 0,
+        initialData: options.initialData || null, // ✅ إضافة هذا الحقل
         onSave: options.onSave || null,
       };
     },

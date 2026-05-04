@@ -125,6 +125,10 @@ const props = defineProps({
     type: Number,
     default: 0,
   },
+  initialData: {
+    type: Object,
+    default: null,
+  },
 });
 
 const emit = defineEmits(['close', 'save']);
@@ -183,6 +187,10 @@ onMounted(() => {
     }
   } else {
     totalAmount.value = props.initialTotal;
+    if (props.initialData) {
+      plan.value = { ...plan.value, ...props.initialData };
+      if (props.initialData.frequency) frequency.value = props.initialData.frequency;
+    }
   }
   calculatePlan();
 });

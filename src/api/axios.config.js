@@ -128,8 +128,14 @@ apiClient.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // 400: Bad Request & 500+ Server Errors OR Connection Failures (status 0) OR 404 NotFound (for reporting)
-    if (error?.response?.status === 400 || error?.response?.status >= 500 || error?.response?.status === 404 || !error.response) {
+    // 404: Not Found
+    if (error?.response?.status === 404) {
+      // Allow components to handle 404 locally (e.g., showing a not found UI) without global interruption
+      return Promise.reject(error);
+    }
+
+    // 400: Bad Request & 500+ Server Errors OR Connection Failures (status 0)
+    if (error?.response?.status === 400 || error?.response?.status >= 500 || !error.response) {
       const isConnectivityError = !error.response || error.code === 'ERR_NETWORK' || error.message === 'Network Error';
 
       // Silent logging to background

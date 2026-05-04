@@ -36,6 +36,12 @@
             <div class="text-body-2 font-weight-bold text-error">{{ formatCurrency(plan.remaining_amount) }}</div>
           </div>
         </v-col>
+        <v-col cols="12" class="mt-n2">
+          <div class="text-xxs text-grey d-flex align-center gap-1">
+            <v-icon icon="ri-information-line" size="12" class="me-1" />
+            نسبة الفائدة: {{ plan.interest_rate }}% | التقريب: {{ plan.round_step || 1 }} ج.م
+          </div>
+        </v-col>
 
         <v-col cols="12">
           <v-divider class="mb-3 border-opacity-25" />
