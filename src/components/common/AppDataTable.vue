@@ -152,7 +152,7 @@
           striped="even"
           :items-per-page-options="itemsPerPageOptions"
           :no-data-text="emptyText"
-          :hide-default-footer="hidePagination"
+          :hide-default-footer="true"
           :row-props="processedRowProps"
           @click:row="(event, { item }) => $emit('click:row', item)"
           @contextmenu:row="handleContextMenu"

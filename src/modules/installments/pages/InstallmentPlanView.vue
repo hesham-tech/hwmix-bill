@@ -101,6 +101,7 @@
                 :show-customer="false"
                 :show-plan="false"
                 :items-per-page="-1"
+                hide-pagination
                 v-model:sort-by="sortBy"
                 @refresh="loadPlan"
                 @pay="openPaymentDialog"
@@ -137,7 +138,7 @@
                   </div>
                 </div>
 
-                <div class="mt-4 pt-2 border-t border-dashed d-flex align-center gap-1 text-xxs text-grey">
+                <div class="mt-4 d-flex align-center gap-1 text-xxs text-grey opacity-75">
                   <v-icon icon="ri-information-line" size="12" />
                   <span>نسبة الفائدة: {{ plan.interest_rate }}% | التقريب: {{ plan.round_step || 1 }} ج.م</span>
                 </div>
