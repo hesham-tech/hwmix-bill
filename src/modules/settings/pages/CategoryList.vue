@@ -1,18 +1,6 @@
 <template>
   <div v-if="canAny(PERMISSIONS.CATEGORIES_VIEW_ALL, PERMISSIONS.CATEGORIES_VIEW_CHILDREN, PERMISSIONS.CATEGORIES_VIEW_SELF)" class="categories-page">
-    <!-- Page Header -->
-    <div class="page-header d-flex align-center justify-space-between mb-2">
-      <div>
-        <h1 class="text-h4 font-weight-bold ml-2">الفئات</h1>
-        <p class="text-body-1 text-grey">إدارة وتحليل فئات المنتجات</p>
-      </div>
-      <div class="d-flex align-center gap-2">
-        <AppButton v-if="can(PERMISSIONS.CATEGORIES_CREATE)" prepend-icon="ri-add-line" size="large" elevation="2" @click="handleCreate">
-          فئة جديدة
-        </AppButton>
-      </div>
-    </div>
-
+    <!-- Data Table -->
     <AppDataTable
       v-model:page="page"
       v-model:items-per-page="itemsPerPage"
@@ -23,10 +11,16 @@
       :loading="loading"
       :searchable="true"
       v-model:search="search"
-      :grid-enabled="true"
-      :show-view-toggle="true"
-      :can-view="false"
+      grid-enabled
+      show-view-toggle
+      sticky-actions
+      title="الأقسام والفئات"
+      subtitle="إدارة وتحليل فئات المنتجات وهيكلها التنظيمي"
+      icon="ri-organization-chart"
       permission-module="categories"
+      :can-view="false"
+      infinite-scroll
+      @load="handleLoadMore"
       @update:options="onTableOptionsUpdate"
       @update:search="handleSearch"
       @edit="handleEdit"
@@ -38,136 +32,96 @@
 
       <!-- Grid View Slot -->
       <template #grid="{ items, handleContextMenu }">
-        <AppInfiniteScroll
-          :loading="loading && items.length > 0"
-          :has-more="items.length < total"
-          no-more-text="لا يوجد المزيد من الفئات"
-          @load="handleLoadMore"
-        >
-          <v-row dense>
-            <v-col v-for="category in items" :key="category.id" cols="12" sm="6" md="4" lg="3">
-              <AppCard
-                class="category-card h-100"
-                no-padding
-                @click="handleCategoryClick(category)"
-                @contextmenu.prevent="handleContextMenu($event, { item: category })"
-              >
-                <div class="category-card-header d-flex align-center justify-center pa-2 bg-grey-lighten-4 position-relative">
-                  <v-avatar
-                    size="100"
-                    rounded="circle"
-                    :color="category.active ? 'bg-white' : 'grey-lighten-3'"
-                    class="elevation-1 bg-white overflow-hidden"
-                  >
-                    <v-img v-if="category.image_url" :src="category.image_url" cover />
-                    <v-icon
-                      v-else
-                      :icon="category.children_count > 0 ? 'ri-folder-fill' : 'ri-folder-line'"
-                      size="60"
-                      :color="category.active ? (category.children_count > 0 ? 'primary' : 'info') : 'grey'"
-                    />
-                  </v-avatar>
+        <v-row dense>
+          <v-col v-for="category in items" :key="category.id" cols="12" sm="6" md="4" lg="3">
+            <v-card
+              class="grid-card transition-all-cubic overflow-hidden"
+              @click="handleCategoryClick(category)"
+              @contextmenu.prevent="handleContextMenu($event, { item: category })"
+            >
+              <div class="category-grid-header d-flex align-center justify-center pa-6 bg-slate-50 position-relative border-b">
+                <v-avatar
+                  size="100"
+                  class="elevation-4 border-white-4 overflow-hidden"
+                  :color="category.active ? 'white' : 'slate-200'"
+                >
+                  <v-img v-if="category.image_url" :src="category.image_url" cover />
+                  <v-icon
+                    v-else
+                    :icon="category.children_count > 0 ? 'ri-folder-fill' : 'ri-folder-line'"
+                    size="50"
+                    :color="category.active ? 'primary' : 'slate-400'"
+                  />
+                </v-avatar>
 
-                  <div class="child-count-badge position-absolute" style="top: 10px; left: 10px">
-                    <v-chip size="x-small" color="secondary" variant="flat" v-if="category.products_count">
-                      {{ category.products_count }} منتج
-                    </v-chip>
-                  </div>
+                <div class="position-absolute" style="top: 12px; left: 12px">
+                  <v-chip v-if="category.products_count" size="x-small" color="primary" variant="flat" class="font-weight-bold">
+                    {{ category.products_count }} منتج
+                  </v-chip>
                 </div>
 
-                <v-card-item class="position-relative pt-4">
-                  <v-card-title class="text-h6 font-weight-bold pa-0 mb-1 text-truncate" :title="category.full_path || category.name">
-                    {{ category.name }}
-                  </v-card-title>
+                <div class="position-absolute" style="top: 12px; right: 12px">
+                  <AppSwitch
+                    v-if="canAny(PERMISSIONS.CATEGORIES_UPDATE_ALL, PERMISSIONS.CATEGORIES_UPDATE_CHILDREN, { resource: category })"
+                    :model-value="!!category.active"
+                    :loading="togglingId === category.id"
+                    density="compact"
+                    @click.stop
+                    @update:model-value="handleToggleStatus(category)"
+                  />
+                </div>
+              </div>
 
-                  <div class="d-flex align-center justify-space-between mb-1" style="height: 32px">
-                    <div class="d-flex align-center">
-                      <span class="text-caption text-grey-darken-1 me-2">الحالة:</span>
-                      <v-chip :color="category.active ? 'success' : 'error'" size="x-small" class="font-weight-bold" variant="flat">
-                        {{ category.active ? 'نشط' : 'معطل' }}
-                      </v-chip>
-                    </div>
+              <v-card-text class="pt-4 pb-2">
+                <div class="text-h6 font-weight-bold text-slate-800 mb-1 text-truncate" :title="category.name">
+                  {{ category.name }}
+                </div>
 
-                    <AppSwitch
-                      v-if="
-                        canAny(PERMISSIONS.CATEGORIES_UPDATE_ALL, PERMISSIONS.CATEGORIES_UPDATE_CHILDREN, PERMISSIONS.CATEGORIES_UPDATE_SELF, {
-                          resource: category,
-                        })
-                      "
-                      :model-value="!!category.active"
-                      :loading="togglingId === category.id"
-                      @click.stop
-                      @update:model-value="handleToggleStatus(category)"
-                    />
-                  </div>
-
-                  <v-card-subtitle class="pa-0 d-flex align-center mt-1">
-                    <v-icon icon="ri-node-tree" size="14" class="me-1" />
-                    <span v-if="category.parent?.name" class="text-truncate">داخل {{ category.parent.name }}</span>
-                    <span v-else class="text-grey-darken-1">قسم رئيسي</span>
-                  </v-card-subtitle>
-                </v-card-item>
-
-                <template #actions>
-                  <AppButton
-                    prepend-icon="ri-arrow-right-up-line"
-                    variant="text"
-                    color="info"
-                    size="small"
-                    @click.stop="handleCategoryClick(category)"
-                  >
-                    دخول
-                  </AppButton>
+                <div class="d-flex align-center text-caption text-slate-500 mb-2">
+                  <v-icon icon="ri-node-tree" size="14" class="me-1" />
+                  <span v-if="category.parent?.name" class="text-truncate">داخل {{ category.parent.name }}</span>
+                  <span v-else>قسم رئيسي</span>
                   <v-spacer />
-                  <AppButton
-                    v-if="
-                      canAny(PERMISSIONS.CATEGORIES_UPDATE_ALL, PERMISSIONS.CATEGORIES_UPDATE_CHILDREN) ||
-                      can(PERMISSIONS.CATEGORIES_UPDATE_SELF, { resource: category })
-                    "
-                    icon="ri-edit-line"
+                  <span class="text-slate-400">ID: {{ category.id }}</span>
+                </div>
+              </v-card-text>
+
+              <v-divider class="opacity-50" />
+
+              <v-card-actions class="px-4 py-2">
+                <v-btn
+                  prepend-icon="ri-arrow-right-up-line"
+                  variant="text"
+                  color="info"
+                  size="small"
+                  class="font-weight-bold"
+                  @click.stop="handleCategoryClick(category)"
+                >
+                  دخول
+                </v-btn>
+                <v-spacer />
+                <div class="d-flex gap-1">
+                  <v-btn
+                    v-if="canAny(PERMISSIONS.CATEGORIES_UPDATE_ALL, { resource: category })"
+                    icon="ri-pencil-line"
                     variant="text"
                     color="primary"
+                    size="small"
                     @click.stop="handleEdit(category)"
                   />
-
-                  <!-- Admin Actions -->
-                  <template v-if="canAny(PERMISSIONS.CATEGORIES_GLOBALIZE, PERMISSIONS.CATEGORIES_MERGE)">
-                    <AppButton
-                      v-if="category.company_id && can(PERMISSIONS.CATEGORIES_GLOBALIZE)"
-                      icon="ri-global-line"
-                      variant="text"
-                      color="warning"
-                      :loading="globalizingId === category.id"
-                      @click.stop="handleGlobalize(category)"
-                      title="تحويل لسجل عالمي"
-                      tooltip="تحويل لنظام عالمي"
-                    />
-                    <AppButton
-                      v-if="can(PERMISSIONS.CATEGORIES_MERGE)"
-                      icon="ri-merge-cells-horizontal"
-                      variant="text"
-                      color="secondary"
-                      @click.stop="openMergeDialog(category)"
-                      title="دمج الفئة"
-                      tooltip="دمج مع فئة أخرى"
-                    />
-                  </template>
-                  <AppButton
-                    v-if="
-                      canAny(PERMISSIONS.CATEGORIES_DELETE_ALL, PERMISSIONS.CATEGORIES_DELETE_CHILDREN, PERMISSIONS.CATEGORIES_DELETE_SELF, {
-                        resource: category,
-                      })
-                    "
+                  <v-btn
+                    v-if="canAny(PERMISSIONS.CATEGORIES_DELETE_ALL, { resource: category })"
                     icon="ri-delete-bin-line"
                     variant="text"
                     color="error"
+                    size="small"
                     @click.stop="handleDelete(category)"
                   />
-                </template>
-              </AppCard>
-            </v-col>
-          </v-row>
-        </AppInfiniteScroll>
+                </div>
+              </v-card-actions>
+            </v-card>
+          </v-col>
+        </v-row>
       </template>
 
       <!-- List View Slots -->
@@ -599,56 +553,47 @@ watch(viewMode, () => {
   max-width: 300px;
 }
 
-.category-card {
-  transition: all 0.3s ease;
-  border-radius: 4px;
-  border: 1px solid #eee;
+/* Premium Grid Card Styles */
+.grid-card {
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+  border-radius: 12px !important;
 }
 
-.category-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1) !important;
+.grid-card:hover {
+  transform: translateY(-8px) scale(1.01) !important;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1) !important;
+  border-color: rgba(var(--v-theme-primary), 0.2) !important;
+  z-index: 10;
 }
 
-.category-card-header {
+.category-grid-header {
   height: 160px;
-  border-radius: 16px 16px 0 0;
+  background-color: #f8fafc !important;
 }
 
-.hover-primary:hover {
-  color: rgb(var(--v-theme-primary)) !important;
-  text-decoration: underline;
+.bg-slate-50 {
+  background-color: #f8fafc !important;
 }
 
-.transition-all {
-  transition: all 0.2s ease;
+.text-slate-800 {
+  color: #1e293b !important;
 }
 
-.cursor-pointer {
-  cursor: pointer;
+.text-slate-500 {
+  color: #64748b !important;
 }
 
-.category-image-zone .change-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  opacity: 0;
-  transition: opacity 0.3s;
-  z-index: 2;
+.text-slate-400 {
+  color: #94a3b8 !important;
 }
 
-.category-image-zone:hover .change-overlay {
-  opacity: 1;
+.border-white-4 {
+  border: 4px solid white !important;
 }
 
-.hover-scale {
-  transition: transform 0.2s;
-}
-
-.hover-scale:hover {
-  transform: scale(1.02);
+.transition-all-cubic {
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
 }
 </style>

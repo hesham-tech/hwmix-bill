@@ -13,16 +13,13 @@
               :loading="loading"
               :table-height="'calc(100vh - 220px)'"
               grid-enabled
-              :grid-options="{
-                titleKey: 'name',
-                imageKey: 'image_url',
-                bodyKeys: ['products_count', 'active'],
-              }"
+              infinite-scroll
               infinite-scroll
               :has-more="brands.length < total"
               permission-module="brands"
+              sticky-actions
               title="العلامات التجارية"
-              subtitle="إدارة وتحليل العلامات التجارية للمنتجات"
+              subtitle="إدارة وتحليل العلامات التجارية للمنتجات وهويتها"
               icon="ri-award-line"
               @update:options="onTableOptionsUpdate"
               @edit="handleEdit"
@@ -34,6 +31,85 @@
                 <AppButton v-if="can(PERMISSIONS.BRANDS_CREATE)" prepend-icon="ri-add-line" size="small" @click="handleCreate">
                   علامة جديدة
                 </AppButton>
+              </template>
+              
+              <!-- Grid View Slot -->
+              <template #grid="{ items, handleContextMenu }">
+                <v-row dense>
+                  <v-col v-for="brand in items" :key="brand.id" cols="12" sm="6" md="4" lg="3">
+                    <v-card
+                      class="grid-card transition-all-cubic overflow-hidden"
+                      @click="handleEdit(brand)"
+                      @contextmenu.prevent="handleContextMenu($event, { item: brand })"
+                    >
+                      <div class="brand-grid-header d-flex align-center justify-center pa-6 bg-slate-50 position-relative border-b">
+                        <v-avatar
+                          size="110"
+                          rounded="md"
+                          class="elevation-4 border-white-4 overflow-hidden"
+                          :color="brand.active ? 'white' : 'slate-200'"
+                        >
+                          <v-img v-if="brand.image_url" :src="brand.image_url" cover />
+                          <v-icon
+                            v-else
+                            icon="ri-image-line"
+                            size="40"
+                            :color="brand.active ? 'primary' : 'slate-400'"
+                          />
+                        </v-avatar>
+
+                        <div class="position-absolute" style="top: 12px; right: 12px">
+                          <AppSwitch
+                            v-if="canAny(PERMISSIONS.BRANDS_UPDATE_ALL, { resource: brand })"
+                            :model-value="!!brand.active"
+                            :loading="togglingId === brand.id"
+                            density="compact"
+                            @click.stop
+                            @update:model-value="handleToggleStatus(brand)"
+                          />
+                        </div>
+                      </div>
+
+                      <v-card-text class="pt-4 pb-2">
+                        <div class="text-h6 font-weight-bold text-slate-800 mb-1 text-truncate" :title="brand.name">
+                          {{ brand.name }}
+                        </div>
+
+                        <div class="d-flex align-center text-caption text-slate-500 mb-2">
+                          <v-icon icon="ri-box-3-line" size="14" class="me-1" />
+                          <span>{{ brand.products_count || 0 }} منتج</span>
+                          <v-spacer />
+                          <span class="text-slate-400">ID: {{ brand.id }}</span>
+                        </div>
+                        
+                        <p class="text-caption text-slate-400 text-truncate" v-if="brand.description">
+                          {{ brand.description }}
+                        </p>
+                      </v-card-text>
+
+                      <v-divider class="opacity-50" />
+
+                      <v-card-actions class="px-4 py-2">
+                        <v-btn
+                          icon="ri-pencil-line"
+                          variant="text"
+                          color="primary"
+                          size="small"
+                          @click.stop="handleEdit(brand)"
+                        />
+                        <v-spacer />
+                        <v-btn
+                          v-if="canAny(PERMISSIONS.BRANDS_DELETE_ALL, { resource: brand })"
+                          icon="ri-delete-bin-line"
+                          variant="text"
+                          color="error"
+                          size="small"
+                          @click.stop="handleDelete(brand)"
+                        />
+                      </v-card-actions>
+                    </v-card>
+                  </v-col>
+                </v-row>
               </template>
 
               <!-- List View Customizations -->
@@ -407,66 +483,48 @@ const handleMergeConfirm = async ({ source_id, target_id }) => {
 </script>
 
 <style scoped>
-.brands-page {
-  padding: 0px;
-  background-color: #f8f9fa;
-  min-height: 100vh;
+/* Premium Grid Card Styles */
+.grid-card {
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+  border-radius: 12px !important;
 }
 
-.max-width-300 {
-  max-width: 300px;
+.grid-card:hover {
+  transform: translateY(-8px) scale(1.01) !important;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1) !important;
+  border-color: rgba(var(--v-theme-primary), 0.2) !important;
+  z-index: 10;
 }
 
-.brand-card {
-  transition: all 0.3s ease;
-  border-radius: 4px;
-  border: 1px solid #eee;
-}
-
-.brand-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1) !important;
-}
-
-.brand-card-header {
+.brand-grid-header {
   height: 180px;
-  border-radius: 16px 16px 0 0;
+  background-color: #f8fafc !important;
 }
 
-.height-40 {
-  height: 40px;
+.bg-slate-50 {
+  background-color: #f8fafc !important;
 }
 
-.text-truncate-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+.text-slate-800 {
+  color: #1e293b !important;
 }
 
-.logo-preview-zone .change-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  opacity: 0;
-  transition: opacity 0.3s;
-  z-index: 2;
+.text-slate-500 {
+  color: #64748b !important;
 }
 
-.logo-preview-zone:hover .change-overlay {
-  opacity: 1;
+.text-slate-400 {
+  color: #94a3b8 !important;
 }
 
-.hover-scale {
-  transition: transform 0.2s;
+.border-white-4 {
+  border: 4px solid white !important;
 }
 
-.hover-scale:hover {
-  transform: scale(1.02);
+.transition-all-cubic {
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
 }
 
 .modern-table :deep(.v-data-table__th) {
