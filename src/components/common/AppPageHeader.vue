@@ -32,6 +32,7 @@
           </v-card-subtitle>
         </v-col>
 
+        <v-spacer />
         <!-- Append Content -->
         <v-col v-if="$slots.append" cols="12" sm="auto" class="">
           <slot name="append"></slot>

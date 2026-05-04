@@ -286,6 +286,25 @@ export function useDataTable(fetchFunction, options = {}) {
   // ✅ Watchers للتزامن التلقائي (عند استخدام v-model)
   watch(selectAll, toggleSelectAll);
 
+  // مراقبة الصفحة الحالية
+  watch(currentPage, newVal => {
+    if (syncWithUrl && String(newVal) !== String(route.query.page || '1')) {
+      updateUrl({ page: newVal });
+    } else if (!syncWithUrl) {
+      fetchData();
+    }
+  });
+
+  // مراقبة عدد العناصر في الصفحة
+  watch(perPage, newVal => {
+    if (syncWithUrl && String(newVal) !== String(route.query.per_page || initialPerPage)) {
+      updateUrl({ per_page: newVal, page: 1 });
+    } else if (!syncWithUrl) {
+      currentPage.value = 1;
+      fetchData();
+    }
+  });
+
   // مراقبة البحث مع debounce
   let searchTimeout;
   watch(search, newVal => {

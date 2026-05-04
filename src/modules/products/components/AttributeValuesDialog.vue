@@ -3,7 +3,6 @@
     :model-value="modelValue"
     transition="dialog-bottom-transition"
     @update:model-value="$emit('update:modelValue', $event)"
-    persistent
     width="100%"
     max-width="1200"
   >
@@ -16,7 +15,16 @@
         </template>
 
         <template #append>
-          <v-btn icon="ri-close-line" variant="text" color="slate-400" @click="$emit('update:modelValue', false)" />
+          <div class="pe-4">
+            <v-btn
+              icon="ri-close-line"
+              variant="tonal"
+              color="error"
+              size="small"
+              class="rounded-circle shadow-sm"
+              @click="$emit('update:modelValue', false)"
+            />
+          </div>
         </template>
 
         <template #controls>

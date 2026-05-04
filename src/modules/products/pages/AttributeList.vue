@@ -1,47 +1,6 @@
 <template>
   <div class="attributes-page">
-    <AppPageHeader title="خصائص المنتجات" subtitle="إدارة وتحليل خصائص ومواصفات المنتجات" details="مثل اللون، المقاس، الخامة">
-      <template #controls>
-        <!-- Add Button -->
-        <v-col cols="6" md="4" class="d-flex justify-center">
-          <v-btn
-            v-if="can(PERMISSIONS.ATTRIBUTES_CREATE)"
-            prepend-icon="ri-add-line"
-            size="large"
-            class="gradient-add-btn elevation-6"
-            @click="handleCreate"
-          >
-            خاصية جديدة
-          </v-btn>
-        </v-col>
-
-        <!-- View Toggle -->
-        <v-col cols="6" md="4" class="d-flex align-center">
-          <div class="d-flex align-center gap-4 ms-4">
-            <span class="text-subtitle-2 text-slate-400 font-weight-medium">طريقة العرض:</span>
-            <v-btn-toggle v-model="viewMode" mandatory class="image-style-toggle" density="comfortable">
-              <v-btn value="list" icon="ri-list-check" />
-              <v-btn value="grid" icon="ri-grid-fill" />
-            </v-btn-toggle>
-          </div>
-        </v-col>
-
-        <!-- Search Bar -->
-        <v-col cols="6" md="4" class="mt-4 mt-md-0">
-          <v-text-field
-            v-model="search"
-            placeholder="بحث عن خاصية..."
-            prepend-inner-icon="ri-search-2-line"
-            class="pill-search-input me-4"
-            hide-details
-            density="compact"
-            bg-color="slate-50"
-            rounded="pill"
-            @update:model-value="handleSearch"
-          />
-        </v-col>
-      </template>
-    </AppPageHeader>
+    <!-- Use AppDataTable's built-in header for consistency -->
 
     <!-- Content Area -->
     <div v-if="loading && !attributes.length" class="d-flex flex-column align-center justify-center py-16">
@@ -61,22 +20,38 @@
 
     <AppDataTable
       v-else
+      v-model:page="page"
+      v-model:items-per-page="itemsPerPage"
+      v-model:search="search"
       :headers="headers"
       :items="attributes"
       :total-items="total"
       :loading="loading"
-      v-model:page="page"
-      v-model:items-per-page="itemsPerPage"
-      :searchable="false"
-      :can-view="false"
-      :can-edit="false"
-      :can-delete="false"
       permission-module="attributes"
+      title="خصائص المنتجات"
+      subtitle="إدارة وتحليل خصائص ومواصفات المنتجات (مثل اللون، المقاس، الخامة)"
+      icon="ri-paint-brush-line"
+      show-view-toggle
       grid-enabled
-      :view-mode="viewMode"
-      class="minimal-table"
+      sticky-actions
       @update:options="onTableOptionsUpdate"
+      @view="openValuesDialog"
+      @edit="handleEdit"
+      @delete="handleDelete"
+      @click:row="openValuesDialog"
     >
+      <!-- Header Actions Slot -->
+      <template #actions>
+        <AppButton
+          v-if="can(PERMISSIONS.ATTRIBUTES_CREATE)"
+          color="primary"
+          prepend-icon="ri-add-line"
+          class="rounded-pill shadow-sm"
+          @click="handleCreate"
+        >
+          خاصية جديدة
+        </AppButton>
+      </template>
       <template #grid="{ items, handleContextMenu }">
         <v-row dense>
           <v-col v-for="attribute in items" :key="attribute.id" cols="12" sm="6" md="4" lg="3">
@@ -175,28 +150,6 @@
 
       <template #extra-actions="{ item }">
         <v-list-item prepend-icon="ri-list-settings-line" title="القيم" class="text-info" @click="openValuesDialog(item)" />
-        <v-list-item
-          v-if="
-            canAny(PERMISSIONS.ATTRIBUTES_UPDATE_ALL, PERMISSIONS.ATTRIBUTES_UPDATE_CHILDREN, PERMISSIONS.ATTRIBUTES_UPDATE_SELF, {
-              resource: item,
-            })
-          "
-          prepend-icon="ri-edit-2-line"
-          title="تعديل"
-          class="text-primary"
-          @click="handleEdit(item)"
-        />
-        <v-list-item
-          v-if="
-            canAny(PERMISSIONS.ATTRIBUTES_DELETE_ALL, PERMISSIONS.ATTRIBUTES_DELETE_CHILDREN, PERMISSIONS.ATTRIBUTES_DELETE_SELF, {
-              resource: item,
-            })
-          "
-          prepend-icon="ri-delete-bin-6-line"
-          title="حذف"
-          class="text-error"
-          @click="handleDelete(item)"
-        />
       </template>
     </AppDataTable>
 
@@ -327,6 +280,7 @@ import { ref, onMounted, computed, watch } from 'vue';
 import { useAttributesData } from '../composables/useAttributesData';
 import { useApi } from '@/composables/useApi';
 import { usePermissions } from '@/composables/usePermissions';
+import { PERMISSIONS } from '@/config/permissions';
 import { isColorProperty, suggestClosestColors, getExactColorHexCode } from '@/utils/color-utils';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 import AppDialog from '@/components/common/AppDialog.vue';
@@ -437,18 +391,14 @@ const handleToggleStatus = async item => {
   }
 };
 
-let searchTimeout;
-const handleSearch = () => {
-  clearTimeout(searchTimeout);
-  searchTimeout = setTimeout(() => {
-    page.value = 1;
-    loadData();
-  }, 500);
-};
-
 const onTableOptionsUpdate = () => {
   loadData();
 };
+
+// Auto-load data when search or pagination changes
+watch([page, itemsPerPage, search], () => {
+  loadData();
+});
 
 const handleDelete = item => {
   selectedItem.value = item;
@@ -503,21 +453,7 @@ const loadData = (options = {}) => {
   fetchAttributes(params);
 };
 
-onMounted(loadData);
-
-watch(page, () => {
-  if (viewMode.value === 'list') {
-    loadData();
-  }
-});
-
-watch(itemsPerPage, () => {
-  page.value = 1;
-  loadData();
-});
-
-watch(viewMode, () => {
-  page.value = 1;
+onMounted(() => {
   loadData();
 });
 </script>

@@ -7,15 +7,15 @@
             <AppDataTable
               v-model:sort-by="sortByVuetify"
               v-model:search="search"
+              v-model:page="page"
+              v-model:items-per-page="itemsPerPage"
               :filters="advancedFilters"
               @update:filters="val => Object.assign(filters, val)"
               :headers="headers"
               :items="products"
               :total-items="totalItems"
               :loading="loading"
-              :virtual="true"
               permission-module="products"
-              table-height="calc(100vh - 220px)"
               show-view-toggle
               grid-enabled
               :grid-options="{
@@ -271,6 +271,7 @@ const {
   items: products,
   loading,
   currentPage: page,
+  perPage: itemsPerPage,
   total: totalItems,
   lastPage,
   search,

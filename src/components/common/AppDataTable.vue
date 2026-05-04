@@ -537,7 +537,6 @@
       transition="scale-transition"
       offset="5"
       :close-on-content-click="true"
-      persistent
     >
       <AppTableActions
         v-if="menuProps.item"
