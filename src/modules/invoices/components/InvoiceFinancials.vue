@@ -10,7 +10,7 @@
           
           <v-card-text class="pa-3">
             <div>
-              <!-- Row 1: Cash Box -->
+              <!-- Row 1: Cash Box (100%) -->
               <div class="input-item">
                 <CashBoxSelector
                   :model-value="modelValue.cash_box_id"
@@ -24,24 +24,20 @@
                 />
               </div>
 
-              <!-- Row 2: Combined Paid Amount & Previous Balance -->
+              <!-- Row 2: Previous Balance Display & Switch (50/50) -->
               <div class="input-item">
                 <v-row dense no-gutters align="center">
-                  <v-col cols="8" class="pe-2">
-                    <AppInput
-                      :model-value="modelValue.paid_amount"
-                      label="المبلغ المدفوع (ج.م)"
-                      type="number"
-                      density="compact"
-                      hide-details
-                      prefix="ج.م"
-                      class="font-weight-black success-field"
-                      @update:model-value="$emit('update:prop', { key: 'paid_amount', value: $event })"
-                    />
+                  <v-col cols="6" class="pe-2">
+                    <div class="d-flex flex-column border rounded-md px-2 py-1 bg-neutral-lighten-5" style="height: 28px; justify-content: center;">
+                      <div class="d-flex justify-space-between align-center">
+                        <span class="text-xxxs font-weight-bold text-secondary">رصيد العميل الحالي:</span>
+                        <AppBalanceDisplay :amount="financials.previous_balance" perspective="admin" value-class="text-xxs font-weight-bold" hide-label />
+                      </div>
+                    </div>
                   </v-col>
-                  <v-col cols="4">
-                    <div class="d-flex align-center justify-center border rounded-md bg-neutral-lighten-5 px-1" style="height: 28px">
-                      <span class="text-xxxs font-weight-bold me-1">السابق؟</span>
+                  <v-col cols="6">
+                    <div class="d-flex align-center justify-between border rounded-md bg-neutral-lighten-5 px-2" style="height: 28px">
+                      <span class="text-xxs font-weight-bold flex-grow-1">احتساب رصيد العميل</span>
                       <AppSwitch
                         :model-value="modelValue.include_previous_balance"
                         hide-details
@@ -54,24 +50,40 @@
                 </v-row>
               </div>
 
-              <!-- Row 3: Header Discount Row -->
-              <div class="input-item">
-                <AppInput
-                  :model-value="modelValue.header_discount"
-                  label="خصم إضافي للفاتورة"
-                  type="number"
-                  density="compact"
-                  hide-details
-                  prefix="ج.م"
-                  class="centered-input"
-                  @update:model-value="$emit('update:prop', { key: 'header_discount', value: $event })"
-                />
-              </div>
-
-              <!-- Row 4: Tax Row -->
+              <!-- Row 3: Paid Amount & Additional Discount (50/50) -->
               <div class="input-item">
                 <v-row dense no-gutters align="center">
-                  <v-col cols="8" class="pe-2">
+                  <v-col cols="6" class="pe-2">
+                    <AppInput
+                      :model-value="modelValue.paid_amount"
+                      label="المبلغ المدفوع"
+                      type="number"
+                      density="compact"
+                      hide-details
+                      prefix="ج.م"
+                      class="font-weight-black success-field"
+                      @update:model-value="$emit('update:prop', { key: 'paid_amount', value: $event })"
+                    />
+                  </v-col>
+                  <v-col cols="6">
+                    <AppInput
+                      :model-value="modelValue.header_discount"
+                      label="خصم إضافي"
+                      type="number"
+                      density="compact"
+                      hide-details
+                      prefix="ج.م"
+                      class="centered-input"
+                      @update:model-value="$emit('update:prop', { key: 'header_discount', value: $event })"
+                    />
+                  </v-col>
+                </v-row>
+              </div>
+
+              <!-- Row 4: Tax Row (Modified) -->
+              <div class="input-item">
+                <v-row dense no-gutters align="center">
+                  <v-col cols="6" class="pe-2">
                     <AppInput
                       :model-value="modelValue.tax_rate"
                       label="نسبة الضريبة (%)"
@@ -83,9 +95,9 @@
                       @update:model-value="$emit('update:prop', { key: 'tax_rate', value: $event })"
                     />
                   </v-col>
-                  <v-col cols="4">
-                    <div class="d-flex align-center justify-center border rounded-md bg-neutral-lighten-5 px-1" style="height: 28px">
-                      <span class="text-xxs font-weight-bold me-1">شاملة؟</span>
+                  <v-col cols="6">
+                    <div class="d-flex align-center justify-between border rounded-md bg-neutral-lighten-5 px-2" style="height: 28px">
+                      <span class="text-xxs font-weight-bold flex-grow-1">تفعيل الضريبة</span>
                       <AppSwitch
                         :model-value="modelValue.tax_inclusive"
                         hide-details
@@ -98,7 +110,7 @@
                 </v-row>
               </div>
 
-              <!-- Row 5: Notes Row -->
+              <!-- Row 5: Notes Row (100%) -->
               <div class="input-item">
                 <AppTextarea
                   :model-value="modelValue.notes"
