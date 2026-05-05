@@ -23,6 +23,13 @@
     line-height: 1 !important;
     display: flex !important;
     align-items: center !important;
+    text-align: center !important; /* Unified alignment */
+    justify-content: center !important;
+  }
+
+  border-radius: 6px !important; /* Unified border radius */
+  .v-field__outline {
+    --v-field-border-radius: 6px !important;
   }
 
   /* Force Prefix/Suffix to center correctly */
@@ -130,6 +137,10 @@
 
 .text-xxs {
   font-size: 10px !important;
+}
+
+.rounded-md {
+  border-radius: 6px !important;
 }
 
 .unified-28 {

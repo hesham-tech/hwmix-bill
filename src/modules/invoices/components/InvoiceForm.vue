@@ -3,7 +3,7 @@
     <!-- Sticky Header -->
     <InvoiceHeader
       :is-edit="isEdit"
-      :invoice-total="invoiceTotal"
+      :financials="financials"
       :loading="loading"
       :can-submit="canSubmit"
       :title="formTitle"
@@ -199,14 +199,10 @@ const financials = computed(() => {
   let total_tax = 0;
   let net_amount = taxable_amount;
 
-  if (invoiceData.value.tax_rate > 0) {
-    if (invoiceData.value.tax_inclusive) {
-      total_tax = taxable_amount - taxable_amount / (1 + invoiceData.value.tax_rate / 100);
-      net_amount = taxable_amount;
-    } else {
-      total_tax = taxable_amount * (invoiceData.value.tax_rate / 100);
-      net_amount = taxable_amount + total_tax;
-    }
+  // Treat tax_inclusive as "is_tax_enabled" based on the UI label
+  if (invoiceData.value.tax_inclusive && invoiceData.value.tax_rate > 0) {
+    total_tax = taxable_amount * (invoiceData.value.tax_rate / 100);
+    net_amount = taxable_amount + total_tax;
   }
 
   const raw_previous_balance = parseFloat(selectedCustomerObj.value?.balance || 0);
@@ -221,6 +217,8 @@ const financials = computed(() => {
     taxable_amount,
     total_tax,
     net_amount,
+    header_discount: invoiceData.value.header_discount || 0,
+    paid_amount: invoiceData.value.paid_amount || 0,
     previous_balance: effective_previous_balance,
     total_balance,
     remaining_amount,

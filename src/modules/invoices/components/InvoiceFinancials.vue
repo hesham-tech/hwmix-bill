@@ -30,8 +30,8 @@
                   <v-col cols="6" class="pe-2">
                     <div class="d-flex flex-column border rounded-md px-2 py-1 bg-neutral-lighten-5" style="height: 28px; justify-content: center;">
                       <div class="d-flex justify-space-between align-center">
-                        <span class="text-xxxs font-weight-bold text-secondary">رصيد العميل الحالي:</span>
-                        <AppBalanceDisplay :amount="financials.previous_balance" perspective="admin" value-class="text-xxs font-weight-bold" hide-label />
+                        <span style="font-size: 8.5px;" class="font-weight-medium text-secondary">رصيد العميل الحالي:</span>
+                        <AppBalanceDisplay :amount="financials.previous_balance" perspective="admin" value-class="text-xs font-weight-black" hide-label />
                       </div>
                     </div>
                   </v-col>
@@ -80,7 +80,7 @@
                 </v-row>
               </div>
 
-              <!-- Row 4: Tax Row (Modified) -->
+              <!-- Row 4: Tax Row (Restored Balanced Layout) -->
               <div class="input-item">
                 <v-row dense no-gutters align="center">
                   <v-col cols="6" class="pe-2">
@@ -139,47 +139,94 @@
           
           <div class="pa-3">
             <div class="financial-rows d-flex flex-column gap-2">
-              <div class="d-flex justify-space-between dashed-row-light">
-                <span class="text-xxs text-secondary">إجمالي الأصناف</span>
-                <span class="text-xxs font-weight-bold">{{ formatCurrency(financials.gross_amount) }}</span>
+              <!-- Grid Row: Gross Amount -->
+              <div class="d-flex align-center dashed-row-light">
+                <div style="width: 30%;" class="text-right">
+                  <span class="text-xxs text-secondary">إجمالي الأصناف</span>
+                </div>
+                <div style="width: 70%;" class="text-center">
+                  <span class="text-xxs font-weight-bold">{{ formatCurrency(financials.gross_amount) }}</span>
+                </div>
               </div>
               
-              <div class="d-flex justify-space-between dashed-row-light text-error">
-                <span class="text-xxs">خصم الأصناف</span>
-                <span class="text-xxs font-weight-bold">-{{ formatCurrency(financials.total_discount) }}</span>
+              <!-- Grid Row: Item Discount (Conditional) -->
+              <div v-if="financials.total_discount > 0" class="d-flex align-center dashed-row-light text-error">
+                <div style="width: 30%;" class="text-right">
+                  <span class="text-xxs">خصم الأصناف</span>
+                </div>
+                <div style="width: 70%;" class="text-center">
+                  <span class="text-xxs font-weight-bold">-{{ formatCurrency(financials.total_discount) }}</span>
+                </div>
               </div>
 
-              <div v-if="financials.header_discount > 0" class="d-flex justify-space-between dashed-row-light text-error">
-                <span class="text-xxs">خصم إضافي</span>
-                <span class="text-xxs font-weight-bold">-{{ formatCurrency(financials.header_discount) }}</span>
+              <!-- Grid Row: Header Discount (Conditional) -->
+              <div v-if="financials.header_discount > 0" class="d-flex align-center dashed-row-light text-error">
+                <div style="width: 30%;" class="text-right">
+                  <span class="text-xxs">خصم إضافي</span>
+                </div>
+                <div style="width: 70%;" class="text-center">
+                  <span class="text-xxs font-weight-bold">-{{ formatCurrency(financials.header_discount) }}</span>
+                </div>
               </div>
 
-              <div class="d-flex justify-space-between dashed-row-light">
-                <span class="text-xxs text-secondary">الضريبة</span>
-                <span class="text-xxs font-weight-bold text-primary">+{{ formatCurrency(financials.total_tax) }}</span>
+              <!-- Grid Row: Tax (Conditional) -->
+              <div v-if="financials.total_tax > 0" class="d-flex align-center dashed-row-light">
+                <div style="width: 30%;" class="text-right">
+                  <span class="text-xxs text-secondary">الضريبة</span>
+                </div>
+                <div style="width: 70%;" class="text-center">
+                  <span class="text-xxs font-weight-bold text-primary">+{{ formatCurrency(financials.total_tax) }}</span>
+                </div>
               </div>
 
-              <!-- Net Amount Focus -->
-              <div class="bg-primary px-3 py-2 rounded-md my-2 d-flex justify-space-between align-center border border-white">
-                <span class="text-xxs font-weight-bold text-white uppercase ls-1">صافي الفاتورة</span>
-                <span class="text-h6 font-weight-black text-white line-height-1">{{ formatCurrency(financials.net_amount) }}</span>
+              <!-- Net Amount Focus (Custom Grid) -->
+              <div class="bg-primary px-3 py-2 rounded-md my-2 d-flex align-center border border-white">
+                <div style="width: 30%;" class="text-right border-l border-white border-opacity-25 pe-2">
+                  <span class="text-xxs font-weight-bold text-white uppercase ls-1">صافي الفاتورة</span>
+                </div>
+                <div style="width: 70%;" class="text-center">
+                  <span class="text-h6 font-weight-black text-white line-height-1">{{ formatCurrency(financials.net_amount) }}</span>
+                </div>
               </div>
 
-              <div class="d-flex justify-space-between align-center dashed-row-light">
-                <span class="text-xxs text-secondary">رصيد سابق</span>
-                <AppBalanceDisplay :amount="financials.previous_balance" perspective="admin" value-class="text-xxs font-weight-bold" hide-label />
+              <!-- Grid Row: Previous Balance (Conditional) -->
+              <div v-if="modelValue.include_previous_balance" class="d-flex align-center dashed-row-light">
+                <div style="width: 30%;" class="text-right">
+                  <span class="text-xxs text-secondary">رصيد سابق</span>
+                </div>
+                <div style="width: 70%;" class="text-center">
+                  <AppBalanceDisplay :amount="financials.previous_balance" perspective="admin" value-class="text-xxs font-weight-bold" hide-label />
+                </div>
               </div>
 
-              <div class="d-flex justify-space-between align-center dashed-row-light">
-                <span class="text-caption font-weight-black">إجمالي المستحق</span>
-                <AppBalanceDisplay :amount="financials.total_balance" perspective="admin" value-class="text-subtitle-2 font-weight-black" hide-label />
+              <!-- Grid Row: Total Balance (Total Due) -->
+              <div class="d-flex align-center dashed-row-light">
+                <div style="width: 30%;" class="text-right">
+                  <span class="text-xxs font-weight-black">إجمالي المستحق</span>
+                </div>
+                <div style="width: 70%;" class="text-center">
+                  <AppBalanceDisplay :amount="financials.total_balance" perspective="admin" value-class="text-subtitle-2 font-weight-black" hide-label />
+                </div>
+              </div>
+
+              <!-- Grid Row: Paid Amount (Conditional) -->
+              <div v-if="financials.paid_amount > 0" class="d-flex align-center dashed-row-light text-success">
+                <div style="width: 30%;" class="text-right">
+                  <span class="text-xxs">المبلغ المدفوع</span>
+                </div>
+                <div style="width: 70%;" class="text-center">
+                  <span class="text-xxs font-weight-bold">-{{ formatCurrency(financials.paid_amount) }}</span>
+                </div>
               </div>
 
               <v-divider class="my-1 border-opacity-25" />
 
-            <div :class="['pa-2 rounded-md text-center font-weight-bold text-xxs mt-2 border border-dashed', financials.remaining_amount <= 0 ? 'bg-success text-white border-success' : 'bg-error-lighten-5 text-error border-error']">
-              {{ financials.remaining_amount <= 0 ? 'الفاتورة مدفوعة بالكامل' : `المتبقي للتحصيل: ${formatCurrency(financials.remaining_amount)}` }}
-            </div>
+              <div :class="['pa-3 rounded-md text-center mt-2 border border-dashed', financials.remaining_amount <= 0 ? 'bg-success-lighten-5 text-success border-success-lighten-2' : 'bg-error-lighten-5 text-error border-error-lighten-2']">
+                <div class="text-xxs mb-1 font-weight-medium opacity-70">{{ financials.remaining_amount <= 0 ? 'حالة الدفع' : 'المتبقي للتحصيل' }}</div>
+                <div class="text-h5 font-weight-black line-height-1">
+                  {{ financials.remaining_amount <= 0 ? 'الفاتورة مدفوعة بالكامل' : formatCurrency(financials.remaining_amount) }}
+                </div>
+              </div>
             </div>
           </div>
         </v-card>
