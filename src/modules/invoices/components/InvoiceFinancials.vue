@@ -1,176 +1,178 @@
 <template>
-  <v-card class="rounded-md sticky-summary pt-0 pb-0 border-dashed mb-3 shadow-sm">
-    <div class="pa-2 d-flex align-center border-b border-dashed mb-1">
-      <v-icon icon="ri-calculator-line" color="primary" class="me-2" size="small" />
-      <span class="text-subtitle-2 font-weight-bold">ملخص الحسابات</span>
-    </div>
-    <v-card-text class="pa-2 pt-1">
-      <v-row dense>
-        <!-- Row 1: Gross & Item Discount -->
-        <v-col cols="6" class="mb-1">
-          <div class="d-flex flex-column">
-            <span class="text-secondary text-caption">إجمالي الأصناف</span>
-            <span class="font-weight-medium">{{ formatCurrency(financials.gross_amount) }}</span>
+    <v-row dense class="mt-2 no-gutters w-100">
+      <!-- Card 1: Input Fields (Stacked Vertically) - 50% Width -->
+      <v-col cols="12" md="6" class="pa-1">
+        <v-card variant="outlined" class="rounded-md bg-surface border-opacity-100 h-100 shadow-sm">
+          <div class="pa-2 d-flex align-center bg-neutral-lighten-5 border-b">
+            <v-icon icon="ri-edit-box-line" color="primary" class="me-2" size="16" />
+            <span class="text-xxs font-weight-bold">تعديلات الفاتورة والمدفوع</span>
           </div>
-        </v-col>
-        <v-col cols="6" class="mb-1 text-left">
-          <div class="d-flex flex-column align-end">
-            <span class="text-error text-caption">خصم الأصناف</span>
-            <span class="font-weight-medium text-error">-{{ formatCurrency(financials.total_discount) }}</span>
-          </div>
-        </v-col>
-
-        <!-- Row 2: Extra Discount -->
-        <v-col cols="12" class="mb-1">
-          <div class="d-flex justify-space-between align-center py-0 px-2 bg-grey-lighten-4 rounded compact-row">
-            <span class="text-secondary text-body-2">خصم إضافي</span>
-            <AppInput
-              :model-value="modelValue.header_discount"
-              type="number"
-              density="compact"
-              hide-details
-              style="max-width: 80px"
-              class="centered-input"
-              @update:model-value="$emit('update:prop', { key: 'header_discount', value: $event })"
-            />
-          </div>
-        </v-col>
-
-        <v-divider class="border-dashed my-1 w-100" />
-
-        <!-- Row 3: Tax Section (Rate + Switch + Value) -->
-        <v-col cols="12" class="mb-1">
-          <v-row dense align="center">
-            <v-col cols="4">
-              <AppInput
-                :model-value="modelValue.tax_rate"
-                label="الضريبة %"
-                type="number"
-                density="compact"
-                hide-details
-                style="max-width: 80px"
-                class="centered-input"
-                @update:model-value="$emit('update:prop', { key: 'tax_rate', value: $event })"
-              />
-            </v-col>
-            <v-col cols="4" class="d-flex justify-center">
-              <AppSwitch
-                :model-value="modelValue.tax_inclusive"
-                label="شاملة"
-                hide-details
-                density="compact"
-                color="primary"
-                class="mt-0"
-                @update:model-value="$emit('update:prop', { key: 'tax_inclusive', value: $event })"
-              />
-            </v-col>
-            <v-col cols="4" class="text-left font-weight-medium text-primary">
-              <div class="d-flex flex-column align-end">
-                <span class="text-caption text-secondary">قيمة الضريبة</span>
-                <span>{{ formatCurrency(financials.total_tax) }}</span>
+          
+          <v-card-text class="pa-3">
+            <div>
+              <!-- Row 1: Cash Box -->
+              <div class="input-item">
+                <CashBoxSelector
+                  :model-value="modelValue.cash_box_id"
+                  :items="cashBoxes"
+                  label="خزنة التحصيل"
+                  density="compact"
+                  required
+                  hide-details
+                  :error-messages="errors.cash_box_id"
+                  @update:model-value="$emit('update:prop', { key: 'cash_box_id', value: $event })"
+                />
               </div>
-            </v-col>
-          </v-row>
-        </v-col>
 
-        <v-divider class="border-opacity-50 my-1 w-100" />
+              <!-- Row 2: Combined Paid Amount & Previous Balance -->
+              <div class="input-item">
+                <v-row dense no-gutters align="center">
+                  <v-col cols="8" class="pe-2">
+                    <AppInput
+                      :model-value="modelValue.paid_amount"
+                      label="المبلغ المدفوع (ج.م)"
+                      type="number"
+                      density="compact"
+                      hide-details
+                      prefix="ج.م"
+                      class="font-weight-black success-field"
+                      @update:model-value="$emit('update:prop', { key: 'paid_amount', value: $event })"
+                    />
+                  </v-col>
+                  <v-col cols="4">
+                    <div class="d-flex align-center justify-center border rounded-md bg-neutral-lighten-5 px-1" style="height: 28px">
+                      <span class="text-xxxs font-weight-bold me-1">السابق؟</span>
+                      <AppSwitch
+                        :model-value="modelValue.include_previous_balance"
+                        hide-details
+                        density="compact"
+                        color="success"
+                        @update:model-value="$emit('update:prop', { key: 'include_previous_balance', value: $event })"
+                      />
+                    </div>
+                  </v-col>
+                </v-row>
+              </div>
 
-        <!-- Row 4: Net Amount -->
-        <v-col cols="12" class="mb-2">
-          <div class="d-flex justify-space-between align-center bg-primary-lighten-5 pa-2 rounded-md border border-primary-lighten-3">
-            <span class="text-body-1 font-weight-bold text-primary">صافي الفاتورة</span>
-            <span class="text-h6 font-weight-bold text-primary">{{ formatCurrency(financials.net_amount) }}</span>
+              <!-- Row 3: Header Discount Row -->
+              <div class="input-item">
+                <AppInput
+                  :model-value="modelValue.header_discount"
+                  label="خصم إضافي للفاتورة"
+                  type="number"
+                  density="compact"
+                  hide-details
+                  prefix="ج.م"
+                  class="centered-input"
+                  @update:model-value="$emit('update:prop', { key: 'header_discount', value: $event })"
+                />
+              </div>
+
+              <!-- Row 4: Tax Row -->
+              <div class="input-item">
+                <v-row dense no-gutters align="center">
+                  <v-col cols="8" class="pe-2">
+                    <AppInput
+                      :model-value="modelValue.tax_rate"
+                      label="نسبة الضريبة (%)"
+                      type="number"
+                      density="compact"
+                      hide-details
+                      prefix="%"
+                      class="centered-input"
+                      @update:model-value="$emit('update:prop', { key: 'tax_rate', value: $event })"
+                    />
+                  </v-col>
+                  <v-col cols="4">
+                    <div class="d-flex align-center justify-center border rounded-md bg-neutral-lighten-5 px-1" style="height: 28px">
+                      <span class="text-xxs font-weight-bold me-1">شاملة؟</span>
+                      <AppSwitch
+                        :model-value="modelValue.tax_inclusive"
+                        hide-details
+                        density="compact"
+                        color="primary"
+                        @update:model-value="$emit('update:prop', { key: 'tax_inclusive', value: $event })"
+                      />
+                    </div>
+                  </v-col>
+                </v-row>
+              </div>
+
+              <!-- Row 5: Notes Row -->
+              <div class="input-item">
+                <AppTextarea
+                  :model-value="modelValue.notes"
+                  label="ملاحظات الفاتورة"
+                  placeholder="اكتب ملاحظاتك..."
+                  rows="1"
+                  auto-grow
+                  density="compact"
+                  hide-details
+                  class="text-xxs-area"
+                  @update:model-value="$emit('update:prop', { key: 'notes', value: $event })"
+                />
+              </div>
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-col>
+
+      <!-- Card 2: Financial Summary - 50% Width -->
+      <v-col cols="12" md="6" class="pa-1">
+        <v-card variant="outlined" class="rounded-md bg-neutral-lighten-5 border-opacity-100 h-100 shadow-sm overflow-hidden">
+          <div class="pa-2 d-flex align-center border-b bg-white">
+            <v-icon icon="ri-calculator-line" color="primary" class="me-2" size="16" />
+            <span class="text-xxs font-weight-bold">ملخص الحسابات (نهائي)</span>
           </div>
-        </v-col>
+          
+          <div class="pa-3">
+            <div class="financial-rows d-flex flex-column gap-2">
+              <div class="d-flex justify-space-between dashed-row-light">
+                <span class="text-xxs text-secondary">إجمالي الأصناف</span>
+                <span class="text-xxs font-weight-bold">{{ formatCurrency(financials.gross_amount) }}</span>
+              </div>
+              
+              <div class="d-flex justify-space-between dashed-row-light text-error">
+                <span class="text-xxs">خصم الأصناف</span>
+                <span class="text-xxs font-weight-bold">-{{ formatCurrency(financials.total_discount) }}</span>
+              </div>
 
-        <!-- Row 5: Previous Balance & Total Required -->
-        <v-col cols="6" class="mb-1">
-          <div class="d-flex flex-column h-100">
-            <div class="d-flex justify-space-between align-center">
-              <span class="text-secondary text-caption">رصيد سابق</span>
-              <AppSwitch
-                :model-value="modelValue.include_previous_balance"
-                label="تشمل الرصيد"
-                hide-details
-                density="compact"
-                color="success"
-                class="mt-0"
-                @update:model-value="$emit('update:prop', { key: 'include_previous_balance', value: $event })"
-              />
-            <AppBalanceDisplay 
-              :amount="financials.previous_balance" 
-              perspective="admin"
-              value-class="font-weight-bold"
-              hide-label
-            />
+              <div v-if="financials.header_discount > 0" class="d-flex justify-space-between dashed-row-light text-error">
+                <span class="text-xxs">خصم إضافي</span>
+                <span class="text-xxs font-weight-bold">-{{ formatCurrency(financials.header_discount) }}</span>
+              </div>
+
+              <div class="d-flex justify-space-between dashed-row-light">
+                <span class="text-xxs text-secondary">الضريبة</span>
+                <span class="text-xxs font-weight-bold text-primary">+{{ formatCurrency(financials.total_tax) }}</span>
+              </div>
+
+              <!-- Net Amount Focus -->
+              <div class="bg-primary px-3 py-2 rounded-md my-2 d-flex justify-space-between align-center border border-white">
+                <span class="text-xxs font-weight-bold text-white uppercase ls-1">صافي الفاتورة</span>
+                <span class="text-h6 font-weight-black text-white line-height-1">{{ formatCurrency(financials.net_amount) }}</span>
+              </div>
+
+              <div class="d-flex justify-space-between align-center dashed-row-light">
+                <span class="text-xxs text-secondary">رصيد سابق</span>
+                <AppBalanceDisplay :amount="financials.previous_balance" perspective="admin" value-class="text-xxs font-weight-bold" hide-label />
+              </div>
+
+              <div class="d-flex justify-space-between align-center dashed-row-light">
+                <span class="text-caption font-weight-black">إجمالي المستحق</span>
+                <AppBalanceDisplay :amount="financials.total_balance" perspective="admin" value-class="text-subtitle-2 font-weight-black" hide-label />
+              </div>
+
+              <v-divider class="my-1 border-opacity-25" />
+
+            <div :class="['pa-2 rounded-md text-center font-weight-bold text-xxs mt-2 border border-dashed', financials.remaining_amount <= 0 ? 'bg-success text-white border-success' : 'bg-error-lighten-5 text-error border-error']">
+              {{ financials.remaining_amount <= 0 ? 'الفاتورة مدفوعة بالكامل' : `المتبقي للتحصيل: ${formatCurrency(financials.remaining_amount)}` }}
+            </div>
             </div>
           </div>
-        </v-col>
-        <v-col cols="6" class="mb-1 text-left">
-          <div class="d-flex flex-column align-end border-s-dark ps-2">
-            <span class="text-secondary text-caption">إجمالي المستحق</span>
-            <AppBalanceDisplay 
-              :amount="financials.total_balance" 
-              perspective="admin"
-              value-class="font-weight-bold text-body-1"
-              hide-label
-            />
-          </div>
-        </v-col>
-      </v-row>
-
-      <v-divider class="my-2" />
-
-      <div class="d-flex align-center mb-2">
-        <v-icon icon="ri-wallet-3-line" color="primary" class="me-2" size="small" />
-        <h3 class="text-subtitle-1 font-weight-bold mb-0">بيانات الدفع</h3>
-      </div>
-
-      <v-row dense class="mx-0">
-        <v-col cols="12">
-          <AppInput
-            :model-value="modelValue.paid_amount"
-            label="المبلغ المدفوع"
-            type="number"
-            prepend-inner-icon="ri-cash-line"
-            class="font-weight-bold"
-            @update:model-value="$emit('update:prop', { key: 'paid_amount', value: $event })"
-          />
-        </v-col>
-        <v-col cols="12" v-if="modelValue.paid_amount > 0">
-          <CashBoxSelector
-            :model-value="modelValue.cash_box_id"
-            :items="cashBoxes"
-            required
-            :error-messages="errors.cash_box_id"
-            @update:model-value="$emit('update:prop', { key: 'cash_box_id', value: $event })"
-          />
-        </v-col>
-
-        <v-col cols="12">
-          <v-alert variant="tonal" :color="financials.remaining_amount <= 0 ? 'success' : 'error'" class="mb-1 rounded-md" density="compact">
-            <div class="d-flex justify-space-between align-center w-100 py-0">
-              <span class="text-caption font-weight-bold">المبلغ المتبقي</span>
-              <span class="text-body-2 font-weight-bold">
-                {{ formatCurrency(financials.remaining_amount) }}
-              </span>
-            </div>
-          </v-alert>
-        </v-col>
-
-        <v-col cols="12">
-          <AppTextarea
-            :model-value="modelValue.notes"
-            label="ملاحظات"
-            rows="2"
-            placeholder="أدخل أي ملاحظات إضافية هنا..."
-            prepend-inner-icon="ri-sticky-note-2-line"
-            @update:model-value="$emit('update:prop', { key: 'notes', value: $event })"
-          />
-        </v-col>
-      </v-row>
-    </v-card-text>
-  </v-card>
+        </v-card>
+      </v-col>
+    </v-row>
 </template>
 
 <script setup>
@@ -205,17 +207,40 @@ const emit = defineEmits(['update:modelValue', 'update:prop', 'update:showProfit
 </script>
 
 <style scoped>
+.dashed-row-light {
+  border-bottom: 1px dashed rgba(var(--v-theme-on-surface), 0.1);
+  padding-bottom: 4px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.text-xxs-switch :deep(.v-label) {
+  font-size: 10px !important;
+}
+
+.text-xxs-area :deep(.v-field__input) {
+  font-size: 10px !important;
+  min-height: 28px !important;
+}
+
+.success-field :deep(.v-field__outline) {
+  --v-field-border-color: rgb(var(--v-theme-success)) !important;
+}
+
+.ls-1 {
+  letter-spacing: 0.5px;
+}
+
+.shadow-inner {
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+}
+
 .sticky-summary {
   position: sticky;
   top: 170px;
-}
-
-.border-dashed {
-  border-style: dashed !important;
-}
-
-.centered-input :deep(input) {
-  text-align: center;
 }
 
 .no-border-input :deep(.v-field__outline) {

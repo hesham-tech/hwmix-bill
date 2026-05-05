@@ -1,13 +1,13 @@
 <template>
   <div class="variant-manager">
     <!-- Header Section - Responsive Layout -->
-    <div class="mb-4 px-1">
+    <div class="mb-2 px-1">
       <!-- Title Row -->
-      <div class="d-flex align-center gap-2 mb-3">
-        <v-avatar color="primary-lighten-5" size="32" class="rounded-md">
-          <v-icon color="primary" size="small">ri-layout-grid-line</v-icon>
+      <div class="d-flex align-center gap-2 mb-1">
+        <v-avatar color="primary-lighten-5" size="28" class="rounded-md">
+          <v-icon color="primary" size="14">ri-layout-grid-line</v-icon>
         </v-avatar>
-        <h3 class="text-subtitle-1 font-weight-bold">أصناف ومتغيرات المنتج</h3>
+        <h3 class="text-caption font-weight-bold">أصناف ومتغيرات المنتج</h3>
       </div>
       
       <!-- Add Button Row - Full width on mobile, compact on desktop -->
@@ -16,6 +16,8 @@
         variant="flat" 
         prepend-icon="ri-add-line" 
         class="rounded-md"
+        density="compact"
+        size="small"
         :block="$vuetify.display.smAndDown"
         @click="addVariant"
       >
@@ -27,39 +29,38 @@
       <v-expansion-panel
         v-for="(variant, vIndex) in modelValue"
         :key="vIndex"
-        class="mb-3 border rounded-md overflow-hidden elevation-0"
+        class="mb-2 border rounded-md overflow-hidden elevation-0"
         :class="{ 'active-panel-border': activePanel.includes(vIndex) }"
       >
-        <v-expansion-panel-title class="py-3">
-          <div class="d-flex align-center gap-3 w-100 pe-4">
+        <v-expansion-panel-title class="py-1 min-height-28">
+          <div class="d-flex align-center gap-2 w-100 pe-2">
             <div class="variant-dot" :class="variant.sku ? 'bg-primary' : 'bg-grey-lighten-2'"></div>
             <AppAvatar
               :img-url="variant.images?.find(i => i.id === variant.primary_image_id || i.is_primary)?.url || variant.images?.[0]?.url"
               :name="variant.sku || 'Var'"
-              size="40"
+              size="28"
               rounded="md"
               type="product"
               class="mx-1"
             />
-            <div class="d-flex flex-column">
-              <span class="text-body-2 font-weight-bold">متغير #{{ vIndex + 1 }}</span>
-              <span v-if="variant.sku" class="text-caption text-primary font-weight-medium">{{ variant.sku }}</span>
-              <span v-else class="text-caption text-grey">لم يتم تحديد SKU</span>
+            <div class="d-flex flex-column line-height-1">
+              <span class="text-xxs font-weight-bold">متغير #{{ vIndex + 1 }}</span>
+              <span v-if="variant.sku" class="text-xxs text-primary font-weight-medium">{{ variant.sku }}</span>
             </div>
 
             <v-spacer />
 
             <!-- Quick Stats in Header -->
-            <div class="d-none d-sm-flex align-center gap-4 me-4">
-              <div class="d-flex flex-column align-end">
-                <span class="text-caption text-grey">السعر</span>
-                <span class="text-caption font-weight-bold text-success">{{ variant.retail_price || 0 }} ج.م</span>
+            <div class="d-none d-sm-flex align-center gap-3 me-2">
+              <div class="d-flex flex-column align-end line-height-1">
+                <span class="text-xxs text-grey">السعر</span>
+                <span class="text-xxs font-weight-bold text-success">{{ variant.retail_price || 0 }} ج.م</span>
               </div>
               <template v-if="productType === 'physical'">
-                <v-divider vertical class="mx-1" length="24" />
-                <div class="d-flex flex-column align-end">
-                  <span class="text-caption text-grey">المخزون</span>
-                  <span class="text-caption font-weight-bold">{{ calculateTotalQty(variant) }} قطعة</span>
+                <v-divider vertical class="mx-1" length="16" />
+                <div class="d-flex flex-column align-end line-height-1">
+                  <span class="text-xxs text-grey">المخزون</span>
+                  <span class="text-xxs font-weight-bold">{{ calculateTotalQty(variant) }} قطعة</span>
                 </div>
               </template>
             </div>
@@ -71,7 +72,7 @@
                 variant="tonal"
                 color="primary"
                 class="rounded-md"
-                title="تكرار المتغير"
+                density="compact"
                 @click.stop="duplicateVariant(vIndex)"
               />
               <v-btn
@@ -81,7 +82,7 @@
                 variant="tonal"
                 color="error"
                 class="rounded-md"
-                title="حذف المتغير"
+                density="compact"
                 @click.stop="removeVariant(vIndex)"
               />
             </div>
@@ -89,13 +90,12 @@
         </v-expansion-panel-title>
 
         <v-expansion-panel-text class="pa-0 border-t">
-          <div class="pa-5">
+          <div class="pa-2">
             <!-- Phase 1: Identity & Prices -->
-            <div class="d-flex align-center gap-2 mb-4">
-              <v-icon icon="ri-price-tag-3-line" color="primary" size="small" />
-              <span class="text-overline text-primary font-weight-bold">الهوية والأسعار</span>
-              <v-chip size="x-small" color="info" variant="tonal" class="px-2">
-                <v-icon icon="ri-information-line" size="x-small" class="me-1" />
+            <div class="d-flex align-center gap-2 mb-2">
+              <v-icon icon="ri-price-tag-3-line" color="primary" size="14" />
+              <span class="text-xxs text-primary font-weight-bold uppercase">الهوية والأسعار</span>
+              <v-chip size="x-small" color="info" variant="tonal" class="px-1" density="compact">
                 تحديث تلقائي للربح
               </v-chip>
             </div>
@@ -117,8 +117,7 @@
               </v-col>
             </v-row>
 
-            <!-- Pricing Section with Enhanced UI -->
-            <v-row class="mt-2">
+            <v-row class="mt-1" dense>
               <v-col cols="12" md="3" v-if="can(PERMISSIONS.PRODUCTS_VIEW_PURCHASE_PRICE)">
                 <AppInput 
                   v-model.number="variant.purchase_price" 
@@ -168,7 +167,8 @@
 
             <!-- Smart Profit Margin Indicators - Split View -->         
             <v-row 
-              class="mt-3" 
+              class="mt-1" 
+              dense
               v-if="can(PERMISSIONS.PRODUCTS_VIEW_PURCHASE_PRICE) && variant.purchase_price && (variant.wholesale_price || variant.retail_price)"
             >
               <!-- Wholesale Profit Indicator -->
@@ -177,27 +177,18 @@
                   :color="getProfitColor(variant, 'wholesale')"
                   variant="tonal"
                   density="compact"
-                  class="mb-0"
+                  class="mb-0 pa-1"
                   :icon="getProfitIcon(variant, 'wholesale')"
                 >
                   <div class="d-flex flex-column">
-                    <div class="d-flex align-center justify-space-between mb-1">
-                      <span class="text-caption font-weight-bold">هامش ربح الجملة:</span>
-                      <v-chip size="x-small" :color="getProfitColor(variant, 'wholesale')" class="font-weight-bold" variant="flat">
+                    <div class="d-flex align-center justify-space-between mb-0">
+                      <span class="text-xxs font-weight-bold">هامش ربح الجملة:</span>
+                      <v-chip size="x-small" :color="getProfitColor(variant, 'wholesale')" class="font-weight-bold" variant="flat" density="compact">
                         {{ calculateProfitMargin(variant, 'wholesale') }}%
                       </v-chip>
                     </div>
                     <div class="d-flex align-center justify-space-between">
-                      <span class="text-caption">{{ calculateProfitAmount(variant, 'wholesale') }} ج.م</span>
-                      <span v-if="variant.wholesale_price < variant.purchase_price" class="text-caption text-error">
-                        ⚠️ خسارة!
-                      </span>
-                      <span v-else-if="calculateProfitMargin(variant, 'wholesale') < 10" class="text-caption text-warning-darken-2">
-                        ⚠️ منخفض
-                      </span>
-                      <span v-else-if="calculateProfitMargin(variant, 'wholesale') > 30" class="text-caption text-success-darken-1">
-                        ✓ ممتاز
-                      </span>
+                      <span class="text-xxs">{{ calculateProfitAmount(variant, 'wholesale') }} ج.م</span>
                     </div>
                   </div>
                 </v-alert>
@@ -209,44 +200,34 @@
                   :color="getProfitColor(variant, 'retail')"
                   variant="tonal"
                   density="compact"
-                  class="mb-0"
+                  class="mb-0 pa-1"
                   :icon="getProfitIcon(variant, 'retail')"
                 >
                   <div class="d-flex flex-column">
-                    <div class="d-flex align-center justify-space-between mb-1">
-                      <span class="text-caption font-weight-bold">هامش ربح القطاعي:</span>
-                      <v-chip size="x-small" :color="getProfitColor(variant, 'retail')" class="font-weight-bold" variant="flat">
+                    <div class="d-flex align-center justify-space-between mb-0">
+                      <span class="text-xxs font-weight-bold">هامش ربح القطاعي:</span>
+                      <v-chip size="x-small" :color="getProfitColor(variant, 'retail')" class="font-weight-bold" variant="flat" density="compact">
                         {{ calculateProfitMargin(variant, 'retail') }}%
                       </v-chip>
                     </div>
                     <div class="d-flex align-center justify-space-between">
-                      <span class="text-caption">{{ calculateProfitAmount(variant, 'retail') }} ج.م</span>
-                      <span v-if="variant.retail_price < variant.purchase_price" class="text-caption text-error">
-                        ⚠️ خسارة!
-                      </span>
-                      <span v-else-if="calculateProfitMargin(variant, 'retail') < 10" class="text-caption text-warning-darken-2">
-                        ⚠️ منخفض
-                      </span>
-                      <span v-else-if="calculateProfitMargin(variant, 'retail') > 30" class="text-caption text-success-darken-1">
-                        ✓ ممتاز
-                      </span>
+                      <span class="text-xxs">{{ calculateProfitAmount(variant, 'retail') }} ج.م</span>
                     </div>
                   </div>
                 </v-alert>
               </v-col>
             </v-row>
 
-            <v-divider class="my-6" />
+            <v-divider class="my-2" />
 
             <!-- Phase 2: Stock Breakdown (Conditional) -->
             <template v-if="productType === 'physical'">
-              <v-divider class="my-6" />
-              <div class="d-flex align-center justify-space-between mb-4">
+              <div class="d-flex align-center justify-space-between mb-2">
                 <div class="d-flex align-center gap-2">
-                  <v-icon icon="ri-store-2-line" color="primary" size="small" />
-                  <span class="text-overline text-primary font-weight-bold">توزيع المخزون عبر الفروع</span>
+                  <v-icon icon="ri-store-2-line" color="primary" size="14" />
+                  <span class="text-xxs text-primary font-weight-bold">توزيع المخزون عبر الفروع</span>
                 </div>
-                <v-btn size="x-small" variant="tonal" color="primary" class="rounded-md" prepend-icon="ri-add-line" @click="addStock(vIndex)">
+                <v-btn size="x-small" variant="tonal" color="primary" class="rounded-md" density="compact" prepend-icon="ri-add-line" @click="addStock(vIndex)">
                   إضافة فرع
                 </v-btn>
               </div>
@@ -299,29 +280,29 @@
                   </v-row>
                 </div>
 
-                <div v-if="!variant.stocks?.length" class="text-center py-6 border-dashed rounded-md bg-grey-lighten-5 mb-4">
-                  <v-icon icon="ri-error-warning-line" color="grey" class="mb-1" />
-                  <div class="text-caption text-grey">لم يتم تحديد مخزون لهذا المتغير بعد</div>
+                <div v-if="!variant.stocks?.length" class="text-center py-2 border-dashed rounded-md bg-grey-lighten-5 mb-2">
+                  <v-icon icon="ri-error-warning-line" color="grey" size="14" class="mb-0" />
+                  <div class="text-xxs text-grey">لم يتم تحديد مخزون لهذا المتغير بعد</div>
                 </div>
               </div>
             </template>
 
-            <v-divider class="my-6" />
+            <v-divider class="my-2" />
 
             <!-- Phase 3: Attributes Selection (Moved to End) -->
-            <div class="d-flex align-center justify-space-between mb-4">
+            <div class="d-flex align-center justify-space-between mb-2">
               <div class="d-flex align-center gap-2">
-                <v-icon icon="ri-equalizer-line" color="primary" size="small" />
-                <span class="text-overline text-primary font-weight-bold">المواصفات والخصائص الفنية</span>
+                <v-icon icon="ri-equalizer-line" color="primary" size="14" />
+                <span class="text-xxs text-primary font-weight-bold">المواصفات والخصائص الفنية</span>
               </div>
-              <v-btn size="x-small" variant="tonal" color="secondary" class="rounded-md" prepend-icon="ri-add-line" @click="addAttribute(vIndex)">
+              <v-btn size="x-small" variant="tonal" color="secondary" class="rounded-md" density="compact" prepend-icon="ri-add-line" @click="addAttribute(vIndex)">
                 إضافة صفة
               </v-btn>
             </div>
 
-            <div v-if="!variant.attributes?.length" class="text-center py-6 border-dashed rounded-md mb-2 bg-grey-lighten-5">
-              <v-icon icon="ri-list-settings-line" color="grey-lighten-1" class="mb-1" />
-              <div class="text-caption text-grey">لا توجد مواصفات محددة (سيتم اعتباره كمتغير أساسي بدون خصائص)</div>
+            <div v-if="!variant.attributes?.length" class="text-center py-2 border-dashed rounded-md mb-2 bg-grey-lighten-5">
+              <v-icon icon="ri-list-settings-line" color="grey-lighten-1" size="14" class="mb-0" />
+              <div class="text-xxs text-grey">لا توجد مواصفات محددة</div>
             </div>
 
             <div v-else class="attr-container d-flex flex-wrap gap-2 mb-2">
@@ -384,17 +365,17 @@
               </div>
             </div>
 
-            <v-divider class="my-6" />
+            <v-divider class="my-2" />
 
             <!-- Phase 4: Variant Images -->
-            <div class="d-flex align-center gap-2 mb-4">
-              <v-icon icon="ri-image-line" color="primary" size="small" />
-              <span class="text-overline text-primary font-weight-bold">صور المتغير الخاص</span>
+            <div class="d-flex align-center gap-2 mb-2">
+              <v-icon icon="ri-image-line" color="primary" size="14" />
+              <span class="text-xxs text-primary font-weight-bold">صور المتغير الخاص</span>
             </div>
             <ProductMediaManager
               v-model="variant.images"
               v-model:primaryImageId="variant.primary_image_id"
-              class="mt-2"
+              class="mt-1"
             />
           </div>
         </v-expansion-panel-text>
@@ -646,6 +627,22 @@ onMounted(() => {
   min-width: 140px;
 }
 
+.text-xxs {
+  font-size: 10px !important;
+}
+
+.line-height-1 {
+  line-height: 1 !important;
+}
+
+.min-height-28 {
+  min-height: 28px !important;
+}
+
+.uppercase {
+  text-transform: uppercase;
+}
+
 .stock-card {
   transition: all 0.2s;
 }
@@ -657,7 +654,7 @@ onMounted(() => {
 }
 
 .border-dashed {
-  border: 1.5px dashed rgba(0, 0, 0, 0.1);
+  border: 1px dashed rgba(0, 0, 0, 0.1);
 }
 
 .price-input :deep(input) {
@@ -668,8 +665,14 @@ onMounted(() => {
   padding: 0 !important;
 }
 
+:deep(.v-expansion-panel-title) {
+  min-height: 28px !important;
+  padding-top: 2px !important;
+  padding-bottom: 2px !important;
+}
+
 /* Custom transitions */
 .v-expansion-panel {
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 </style>

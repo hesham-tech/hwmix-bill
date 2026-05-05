@@ -198,5 +198,12 @@ export const useUserStore = defineStore('user', () => {
     hasAnyRole,
     clearUser,
     updatePrintFormat,
+    /**
+     * Update current user data partially (useful for balance sync from API responses)
+     */
+    updateUser: (data) => {
+      if (!currentUser.value || !data) return;
+      currentUser.value = { ...currentUser.value, ...data };
+    },
   };
 });

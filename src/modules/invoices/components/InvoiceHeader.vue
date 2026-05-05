@@ -1,25 +1,25 @@
 <template>
-  <div class="sticky-header d-flex flex-column flex-sm-row align-start align-sm-center justify-space-between px-4 px-sm-6 py-3 mb-2 gap-3">
+  <div class="sticky-header d-flex flex-column flex-sm-row align-start align-sm-center justify-space-between px-3 py-1 mb-1 gap-2">
     <div class="d-flex align-center">
-      <AppButton icon="ri-arrow-right-line" variant="text" color="secondary" @click="$emit('cancel')" class="me-2 me-sm-4" />
+      <AppButton icon="ri-arrow-right-line" variant="text" color="secondary" density="compact" @click="$emit('cancel')" class="me-2" />
       <div>
-        <h1 class="text-subtitle-1 text-sm-h5 font-weight-bold mb-0">
+        <h1 class="text-subtitle-2 font-weight-bold mb-0">
           {{ title || (isEdit ? 'تعديل الفاتورة' : 'إنشاء فاتورة جديدة') }}
         </h1>
-        <div v-if="invoiceTotal > 0" class="text-caption text-sm-h6 font-weight-bold text-primary mt-0 mt-sm-1">
+        <div v-if="invoiceTotal > 0" class="text-xxs font-weight-bold text-primary mt-n1">
           الإجمالي: {{ formatCurrency(invoiceTotal) }}
         </div>
       </div>
     </div>
     <div class="d-flex gap-2 w-100 w-sm-auto justify-end">
-      <AppButton variant="tonal" color="secondary" @click="$emit('cancel')" :disabled="loading" class="flex-grow-1 flex-sm-grow-0"> إلغاء </AppButton>
+      <AppButton variant="tonal" color="secondary" density="compact" @click="$emit('cancel')" :disabled="loading"> إلغاء </AppButton>
       <AppButton
         color="primary"
         prepend-icon="ri-save-line"
+        density="compact"
         :loading="loading"
         @click="$emit('save')"
         :disabled="!canSubmit"
-        class="flex-grow-1 flex-sm-grow-0"
       >
         حفظ
       </AppButton>

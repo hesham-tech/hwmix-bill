@@ -12,53 +12,52 @@
     />
 
     <v-form ref="form" v-model="isFormValid">
+      <!-- Section 1: Compact Header Info (Full Width) -->
+      <InvoiceCustomerInfo
+        v-model="invoiceData"
+        :selected-customer="selectedCustomerObj"
+        :invoice-types="invoiceTypes"
+        :warehouses="warehouses"
+        :errors="errors"
+        class="mb-3"
+        @update:selected-customer="
+          val => {
+            selectedCustomerObj = val;
+            invoiceData.user_id = val?.id || null;
+          }
+        "
+        @create-customer="isQuickAddCustomerOpen = true"
+        @update:prop="({ key, value }) => (invoiceData[key] = value)"
+      />
+
+      <!-- Section 2: Items Table (Full Width) -->
+      <InvoiceItemsList
+        v-model:tax-inclusive="invoiceData.tax_inclusive"
+        :items="invoiceData.items"
+        :warehouse-id="invoiceData.warehouse_id"
+        :invoice-type="currentContext"
+        :customer-type="selectedCustomerObj?.customer_type || 'retail'"
+        :show-installment-section="currentContext === 'installment_sale'"
+        class="mb-3"
+        @add="addItem"
+        @calculate="calculateItem"
+        @remove="removeItem"
+        @create-product="isQuickAddProductOpen = true"
+      >
+        <template #installment>
+          <div class="d-none d-sm-block pa-4">
+            <InstallmentPlanner
+              :net-amount="financials.total_balance"
+              v-model="invoiceData.installment_plan"
+              @update:down-payment="val => (invoiceData.paid_amount = val)"
+            />
+          </div>
+        </template>
+      </InvoiceItemsList>
+
+      <!-- Section 3: Summary & Financials (Full Width) -->
       <v-row>
-        <!-- Main Content (Left on Desktop) -->
-        <v-col cols="12" lg="8">
-          <!-- Section 1: Header Info -->
-          <InvoiceCustomerInfo
-            v-model="invoiceData"
-            :selected-customer="selectedCustomerObj"
-            :invoice-types="invoiceTypes"
-            :warehouses="warehouses"
-            :errors="errors"
-            @update:selected-customer="
-              val => {
-                selectedCustomerObj = val;
-                invoiceData.user_id = val?.id || null;
-              }
-            "
-            @create-customer="isQuickAddCustomerOpen = true"
-            @update:prop="({ key, value }) => (invoiceData[key] = value)"
-          />
-
-          <!-- Section 2: Items Table -->
-          <InvoiceItemsList
-            v-model:tax-inclusive="invoiceData.tax_inclusive"
-            :items="invoiceData.items"
-            :warehouse-id="invoiceData.warehouse_id"
-            :invoice-type="currentContext"
-            :customer-type="selectedCustomerObj?.customer_type || 'retail'"
-            :show-installment-section="currentContext === 'installment_sale'"
-            @add="addItem"
-            @calculate="calculateItem"
-            @remove="removeItem"
-            @create-product="isQuickAddProductOpen = true"
-          >
-            <template #installment>
-              <div class="d-none d-sm-block">
-                <InstallmentPlanner
-                  :net-amount="financials.total_balance"
-                  v-model="invoiceData.installment_plan"
-                  @update:down-payment="val => (invoiceData.paid_amount = val)"
-                />
-              </div>
-            </template>
-          </InvoiceItemsList>
-        </v-col>
-
-        <!-- Section 3: Summary & Financials (Right on Desktop) -->
-        <v-col cols="12" lg="4">
+        <v-col cols="12">
           <InvoiceFinancials
             v-model="invoiceData"
             v-model:show-profit="showProfit"

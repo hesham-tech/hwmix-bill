@@ -2,12 +2,12 @@
   <v-form ref="form" v-model="isValid" @submit.prevent="handleSubmit">
     <AppPageHeader :sticky-top="isDialog ? 0 : 79" sticky>
       <template #prepend>
-        <div class="d-flex align-center gap-3">
-          <AppButton icon="ri-arrow-right-line" variant="tonal" color="primary" size="small" class="" @click="emit('cancel')" />
+        <div class="d-flex align-center gap-2">
+          <AppButton icon="ri-arrow-right-line" variant="tonal" color="primary" size="x-small" density="compact" @click="emit('cancel')" />
           <AppAvatar
             :img-url="primaryImageUrl"
             :name="productData.name || 'P'"
-            :size="$vuetify.display.xs ? '36' : '48'"
+            size="32"
             rounded="md"
             type="product"
             border
@@ -17,9 +17,9 @@
 
       <template #title>
         <div class="d-flex align-center gap-2 flex-wrap">
-          <span class="text-h6 font-weight-bold">{{ isEdit ? 'تعديل المنتج' : 'إضافة منتج' }}</span>
-          <span v-if="productData.name" class="text-subtitle-2 font-weight-medium line-clamp-1">{{ productData.name }}</span>
-          <v-chip v-if="isEdit" :color="productData.active ? 'success' : 'error'" size="x-small" variant="flat" class="px-2">
+          <span class="text-subtitle-2 font-weight-bold">{{ isEdit ? 'تعديل المنتج' : 'إضافة منتج' }}</span>
+          <span v-if="productData.name" class="text-xxs text-grey-darken-1 line-clamp-1">{{ productData.name }}</span>
+          <v-chip v-if="isEdit" :color="productData.active ? 'success' : 'error'" size="x-small" variant="flat" class="px-1" density="compact">
             {{ productData.active ? 'نشط' : 'مؤرشف' }}
           </v-chip>
         </div>
@@ -27,8 +27,8 @@
 
       <template #append>
         <div class="d-flex gap-2">
-          <AppButton variant="text" color="grey-darken-1" @click="emit('cancel')"> إلغاء </AppButton>
-          <AppButton color="primary" type="submit" :loading="loading" :disabled="!isValid" class="px-6" prepend-icon="ri-save-3-line">
+          <AppButton variant="text" color="grey-darken-1" size="small" density="compact" @click="emit('cancel')"> إلغاء </AppButton>
+          <AppButton color="primary" type="submit" :loading="loading" :disabled="!isValid" size="small" density="compact" class="px-4" prepend-icon="ri-save-3-line">
             حفظ التغييرات
           </AppButton>
         </div>
@@ -41,11 +41,11 @@
         <!-- Information Card -->
         <v-card border flat class="mb-2 overflow-visible">
           <div
-            class="pa-4 mb-2 bg-grey-lighten-5 rounded-t-lg border-b d-flex flex-column-reverse flex-md-row align-md-center justify-md-space-between gap-4"
+            class="pa-2 mb-1 bg-grey-lighten-5 rounded-t-lg border-b d-flex flex-column-reverse flex-md-row align-md-center justify-md-space-between gap-2"
           >
             <div class="d-flex align-center">
-              <v-icon icon="ri-information-line" color="primary" class="me-2" />
-              <span class="text-subtitle-2 font-weight-bold">المعلومات الأساسية</span>
+              <v-icon icon="ri-information-line" color="primary" size="14" class="me-2" />
+              <span class="text-xxs font-weight-bold">المعلومات الأساسية</span>
             </div>
 
             <!-- Product Type Selection -->
@@ -215,11 +215,11 @@
       <v-col cols="12" lg="4">
         <!-- Status Card -->
         <v-card border flat class="mb-2">
-          <div class="pa-4 bg-grey-lighten-5 rounded-t-lg border-b d-flex align-center">
-            <v-icon icon="ri-settings-4-line" color="grey-darken-1" class="me-2" />
-            <span class="text-subtitle-2 font-weight-bold">حالة العرض والخيارات</span>
+          <div class="pa-2 bg-grey-lighten-5 rounded-t-lg border-b d-flex align-center">
+            <v-icon icon="ri-settings-4-line" color="grey-darken-1" size="14" class="me-2" />
+            <span class="text-xxs font-weight-bold">حالة العرض والخيارات</span>
           </div>
-          <v-card-text class="pa-4">
+          <v-card-text class="pa-2">
             <div class="d-flex flex-column gap-2">
               <div class="d-flex align-center justify-space-between pa-2 hover-bg">
                 <div>
@@ -253,13 +253,13 @@
         </v-card>
 
         <!-- Media Card -->
-        <v-card border flat class="pb-4">
-          <div class="pa-4 bg-grey-lighten-5 rounded-t-lg border-b d-flex align-center">
-            <v-icon icon="ri-image-line" color="grey-darken-1" class="me-2" />
-            <span class="text-subtitle-2 font-weight-bold">صور المنتج</span>
+        <v-card border flat class="pb-2">
+          <div class="pa-2 bg-grey-lighten-5 rounded-t-lg border-b d-flex align-center">
+            <v-icon icon="ri-image-line" color="grey-darken-1" size="14" class="me-2" />
+            <span class="text-xxs font-weight-bold">صور المنتج</span>
           </div>
-          <v-card-text class="pa-4">
-            <ProductMediaManager v-model="productData.images" v-model:primaryImageId="productData.primary_image_id" class="mt-2" />
+          <v-card-text class="pa-2">
+            <ProductMediaManager v-model="productData.images" v-model:primaryImageId="productData.primary_image_id" class="mt-1" />
           </v-card-text>
         </v-card>
       </v-col>
@@ -553,6 +553,10 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+.text-xxs {
+  font-size: 10px !important;
+}
+
 .gap-2 {
   gap: 0.5rem;
 }

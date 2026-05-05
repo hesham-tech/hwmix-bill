@@ -1,90 +1,64 @@
 <template>
-  <v-card class="rounded-md border-dashed mb-2">
-    <v-card-item class="py-4 px-6 border-bottom" prepend-icon="ri-list-settings-line">
-      <template #title>
-        <span class="font-weight-bold">أصناف الفاتورة</span>
-      </template>
-      <template #append>
-        <div style="min-width: 300px; max-width: 450px" class="ms-4">
-          <ProductSelector
-            @add="$emit('add', $event)"
-            @create-product="$emit('create-product')"
-            :warehouse-id="warehouseId"
-            :invoice-type="invoiceType"
-            :customer-type="customerType"
-          />
-        </div>
-      </template>
-    </v-card-item>
+  <div class="hyper-compact mb-4">
+    <!-- Compact Product Search Bar -->
+    <div class="d-flex align-center gap-2 mb-2 bg-primary-lighten-5 pa-1 px-2 rounded border border-primary-lighten-4">
+      <div style="max-width: 500px; width: 100%">
+        <ProductSelector
+          @add="$emit('add', $event)"
+          @create-product="$emit('create-product')"
+          :warehouse-id="warehouseId"
+          :invoice-type="invoiceType"
+          :customer-type="customerType"
+          density="compact"
+        />
+      </div>
+      <div class="d-none d-md-flex align-center px-2 border-s">
+         <span class="text-xxs font-weight-bold text-primary text-no-wrap">الأصناف: {{ items.length }}</span>
+      </div>
+    </div>
 
-    <v-card-text class="pa-0">
-      <!-- Items List (Desktop) -->
+    <!-- Items List (Desktop) -->
+    <v-card variant="outlined" class="rounded-md border-opacity-50 overflow-hidden">
       <div class="w-100 d-none d-md-block">
-        <v-table class="items-table">
+        <v-table class="items-table compact-table" density="compact">
           <thead>
-            <tr class="bg-grey-lighten-4">
-              <th class="text-right" style="width: fit-content">الصنف</th>
-              <th class="text-center" style="width: fit-content">الكمية</th>
-              <th class="text-center" style="width: fit-content">سعر الوحدة</th>
-              <th class="text-center" style="width: fit-content">الخصم</th>
-              <th class="text-left pe-6" style="width: fit-content">الإجمالي</th>
-              <th style="width: 50px"></th>
+            <tr class="bg-neutral-lighten-5">
+              <th class="text-right ps-4">الصنف</th>
+              <th class="text-center" style="width: 120px">الكمية</th>
+              <th class="text-center" style="width: 140px">سعر الوحدة</th>
+              <th class="text-center" style="width: 120px">الخصم</th>
+              <th class="text-left pe-4" style="width: 140px">الإجمالي</th>
+              <th style="width: 48px"></th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(item, index) in items" :key="index">
-              <td class="ps-6 py-2">
-                <v-list-item class="pa-0">
-                  <template #prepend>
-                    <AppAvatar :img-url="item.primary_image_url" :name="item.name" size="40" rounded="md" class="me-3 border" />
-                  </template>
-
-                  <v-list-item-title class="font-weight-bold">{{ item.name }}</v-list-item-title>
-                  <v-list-item-subtitle v-if="item.variant_name" class="d-flex align-center gap-1">
-                    <span>{{ item.variant_name }}</span>
-                    <span v-if="item.attributes_text" class="text-grey-lighten-1">•</span>
-                    <span v-if="item.attributes_text" class="text-primary font-weight-medium">{{ item.attributes_text }}</span>
-                  </v-list-item-subtitle>
-
-                  <!-- Stock Warning -->
-                  <template #append-inner v-if="item.requires_stock && item.quantity > (item.max_quantity || 0)">
-                    <div class="text-caption text-error font-weight-bold ms-2">
-                      <v-icon icon="ri-error-warning-line" size="14" class="me-1" />
-                      المتوفر: {{ item.max_quantity || 0 }}
+              <td class="ps-2 py-1">
+                <div class="d-flex align-center">
+                  <AppAvatar
+                    :img-url="item.primary_image_url"
+                    :name="item.name"
+                    size="28"
+                    rounded="md"
+                    class="me-2 border"
+                  />
+                  <div class="line-height-1 overflow-hidden" style="max-width: 300px">
+                    <div class="text-caption font-weight-bold text-truncate">{{ item.name }}</div>
+                    <div v-if="item.variant_name || item.attributes_text" class="text-xxs text-secondary text-truncate">
+                      {{ item.variant_name }} <span v-if="item.attributes_text">• {{ item.attributes_text }}</span>
                     </div>
-                  </template>
-
-                  <div
-                    v-if="item.requires_stock && item.quantity > (item.max_quantity || 0)"
-                    class="text-caption text-error font-weight-bold mt-1 d-md-none"
-                  >
-                    <v-icon icon="ri-error-warning-line" size="14" class="me-1" />
-                    الكمية المطلوبة أكبر من المتوفر ({{ item.max_quantity || 0 }})
                   </div>
-
-                  <!-- Product Type Badge -->
-                  <div v-if="item.product_type && item.product_type !== 'physical'" class="mt-1">
-                    <v-chip size="x-small" :color="item.product_type === 'digital' ? 'info' : 'secondary'" variant="tonal" label density="compact">
-                      {{ item.product_type === 'digital' ? 'منتج رقمي' : 'خدمة' }}
-                    </v-chip>
-                  </div>
-                </v-list-item>
-                <!-- Stock Warning (fallback for table cell space) -->
-                <div v-if="item.requires_stock && item.quantity > (item.max_quantity || 0)" class="text-caption text-error font-weight-bold mt-1">
-                  <v-icon icon="ri-error-warning-line" size="14" class="me-1" />
-                  تجاوز المخزون ({{ item.max_quantity || 0 }})
                 </div>
               </td>
-              <td class="text-center px-2">
+              <td width="100" class="px-1 py-1 text-center">
                 <div class="d-flex justify-center position-relative">
                   <AppInput
                     :model-value="item.quantity"
                     type="number"
                     density="compact"
-                    style="width: fit-content"
                     hide-details
                     min="1"
-                    class="centered-input"
+                    class="compact-input centered-input"
                     :class="{ 'flash-error': isItemError(item) }"
                     @update:model-value="val => updateQuantity(item, val)"
                   />
@@ -93,37 +67,35 @@
                   </v-tooltip>
                 </div>
               </td>
-              <td class="text-center px-2">
+              <td width="100" class="px-1 py-1 text-center">
                 <div class="d-flex justify-center">
                   <AppInput
                     v-model.number="item.unit_price"
                     type="number"
                     density="compact"
                     hide-details
-                    style="width: fit-content"
-                    class="centered-input"
+                    class="compact-input centered-input"
                     @update:model-value="$emit('calculate', item)"
                   />
                 </div>
               </td>
-              <td class="text-center px-2">
+              <td width="80" class="px-1 py-1 text-center">
                 <div class="d-flex justify-center">
                   <AppInput
                     v-model.number="item.discount"
                     type="number"
                     density="compact"
                     hide-details
-                    style="width: fit-content"
-                    class="centered-input"
+                    class="compact-input centered-input"
                     @update:model-value="$emit('calculate', item)"
                   />
                 </div>
               </td>
-              <td class="text-left pe-6 font-weight-bold text-primary">
+              <td class="text-left px-2 py-1 font-weight-bold text-primary text-caption">
                 {{ formatCurrency(item.total) }}
               </td>
-              <td class="pe-4">
-                <AppButton icon="ri-delete-bin-line" variant="text" color="error" density="comfortable" @click="$emit('remove', index)" />
+              <td class="px-1 py-1" width="40">
+                <AppButton icon="ri-delete-bin-line" variant="text" color="error" density="compact" size="small" @click="$emit('remove', index)" />
               </td>
             </tr>
           </tbody>
@@ -225,14 +197,14 @@
         message="ابدأ بالبحث عن منتجات لإضافتها للفاتورة"
         class="border-top"
       />
-    </v-card-text>
 
-    <!-- Installment Section -->
-    <v-divider v-if="showInstallmentSection" />
-    <v-card-text v-if="showInstallmentSection" class="pa-0">
-      <slot name="installment"></slot>
-    </v-card-text>
-  </v-card>
+      <!-- Installment Section -->
+      <v-divider v-if="showInstallmentSection" />
+      <div v-if="showInstallmentSection" class="pa-0">
+        <slot name="installment"></slot>
+      </div>
+    </v-card>
+  </div>
 </template>
 
 <script setup>
@@ -308,6 +280,7 @@ const updateQuantity = (item, val) => {
 </script>
 
 <style scoped>
+/* Height Unification for Search Bar */
 .border-dashed {
   border-style: dashed !important;
 }
@@ -321,15 +294,6 @@ const updateQuantity = (item, val) => {
   color: rgba(var(--v-theme-on-surface), 0.7) !important;
   text-transform: uppercase;
   font-size: 0.75rem;
-}
-
-.centered-input :deep(input) {
-  text-align: center;
-}
-
-.compact-input :deep(input) {
-  text-align: center;
-  font-size: 0.875rem;
 }
 
 .border-top {

@@ -1,0 +1,141 @@
+/* Global Hyper Compact System - Applied to the entire project automatically */
+
+/* Target all Vuetify fields globally */
+.v-field {
+  --v-field-padding-top: 0px !important;
+  --v-field-padding-bottom: 0px !important;
+  height: 28px !important;
+  min-height: 28px !important;
+  max-height: 28px !important;
+  font-size: 11px !important;
+
+  /* Target all input contents including prefix/suffix */
+  .v-field__input,
+  .v-field__field,
+  .v-input__control,
+  input {
+    min-height: 28px !important;
+    max-height: 28px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    line-height: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+
+  /* Force Prefix/Suffix to center correctly */
+  .v-field__prefix,
+  .v-field__suffix,
+  .v-text-field__prefix,
+  .v-text-field__suffix {
+    height: 28px !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 4px !important;
+    margin: 0 !important;
+    line-height: 1 !important;
+    font-size: 10px !important;
+    font-weight: bold;
+    opacity: 0.7;
+  }
+
+  /* Global Vertical Centering for labels */
+  .v-label.v-field-label {
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    font-size: 11px !important;
+    opacity: 0.8;
+    margin-top: 0 !important;
+  }
+
+  /* Global Floating labels */
+  .v-label.v-field-label--floating {
+    top: 0px !important;
+    transform: translateY(-50%) scale(0.85) !important;
+    font-weight: bold;
+    opacity: 1;
+    background: white;
+    padding: 0 4px !important;
+  }
+  
+  /* Global Icons and Text Affixes adjustment */
+  .v-field__append-inner, 
+  .v-field__clearable,
+  .v-field__prepend-inner {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    align-items: center !important;
+    height: 28px !important;
+    display: flex !important;
+    
+    .v-icon {
+      font-size: 16px !important;
+      height: 16px !important;
+      display: flex;
+      align-items: center;
+    }
+
+    font-size: 10px !important;
+    font-weight: bold;
+    color: rgba(var(--v-theme-on-surface), 0.6);
+    line-height: 1 !important;
+    white-space: nowrap;
+
+    .v-text-field__suffix,
+    .v-text-field__prefix {
+      padding: 0 !important;
+      margin: 0 !important;
+      display: flex;
+      align-items: center;
+      height: 28px !important;
+      line-height: 1 !important;
+    }
+  }
+}
+
+/* Global Spacing for Compact Elements - Automatic Project-wide */
+.v-input.v-input--density-compact,
+.v-input.v-input--density-compact .v-input__control,
+.v-field--density-compact {
+  margin-bottom: 12px !important;
+  
+  &:last-child {
+    margin-bottom: 0 !important;
+  }
+}
+
+/* Force spacing even inside nested structures */
+.v-row + .v-row,
+.v-input + .v-input,
+.input-item + .input-item {
+  margin-top: 12px !important;
+}
+
+/* Global Utilities */
+.centered-input input {
+  text-align: center !important;
+}
+
+.dashed-row {
+  border-bottom: 1px dashed rgba(var(--v-border-color), 0.3) !important;
+  padding-bottom: 2px;
+  margin-bottom: 2px;
+  
+  &:last-child {
+    border-bottom: none !important;
+  }
+}
+
+.text-xxs {
+  font-size: 10px !important;
+}
+
+.unified-28 {
+  height: 28px !important;
+  min-height: 28px !important;
+  max-height: 28px !important;
+  display: flex;
+  align-items: center;
+}

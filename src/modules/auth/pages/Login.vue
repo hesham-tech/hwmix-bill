@@ -113,6 +113,7 @@ import AppPasswordInput from '@/components/common/AppPasswordInput.vue';
 import AppButton from '@/components/common/AppButton.vue';
 
 const router = useRouter();
+const route = useRoute();
 const formRef = ref(null);
 const loading = ref(false);
 

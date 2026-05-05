@@ -59,12 +59,25 @@ apiClient.interceptors.request.use(
   error => Promise.reject(error)
 );
 
-/**
- * Response Interceptor
- * معالجة errors عامة (401, 403, etc.)
- */
 apiClient.interceptors.response.use(
-  response => response,
+  async response => {
+    // Global User State Sync (Balance, etc.)
+    // We check if the response contains the 'auth' context we added in the backend helper
+    if (response.data?.auth?.user) {
+      try {
+        const { useUserStore } = await import('@/stores/user');
+        const userStore = useUserStore();
+        
+        // Instant update if the ID matches current user
+        if (userStore.currentUser && response.data.auth.user.id === userStore.currentUser.id) {
+          userStore.updateUser(response.data.auth.user);
+        }
+      } catch (e) {
+        // Silent fail if store or data is not ready
+      }
+    }
+    return response;
+  },
   error => {
     // 0. Ignore canceled requests (e.g. AbortController)
     if (axios.isCancel(error)) {

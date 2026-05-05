@@ -14,7 +14,6 @@
               :table-height="'calc(100vh - 220px)'"
               grid-enabled
               infinite-scroll
-              infinite-scroll
               :has-more="brands.length < total"
               permission-module="brands"
               sticky-actions
