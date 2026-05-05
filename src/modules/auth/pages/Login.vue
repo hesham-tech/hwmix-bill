@@ -105,7 +105,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { authService } from '@/api';
 import { required } from '@/utils/validators';
 import AppInput from '@/components/common/AppInput.vue';
@@ -134,7 +134,10 @@ const handleLogin = async () => {
     await authService.login(form.value);
     await userStore.fetchUser();
 
-    if (userStore.isStaff) {
+    const redirectPath = route.query.redirect;
+    if (redirectPath) {
+      router.push(redirectPath);
+    } else if (userStore.isStaff) {
       router.push('/app/admin/dashboard');
     } else {
       router.push('/app/portal');
