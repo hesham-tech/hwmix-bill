@@ -2,23 +2,23 @@
   <Sidebar v-model="drawer" />
 
   <v-app-bar color="surface" elevation="0" class="border-b" height="48">
-    <v-app-bar-nav-icon color="primary" @click="drawer = !drawer" class="d-flex d-sm-none" />
+    <v-app-bar-nav-icon color="primary" @click="drawer = !drawer" class="d-flex d-sm-none" size="small" />
 
     <v-spacer />
 
     <!-- Right-side tools container -->
     <div class="d-flex align-center px-0 px-sm-1 ga-2">
       <!-- Search and Balance -->
-      <v-btn v-if="userStore.currentUser" icon="ri-search-line" variant="text" color="primary" @click="isSearchOpen = true" class="rounded-lg" size="34" />
+      <v-btn v-if="userStore.currentUser" icon="ri-search-line" variant="text" color="primary" @click="isSearchOpen = true" class="rounded-lg" :size="xs ? 30 : 34" />
       
       <AppBalanceDisplay 
         v-if="userStore.currentUser"
         :amount="userStore.currentUser.balance" 
         perspective="admin"
-        custom-class="rounded-pill font-weight-black px-3"
-        height="32"
+        custom-class="rounded-pill font-weight-black px-2"
+        :height="xs ? 28 : 32"
         prepend-icon="ri-wallet-3-line"
-        value-class="text-caption text-sm-body-2"
+        value-class="text-xxs text-sm-caption"
       />
 
       <!-- <v-tooltip location="bottom">

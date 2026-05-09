@@ -1,11 +1,20 @@
 <template>
   <div class="admin-dashboard">
-    <div class="mb-2 px-6 pt-6 d-flex align-center justify-space-between">
-      <div>
-        <h1 class="text-h4 font-weight-bold">لوحة التحكم الإحصائية</h1>
-        <p class="text-body-1 text-grey">تحليل أداء النظام، الفواتير، وحركات المخزون في مكان واحد</p>
+    <div class="px-4 pt-4 mb-2">
+      <div class="d-flex align-center justify-space-between mb-1">
+        <h1 class="text-h6 text-md-h4 font-weight-bold mb-0">لوحة التحكم الإحصائية</h1>
+        <AppButton
+          color="primary"
+          prepend-icon="ri-refresh-line"
+          variant="tonal"
+          :loading="refreshing"
+          @click="refreshAll"
+          :size="xs ? 'x-small' : 'small'"
+        >
+          <span v-if="!xs">تحديث البيانات</span>
+        </AppButton>
       </div>
-      <AppButton color="primary" prepend-icon="ri-refresh-line" variant="tonal" :loading="refreshing" @click="refreshAll"> تحديث البيانات </AppButton>
+      <p class="text-xxs text-md-body-1 text-grey mb-0">تحليل أداء النظام، الفواتير، وحركات المخزون في مكان واحد</p>
     </div>
     <ShareView file-name="dashboard-summary" background-color="#f8f9fa" top="0px" left="0px" :quality="0.5">
       <div class="px-6 mb-2">
@@ -84,6 +93,7 @@
 <script setup>
 import { onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { useDisplay } from 'vuetify';
 import { useDashboardData } from '../composables/useDashboardData';
 import { useAnalytics } from '../composables/useAnalytics';
 import AppButton from '@/components/common/AppButton.vue';
@@ -102,6 +112,7 @@ import ProfitSummaryWidget from '../components/ProfitSummaryWidget.vue';
 import ReportsQuickLinks from '../components/ReportsQuickLinks.vue';
 
 const router = useRouter();
+const { xs } = useDisplay();
 
 // Use composable for data fetching
 const {
