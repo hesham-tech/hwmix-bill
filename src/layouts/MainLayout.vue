@@ -1,25 +1,25 @@
 <template>
   <Sidebar v-model="drawer" />
 
-  <v-app-bar color="surface" elevation="0" class="border-b">
+  <v-app-bar color="surface" elevation="0" class="border-b" height="48">
     <v-app-bar-nav-icon color="primary" @click="drawer = !drawer" class="d-flex d-sm-none" />
 
     <v-spacer />
 
     <!-- Right-side tools container -->
-    <div class="d-flex align-center px-0 px-sm-1 ga-0">
-      <!-- عرض الرصيد للمستحدم الحالى -->
-      <div v-if="userStore.currentUser" class="d-flex align-center">
-        <v-btn icon="ri-search-line" variant="tonal" color="primary" @click="isSearchOpen = true" class="me-2 rounded-lg" size="38" />
-        <AppBalanceDisplay 
-          :amount="userStore.currentUser.balance" 
-          perspective="admin"
-          custom-class="rounded-pill font-weight-black px-4 bg-primary-lighten-5 border border-primary-lighten-3"
-          height="36"
-          prepend-icon="ri-wallet-3-line"
-          value-class="text-caption text-sm-body-2"
-        />
-      </div>
+    <div class="d-flex align-center px-0 px-sm-1 ga-2">
+      <!-- Search and Balance -->
+      <v-btn v-if="userStore.currentUser" icon="ri-search-line" variant="text" color="primary" @click="isSearchOpen = true" class="rounded-lg" size="34" />
+      
+      <AppBalanceDisplay 
+        v-if="userStore.currentUser"
+        :amount="userStore.currentUser.balance" 
+        perspective="admin"
+        custom-class="rounded-pill font-weight-black px-3"
+        height="32"
+        prepend-icon="ri-wallet-3-line"
+        value-class="text-caption text-sm-body-2"
+      />
 
       <!-- <v-tooltip location="bottom">
         <template #activator="{ props: tooltipProps }">
@@ -36,7 +36,7 @@
       </v-tooltip> -->
 
       <!-- Branch Switcher -->
-      <BranchSwitcher />
+      <BranchSwitcher class="d-none d-sm-flex" />
 
       <!-- Print Format Selection Menu -->
       <v-menu location="bottom end">
@@ -46,10 +46,10 @@
               <AppButton
                 v-bind="{ ...props, ...tooltipProps }"
                 icon
-                variant="tonal"
+                variant="text"
                 color="primary"
-                class="d-none d-sm-flex rounded-lg me-2"
-                size="38"
+                class="d-none d-sm-flex rounded-lg"
+                size="34"
                 :loading="isUpdatingPrint"
               >
                 <v-icon size="20">{{ getPrintFormatIcon(userStore.currentCompany?.print_settings?.print_format) }}</v-icon>
@@ -85,7 +85,7 @@
       <!-- أدوات سريعة -->
       <v-menu v-model="isQuickToolsMenuOpen" :close-on-content-click="false">
         <template #activator="{ props }">
-          <AppButton v-bind="props" icon variant="tonal" color="primary" class="d-none d-sm-flex rounded-lg me-2" size="38">
+          <AppButton v-bind="props" icon variant="text" color="primary" class="d-none d-sm-flex rounded-lg" size="34">
             <v-icon size="20">ri-apps-2-line</v-icon>
           </AppButton>
         </template>
@@ -138,18 +138,27 @@
             <AppAvatar
               :img-url="userStore.currentUser?.avatar_url"
               :name="userStore.currentUser?.full_name"
-              size="30"
-              class="ms-1"
+              size="28"
+              class="me-1"
               :previewable="false"
             />
             <span class="user-name-text text-truncate">{{ userName }}</span>
-            <v-icon icon="ri-arrow-down-s-line" size="x-small" class="ms-1" />
+            <v-icon icon="ri-arrow-down-s-line" size="x-small" />
           </AppButton>
         </template>
         <v-list density="compact">
           <v-list-item prepend-icon="ri-user-settings-line" title="الملف الشخصي" to="/app/profile" />
           <v-list-item prepend-icon="ri-device-line" title="إدارة الأجهزة" to="/app/sessions" />
           <v-list-item v-if="userStore.isStaff" prepend-icon="ri-settings-3-line" title="الإعدادات" to="/app/settings" />
+
+          <!-- Branch Switcher for Mobile -->
+          <template v-if="xs">
+            <v-divider class="my-1" />
+            <div class="px-4 py-2">
+              <div class="text-xxs text-grey mb-1">الفرع الحالي</div>
+              <BranchSwitcher :show-on-mobile="true" />
+            </div>
+          </template>
 
           <!-- أدوات تظهر فقط على الموبايل في القائمة -->
           <template v-if="xs">
@@ -189,8 +198,8 @@
   </v-app-bar>
 
   <v-main class="main-content">
-    <div class="sticky-breadcrumbs-container border-b">
-      <v-container fluid class="py-1 px-1">
+    <div class="sticky-breadcrumbs-container border-b bg-surface">
+      <v-container fluid class="py-0 px-1">
         <v-breadcrumbs :items="breadcrumbs" class="pa-0 text-caption">
           <template #divider>
             <v-icon icon="ri-arrow-left-s-line" size="small" />
@@ -558,8 +567,8 @@ watch(
 
 @media (min-width: 600px) {
   .user-name-text {
-    max-width: 150px;
-    font-size: 0.95rem;
+    max-width: 120px;
+    font-size: 0.85rem;
   }
 }
 
