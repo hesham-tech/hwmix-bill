@@ -109,8 +109,10 @@ const filters = computed({
 });
 
 const typeOptions = [
-  { title: 'إيداع نقدية', value: 'income' },
-  { title: 'سحب نقدية', value: 'expense' },
+  { title: 'إيداع نقدية', value: 'deposit' },
+  { title: 'سحب نقدية', value: 'withdraw' },
+  { title: 'تحويل صادر', value: 'transfer_out' },
+  { title: 'تحويل وارد', value: 'transfer_in' },
 ];
 
 const hasActiveFilters = computed(() => {

@@ -54,9 +54,9 @@
               @update:options="changeSort"
             >
               <template #item.type="{ item }">
-                <v-chip :color="item.type === 'income' ? 'success' : 'error'" size="small" variant="flat" class="font-weight-bold px-3">
-                  <v-icon :icon="item.type === 'income' ? 'ri-arrow-left-down-line' : 'ri-arrow-right-up-line'" size="14" class="me-1" />
-                  {{ item.type === 'income' ? 'إيداع نقدية' : 'سحب نقدية' }}
+                <v-chip :color="getTypeColor(item.type)" size="small" variant="flat" class="font-weight-bold px-3">
+                  <v-icon :icon="getTypeIcon(item.type)" size="14" class="me-1" />
+                  {{ getTypeLabel(item.type) }}
                 </v-chip>
               </template>
 
@@ -83,8 +83,8 @@
               </template>
 
               <template #item.amount="{ item }">
-                <div class="text-end font-weight-bold text-body-1" :class="item.type === 'income' ? 'text-success' : 'text-error'">
-                  {{ item.type === 'income' ? '+' : '-' }} {{ formatCurrency(item.amount) }}
+                <div class="text-end font-weight-bold text-body-1" :class="isIncome(item.type) ? 'text-success' : 'text-error'">
+                  {{ isIncome(item.type) ? '+' : '-' }} {{ formatCurrency(item.amount) }}
                 </div>
               </template>
 
@@ -128,9 +128,9 @@
             @update:options="changeSort"
           >
             <template #item.type="{ item }">
-              <v-chip :color="item.type === 'income' ? 'success' : 'error'" size="small" variant="flat" class="font-weight-bold px-3">
-                <v-icon :icon="item.type === 'income' ? 'ri-arrow-left-down-line' : 'ri-arrow-right-up-line'" size="14" class="me-1" />
-                {{ item.type === 'income' ? 'إيداع' : 'سحب' }}
+              <v-chip :color="getTypeColor(item.type)" size="small" variant="flat" class="font-weight-bold px-3">
+                <v-icon :icon="getTypeIcon(item.type)" size="14" class="me-1" />
+                {{ getTypeLabel(item.type) }}
               </v-chip>
             </template>
 
@@ -144,8 +144,8 @@
             </template>
 
             <template #item.amount="{ item }">
-              <div class="text-end font-weight-bold text-body-1" :class="item.type === 'income' ? 'text-success' : 'text-error'">
-                {{ item.type === 'income' ? '+' : '-' }} {{ formatCurrency(item.amount) }}
+              <div class="text-end font-weight-bold text-body-1" :class="isIncome(item.type) ? 'text-success' : 'text-error'">
+                {{ isIncome(item.type) ? '+' : '-' }} {{ formatCurrency(item.amount) }}
               </div>
             </template>
 
@@ -255,6 +255,46 @@ const debouncedSearch = () => {
     applyFilters();
   }, 500);
 };
+
+const getTypeLabel = type => {
+  const labels = {
+    deposit: 'إيداع نقدية',
+    withdraw: 'سحب نقدية',
+    transfer_out: 'تحويل صادر',
+    transfer_in: 'تحويل وارد',
+    invoice: 'فاتورة مبيعات',
+    reverse_transfer: 'عكس تحويل',
+    reverse_deposit: 'عكس إيداع',
+    reverse_withdraw: 'عكس سحب',
+  };
+  return labels[type] || type;
+};
+
+const getTypeColor = type => {
+  const colors = {
+    deposit: 'success',
+    transfer_in: 'success',
+    withdraw: 'error',
+    transfer_out: 'warning',
+    invoice: 'info',
+  };
+  if (type?.startsWith('reverse_')) return 'secondary';
+  return colors[type] || 'grey';
+};
+
+const getTypeIcon = type => {
+  const icons = {
+    deposit: 'ri-arrow-left-down-line',
+    transfer_in: 'ri-arrow-left-down-line',
+    withdraw: 'ri-arrow-right-up-line',
+    transfer_out: 'ri-arrow-right-up-line',
+    invoice: 'ri-file-list-3-line',
+  };
+  if (type?.startsWith('reverse_')) return 'ri-restart-line';
+  return icons[type] || 'ri-exchange-line';
+};
+
+const isIncome = type => ['deposit', 'transfer_in', 'reverse_withdraw'].includes(type);
 
 onMounted(() => {
   loadCashBoxes();

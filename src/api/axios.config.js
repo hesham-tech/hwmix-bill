@@ -36,15 +36,30 @@ apiClient.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    // Add Company ID header from userStore if available
+    // Add Company & Branch IDs
     try {
       const { useUserStore } = await import('@/stores/user');
+      const { useBranchStore } = await import('@/stores/branch');
+      
       const userStore = useUserStore();
+      const branchStore = useBranchStore();
+
       if (userStore.currentUser?.company_id) {
         config.headers['X-Company-Id'] = userStore.currentUser.company_id;
       }
+
+      if (branchStore.activeBranchId) {
+        config.headers['X-Branch-Id'] = branchStore.activeBranchId;
+      }
     } catch (e) {
-      // Silent fail if store is not ready
+      // Silent fail if stores are not ready
+    }
+
+    // Add Idempotency Key for mutation requests
+    const isMutation = ['post', 'put', 'patch', 'delete'].includes(config.method.toLowerCase());
+    if (isMutation && !config.headers['X-Idempotency-Key']) {
+      // Simple UUID-like generator
+      config.headers['X-Idempotency-Key'] = crypto.randomUUID();
     }
 
     // لو FormData، خلي axios يحدد content-type تلقائياً
@@ -138,6 +153,12 @@ apiClient.interceptors.response.use(
 
       toast.error(message, { autoClose: 5000 });
 
+      return Promise.reject(error);
+    }
+
+    // 429: Too Many Requests
+    if (error?.response?.status === 429) {
+      toast.error('لقد تجاوزت حد الطلبات المسموح به. من فضلك انتظر قليلاً.', { autoClose: 10000 });
       return Promise.reject(error);
     }
 

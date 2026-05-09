@@ -94,17 +94,25 @@ const logger = {
         os: navigator.platform,
         payload: errorData.payload || {},
         severity: errorData.severity || 'medium',
+        branch_id: localStorage.getItem('active_branch_id'),
       };
+
+      const branchId = localStorage.getItem('active_branch_id');
+      const headers = {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        Authorization: `Bearer ${localStorage.getItem('token') || sessionStorage.getItem('token')}`,
+      };
+
+      if (branchId) {
+        headers['X-Branch-Id'] = branchId;
+      }
 
       // Use raw fetch for maximum reliability and to avoid axios interceptors loop
       fetch('/api/error-reports', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          'X-Requested-With': 'XMLHttpRequest',
-          Authorization: `Bearer ${localStorage.getItem('token') || sessionStorage.getItem('token')}`,
-        },
+        headers: headers,
         body: JSON.stringify(payload),
       }).catch(e => {
         // Quietly fail for reporting failures

@@ -35,6 +35,9 @@
         الدعم الفني والاقتراحات
       </v-tooltip> -->
 
+      <!-- Branch Switcher -->
+      <BranchSwitcher />
+
       <!-- Print Format Selection Menu -->
       <v-menu location="bottom end">
         <template #activator="{ props }">
@@ -326,6 +329,7 @@ import { useLocaleStore } from '@/stores/locale';
 import { useappState } from '@/stores/appState';
 import { authService } from '@/api';
 import Sidebar from '@/components/layout/Sidebar.vue';
+import BranchSwitcher from '@/components/layout/BranchSwitcher.vue';
 import GlobalSearchDialog from '@/layouts/components/GlobalSearchDialog.vue';
 import AppButton from '@/components/common/AppButton.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';

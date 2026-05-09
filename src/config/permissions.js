@@ -525,6 +525,13 @@ export const PERMISSIONS = {
   BALANCE_DEPOSIT: 'balance.deposit',
   BALANCE_WITHDRAW: 'balance.withdraw',
   BALANCE_TRANSFER: 'balance.transfer',
+  
+  // ==================== Branches ====================
+  BRANCHES_PAGE: 'branches.page',
+  BRANCHES_VIEW_ALL: 'branches.view_all',
+  BRANCHES_CREATE: 'branches.create',
+  BRANCHES_UPDATE_ALL: 'branches.update_all',
+  BRANCHES_DELETE_ALL: 'branches.delete_all',
 };
 
 /**

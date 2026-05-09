@@ -25,6 +25,19 @@ export const useUserStore = defineStore('user', () => {
 
       // Extract available companies
       companies.value = data.data.companies || [];
+
+      // Update branch store if it exists
+      try {
+        const { useBranchStore } = await import('@/stores/branch');
+        const branchStore = useBranchStore();
+        if (data.data.branches) {
+          branchStore.setBranches(data.data.branches);
+        } else if (data.data.company?.branches) {
+          branchStore.setBranches(data.data.company.branches);
+        }
+      } catch (e) {
+        console.error('Failed to sync branches:', e);
+      }
     } catch (error) {
       console.error('Failed to fetch user:', error);
     }
@@ -102,6 +115,14 @@ export const useUserStore = defineStore('user', () => {
     permissions.value = [];
     roles.value = [];
     companies.value = [];
+
+    // Clear branch store
+    try {
+      import('@/stores/branch').then(m => {
+        const branchStore = m.useBranchStore();
+        branchStore.clearBranches();
+      });
+    } catch (e) {}
   };
 
   // Switch Active Company

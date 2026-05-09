@@ -306,6 +306,13 @@ export default [
         icon: 'ri-building-2-line',
         permission: [PERMISSIONS.COMPANIES_VIEW_ALL, PERMISSIONS.COMPANIES_VIEW_CHILDREN, PERMISSIONS.COMPANIES_VIEW_SELF],
       },
+      // Branches Management
+      {
+        title: 'إدارة الفروع',
+        to: '/app/branches',
+        icon: 'ri-git-branch-line',
+        permission: [PERMISSIONS.BRANCHES_VIEW_ALL],
+      },
       // Payment Methods
       {
         title: 'طرق الدفع',

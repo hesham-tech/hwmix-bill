@@ -79,10 +79,19 @@ export const collectErrorInfo = async (error = null, context = {}) => {
   // Try to get Pinia state if available (be careful with sensitive data)
   try {
     const { useUserStore } = await import('@/stores/user');
+    const { useBranchStore } = await import('@/stores/branch');
     const userStore = useUserStore();
+    const branchStore = useBranchStore();
+    
     if (userStore.currentUser) {
       info.payload.user_id = userStore.currentUser.id;
       info.payload.username = userStore.currentUser.username;
+      info.payload.company_id = userStore.currentUser.company_id;
+    }
+
+    if (branchStore.activeBranchId) {
+      info.branch_id = branchStore.activeBranchId;
+      info.payload.branch_id = branchStore.activeBranchId;
     }
   } catch (e) {
     // Silent fail if store not accessible

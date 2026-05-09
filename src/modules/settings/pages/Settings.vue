@@ -67,6 +67,16 @@ const settingCards = computed(() => {
     });
   }
 
+  if (can(PERMISSIONS.BRANCHES_VIEW_ALL)) {
+    cards.push({
+      title: 'إدارة الفروع',
+      description: 'إضافة فروع الشركة، تعديل بياناتها وتعيين الافتراضي',
+      icon: 'ri-git-branch-line',
+      color: 'indigo',
+      to: '/app/branches',
+    });
+  }
+
   if (canAny(PERMISSIONS.ROLES_VIEW_ALL, PERMISSIONS.ROLES_VIEW_CHILDREN, PERMISSIONS.ROLES_VIEW_SELF)) {
     cards.push({
       title: 'الأدوار والصلاحيات',

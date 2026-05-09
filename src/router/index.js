@@ -16,6 +16,7 @@ import cashboxRoutes from '@/modules/cashbox/routes';
 import reportRoutes from '@/modules/reports/routes';
 import userRoutes from '@/modules/users/routes';
 import warehouseRoutes from '@/modules/warehouses/routes';
+import branchRoutes from '@/modules/branches/routes';
 import settingRoutes from '@/modules/settings/routes';
 import taskRoutes from '@/modules/tasks/routes';
 import financialsRoutes from '@/modules/financials/routes';
@@ -64,6 +65,7 @@ const router = createRouter({
         ...cashboxRoutes,
         ...userRoutes,
         ...warehouseRoutes,
+        ...branchRoutes,
         ...settingRoutes,
         ...taskRoutes,
         ...financialsRoutes,
