@@ -11,6 +11,7 @@
         <span class="text-h6 font-weight-bold">قائمة الفروع</span>
         <v-spacer />
         <v-btn 
+          v-if="canCreate"
           color="primary" 
           prepend-icon="ri-add-line" 
           class="rounded-lg"
@@ -68,6 +69,7 @@
             <v-tooltip location="top" text="تعديل">
               <template #activator="{ props }">
                 <v-btn 
+                  v-if="canUpdate"
                   v-bind="props"
                   icon="ri-edit-line" 
                   size="small" 
@@ -77,7 +79,7 @@
                 />
               </template>
             </v-tooltip>
-            <v-tooltip location="top" text="حذف" v-if="!item.is_default">
+            <v-tooltip location="top" text="حذف" v-if="!item.is_default && canDelete">
               <template #activator="{ props }">
                 <v-btn 
                   v-bind="props"
@@ -97,7 +99,7 @@
             <v-icon icon="ri-git-branch-line" size="64" color="grey-lighten-2" class="mb-4" />
             <div class="text-h6 text-grey">لا توجد فروع مضافة</div>
             <p class="text-caption text-grey mb-4">ابدأ بإضافة أول فرع لشركتك الآن</p>
-            <v-btn color="primary" variant="outlined" @click="handleCreate">إضافة فرع</v-btn>
+            <v-btn v-if="canCreate" color="primary" variant="outlined" @click="handleCreate">إضافة فرع</v-btn>
           </div>
         </template>
       </v-data-table>
@@ -214,9 +216,17 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useApi } from '@/composables/useApi';
+import { useUserStore } from '@/stores/user';
+import { PERMISSIONS } from '@/config/permissions';
 import { toast } from 'vue3-toastify';
 
+const userStore = useUserStore();
 const api = useApi('/api/branches');
+
+// Permissions
+const canCreate = computed(() => userStore.hasPermission(PERMISSIONS.BRANCHES_CREATE));
+const canUpdate = computed(() => userStore.hasPermission([PERMISSIONS.BRANCHES_UPDATE_ALL, PERMISSIONS.BRANCHES_UPDATE_SELF]));
+const canDelete = computed(() => userStore.hasPermission(PERMISSIONS.BRANCHES_DELETE_ALL));
 
 const branches = ref([]);
 const loading = ref(false);

@@ -28,6 +28,19 @@ export const PERMISSIONS = {
   COMPANIES_DELETE_SELF: 'companies.delete_self',
   COMPANIES_CHANGE_ACTIVE: 'companies.change_active_company',
 
+  // ==================== Branches ====================
+  BRANCHES_PAGE: 'branches.page',
+  BRANCHES_VIEW_ALL: 'branches.view_all',
+  BRANCHES_VIEW_CHILDREN: 'branches.view_children',
+  BRANCHES_VIEW_SELF: 'branches.view_self',
+  BRANCHES_CREATE: 'branches.create',
+  BRANCHES_UPDATE_ALL: 'branches.update_all',
+  BRANCHES_UPDATE_CHILDREN: 'branches.update_children',
+  BRANCHES_UPDATE_SELF: 'branches.update_self',
+  BRANCHES_DELETE_ALL: 'branches.delete_all',
+  BRANCHES_DELETE_CHILDREN: 'branches.delete_children',
+  BRANCHES_DELETE_SELF: 'branches.delete_self',
+
   // ==================== Users ====================
   USERS_PAGE: 'users.page',
   USERS_VIEW_ALL: 'users.view_all',
