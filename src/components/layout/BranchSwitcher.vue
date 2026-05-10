@@ -25,6 +25,30 @@
 
       <v-list density="compact" min-width="180" class="pa-1">
         <div class="text-xxs text-grey px-2 mb-1">الفروع المتاحة</div>
+
+        <v-list-item
+          v-if="userStore.isCompanyAdmin || userStore.isAdmin"
+          value="all"
+          :active="branchStore.activeBranchId === 'all'"
+          active-color="primary"
+          rounded="md"
+          class="mb-1 compact-list-item"
+          @click="handleBranchSwitch('all')"
+        >
+          <template #prepend>
+            <v-icon 
+              :icon="branchStore.activeBranchId === 'all' ? 'ri-checkbox-circle-fill' : 'ri-building-4-line'" 
+              size="16"
+              :color="branchStore.activeBranchId === 'all' ? 'primary' : 'grey'"
+            />
+          </template>
+          
+          <v-list-item-title class="text-caption font-weight-medium">
+            عرض كل الفروع
+          </v-list-item-title>
+        </v-list-item>
+
+        <v-divider v-if="userStore.isCompanyAdmin || userStore.isAdmin" class="my-1"></v-divider>
         <v-list-item
           v-for="branch in branchStore.branches"
           :key="branch.id"
@@ -75,6 +99,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useBranchStore } from '@/stores/branch';
+import { useUserStore } from '@/stores/user';
 import { toast } from 'vue3-toastify';
 
 const props = defineProps({
@@ -85,6 +110,7 @@ const props = defineProps({
 });
 
 const branchStore = useBranchStore();
+const userStore = useUserStore();
 const isSwitching = ref(false);
 
 const handleBranchSwitch = async (branchId) => {

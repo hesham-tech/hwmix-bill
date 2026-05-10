@@ -26,17 +26,17 @@ export const useUserStore = defineStore('user', () => {
       // Extract available companies
       companies.value = data.data.companies || [];
 
-      // Update branch store if it exists
+      // Fetch branches from the dedicated endpoint
       try {
         const { useBranchStore } = await import('@/stores/branch');
         const branchStore = useBranchStore();
-        if (data.data.branches) {
-          branchStore.setBranches(data.data.branches);
-        } else if (data.data.company?.branches) {
-          branchStore.setBranches(data.data.company.branches);
+        
+        const branchResponse = await apiClient.get('branches/my-branches');
+        if (branchResponse.data && branchResponse.data.data) {
+          branchStore.setBranches(branchResponse.data.data);
         }
       } catch (e) {
-        console.error('Failed to sync branches:', e);
+        console.error('Failed to fetch and sync branches:', e);
       }
     } catch (error) {
       console.error('Failed to fetch user:', error);

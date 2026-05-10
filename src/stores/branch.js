@@ -3,11 +3,13 @@ import { ref, computed, watch } from 'vue';
 
 export const useBranchStore = defineStore('branch', () => {
   // State
-  const activeBranchId = ref(localStorage.getItem('active_branch_id') ? parseInt(localStorage.getItem('active_branch_id')) : null);
+  const storedId = localStorage.getItem('active_branch_id');
+  const activeBranchId = ref(storedId === 'all' ? 'all' : (storedId ? parseInt(storedId) : null));
   const branches = ref(JSON.parse(localStorage.getItem('available_branches') || '[]'));
 
   // Getters
   const activeBranch = computed(() => {
+    if (activeBranchId.value === 'all') return { id: 'all', name: 'عرض كل الفروع' };
     if (!activeBranchId.value || !branches.value.length) return null;
     return branches.value.find(b => b.id === activeBranchId.value) || branches.value[0];
   });
