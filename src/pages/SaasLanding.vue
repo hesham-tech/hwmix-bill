@@ -11,13 +11,9 @@
         </div>
 
         <div class="d-flex align-center gap-2">
-          <div class="d-none d-md-flex align-center gap-6">
-            <router-link to="/" class="nav-link text-indigo-darken-2">المتجر الرئيسي</router-link>
-            <v-btn color="indigo-darken-4" variant="elevated" class="rounded-md px-6 font-weight-bold" to="/login"> تسجيل الدخول </v-btn>
-          </div>
-
-          <!-- Mobile Menu Toggle -->
-          <v-btn icon="ri-menu-line" variant="text" color="indigo-darken-4" class="d-flex d-md-none" @click="mobileDrawer = !mobileDrawer" />
+          <router-link to="/" class="nav-link text-indigo-darken-2 d-none d-md-block">المتجر الرئيسي</router-link>
+          <v-btn color="indigo" variant="outlined" class="rounded-md font-weight-bold" to="/login" size="small">دخول</v-btn>
+          <v-btn color="warning" variant="elevated" class="rounded-md font-weight-bold text-white" to="/register?type=tenant" size="small">ابدأ مشروعك</v-btn>
         </div>
       </v-container>
     </nav>
@@ -39,8 +35,8 @@
 
         <v-divider />
 
-        <v-btn color="indigo-darken-4" block variant="elevated" class="rounded-md mt-4" to="/login">تسجيل الدخول</v-btn>
-        <v-btn color="amber-darken-2" block variant="elevated" class="rounded-md mt-2 text-white font-weight-bold" to="/register">ابدأ الآن</v-btn>
+        <v-btn color="indigo" block variant="elevated" class="rounded-md mt-4" to="/login">تسجيل الدخول</v-btn>
+        <v-btn color="warning" block variant="elevated" class="rounded-md mt-2 text-white font-weight-bold" to="/register?type=tenant">ابدأ مشروعك الآن</v-btn>
       </div>
     </v-navigation-drawer>
 
@@ -58,11 +54,11 @@
               <p class="text-h6 opacity-90 mb-10 leading-relaxed font-weight-medium">
                 نظام HWNix (SaaS) هو شريكك التقني لإدارة الفواتير، الحسابات، المخازن، والتقسيط بذكاء وأمان فائق.
               </p>
-              <div class="d-flex gap-4 justify-end flex-wrap">
-                <v-btn size="x-large" color="amber-darken-2" class="rounded-md px-10 font-weight-bold" to="/register" height="56">
-                  ابدأ تجربتك المجانية
+              <div class="d-flex gap-4 flex-wrap mt-6">
+                <v-btn size="x-large" color="warning" variant="elevated" class="rounded-md px-10 font-weight-bold elevation-10 text-white" to="/register?type=tenant">
+                  ابدأ مشروعك الآن
                 </v-btn>
-                <v-btn size="x-large" variant="outlined" color="white" class="rounded-md px-10 font-weight-bold" height="56">
+                <v-btn size="x-large" variant="outlined" color="white" class="rounded-md px-10 font-weight-bold">
                   تعرف على المميزات
                 </v-btn>
               </div>
@@ -123,8 +119,8 @@
             <p class="text-h6 opacity-90 mb-10 position-relative max-w-700 mx-auto">
               انضم إلى شبكة عملاء HWNix واحصل على نظام إدارة متكامل يضمن لك الكفاءة والأمان.
             </p>
-            <v-btn size="x-large" color="amber-darken-2" class="rounded-md px-12 font-weight-bold position-relative" height="60" to="/register">
-              سجل حسابك مجاناً
+            <v-btn size="x-large" color="amber-darken-2" class="rounded-md px-12 font-weight-bold position-relative elevation-10" height="60" to="/register?type=tenant">
+              ابدأ مشروعك الآن مجاناً
             </v-btn>
           </v-card>
         </v-container>

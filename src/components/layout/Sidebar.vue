@@ -171,7 +171,7 @@ const route = useRoute();
 const userStore = useUserStore();
 
 const activeCompany = computed(() => {
-  return userStore.companies.find(c => c.id === userStore.currentUser?.company_id);
+  return userStore.companies.find(c => c.id === userStore.currentUser?.active_company_id);
 });
 
 const authStore = useAuthStore();

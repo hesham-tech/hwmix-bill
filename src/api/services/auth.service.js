@@ -38,15 +38,6 @@ class AuthService {
 
       return data;
     } catch (error) {
-      let errorMessage = 'فشل تسجيل الدخول';
-      if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      }
-
-      if (showToast) {
-        toast.error(errorMessage, { autoClose: 7000 });
-      }
-
       throw error;
     }
   }
@@ -73,20 +64,6 @@ class AuthService {
       return response.data;
     } catch (error) {
       if (loading) userStore.loadingApi = false;
-
-      let errorMessage = 'فشل التسجيل';
-      if (error.response?.data?.errors) {
-        // Format validation errors
-        const errors = error.response.data.errors;
-        errorMessage = Object.values(errors).flat().join('\n');
-      } else if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      }
-
-      if (showToast) {
-        toast.error(errorMessage, { autoClose: 7000 });
-      }
-
       throw error;
     }
   }
@@ -125,10 +102,6 @@ class AuthService {
     } catch (error) {
       if (loading) userStore.loadingApi = false;
 
-      if (showToast) {
-        toast.error('فشل تسجيل الخروج');
-      }
-
       throw error;
     }
   }
@@ -154,10 +127,6 @@ class AuthService {
       return response.data;
     } catch (error) {
       if (loading) userStore.loadingApi = false;
-
-      if (showToast) {
-        toast.error(error.response?.data?.message || 'فشل إرسال الرابط');
-      }
 
       throw error;
     }
@@ -207,6 +176,18 @@ class AuthService {
   /**
    * Session Management
    */
+  // تسجيل عميل متجر (مسار 2)
+  async registerCustomer(data) {
+    const response = await apiClient.post('/register/customer', data);
+    return response.data;
+  }
+
+  // تسجيل شركة جديدة (مسار 3)
+  async registerTenant(data) {
+    const response = await apiClient.post('/register/company', data);
+    return response.data;
+  }
+
   async getSessions() {
     const response = await apiClient.get('auth/sessions');
     return response.data.data;

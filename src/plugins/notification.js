@@ -54,7 +54,7 @@ export const useNotifications = () => {
     });
 
     // Listen on Company Channel (Optional, depending on if we want all company task updates)
-    window.Echo.private(`company.${user.company_id}`).listen('.task.updated', e => {
+    window.Echo.private(`company.${user.active_company_id}`).listen('.task.updated', e => {
       // To avoid duplicate notifications if user is already notified via user channel
       // We could check if e.task is assigned to this user
       console.log('Company task update:', e);

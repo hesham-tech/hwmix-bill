@@ -162,7 +162,7 @@ export const useUserStore = defineStore('user', () => {
 
   const currentCompany = computed(() => {
     if (!currentUser.value || !companies.value.length) return null;
-    return companies.value.find(c => c.id === currentUser.value.company_id) || companies.value[0];
+    return companies.value.find(c => c.id === currentUser.value.active_company_id) || companies.value[0];
   });
 
   const updatePrintFormat = async format => {

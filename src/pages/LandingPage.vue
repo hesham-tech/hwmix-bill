@@ -14,14 +14,25 @@
         <a href="#features" class="nav-link">المميزات</a>
         <a href="#categories" class="nav-link">الأقسام</a>
         <a href="#products" class="nav-link">المنتجات</a>
-        <router-link to="/saas" class="nav-link gold-text font-weight-bold">نظام الإدارة</router-link>
+        <router-link v-if="userStore.isStaff" to="/saas" class="nav-link gold-text font-weight-bold">نظام الإدارة</router-link>
       </div>
 
       <div class="d-flex align-center gap-2">
-        <div class="d-none d-sm-flex gap-2">
-          <v-btn variant="text" color="primary" class="font-weight-bold" to="/register">إنشاء حساب</v-btn>
+        <div class="d-none d-sm-flex gap-2" v-if="!authStore.isAuthenticated">
+          <v-btn variant="text" color="primary" class="font-weight-bold" to="/register?type=customer">إنشاء حساب</v-btn>
           <v-btn prepend-icon="ri-login-box-line" color="primary" variant="elevated" class="rounded-pill px-6 font-weight-bold" to="/login">
             دخول
+          </v-btn>
+        </div>
+        <div class="d-none d-sm-flex gap-2" v-else>
+          <v-btn
+            :prepend-icon="userStore.isStaff ? 'ri-dashboard-line' : 'ri-user-line'"
+            color="primary"
+            variant="elevated"
+            class="rounded-pill px-6 font-weight-bold"
+            :to="userStore.isStaff ? '/app/admin/dashboard' : '/app/portal'"
+          >
+            {{ userStore.isStaff ? 'لوحة التحكم' : 'حسابي' }}
           </v-btn>
         </div>
 
@@ -41,6 +52,7 @@
         </div>
 
         <router-link
+          v-if="userStore.isStaff"
           to="/saas"
           class="nav-link gold-text font-weight-bold text-h6 px-2 py-2 rounded-md bg-amber-lighten-5 d-flex align-center gap-2"
           @click="mobileDrawer = false"
@@ -57,8 +69,21 @@
 
         <v-divider />
 
-        <v-btn color="primary" block variant="elevated" class="rounded-md mt-4" to="/login">دخول</v-btn>
-        <v-btn color="primary" block variant="outlined" class="rounded-md" to="/register">إنشاء حساب</v-btn>
+        <template v-if="!authStore.isAuthenticated">
+          <v-btn color="primary" block variant="elevated" class="rounded-md mt-4" to="/login">دخول</v-btn>
+          <v-btn color="primary" block variant="outlined" class="rounded-md" to="/register?type=customer">إنشاء حساب</v-btn>
+        </template>
+        <template v-else>
+          <v-btn
+            color="primary"
+            block
+            variant="elevated"
+            class="rounded-pill mt-4 font-weight-bold"
+            :to="userStore.isStaff ? '/app/admin/dashboard' : '/app/portal'"
+          >
+            {{ userStore.isStaff ? 'لوحة التحكم' : 'حسابي' }}
+          </v-btn>
+        </template>
       </div>
     </v-navigation-drawer>
 
@@ -78,12 +103,28 @@
             اكتشف أحدث المنتجات من أفضل العلامات التجارية، واستمتع بنظام تقسيط مرن وواجهة إدارة فواتير احترافية مصممة خصيصاً لراحتك.
           </p>
           <div class="d-flex gap-4 justify-center flex-wrap slide-up-delay-3">
-            <v-btn size="x-large" color="primary" class="rounded-md px-12 font-weight-bold elevation-8" to="/login" height="56">
-              تصفح المتجر الآن
-            </v-btn>
-            <v-btn size="x-large" variant="outlined" color="primary" class="rounded-md px-12 font-weight-bold" height="56" to="/register">
-              إنشاء حساب جديد
-            </v-btn>
+            <template v-if="!authStore.isAuthenticated">
+              <v-btn size="x-large" color="primary" class="rounded-md px-12 font-weight-bold elevation-8" to="/login" height="56">
+                تصفح المتجر الآن
+              </v-btn>
+              <v-btn size="x-large" variant="outlined" color="primary" class="rounded-md px-12 font-weight-bold" height="56" to="/register?type=customer">
+                إنشاء حساب جديد
+              </v-btn>
+            </template>
+            <template v-else>
+              <v-btn
+                size="x-large"
+                color="primary"
+                class="rounded-md px-12 font-weight-bold elevation-8"
+                :to="userStore.isStaff ? '/app/admin/dashboard' : '/app/portal'"
+                height="56"
+              >
+                {{ userStore.isStaff ? 'انتقل للوحة التحكم' : 'انتقل إلى حسابي' }}
+              </v-btn>
+              <v-btn size="x-large" variant="outlined" color="primary" class="rounded-md px-12 font-weight-bold" height="56" href="#products">
+                تصفح المنتجات
+              </v-btn>
+            </template>
           </div>
         </div>
       </section>
@@ -249,7 +290,23 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue';
+import { useAuthStore } from '@/stores/auth';
+import { useUserStore } from '@/stores/user';
+
+const authStore = useAuthStore();
+const userStore = useUserStore();
 const mobileDrawer = ref(false);
+
+onMounted(async () => {
+  if (authStore.token && !userStore.currentUser) {
+    try {
+      await userStore.fetchUser();
+    } catch (error) {
+      console.error('Failed to fetch profile:', error);
+    }
+  }
+});
 
 const categories = [
   { name: 'موبايلات', count: 125, icon: 'ri-smartphone-line', color: 'primary' },
