@@ -29,12 +29,12 @@
         <v-row dense>
           <v-col v-for="company in filteredCompanies" :key="company.id" cols="12">
             <v-card
-              :active="company.id === userStore.currentUser?.company_id"
+              :active="company.id === userStore.currentUser?.active_company_id"
               class="company-card mb-2"
               variant="outlined"
               @click="handleSwitch(company)"
               :disabled="loadingId === company.id"
-              :class="{ 'active-card': company.id === userStore.currentUser?.company_id }"
+              :class="{ 'active-card': company.id === userStore.currentUser?.active_company_id }"
             >
               <div class="d-flex pa-3 align-start">
                 <!-- Company Logo -->
@@ -49,7 +49,7 @@
                       {{ company.name }}
                     </h3>
                     <v-chip
-                      v-if="company.id === userStore.currentUser?.company_id"
+                      v-if="company.id === userStore.currentUser?.active_company_id"
                       size="x-small"
                       color="success"
                       class="text-caption font-weight-bold"
@@ -139,7 +139,7 @@ const filteredCompanies = computed(() => {
 });
 
 const handleSwitch = async company => {
-  if (company.id === userStore.currentUser?.company_id) {
+  if (company.id === userStore.currentUser?.active_company_id) {
     emit('update:modelValue', false);
     return;
   }

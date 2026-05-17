@@ -44,8 +44,8 @@ apiClient.interceptors.request.use(
       const userStore = useUserStore();
       const branchStore = useBranchStore();
 
-      if (userStore.currentUser?.company_id) {
-        config.headers['X-Company-Id'] = userStore.currentUser.company_id;
+      if (userStore.currentUser?.active_company_id) {
+        config.headers['X-Company-Id'] = userStore.currentUser.active_company_id;
       }
 
       if (branchStore.activeBranchId) {
@@ -105,7 +105,12 @@ apiClient.interceptors.response.use(
       const now = Date.now();
       if (now - last401Time > DEBOUNCE_TIME) {
         last401Time = now;
-        toast.warning('جلستك انتهت. من فضلك سجل دخول مرة أخرى.');
+        const message = error?.response?.data?.message;
+        if (message && message !== 'Unauthenticated.') {
+          toast.error(message);
+        } else {
+          toast.warning('جلستك انتهت. من فضلك سجل دخول مرة أخرى.');
+        }
       }
 
       // Use authStore.logout for centralized cleanup
@@ -148,10 +153,17 @@ apiClient.interceptors.response.use(
 
     // 422: Validation Error
     if (error?.response?.status === 422) {
-      const errors = error.response.data.errors;
-      const message = translateErrors(errors || error.response.data.message);
+      const responseData = error.response.data;
+      const errors = responseData.errors;
+      const serverMessage = responseData.message;
 
-      toast.error(message, { autoClose: 5000 });
+      // Only pass errors object if it has actual validation errors
+      const hasValidationErrors = errors && typeof errors === 'object' && Object.keys(errors).length > 0;
+      const message = translateErrors(hasValidationErrors ? errors : serverMessage);
+
+      if (message) {
+        toast.error(message, { autoClose: 5000 });
+      }
 
       return Promise.reject(error);
     }

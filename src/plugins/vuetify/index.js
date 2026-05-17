@@ -19,8 +19,13 @@ export default function (app) {
     return savedLocale;
   };
 
+  const getTheme = () => {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    return savedTheme;
+  };
+
   const currentLocale = getLocale();
-  localStorage.setItem('theme', 'light'); // فرض الثيم الفاتح
+  const currentTheme = getTheme();
 
   const vuetify = createVuetify({
     // Auto-import handles components and directives automatically
@@ -30,7 +35,7 @@ export default function (app) {
     defaults,
     icons,
     theme: {
-      defaultTheme: 'light',
+      defaultTheme: currentTheme,
       themes,
     },
     locale: {

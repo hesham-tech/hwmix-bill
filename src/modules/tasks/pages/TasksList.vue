@@ -186,7 +186,7 @@ const translateStatus = s => statusItems.find(i => i.value === s)?.title || s;
 const formatDate = d => (d ? dayjs(d).format('YYYY-MM-DD HH:mm') : 'بدون موعد');
 
 const setupEchoListeners = () => {
-  const companyId = JSON.parse(localStorage.getItem('user'))?.company_id;
+  const companyId = JSON.parse(localStorage.getItem('user'))?.active_company_id;
   if (companyId) {
     import('@/plugins/echo').then(({ echo }) => {
       echo.private(`company.${companyId}`).listen('.task.updated', e => {

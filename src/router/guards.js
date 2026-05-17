@@ -19,28 +19,23 @@ export const authGuard = async (to, from, next) => {
   }
 
   if (isPublic && authStore.isAuthenticated) {
-    // If user is already logged in and tries to access a public page (like Login or Landing)
-    // We redirect them to their respective dashboard
-    // Check if user data is loaded, if not fetch it
-    if (!userStore.currentUser && authStore.isAuthenticated) {
-      try {
-        await userStore.fetchUser();
-      } catch (e) {
-        // If fetch fails, logout to prevent infinite loop
-        authStore.logout();
-        return next({ name: 'login' });
+    // If user is accessing login, register, or saas pages while already authenticated, redirect to dashboard/portal
+    const forceRedirectRoutes = ['login', 'register', 'saas-landing', 'saas-login', 'saas-register'];
+    if (forceRedirectRoutes.includes(to.name)) {
+      if (!userStore.currentUser) {
+        try {
+          await userStore.fetchUser();
+        } catch (e) {
+          authStore.logout();
+          return next({ name: 'login' });
+        }
       }
-    }
 
-    // Check for redirect URL in query
-    if (to.query.redirect) {
-      return next(to.query.redirect);
-    }
-
-    if (userStore.isStaff) {
-      return next({ name: 'admin-dashboard' });
-    } else {
-      return next({ name: 'portal' });
+      if (userStore.isStaff) {
+        return next({ name: 'admin-dashboard' });
+      } else {
+        return next({ name: 'portal' });
+      }
     }
   }
 

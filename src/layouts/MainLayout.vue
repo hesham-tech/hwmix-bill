@@ -9,11 +9,19 @@
     <!-- Right-side tools container -->
     <div class="d-flex align-center px-0 px-sm-1 ga-2">
       <!-- Search and Balance -->
-      <v-btn v-if="userStore.currentUser" icon="ri-search-line" variant="text" color="primary" @click="isSearchOpen = true" class="rounded-lg" :size="xs ? 30 : 34" />
-      
-      <AppBalanceDisplay 
+      <v-btn
         v-if="userStore.currentUser"
-        :amount="userStore.currentUser.balance" 
+        icon="ri-search-line"
+        variant="text"
+        color="primary"
+        @click="isSearchOpen = true"
+        class="rounded-lg"
+        :size="xs ? 30 : 34"
+      />
+
+      <AppBalanceDisplay
+        v-if="userStore.currentUser"
+        :amount="userStore.currentUser.balance"
         perspective="admin"
         custom-class="rounded-pill font-weight-black px-2"
         :height="xs ? 28 : 32"
@@ -81,6 +89,9 @@
         </template>
         {{ localeStore.locale === 'ar' ? 'English' : 'عربي' }}
       </v-tooltip> -->
+
+      <!-- Theme Switcher -->
+      <NavbarThemeSwitcher class="d-none d-sm-flex" />
 
       <!-- أدوات سريعة -->
       <v-menu v-model="isQuickToolsMenuOpen" :close-on-content-click="false">
@@ -187,6 +198,15 @@
             <v-list-item prepend-icon="ri-percent-line" title="حساب نسبة مئوية" @click="appState.openPercentageTool()" />
             <v-list-item prepend-icon="ri-calculator-line" title="آلة حاسبة" @click="appState.openCalculator()" />
             <v-list-item prepend-icon="ri-calendar-2-line" title="حساب أقساط" @click="appState.openInstallmentCalc({ mode: 'standalone' })" />
+          </template>
+
+          <!-- Theme Switcher for Mobile -->
+          <template v-if="xs">
+            <v-divider class="my-1" />
+            <div class="px-4 py-1 d-flex align-center justify-space-between">
+              <span class="text-caption text-grey">الوضع (الثيم)</span>
+              <NavbarThemeSwitcher />
+            </div>
           </template>
 
           <v-divider class="my-1" />
@@ -339,6 +359,7 @@ import { useappState } from '@/stores/appState';
 import { authService } from '@/api';
 import Sidebar from '@/components/layout/Sidebar.vue';
 import BranchSwitcher from '@/components/layout/BranchSwitcher.vue';
+import NavbarThemeSwitcher from '@/layouts/components/NavbarThemeSwitcher.vue';
 import GlobalSearchDialog from '@/layouts/components/GlobalSearchDialog.vue';
 import AppButton from '@/components/common/AppButton.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
@@ -544,7 +565,7 @@ watch(
 <style scoped>
 .sticky-breadcrumbs-container {
   position: sticky;
-  top: 48px;
+  top: 33px;
   z-index: 5;
   background: rgb(var(--v-theme-surface));
 }

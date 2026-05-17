@@ -3,10 +3,13 @@
     <!-- Navigation Bar -->
     <nav class="landing-nav pa-4 d-flex align-center justify-space-between glass-effect">
       <div class="d-flex align-center gap-2">
-        <v-avatar color="primary" rounded="md" size="40">
-          <v-icon icon="ri-building-line" color="white" />
-        </v-avatar>
-        <span class="text-h6 font-weight-bold text-primary">hwmix-bill</span>
+        <div class="store-logo">
+          <span class="logo-h-store">H</span>
+        </div>
+        <div class="brand-text-group">
+          <span class="store-brand-name">HWNiX</span>
+          <span class="store-tagline">الثقة في كل اختيار</span>
+        </div>
       </div>
 
       <!-- Center Links (Desktop) -->
@@ -14,14 +17,33 @@
         <a href="#features" class="nav-link">المميزات</a>
         <a href="#categories" class="nav-link">الأقسام</a>
         <a href="#products" class="nav-link">المنتجات</a>
-        <router-link to="/saas" class="nav-link gold-text font-weight-bold">نظام الإدارة</router-link>
+        <router-link v-if="userStore.isStaff" to="/saas" class="nav-link gold-text font-weight-bold">نظام الإدارة</router-link>
       </div>
 
       <div class="d-flex align-center gap-2">
-        <div class="d-none d-sm-flex gap-2">
-          <v-btn variant="text" color="primary" class="font-weight-bold" to="/register">إنشاء حساب</v-btn>
+        <div class="d-none d-sm-flex gap-2" v-if="!authStore.isAuthenticated">
+          <v-btn variant="text" color="primary" class="font-weight-bold" to="/register?type=customer">إنشاء حساب</v-btn>
           <v-btn prepend-icon="ri-login-box-line" color="primary" variant="elevated" class="rounded-pill px-6 font-weight-bold" to="/login">
             دخول
+          </v-btn>
+        </div>
+        <div class="d-none d-sm-flex align-center gap-4" v-else>
+          <AppUserBalanceProfile
+            v-if="authStore.isAuthenticated"
+            :user="userStore.currentUser || authStore.user || {}"
+            hide-phone
+            hide-balance
+            :clickable="false"
+            avatar-size="36"
+          />
+          <v-btn
+            :prepend-icon="userStore.isStaff ? 'ri-dashboard-line' : 'ri-user-line'"
+            color="primary"
+            variant="elevated"
+            class="rounded-pill px-6 font-weight-bold"
+            :to="userStore.isStaff ? '/app/admin/dashboard' : '/app/portal'"
+          >
+            {{ userStore.isStaff ? 'لوحة التحكم' : 'حسابي' }}
           </v-btn>
         </div>
 
@@ -41,6 +63,7 @@
         </div>
 
         <router-link
+          v-if="userStore.isStaff"
           to="/saas"
           class="nav-link gold-text font-weight-bold text-h6 px-2 py-2 rounded-md bg-amber-lighten-5 d-flex align-center gap-2"
           @click="mobileDrawer = false"
@@ -57,8 +80,31 @@
 
         <v-divider />
 
-        <v-btn color="primary" block variant="elevated" class="rounded-md mt-4" to="/login">دخول</v-btn>
-        <v-btn color="primary" block variant="outlined" class="rounded-md" to="/register">إنشاء حساب</v-btn>
+        <template v-if="!authStore.isAuthenticated">
+          <v-btn color="primary" block variant="elevated" class="rounded-md mt-4" to="/login">دخول</v-btn>
+          <v-btn color="primary" block variant="outlined" class="rounded-md" to="/register?type=customer">إنشاء حساب</v-btn>
+        </template>
+        <template v-else>
+          <div class="d-flex justify-center mb-2 mt-4">
+            <AppUserBalanceProfile
+              v-if="authStore.isAuthenticated"
+              :user="userStore.currentUser || authStore.user || {}"
+              hide-phone
+              hide-balance
+              :clickable="false"
+              avatar-size="48"
+            />
+          </div>
+          <v-btn
+            color="primary"
+            block
+            variant="elevated"
+            class="rounded-pill mt-2 font-weight-bold"
+            :to="userStore.isStaff ? '/app/admin/dashboard' : '/app/portal'"
+          >
+            {{ userStore.isStaff ? 'لوحة التحكم' : 'حسابي' }}
+          </v-btn>
+        </template>
       </div>
     </v-navigation-drawer>
 
@@ -67,23 +113,46 @@
       <section class="hero-section d-flex align-center justify-center text-center">
         <div class="content-wrapper">
           <div class="vibrant-bg"></div>
-          <v-chip color="primary" variant="tonal" class="mb-4 font-weight-bold py-4 px-6 border slide-up">
-            تسوق بذكاء وقم بإدارة فواتيرك في مكان واحد
+          <v-chip color="primary" variant="tonal" class="mb-4 font-weight-bold py-4 px-6 border slide-up hwnix-chip">
+            اكتشف أفضل المنتجات — أسعار لا تنسى
           </v-chip>
           <h1 class="text-h2 font-weight-bold mb-6 hero-title slide-up-delay-1">
-            تجربة تسوق <span class="primary-gradient-text">فريدة</span> <br />
-            وإدارة مالية متكاملة.
+            تسوق <span class="hwnix-gradient-text">بثقة</span> وادفع <br />
+            <span class="hwnix-gradient-text">بسهولة</span> فائقة.
           </h1>
           <p class="text-h6 text-grey-darken-1 mb-10 max-w-700 mx-auto leading-relaxed slide-up-delay-2">
-            اكتشف أحدث المنتجات من أفضل العلامات التجارية، واستمتع بنظام تقسيط مرن وواجهة إدارة فواتير احترافية مصممة خصيصاً لراحتك.
+            أحدث المنتجات بأفضل الاسعار ....... كل شيء في مكان واحد.
           </p>
           <div class="d-flex gap-4 justify-center flex-wrap slide-up-delay-3">
-            <v-btn size="x-large" color="primary" class="rounded-md px-12 font-weight-bold elevation-8" to="/login" height="56">
-              تصفح المتجر الآن
-            </v-btn>
-            <v-btn size="x-large" variant="outlined" color="primary" class="rounded-md px-12 font-weight-bold" height="56" to="/register">
-              إنشاء حساب جديد
-            </v-btn>
+            <template v-if="!authStore.isAuthenticated">
+              <v-btn size="x-large" color="primary" class="rounded-md px-12 font-weight-bold elevation-8" to="/login" height="56">
+                تصفح المتجر الآن
+              </v-btn>
+              <v-btn
+                size="x-large"
+                variant="outlined"
+                color="primary"
+                class="rounded-md px-12 font-weight-bold"
+                height="56"
+                to="/register?type=customer"
+              >
+                إنشاء حساب جديد
+              </v-btn>
+            </template>
+            <template v-else>
+              <v-btn
+                size="x-large"
+                color="primary"
+                class="rounded-md px-12 font-weight-bold elevation-8"
+                :to="userStore.isStaff ? '/app/admin/dashboard' : '/app/portal'"
+                height="56"
+              >
+                {{ userStore.isStaff ? 'انتقل للوحة التحكم' : 'انتقل إلى حسابي' }}
+              </v-btn>
+              <v-btn size="x-large" variant="outlined" color="primary" class="rounded-md px-12 font-weight-bold" height="56" href="#products">
+                تصفح المنتجات
+              </v-btn>
+            </template>
           </div>
         </div>
       </section>
@@ -228,7 +297,7 @@
               </div>
               <div class="mt-8 text-caption text-grey-lighten-2 d-flex align-center gap-2">
                 <v-icon icon="ri-admin-line" size="14" />
-                <router-link to="/login?type=staff" class="text-grey-lighten-2 text-decoration-none hover-primary">دخول الموظفين</router-link>
+                <router-link to="/saas/login" class="text-grey-lighten-2 text-decoration-none hover-primary">دخول الموظفين</router-link>
               </div>
             </v-col>
           </v-row>
@@ -249,7 +318,24 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue';
+import { useAuthStore } from '@/stores/auth';
+import { useUserStore } from '@/stores/user';
+import AppUserBalanceProfile from '@/components/common/AppUserBalanceProfile.vue';
+
+const authStore = useAuthStore();
+const userStore = useUserStore();
 const mobileDrawer = ref(false);
+
+onMounted(async () => {
+  if (authStore.token && !userStore.currentUser) {
+    try {
+      await userStore.fetchUser();
+    } catch (error) {
+      console.error('Failed to fetch profile:', error);
+    }
+  }
+});
 
 const categories = [
   { name: 'موبايلات', count: 125, icon: 'ri-smartphone-line', color: 'primary' },
@@ -298,12 +384,51 @@ const scrollToFeatures = () => {
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Montserrat:wght@400;600;700;800&display=swap');
+
 .landing-page {
-  font-family: 'Cairo', 'Inter', sans-serif;
+  font-family: 'Cairo', 'Montserrat', sans-serif;
   scroll-behavior: smooth;
   overflow-x: hidden;
 }
 
+/* Brand Logo */
+.store-logo {
+  width: 38px;
+  height: 38px;
+  background: linear-gradient(135deg, #1a3d8f, #6a5ae0);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(26, 61, 143, 0.3);
+  flex-shrink: 0;
+}
+.logo-h-store {
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 900;
+  font-family: 'Montserrat', sans-serif;
+  line-height: 1;
+}
+.brand-text-group {
+  display: flex;
+  flex-direction: column;
+}
+.store-brand-name {
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: #1a3d8f;
+  font-family: 'Montserrat', sans-serif;
+  line-height: 1.1;
+}
+.store-tagline {
+  font-size: 0.58rem;
+  color: #6a5ae0;
+  font-weight: 700;
+}
+
+/* Navbar */
 .landing-nav {
   position: fixed;
   top: 0;
@@ -311,12 +436,10 @@ const scrollToFeatures = () => {
   z-index: 1000;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
-
 .glass-effect {
   background: rgba(255, 255, 255, 0.85) !important;
   backdrop-filter: blur(12px);
 }
-
 .nav-link {
   text-decoration: none;
   color: #1e293b;
@@ -324,24 +447,25 @@ const scrollToFeatures = () => {
   font-size: 0.95rem;
   transition: color 0.3s;
 }
-
 .nav-link:hover {
-  color: rgb(var(--v-theme-primary));
+  color: #1a3d8f;
+}
+.gold-text {
+  color: #6a5ae0 !important;
 }
 
+/* Hero */
 .hero-section {
   min-height: 90vh;
   padding: 140px 24px 80px;
   position: relative;
   overflow: hidden;
-  background-color: #f8fafc;
+  background: linear-gradient(180deg, #f5f7fa 0%, #eff2ff 100%);
 }
-
 .content-wrapper {
   position: relative;
   z-index: 2;
 }
-
 .vibrant-bg {
   position: absolute;
   top: 50%;
@@ -349,21 +473,25 @@ const scrollToFeatures = () => {
   transform: translate(-50%, -50%);
   width: 800px;
   height: 800px;
-  background: radial-gradient(circle, rgba(var(--v-theme-primary), 0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(106, 90, 224, 0.1) 0%, transparent 70%);
   z-index: -1;
 }
-
 .hero-title {
   line-height: 1.2;
   font-size: 3.5rem !important;
 }
+.hwnix-chip {
+  border-color: rgba(26, 61, 143, 0.2) !important;
+}
+.hwnix-gradient-text,
 .primary-gradient-text {
-  background: linear-gradient(135deg, rgb(var(--v-theme-primary)) 0%, #1a237e 100%);
+  background: linear-gradient(135deg, #1a3d8f, #6a5ae0);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
+/* Utilities */
 .max-w-700 {
   max-width: 700px;
 }
@@ -384,7 +512,6 @@ const scrollToFeatures = () => {
 .slide-up-delay-3 {
   animation: slideUp 0.8s ease-out 0.6s both;
 }
-
 @keyframes slideUp {
   from {
     opacity: 0;
@@ -396,16 +523,16 @@ const scrollToFeatures = () => {
   }
 }
 
+/* Cards */
 .category-card {
   transition: all 0.3s ease;
   cursor: pointer;
 }
 .hover-lift-up:hover {
   transform: translateY(-10px);
-  border-color: rgb(var(--v-theme-primary)) !important;
+  border-color: #1a3d8f !important;
   box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08) !important;
 }
-
 .product-card {
   transition: all 0.3s ease;
   position: relative;
@@ -420,12 +547,10 @@ const scrollToFeatures = () => {
   top: 12px;
   right: 12px;
 }
-
 .hover-lift:hover {
   transform: translateY(-8px);
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.06) !important;
 }
-
 .line-clamp-1 {
   display: -webkit-box;
   -webkit-line-clamp: 1;
@@ -434,14 +559,10 @@ const scrollToFeatures = () => {
   overflow: hidden;
 }
 
-.curved-divider svg {
-  width: 100%;
-  height: 80px;
+/* Footer */
+.footer {
+  background: #0d1b4b !important;
 }
-.curved-divider .shape-fill {
-  fill: #f8fafc;
-}
-
 .footer-link {
   color: #94a3b8;
   text-decoration: none;
@@ -449,11 +570,10 @@ const scrollToFeatures = () => {
   transition: color 0.3s;
 }
 .footer-link:hover {
-  color: rgb(var(--v-theme-primary));
+  color: #6a5ae0;
 }
-
 .hover-primary:hover {
-  color: rgb(var(--v-theme-primary)) !important;
+  color: #1a3d8f !important;
 }
 
 @media (max-width: 600px) {

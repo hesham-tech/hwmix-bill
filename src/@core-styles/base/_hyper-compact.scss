@@ -63,7 +63,7 @@
     transform: translateY(-50%) scale(0.85) !important;
     font-weight: bold;
     opacity: 1;
-    background: white;
+    background: rgb(var(--v-theme-surface)) !important;
     padding: 0 4px !important;
   }
   

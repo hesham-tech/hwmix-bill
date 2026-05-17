@@ -8,12 +8,21 @@ import vuetify from 'vite-plugin-vuetify';
 import svgLoader from 'vite-svg-loader';
 import viteCompression from 'vite-plugin-compression';
 import { VitePWA } from 'vite-plugin-pwa';
+import packageJson from './package.json';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     vue(),
     vueJsx(),
+
+    // Custom plugin to replace version placeholder in index.html during build
+    {
+      name: 'html-version-replace',
+      transformIndexHtml(html) {
+        return html.replace(/__APP_VERSION__/g, packageJson.version);
+      }
+    },
 
     // PWA Configuration
     VitePWA({
@@ -33,7 +42,8 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['index.html', 'assets/main-*.js', 'assets/index-*.js', 'assets/*.css', '**/*.{ico,png,svg}'],
+        navigateFallback: null,
+        globPatterns: ['assets/main-*.js', 'assets/index-*.js', 'assets/*.css', '**/*.{ico,png,svg}'],
         globIgnores: ['**/vendor-*.js', '**/Dashboard-*.js', '**/InvoiceList-*.js'],
         runtimeCaching: [
           {
@@ -98,6 +108,7 @@ export default defineConfig({
     __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false',
     __VUE_OPTIONS_API__: 'true',
     __VUE_PROD_DEVTOOLS__: 'false',
+    __APP_VERSION__: JSON.stringify(packageJson.version),
   },
   resolve: {
     alias: {

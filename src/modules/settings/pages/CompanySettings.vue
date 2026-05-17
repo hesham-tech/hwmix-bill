@@ -387,7 +387,7 @@ const handleCroppedImage = async blob => {
 };
 
 const loadCompanyData = async () => {
-  const companyId = userStore.currentUser?.company_id;
+  const companyId = userStore.currentUser?.active_company_id;
   if (!companyId) return;
 
   loading.value = true;

@@ -134,18 +134,22 @@ function translateMsg(msg) {
 }
 
 export default function translateErrors(errors) {
+  if (!errors) return 'حدث خطأ غير متوقع';
+
   let msg = '';
   if (typeof errors === 'object' && errors !== null) {
     for (const key in errors) {
-      if (Object.hasOwn(errors, key)) {
+      if (Object.hasOwn(errors, key) && errors[key] && errors[key][0]) {
         const field = fieldMap[key] || key;
-        msg += `${field}: ${translateMsg(errors[key][0])}\n`;
+        const translated = translateMsg(errors[key][0]);
+        if (translated) {
+          msg += `${field}: ${translated}\n`;
+        }
       }
     }
   } else if (typeof errors === 'string') {
     msg = errors;
-  } else {
-    msg = 'حدث خطأ أثناء الحفظ';
   }
-  return msg;
+
+  return msg || 'حدث خطأ غير متوقع';
 }
