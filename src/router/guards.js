@@ -63,10 +63,24 @@ export const permissionGuard = async (to, from, next) => {
     }
   }
 
+  // === CUSTOMER PORTAL RESTRICTION ===
+  // If the user is NOT staff (meaning they are a Customer), they must ONLY access customer/portal pages
+  if (!userStore.isStaff) {
+    const isAllowedForCustomer = 
+      to.name === 'app-home' || 
+      to.name === 'forbidden' || 
+      to.name === 'not-found' || 
+      to.meta.isCustomer === true;
+
+    if (!isAllowedForCustomer) {
+      return next({ name: 'forbidden' });
+    }
+  }
+
   const requiredPermission = to.meta.permission;
 
-  // No permission required or User is NOT staff (Customer)
-  if (!requiredPermission || !userStore.isStaff) {
+  // No permission required
+  if (!requiredPermission) {
     return next();
   }
 

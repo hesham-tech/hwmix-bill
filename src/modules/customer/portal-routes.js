@@ -5,7 +5,7 @@ export default [
     path: 'portal',
     name: 'portal',
     component: () => import('@/modules/customer/portal/dashboard/pages/CustomerDashboard.vue'),
-    meta: { title: 'بوابة العميل' },
+    meta: { title: 'بوابة العميل', isCustomer: true },
   },
   {
     path: 'purchases',
@@ -14,6 +14,7 @@ export default [
     meta: {
       title: 'مشترياتي',
       permission: ['invoices.view_self', PERMISSIONS.INVOICES_VIEW_ALL],
+      isCustomer: true,
     },
   },
   {
@@ -23,6 +24,7 @@ export default [
     meta: {
       title: 'عرض الفاتورة',
       permission: ['invoices.view_self', PERMISSIONS.INVOICES_VIEW_ALL],
+      isCustomer: true,
       breadcrumbs: [
         { title: 'مشترياتي', to: '/app/purchases' },
         { title: 'عرض الفاتورة', disabled: true },
@@ -36,6 +38,7 @@ export default [
     meta: {
       title: 'خطط التقسيط',
       permission: ['payments.view_self', PERMISSIONS.PAYMENTS_VIEW_ALL],
+      isCustomer: true,
     },
   },
   {
@@ -45,6 +48,7 @@ export default [
     meta: {
       title: 'مدفوعاتي',
       permission: ['payments.view_self', PERMISSIONS.PAYMENTS_VIEW_ALL],
+      isCustomer: true,
     },
   },
   {
@@ -54,6 +58,7 @@ export default [
     meta: {
       title: 'سجل المعاملات',
       permission: ['transactions.view_self', PERMISSIONS.TRANSACTIONS_VIEW_ALL],
+      isCustomer: true,
     },
   },
 ];
