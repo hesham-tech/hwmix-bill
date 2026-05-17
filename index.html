@@ -7,26 +7,46 @@
         var APP_VERSION = '__APP_VERSION__';
         var savedVersion = localStorage.getItem('app_version');
         if (savedVersion !== APP_VERSION) {
-          localStorage.setItem('app_version', APP_VERSION);
+          // 1. Halt all further browser loading and DOM parsing instantly!
+          if (window.stop) {
+            window.stop();
+          }
+
+          // 2. Clear Session Storage
           sessionStorage.clear();
-          if ('caches' in window) {
-            caches.keys().then(function(names) {
-              Promise.all(names.map(function(name) {
-                return caches.delete(name);
-              }));
-            });
-          }
-          if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(function(regs) {
-              Promise.all(regs.map(function(r) {
-                return r.unregister();
-              })).then(function() {
-                window.location.reload(true);
+
+          // 3. Delete Cache Storage sequentially
+          var clearCaches = function() {
+            if ('caches' in window) {
+              return caches.keys().then(function(names) {
+                return Promise.all(names.map(function(name) {
+                  return caches.delete(name);
+                }));
               });
-            });
-          } else {
+            }
+            return { then: function(cb) { cb(); } };
+          };
+
+          // 4. Unregister Service Workers sequentially
+          var unregisterSW = function() {
+            if ('serviceWorker' in navigator) {
+              return navigator.serviceWorker.getRegistrations().then(function(regs) {
+                return Promise.all(regs.map(function(r) {
+                  return r.unregister();
+                }));
+              });
+            }
+            return { then: function(cb) { cb(); } };
+          };
+
+          // 5. Run sequential execution and then set new version and reload
+          clearCaches().then(unregisterSW).then(function() {
+            localStorage.setItem('app_version', APP_VERSION);
             window.location.reload(true);
-          }
+          })['catch'](function() {
+            localStorage.setItem('app_version', APP_VERSION);
+            window.location.reload(true);
+          });
         }
       })();
     </script>
