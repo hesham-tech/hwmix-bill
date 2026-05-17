@@ -5,30 +5,6 @@ import { useUserStore } from './stores/user';
 import setupAutoSelectOnFocus from './utils/auto-select-on-focus';
 import draggable from '@/directives/draggable';
 
-// التحديث التلقائي للبرنامج ومسح الكاش عند الترقية (Auto Update & Cache Busting)
-const APP_VERSION = __APP_VERSION__; // الإصدار المأخوذ تلقائياً من package.json
-const checkSystemVersion = async () => {
-  try {
-    const savedVersion = localStorage.getItem('app_version');
-    if (savedVersion !== APP_VERSION) {
-      // حفظ الإصدار الجديد فوراً لتفادي أي حلقات إعادة تحميل لانهائية
-      localStorage.setItem('app_version', APP_VERSION);
-
-      console.log(`[System Update] Upgrading app version from ${savedVersion} to ${APP_VERSION}. Clearing cache...`);
-
-      const { clearAppCache } = await import('./utils/maintenance');
-      await clearAppCache();
-    } else {
-      console.log(`[System Update] App version is up to date: ${APP_VERSION}`);
-    }
-  } catch (error) {
-    console.error('[System Update] Error during version check:', error);
-  }
-};
-
-// تشغيل الفحص فوراً قبل تحميل التطبيق
-checkSystemVersion();
-
 // Styles
 import '@core-styles/template/index.scss';
 import '@layouts/styles/index.scss';

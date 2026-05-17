@@ -16,6 +16,14 @@ export default defineConfig({
     vue(),
     vueJsx(),
 
+    // Custom plugin to replace version placeholder in index.html during build
+    {
+      name: 'html-version-replace',
+      transformIndexHtml(html) {
+        return html.replace(/__APP_VERSION__/g, packageJson.version);
+      }
+    },
+
     // PWA Configuration
     VitePWA({
       registerType: 'autoUpdate',
@@ -34,7 +42,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['index.html', 'assets/main-*.js', 'assets/index-*.js', 'assets/*.css', '**/*.{ico,png,svg}'],
+        globPatterns: ['assets/main-*.js', 'assets/index-*.js', 'assets/*.css', '**/*.{ico,png,svg}'],
         globIgnores: ['**/vendor-*.js', '**/Dashboard-*.js', '**/InvoiceList-*.js'],
         runtimeCaching: [
           {
