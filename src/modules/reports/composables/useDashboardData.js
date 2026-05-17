@@ -28,6 +28,10 @@ export function useDashboardData() {
     monthlySales: 0,
     pendingPayments: 0,
     unpaidInstallments: 0,
+    totalPaid: 0,
+    remainingBalance: 0,
+    activeInstallmentPlans: 0,
+    upcomingInstallmentsCount: 0,
   });
 
   const recentInvoices = ref([]);

@@ -25,7 +25,7 @@ import { getBalanceMetadata, formatCurrency } from '@/utils/formatters';
 const props = defineProps({
   amount: {
     type: [Number, String],
-    required: true,
+    default: 0,
   },
   /**
    * perspective: 
