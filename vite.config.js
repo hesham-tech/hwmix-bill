@@ -42,6 +42,7 @@ export default defineConfig({
         ],
       },
       workbox: {
+        navigateFallback: null,
         globPatterns: ['assets/main-*.js', 'assets/index-*.js', 'assets/*.css', '**/*.{ico,png,svg}'],
         globIgnores: ['**/vendor-*.js', '**/Dashboard-*.js', '**/InvoiceList-*.js'],
         runtimeCaching: [
