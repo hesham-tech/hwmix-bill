@@ -212,6 +212,7 @@ const loadResults = async (search = '') => {
     const params = {
       search,
       has_stock: props.invoiceType === 'purchase' ? 0 : 1,
+      in_sales: props.invoiceType !== 'purchase' ? 1 : undefined,
     };
 
     const [variantsRes, servicesRes] = await Promise.all([

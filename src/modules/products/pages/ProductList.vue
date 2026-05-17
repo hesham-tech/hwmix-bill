@@ -98,6 +98,32 @@
                 </v-chip>
               </template>
 
+              <!-- Visibility Icons Column -->
+              <template #item.visibility="{ item }">
+                <div class="d-flex align-center gap-1">
+                  <v-tooltip text="يظهر في المتجر" location="top">
+                    <template #activator="{ props }">
+                      <v-icon 
+                        v-bind="props"
+                        :icon="item.is_active_in_store ? 'ri-global-line' : 'ri-global-line'" 
+                        :color="item.is_active_in_store ? 'info' : 'grey-lighten-2'" 
+                        size="16" 
+                      />
+                    </template>
+                  </v-tooltip>
+                  <v-tooltip text="يظهر في المبيعات / POS" location="top">
+                    <template #activator="{ props }">
+                      <v-icon 
+                        v-bind="props"
+                        :icon="item.is_active_in_sales ? 'ri-shopping-cart-2-line' : 'ri-shopping-cart-2-line'" 
+                        :color="item.is_active_in_sales ? 'secondary' : 'grey-lighten-2'" 
+                        size="16" 
+                      />
+                    </template>
+                  </v-tooltip>
+                </div>
+              </template>
+
               <!-- Expanded Row for Variants -->
               <template #expanded-row="{ columns, item }">
                 <tr>
@@ -255,9 +281,26 @@ const advancedFilters = [
     type: 'date',
   },
   {
-    key: 'date_to',
     title: 'إلى تاريخ',
     type: 'date',
+  },
+  {
+    key: 'in_store',
+    title: 'متاح في المتجر',
+    type: 'select',
+    items: [
+      { title: 'نعم', value: 1 },
+      { title: 'لا', value: 0 },
+    ],
+  },
+  {
+    key: 'in_sales',
+    title: 'متاح في المبيعات',
+    type: 'select',
+    items: [
+      { title: 'نعم', value: 1 },
+      { title: 'لا', value: 0 },
+    ],
   },
 ];
 
@@ -330,6 +373,7 @@ const headers = [
   { title: 'التصنيف / الماركة', key: 'category_brand', sortable: false },
   { title: 'السعر', key: 'price_range', sortable: false },
   { title: 'المخزون', key: 'total_available_quantity', sortable: true, align: 'center' },
+  { title: 'الظهور', key: 'visibility', sortable: false, align: 'center' },
   { title: 'الحالة', key: 'active', sortable: true, align: 'center' },
   { title: 'تاريخ الإضافة', key: 'created_at', sortable: true },
   { title: 'الإجراءات', key: 'actions', sortable: false, align: 'end' },

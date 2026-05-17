@@ -243,10 +243,30 @@
 
               <div class="d-flex align-center justify-space-between pa-2 hover-bg">
                 <div>
-                  <div class="text-body-2 font-weight-bold">قابل للاسترجاع</div>
-                  <div class="text-caption text-grey">السماح لطلب استرجاع المنتج</div>
+                  <div class="text-body-2 font-weight-bold">قابل للإرجاع</div>
+                  <div class="text-caption text-grey">السماح بإرجاع المنتج واسترداد قيمته</div>
                 </div>
                 <v-switch v-model="productData.returnable" color="primary" hide-details inset density="compact" />
+              </div>
+
+              <v-divider />
+
+              <div class="d-flex align-center justify-space-between pa-2 hover-bg">
+                <div>
+                  <div class="text-body-2 font-weight-bold">يظهر في المتجر</div>
+                  <div class="text-caption text-grey">عرض المنتج في المتجر الإلكتروني</div>
+                </div>
+                <v-switch v-model="productData.is_active_in_store" color="info" hide-details inset density="compact" />
+              </div>
+
+              <v-divider />
+
+              <div class="d-flex align-center justify-space-between pa-2 hover-bg">
+                <div>
+                  <div class="text-body-2 font-weight-bold">يظهر في المبيعات / POS</div>
+                  <div class="text-caption text-grey">عرض المنتج في فواتير البيع ونقاط البيع</div>
+                </div>
+                <v-switch v-model="productData.is_active_in_sales" color="secondary" hide-details inset density="compact" />
               </div>
             </div>
           </v-card-text>
@@ -366,6 +386,8 @@ const getInitialProductData = () => ({
   active: true,
   featured: false,
   returnable: true,
+  is_active_in_store: false,
+  is_active_in_sales: true,
   images: [],
   primary_image_id: null,
   variants: [], // Start empty, will be populated by onMounted or loadProductData
