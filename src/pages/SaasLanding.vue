@@ -17,8 +17,24 @@
           <router-link to="/" class="nav-link">المتجر</router-link>
           <a href="#features" class="nav-link">المميزات</a>
           <a href="#pricing" class="nav-link">الأسعار</a>
-          <router-link to="/login" class="btn-ghost">دخول</router-link>
-          <router-link to="/register?type=tenant" class="btn-primary-nav">ابدأ مجاناً ←</router-link>
+          <template v-if="!authStore.isAuthenticated">
+            <router-link to="/saas/login" class="btn-ghost">دخول</router-link>
+            <router-link to="/saas/register" class="btn-primary-nav">ابدأ مجاناً ←</router-link>
+          </template>
+          <template v-else>
+            <AppUserBalanceProfile
+              v-if="authStore.isAuthenticated"
+              :user="userStore.currentUser || authStore.user || {}"
+              hide-phone
+              hide-balance
+              :clickable="false"
+              avatar-size="32"
+              class="mx-2"
+            />
+            <router-link :to="userStore.isStaff ? '/app/admin/dashboard' : '/app/portal'" class="btn-primary-nav">
+              {{ userStore.isStaff ? 'لوحة التحكم' : 'حسابي' }}
+            </router-link>
+          </template>
         </div>
         <button class="menu-toggle" @click="mobileDrawer = !mobileDrawer">☰</button>
       </div>
@@ -26,8 +42,25 @@
 
     <!-- Mobile Menu -->
     <div v-if="mobileDrawer" class="mobile-menu">
-      <router-link to="/login" class="mobile-link" @click="mobileDrawer=false">دخول</router-link>
-      <router-link to="/register?type=tenant" class="btn-primary-full" @click="mobileDrawer=false">ابدأ مشروعك مجاناً</router-link>
+      <template v-if="!authStore.isAuthenticated">
+        <router-link to="/saas/login" class="mobile-link" @click="mobileDrawer=false">دخول</router-link>
+        <router-link to="/saas/register" class="btn-primary-full" @click="mobileDrawer=false">ابدأ مشروعك مجاناً</router-link>
+      </template>
+      <template v-else>
+        <div class="d-flex justify-center mb-4">
+          <AppUserBalanceProfile
+            v-if="authStore.isAuthenticated"
+            :user="userStore.currentUser || authStore.user || {}"
+            hide-phone
+            hide-balance
+            :clickable="false"
+            avatar-size="48"
+          />
+        </div>
+        <router-link :to="userStore.isStaff ? '/app/admin/dashboard' : '/app/portal'" class="btn-primary-full" @click="mobileDrawer=false">
+          {{ userStore.isStaff ? 'لوحة التحكم' : 'حسابي' }}
+        </router-link>
+      </template>
     </div>
 
     <!-- Hero -->
@@ -41,8 +74,15 @@
         نظام HWNix يوفر عليك ساعات يومياً — فواتير، مخازن، تقسيط، وتقارير مالية في مكان واحد آمن وسريع.
       </p>
       <div class="hero-cta">
-        <router-link to="/register?type=tenant" class="btn-hero">ابدأ تجربتك المجانية ← </router-link>
-        <a href="#features" class="btn-outline-hero">شاهد كيف يعمل</a>
+        <template v-if="!authStore.isAuthenticated">
+          <router-link to="/saas/register" class="btn-hero">ابدأ تجربتك المجانية ← </router-link>
+          <a href="#features" class="btn-outline-hero">شاهد كيف يعمل</a>
+        </template>
+        <template v-else>
+          <router-link :to="userStore.isStaff ? '/app/admin/dashboard' : '/app/portal'" class="btn-hero">
+            {{ userStore.isStaff ? 'لوحة التحكم الخاصة بك ←' : 'انتقل إلى حسابك ←' }}
+          </router-link>
+        </template>
       </div>
       <p class="hero-note">✓ بدون بطاقة ائتمان &nbsp;✓ إعداد في 5 دقائق &nbsp;✓ دعم فني 24/7</p>
     </section>
@@ -143,9 +183,24 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { useAuthStore } from '@/stores/auth';
+import { useUserStore } from '@/stores/user';
+import AppUserBalanceProfile from '@/components/common/AppUserBalanceProfile.vue';
 
 const mobileDrawer = ref(false);
+const authStore = useAuthStore();
+const userStore = useUserStore();
+
+onMounted(async () => {
+  if (authStore.token && !userStore.currentUser) {
+    try {
+      await userStore.fetchUser();
+    } catch (error) {
+      console.error('Failed to fetch profile:', error);
+    }
+  }
+});
 
 const features = [
   { icon: '🧾', title: 'فواتير احترافية في ثوانٍ', desc: 'أصدر فواتير ضريبية نظامية مع QR والباركود بضغطة واحدة.', benefit: 'وفّر 3 ساعات يومياً على إدارة الفواتير' },

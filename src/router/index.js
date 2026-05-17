@@ -44,10 +44,8 @@ const router = createRouter({
             const userStr = localStorage.getItem('user') || sessionStorage.getItem('user');
             if (userStr) {
               const user = JSON.parse(userStr);
-              const permissions = user.permissions || [];
-              const isStaff = permissions.some(p => p.includes('.view_') || p.includes('.page') || p.includes('admin.'));
-
-              return isStaff ? '/app/admin/dashboard' : '/app/portal';
+              // Use the new simplified flag provided by the backend API
+              return user.is_staff_or_admin ? '/app/admin/dashboard' : '/app/portal';
             }
             return '/login';
           },

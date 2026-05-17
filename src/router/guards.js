@@ -19,8 +19,8 @@ export const authGuard = async (to, from, next) => {
   }
 
   if (isPublic && authStore.isAuthenticated) {
-    // If user is accessing login or register while already authenticated, redirect to dashboard
-    const forceRedirectRoutes = ['login', 'register'];
+    // If user is accessing login, register, or saas pages while already authenticated, redirect to dashboard/portal
+    const forceRedirectRoutes = ['login', 'register', 'saas-landing', 'saas-login', 'saas-register'];
     if (forceRedirectRoutes.includes(to.name)) {
       if (!userStore.currentUser) {
         try {

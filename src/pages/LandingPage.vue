@@ -27,7 +27,15 @@
             دخول
           </v-btn>
         </div>
-        <div class="d-none d-sm-flex gap-2" v-else>
+        <div class="d-none d-sm-flex align-center gap-4" v-else>
+          <AppUserBalanceProfile
+            v-if="authStore.isAuthenticated"
+            :user="userStore.currentUser || authStore.user || {}"
+            hide-phone
+            hide-balance
+            :clickable="false"
+            avatar-size="36"
+          />
           <v-btn
             :prepend-icon="userStore.isStaff ? 'ri-dashboard-line' : 'ri-user-line'"
             color="primary"
@@ -77,11 +85,21 @@
           <v-btn color="primary" block variant="outlined" class="rounded-md" to="/register?type=customer">إنشاء حساب</v-btn>
         </template>
         <template v-else>
+          <div class="d-flex justify-center mb-2 mt-4">
+            <AppUserBalanceProfile
+              v-if="authStore.isAuthenticated"
+              :user="userStore.currentUser || authStore.user || {}"
+              hide-phone
+              hide-balance
+              :clickable="false"
+              avatar-size="48"
+            />
+          </div>
           <v-btn
             color="primary"
             block
             variant="elevated"
-            class="rounded-pill mt-4 font-weight-bold"
+            class="rounded-pill mt-2 font-weight-bold"
             :to="userStore.isStaff ? '/app/admin/dashboard' : '/app/portal'"
           >
             {{ userStore.isStaff ? 'لوحة التحكم' : 'حسابي' }}
@@ -279,7 +297,7 @@
               </div>
               <div class="mt-8 text-caption text-grey-lighten-2 d-flex align-center gap-2">
                 <v-icon icon="ri-admin-line" size="14" />
-                <router-link to="/login?type=staff" class="text-grey-lighten-2 text-decoration-none hover-primary">دخول الموظفين</router-link>
+                <router-link to="/saas/login" class="text-grey-lighten-2 text-decoration-none hover-primary">دخول الموظفين</router-link>
               </div>
             </v-col>
           </v-row>
@@ -303,6 +321,7 @@
 import { ref, onMounted } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { useUserStore } from '@/stores/user';
+import AppUserBalanceProfile from '@/components/common/AppUserBalanceProfile.vue';
 
 const authStore = useAuthStore();
 const userStore = useUserStore();

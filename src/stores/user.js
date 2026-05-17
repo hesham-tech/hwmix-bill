@@ -146,17 +146,10 @@ export const useUserStore = defineStore('user', () => {
   const isAdmin = computed(() => hasPermission(PERMISSIONS.ADMIN_SUPER));
   const isCompanyAdmin = computed(() => hasPermission(PERMISSIONS.ADMIN_COMPANY));
 
-  // A user is "Staff" if they have ANY administrative or company-level permission
-  const isStaff = computed(() => {
-    if (isAdmin.value || isCompanyAdmin.value) return true;
-
-    // Staff patterns: categories where possessing even one permission indicates an employee/admin role
-    const staffActionPatterns = ['.view_all', '.view_children', '.create', '.update', '.delete', '.page'];
-
-    return permissions.value.some(p => {
-      return staffActionPatterns.some(pattern => p.includes(pattern));
-    });
-  });
+  // A user is "Staff" if the API indicated they are staff or admin
+  const isStaff = computed(() => !!currentUser.value?.is_staff_or_admin);
+  
+  const userType = computed(() => currentUser.value?.user_type || 'customer');
 
   const hasInstallments = computed(() => !!currentUser.value?.has_installments);
 
@@ -207,6 +200,7 @@ export const useUserStore = defineStore('user', () => {
     isAdmin,
     isCompanyAdmin,
     isStaff,
+    userType,
     hasInstallments,
     fetchUser,
     switchCompany,

@@ -148,7 +148,7 @@ const handleClick = () => {
 
 <style scoped>
 .app-user-balance-profile {
-  width: 100%;
+  /* Removed width: 100% to allow proper flex behavior in navbars */
 }
 
 .truncate {
