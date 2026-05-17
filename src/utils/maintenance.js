@@ -19,9 +19,8 @@ export async function clearAppCache() {
     // 3. مسح الـ sessionStorage (بيانات مؤقتة للجلسة الحالية فقط)
     sessionStorage.clear();
 
-    // 4. إعادة التوجه للصفحة الرئيسية وعمل ريلود إجباري
-    // التوجه للهوم يضمن أننا نبدأ من نقطة نظيفة تماماً
-    window.location.href = '/?clear_cache=true';
+    // 4. إعادة تحميل الصفحة الحالية للحفاظ على نفس الرابط والمسار
+    window.location.reload();
   } catch (error) {
     console.error('[Maintenance] Failed to clear cache:', error);
     // في حالة الفشل، نكتفي بعمل ريلود عادي

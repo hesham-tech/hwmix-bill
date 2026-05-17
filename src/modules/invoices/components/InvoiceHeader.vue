@@ -1,11 +1,11 @@
 <template>
   <div class="sticky-header d-flex flex-column mb-1 border-b shadow-sm">
     <!-- Row 1: Primary Header -->
-    <div class="d-flex align-center justify-space-between px-3 py-1 w-100" style="min-height: 44px;">
+    <div class="d-flex align-center justify-space-between px-3 py-1 w-100" style="min-height: 44px">
       <!-- Title Section -->
       <div class="d-flex align-center flex-grow-0">
         <AppButton icon="ri-arrow-right-line" variant="text" color="secondary" density="compact" @click="$emit('cancel')" class="me-1" />
-        <h1 class="text-subtitle-2 font-weight-black mb-0 text-truncate" style="max-width: 150px;">
+        <h1 class="text-subtitle-2 font-weight-black mb-0 text-truncate" style="max-width: 150px">
           {{ title || (isEdit ? 'تعديل الفاتورة' : 'إنشاء فاتورة جديدة') }}
         </h1>
       </div>
@@ -30,7 +30,16 @@
 
       <!-- Actions Section -->
       <div class="d-flex gap-2 align-center flex-grow-0">
-        <AppButton variant="tonal" color="secondary" density="compact" @click="$emit('cancel')" :disabled="loading" class="d-none d-sm-flex px-3 text-xxs"> إلغاء </AppButton>
+        <AppButton
+          variant="tonal"
+          color="secondary"
+          density="compact"
+          @click="$emit('cancel')"
+          :disabled="loading"
+          class="d-none d-sm-flex px-3 text-xxs"
+        >
+          إلغاء
+        </AppButton>
         <AppButton
           color="primary"
           prepend-icon="ri-save-line"
@@ -85,7 +94,7 @@ defineEmits(['save', 'cancel']);
 <style scoped>
 .sticky-header {
   position: sticky;
-  top: 88px;
+  top: 73px;
   z-index: 100;
   backdrop-filter: blur(12px);
   background: rgba(var(--v-theme-surface), 0.85);

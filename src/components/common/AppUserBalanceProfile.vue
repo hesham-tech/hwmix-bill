@@ -97,7 +97,8 @@ import AppBalanceDisplay from './AppBalanceDisplay.vue';
 const props = defineProps({
   user: {
     type: Object,
-    required: true,
+    required: false,
+    default: null,
   },
   mode: {
     type: String,
@@ -147,10 +148,6 @@ const handleClick = () => {
 </script>
 
 <style scoped>
-.app-user-balance-profile {
-  /* Removed width: 100% to allow proper flex behavior in navbars */
-}
-
 .truncate {
   white-space: nowrap;
   overflow: hidden;

@@ -8,6 +8,10 @@ const themes = [
     name: 'dark',
     icon: 'ri-moon-clear-line',
   },
+  {
+    name: 'cozy',
+    icon: 'ri-cup-line',
+  },
 ];
 </script>
 
