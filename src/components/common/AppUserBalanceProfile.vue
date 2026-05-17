@@ -20,9 +20,9 @@
             <AppPhone :phone="user.phone" />
           </div>
 
-          <div v-if="!hideBalance && user?.balance != null" class="d-flex align-center mt-1">
+          <div v-if="!hideBalance && (user?.active_branch_balance != null || user?.balance != null)" class="d-flex align-center mt-1 flex-wrap gap-1">
             <AppBalanceDisplay
-              :amount="user.balance"
+              :amount="user?.active_branch_balance ?? user?.balance"
               perspective="admin"
               show-icon
               icon-size="12"
@@ -31,6 +31,17 @@
               custom-class="px-2 py-0-5 rounded-pill border border-opacity-25 bg-neutral-lighten-5"
               style="border-style: dashed !important"
             />
+            <v-chip
+              v-if="user?.total_branches_balance != null && user.total_branches_balance !== (user.active_branch_balance ?? user.balance)"
+              size="x-small"
+              variant="tonal"
+              color="info"
+              class="px-1 text-xxs font-weight-bold"
+              style="font-size: 0.65rem !important; height: 16px; min-width: auto;"
+              title="إجمالي الأرصدة في كافة فروع المستخدم"
+            >
+              الكل: {{ formatCurrency(user.total_branches_balance) }}
+            </v-chip>
           </div>
         </div>
       </div>
@@ -64,7 +75,7 @@
         </div>
 
         <v-card
-          v-if="!hideBalance"
+          v-if="!hideBalance && (user?.active_branch_balance != null || user?.balance != null)"
           variant="flat"
           class="rounded-xl px-8 py-4 border-dashed mx-auto shadow-sm bg-white"
           style="border: 1px dashed; max-width: 300px; border-color: rgba(var(--v-theme-primary), 0.2)"
@@ -72,7 +83,7 @@
           <div class="text-xxs font-weight-bold opacity-70 text-primary mb-1">{{ balanceTitle }}</div>
 
           <AppBalanceDisplay
-            :amount="user?.balance"
+            :amount="user?.active_branch_balance ?? user?.balance"
             :perspective="perspective"
             show-icon
             icon-size="24"
@@ -80,6 +91,14 @@
             label-class="text-subtitle-1 font-weight-bold"
             custom-class="d-flex flex-column align-center"
           />
+
+          <!-- إجمالي الفروع للمستخدمين متعددي الفروع -->
+          <div 
+            v-if="user?.total_branches_balance != null && user.total_branches_balance !== (user.active_branch_balance ?? user.balance)" 
+            class="text-xxs font-weight-medium text-grey-darken-1 mt-2 text-center"
+          >
+            إجمالي كافة الفروع: <span class="font-weight-black text-slate-800">{{ formatCurrency(user.total_branches_balance) }}</span>
+          </div>
         </v-card>
       </div>
     </template>

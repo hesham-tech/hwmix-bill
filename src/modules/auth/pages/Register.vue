@@ -224,6 +224,7 @@ const handleRegister = async () => {
                       <label class="custom-label">كلمة المرور *</label>
                       <AppPasswordInput
                         v-model="form.password"
+                        autocomplete="new-password"
                         placeholder="8 أحرف على الأقل"
                         :rules="[required, strongPassword]"
                         prepend-inner-icon="ri-lock-password-line"

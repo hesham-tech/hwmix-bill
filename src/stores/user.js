@@ -45,7 +45,24 @@ export const useUserStore = defineStore('user', () => {
   const hasPermission = (permission, options = {}) => {
     // 1. Admin Overrides: Check raw permissions directly to avoid recursion
     const rawPermissions = permissions.value || [];
-    if (rawPermissions.includes(PERMISSIONS.ADMIN_SUPER) || rawPermissions.includes(PERMISSIONS.ADMIN_COMPANY)) return true;
+    
+    // Super admin bypasses EVERYTHING
+    if (rawPermissions.includes(PERMISSIONS.ADMIN_SUPER)) return true;
+
+    // Helper to determine if a permission strictly requires Super Admin
+    const isSuperAdminPermission = p => p === PERMISSIONS.ADMIN_SUPER;
+
+    // Company admin bypasses everything EXCEPT super admin permissions
+    if (rawPermissions.includes(PERMISSIONS.ADMIN_COMPANY)) {
+      if (Array.isArray(permission)) {
+        // If all are super-admin only, block access
+        const hasNonSuper = permission.some(p => !isSuperAdminPermission(p));
+        if (!hasNonSuper) return false;
+      } else if (isSuperAdminPermission(permission)) {
+        return false;
+      }
+      return true;
+    }
 
     if (!permission) return true;
 
@@ -132,9 +149,8 @@ export const useUserStore = defineStore('user', () => {
 
       // Backend sends { status: true, ... }
       if (response.data.status || response.data.success) {
-        // Full redirect is the safest way to reset all stores and
-        // ensure all subsequent requests use the new company context.
-        window.location.href = '/';
+        // Reload the current page to refresh all stores under the new company context
+        window.location.reload();
       }
     } catch (error) {
       console.error('Failed to switch company:', error);

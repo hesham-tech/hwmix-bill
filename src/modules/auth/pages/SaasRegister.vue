@@ -121,7 +121,7 @@
                 <v-col cols="12">
                   <div class="saas-field-group">
                     <label class="saas-field-label">كلمة المرور *</label>
-                    <AppPasswordInput v-model="form.password" placeholder="8 أحرف على الأقل" :rules="[required, strongPassword]" prepend-inner-icon="ri-lock-password-line" class="saas-input" density="compact" />
+                    <AppPasswordInput v-model="form.password" autocomplete="new-password" placeholder="8 أحرف على الأقل" :rules="[required, strongPassword]" prepend-inner-icon="ri-lock-password-line" class="saas-input" density="compact" />
                   </div>
                 </v-col>
               </v-row>

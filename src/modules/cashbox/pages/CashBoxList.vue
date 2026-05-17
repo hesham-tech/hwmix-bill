@@ -59,7 +59,7 @@
                 <AppCard class="cashbox-card h-100" no-padding>
                   <div class="cashbox-card-header d-flex align-center justify-center pa-4 bg-grey-lighten-4 position-relative">
                     <v-avatar size="80" rounded="md" class="elevation-1 bg-white">
-                      <v-icon icon="ri-safe-2-line" size="40" color="warning" />
+                      <v-icon :icon="item.branch_id ? 'ri-safe-2-line' : 'ri-wallet-2-line'" size="40" :color="item.branch_id ? 'warning' : 'primary'" />
                     </v-avatar>
 
                     <v-chip
@@ -74,9 +74,19 @@
 
                   <v-card-item>
                     <v-card-title class="text-h6 font-weight-bold">{{ item.name }}</v-card-title>
-                    <v-card-subtitle class="d-flex align-center mt-1">
-                      <v-chip v-if="item.type" size="x-small" variant="flat" color="primary-lighten-5" class="text-primary font-weight-bold">
-                        {{ item.type.name }}
+                    <v-card-subtitle class="d-flex align-center mt-1 flex-wrap gap-1">
+                      <v-chip v-if="item.type || item.cash_type" size="x-small" variant="flat" color="primary-lighten-5" class="text-primary font-weight-bold">
+                        {{ item.type?.name || item.cash_type }}
+                      </v-chip>
+
+                      <v-chip
+                        size="x-small"
+                        variant="tonal"
+                        :color="item.branch_id ? 'info' : 'secondary'"
+                        class="font-weight-bold"
+                      >
+                        <v-icon :icon="item.branch_id ? 'ri-git-branch-line' : 'ri-wallet-2-line'" size="10" class="me-1" />
+                        {{ item.branch_name || 'خزينة عامة للشركة' }}
                       </v-chip>
                     </v-card-subtitle>
                   </v-card-item>
@@ -137,16 +147,28 @@
           >
             <template #item.name="{ item }">
               <div class="d-flex align-center">
-                <v-icon icon="ri-money-dollar-box-line" size="small" color="warning" class="me-2" />
+                <v-icon :icon="item.branch_id ? 'ri-safe-2-line' : 'ri-wallet-2-line'" size="small" :color="item.branch_id ? 'warning' : 'primary'" class="me-2" />
                 <span class="font-weight-bold">{{ item.name }}</span>
               </div>
             </template>
 
             <template #item.type="{ item }">
-              <v-chip v-if="item.type" size="small" variant="flat" color="primary-lighten-5" class="text-primary font-weight-bold">
-                {{ item.type.name }}
+              <v-chip v-if="item.type || item.cash_type" size="small" variant="flat" color="primary-lighten-5" class="text-primary font-weight-bold">
+                {{ item.type?.name || item.cash_type }}
               </v-chip>
               <span v-else class="text-grey-lighten-1 text-caption">غير محدد</span>
+            </template>
+
+            <template #item.branch_name="{ item }">
+              <v-chip
+                size="small"
+                variant="tonal"
+                :color="item.branch_id ? 'info' : 'secondary'"
+                class="font-weight-bold"
+              >
+                <v-icon :icon="item.branch_id ? 'ri-git-branch-line' : 'ri-wallet-2-line'" size="12" class="me-1" />
+                {{ item.branch_name || 'خزينة عامة للشركة' }}
+              </v-chip>
             </template>
 
             <template #item.balance="{ item }">
@@ -194,6 +216,24 @@
               :rules="[rules.required]"
               hide-details
               class="mb-4"
+            />
+          </v-col>
+          <v-col cols="12">
+            <v-select
+              v-model="formData.branch_id"
+              :items="[{ id: null, name: 'خزينة عامة للشركة (حساب بنكي / رئيسي)' }, ...branches]"
+              :loading="loadingBranches"
+              item-title="name"
+              item-value="id"
+              label="الفرع المرتبط بالخزينة"
+              variant="outlined"
+              density="comfortable"
+              prepend-inner-icon="ri-git-branch-line"
+              :disabled="isEdit"
+              hide-details
+              class="mb-4"
+              persistent-hint
+              :hint="isEdit ? 'لا يمكن تعديل الفرع بعد إنشاء الخزينة حمايةً للقيود التاريخية' : 'اترك هذا الحقل فارغاً لإنشاء خزينة عامة للشركة'"
             />
           </v-col>
           <v-col cols="12">
@@ -314,7 +354,10 @@ const deleting = ref(false);
 const formRef = ref(null);
 const cashBoxTypes = ref([]);
 const loadingTypes = ref(false);
-const formData = ref({ name: '', cash_box_type_id: null, initial_balance: 0, is_active: 1 });
+const branches = ref([]);
+const loadingBranches = ref(false);
+const branchesApi = useApi('/api/branches');
+const formData = ref({ name: '', cash_box_type_id: null, branch_id: null, initial_balance: 0, is_active: 1 });
 
 const isEdit = computed(() => !!selectedItem.value);
 
@@ -322,6 +365,7 @@ const headers = computed(() => {
   const baseHeaders = [
     { title: 'الاسم', key: 'name', sortable: true },
     { title: 'النوع', key: 'type', sortable: true },
+    { title: 'الفرع / النطاق', key: 'branch_name', sortable: true },
     { title: 'الرصيد', key: 'balance', align: 'end', sortable: true },
     { title: 'الحالة', key: 'is_active', align: 'center', sortable: true },
   ];
@@ -345,11 +389,24 @@ const loadTypes = async () => {
   }
 };
 
+const loadBranches = async () => {
+  loadingBranches.value = true;
+  try {
+    const response = await branchesApi.get({ per_page: 100 }, { showLoading: false, showError: false });
+    branches.value = response.data || [];
+  } catch (error) {
+    console.error('Failed to load branches:', error);
+  } finally {
+    loadingBranches.value = false;
+  }
+};
+
 const handleCreate = () => {
   selectedItem.value = null;
-  formData.value = { name: '', cash_box_type_id: null, initial_balance: 0, is_active: 1 };
+  formData.value = { name: '', cash_box_type_id: null, branch_id: null, initial_balance: 0, is_active: 1 };
   showDialog.value = true;
   if (!cashBoxTypes.value.length) loadTypes();
+  if (!branches.value.length) loadBranches();
 };
 
 const handleEdit = item => {
@@ -357,6 +414,7 @@ const handleEdit = item => {
   formData.value = { ...item };
   showDialog.value = true;
   if (!cashBoxTypes.value.length) loadTypes();
+  if (!branches.value.length) loadBranches();
 };
 
 const handleDelete = item => {

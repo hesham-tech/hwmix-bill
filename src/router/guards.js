@@ -64,17 +64,23 @@ export const permissionGuard = async (to, from, next) => {
   }
 
   // === CUSTOMER PORTAL RESTRICTION ===
-  // If the user is NOT staff (meaning they are a Customer), they must ONLY access customer/portal pages
+  // If the user is NOT staff (meaning they are a Customer), they must ONLY access customer/portal pages, sessions, or profile
   if (!userStore.isStaff) {
     const isAllowedForCustomer = 
       to.name === 'app-home' || 
       to.name === 'forbidden' || 
       to.name === 'not-found' || 
+      to.name === 'profile' || 
+      to.name === 'sessions' || 
       to.meta.isCustomer === true;
 
     if (!isAllowedForCustomer) {
       return next({ name: 'forbidden' });
     }
+
+    // Bypass Spatie corporate permissions check for customer routes.
+    // Customers only access their own data via portal APIs, they don't require company-level permissions.
+    return next();
   }
 
   const requiredPermission = to.meta.permission;

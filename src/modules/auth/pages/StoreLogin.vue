@@ -77,6 +77,7 @@
               </div>
               <AppPasswordInput
                 v-model="form.password"
+                autocomplete="current-password"
                 placeholder="أدخل كلمة المرور"
                 :rules="[required]"
                 prepend-inner-icon="ri-lock-2-line"

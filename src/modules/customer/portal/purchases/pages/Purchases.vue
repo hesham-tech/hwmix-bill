@@ -62,12 +62,12 @@
       </div>
 
       <!-- Loading State -->
-      <div v-if="loading && items.length === 0" class="d-flex justify-center py-12">
+      <div v-if="loading && purchases.length === 0" class="d-flex justify-center py-12">
         <v-progress-circular indeterminate color="primary" size="64" />
       </div>
 
       <!-- Empty State -->
-      <div v-else-if="items.length === 0" class="text-center py-12 bg-grey-lighten-4 rounded-md border border-dashed mt-4">
+      <div v-else-if="purchases.length === 0" class="text-center py-12 bg-grey-lighten-4 rounded-md border border-dashed mt-4">
         <v-icon icon="ri-inbox-line" size="64" color="grey-lighten-1" class="mb-4" />
         <h3 class="text-h6 font-weight-bold text-grey-darken-1">لا توجد فواتير حالياً</h3>
         <p class="text-body-2 text-grey">كل مشترياتك ستظهر هنا بمجرد صدورها</p>
