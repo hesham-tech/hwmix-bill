@@ -358,12 +358,12 @@
         <v-pagination
           v-model="pageModel"
           :length="Math.ceil(totalItems / itemsPerPageModel)"
-          :total-visible="mobile ? 3 : 5"
+          :total-visible="5"
           show-first-last-page
           density="compact"
         />
 
-        <div class="text-caption text-grey d-none d-sm-block">{{ paginationInfo.from }}-{{ paginationInfo.to }} من {{ paginationInfo.total }}</div>
+        <div class="text-caption text-grey">{{ paginationInfo.from }}-{{ paginationInfo.to }} من {{ paginationInfo.total }}</div>
       </div>
     </template>
 
@@ -521,12 +521,12 @@
         <v-pagination
           v-model="pageModel"
           :length="Math.ceil(totalItems / itemsPerPageModel)"
-          :total-visible="mobile ? 3 : 5"
+          :total-visible="5"
           show-first-last-page
           density="compact"
         />
 
-        <div class="text-caption text-grey d-none d-sm-block">{{ paginationInfo.from }}-{{ paginationInfo.to }} من {{ paginationInfo.total }}</div>
+        <div class="text-caption text-grey">{{ paginationInfo.from }}-{{ paginationInfo.to }} من {{ paginationInfo.total }}</div>
       </div>
     </div>
 
@@ -560,7 +560,6 @@
 <script setup>
 import { computed, ref, reactive, nextTick, watch, useSlots, useAttrs } from 'vue';
 import { useRoute } from 'vue-router';
-import { useDisplay } from 'vuetify';
 import { useWindowSize, useElementSize, useLocalStorage } from '@vueuse/core';
 import { usePermissions } from '@/composables/usePermissions';
 import AppButton from '@/components/common/AppButton.vue';
@@ -671,7 +670,6 @@ const emit = defineEmits([
 // --- Core Composables ---
 const route = useRoute();
 const { canAny } = usePermissions();
-const { mobile } = useDisplay();
 const { height: windowHeight } = useWindowSize();
 const slots = useSlots();
 
@@ -723,8 +721,8 @@ const paginationInfo = computed(() => {
 const processedHeaders = computed(() => {
   let finalHeaders = [...props.headers];
 
-  // Sticky Actions (Desktop)
-  if (props.stickyActions && props.showActions && !mobile.value) {
+  // Sticky Actions (Always Enabled)
+  if (props.stickyActions && props.showActions) {
     finalHeaders = finalHeaders.map((header, index) => {
       if (index === finalHeaders.length - 1 && header.key === 'actions') {
         return { ...header, fixed: true, width: header.width || '130px' };
@@ -733,24 +731,11 @@ const processedHeaders = computed(() => {
     });
   }
 
-  // Mobile Priorities
-  if (mobile.value && props.enableMobileExpansion) {
-    const visibleCount = props.mobileHeadersCount;
-    const prioritized = finalHeaders.filter((h, i) => i < visibleCount || h.key === 'actions');
-
-    if (!prioritized.some(h => h.key === 'data-table-expand')) {
-      prioritized.unshift({ title: '', key: 'data-table-expand', align: 'start', sortable: false, width: '48px' });
-    }
-    return prioritized;
-  }
-
   return finalHeaders;
 });
 
 const hiddenHeaders = computed(() => {
-  if (!mobile.value || !props.enableMobileExpansion) return [];
-  const visibleKeys = processedHeaders.value.map(h => h.key);
-  return props.headers.filter(h => !visibleKeys.includes(h.key) && h.key !== 'actions');
+  return [];
 });
 
 // --- Persistent View Preferences (Centralized) ---
@@ -903,9 +888,6 @@ const menuModel = ref(false);
 const menuProps = reactive({ x: 0, y: 0, item: null });
 
 const handleContextMenu = (event, { item }) => {
-  // Allow context menu even on mobile if it's a right click
-  // (Vuetify's mobile detection might be aggressive)
-  if (mobile.value && event.type !== 'contextmenu') return;
 
   event.preventDefault();
   menuModel.value = false;
