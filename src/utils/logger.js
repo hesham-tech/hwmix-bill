@@ -110,8 +110,9 @@ const logger = {
       }
 
       // Use raw fetch for maximum reliability and to avoid axios interceptors loop
-      const baseUrl = import.meta.env.VITE_API_URL || '';
-      fetch(`${baseUrl}/api/error-reports`, {
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
+      const url = baseUrl.endsWith('/api/v1') ? `${baseUrl}/error-reports` : `${baseUrl}/api/error-reports`;
+      fetch(url, {
         method: 'POST',
         headers: headers,
         body: JSON.stringify(payload),

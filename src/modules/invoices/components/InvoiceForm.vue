@@ -481,6 +481,13 @@ const loadLookups = async () => {
       } else if (cashBoxes.value.length > 0) {
         invoiceData.value.cash_box_id = cashBoxes.value[0].id;
       }
+
+      // ✅ تحديد العميل النقدي الافتراضي تلقائياً لكل فاتورة جديدة
+      const company = userStore.currentCompany;
+      if (company?.default_cash_customer) {
+        selectedCustomerObj.value = company.default_cash_customer;
+        invoiceData.value.user_id = company.default_cash_customer.id;
+      }
     }
   } catch (error) {
     console.error('Error loading lookups:', error);

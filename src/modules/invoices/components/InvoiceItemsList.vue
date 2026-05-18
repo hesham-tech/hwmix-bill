@@ -17,10 +17,10 @@
       </div>
     </div>
 
-    <!-- Items List (Desktop) -->
+    <!-- Items List (Unified Desktop View for all screens) -->
     <v-card variant="outlined" class="rounded-md border-opacity-50 overflow-hidden">
-      <div class="w-100 d-none d-md-block">
-        <v-table class="items-table compact-table" density="compact">
+      <div class="table-scroll-container">
+        <v-table class="items-table compact-table" density="compact" fixed-header>
           <thead>
             <tr class="bg-neutral-lighten-5">
               <th class="text-right ps-4">الصنف</th>
@@ -100,92 +100,6 @@
             </tr>
           </tbody>
         </v-table>
-      </div>
-
-      <!-- Mobile view -->
-      <div class="d-md-none pa-4">
-        <v-card v-for="(item, index) in items" :key="'mob-' + index" variant="flat" border class="mobile-item-card pa-3 mb-3 bg-white">
-          <v-card-item class="pa-0 mb-3" prepend-icon="ri-shopping-bag-line">
-            <template #prepend>
-              <AppAvatar :img-url="item.primary_image_url" :name="item.name" size="48" rounded="md" class="me-2 border" />
-            </template>
-            <v-card-title class="text-body-2 font-weight-bold ps-0">{{ item.name }}</v-card-title>
-            <v-card-subtitle v-if="item.variant_name" class="ps-0">{{ item.variant_name }}</v-card-subtitle>
-            <template #append>
-              <AppButton icon="ri-delete-bin-line" variant="text" color="error" density="compact" @click="$emit('remove', index)" />
-            </template>
-          </v-card-item>
-
-          <v-row dense align="center">
-            <v-col cols="12" sm="6">
-              <div class="d-flex align-center gap-2">
-                <v-btn
-                  icon="ri-subtract-line"
-                  size="small"
-                  variant="tonal"
-                  color="primary"
-                  :disabled="item.quantity <= 0.01"
-                  @click="updateQuantity(item, (item.quantity || 0) - 1)"
-                />
-                <div class="flex-grow-1 position-relative">
-                  <AppInput
-                    :model-value="item.quantity"
-                    label="الكمية"
-                    type="number"
-                    density="compact"
-                    hide-details
-                    class="compact-input text-center w-100"
-                    :class="{ 'flash-error': isItemError(item) }"
-                    @update:model-value="val => updateQuantity(item, val)"
-                  />
-                  <v-tooltip :model-value="isItemError(item)" location="top" activator="parent" content-class="bg-error text-white font-weight-bold">
-                    الكمية المتاحة: {{ item.max_quantity }}
-                  </v-tooltip>
-                </div>
-                <v-btn icon="ri-add-line" size="small" variant="tonal" color="primary" @click="updateQuantity(item, (item.quantity || 0) + 1)" />
-              </div>
-            </v-col>
-            <v-col cols="6" sm="3">
-              <AppInput
-                v-model.number="item.unit_price"
-                label="السعر"
-                type="number"
-                density="compact"
-                hide-details
-                class="compact-input"
-                @update:model-value="$emit('calculate', item)"
-              />
-            </v-col>
-            <v-col cols="6" sm="3">
-              <AppInput
-                v-model.number="item.discount"
-                label="الخصم"
-                type="number"
-                density="compact"
-                hide-details
-                class="compact-input"
-                @update:model-value="$emit('calculate', item)"
-              />
-            </v-col>
-          </v-row>
-
-          <div class="d-flex justify-space-between align-center mt-3 pt-2 border-top">
-            <span class="text-caption font-weight-bold">الإجمالي:</span>
-            <span class="text-primary font-weight-bold">{{ formatCurrency(item.total) }}</span>
-          </div>
-
-          <!-- Mobile Stock Warning -->
-          <v-alert
-            v-if="item.requires_stock && item.quantity > (item.max_quantity || 0)"
-            type="error"
-            density="compact"
-            variant="tonal"
-            class="mt-2 py-1 text-caption font-weight-bold"
-            icon="ri-error-warning-line"
-          >
-            تجاوز المخزون ({{ item.max_quantity || 0 }})
-          </v-alert>
-        </v-card>
       </div>
 
       <!-- Empty State -->
@@ -289,6 +203,17 @@ const updateQuantity = (item, val) => {
   border-bottom: 1px solid rgba(var(--v-border-color), 0.12);
 }
 
+.table-scroll-container {
+  max-height: 380px;
+  overflow-y: auto;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.items-table {
+  min-width: 800px;
+}
+
 .items-table :deep(th) {
   font-weight: bold !important;
   color: rgba(var(--v-theme-on-surface), 0.7) !important;
@@ -298,14 +223,6 @@ const updateQuantity = (item, val) => {
 
 .border-top {
   border-top: 1px solid rgba(var(--v-border-color), 0.12);
-}
-
-.mobile-item-card {
-  transition: all 0.2s ease;
-}
-
-.mobile-item-card:hover {
-  border-color: rgb(var(--v-theme-primary)) !important;
 }
 
 /* Flash Error Animation */
