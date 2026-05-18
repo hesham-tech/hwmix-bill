@@ -396,6 +396,14 @@ const loadBranches = async () => {
   try {
     const response = await branchesApi.get({ per_page: 100 }, { showLoading: false, showError: false });
     branches.value = response.data || [];
+    
+    // تحديد الفرع الرئيسي تلقائياً عند الإنشاء في الخلفية
+    if (!isEdit.value && (!formData.value.branch_id || formData.value.branch_id === null)) {
+      const mainBranch = branches.value.find(b => b.is_main || b.name?.includes('رئيسي') || b.name?.includes('الرئيسي') || b.name?.toLowerCase().includes('main')) || branches.value[0];
+      if (mainBranch) {
+        formData.value.branch_id = mainBranch.id;
+      }
+    }
   } catch (error) {
     console.error('Failed to load branches:', error);
   } finally {
@@ -408,10 +416,19 @@ const handleCreate = () => {
   
   const defaultCashBoxTypeId = cashBoxTypes.value.find(t => t.name?.includes('نقد') || t.name?.toLowerCase().includes('cash'))?.id || null;
   
+  // نحدد الفرع الرئيسي إذا كانت قائمة الفروع محملة مسبقاً
+  let defaultBranchId = authStore.user?.branch_id || null;
+  if (!defaultBranchId && branches.value.length > 0) {
+    const mainBranch = branches.value.find(b => b.is_main || b.name?.includes('رئيسي') || b.name?.includes('الرئيسي') || b.name?.toLowerCase().includes('main')) || branches.value[0];
+    if (mainBranch) {
+      defaultBranchId = mainBranch.id;
+    }
+  }
+
   formData.value = { 
     name: '', 
     cash_box_type_id: defaultCashBoxTypeId, 
-    branch_id: authStore.user?.branch_id || null, 
+    branch_id: defaultBranchId, 
     initial_balance: 0, 
     is_active: 1 
   };

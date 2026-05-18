@@ -86,7 +86,7 @@ export const collectErrorInfo = async (error = null, context = {}) => {
     if (userStore.currentUser) {
       info.payload.user_id = userStore.currentUser.id;
       info.payload.username = userStore.currentUser.username;
-      info.payload.company_id = userStore.currentUser.company_id;
+      info.payload.company_id = userStore.currentUser.active_company_id;
     }
 
     if (branchStore.activeBranchId) {
