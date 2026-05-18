@@ -491,9 +491,7 @@ const handleLogout = async () => {
   if (!confirmed) return;
 
   try {
-    await authService.logout();
-    toast.success('تم تسجيل الخروج بنجاح');
-    router.push('/login');
+    await authService.logout({ showToast: true });
   } catch (error) {
     toast.error('فشل تسجيل الخروج');
   }

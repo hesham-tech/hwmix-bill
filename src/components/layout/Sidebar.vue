@@ -251,9 +251,7 @@ const isItemActive = itemPath => {
 
 const handleLogout = async () => {
   try {
-    await authStore.logout();
-    toast.success('تم تسجيل الخروج بنجاح');
-    router.push('/login');
+    await authStore.logout({ showToast: true });
   } catch (error) {
     toast.error('حدث خطأ أثناء تسجيل الخروج');
   }

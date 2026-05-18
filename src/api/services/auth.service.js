@@ -72,38 +72,10 @@ class AuthService {
    * Logout
    */
   async logout(options = {}) {
-    const { showToast = true, loading = true } = options;
-    const userStore = useUserStore();
-
-    if (loading) userStore.loadingApi = true;
-
-    try {
-      const response = await apiClient.post('logout');
-
-      // Clear storage
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      sessionStorage.removeItem('token');
-      sessionStorage.removeItem('user');
-      localStorage.removeItem('products');
-
-      delete apiClient.defaults.headers.common['Authorization'];
-
-      if (showToast) {
-        toast.success(response.data.message || 'تم تسجيل الخروج بنجاح');
-      }
-
-      if (loading) userStore.loadingApi = false;
-
-      // Reload page to reset state
-      location.reload();
-
-      return response.data;
-    } catch (error) {
-      if (loading) userStore.loadingApi = false;
-
-      throw error;
-    }
+    const { showToast = true } = options;
+    const { useAuthStore } = await import('@/stores/auth');
+    const authStore = useAuthStore();
+    await authStore.logout({ showToast });
   }
 
   /**
