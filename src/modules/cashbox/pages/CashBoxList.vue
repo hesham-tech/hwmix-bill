@@ -304,7 +304,9 @@ import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import EmptyState from '@/components/common/EmptyState.vue';
 import { formatCurrency } from '@/utils/formatters';
 import { PERMISSIONS } from '@/config/permissions';
+import { useAuthStore } from '@/stores/auth';
 
+const authStore = useAuthStore();
 const { can } = usePermissions();
 const api = useApi('/api/cash-boxes');
 const typesApi = useApi('/api/cash-box-types');
@@ -357,7 +359,7 @@ const loadingTypes = ref(false);
 const branches = ref([]);
 const loadingBranches = ref(false);
 const branchesApi = useApi('/api/branches');
-const formData = ref({ name: '', cash_box_type_id: null, branch_id: null, initial_balance: 0, is_active: 1 });
+const formData = ref({ name: '', cash_box_type_id: null, branch_id: authStore.user?.branch_id || null, initial_balance: 0, is_active: 1 });
 
 const isEdit = computed(() => !!selectedItem.value);
 
@@ -403,9 +405,25 @@ const loadBranches = async () => {
 
 const handleCreate = () => {
   selectedItem.value = null;
-  formData.value = { name: '', cash_box_type_id: null, branch_id: null, initial_balance: 0, is_active: 1 };
+  
+  const defaultCashBoxTypeId = cashBoxTypes.value.find(t => t.name?.includes('نقد') || t.name?.toLowerCase().includes('cash'))?.id || null;
+  
+  formData.value = { 
+    name: '', 
+    cash_box_type_id: defaultCashBoxTypeId, 
+    branch_id: authStore.user?.branch_id || null, 
+    initial_balance: 0, 
+    is_active: 1 
+  };
   showDialog.value = true;
-  if (!cashBoxTypes.value.length) loadTypes();
+  
+  if (!cashBoxTypes.value.length) {
+    loadTypes().then(() => {
+      if (!formData.value.cash_box_type_id && !isEdit.value) {
+        formData.value.cash_box_type_id = cashBoxTypes.value.find(t => t.name?.includes('نقد') || t.name?.toLowerCase().includes('cash'))?.id || null;
+      }
+    });
+  }
   if (!branches.value.length) loadBranches();
 };
 
