@@ -1,6 +1,6 @@
 <template>
   <div class="cashbox-page">
-    <AppPageHeader title="الخزائن" subtitle="إدارة الخزائن النقدية والأرصدة المتاحة للعمليات" icon="ri-safe-2-line" sticky>
+    <AppPageHeader v-if="!hideHeader" title="الخزائن" subtitle="إدارة الخزائن النقدية والأرصدة المتاحة للعمليات" icon="ri-safe-2-line" sticky>
       <template #append>
         <AppButton
           v-if="can(PERMISSIONS.CASH_BOXES_CREATE)"
@@ -70,6 +70,17 @@
                     >
                       {{ item.is_active ? 'نشط' : 'معطل' }}
                     </v-chip>
+
+                    <v-chip
+                      v-if="item.is_default"
+                      color="warning"
+                      size="x-small"
+                      class="position-absolute bottom-2 right-2 font-weight-bold"
+                      variant="flat"
+                    >
+                      <v-icon icon="ri-star-fill" size="10" class="me-1" />
+                      افتراضية
+                    </v-chip>
                   </div>
 
                   <v-card-item>
@@ -137,7 +148,7 @@
             :items-per-page="itemsPerPage"
             :page="page"
             v-model:sort-by="sortByVuetify"
-            title="قائمة الخزائن"
+            :title="hideHeader ? '' : 'قائمة الخزائن'"
             icon="ri-safe-2-line"
             permission-module="cash_boxes"
             :can-view="false"
@@ -149,6 +160,10 @@
               <div class="d-flex align-center">
                 <v-icon :icon="item.branch_id ? 'ri-safe-2-line' : 'ri-wallet-2-line'" size="small" :color="item.branch_id ? 'warning' : 'primary'" class="me-2" />
                 <span class="font-weight-bold">{{ item.name }}</span>
+                <v-chip v-if="item.is_default" size="x-small" color="warning" class="ms-2 font-weight-bold" variant="flat">
+                  <v-icon icon="ri-star-fill" size="10" class="me-1" />
+                  افتراضية
+                </v-chip>
               </div>
             </template>
 
@@ -246,14 +261,25 @@
               :disabled="isEdit"
             />
           </v-col>
-          <v-col cols="12">
-            <v-card variant="tonal" color="primary" class="pa-4 rounded-md">
-              <div class="d-flex align-center justify-space-between">
+          <v-col cols="12" md="6">
+            <v-card variant="tonal" color="primary" class="pa-4 rounded-md h-100">
+              <div class="d-flex align-center justify-space-between h-100">
                 <div>
                   <div class="text-subtitle-1 font-weight-bold">حالة النشاط</div>
                   <div class="text-caption">تحديد ما إذا كانت الخزينة متاحة حالياً للعمليات</div>
                 </div>
                 <AppSwitch v-model="formData.is_active" :true-value="1" :false-value="0" hide-details />
+              </div>
+            </v-card>
+          </v-col>
+          <v-col cols="12" md="6">
+            <v-card variant="tonal" color="warning" class="pa-4 rounded-md h-100">
+              <div class="d-flex align-center justify-space-between h-100">
+                <div>
+                  <div class="text-subtitle-1 font-weight-bold">خزينة افتراضية</div>
+                  <div class="text-caption">تعيين هذه الخزينة كخيار أساسي للعمليات</div>
+                </div>
+                <AppSwitch v-model="formData.is_default" :true-value="1" :false-value="0" hide-details />
               </div>
             </v-card>
           </v-col>
@@ -306,6 +332,11 @@ import { formatCurrency } from '@/utils/formatters';
 import { PERMISSIONS } from '@/config/permissions';
 import { useAuthStore } from '@/stores/auth';
 
+const props = defineProps({
+  userId: { type: [Number, String], default: null },
+  hideHeader: { type: Boolean, default: false }
+});
+
 const authStore = useAuthStore();
 const { can } = usePermissions();
 const api = useApi('/api/cash-boxes');
@@ -319,6 +350,9 @@ const fetchCashBoxesApi = async params => {
   const finalParams = { ...params };
   if (params.search) {
     finalParams.name = params.search;
+  }
+  if (props.userId) {
+    finalParams.user_id = props.userId;
   }
   return await api.get(finalParams, { showLoading: false });
 };
@@ -339,7 +373,7 @@ const {
   applyFilters,
   fetchData,
 } = useDataTable(fetchCashBoxesApi, {
-  syncWithUrl: true,
+  syncWithUrl: !props.userId,
   initialSortBy: 'name',
   initialSortOrder: 'asc',
   initialPerPage: 12,
@@ -359,7 +393,7 @@ const loadingTypes = ref(false);
 const branches = ref([]);
 const loadingBranches = ref(false);
 const branchesApi = useApi('/api/branches');
-const formData = ref({ name: '', cash_box_type_id: null, branch_id: authStore.user?.branch_id || null, initial_balance: 0, is_active: 1 });
+const formData = ref({ name: '', cash_box_type_id: null, branch_id: authStore.user?.branch_id || null, initial_balance: 0, is_active: 1, is_default: 0 });
 
 const isEdit = computed(() => !!selectedItem.value);
 
@@ -430,7 +464,8 @@ const handleCreate = () => {
     cash_box_type_id: defaultCashBoxTypeId, 
     branch_id: defaultBranchId, 
     initial_balance: 0, 
-    is_active: 1 
+    is_active: 1,
+    is_default: 0 
   };
   showDialog.value = true;
   
@@ -446,7 +481,11 @@ const handleCreate = () => {
 
 const handleEdit = item => {
   selectedItem.value = item;
-  formData.value = { ...item };
+  formData.value = { 
+    ...item,
+    is_active: item.is_active ? 1 : 0,
+    is_default: item.is_default ? 1 : 0
+  };
   showDialog.value = true;
   if (!cashBoxTypes.value.length) loadTypes();
   if (!branches.value.length) loadBranches();

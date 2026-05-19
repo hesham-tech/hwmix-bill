@@ -15,8 +15,8 @@
       :infinite-scroll="true"
       :has-more="hasMore"
       permission-module="invoices"
-      title="الفواتير"
-      subtitle="إدارة جميع الفواتير الصادرة والواردة"
+      :title="hideHeader ? '' : 'الفواتير'"
+      :subtitle="hideHeader ? '' : 'إدارة جميع الفواتير الصادرة والواردة'"
       icon="ri-file-list-3-line"
       @update:page="changePage"
       @update:items-per-page="changePerPage"
@@ -132,6 +132,11 @@ import AppUserBalanceProfile from '@/components/common/AppUserBalanceProfile.vue
 import { toast } from 'vue3-toastify';
 import { usePrint } from '@/modules/print/composables/usePrint';
 
+const props = defineProps({
+  userId: { type: [Number, String], default: null },
+  hideHeader: { type: Boolean, default: false }
+});
+
 const router = useRouter();
 const { can } = usePermissions();
 const invoiceApi = useApi('/api/invoices');
@@ -154,6 +159,7 @@ const {
   applyFilters,
 } = useDataTable(
   async params => {
+    if (props.userId) params.user_id = props.userId;
     return await invoiceApi.get(params, { showLoading: false });
   },
   {

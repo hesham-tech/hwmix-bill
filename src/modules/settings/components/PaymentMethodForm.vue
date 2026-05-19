@@ -70,7 +70,7 @@
                 <div class="text-subtitle-1 font-weight-bold">طريقة أساسية (System)</div>
                 <div class="text-caption">إذا تم تفعيلها، ستظهر لجميع الشركات كنظام افتراضي</div>
               </div>
-              <AppSwitch v-model="formData.is_system" color="info" hide-details />
+              <AppSwitch v-model="formData.is_system" hide-details />
             </div>
           </v-card>
         </v-col>

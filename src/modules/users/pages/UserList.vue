@@ -240,7 +240,7 @@ const {
   close,
   showConfirm,
   confirmMessage,
-  handleConfirm,
+  handleConfirm: baseHandleConfirm,
   handleCancel,
   isPermissionOpen,
   permissionUser,
@@ -251,6 +251,11 @@ const {
   handleEdit,
   handleCreate,
 } = useUser();
+
+const handleConfirm = async () => {
+  await baseHandleConfirm();
+  refresh();
+};
 
 // API fetch function
 const fetchUsersApi = async params => {

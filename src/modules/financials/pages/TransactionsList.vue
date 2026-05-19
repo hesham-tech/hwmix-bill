@@ -15,8 +15,8 @@
               :loading="loading"
               :table-height="'calc(100vh - 220px)'"
               permission-module="transactions"
-              title="سجل المعاملات المالية"
-              subtitle="متابعة كافة عمليات الإيداع، السحب، والتحويلات"
+              :title="hideHeader ? '' : 'سجل المعاملات المالية'"
+              :subtitle="hideHeader ? '' : 'متابعة كافة عمليات الإيداع، السحب، والتحويلات'"
               icon="ri-exchange-funds-line"
               @update:filters="applyFilters"
               @update:options="onTableOptionsUpdate"
@@ -65,13 +65,21 @@
 <script setup>
 import { computed } from 'vue';
 import { useDataTable } from '@/composables/useDataTable';
+
+const props = defineProps({
+  userId: { type: [Number, String], default: null },
+  hideHeader: { type: Boolean, default: false }
+});
+
 import { transactionService } from '@/api';
 import { AppDataTable, AppUserBalanceProfile } from '@/components';
 import { formatCurrency, formatDateTime } from '@/utils/formatters';
 
 // API fetch function
 const fetchTransactionsApi = async params => {
-  return await transactionService.getAll(params, { showToast: false });
+  const finalParams = { ...params };
+  if (props.userId) finalParams.user_id = props.userId;
+  return await transactionService.getAll(finalParams, { showToast: false });
 };
 
 // DataTable Logic
@@ -88,7 +96,7 @@ const {
   applyFilters,
   fetchData,
 } = useDataTable(fetchTransactionsApi, {
-  syncWithUrl: true,
+  syncWithUrl: !props.userId,
   initialSortBy: 'created_at',
   initialSortOrder: 'desc',
   immediate: true,

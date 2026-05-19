@@ -3,14 +3,14 @@
     v-if="canAny(PERMISSIONS.ACTIVITY_LOGS_VIEW_ALL, PERMISSIONS.ACTIVITY_LOGS_VIEW_CHILDREN, PERMISSIONS.ACTIVITY_LOGS_VIEW_SELF)"
     class="activity-log-page"
   >
-    <div class="page-header mb-2">
+    <div v-if="!hideHeader" class="page-header mb-2">
       <h1 class="text-h4 font-weight-bold">سجل النشاطات</h1>
       <p class="text-body-1 text-grey">تتبع التغييرات والعمليات المنفذة في النظام</p>
     </div>
 
     <AppDataTable
-      title="سجل النشاطات"
-      icon="ri-history-line"
+      :title="hideHeader ? '' : 'سجل النشاطات'"
+      :icon="hideHeader ? '' : 'ri-history-line'"
       :headers="headers"
       :items="logs"
       :total-items="total"
@@ -180,9 +180,14 @@ import { PERMISSIONS } from '@/config/permissions';
 import { useApi } from '@/composables/useApi';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 
+const props = defineProps({
+  userId: { type: [Number, String], default: null },
+  hideHeader: { type: Boolean, default: false }
+});
+
 const { can, canAny } = usePermissions();
 
-const api = useApi('/api/activity-logs');
+const api = useApi(props.userId ? `/api/activity-logs/user/${props.userId}` : '/api/activity-logs');
 
 const logs = ref([]);
 const loading = ref(false);

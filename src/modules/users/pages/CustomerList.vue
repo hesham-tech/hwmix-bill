@@ -187,13 +187,18 @@ const {
   close,
   showConfirm,
   confirmMessage,
-  handleConfirm,
+  handleConfirm: baseHandleConfirm,
   handleCancel,
   saveUser,
   handleDelete,
   handleEdit,
   handleCreate: baseHandleCreate,
 } = useUser();
+
+const handleConfirm = async () => {
+  await baseHandleConfirm();
+  refresh();
+};
 
 // Override handleCreate to set default role
 const handleCreate = () => {

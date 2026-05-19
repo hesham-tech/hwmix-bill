@@ -67,7 +67,7 @@
                 <div class="text-subtitle-1 font-weight-bold">نوع أساسي (System)</div>
                 <div class="text-subtitle-2 opacity-70">إذا تم تفعيلها، ستظهر لجميع الشركات كنظام افتراضي</div>
               </div>
-              <AppSwitch v-model="formData.is_system" color="info" hide-details />
+              <AppSwitch v-model="formData.is_system" hide-details />
             </div>
           </v-card>
         </v-col>

@@ -83,6 +83,10 @@
         <v-card class="rounded-md border border-grey-lighten-4 h-100 overflow-hidden elevation-sm">
           <v-tabs v-model="activeTab" bg-color="white" color="primary" density="comfortable" align-tabs="start" class="border-b">
             <v-tab value="details" prepend-icon="ri-information-line" class="px-6">المعلومات الإضافية</v-tab>
+            <v-tab value="invoices" prepend-icon="ri-file-list-3-line" class="px-6">الفواتير</v-tab>
+            <v-tab value="cashboxes" prepend-icon="ri-safe-2-line" class="px-6">الخزائن</v-tab>
+            <v-tab value="transactions" prepend-icon="ri-exchange-funds-line" class="px-6">المعاملات المالية</v-tab>
+            <v-tab value="payments" prepend-icon="ri-bank-card-2-line" class="px-6">المدفوعات</v-tab>
             <v-tab value="activity" prepend-icon="ri-history-line" class="px-6">النشاطات</v-tab>
           </v-tabs>
 
@@ -128,14 +132,24 @@
               </div>
             </v-window-item>
 
+            <v-window-item value="invoices">
+              <InvoiceList v-if="activeTab === 'invoices'" :user-id="user.id" hide-header />
+            </v-window-item>
+
+            <v-window-item value="cashboxes">
+              <CashBoxList v-if="activeTab === 'cashboxes'" :user-id="user.id" hide-header />
+            </v-window-item>
+
+            <v-window-item value="transactions">
+              <TransactionsList v-if="activeTab === 'transactions'" :user-id="user.id" hide-header />
+            </v-window-item>
+
+            <v-window-item value="payments">
+              <PaymentList v-if="activeTab === 'payments'" :user-id="user.id" hide-header />
+            </v-window-item>
+
             <v-window-item value="activity">
-              <div class="text-center py-16">
-                <v-avatar color="grey-lighten-5" size="100" class="mb-4">
-                  <v-icon icon="ri-timeline-view" size="50" color="grey-lighten-3" />
-                </v-avatar>
-                <h3 class="text-h5 text-grey-darken-1 mb-2">سجل النشاط</h3>
-                <p class="text-grey">سيتم إضافة سجل التتبع والعمليات قريباً في إصدار قادم.</p>
-              </div>
+              <ActivityLogList v-if="activeTab === 'activity'" :user-id="user.id" hide-header />
             </v-window-item>
           </v-window>
         </v-card>
@@ -188,6 +202,11 @@ import { formatCurrency, formatDate } from '@/utils/formatters';
 import { PERMISSIONS } from '@/config/permissions';
 import UserForm from '../components/UserForm.vue';
 import { AppDialog, AppConfirmDialog, AppAvatar, AppButton, AppPhone, AppUserBalanceProfile } from '@/components';
+import InvoiceList from '@/modules/invoices/pages/InvoiceList.vue';
+import CashBoxList from '@/modules/cashbox/pages/CashBoxList.vue';
+import ActivityLogList from '@/modules/settings/pages/ActivityLogList.vue';
+import TransactionsList from '@/modules/financials/pages/TransactionsList.vue';
+import PaymentList from '@/modules/payments/pages/PaymentList.vue';
 
 const route = useRoute();
 const router = useRouter();

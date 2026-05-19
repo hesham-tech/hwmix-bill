@@ -1,11 +1,11 @@
 <template>
   <div class="payments-page">
-    <div class="mb-2 px-6 pt-6">
+    <div v-if="!hideHeader" class="mb-2 px-6 pt-6">
       <h1 class="text-h4 font-weight-bold">المدفوعات</h1>
       <p class="text-body-1 text-grey">تتبع وتحصيل المدفوعات النقدية والبنكية للفواتير</p>
     </div>
 
-    <div class="px-6 pb-6">
+    <div :class="hideHeader ? '' : 'px-6 pb-6'">
       <AppDataTable
         :headers="headers"
         :items="payments"
@@ -14,7 +14,7 @@
         v-model:items-per-page="itemsPerPage"
         v-model:search="searchText"
         v-model:sort-by="sortByVuetify"
-        title="سجل المدفوعات"
+        :title="hideHeader ? '' : 'سجل المدفوعات'"
         icon="ri-bank-card-2-line"
         @update:options="changeSort"
       >
@@ -100,6 +100,11 @@ import { AppDataTable, AppButton, AppDialog, AppUserBalanceProfile } from '@/com
 import { usePrint } from '@/modules/print/composables/usePrint';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 
+const props = defineProps({
+  userId: { type: [Number, String], default: null },
+  hideHeader: { type: Boolean, default: false }
+});
+
 const { can } = usePermissions();
 
 const router = useRouter();
@@ -110,7 +115,9 @@ const paymentApi = useApi('/api/payments');
 
 // Fetch function for useDataTable
 const fetchPayments = async params => {
-  return await paymentApi.get(params, { showLoading: false });
+  const finalParams = { ...params };
+  if (props.userId) finalParams.user_id = props.userId;
+  return await paymentApi.get(finalParams, { showLoading: false });
 };
 
 // DataTable composable
@@ -129,7 +136,7 @@ const {
   initialPerPage: 10,
   initialSortBy: 'payment_date',
   initialSortOrder: 'desc',
-  syncWithUrl: true,
+  syncWithUrl: !props.userId,
   immediate: true,
 });
 

@@ -32,7 +32,7 @@ const props = defineProps({
   },
   color: {
     type: String,
-    default: 'success', // Default color for the project
+    default: 'primary', // Default color for the project
   },
   loading: {
     type: [Boolean, String],
