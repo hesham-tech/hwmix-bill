@@ -47,9 +47,9 @@
         <div class="text-body-2">{{ item.description }}</div>
       </template>
 
-      <template #item.subject_type="{ item }">
+      <template #item.model="{ item }">
         <div class="d-flex flex-column">
-          <span class="text-body-2 text-primary font-weight-bold">{{ getSubjectLabel(item.subject_type) }}</span>
+          <span class="text-body-2 text-primary font-weight-bold">{{ getSubjectLabel(item.model) }}</span>
           <span v-if="item.company" class="text-caption text-grey-darken-1">
             <v-icon icon="ri-building-line" size="10" class="me-1" />
             {{ item.company.name }}
@@ -202,7 +202,7 @@ const selectedLog = ref(null);
 const headers = [
   { title: 'المستخدم', key: 'user' },
   { title: 'الحدث', key: 'action' },
-  { title: 'النوع', key: 'subject_type' },
+  { title: 'النوع', key: 'model' },
   { title: 'الوصف', key: 'description' },
   { title: 'الـ IP', key: 'ip_address' },
   { title: 'المتصفح', key: 'user_agent' },
@@ -226,6 +226,7 @@ const getEventColor = event => {
     تفعيل: 'success',
     تعطيل: 'warning',
     toggled: 'warning',
+    paid: 'success',
   };
   return colors[event] || 'grey';
 };
@@ -247,6 +248,7 @@ const getEventIcon = event => {
     تفعيل: 'ri-checkbox-circle-line',
     تعطيل: 'ri-close-circle-line',
     toggled: 'ri-switch-line',
+    paid: 'ri-money-dollar-circle-line',
   };
   return icons[event] || 'ri-information-line';
 };
@@ -260,6 +262,7 @@ const getEventLabel = event => {
     logout: 'خروج',
     restored: 'استرجاع',
     toggled: 'تبديل',
+    paid: 'دفع فاتورة',
   };
   return labels[event] || event;
 };
@@ -362,7 +365,7 @@ const showDetails = item => {
 };
 
 const hasChanges = log => {
-  return log?.action === 'updated' && log?.old_values && log?.new_values;
+  return (log?.action === 'updated' || log?.action === 'تعديل') && log?.old_values && log?.new_values;
 };
 
 const getFormattedChanges = log => {
