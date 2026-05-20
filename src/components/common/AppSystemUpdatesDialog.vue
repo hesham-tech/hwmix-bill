@@ -10,8 +10,11 @@
         <h2 class="text-h5 font-weight-bold mb-1">
           {{ showAllVersions ? 'سجل تحديثات النظام' : 'تحديثات جديدة في النظام!' }}
         </h2>
-        <div class="text-subtitle-2 opacity-80" v-if="!showAllVersions">
-          {{ latestChangelog?.title }} — {{ latestChangelog?.date }}
+        <div class="text-subtitle-2 opacity-80" v-if="!showAllVersions && missedChangelogs.length === 1">
+          {{ missedChangelogs[0]?.title }} — {{ missedChangelogs[0]?.version }}
+        </div>
+        <div class="text-subtitle-2 opacity-80" v-else-if="!showAllVersions && missedChangelogs.length > 1">
+          يوجد {{ missedChangelogs.length }} تحديثات جديدة بانتظارك
         </div>
       </div>
 
@@ -42,23 +45,33 @@
           </div>
         </div>
 
-        <!-- Mode: Show Only Latest (Auto-popup) -->
+        <!-- Mode: Show Only Missed (Auto-popup) -->
         <div v-else>
           <div class="welcome-text mb-6 text-body-1 text-grey-darken-2 text-center">
-            إليك دليل سريع للميزات الجديدة والتحسينات المضافة في هذا الإصدار وطريقة الوصول إليها:
+            {{ missedChangelogs.length > 1 ? 'إليك دليل سريع للميزات الجديدة والتحسينات المضافة في التحديثات الأخيرة وطريقة الوصول إليها:' : 'إليك دليل سريع للميزات الجديدة والتحسينات المضافة في هذا الإصدار وطريقة الوصول إليها:' }}
           </div>
 
-          <div v-for="(feature, idx) in latestChangelog?.features" :key="idx" class="feature-item mb-6">
-            <h3 class="text-subtitle-1 font-weight-bold text-grey-darken-4 d-flex align-center mb-1">
-              <v-icon icon="ri-arrow-left-s-fill" color="primary" class="me-1" size="18" />
-              {{ feature.title }}
-            </h3>
-            <p class="text-body-2 text-grey-darken-3 ps-5 mb-2 leading-relaxed">{{ feature.description }}</p>
-            <div class="access-steps ps-5 text-caption text-primary font-weight-medium">
-              <v-icon icon="ri-navigation-line" size="12" class="me-1" />
-              طريق الوصول: <span class="text-grey-darken-2">{{ feature.how_to_use }}</span>
+          <div v-for="(release, rIdx) in missedChangelogs" :key="release.version" class="release-group mb-6">
+            <div v-if="missedChangelogs.length > 1" class="d-flex align-center justify-space-between mb-4 border-b pb-2">
+              <span class="text-subtitle-1 font-weight-bold text-primary">{{ release.title }}</span>
+              <v-chip color="primary" variant="flat" size="x-small" class="font-weight-bold">
+                {{ release.version }} ({{ release.date }})
+              </v-chip>
             </div>
-            <v-divider v-if="idx < latestChangelog.features.length - 1" class="my-5 opacity-40" />
+
+            <div v-for="(feature, idx) in release.features" :key="idx" class="feature-item mb-5">
+              <h3 class="text-subtitle-1 font-weight-bold text-grey-darken-4 d-flex align-center mb-1">
+                <v-icon icon="ri-arrow-left-s-fill" color="primary" class="me-1" size="18" />
+                {{ feature.title }}
+              </h3>
+              <p class="text-body-2 text-grey-darken-3 ps-5 mb-2 leading-relaxed">{{ feature.description }}</p>
+              <div class="access-steps ps-5 text-caption text-primary font-weight-medium">
+                <v-icon icon="ri-navigation-line" size="12" class="me-1" />
+                طريق الوصول: <span class="text-grey-darken-2">{{ feature.how_to_use }}</span>
+              </div>
+              <v-divider v-if="idx < release.features.length - 1" class="my-4 opacity-30" />
+            </div>
+            <v-divider v-if="rIdx < missedChangelogs.length - 1" class="my-6" />
           </div>
         </div>
       </v-card-text>
@@ -121,6 +134,13 @@ const showAllVersions = ref(false);
 const latestChangelog = computed(() => changelogs[0] || null);
 const changelogsList = computed(() => changelogs);
 
+const missedChangelogs = computed(() => {
+  if (!authStore.user) return [];
+  const userSettings = authStore.user.settings || {};
+  const acknowledged = userSettings.acknowledged_updates || [];
+  return changelogsList.value.filter(release => !acknowledged.includes(release.version));
+});
+
 onMounted(() => {
   // Check if we should show the dialog
   setTimeout(() => {
@@ -133,13 +153,7 @@ const checkShowCondition = () => {
     return;
   }
   
-  const latest = latestChangelog.value;
-  if (!latest) return;
-  
-  const userSettings = authStore.user.settings || {};
-  const acknowledged = userSettings.acknowledged_updates || [];
-  
-  if (!acknowledged.includes(latest.version)) {
+  if (missedChangelogs.value.length > 0) {
     showAllVersions.value = false;
     visible.value = true;
   }
@@ -162,11 +176,12 @@ const acknowledgeUpdate = async () => {
     const currentSettings = authStore.user.settings || {};
     const acknowledged = [...(currentSettings.acknowledged_updates || [])];
     
-    // Add current version if not already present
-    const latestVersion = latestChangelog.value?.version;
-    if (latestVersion && !acknowledged.includes(latestVersion)) {
-      acknowledged.push(latestVersion);
-    }
+    // Add all missed versions
+    missedChangelogs.value.forEach(release => {
+      if (!acknowledged.includes(release.version)) {
+        acknowledged.push(release.version);
+      }
+    });
     
     const updatedSettings = {
       ...currentSettings,
