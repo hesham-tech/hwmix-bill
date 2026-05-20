@@ -321,17 +321,7 @@ import AppTextarea from '@/components/common/AppTextarea.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
 import VariantManager from './VariantManager.vue';
 import ProductMediaManager from './ProductMediaManager.vue';
-
-const productTypes = [
-  { label: 'منتج مادي (مخزني)', value: 'physical', icon: 'ri-archive-line', description: 'منتجات ملموسة تتطلب شحن وإدارة مخزون' },
-  {
-    label: 'منتج رقمي (غير مخزني)',
-    value: 'digital',
-    icon: 'ri-file-download-line',
-    description: 'منتجات غير ملموسة يتم تسليمها عبر البريد أو رابط',
-  },
-];
-
+import { useUserStore } from '@/stores/user';
 const props = defineProps({
   productId: {
     type: [String, Number],
@@ -347,6 +337,7 @@ const emit = defineEmits(['success', 'cancel']);
 
 const router = useRouter();
 const productStore = useProductStore();
+const userStore = useUserStore();
 const { saveProduct, fetchProduct } = productStore;
 
 const currentProductId = ref(props.productId);
@@ -394,6 +385,22 @@ const getInitialProductData = () => ({
 });
 
 const productData = ref(getInitialProductData());
+
+const productTypes = computed(() => {
+  const isDigitalEnabled = userStore.currentCompany?.settings?.enable_digital_products;
+  const list = [
+    { label: 'منتج مادي (مخزني)', value: 'physical', icon: 'ri-archive-line', description: 'منتجات ملموسة تتطلب شحن وإدارة مخزون' },
+  ];
+  if (isDigitalEnabled || productData.value?.product_type === 'digital') {
+    list.push({
+      label: 'منتج رقمي (غير مخزني)',
+      value: 'digital',
+      icon: 'ri-file-download-line',
+      description: 'منتجات غير ملموسة يتم تسليمها عبر البريد أو رابط',
+    });
+  }
+  return list;
+});
 
 const handleNameSelect = val => {
   // Only trigger if we are not already editing

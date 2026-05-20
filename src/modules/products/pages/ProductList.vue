@@ -98,6 +98,125 @@
                 </v-chip>
               </template>
 
+              <!-- Slug Column -->
+              <template #item.slug="{ item }">
+                <code class="text-caption bg-grey-lighten-4 px-2 py-0.5 rounded text-secondary">{{ item.slug }}</code>
+              </template>
+
+              <!-- Product Type Column -->
+              <template #item.product_type="{ item }">
+                <span class="text-body-2">{{ formatProductType(item.product_type) }}</span>
+              </template>
+
+              <!-- Min Price Column -->
+              <template #item.min_price="{ item }">
+                <span class="text-caption text-grey-darken-2">{{ item.min_price > 0 ? formatCurrency(item.min_price) : '---' }}</span>
+              </template>
+
+              <!-- Max Price Column -->
+              <template #item.max_price="{ item }">
+                <span class="text-caption text-grey-darken-2">{{ item.max_price > 0 ? formatCurrency(item.max_price) : '---' }}</span>
+              </template>
+
+              <!-- Require Stock Column -->
+              <template #item.require_stock="{ item }">
+                <v-icon
+                  :icon="item.require_stock ? 'ri-checkbox-circle-fill' : 'ri-close-circle-fill'"
+                  :color="item.require_stock ? 'success' : 'grey-lighten-1'"
+                  size="18"
+                />
+              </template>
+
+              <!-- Featured Column -->
+              <template #item.featured="{ item }">
+                <v-icon
+                  :icon="item.featured ? 'ri-star-fill' : 'ri-star-line'"
+                  :color="item.featured ? 'warning' : 'grey-lighten-1'"
+                  size="18"
+                />
+              </template>
+
+              <!-- Returnable Column -->
+              <template #item.returnable="{ item }">
+                <v-icon
+                  :icon="item.returnable ? 'ri-checkbox-circle-fill' : 'ri-close-circle-fill'"
+                  :color="item.returnable ? 'success' : 'grey-lighten-1'"
+                  size="18"
+                />
+              </template>
+
+              <!-- Downloadable Column -->
+              <template #item.is_downloadable="{ item }">
+                <v-icon
+                  :icon="item.is_downloadable ? 'ri-checkbox-circle-fill' : 'ri-close-circle-fill'"
+                  :color="item.is_downloadable ? 'success' : 'grey-lighten-1'"
+                  size="18"
+                />
+              </template>
+
+              <!-- Download Limit Column -->
+              <template #item.download_limit="{ item }">
+                <span class="text-caption text-grey-darken-2">{{ item.is_downloadable ? (item.download_limit || 'لا نهائي') : '---' }}</span>
+              </template>
+
+              <!-- License Keys Count Column -->
+              <template #item.available_keys_count="{ item }">
+                <v-chip
+                  v-if="item.product_type === 'digital'"
+                  size="x-small"
+                  variant="tonal"
+                  :color="item.available_keys_count > 0 ? 'success' : 'error'"
+                  class="font-weight-bold"
+                >
+                  {{ item.available_keys_count }} مفتاح
+                </v-chip>
+                <span v-else class="text-grey-lighten-1">---</span>
+              </template>
+
+              <!-- Validity Days Column -->
+              <template #item.validity_days="{ item }">
+                <span class="text-caption text-grey-darken-2">{{ item.validity_days || '---' }}</span>
+              </template>
+
+              <!-- Expires At Column -->
+              <template #item.expires_at="{ item }">
+                <span class="text-caption text-grey-darken-2">{{ item.expires_at || '---' }}</span>
+              </template>
+
+              <!-- Published At Column -->
+              <template #item.published_at="{ item }">
+                <span class="text-caption text-grey-darken-2">{{ item.published_at || '---' }}</span>
+              </template>
+
+              <!-- Desc Column -->
+              <template #item.desc="{ item }">
+                <div class="text-truncate text-caption text-grey-darken-1" style="max-width: 250px;" :title="item.desc">
+                  {{ item.desc || '---' }}
+                </div>
+              </template>
+
+              <!-- Updated At Column -->
+              <template #item.updated_at="{ item }">
+                <span class="text-caption text-grey-darken-2">{{ item.updated_at || '---' }}</span>
+              </template>
+
+              <!-- Sales Count Column -->
+              <template #item.sales_count="{ item }">
+                <span class="text-caption text-grey-darken-2">{{ item.sales_count ?? 0 }}</span>
+              </template>
+
+              <!-- Long Description Column -->
+              <template #item.desc_long="{ item }">
+                <div class="text-truncate text-caption text-grey-darken-1" style="max-width: 250px;" :title="item.desc_long">
+                  {{ item.desc_long || '---' }}
+                </div>
+              </template>
+
+              <!-- Created By Column -->
+              <template #item.created_by_name="{ item }">
+                <span class="text-caption text-grey-darken-2">{{ item.creator?.name || '---' }}</span>
+              </template>
+
               <!-- Visibility Icons Column -->
               <template #item.visibility="{ item }">
                 <div class="d-flex align-center gap-1">
@@ -191,13 +310,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useProductStore } from '../store/product.store';
 import { usePermissions } from '@/composables/usePermissions';
 import { useDataTable } from '@/composables/useDataTable';
 import productService from '@/api/services/product.service';
 import { PERMISSIONS } from '@/config/permissions';
+import { useUserStore } from '@/stores/user';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
 import AppButton from '@/components/common/AppButton.vue';
@@ -208,101 +328,107 @@ import { formatCurrency } from '@/utils/formatters';
 
 const router = useRouter();
 const productStore = useProductStore();
+const userStore = useUserStore();
 const { can, canAny } = usePermissions();
 
 // Advanced Filters Definition
-const advancedFilters = [
-  {
-    key: 'category_id',
-    title: 'التصنيف',
-    type: 'autocomplete',
-    apiEndpoint: 'categories',
-  },
-  {
-    key: 'brand_id',
-    title: 'العلامة التجارية',
-    type: 'autocomplete',
-    apiEndpoint: 'brands',
-  },
-  {
-    key: 'product_type',
-    title: 'نوع المنتج',
-    type: 'select',
-    items: [
-      { title: 'منتج ملموس', value: 'physical' },
-      { title: 'منتج رقمي', value: 'digital' },
-      { title: 'خدمة', value: 'service' },
-      { title: 'اشتراك', value: 'subscription' },
-    ],
-  },
-  {
-    key: 'active',
-    title: 'الحالة',
-    type: 'select',
-    items: [
-      { title: 'نشط', value: 1 },
-      { title: 'مؤرشف', value: 0 },
-    ],
-  },
-  {
-    key: 'featured',
-    title: 'المميزة',
-    type: 'select',
-    items: [
-      { title: 'نعم', value: 1 },
-      { title: 'لا', value: 0 },
-    ],
-  },
-  {
-    key: 'stock_status',
-    title: 'حالة المخزون',
-    type: 'select',
-    items: [
-      { title: 'متوفر', value: 'in_stock' },
-      { title: 'منخفض', value: 'low_stock' },
-      { title: 'نفذت الكمية', value: 'out_of_stock' },
-    ],
-  },
-  {
-    key: 'min_price',
-    title: 'أقل سعر',
-    type: 'text',
-    inputType: 'number',
-  },
-  {
-    key: 'max_price',
-    title: 'أعلى سعر',
-    type: 'text',
-    inputType: 'number',
-  },
-  {
-    key: 'date_from',
-    title: 'من تاريخ',
-    type: 'date',
-  },
-  {
-    title: 'إلى تاريخ',
-    type: 'date',
-  },
-  {
-    key: 'in_store',
-    title: 'متاح في المتجر',
-    type: 'select',
-    items: [
-      { title: 'نعم', value: 1 },
-      { title: 'لا', value: 0 },
-    ],
-  },
-  {
-    key: 'in_sales',
-    title: 'متاح في المبيعات',
-    type: 'select',
-    items: [
-      { title: 'نعم', value: 1 },
-      { title: 'لا', value: 0 },
-    ],
-  },
-];
+const advancedFilters = computed(() => {
+  const isDigitalEnabled = userStore.currentCompany?.settings?.enable_digital_products;
+  const productTypeItems = [
+    { title: 'منتج ملموس', value: 'physical' },
+    ...(isDigitalEnabled ? [{ title: 'منتج رقمي', value: 'digital' }] : []),
+    { title: 'خدمة', value: 'service' },
+    { title: 'اشتراك', value: 'subscription' },
+  ];
+
+  return [
+    {
+      key: 'category_id',
+      title: 'التصنيف',
+      type: 'autocomplete',
+      apiEndpoint: 'categories',
+    },
+    {
+      key: 'brand_id',
+      title: 'العلامة التجارية',
+      type: 'autocomplete',
+      apiEndpoint: 'brands',
+    },
+    {
+      key: 'product_type',
+      title: 'نوع المنتج',
+      type: 'select',
+      items: productTypeItems,
+    },
+    {
+      key: 'active',
+      title: 'الحالة',
+      type: 'select',
+      items: [
+        { title: 'نشط', value: 1 },
+        { title: 'مؤرشف', value: 0 },
+      ],
+    },
+    {
+      key: 'featured',
+      title: 'المميزة',
+      type: 'select',
+      items: [
+        { title: 'نعم', value: 1 },
+        { title: 'لا', value: 0 },
+      ],
+    },
+    {
+      key: 'stock_status',
+      title: 'حالة المخزون',
+      type: 'select',
+      items: [
+        { title: 'متوفر', value: 'in_stock' },
+        { title: 'منخفض', value: 'low_stock' },
+        { title: 'نفذت الكمية', value: 'out_of_stock' },
+      ],
+    },
+    {
+      key: 'min_price',
+      title: 'أقل سعر',
+      type: 'text',
+      inputType: 'number',
+    },
+    {
+      key: 'max_price',
+      title: 'أعلى سعر',
+      type: 'text',
+      inputType: 'number',
+    },
+    {
+      key: 'date_from',
+      title: 'من تاريخ',
+      type: 'date',
+    },
+    {
+      title: 'إلى تاريخ',
+      type: 'date',
+    },
+    {
+      key: 'in_store',
+      title: 'متاح في المتجر',
+      type: 'select',
+      items: [
+        { title: 'نعم', value: 1 },
+        { title: 'لا', value: 0 },
+      ],
+    },
+    {
+      key: 'in_sales',
+      title: 'متاح في المبيعات',
+      type: 'select',
+      items: [
+        { title: 'نعم', value: 1 },
+        { title: 'لا', value: 0 },
+      ],
+    },
+  ];
+});
 
 // API fetch function
 const fetchProductsApi = async params => {
@@ -367,17 +493,70 @@ const onTableOptionsUpdate = options => {
   changeSort(options);
 };
 
-const headers = [
-  { title: '', key: 'data-table-expand', align: 'start', sortable: false, width: '48px' },
-  { title: 'المنتج', key: 'name', sortable: true },
-  { title: 'التصنيف / الماركة', key: 'category_brand', sortable: false },
-  { title: 'السعر', key: 'price_range', sortable: false },
-  { title: 'المخزون', key: 'total_available_quantity', sortable: true, align: 'center' },
-  { title: 'الظهور', key: 'visibility', sortable: false, align: 'center' },
-  { title: 'الحالة', key: 'active', sortable: true, align: 'center' },
-  { title: 'تاريخ الإضافة', key: 'created_at', sortable: true },
-  { title: 'الإجراءات', key: 'actions', sortable: false, align: 'end' },
-];
+const headers = computed(() => {
+  const isDigitalEnabled = userStore.currentCompany?.settings?.enable_digital_products;
+  const list = [
+    { title: '', key: 'data-table-expand', align: 'start', sortable: false, width: '48px' },
+    { title: 'المنتج', key: 'name', sortable: true, minWidth: '200px' },
+    { title: 'الرابط البديل (Slug)', key: 'slug', sortable: true, minWidth: '150px' },
+  ];
+
+  if (isDigitalEnabled) {
+    list.push({ title: 'نوع المنتج', key: 'product_type', sortable: true, minWidth: '120px' });
+  }
+
+  list.push(
+    { title: 'التصنيف / الماركة', key: 'category_brand', sortable: false, minWidth: '150px' },
+    { title: 'السعر', key: 'price_range', sortable: false, minWidth: '100px' },
+    { title: 'أقل سعر', key: 'min_price', sortable: true, minWidth: '100px' },
+    { title: 'أعلى سعر', key: 'max_price', sortable: true, minWidth: '100px' },
+    { title: 'المخزون', key: 'total_available_quantity', sortable: true, align: 'center', minWidth: '100px' }
+  );
+
+  if (isDigitalEnabled) {
+    list.push({ title: 'يتطلب مخزون', key: 'require_stock', sortable: true, align: 'center', minWidth: '120px' });
+  }
+
+  list.push(
+    { title: 'مميز', key: 'featured', sortable: true, align: 'center', minWidth: '90px' },
+    { title: 'عدد المبيعات', key: 'sales_count', sortable: true, align: 'center', minWidth: '120px' },
+    { title: 'قابل للإرجاع', key: 'returnable', sortable: true, align: 'center', minWidth: '120px' }
+  );
+
+  if (isDigitalEnabled) {
+    list.push(
+      { title: 'قابل للتنزيل', key: 'is_downloadable', sortable: true, align: 'center', minWidth: '120px' },
+      { title: 'حد التنزيل', key: 'download_limit', sortable: true, align: 'center', minWidth: '100px' },
+      { title: 'مفاتيح التراخيص', key: 'available_keys_count', sortable: true, align: 'center', minWidth: '150px' },
+      { title: 'صلاحية الأيام', key: 'validity_days', sortable: true, align: 'center', minWidth: '120px' },
+      { title: 'تاريخ الانتهاء', key: 'expires_at', sortable: true, minWidth: '150px' }
+    );
+  }
+
+  list.push(
+    { title: 'تاريخ النشر', key: 'published_at', sortable: true, minWidth: '150px' },
+    { title: 'الوصف', key: 'desc', sortable: false, minWidth: '250px' },
+    { title: 'الوصف التفصيلي', key: 'desc_long', sortable: false, minWidth: '250px' },
+    { title: 'الظهور', key: 'visibility', sortable: false, align: 'center', minWidth: '100px' },
+    { title: 'الحالة', key: 'active', sortable: true, align: 'center', minWidth: '100px' },
+    { title: 'أنشئ بواسطة', key: 'created_by_name', sortable: false, minWidth: '120px' },
+    { title: 'تاريخ الإضافة', key: 'created_at', sortable: true, minWidth: '150px' },
+    { title: 'تاريخ التحديث', key: 'updated_at', sortable: true, minWidth: '150px' },
+    { title: 'الإجراءات', key: 'actions', sortable: false, align: 'end', minWidth: '150px' }
+  );
+
+  return list;
+});
+
+const formatProductType = type => {
+  const types = {
+    physical: 'منتج ملموس',
+    digital: 'منتج رقمي',
+    service: 'خدمة',
+    subscription: 'اشتراك',
+  };
+  return types[type] || type || '---';
+};
 
 const viewProduct = item => {
   router.push({ name: 'product-view', params: { id: item.id } });

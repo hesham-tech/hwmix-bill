@@ -109,7 +109,7 @@
                     {{ formatCurrency(item.total) }}
 
                     <!-- Digital Delivery Info (Desktop) -->
-                    <div v-if="item.digital_deliveries && item.digital_deliveries.length > 0" class="mt-3 no-print">
+                    <div v-if="userStore.currentCompany?.settings?.enable_digital_products && item.digital_deliveries && item.digital_deliveries.length > 0" class="mt-3 no-print">
                       <div
                         v-for="delivery in item.digital_deliveries"
                         :key="delivery.id"
@@ -163,7 +163,7 @@
                       <span>-{{ formatCurrency(item.discount) }}</span>
                     </div>
                     <!-- Digital Delivery Info (Mobile) -->
-                    <div v-if="item.digital_deliveries && item.digital_deliveries.length > 0" class="mt-2 no-print">
+                    <div v-if="userStore.currentCompany?.settings?.enable_digital_products && item.digital_deliveries && item.digital_deliveries.length > 0" class="mt-2 no-print">
                       <div
                         v-for="delivery in item.digital_deliveries"
                         :key="delivery.id"

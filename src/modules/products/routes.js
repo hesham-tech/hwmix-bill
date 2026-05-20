@@ -11,6 +11,15 @@ export default [
     },
   },
   {
+    path: 'product-variants',
+    name: 'product-variants',
+    component: () => import('@/modules/products/pages/ProductVariantList.vue'),
+    meta: {
+      title: 'متغيرات المنتجات',
+      permission: [PERMISSIONS.PRODUCT_VARIANTS_VIEW_ALL, PERMISSIONS.PRODUCT_VARIANTS_VIEW_CHILDREN, PERMISSIONS.PRODUCT_VARIANTS_VIEW_SELF],
+    },
+  },
+  {
     path: 'products/create',
     name: 'product-create',
     component: () => import('@/modules/products/pages/ProductFormPage.vue'),

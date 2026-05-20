@@ -721,7 +721,8 @@ const paginationInfo = computed(() => {
 const processedHeaders = computed(() => {
   let finalHeaders = [...props.headers];
 
-  // Sticky Actions (Always Enabled)
+  // Sticky Actions (Disabled per user request)
+  /*
   if (props.stickyActions && props.showActions) {
     finalHeaders = finalHeaders.map((header, index) => {
       if (index === finalHeaders.length - 1 && header.key === 'actions') {
@@ -730,6 +731,7 @@ const processedHeaders = computed(() => {
       return header;
     });
   }
+  */
 
   return finalHeaders;
 });

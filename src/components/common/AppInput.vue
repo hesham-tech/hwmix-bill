@@ -28,6 +28,10 @@
     <template v-if="$slots.append" #append>
       <slot name="append" />
     </template>
+
+    <template v-if="$slots['append-inner']" #append-inner>
+      <slot name="append-inner" />
+    </template>
   </v-text-field>
 </template>
 

@@ -73,6 +73,12 @@ export default [
         permission: [PERMISSIONS.PRODUCTS_VIEW_ALL, PERMISSIONS.PRODUCTS_VIEW_CHILDREN, PERMISSIONS.PRODUCTS_VIEW_SELF],
       },
       {
+        title: 'متغيرات المنتجات',
+        to: '/app/product-variants',
+        icon: 'ri-bubble-chart-line',
+        permission: [PERMISSIONS.PRODUCT_VARIANTS_VIEW_ALL, PERMISSIONS.PRODUCT_VARIANTS_VIEW_CHILDREN, PERMISSIONS.PRODUCT_VARIANTS_VIEW_SELF],
+      },
+      {
         title: 'منتج جديد',
         to: '/app/products/create',
         icon: 'ri-add-box-line',
@@ -293,6 +299,14 @@ export default [
     ],
   },
 
+  // ==================== Activity Logs ====================
+  {
+    title: 'سجل الأنشطة',
+    icon: 'ri-history-line',
+    to: '/app/activity-logs',
+    permission: [PERMISSIONS.ACTIVITY_LOGS_VIEW_ALL, PERMISSIONS.ACTIVITY_LOGS_VIEW_CHILDREN, PERMISSIONS.ACTIVITY_LOGS_VIEW_SELF],
+  },
+
   // ==================== Settings ====================
   {
     title: 'الإعدادات',
@@ -340,14 +354,6 @@ export default [
         to: '/app/cashbox-types',
         icon: 'ri-safe-2-line',
         permission: [PERMISSIONS.CASH_BOX_TYPES_VIEW_ALL, PERMISSIONS.CASH_BOX_TYPES_VIEW_CHILDREN, PERMISSIONS.CASH_BOX_TYPES_VIEW_SELF],
-      },
-
-      // Activity Logs
-      {
-        title: 'سجل الأنشطة',
-        to: '/app/activity-logs',
-        icon: 'ri-history-line',
-        permission: [PERMISSIONS.ACTIVITY_LOGS_VIEW_ALL, PERMISSIONS.ACTIVITY_LOGS_VIEW_CHILDREN, PERMISSIONS.ACTIVITY_LOGS_VIEW_SELF],
       },
 
       {

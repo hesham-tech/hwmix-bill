@@ -19,6 +19,22 @@
         :size="xs ? 30 : 34"
       />
 
+      <!-- Updates History Button -->
+      <v-tooltip location="bottom">
+        <template #activator="{ props: tooltipProps }">
+          <v-btn
+            v-bind="tooltipProps"
+            icon="ri-sparkling-line"
+            variant="text"
+            color="primary"
+            class="rounded-lg"
+            :size="xs ? 30 : 34"
+            @click="showUpdatesHistory"
+          />
+        </template>
+        سجل التحديثات والجديد
+      </v-tooltip>
+
       <AppBalanceDisplay
         v-if="userStore.currentUser"
         :amount="userStore.currentUser.balance"
@@ -160,6 +176,7 @@
         <v-list density="compact">
           <v-list-item prepend-icon="ri-user-settings-line" title="الملف الشخصي" to="/app/profile" />
           <v-list-item prepend-icon="ri-device-line" title="إدارة الأجهزة" to="/app/sessions" />
+          <v-list-item prepend-icon="ri-sparkling-line" title="سجل التحديثات" @click="showUpdatesHistory" />
           <v-list-item v-if="userStore.isStaff" prepend-icon="ri-settings-3-line" title="الإعدادات" to="/app/settings" />
 
           <!-- Branch Switcher for Mobile -->
@@ -347,6 +364,9 @@
 
     <!-- Global Search Dialog -->
     <GlobalSearchDialog v-model="isSearchOpen" />
+
+    <!-- Dialog for System Release Notes / What's New Updates -->
+    <AppSystemUpdatesDialog ref="systemUpdatesDialog" />
   </v-main>
 </template>
 
@@ -361,6 +381,7 @@ import Sidebar from '@/components/layout/Sidebar.vue';
 import BranchSwitcher from '@/components/layout/BranchSwitcher.vue';
 import NavbarThemeSwitcher from '@/layouts/components/NavbarThemeSwitcher.vue';
 import GlobalSearchDialog from '@/layouts/components/GlobalSearchDialog.vue';
+import AppSystemUpdatesDialog from '@/components/common/AppSystemUpdatesDialog.vue';
 import AppButton from '@/components/common/AppButton.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
 import AppConfirmDialog from '@/components/common/AppConfirmDialog.vue';
@@ -501,6 +522,11 @@ const isQuickToolsMenuOpen = ref(false);
 const confirmLogoutDialog = ref(null);
 const confirmCacheDialog = ref(null);
 const showClearCacheDialog = ref(false);
+const systemUpdatesDialog = ref(null);
+
+const showUpdatesHistory = () => {
+  systemUpdatesDialog.value?.show(true);
+};
 
 const handleClearCache = async () => {
   toast.info('جاري تحديث بيانات النظام...', { autoClose: 2000 });

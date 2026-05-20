@@ -6,212 +6,353 @@
       <p class="text-subtitle-1 text-grey-darken-1">تخصيص الهوية البصرية وإدارة البيانات الأساسية للنظام</p>
     </div>
 
-    <!-- Main Content Layout -->
+    <!-- Main Tabbed Layout -->
     <v-row class="pb-16 mb-16">
-      <!-- Increased padding to clear the fixed footer -->
-      <!-- Left Column: Branding & Media -->
-      <v-col cols="12" lg="4">
-        <AppCard title="الهوية البصرية" icon="ri-magic-line" class="mb-2" no-padding>
-          <v-card-text class="pa-8 text-center bg-grey-lighten-5">
-            <!-- Professional Logo Preview (Standardized with Brands) -->
-            <div class="logo-preview-zone mx-auto mb-2 cursor-pointer">
-              <AppAvatar
-                :img-url="formData.logo"
-                :name="formData.name"
-                size="180"
-                type="company"
-                :editable="canUpdate"
-                rounded="md"
-                class="border-2 border-dashed elevation-3 hover-scale overflow-hidden"
-                @edit="showMediaGallery = true"
-                @crop="handleCurrentCrop"
-              />
-            </div>
-
-            <h3 class="text-h6 font-weight-bold mb-1">شعار الشركة</h3>
-            <p class="text-caption text-grey-darken-1 px-4">
-              سيظهر هذا الشعار في الفواتير، التقارير، وفي القائمة الجانبية للنظام. يُنصح باستخدام صورة بخلفية شفافة (PNG) وبأبعاد 512×512.
-            </p>
-          </v-card-text>
-        </AppCard>
-
-        <!-- Business Context Card -->
-        <AppCard title="سياق العمل" icon="ri-briefcase-line" class="mb-2">
-          <AppInput
-            v-model="formData.field"
-            label="مجال نشاط الشركة"
-            placeholder="مثال: تجارة الملابس، مواد بناء..."
-            prepend-inner-icon="ri-service-line"
-            class="mb-4"
-            :error-messages="errors.field"
-          />
-          <AppInput
-            v-model="formData.description"
-            label="نبذة عن الشركة"
-            type="textarea"
-            prepend-inner-icon="ri-article-line"
-            placeholder="وصف مختصر يظهر في بعض التقارير المخصصة..."
-            rows="3"
-            counter
-            maxlength="500"
-            :error-messages="errors.description"
-          />
-        </AppCard>
+      <!-- Tabs Column (Desktop) -->
+      <v-col cols="12" md="3" class="d-none d-md-block">
+        <v-card flat border class="pa-2 rounded-xl mb-4">
+          <v-tabs
+            v-model="activeTab"
+            direction="vertical"
+            color="primary"
+            class="company-settings-tabs"
+            grow
+          >
+            <v-tab
+              v-for="tab in tabsList"
+              :key="tab.value"
+              :value="tab.value"
+              class="justify-start py-3 rounded-lg mb-1"
+            >
+              <v-icon start :icon="tab.icon" class="me-3" />
+              <div class="text-start">
+                <div class="font-weight-bold text-body-1">{{ tab.title }}</div>
+                <div class="text-xxs text-grey-darken-1">{{ tab.subtitle }}</div>
+              </div>
+            </v-tab>
+          </v-tabs>
+        </v-card>
       </v-col>
 
-      <!-- Right Column: Forms & Data -->
-      <v-col cols="12" lg="8">
+      <!-- Tabs Column (Mobile) -->
+      <v-col cols="12" class="d-md-none">
+        <div class="mobile-tabs-container mb-4">
+          <button
+            v-for="tab in tabsList"
+            :key="tab.value"
+            type="button"
+            class="mobile-tab-pill"
+            :class="{ 'active': activeTab === tab.value }"
+            @click="activeTab = tab.value"
+          >
+            <v-icon :icon="tab.icon" size="18" class="me-2" />
+            <span class="text-body-2 font-weight-bold">{{ tab.title }}</span>
+          </button>
+        </div>
+      </v-col>
+
+      <!-- Content Column -->
+      <v-col cols="12" md="9">
         <v-form ref="formRef">
-          <!-- Information Section -->
-          <AppCard title="البيانات الأساسية والقانونية" icon="ri-information-line" class="mb-2">
-            <v-row>
-              <v-col cols="12" md="6">
-                <AppInput
-                  v-model="formData.name"
-                  label="الاسم التجاري للشركة *"
-                  prepend-inner-icon="ri-building-2-fill"
-                  :rules="[rules.required]"
-                  :error-messages="errors.name"
-                />
-              </v-col>
-
-              <v-col cols="12" md="6">
-                <AppInput
-                  v-model="formData.owner_name"
-                  label="اسم صاحب المنشأة"
-                  prepend-inner-icon="ri-user-star-line"
-                  :error-messages="errors.owner_name"
-                />
-              </v-col>
-
-              <v-col cols="12" md="6">
-                <AppInput
-                  v-model="formData.tax_number"
-                  label="الرقم الضريبي (VAT)"
-                  prepend-inner-icon="ri-id-card-line"
-                  placeholder="أدخل الرقم الضريبي المكون من 15 رقم"
-                  :error-messages="errors.tax_number"
-                />
-              </v-col>
-
-              <v-col cols="12" md="6">
-                <AppInput
-                  v-model="formData.address"
-                  label="العنوان الرسمي"
-                  prepend-inner-icon="ri-map-pin-2-line"
-                  placeholder="المدينة، الحي، اسم الشارع"
-                  :error-messages="errors.address"
-                />
-              </v-col>
-            </v-row>
-          </AppCard>
-
-          <!-- Communications Card -->
-          <AppCard title="قنوات الاتصال والتواصل" icon="ri-customer-service-2-line" icon-color="success">
-            <v-row>
-              <v-col cols="12" md="6">
-                <AppInput
-                  v-model="formData.phone"
-                  label="رقم التواصل الرئيسي"
-                  prepend-inner-icon="ri-phone-fill"
-                  dir="ltr"
-                  :error-messages="errors.phone"
-                />
-              </v-col>
-
-              <v-col cols="12" md="6">
-                <AppInput
-                  v-model="formData.email"
-                  label="البريد الإلكتروني الرسمي"
-                  prepend-inner-icon="ri-mail-send-line"
-                  type="email"
-                  dir="ltr"
-                  :error-messages="errors.email"
-                />
-              </v-col>
-
-              <v-col cols="12">
-                <AppInput
-                  v-model="formData.website"
-                  label="الموقع الإلكتروني"
-                  prepend-inner-icon="ri-global-fill"
-                  placeholder="https://example.com"
-                  dir="ltr"
-                  :error-messages="errors.website"
-                  @blur="sanitizeUrl(formData, 'website')"
-                />
-              </v-col>
-            </v-row>
-
-            <!-- Social Media Card -->
-            <AppCard title="وسائل التواصل الاجتماعي" icon="ri-share-line" class="my-4">
-              <div v-for="(link, index) in formData.social_links" :key="index" class="d-flex align-center gap-3 mb-4">
-                <v-select
-                  v-model="link.platform"
-                  :items="socialPlatforms"
-                  item-title="title"
-                  item-value="value"
-                  density="comfortable"
-                  variant="outlined"
-                  hide-details
-                  style="width: 140px; flex-shrink: 0"
-                >
-                  <template #prepend-inner>
-                    <v-icon :icon="getPlatformIcon(link.platform)" size="20" :color="getPlatformColor(link.platform)" />
-                  </template>
-                </v-select>
-
-                <AppInput
-                  v-model="link.url"
-                  placeholder="رابط الحساب..."
-                  hide-details
-                  class="flex-grow-1"
-                  dir="ltr"
-                  @blur="sanitizeUrl(link, 'url')"
-                />
-
-                <AppButton icon="ri-delete-bin-line" variant="text" color="error" size="small" @click="removeSocialLink(index)" />
-              </div>
-
-              <AppButton variant="tonal" block prepend-icon="ri-add-line" class="mt-2" @click="addSocialLink"> إضافة رابط تواصل </AppButton>
-            </AppCard>
-
-            <!-- Printing Preferences Card -->
-            <AppCard title="إعدادات الطباعة" icon="ri-printer-line" class="my-4" icon-color="primary">
+          <v-window v-model="activeTab" class="bg-transparent overflow-visible">
+            <!-- TAB 1: BASIC IDENTITY -->
+            <v-window-item value="basic">
               <v-row>
-                <v-col cols="12" md="6">
-                  <v-select
-                    v-model="formData.print_settings.print_format"
-                    :items="[
-                      { title: 'A4 (قياسي)', value: 'standard' },
-                      { title: 'A5 (صغير)', value: 'a5' },
-                      { title: 'حراري (80mm)', value: 'thermal' },
-                      { title: 'حراري (58mm)', value: 'thermal_58' },
-                    ]"
-                    label="تنسيق الطباعة المفضل"
-                    prepend-inner-icon="ri-layout-grid-line"
-                    variant="outlined"
-                    density="comfortable"
-                  />
+                <!-- Visual Branding (Logo) -->
+                <v-col cols="12" lg="4">
+                  <AppCard title="الهوية البصرية" icon="ri-magic-line" no-padding>
+                    <v-card-text class="pa-8 text-center bg-grey-lighten-5">
+                      <div class="logo-preview-zone mx-auto mb-4 cursor-pointer">
+                        <AppAvatar
+                          :img-url="formData.logo"
+                          :name="formData.name"
+                          size="180"
+                          type="company"
+                          :editable="canUpdate"
+                          rounded="md"
+                          class="border-2 border-dashed elevation-3 hover-scale overflow-hidden"
+                          @edit="showMediaGallery = true"
+                          @crop="handleCurrentCrop"
+                        />
+                      </div>
+                      <h3 class="text-subtitle-1 font-weight-bold mb-1">شعار الشركة</h3>
+                      <p class="text-caption text-grey-darken-1 px-2">
+                        سيظهر هذا الشعار في الفواتير، التقارير، وفي القائمة الجانبية للنظام. يُنصح باستخدام صورة بخلفية شفافة (PNG) وبأبعاد 512×512.
+                      </p>
+                    </v-card-text>
+                  </AppCard>
                 </v-col>
 
-                <v-col cols="12" md="6">
-                  <v-switch v-model="formData.print_settings.show_logo" label="إظهار شعار الشركة في المطبوعات" color="primary" hide-details />
-                </v-col>
+                <!-- Basic Legal/Commercial Details -->
+                <v-col cols="12" lg="8">
+                  <AppCard title="البيانات الأساسية والقانونية" icon="ri-information-line" class="mb-4">
+                    <v-row dense>
+                      <v-col cols="12" md="6">
+                        <AppInput
+                          v-model="formData.name"
+                          label="الاسم التجاري للشركة *"
+                          prepend-inner-icon="ri-building-2-fill"
+                          :rules="[rules.required]"
+                          :error-messages="errors.name"
+                        >
+                          <template v-if="isFieldChanged('name')" #append-inner>
+                            <v-btn icon="ri-check-line" variant="text" color="success" size="x-small" density="comfortable" class="me-1" @click.stop="handleSave" />
+                            <v-btn icon="ri-close-line" variant="text" color="error" size="x-small" density="comfortable" @click.stop="revertField('name')" />
+                          </template>
+                        </AppInput>
+                      </v-col>
 
-                <v-col cols="12">
-                  <AppInput
-                    v-model="formData.print_settings.footer_text"
-                    label="نص تذييل الفاتورة"
-                    placeholder="مثال: شكراً لزيارتكم، البضاعة المباعة لا ترد ولا تستبدل..."
-                    prepend-inner-icon="ri-text-spacing"
-                    type="textarea"
-                    rows="2"
-                  />
+                      <v-col cols="12" md="6">
+                        <AppInput
+                          v-model="formData.owner_name"
+                          label="اسم صاحب المنشأة"
+                          prepend-inner-icon="ri-user-star-line"
+                          :error-messages="errors.owner_name"
+                        >
+                          <template v-if="isFieldChanged('owner_name')" #append-inner>
+                            <v-btn icon="ri-check-line" variant="text" color="success" size="x-small" density="comfortable" class="me-1" @click.stop="handleSave" />
+                            <v-btn icon="ri-close-line" variant="text" color="error" size="x-small" density="comfortable" @click.stop="revertField('owner_name')" />
+                          </template>
+                        </AppInput>
+                      </v-col>
+
+                      <v-col cols="12" md="6">
+                        <AppInput
+                          v-model="formData.tax_number"
+                          label="الرقم الضريبي (VAT)"
+                          prepend-inner-icon="ri-id-card-line"
+                          placeholder="أدخل الرقم الضريبي المكون من 15 رقم"
+                          :error-messages="errors.tax_number"
+                        >
+                          <template v-if="isFieldChanged('tax_number')" #append-inner>
+                            <v-btn icon="ri-check-line" variant="text" color="success" size="x-small" density="comfortable" class="me-1" @click.stop="handleSave" />
+                            <v-btn icon="ri-close-line" variant="text" color="error" size="x-small" density="comfortable" @click.stop="revertField('tax_number')" />
+                          </template>
+                        </AppInput>
+                      </v-col>
+
+                      <v-col cols="12" md="6">
+                        <AppInput
+                          v-model="formData.address"
+                          label="العنوان الرسمي"
+                          prepend-inner-icon="ri-map-pin-2-line"
+                          placeholder="المدينة، الحي، اسم الشارع"
+                          :error-messages="errors.address"
+                        >
+                          <template v-if="isFieldChanged('address')" #append-inner>
+                            <v-btn icon="ri-check-line" variant="text" color="success" size="x-small" density="comfortable" class="me-1" @click.stop="handleSave" />
+                            <v-btn icon="ri-close-line" variant="text" color="error" size="x-small" density="comfortable" @click.stop="revertField('address')" />
+                          </template>
+                        </AppInput>
+                      </v-col>
+                    </v-row>
+                  </AppCard>
+
+                  <!-- Business Context -->
+                  <AppCard title="سياق العمل" icon="ri-briefcase-line">
+                    <AppInput
+                      v-model="formData.field"
+                      label="مجال نشاط الشركة"
+                      placeholder="مثال: تجارة الملابس، مواد بناء..."
+                      prepend-inner-icon="ri-service-line"
+                      class="mb-4"
+                      :error-messages="errors.field"
+                    >
+                      <template v-if="isFieldChanged('field')" #append-inner>
+                        <v-btn icon="ri-check-line" variant="text" color="success" size="x-small" density="comfortable" class="me-1" @click.stop="handleSave" />
+                        <v-btn icon="ri-close-line" variant="text" color="error" size="x-small" density="comfortable" @click.stop="revertField('field')" />
+                      </template>
+                    </AppInput>
+                    <AppInput
+                      v-model="formData.description"
+                      label="نبذة عن الشركة"
+                      type="textarea"
+                      prepend-inner-icon="ri-article-line"
+                      placeholder="وصف مختصر يظهر في بعض التقارير المخصصة..."
+                      rows="3"
+                      counter
+                      maxlength="500"
+                      :error-messages="errors.description"
+                    >
+                      <template v-if="isFieldChanged('description')" #append-inner>
+                        <v-btn icon="ri-check-line" variant="text" color="success" size="x-small" density="comfortable" class="me-1" @click.stop="handleSave" />
+                        <v-btn icon="ri-close-line" variant="text" color="error" size="x-small" density="comfortable" @click.stop="revertField('description')" />
+                      </template>
+                    </AppInput>
+                  </AppCard>
                 </v-col>
               </v-row>
-            </AppCard>
-          </AppCard>
+            </v-window-item>
+
+            <!-- TAB 2: COMMUNICATIONS & SOCIAL -->
+            <v-window-item value="contact">
+              <v-row>
+                <v-col cols="12">
+                  <AppCard title="قنوات الاتصال والتواصل" icon="ri-customer-service-2-line" icon-color="success">
+                    <v-row dense>
+                      <v-col cols="12" md="6">
+                        <AppInput
+                          v-model="formData.phone"
+                          label="رقم التواصل الرئيسي"
+                          prepend-inner-icon="ri-phone-fill"
+                          dir="ltr"
+                          :error-messages="errors.phone"
+                        >
+                          <template v-if="isFieldChanged('phone')" #append-inner>
+                            <v-btn icon="ri-check-line" variant="text" color="success" size="x-small" density="comfortable" class="me-1" @click.stop="handleSave" />
+                            <v-btn icon="ri-close-line" variant="text" color="error" size="x-small" density="comfortable" @click.stop="revertField('phone')" />
+                          </template>
+                        </AppInput>
+                      </v-col>
+
+                      <v-col cols="12" md="6">
+                        <AppInput
+                          v-model="formData.email"
+                          label="البريد الإلكتروني الرسمي"
+                          prepend-inner-icon="ri-mail-send-line"
+                          type="email"
+                          dir="ltr"
+                          :error-messages="errors.email"
+                        >
+                          <template v-if="isFieldChanged('email')" #append-inner>
+                            <v-btn icon="ri-check-line" variant="text" color="success" size="x-small" density="comfortable" class="me-1" @click.stop="handleSave" />
+                            <v-btn icon="ri-close-line" variant="text" color="error" size="x-small" density="comfortable" @click.stop="revertField('email')" />
+                          </template>
+                        </AppInput>
+                      </v-col>
+
+                      <v-col cols="12">
+                        <AppInput
+                          v-model="formData.website"
+                          label="الموقع الإلكتروني"
+                          prepend-inner-icon="ri-global-fill"
+                          placeholder="https://example.com"
+                          dir="ltr"
+                          :error-messages="errors.website"
+                          @blur="sanitizeUrl(formData, 'website')"
+                        >
+                          <template v-if="isFieldChanged('website')" #append-inner>
+                            <v-btn icon="ri-check-line" variant="text" color="success" size="x-small" density="comfortable" class="me-1" @click.stop="handleSave" />
+                            <v-btn icon="ri-close-line" variant="text" color="error" size="x-small" density="comfortable" @click.stop="revertField('website')" />
+                          </template>
+                        </AppInput>
+                      </v-col>
+                    </v-row>
+
+                    <!-- Social Media Links -->
+                    <AppCard title="وسائل التواصل الاجتماعي" icon="ri-share-line" class="my-4">
+                      <div v-for="(link, index) in formData.social_links" :key="index" class="d-flex align-center gap-3 mb-4">
+                        <v-select
+                          v-model="link.platform"
+                          :items="socialPlatforms"
+                          item-title="title"
+                          item-value="value"
+                          density="comfortable"
+                          variant="outlined"
+                          hide-details
+                          style="width: 140px; flex-shrink: 0"
+                        >
+                          <template #prepend-inner>
+                            <v-icon :icon="getPlatformIcon(link.platform)" size="20" :color="getPlatformColor(link.platform)" />
+                          </template>
+                        </v-select>
+
+                        <AppInput
+                          v-model="link.url"
+                          placeholder="رابط الحساب..."
+                          hide-details
+                          class="flex-grow-1"
+                          dir="ltr"
+                          @blur="sanitizeUrl(link, 'url')"
+                        >
+                          <template v-if="isFieldChanged('social_links.' + index + '.url')" #append-inner>
+                            <v-btn icon="ri-check-line" variant="text" color="success" size="x-small" density="comfortable" class="me-1" @click.stop="handleSave" />
+                            <v-btn icon="ri-close-line" variant="text" color="error" size="x-small" density="comfortable" @click.stop="revertField('social_links.' + index + '.url')" />
+                          </template>
+                        </AppInput>
+
+                        <AppButton icon="ri-delete-bin-line" variant="text" color="error" size="small" @click="removeSocialLink(index)" />
+                      </div>
+
+                      <AppButton variant="tonal" block prepend-icon="ri-add-line" class="mt-2" @click="addSocialLink"> إضافة رابط تواصل </AppButton>
+                    </AppCard>
+                  </AppCard>
+                </v-col>
+              </v-row>
+            </v-window-item>
+
+            <!-- TAB 3: PRINTING & PREFERENCES -->
+            <v-window-item value="preferences">
+              <v-row>
+                <!-- Printing Settings -->
+                <v-col cols="12">
+                  <AppCard title="إعدادات الطباعة" icon="ri-printer-line" class="mb-4" icon-color="primary">
+                    <v-row dense>
+                      <v-col cols="12" md="6">
+                        <v-select
+                          v-model="formData.print_settings.print_format"
+                          :items="[
+                            { title: 'A4 (قياسي)', value: 'standard' },
+                            { title: 'A5 (صغير)', value: 'a5' },
+                            { title: 'حراري (80mm)', value: 'thermal' },
+                            { title: 'حراري (58mm)', value: 'thermal_58' },
+                          ]"
+                          label="تنسيق الطباعة المفضل"
+                          prepend-inner-icon="ri-layout-grid-line"
+                          variant="outlined"
+                          density="comfortable"
+                          @update:model-value="handleSave"
+                        />
+                      </v-col>
+
+                      <v-col cols="12" md="6" class="d-flex align-center">
+                        <v-switch
+                          v-model="formData.print_settings.show_logo"
+                          label="إظهار شعار الشركة in المطبوعات"
+                          color="primary"
+                          hide-details
+                          @update:model-value="handleSave"
+                        />
+                      </v-col>
+
+                      <v-col cols="12">
+                        <AppInput
+                          v-model="formData.print_settings.footer_text"
+                          label="نص تذييل الفاتورة"
+                          placeholder="مثال: شكراً لزيارتكم، البضاعة المباعة لا ترد ولا تستبدل..."
+                          prepend-inner-icon="ri-text-spacing"
+                          type="textarea"
+                          rows="2"
+                        >
+                          <template v-if="isFieldChanged('print_settings.footer_text')" #append-inner>
+                            <v-btn icon="ri-check-line" variant="text" color="success" size="x-small" density="comfortable" class="me-1" @click.stop="handleSave" />
+                            <v-btn icon="ri-close-line" variant="text" color="error" size="x-small" density="comfortable" @click.stop="revertField('print_settings.footer_text')" />
+                          </template>
+                        </AppInput>
+                      </v-col>
+                    </v-row>
+                  </AppCard>
+                </v-col>
+
+                <!-- System Preferences -->
+                <v-col cols="12">
+                  <AppCard title="تفضيلات النظام" icon="ri-settings-4-line" icon-color="primary">
+                    <v-row dense>
+                      <v-col cols="12">
+                        <v-switch
+                          v-model="formData.settings.enable_digital_products"
+                          label="تفعيل ودعم المنتجات الرقمية (تمكين بيع وتنزيل الكود والملفات وتراخيص الاستخدام)"
+                          color="primary"
+                          hide-details
+                          @update:model-value="handleSave"
+                        />
+                      </v-col>
+                    </v-row>
+                  </AppCard>
+                </v-col>
+              </v-row>
+            </v-window-item>
+          </v-window>
         </v-form>
       </v-col>
     </v-row>
@@ -245,7 +386,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+// مكون إعدادات الشركة: يتيح تعديل الشعار، البيانات الأساسية والقانونية، قنوات التواصل، وتفضيلات النظام والطباعة.
+import { ref, onMounted, computed } from 'vue';
 import { useApi } from '@/composables/useApi';
 import { useUserStore } from '@/stores/user';
 import { usePermissions } from '@/composables/usePermissions';
@@ -258,12 +400,49 @@ import AppButton from '@/components/common/AppButton.vue';
 import { toast } from 'vue3-toastify';
 import { useAuthStore } from '@/stores/auth';
 import { PERMISSIONS } from '@/config/permissions';
-import { computed } from 'vue';
 
 const userStore = useUserStore();
 const authStore = useAuthStore();
 const { can } = usePermissions();
 const api = useApi('/api/companies');
+
+const activeTab = ref('basic');
+const originalData = ref(null);
+
+const isFieldChanged = (path) => {
+  if (!originalData.value) return false;
+  const keys = path.split('.');
+  let currentVal = formData.value;
+  let originalVal = originalData.value;
+  for (const key of keys) {
+    if (currentVal === undefined || currentVal === null) return false;
+    if (originalVal === undefined || originalVal === null) return false;
+    currentVal = currentVal[key];
+    originalVal = originalVal[key];
+  }
+  return currentVal !== originalVal;
+};
+
+const revertField = (path) => {
+  if (!originalData.value) return;
+  const keys = path.split('.');
+  let currentParent = formData.value;
+  let originalParent = originalData.value;
+  
+  for (let i = 0; i < keys.length - 1; i++) {
+    currentParent = currentParent[keys[i]];
+    originalParent = originalParent[keys[i]];
+  }
+  
+  const lastKey = keys[keys.length - 1];
+  currentParent[lastKey] = originalParent[lastKey];
+};
+
+const tabsList = [
+  { value: 'basic', title: 'البيانات الأساسية', icon: 'ri-building-2-line', subtitle: 'هوية المنشأة والشعار' },
+  { value: 'contact', title: 'قنوات التواصل', icon: 'ri-contacts-line', subtitle: 'روابط الاتصال والشبكات' },
+  { value: 'preferences', title: 'التفضيلات والطباعة', icon: 'ri-settings-4-line', subtitle: 'إعدادات الفواتير والمنتجات' }
+];
 
 const isSuperAdmin = computed(() => authStore.user?.permissions?.includes(PERMISSIONS.ADMIN_SUPER));
 const isCompanyAdmin = computed(() => authStore.user?.permissions?.includes(PERMISSIONS.ADMIN_COMPANY));
@@ -296,6 +475,9 @@ const formData = ref({
   logo: '',
   social_links: [],
   images_ids: [],
+  settings: {
+    enable_digital_products: false,
+  },
   print_settings: {
     print_format: 'thermal',
     show_logo: true,
@@ -349,10 +531,10 @@ const rules = {
   required: v => !!v || 'هذا الحقل مطلوب أساسي لاستكمال البيانات',
 };
 
-const handleImageSelect = image => {
+const handleImageSelect = async image => {
   formData.value.logo = image.url;
   formData.value.images_ids = [image.id];
-  toast.success('تم اختيار الشعار بنجاح، يرجى الحفظ لاعتماد التغييرات');
+  await handleSave();
 };
 
 const handleCurrentCrop = () => {
@@ -409,12 +591,17 @@ const loadCompanyData = async () => {
         logo: data.logo || '',
         social_links: Array.isArray(data.social_links) ? data.social_links : [],
         images_ids: [],
+        settings: {
+          enable_digital_products: false,
+          ...(data.settings || {}),
+        },
         print_settings: data.print_settings || {
           print_format: 'thermal',
           show_logo: true,
           footer_text: 'شكراً لتعاملكم معنا',
         },
       };
+      originalData.value = JSON.parse(JSON.stringify(formData.value));
     }
   } catch (error) {
     console.error('Error loading company data:', error);
@@ -451,7 +638,8 @@ const handleSave = async () => {
     delete payload.print_settings;
 
     await api.update(formData.value.id, payload);
-
+    originalData.value = JSON.parse(JSON.stringify(formData.value));
+    toast.success('تم حفظ التغييرات بنجاح');
     // Refresh user info to update global branding (like sidebar logo)
     await userStore.fetchUser();
   } catch (error) {
@@ -543,5 +731,82 @@ onMounted(() => {
 
 .border-dashed {
   border: 2px dashed #cfd8dc !important;
+}
+
+/* Tabs styling */
+.company-settings-tabs :deep(.v-tab) {
+  text-transform: none;
+  letter-spacing: normal;
+  transition: all 0.3s ease;
+  min-height: 48px;
+  opacity: 0.8;
+}
+
+@media (min-width: 960px) {
+  .company-settings-tabs :deep(.v-tab) {
+    min-height: 64px;
+  }
+}
+
+.company-settings-tabs :deep(.v-tab--selected) {
+  background-color: rgba(var(--v-theme-primary), 0.08) !important;
+  color: rgb(var(--v-theme-primary)) !important;
+  opacity: 1;
+}
+
+.company-settings-tabs :deep(.v-tab__slider) {
+  border-radius: 4px;
+}
+
+.text-xxs {
+  font-size: 0.7rem;
+}
+
+/* Mobile Tabs Scrollbar container */
+.mobile-tabs-container {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none; /* Hide scrollbar for Firefox */
+  -webkit-overflow-scrolling: touch; /* Smooth inertia scrolling for iOS */
+  padding: 4px;
+}
+
+.mobile-tabs-container::-webkit-scrollbar {
+  display: none; /* Hide scrollbar for Chrome, Safari, Opera */
+}
+
+/* Tab pill buttons */
+.mobile-tab-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 18px;
+  border-radius: 50px;
+  background-color: #fff;
+  border: 1px solid rgba(var(--v-border-color), 0.15);
+  color: rgba(var(--v-theme-on-surface), 0.7);
+  white-space: nowrap;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+  cursor: pointer;
+}
+
+.mobile-tab-pill:active {
+  transform: scale(0.97);
+}
+
+.mobile-tab-pill.active {
+  background-color: rgb(var(--v-theme-primary));
+  color: #fff !important;
+  border-color: rgb(var(--v-theme-primary));
+  box-shadow: 0 4px 12px rgba(var(--v-theme-primary), 0.25);
+}
+
+.mobile-tab-pill .v-icon {
+  transition: color 0.25s ease;
+}
+
+.mobile-tab-pill.active .v-icon {
+  color: #fff !important;
 }
 </style>
