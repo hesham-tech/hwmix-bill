@@ -108,10 +108,7 @@
         {{ localeStore.locale === 'ar' ? 'English' : 'عربي' }}
       </v-tooltip> -->
 
-      <!-- Theme Switcher -->
-      <div class="d-none d-sm-flex">
-        <NavbarThemeSwitcher />
-      </div>
+
 
       <!-- أدوات سريعة -->
       <v-menu v-model="isQuickToolsMenuOpen" :close-on-content-click="false">
@@ -221,14 +218,12 @@
             <v-list-item prepend-icon="ri-calendar-2-line" title="حساب أقساط" @click="appState.openInstallmentCalc({ mode: 'standalone' })" />
           </template>
 
-          <!-- Theme Switcher for Mobile -->
-          <template v-if="xs">
-            <v-divider class="my-1" />
-            <div class="px-4 py-1 d-flex align-center justify-space-between">
-              <span class="text-caption text-grey">الوضع (الثيم)</span>
-              <NavbarThemeSwitcher />
-            </div>
-          </template>
+          <!-- Theme Switcher -->
+          <v-divider class="my-1" />
+          <div class="px-4 py-1 d-flex align-center justify-space-between">
+            <span class="text-caption text-grey">الوضع (الثيم)</span>
+            <NavbarThemeSwitcher />
+          </div>
 
           <v-divider class="my-1" />
           <v-list-item prepend-icon="ri-refresh-line" title="تحديث بيانات النظام" @click="showClearCacheDialog = true" class="text-info" />

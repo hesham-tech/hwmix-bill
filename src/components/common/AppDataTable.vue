@@ -28,6 +28,19 @@
             <AppButton value="grid" tooltip="شبكة" icon="ri-grid-fill" size="small" />
           </v-btn-toggle>
 
+          <!-- Customize Columns Button -->
+          <AppButton
+            v-if="tableKey"
+            variant="tonal"
+            color="secondary"
+            icon="ri-settings-3-line"
+            tooltip="تخصيص أعمدة الجدول"
+            size="small"
+            style="height: 28px; min-width: 36px;"
+            class="px-2 mr-1"
+            @click="openCustomizationDialog"
+          />
+
           <slot name="actions" />
         </div>
       </div>
@@ -555,6 +568,102 @@
       </AppTableActions>
     </v-menu>
   </v-card>
+
+  <!-- Dialog for Customizing Columns -->
+  <v-dialog v-model="dialogOpen" max-width="500px" scrollable>
+    <v-card class="rounded-lg shadow-lg border">
+      <v-card-title class="px-4 py-3 border-bottom d-flex align-center justify-space-between bg-light">
+        <span class="text-h6 font-weight-bold text-primary">تخصيص أعمدة الجدول</span>
+        <v-btn icon="ri-close-line" variant="text" density="compact" @click="dialogOpen = false" />
+      </v-card-title>
+      
+      <v-card-text class="pa-4" style="max-height: 450px;">
+        <div class="text-caption text-grey-darken-1 mb-3">
+          اسحب وأفلت لترتيب الأعمدة، أو استخدم الأسهم للتحريك. حدد المربعات لإظهار أو إخفاء الأعمدة.
+        </div>
+
+        <v-list class="pa-0 border rounded-lg overflow-hidden">
+          <v-list-item
+            v-for="(col, index) in customizationColumns"
+            :key="col.key"
+            draggable="true"
+            @dragstart="onDragStart($event, index)"
+            @dragover.prevent
+            @drop="onDrop($event, index)"
+            class="border-bottom py-2 px-3 customization-col-item d-flex align-center justify-space-between"
+            :class="{ 'bg-grey-lighten-4': col.mandatory }"
+          >
+            <div class="d-flex align-center gap-3 w-100">
+              <!-- Drag Handle -->
+              <v-icon
+                icon="ri-drag-move-2-fill"
+                color="grey"
+                class="cursor-grab drag-handle mr-2"
+                style="cursor: grab;"
+              />
+
+              <!-- Checkbox -->
+              <v-checkbox
+                v-model="col.visible"
+                :disabled="col.mandatory"
+                :label="col.title"
+                hide-details
+                density="compact"
+                color="primary"
+                class="ma-0 pa-0 flex-grow-1"
+              />
+            </div>
+
+            <!-- Action buttons for reordering (Arrows) -->
+            <div class="d-flex gap-1 align-center">
+              <v-btn
+                icon="ri-arrow-up-s-line"
+                variant="text"
+                density="compact"
+                color="grey-darken-1"
+                :disabled="index === 0"
+                @click="moveUp(index)"
+              />
+              <v-btn
+                icon="ri-arrow-down-s-line"
+                variant="text"
+                density="compact"
+                color="grey-darken-1"
+                :disabled="index === customizationColumns.length - 1"
+                @click="moveDown(index)"
+              />
+            </div>
+          </v-list-item>
+        </v-list>
+      </v-card-text>
+
+      <v-card-actions class="px-4 py-3 border-top bg-light gap-2 justify-end">
+        <v-btn
+          variant="tonal"
+          color="error"
+          prepend-icon="ri-refresh-line"
+          @click="resetCustomization"
+        >
+          إعادة ضبط الافتراضي
+        </v-btn>
+        <v-spacer />
+        <v-btn
+          variant="text"
+          @click="dialogOpen = false"
+        >
+          إلغاء
+        </v-btn>
+        <v-btn
+          variant="flat"
+          color="primary"
+          prepend-icon="ri-save-line"
+          @click="saveCustomization"
+        >
+          حفظ التغييرات
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup>
@@ -568,9 +677,13 @@ import AppInfiniteScroll from '@/components/common/AppInfiniteScroll.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
 import AppAutocomplete from '@/components/common/AppAutocomplete.vue';
 import AppTableActions from '@/components/common/AppTableActions.vue';
+import { useUIPreferencesStore } from '@/stores/uiPreferences';
 
 // --- Props & Emits ---
 const props = defineProps({
+  // Table dynamic UI preferences key
+  tableKey: { type: String, default: null },
+
   // Table data
   headers: { type: Array, required: true },
   items: { type: Array, default: () => [] },
@@ -718,20 +831,82 @@ const paginationInfo = computed(() => {
 });
 
 // --- Table Headers Processing ---
+const uiPrefsStore = useUIPreferencesStore();
+
+watch(() => props.tableKey, (newKey) => {
+  if (newKey) {
+    uiPrefsStore.loadPreferences(newKey);
+  }
+}, { immediate: true });
+
+const currentPref = computed(() => {
+  if (!props.tableKey) return null;
+  return uiPrefsStore.getPreference(props.tableKey);
+});
+
+const hasHydrated = ref(false);
+watch(currentPref, (newPref) => {
+  if (!newPref || hasHydrated.value) return;
+  
+  let optionsChanged = false;
+  let newItemsPerPage = props.itemsPerPage;
+  let newSortBy = props.sortBy;
+
+  if (newPref.itemsPerPage !== undefined && newPref.itemsPerPage !== props.itemsPerPage) {
+    emit('update:items-per-page', newPref.itemsPerPage);
+    newItemsPerPage = newPref.itemsPerPage;
+    optionsChanged = true;
+  }
+
+  if (newPref.sortBy !== undefined && JSON.stringify(newPref.sortBy) !== JSON.stringify(props.sortBy)) {
+    emit('update:sortBy', newPref.sortBy);
+    newSortBy = newPref.sortBy;
+    optionsChanged = true;
+  }
+
+  if (optionsChanged) {
+    nextTick(() => {
+      emit('update:options', {
+        page: props.page,
+        itemsPerPage: newItemsPerPage,
+        sortBy: newSortBy
+      });
+    });
+  }
+
+  hasHydrated.value = true;
+}, { immediate: true });
+
 const processedHeaders = computed(() => {
   let finalHeaders = [...props.headers];
 
-  // Sticky Actions (Disabled per user request)
-  /*
-  if (props.stickyActions && props.showActions) {
-    finalHeaders = finalHeaders.map((header, index) => {
-      if (index === finalHeaders.length - 1 && header.key === 'actions') {
-        return { ...header, fixed: true, width: header.width || '130px' };
-      }
-      return header;
+  const pref = currentPref.value;
+  if (pref && pref.columns && Array.isArray(pref.columns)) {
+    const headerMap = {};
+    finalHeaders.forEach(h => {
+      headerMap[h.key] = h;
     });
+
+    const orderedHeaders = [];
+    pref.columns.forEach(colPref => {
+      const header = headerMap[colPref.key];
+      if (header) {
+        const isVisible = header.mandatory ? true : (colPref.visible ?? true);
+        if (isVisible) {
+          orderedHeaders.push(header);
+        }
+        delete headerMap[colPref.key];
+      }
+    });
+
+    finalHeaders.forEach(h => {
+      if (headerMap[h.key]) {
+        orderedHeaders.push(h);
+      }
+    });
+
+    finalHeaders = orderedHeaders;
   }
-  */
 
   return finalHeaders;
 });
@@ -739,6 +914,93 @@ const processedHeaders = computed(() => {
 const hiddenHeaders = computed(() => {
   return [];
 });
+
+// --- Table Customization Dialog Logic ---
+const dialogOpen = ref(false);
+const customizationColumns = ref([]);
+let dragIndex = null;
+
+const openCustomizationDialog = () => {
+  const pref = currentPref.value;
+  const currentHeaders = [...props.headers];
+  const prefMap = {};
+
+  if (pref && pref.columns) {
+    pref.columns.forEach((c, idx) => {
+      prefMap[c.key] = { order: idx, visible: c.visible ?? true };
+    });
+  }
+
+  const list = currentHeaders.map(h => {
+    const hasPref = prefMap[h.key];
+    return {
+      key: h.key,
+      title: h.title || h.key,
+      visible: h.mandatory ? true : (hasPref ? hasPref.visible : true),
+      mandatory: !!h.mandatory,
+      order: hasPref ? hasPref.order : 999
+    };
+  });
+
+  list.sort((a, b) => a.order - b.order);
+  customizationColumns.value = list;
+  dialogOpen.value = true;
+};
+
+const onDragStart = (event, index) => {
+  dragIndex = index;
+  event.dataTransfer.effectAllowed = 'move';
+};
+
+const onDrop = (event, index) => {
+  if (dragIndex === null || dragIndex === index) return;
+  const items = [...customizationColumns.value];
+  const draggedItem = items[dragIndex];
+  items.splice(dragIndex, 1);
+  items.splice(index, 0, draggedItem);
+  customizationColumns.value = items;
+  dragIndex = null;
+};
+
+const moveUp = (index) => {
+  if (index === 0) return;
+  const items = [...customizationColumns.value];
+  const temp = items[index];
+  items[index] = items[index - 1];
+  items[index - 1] = temp;
+  customizationColumns.value = items;
+};
+
+const moveDown = (index) => {
+  if (index === customizationColumns.value.length - 1) return;
+  const items = [...customizationColumns.value];
+  const temp = items[index];
+  items[index] = items[index + 1];
+  items[index + 1] = temp;
+  customizationColumns.value = items;
+};
+
+const saveCustomization = () => {
+  if (props.tableKey) {
+    const columns = customizationColumns.value.map(c => ({
+      key: c.key,
+      visible: c.visible
+    }));
+    const existing = currentPref.value || {};
+    uiPrefsStore.savePreference(props.tableKey, {
+      ...existing,
+      columns
+    });
+  }
+  dialogOpen.value = false;
+};
+
+const resetCustomization = async () => {
+  if (props.tableKey) {
+    await uiPrefsStore.resetPreference(props.tableKey);
+    openCustomizationDialog();
+  }
+};
 
 // --- Persistent View Preferences (Centralized) ---
 const tablePreferences = useLocalStorage('app-table-preferences', {
@@ -778,6 +1040,16 @@ const itemsPerPageModel = computed({
   set: val => {
     if (val === props.itemsPerPage) return;
     emit('update:items-per-page', val);
+    
+    // Save to preferences if tableKey is set
+    if (props.tableKey) {
+      const existing = currentPref.value || {};
+      uiPrefsStore.savePreference(props.tableKey, {
+        ...existing,
+        itemsPerPage: val
+      });
+    }
+
     // Notify parent about options change
     nextTick(() => {
       emit('update:options', {
@@ -791,7 +1063,18 @@ const itemsPerPageModel = computed({
 
 const sortByModel = computed({
   get: () => props.sortBy,
-  set: val => emit('update:sortBy', val),
+  set: val => {
+    emit('update:sortBy', val);
+    
+    // Save to preferences if tableKey is set
+    if (props.tableKey) {
+      const existing = currentPref.value || {};
+      uiPrefsStore.savePreference(props.tableKey, {
+        ...existing,
+        sortBy: val
+      });
+    }
+  },
 });
 
 const expandedModel = computed({

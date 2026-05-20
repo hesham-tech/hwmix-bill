@@ -5,6 +5,7 @@
         <v-col cols="12" class="pa-0">
           <v-card rounded="md" class="border shadow-sm overflow-hidden mb-4">
             <AppDataTable
+              table-key="products.index"
               v-model:sort-by="sortByVuetify"
               v-model:search="search"
               v-model:page="page"
@@ -48,9 +49,10 @@
                     class="rounded-pill shadow-sm"
                     style="height: 40px"
                     :loading="exportLoading"
+                    tooltip="تحميل منتجات"
                     @click="handleExport"
                   >
-                    تحميل منتجات
+                    <span class="d-none d-sm-inline">تحميل منتجات</span>
                   </AppButton>
                   <AppButton
                     v-if="canAny(PERMISSIONS.PRODUCTS_IMPORT)"
@@ -60,9 +62,10 @@
                     size="small"
                     class="rounded-pill shadow-sm"
                     style="height: 40px"
+                    tooltip="رفع منتجات"
                     @click="importDialog?.open()"
                   >
-                    رفع منتجات
+                    <span class="d-none d-sm-inline">رفع منتجات</span>
                   </AppButton>
                   <AppButton
                     v-if="canAny(PERMISSIONS.PRODUCTS_CREATE)"
@@ -73,7 +76,7 @@
                     style="height: 40px"
                     @click="router.push({ name: 'product-create' })"
                   >
-                    إضافة منتج
+                    <span>إضافة منتج</span>
                   </AppButton>
                 </div>
               </template>
