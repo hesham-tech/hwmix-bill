@@ -9,35 +9,57 @@ export const useUserStore = defineStore('user', () => {
   const roles = ref([]);
   const companies = ref([]);
 
-  // Fetch current user data from backend
+  // Fetch current user data and initial configuration from bootstrap endpoint
   const fetchUser = async () => {
     try {
-      const response = await apiClient.get('me');
-      const data = response.data;
+      const response = await apiClient.get('bootstrap');
+      const bootstrapData = response.data.data;
 
-      currentUser.value = data.data;
+      currentUser.value = bootstrapData.user;
 
       // Extract permissions array from backend response
-      permissions.value = data.data.permissions || [];
+      permissions.value = bootstrapData.user.permissions || [];
 
       // Extract roles with their permissions
-      roles.value = data.data.roles || [];
+      roles.value = bootstrapData.user.roles || [];
 
       // Extract available companies
-      companies.value = data.data.companies || [];
+      companies.value = bootstrapData.user.companies || [];
 
-      // Sync branches from user data (merged in v1)
-      if (data.data.branches) {
+      // Sync branches from user data
+      if (bootstrapData.user.branches) {
         try {
           const { useBranchStore } = await import('@/stores/branch');
           const branchStore = useBranchStore();
-          branchStore.setBranches(data.data.branches);
+          branchStore.setBranches(bootstrapData.user.branches);
         } catch (e) {
           console.error('Failed to sync branches from user data:', e);
         }
       }
+
+      // Sync initial screen preferences into uiPreferences store
+      if (bootstrapData.screen_preferences) {
+        try {
+          const { useUIPreferencesStore } = await import('@/stores/uiPreferences');
+          const uiPrefsStore = useUIPreferencesStore();
+          
+          const userId = bootstrapData.user.id;
+          const companyId = bootstrapData.user.active_company_id;
+
+          Object.keys(bootstrapData.screen_preferences).forEach(key => {
+            const pref = bootstrapData.screen_preferences[key];
+            uiPrefsStore.preferences[key] = pref;
+
+            // Cache in LocalStorage
+            const cacheKey = `ui_pref_${userId}_${companyId}_${key}`;
+            localStorage.setItem(cacheKey, JSON.stringify(pref));
+          });
+        } catch (e) {
+          console.error('Failed to sync screen preferences from bootstrap:', e);
+        }
+      }
     } catch (error) {
-      console.error('Failed to fetch user:', error);
+      console.error('Failed to bootstrap application:', error);
     }
   };
 
