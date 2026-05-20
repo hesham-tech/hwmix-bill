@@ -1,5 +1,5 @@
 <template>
-  <v-card ref="tableRootRef">
+  <v-card ref="tableRootRef" v-bind="$attrs">
     <!-- Header with title and actions -->
     <v-card-title v-if="title" class="px-4 pt-4 pb-2 border-bottom d-flex flex-column ga-3">
       <!-- Row 1: Title and Actions -->
@@ -32,15 +32,15 @@
           <AppButton
             v-if="tableKey"
             variant="tonal"
-            color="secondary"
-            prepend-icon="ri-settings-3-line"
+            :color="isCustomizing ? 'primary' : 'secondary'"
+            :prepend-icon="isCustomizing ? 'ri-close-line' : 'ri-settings-3-line'"
             tooltip="تخصيص أعمدة الجدول وترتيبها"
             size="small"
             style="height: 28px;"
             class="px-2 mr-1"
-            @click="openCustomizationDialog"
+            @click="toggleCustomization"
           >
-            <span class="d-none d-sm-inline">تخصيص الأعمدة</span>
+            <span class="d-none d-sm-inline">{{ isCustomizing ? 'إغلاق التخصيص' : 'تخصيص الأعمدة' }}</span>
           </AppButton>
 
           <slot name="actions" />
@@ -77,6 +77,26 @@
         />
       </div>
     </v-card-title>
+
+    <!-- Customization Area (In-Place) -->
+    <v-expand-transition>
+      <div v-if="isCustomizing" class="column-customizer-area bg-grey-lighten-5 border-bottom py-3 px-4 shadow-inner">
+        <div class="d-flex align-center justify-space-between flex-wrap gap-2">
+          <div>
+            <div class="text-subtitle-2 font-weight-bold text-primary mb-1 d-flex align-center gap-2">
+              <v-icon icon="ri-layout-column-line" /> تخصيص ترتيب وأعمدة الجدول المباشر
+            </div>
+            <div class="text-caption text-grey-darken-1">
+              اسحب <strong>عناوين الأعمدة داخل الجدول</strong> بالأسفل لترتيبها. اضغط على أيقونة العين لإخفاء العمود، وسيظهر بشكل باهت أثناء التعديل.
+            </div>
+          </div>
+          <div class="d-flex gap-2">
+            <AppButton size="small" variant="outlined" color="error" @click="resetCustomization" prepend-icon="ri-refresh-line">إعادة الضبط</AppButton>
+            <AppButton size="small" variant="flat" color="primary" @click="saveCustomization" prepend-icon="ri-check-line" :loading="savingPreferences">حفظ التغييرات</AppButton>
+          </div>
+        </div>
+      </div>
+    </v-expand-transition>
 
     <!-- Advanced Search Area -->
     <v-expand-transition>
@@ -177,6 +197,33 @@
             <slot :name="slot" v-bind="{ ...(scope || {}), isGrid: false, viewMode: 'list' }" />
           </template>
 
+          <!-- Dynamic Header Slots for Customization -->
+          <template v-for="col in customizationColumns" :key="`header-slot-${col.key}`" #[`header.${col.key}`]="{ column, isSorted, getSortIcon, toggleSort }">
+            <div v-if="$slots[`header.${col.key}`]">
+              <slot :name="`header.${col.key}`" v-bind="{ column, isSorted, getSortIcon, toggleSort }" />
+            </div>
+            <div v-else class="d-flex align-center justify-space-between w-100 position-relative w-100">
+              <div 
+                class="d-flex align-center flex-grow-1" 
+                :class="!isCustomizing && column.sortable !== false ? 'cursor-pointer' : ''"
+                @click="!isCustomizing && column.sortable !== false ? toggleSort(column) : null"
+              >
+                <span>{{ column.title }}</span>
+                <v-icon v-if="!isCustomizing && column.sortable !== false && isSorted(column)" size="small" class="ml-1" :icon="getSortIcon(column)" />
+              </div>
+              <div v-if="isCustomizing" class="d-flex align-center ml-2">
+                <v-icon
+                  :icon="col.visible ? 'ri-eye-line' : 'ri-eye-off-line'"
+                  size="small"
+                  :color="col.visible ? 'primary' : 'error'"
+                  class="cursor-pointer"
+                  @click.stop="toggleColumn(col)"
+                />
+                <v-icon icon="ri-draggable" size="small" class="cursor-grab text-grey-darken-1 mr-1" />
+              </div>
+            </div>
+          </template>
+
           <template v-if="showActions && !$slots['item.actions']" #item.actions="{ item }">
             <v-menu transition="scale-transition" offset="5">
               <template #activator="{ props }">
@@ -242,6 +289,33 @@
           <!-- Common Slots -->
           <template v-for="(_, slot) in $slots" #[slot]="scope">
             <slot :name="slot" v-bind="{ ...(scope || {}), isGrid: false, viewMode: 'list' }" />
+          </template>
+          
+          <!-- Dynamic Header Slots for Customization -->
+          <template v-for="col in customizationColumns" :key="`header-slot-${col.key}`" #[`header.${col.key}`]="{ column, isSorted, getSortIcon, toggleSort }">
+            <div v-if="$slots[`header.${col.key}`]">
+              <slot :name="`header.${col.key}`" v-bind="{ column, isSorted, getSortIcon, toggleSort }" />
+            </div>
+            <div v-else class="d-flex align-center justify-space-between w-100 position-relative w-100">
+              <div 
+                class="d-flex align-center flex-grow-1" 
+                :class="!isCustomizing && column.sortable !== false ? 'cursor-pointer' : ''"
+                @click="!isCustomizing && column.sortable !== false ? toggleSort(column) : null"
+              >
+                <span>{{ column.title }}</span>
+                <v-icon v-if="!isCustomizing && column.sortable !== false && isSorted(column)" size="small" class="ml-1" :icon="getSortIcon(column)" />
+              </div>
+              <div v-if="isCustomizing" class="d-flex align-center ml-2">
+                <v-icon
+                  :icon="col.visible ? 'ri-eye-line' : 'ri-eye-off-line'"
+                  size="small"
+                  :color="col.visible ? 'primary' : 'error'"
+                  class="cursor-pointer"
+                  @click.stop="toggleColumn(col)"
+                />
+                <v-icon icon="ri-draggable" size="small" class="cursor-grab text-grey-darken-1 mr-1" />
+              </div>
+            </div>
           </template>
           <!-- Actions column (Server) -->
           <template v-if="showActions && !$slots['item.actions']" #item.actions="{ item }">
@@ -312,6 +386,33 @@
           <!-- Common Slots -->
           <template v-for="(_, slot) in $slots" #[slot]="scope">
             <slot :name="slot" v-bind="{ ...(scope || {}), isGrid: false, viewMode: 'list' }" />
+          </template>
+          
+          <!-- Dynamic Header Slots for Customization -->
+          <template v-for="col in customizationColumns" :key="`header-slot-${col.key}`" #[`header.${col.key}`]="{ column, isSorted, getSortIcon, toggleSort }">
+            <div v-if="$slots[`header.${col.key}`]">
+              <slot :name="`header.${col.key}`" v-bind="{ column, isSorted, getSortIcon, toggleSort }" />
+            </div>
+            <div v-else class="d-flex align-center justify-space-between w-100 position-relative w-100">
+              <div 
+                class="d-flex align-center flex-grow-1" 
+                :class="!isCustomizing && column.sortable !== false ? 'cursor-pointer' : ''"
+                @click="!isCustomizing && column.sortable !== false ? toggleSort(column) : null"
+              >
+                <span>{{ column.title }}</span>
+                <v-icon v-if="!isCustomizing && column.sortable !== false && isSorted(column)" size="small" class="ml-1" :icon="getSortIcon(column)" />
+              </div>
+              <div v-if="isCustomizing" class="d-flex align-center ml-2">
+                <v-icon
+                  :icon="col.visible ? 'ri-eye-line' : 'ri-eye-off-line'"
+                  size="small"
+                  :color="col.visible ? 'primary' : 'error'"
+                  class="cursor-pointer"
+                  @click.stop="toggleColumn(col)"
+                />
+                <v-icon icon="ri-draggable" size="small" class="cursor-grab text-grey-darken-1 mr-1" />
+              </div>
+            </div>
           </template>
 
           <!-- Actions column (Virtual) -->
@@ -571,110 +672,6 @@
     </v-menu>
   </v-card>
 
-  <!-- Dialog for Customizing Columns -->
-  <v-dialog v-model="dialogOpen" max-width="500px" scrollable>
-    <v-card class="rounded-lg shadow-lg border">
-      <v-card-title class="px-4 py-3 border-bottom d-flex align-center justify-space-between bg-light">
-        <span class="text-h6 font-weight-bold text-primary">تخصيص أعمدة الجدول</span>
-        <v-btn icon="ri-close-line" variant="text" density="compact" @click="dialogOpen = false" />
-      </v-card-title>
-      
-      <v-card-text class="pa-4" style="max-height: 450px;">
-        <div class="text-caption text-grey-darken-1 mb-3">
-          اسحب وأفلت لترتيب الأعمدة، أو استخدم الأسهم للتحريك. حدد المربعات لإظهار أو إخفاء الأعمدة.
-        </div>
-
-        <v-list class="pa-0 border rounded-lg overflow-hidden">
-          <transition-group name="flip-list" tag="div">
-            <v-list-item
-              v-for="(col, index) in customizationColumns"
-              :key="col.key"
-              draggable="true"
-              @dragstart="onDragStart($event, index)"
-              @dragover="onDragOver($event, index)"
-              @dragleave="onDragLeave($event, index)"
-              @dragend="onDragEnd"
-              @drop="onDrop($event, index)"
-              class="border-bottom py-2 px-3 customization-col-item d-flex align-center justify-space-between"
-              :class="{
-                'bg-grey-lighten-4': col.mandatory,
-                'drag-active-item': draggingIndex === index,
-                'drag-over-above': dragOverIndex === index && draggingIndex > index,
-                'drag-over-below': dragOverIndex === index && draggingIndex < index
-              }"
-            >
-              <div class="d-flex align-center gap-3 w-100">
-                <!-- Drag Handle -->
-                <v-icon
-                  icon="ri-drag-move-2-fill"
-                  color="grey"
-                  class="cursor-grab drag-handle mr-2"
-                  style="cursor: grab;"
-                />
-
-                <!-- Checkbox -->
-                <v-checkbox
-                  v-model="col.visible"
-                  :disabled="col.mandatory"
-                  :label="col.title"
-                  hide-details
-                  density="compact"
-                  color="primary"
-                  class="ma-0 pa-0 flex-grow-1"
-                />
-              </div>
-
-              <!-- Action buttons for reordering (Arrows) -->
-              <div class="d-flex gap-1 align-center">
-                <v-btn
-                  icon="ri-arrow-up-s-line"
-                  variant="text"
-                  density="compact"
-                  color="grey-darken-1"
-                  :disabled="index === 0"
-                  @click="moveUp(index)"
-                />
-                <v-btn
-                  icon="ri-arrow-down-s-line"
-                  variant="text"
-                  density="compact"
-                  color="grey-darken-1"
-                  :disabled="index === customizationColumns.length - 1"
-                  @click="moveDown(index)"
-                />
-              </div>
-            </v-list-item>
-          </transition-group>
-        </v-list>
-      </v-card-text>
-
-      <v-card-actions class="px-4 py-3 border-top bg-light gap-2 justify-end">
-        <v-btn
-          variant="tonal"
-          color="error"
-          prepend-icon="ri-refresh-line"
-          @click="resetCustomization"
-        >
-          إعادة ضبط الافتراضي
-        </v-btn>
-        <v-spacer />
-        <v-btn
-          variant="text"
-          @click="dialogOpen = false"
-        >
-          إلغاء
-        </v-btn>
-        <v-btn
-          variant="flat"
-          color="primary"
-          prepend-icon="ri-save-line"
-          @click="saveCustomization"
-        >
-          حفظ التغييرات
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
 </template>
 
 <script setup>
@@ -891,6 +888,87 @@ watch(currentPref, (newPref) => {
 const processedHeaders = computed(() => {
   let finalHeaders = [...props.headers];
 
+  // If in live customization mode, use the local list instantly
+  // AND inject drag & drop properties directly into the Vuetify TH headers!
+  if (isCustomizing.value && customizationColumns.value.length > 0) {
+    const headerMap = {};
+    finalHeaders.forEach(h => headerMap[h.key] = h);
+    
+    const liveHeaders = [];
+    customizationColumns.value.forEach((col, index) => {
+      const header = headerMap[col.key];
+      if (header) { // REMOVED && col.visible to keep the column in the DOM while customizing
+        liveHeaders.push({
+          ...header,
+          headerProps: {
+            ...(header.headerProps || {}),
+            draggable: true,
+            onDragstart: (e) => {
+              dragIndex = index;
+              draggingIndex.value = index;
+              if (e.dataTransfer) {
+                e.dataTransfer.effectAllowed = 'move';
+              }
+            },
+            onDragover: (e) => {
+              e.preventDefault();
+              if (draggingIndex.value === null || draggingIndex.value === index) return;
+              dragOverIndex.value = index;
+            },
+            onDragleave: (e) => {
+              if (dragOverIndex.value === index) dragOverIndex.value = null;
+            },
+            onDragend: () => {
+              draggingIndex.value = null;
+              dragOverIndex.value = null;
+              dragIndex = null;
+            },
+            onDrop: (e) => {
+              e.preventDefault();
+              if (dragIndex === null || dragIndex === index) {
+                draggingIndex.value = null;
+                dragOverIndex.value = null;
+                dragIndex = null;
+                return;
+              }
+              const items = [...customizationColumns.value];
+              const draggedItem = items[dragIndex];
+              items.splice(dragIndex, 1);
+              items.splice(index, 0, draggedItem);
+              customizationColumns.value = items;
+              
+              draggingIndex.value = null;
+              dragOverIndex.value = null;
+              dragIndex = null;
+              
+              saveCustomizationSilent();
+            },
+            class: [
+              header.headerProps?.class || '',
+              'cursor-grab customization-th',
+              draggingIndex.value === index ? 'drag-active-item' : '',
+              dragOverIndex.value === index && draggingIndex.value < index ? 'drag-over-right' : '',
+              dragOverIndex.value === index && draggingIndex.value > index ? 'drag-over-left' : '',
+              !col.visible ? 'hidden-column-faded' : ''
+            ]
+          },
+          cellProps: {
+            ...(header.cellProps || {}),
+            class: [
+              header.cellProps?.class || '',
+              'customization-td',
+              draggingIndex.value === index ? 'drag-active-td' : '',
+              dragOverIndex.value === index && draggingIndex.value < index ? 'drag-over-right-td' : '',
+              dragOverIndex.value === index && draggingIndex.value > index ? 'drag-over-left-td' : '',
+              !col.visible ? 'hidden-column-faded' : ''
+            ]
+          }
+        });
+      }
+    });
+    return liveHeaders;
+  }
+
   const pref = currentPref.value;
   if (pref && pref.columns && Array.isArray(pref.columns)) {
     const headerMap = {};
@@ -902,8 +980,8 @@ const processedHeaders = computed(() => {
     pref.columns.forEach(colPref => {
       const header = headerMap[colPref.key];
       if (header) {
-        const isVisible = header.mandatory ? true : (colPref.visible ?? !header.defaultHide);
-        if (isVisible) {
+        const isVisible = colPref.visible ?? !header.defaultHide;
+        if (isVisible || isCustomizing.value) { // Always include if customizing
           orderedHeaders.push(header);
         }
         delete headerMap[colPref.key];
@@ -912,8 +990,8 @@ const processedHeaders = computed(() => {
 
     finalHeaders.forEach(h => {
       if (headerMap[h.key]) {
-        const isVisible = h.mandatory ? true : !h.defaultHide;
-        if (isVisible) {
+        const isVisible = !h.defaultHide;
+        if (isVisible || isCustomizing.value) { // Always include if customizing
           orderedHeaders.push(h);
         }
       }
@@ -921,7 +999,10 @@ const processedHeaders = computed(() => {
 
     finalHeaders = orderedHeaders;
   } else {
-    finalHeaders = finalHeaders.filter(h => h.mandatory || !h.defaultHide);
+    // If we are customizing and have no preferences, just show all headers!
+    if (!isCustomizing.value) {
+      finalHeaders = finalHeaders.filter(h => !h.defaultHide);
+    }
   }
 
   return finalHeaders;
@@ -931,12 +1012,13 @@ const hiddenHeaders = computed(() => {
   return [];
 });
 
-// --- Table Customization Dialog Logic ---
-const dialogOpen = ref(false);
+// --- Table Customization Logic (In-Place) ---
+const isCustomizing = ref(false);
+const savingPreferences = ref(false);
 const customizationColumns = ref([]);
 let dragIndex = null;
 
-const openCustomizationDialog = () => {
+const syncCustomizationColumns = () => {
   const pref = currentPref.value;
   const currentHeaders = [...props.headers];
   const prefMap = {};
@@ -952,94 +1034,63 @@ const openCustomizationDialog = () => {
     return {
       key: h.key,
       title: h.title || h.key,
-      visible: h.mandatory ? true : (hasPref ? hasPref.visible : !h.defaultHide),
-      mandatory: !!h.mandatory,
+      visible: hasPref ? hasPref.visible : !h.defaultHide,
+      mandatory: false, // Override to false during customization to allow dragging everything
       order: hasPref ? hasPref.order : 999
     };
   });
 
   list.sort((a, b) => a.order - b.order);
   customizationColumns.value = list;
-  dialogOpen.value = true;
+};
+
+const toggleCustomization = () => {
+  if (!isCustomizing.value) {
+    syncCustomizationColumns();
+    isCustomizing.value = true;
+  } else {
+    isCustomizing.value = false;
+  }
+};
+
+const toggleColumn = (col) => {
+  col.visible = !col.visible;
+  saveCustomizationSilent();
 };
 
 const draggingIndex = ref(null);
 const dragOverIndex = ref(null);
 
-const onDragStart = (event, index) => {
-  dragIndex = index;
-  draggingIndex.value = index;
-  event.dataTransfer.effectAllowed = 'move';
-};
+// Drag handlers for the TH elements are now injected via processedHeaders.
+// We keep the state here for the reactivity.
 
-const onDragOver = (event, index) => {
-  event.preventDefault();
-  if (draggingIndex.value === null) return;
-  dragOverIndex.value = index;
-};
-
-const onDragLeave = (event, index) => {
-  if (dragOverIndex.value === index) {
-    dragOverIndex.value = null;
-  }
-};
-
-const onDragEnd = () => {
-  draggingIndex.value = null;
-  dragOverIndex.value = null;
-  dragIndex = null;
-};
-
-const onDrop = (event, index) => {
-  if (dragIndex === null || dragIndex === index) {
-    onDragEnd();
-    return;
-  }
-  const items = [...customizationColumns.value];
-  const draggedItem = items[dragIndex];
-  items.splice(dragIndex, 1);
-  items.splice(index, 0, draggedItem);
-  customizationColumns.value = items;
-  onDragEnd();
-};
-
-const moveUp = (index) => {
-  if (index === 0) return;
-  const items = [...customizationColumns.value];
-  const temp = items[index];
-  items[index] = items[index - 1];
-  items[index - 1] = temp;
-  customizationColumns.value = items;
-};
-
-const moveDown = (index) => {
-  if (index === customizationColumns.value.length - 1) return;
-  const items = [...customizationColumns.value];
-  const temp = items[index];
-  items[index] = items[index + 1];
-  items[index + 1] = temp;
-  customizationColumns.value = items;
-};
-
-const saveCustomization = () => {
+const saveCustomizationSilent = async () => {
   if (props.tableKey) {
     const columns = customizationColumns.value.map(c => ({
       key: c.key,
       visible: c.visible
     }));
     const existing = currentPref.value || {};
-    uiPrefsStore.savePreference(props.tableKey, {
+    await uiPrefsStore.savePreference(props.tableKey, {
       ...existing,
       columns
     });
   }
-  dialogOpen.value = false;
+};
+
+const saveCustomization = async () => {
+  savingPreferences.value = true;
+  await saveCustomizationSilent();
+  savingPreferences.value = false;
+  isCustomizing.value = false;
 };
 
 const resetCustomization = async () => {
   if (props.tableKey) {
+    savingPreferences.value = true;
     await uiPrefsStore.resetPreference(props.tableKey);
-    openCustomizationDialog();
+    syncCustomizationColumns();
+    savingPreferences.value = false;
   }
 };
 
@@ -1367,46 +1418,148 @@ watch(viewMode, (newVal, oldVal) => {
   transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
 }
 
-/* Horizontal Scroll Fix */
+/* ============================================================
+   Horizontal Scroll Fix — sticky thead not sticky th
+   ============================================================
+   The root cause: Vuetify puts `position: sticky; top: 0` on
+   every individual <th>. This makes them stick BOTH vertically
+   AND horizontally, so they freeze in place when you scroll left/right.
+   Fix: cancel sticky on each th, and instead make the <thead>
+   element sticky so the entire header row scrolls horizontally as
+   one unit while still sticking to the top vertically.
+   ============================================================ */
 .app-table-overflow {
   width: 100%;
-  overflow-x: auto;
   position: relative;
-  /* Scrollbar styles for better visibility */
 }
 
 .app-table-overflow :deep(.v-table__wrapper) {
-  overflow-x: visible !important;
+  overflow-x: auto !important;
 }
 
-/* Ensure minimum width for tables to trigger scroll earlier if needed */
-.app-table-overflow :deep(.v-table) {
-  min-width: 100%;
+/* Internal table must expand to its natural width so a scrollbar appears */
+.app-table-overflow :deep(.v-table__wrapper > table) {
+  width: 100% !important;
+  min-width: max-content !important;
+  table-layout: auto !important;
 }
 
-@media (max-width: 600px) {
-  .app-table-overflow :deep(.v-table) {
-    min-width: 800px; /* Force scroll on small screens for data accessibility */
-  }
+/* Cancel the per-th sticky that Vuetify adds via fixed-header */
+.app-table-overflow :deep(th.v-data-table__th--sticky) {
+  position: relative !important;
+  top: auto !important;
 }
 
-/* Tactile & Smooth Drag-and-Drop for columns customization */
+/* Make the whole thead stick to the top vertically — this is the correct layer */
+.app-table-overflow :deep(.v-data-table__thead) {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 3 !important;
+  background: rgb(var(--v-theme-surface)) !important;
+}
+
+/* ==============================================================
+   CUSTOMIZATION MODE — Column Borders, Drag & Drop Indicators
+   ============================================================== */
+
+/* ✅ Vertical separator borders between columns in customization mode */
+/* Must use :deep() because classes are added via headerProps by Vuetify (outside scoped template) */
+:deep(.customization-th) {
+  user-select: none;
+  transition: background-color 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+  box-shadow:
+    inset 1px 0 0 0 rgba(var(--v-theme-primary), 0.3),
+    inset -1px 0 0 0 rgba(var(--v-theme-primary), 0.3) !important;
+}
+
+/* Body cells also get vertical borders (via cellProps) */
+:deep(.customization-td) {
+  transition: background-color 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+  box-shadow:
+    inset 1px 0 0 0 rgba(var(--v-theme-primary), 0.15),
+    inset -1px 0 0 0 rgba(var(--v-theme-primary), 0.15) !important;
+}
+
+/* Hidden (faded) column in customization mode */
+:deep(.hidden-column-faded) {
+  opacity: 0.35 !important;
+  background-color: rgba(0, 0, 0, 0.03) !important;
+}
+
+/* The column actively being DRAGGED — header */
+:deep(.drag-active-item) {
+  opacity: 0.85 !important;
+  background: linear-gradient(
+    135deg,
+    rgba(var(--v-theme-primary), 0.18) 0%,
+    rgba(var(--v-theme-primary), 0.10) 100%
+  ) !important;
+  box-shadow:
+    inset 0 0 0 2px rgb(var(--v-theme-primary)),
+    0 4px 20px rgba(var(--v-theme-primary), 0.3) !important;
+  transform: scale(0.97);
+  z-index: 10 !important;
+  cursor: grabbing !important;
+}
+
+/* The column actively being DRAGGED — body cells */
+:deep(.drag-active-td) {
+  background: rgba(var(--v-theme-primary), 0.08) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(var(--v-theme-primary), 0.4) !important;
+  opacity: 0.75 !important;
+}
+
+/* Drop indicator — header: element dragged FROM RIGHT → right-side bar */
+:deep(.drag-over-right) {
+  box-shadow:
+    inset 1px 0 0 0 rgba(var(--v-theme-primary), 0.25),
+    inset -4px 0 0 0 rgb(var(--v-theme-primary)) !important;
+  background-color: rgba(var(--v-theme-primary), 0.06) !important;
+}
+
+/* Drop indicator — body: element dragged FROM RIGHT → right-side bar */
+:deep(.drag-over-right-td) {
+  box-shadow:
+    inset 1px 0 0 0 rgba(var(--v-theme-primary), 0.15),
+    inset -3px 0 0 0 rgb(var(--v-theme-primary)) !important;
+  background-color: rgba(var(--v-theme-primary), 0.04) !important;
+}
+
+/* Drop indicator — header: element dragged FROM LEFT → left-side bar */
+:deep(.drag-over-left) {
+  box-shadow:
+    inset 4px 0 0 0 rgb(var(--v-theme-primary)),
+    inset -1px 0 0 0 rgba(var(--v-theme-primary), 0.25) !important;
+  background-color: rgba(var(--v-theme-primary), 0.06) !important;
+}
+
+/* Drop indicator — body: element dragged FROM LEFT → left-side bar */
+:deep(.drag-over-left-td) {
+  box-shadow:
+    inset 3px 0 0 0 rgb(var(--v-theme-primary)),
+    inset -1px 0 0 0 rgba(var(--v-theme-primary), 0.15) !important;
+  background-color: rgba(var(--v-theme-primary), 0.04) !important;
+}
+
+/* ✅ Cursor states */
+.cursor-grab {
+  cursor: grab !important;
+}
+.cursor-grab:active {
+  cursor: grabbing !important;
+}
+
+/* Sorting column indicator */
 .flip-list-move {
   transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .customization-col-item {
-  transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), 
-              background-color 0.2s ease, 
-              box-shadow 0.2s ease, 
+  transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1),
+              background-color 0.2s ease,
+              box-shadow 0.2s ease,
               opacity 0.2s ease;
-}
-
-.drag-active-item {
-  opacity: 0.55;
-  background-color: rgba(var(--v-theme-primary), 0.05) !important;
-  border: 1px dashed rgb(var(--v-theme-primary)) !important;
-  transform: scale(0.98);
 }
 
 .drag-over-above {
@@ -1417,5 +1570,22 @@ watch(viewMode, (newVal, oldVal) => {
 .drag-over-below {
   box-shadow: inset 0 -3px 0 0 rgb(var(--v-theme-primary)) !important;
   transform: translateY(-3px);
+}
+
+.column-customizer-area {
+  border-bottom: 2px dashed rgb(var(--v-theme-primary));
+}
+
+.shadow-inner {
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+}
+.cursor-grab {
+  cursor: grab !important;
+}
+.cursor-grab:active {
+  cursor: grabbing !important;
+}
+.transition-colors {
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
 }
 </style>
