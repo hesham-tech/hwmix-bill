@@ -20,7 +20,7 @@
       />
 
       <!-- Updates History Button -->
-      <div class="d-none d-sm-flex">
+      <div v-if="userStore.isStaff" class="d-none d-sm-flex">
         <v-tooltip location="bottom">
           <template #activator="{ props: tooltipProps }">
             <v-btn
@@ -177,7 +177,7 @@
         <v-list density="compact">
           <v-list-item prepend-icon="ri-user-settings-line" title="الملف الشخصي" to="/app/profile" />
           <v-list-item prepend-icon="ri-device-line" title="إدارة الأجهزة" to="/app/sessions" />
-          <v-list-item prepend-icon="ri-sparkling-line" title="سجل التحديثات" @click="showUpdatesHistory" />
+          <v-list-item v-if="userStore.isStaff" prepend-icon="ri-sparkling-line" title="سجل التحديثات" @click="showUpdatesHistory" />
           <v-list-item v-if="userStore.isStaff" prepend-icon="ri-settings-3-line" title="الإعدادات" to="/app/settings" />
 
           <!-- Branch Switcher for Mobile -->

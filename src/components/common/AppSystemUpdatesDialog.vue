@@ -153,6 +153,11 @@ const checkShowCondition = () => {
     return;
   }
   
+  // Do not show updates dialog to customers/clients (only show to staff/admin)
+  if (!authStore.user.is_staff_or_admin) {
+    return;
+  }
+  
   if (missedChangelogs.value.length > 0) {
     showAllVersions.value = false;
     visible.value = true;
@@ -164,6 +169,10 @@ const closeLater = () => {
 };
 
 const show = (forceAll = false) => {
+  // Do not show updates dialog to customers/clients (only show to staff/admin)
+  if (!authStore.user?.is_staff_or_admin) {
+    return;
+  }
   showAllVersions.value = forceAll;
   visible.value = true;
 };
