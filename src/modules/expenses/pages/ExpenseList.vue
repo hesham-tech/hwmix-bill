@@ -155,13 +155,15 @@ const filters = reactive({
 });
 
 const headers = [
-  { title: 'التاريخ', key: 'expense_date', sortable: true },
+  { title: 'التاريخ', key: 'expense_date', sortable: true, mandatory: true },
   { title: 'الفئة', key: 'expense_category', sortable: false },
   { title: 'الوصف', key: 'notes', sortable: false },
-  { title: 'المبلغ', key: 'amount', sortable: true, align: 'end' },
-  { title: 'المرجع', key: 'reference_number', sortable: false },
-  { title: 'بواسطة', key: 'creator', sortable: false },
-  { title: 'إجراءات', key: 'actions', sortable: false, align: 'center' },
+  { title: 'المبلغ', key: 'amount', sortable: true, align: 'end', mandatory: true },
+  { title: 'طريقة الدفع', key: 'payment_method', defaultHide: true },
+  { title: 'المرجع', key: 'reference_number', sortable: false, defaultHide: true },
+  { title: 'بواسطة', key: 'creator', sortable: false, defaultHide: true },
+  { title: 'تاريخ الإنشاء', key: 'created_at', sortable: true, defaultHide: true },
+  { title: 'إجراءات', key: 'actions', sortable: false, align: 'center', mandatory: true },
 ];
 
 const activeFiltersCount = computed(() => {

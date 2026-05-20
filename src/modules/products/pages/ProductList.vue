@@ -500,79 +500,35 @@ const onTableOptionsUpdate = options => {
 
 const headers = computed(() => {
   const isDigitalEnabled = userStore.currentCompany?.settings?.enable_digital_products;
-  const list = [
-    { title: '', key: 'data-table-expand', align: 'start', sortable: false, width: '48px' },
-    { title: 'المنتج', key: 'name', sortable: true, minWidth: '200px' },
-  ];
-
-  if (mdAndUp.value) {
-    list.push({ title: 'الرابط البديل (Slug)', key: 'slug', sortable: true, minWidth: '150px' });
-  }
-
-  if (isDigitalEnabled && mdAndUp.value) {
-    list.push({ title: 'نوع المنتج', key: 'product_type', sortable: true, minWidth: '120px' });
-  }
-
-  list.push(
+  return [
+    { title: '', key: 'data-table-expand', align: 'start', sortable: false, width: '48px', mandatory: true },
+    { title: 'المنتج', key: 'name', sortable: true, minWidth: '200px', mandatory: true },
+    { title: 'الرابط البديل (Slug)', key: 'slug', sortable: true, minWidth: '150px', defaultHide: true },
+    { title: 'نوع المنتج', key: 'product_type', sortable: true, minWidth: '120px', defaultHide: !isDigitalEnabled },
     { title: 'التصنيف / الماركة', key: 'category_brand', sortable: false, minWidth: '150px' },
-    { title: 'السعر', key: 'price_range', sortable: false, minWidth: '100px' }
-  );
-
-  if (mdAndUp.value) {
-    list.push(
-      { title: 'أقل سعر', key: 'min_price', sortable: true, minWidth: '100px' },
-      { title: 'أعلى سعر', key: 'max_price', sortable: true, minWidth: '100px' }
-    );
-  }
-
-  list.push({ title: 'المخزون', key: 'total_available_quantity', sortable: true, align: 'center', minWidth: '100px' });
-
-  if (isDigitalEnabled && mdAndUp.value) {
-    list.push({ title: 'يتطلب مخزون', key: 'require_stock', sortable: true, align: 'center', minWidth: '120px' });
-  }
-
-  if (mdAndUp.value) {
-    list.push(
-      { title: 'مميز', key: 'featured', sortable: true, align: 'center', minWidth: '90px' },
-      { title: 'عدد المبيعات', key: 'sales_count', sortable: true, align: 'center', minWidth: '120px' },
-      { title: 'قابل للإرجاع', key: 'returnable', sortable: true, align: 'center', minWidth: '120px' }
-    );
-  }
-
-  if (isDigitalEnabled && mdAndUp.value) {
-    list.push(
-      { title: 'قابل للتنزيل', key: 'is_downloadable', sortable: true, align: 'center', minWidth: '120px' },
-      { title: 'حد التنزيل', key: 'download_limit', sortable: true, align: 'center', minWidth: '100px' },
-      { title: 'مفاتيح التراخيص', key: 'available_keys_count', sortable: true, align: 'center', minWidth: '150px' },
-      { title: 'صلاحية الأيام', key: 'validity_days', sortable: true, align: 'center', minWidth: '120px' },
-      { title: 'تاريخ الانتهاء', key: 'expires_at', sortable: true, minWidth: '150px' }
-    );
-  }
-
-  if (mdAndUp.value) {
-    list.push(
-      { title: 'تاريخ النشر', key: 'published_at', sortable: true, minWidth: '150px' },
-      { title: 'الوصف', key: 'desc', sortable: false, minWidth: '250px' },
-      { title: 'الوصف التفصيلي', key: 'desc_long', sortable: false, minWidth: '250px' }
-    );
-  }
-
-  list.push(
+    { title: 'السعر', key: 'price_range', sortable: false, minWidth: '100px' },
+    { title: 'أقل سعر', key: 'min_price', sortable: true, minWidth: '100px', defaultHide: true },
+    { title: 'أعلى سعر', key: 'max_price', sortable: true, minWidth: '100px', defaultHide: true },
+    { title: 'المخزون', key: 'total_available_quantity', sortable: true, align: 'center', minWidth: '100px' },
+    { title: 'يتطلب مخزون', key: 'require_stock', sortable: true, align: 'center', minWidth: '120px', defaultHide: !isDigitalEnabled },
+    { title: 'مميز', key: 'featured', sortable: true, align: 'center', minWidth: '90px', defaultHide: true },
+    { title: 'عدد المبيعات', key: 'sales_count', sortable: true, align: 'center', minWidth: '120px', defaultHide: true },
+    { title: 'قابل للإرجاع', key: 'returnable', sortable: true, align: 'center', minWidth: '120px', defaultHide: true },
+    { title: 'قابل للتنزيل', key: 'is_downloadable', sortable: true, align: 'center', minWidth: '120px', defaultHide: !isDigitalEnabled },
+    { title: 'حد التنزيل', key: 'download_limit', sortable: true, align: 'center', minWidth: '100px', defaultHide: !isDigitalEnabled },
+    { title: 'مفاتيح التراخيص', key: 'available_keys_count', sortable: true, align: 'center', minWidth: '150px', defaultHide: !isDigitalEnabled },
+    { title: 'صلاحية الأيام', key: 'validity_days', sortable: true, align: 'center', minWidth: '120px', defaultHide: !isDigitalEnabled },
+    { title: 'تاريخ الانتهاء', key: 'expires_at', sortable: true, minWidth: '150px', defaultHide: !isDigitalEnabled },
+    { title: 'تاريخ النشر', key: 'published_at', sortable: true, minWidth: '150px', defaultHide: true },
+    { title: 'الوصف', key: 'desc', sortable: false, minWidth: '250px', defaultHide: true },
+    { title: 'الوصف التفصيلي', key: 'desc_long', sortable: false, minWidth: '250px', defaultHide: true },
     { title: 'الظهور', key: 'visibility', sortable: false, align: 'center', minWidth: '100px' },
-    { title: 'الحالة', key: 'active', sortable: true, align: 'center', minWidth: '100px' }
-  );
-
-  if (mdAndUp.value) {
-    list.push(
-      { title: 'أنشئ بواسطة', key: 'created_by_name', sortable: false, minWidth: '120px' },
-      { title: 'تاريخ الإضافة', key: 'created_at', sortable: true, minWidth: '150px' },
-      { title: 'تاريخ التحديث', key: 'updated_at', sortable: true, minWidth: '150px' }
-    );
-  }
-
-  list.push({ title: 'الإجراءات', key: 'actions', sortable: false, align: 'end', minWidth: '120px' });
-
-  return list;
+    { title: 'الحالة', key: 'active', sortable: true, align: 'center', minWidth: '100px' },
+    { title: 'أنشئ بواسطة', key: 'created_by_name', sortable: false, minWidth: '120px', defaultHide: true },
+    { title: 'تاريخ الإضافة', key: 'created_at', sortable: true, minWidth: '150px', defaultHide: true },
+    { title: 'تاريخ التحديث', key: 'updated_at', sortable: true, minWidth: '150px', defaultHide: true },
+    { title: 'الإجراءات', key: 'actions', sortable: false, align: 'end', minWidth: '120px', mandatory: true }
+  ];
 });
 
 const formatProductType = type => {

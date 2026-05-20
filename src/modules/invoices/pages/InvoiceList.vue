@@ -170,14 +170,23 @@ const {
   }
 );
 
-// Headers
 const headers = [
-  { title: 'الفاتورة', key: 'invoice_number', sortable: true, width: '150px' },
-  { title: 'العميل', key: 'customer', sortable: false, width: '180px' },
+  { title: 'الفاتورة', key: 'invoice_number', sortable: true, width: '150px', mandatory: true },
+  { title: 'العميل', key: 'customer', sortable: false, width: '180px', mandatory: true },
   { title: 'التاريخ', key: 'issue_date', sortable: true, width: '140px' },
   { title: 'المالية', key: 'financials', sortable: false, width: '200px', align: 'end' },
+  { title: 'الإجمالي قبل الخصم', key: 'gross_amount', sortable: true, defaultHide: true },
+  { title: 'الخصم', key: 'total_discount', sortable: true, defaultHide: true },
+  { title: 'الصافي المطلوب', key: 'net_amount', sortable: true, defaultHide: true },
+  { title: 'المدفوع', key: 'paid_amount', sortable: true, defaultHide: true },
+  { title: 'المتبقي', key: 'remaining_amount', sortable: true, defaultHide: true },
+  { title: 'تاريخ الاستحقاق', key: 'due_date', sortable: true, defaultHide: true },
+  { title: 'ملاحظات', key: 'notes', sortable: false, defaultHide: true },
+  { title: 'الرقم المرجعي', key: 'reference_number', sortable: true, defaultHide: true },
+  { title: 'تاريخ الإنشاء', key: 'created_at', sortable: true, defaultHide: true },
+  { title: 'تاريخ التحديث', key: 'updated_at', sortable: true, defaultHide: true },
   { title: 'الحالة', key: 'status', sortable: true, width: '160px' },
-  { title: 'الإجراءات', key: 'actions', sortable: false, align: 'center', width: '120px' },
+  { title: 'الإجراءات', key: 'actions', sortable: false, align: 'center', width: '120px', mandatory: true },
 ];
 
 /** @type {import('@/components/common/AppDataTable.vue').AdvancedFilter[]} */

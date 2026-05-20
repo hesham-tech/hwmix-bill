@@ -146,11 +146,16 @@ const selectedItem = ref(null);
 const deleting = ref(false);
 
 const headers = [
-  { title: 'الفاتورة والعميل', key: 'invoice' },
+  { title: 'الفاتورة والعميل', key: 'invoice', mandatory: true },
   { title: 'المبلغ', key: 'amount', align: 'end' },
   { title: 'طريقة الدفع', key: 'payment_method' },
+  { title: 'طريقة (نصية)', key: 'method', defaultHide: true },
+  { title: 'ملاحظات', key: 'notes', defaultHide: true },
+  { title: 'مجزأ؟', key: 'is_split', defaultHide: true },
   { title: 'تاريخ الدفع', key: 'payment_date' },
-  { title: 'الإجراءات', key: 'actions', sortable: false, align: 'end' },
+  { title: 'تاريخ الإنشاء', key: 'created_at', defaultHide: true },
+  { title: 'تاريخ التحديث', key: 'updated_at', defaultHide: true },
+  { title: 'الإجراءات', key: 'actions', sortable: false, align: 'end', mandatory: true },
 ];
 
 const handleCreate = () => {

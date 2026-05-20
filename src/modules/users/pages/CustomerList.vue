@@ -259,11 +259,19 @@ const handleSave = async data => {
 };
 
 const headers = [
-  { title: 'بيانات العميل ورصيده', key: 'full_name', sortable: true },
+  { title: 'العميل', key: 'full_name', sortable: true, mandatory: true },
+  { title: 'الاسم الكامل', key: 'name', sortable: true, defaultHide: true },
+  { title: 'الكنية / اللقب', key: 'nickname', sortable: true, defaultHide: true },
+  { title: 'اسم المستخدم', key: 'username', sortable: true, defaultHide: true },
+  { title: 'البريد الإلكتروني', key: 'email', sortable: true, defaultHide: true },
   { title: 'رقم الهاتف', key: 'phone', sortable: false },
-  { title: 'الرصيد', key: 'balance_display', sortable: true },
+  { title: 'المسمى الوظيفي', key: 'position', sortable: true, defaultHide: true },
+  { title: 'الرصيد الكلي', key: 'balance_display', sortable: true },
+  { title: 'رصيد الفرع النشط', key: 'active_branch_balance', sortable: true, defaultHide: true },
+  { title: 'تاريخ الإنشاء', key: 'created_at', sortable: true, defaultHide: true },
+  { title: 'تاريخ التحديث', key: 'updated_at', sortable: true, defaultHide: true },
   { title: 'الحالة', key: 'status', sortable: true },
-  { title: 'الإجراءات', key: 'actions', sortable: false, align: 'end' },
+  { title: 'الإجراءات', key: 'actions', sortable: false, align: 'end', mandatory: true },
 ];
 
 // Balance Operations

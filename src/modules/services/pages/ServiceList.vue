@@ -113,10 +113,14 @@ const form = ref({
 });
 
 const headers = [
-  { title: 'الخدمة', key: 'name' },
+  { title: 'الخدمة', key: 'name', mandatory: true },
   { title: 'السعر الافتراضي', key: 'default_price', align: 'end' },
-  { title: 'تاريخ الإضافة', key: 'created_at' },
-  { title: 'الإجراءات', key: 'actions', sortable: false, align: 'end' },
+  { title: 'الوصف', key: 'description', defaultHide: true },
+  { title: 'وحدة الفترة', key: 'period_unit', defaultHide: true },
+  { title: 'قيمة الفترة', key: 'period_value', defaultHide: true },
+  { title: 'تاريخ الإضافة', key: 'created_at', defaultHide: true },
+  { title: 'تاريخ التحديث', key: 'updated_at', defaultHide: true },
+  { title: 'الإجراءات', key: 'actions', sortable: false, align: 'end', mandatory: true },
 ];
 
 const loadData = async () => {

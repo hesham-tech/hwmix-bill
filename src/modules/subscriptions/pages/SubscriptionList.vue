@@ -143,12 +143,23 @@ const selectedSubscription = ref(null);
 const renewRef = ref(null);
 
 const headers = [
-  { title: 'العميل', key: 'customer' },
-  { title: 'الخدمة والمعرف', key: 'service' },
+  { title: 'العميل', key: 'customer', mandatory: true },
+  { title: 'الخدمة والمعرف', key: 'service', mandatory: true },
   { title: 'المالية (السعر/مدفوع جزئي)', key: 'financial', width: '240' },
+  { title: 'الرقم المميز', key: 'unique_identifier', defaultHide: true },
+  { title: 'تاريخ البدء', key: 'start_date', defaultHide: true },
+  { title: 'تاريخ الانتهاء', key: 'ends_at', defaultHide: true },
+  { title: 'دورة الفوترة', key: 'billing_cycle', defaultHide: true },
+  { title: 'السعر الافتراضي', key: 'price', defaultHide: true },
+  { title: 'دفع جزئي؟', key: 'partial_payment', defaultHide: true },
+  { title: 'تجديد تلقائي؟', key: 'auto_renew', defaultHide: true },
+  { title: 'نوع التجديد', key: 'renewal_type', defaultHide: true },
+  { title: 'ملاحظات', key: 'notes', defaultHide: true },
+  { title: 'تاريخ الإنشاء', key: 'created_at', defaultHide: true },
+  { title: 'تاريخ التحديث', key: 'updated_at', defaultHide: true },
   { title: 'موعد التجديد', key: 'billing', align: 'end' },
   { title: 'الحالة', key: 'status', align: 'center' },
-  { title: 'الإجراءات', key: 'actions', sortable: false, align: 'end' },
+  { title: 'الإجراءات', key: 'actions', sortable: false, align: 'end', mandatory: true },
 ];
 
 const loadData = async () => {

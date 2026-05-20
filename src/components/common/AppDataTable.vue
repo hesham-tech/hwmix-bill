@@ -893,7 +893,7 @@ const processedHeaders = computed(() => {
     pref.columns.forEach(colPref => {
       const header = headerMap[colPref.key];
       if (header) {
-        const isVisible = header.mandatory ? true : (colPref.visible ?? true);
+        const isVisible = header.mandatory ? true : (colPref.visible ?? !header.defaultHide);
         if (isVisible) {
           orderedHeaders.push(header);
         }
@@ -903,11 +903,16 @@ const processedHeaders = computed(() => {
 
     finalHeaders.forEach(h => {
       if (headerMap[h.key]) {
-        orderedHeaders.push(h);
+        const isVisible = h.mandatory ? true : !h.defaultHide;
+        if (isVisible) {
+          orderedHeaders.push(h);
+        }
       }
     });
 
     finalHeaders = orderedHeaders;
+  } else {
+    finalHeaders = finalHeaders.filter(h => h.mandatory || !h.defaultHide);
   }
 
   return finalHeaders;
@@ -938,7 +943,7 @@ const openCustomizationDialog = () => {
     return {
       key: h.key,
       title: h.title || h.key,
-      visible: h.mandatory ? true : (hasPref ? hasPref.visible : true),
+      visible: h.mandatory ? true : (hasPref ? hasPref.visible : !h.defaultHide),
       mandatory: !!h.mandatory,
       order: hasPref ? hasPref.order : 999
     };

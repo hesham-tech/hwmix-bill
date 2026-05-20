@@ -270,10 +270,15 @@ const isAdjustmentOpen = ref(false);
 const selectedWarehouse = ref(null);
 
 const headers = [
-  { title: 'المخزن', key: 'name', sortable: true },
+  { title: 'المخزن', key: 'name', sortable: true, mandatory: true },
   { title: 'الموقع', key: 'location', sortable: false },
+  { title: 'المدير', key: 'manager', defaultHide: true },
+  { title: 'السعة الاستيعابية', key: 'capacity', defaultHide: true },
+  { title: 'الوصف', key: 'description', defaultHide: true },
+  { title: 'تاريخ الإنشاء', key: 'created_at', defaultHide: true },
+  { title: 'تاريخ التحديث', key: 'updated_at', defaultHide: true },
   { title: 'الحالة', key: 'status', sortable: false, align: 'center' },
-  { title: 'الإجراءات', key: 'actions', sortable: false, align: 'end' },
+  { title: 'الإجراءات', key: 'actions', sortable: false, align: 'end', mandatory: true },
 ];
 
 const debounce = (fn, delay) => {
