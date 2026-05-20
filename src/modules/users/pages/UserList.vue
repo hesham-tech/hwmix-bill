@@ -33,29 +33,39 @@
               @view="item => $router.push(`/app/users/${item.id}`)"
             >
               <template #actions>
-                <div class="d-flex align-center gap-3">
-                  <v-checkbox
-                    v-if="can(PERMISSIONS.ADMIN_SUPER)"
-                    v-model="currentCompanyOnly"
-                    label="المستخدمين في هذه الشركة فقط"
-                    hide-details
-                    density="compact"
-                    class="me-4"
-                    color="primary"
-                  />
-                  <AppButton
-                    v-if="can(PERMISSIONS.USERS_CREATE)"
-                    color="primary"
-                    prepend-icon="ri-user-add-line"
-                    size="small"
-                    class="rounded-pill shadow-sm"
-                    style="height: 40px"
-                    @click="handleCreate"
-                  >
-                    مستخدم جديد
-                  </AppButton>
-                </div>
-              </template>
+              <div class="d-flex align-center gap-3 flex-wrap">
+                <v-checkbox
+                  v-if="can(PERMISSIONS.ADMIN_SUPER)"
+                  v-model="currentCompanyOnly"
+                  label="هذه الشركة فقط"
+                  hide-details
+                  density="compact"
+                  color="primary"
+                />
+                <!-- Switch: Unaffiliated users -->
+                <v-switch
+                  v-if="can(PERMISSIONS.ADMIN_SUPER)"
+                  v-model="showUnaffiliated"
+                  label="بلا شركة"
+                  hide-details
+                  density="compact"
+                  color="warning"
+                  inset
+                  class="me-1"
+                />
+                <AppButton
+                  v-if="can(PERMISSIONS.USERS_CREATE)"
+                  color="primary"
+                  prepend-icon="ri-user-add-line"
+                  size="small"
+                  class="rounded-pill shadow-sm"
+                  style="height: 40px"
+                  @click="handleCreate"
+                >
+                  مستخدم جديد
+                </AppButton>
+              </div>
+            </template>
 
               <!-- Custom Templates -->
               <template #item.full_name="{ item }">
@@ -203,7 +213,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useDisplay } from 'vuetify';
 import { usePermissions } from '@/composables/usePermissions';
 import { useDataTable } from '@/composables/useDataTable';
@@ -296,6 +306,13 @@ const currentCompanyOnly = computed({
     filters.value.global = !val;
     applyFilters(filters.value);
   },
+});
+
+// Switch: show users with no active company (unaffiliated)
+const showUnaffiliated = ref(false);
+watch(showUnaffiliated, val => {
+  filters.value.unaffiliated = val ? 1 : undefined;
+  applyFilters(filters.value);
 });
 
 const handleSubmit = () => {

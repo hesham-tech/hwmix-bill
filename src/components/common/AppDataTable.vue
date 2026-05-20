@@ -87,12 +87,79 @@
               <v-icon icon="ri-layout-column-line" /> تخصيص ترتيب وأعمدة الجدول المباشر
             </div>
             <div class="text-caption text-grey-darken-1">
-              اسحب <strong>عناوين الأعمدة داخل الجدول</strong> بالأسفل لترتيبها. اضغط على أيقونة العين لإخفاء العمود، وسيظهر بشكل باهت أثناء التعديل.
+              <span class="d-none d-sm-inline">اسحب <strong>عناوين الأعمدة داخل الجدول</strong> بالأسفل لترتيبها. اضغط على أيقونة العين لإخفاء العمود، وسيظهر بشكل باهت أثناء التعديل.</span>
+              <span class="d-sm-none">اضغط على أيقونة العين لإخفاء العمود أو استخدم الأسهم لإعادة الترتيب.</span>
             </div>
           </div>
           <div class="d-flex gap-2">
             <AppButton size="small" variant="outlined" color="error" @click="resetCustomization" prepend-icon="ri-refresh-line">إعادة الضبط</AppButton>
             <AppButton size="small" variant="flat" color="primary" @click="saveCustomization" prepend-icon="ri-check-line" :loading="savingPreferences">حفظ التغييرات</AppButton>
+          </div>
+        </div>
+
+        <!-- Mobile Column Reorder Panel (shown only on small screens) -->
+        <div class="d-sm-none mt-3">
+          <div class="text-caption text-grey-darken-2 mb-2 font-weight-bold d-flex align-center gap-1">
+            <v-icon icon="ri-drag-move-line" size="small" color="grey-darken-1" />
+            اسحب للترتيب أو استخدم الأسهم:
+          </div>
+          <div ref="mobileColListRef" class="mobile-col-list">
+            <div
+              v-for="(col, index) in customizationColumns"
+              :key="col.key"
+              :data-index="index"
+              class="mobile-col-item d-flex align-center gap-2"
+              :class="{
+                'mobile-col-dragging': touchDragIndex === index,
+                'mobile-col-drop-above': touchDragOverIndex === index && touchDragIndex !== null && touchDragIndex > index,
+                'mobile-col-drop-below': touchDragOverIndex === index && touchDragIndex !== null && touchDragIndex < index,
+              }"
+            >
+              <!-- Touch drag handle -->
+              <v-icon
+                icon="ri-draggable"
+                size="small"
+                color="grey-lighten-1"
+                class="flex-shrink-0 touch-drag-handle"
+                @touchstart.prevent="onTouchDragStart($event, index)"
+                @touchmove.prevent="onTouchDragMove($event)"
+                @touchend.prevent="onTouchDragEnd()"
+              />
+              <!-- Visibility toggle -->
+              <v-icon
+                :icon="col.visible ? 'ri-eye-line' : 'ri-eye-off-line'"
+                :color="col.visible ? 'primary' : 'grey-lighten-1'"
+                size="small"
+                class="cursor-pointer flex-shrink-0"
+                @click="toggleColumn(col)"
+              />
+              <!-- Column name -->
+              <span
+                class="text-body-2 flex-grow-1"
+                :class="!col.visible ? 'text-grey-lighten-1 text-decoration-line-through' : ''"
+              >
+                {{ col.title }}
+              </span>
+              <!-- Up/Down arrows -->
+              <div class="d-flex flex-column">
+                <v-btn
+                  icon="ri-arrow-up-s-line"
+                  variant="text"
+                  size="x-small"
+                  density="compact"
+                  :disabled="index === 0"
+                  @click="moveColumn(index, index - 1)"
+                />
+                <v-btn
+                  icon="ri-arrow-down-s-line"
+                  variant="text"
+                  size="x-small"
+                  density="compact"
+                  :disabled="index === customizationColumns.length - 1"
+                  @click="moveColumn(index, index + 1)"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -678,6 +745,7 @@
 import { computed, ref, reactive, nextTick, watch, useSlots, useAttrs } from 'vue';
 import { useRoute } from 'vue-router';
 import { useWindowSize, useElementSize, useLocalStorage } from '@vueuse/core';
+import { useDisplay } from 'vuetify';
 import { usePermissions } from '@/composables/usePermissions';
 import AppButton from '@/components/common/AppButton.vue';
 import AppInput from '@/components/common/AppInput.vue';
@@ -686,6 +754,8 @@ import AppAvatar from '@/components/common/AppAvatar.vue';
 import AppAutocomplete from '@/components/common/AppAutocomplete.vue';
 import AppTableActions from '@/components/common/AppTableActions.vue';
 import { useUIPreferencesStore } from '@/stores/uiPreferences';
+
+const { mobile: isMobile } = useDisplay();
 
 // --- Props & Emits ---
 const props = defineProps({
@@ -1057,6 +1127,61 @@ const toggleColumn = (col) => {
   col.visible = !col.visible;
   saveCustomizationSilent();
 };
+
+// Move column up/down (arrows or touch drag-and-drop)
+const moveColumn = (fromIndex, toIndex) => {
+  if (toIndex < 0 || toIndex >= customizationColumns.value.length) return;
+  const items = [...customizationColumns.value];
+  const [moved] = items.splice(fromIndex, 1);
+  items.splice(toIndex, 0, moved);
+  customizationColumns.value = items;
+  saveCustomizationSilent();
+};
+
+// ── Touch Drag & Drop (mobile) ──────────────────────────────────────────────
+const mobileColListRef = ref(null);
+const touchDragIndex   = ref(null);
+const touchDragOverIndex = ref(null);
+
+const onTouchDragStart = (event, index) => {
+  touchDragIndex.value     = index;
+  touchDragOverIndex.value = index;
+};
+
+const onTouchDragMove = (event) => {
+  if (touchDragIndex.value === null) return;
+
+  const touch    = event.touches[0];
+  const listEl   = mobileColListRef.value;
+  if (!listEl) return;
+
+  // Find which item the finger is currently over
+  const items = listEl.querySelectorAll('.mobile-col-item');
+  let overIndex = touchDragIndex.value;
+
+  items.forEach((el, i) => {
+    const rect = el.getBoundingClientRect();
+    const midY = rect.top + rect.height / 2;
+    if (touch.clientY > midY) {
+      overIndex = i;
+    }
+  });
+
+  touchDragOverIndex.value = overIndex;
+};
+
+const onTouchDragEnd = () => {
+  if (
+    touchDragIndex.value !== null &&
+    touchDragOverIndex.value !== null &&
+    touchDragIndex.value !== touchDragOverIndex.value
+  ) {
+    moveColumn(touchDragIndex.value, touchDragOverIndex.value);
+  }
+  touchDragIndex.value     = null;
+  touchDragOverIndex.value = null;
+};
+// ────────────────────────────────────────────────────────────────────────────
 
 const draggingIndex = ref(null);
 const dragOverIndex = ref(null);
@@ -1587,5 +1712,53 @@ watch(viewMode, (newVal, oldVal) => {
 }
 .transition-colors {
   transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+/* Mobile column reorder list */
+.mobile-col-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.mobile-col-item {
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  padding: 6px 10px;
+  transition: background 0.2s ease;
+}
+
+.mobile-col-item:active {
+  background: rgba(var(--v-theme-primary), 0.05);
+}
+
+/* Item being actively dragged */
+.mobile-col-dragging {
+  opacity: 0.45 !important;
+  background: rgba(var(--v-theme-primary), 0.08) !important;
+  border-color: rgba(var(--v-theme-primary), 0.3) !important;
+  transform: scale(0.97);
+}
+
+/* Drop indicator — item will land ABOVE this one */
+.mobile-col-drop-above {
+  border-top: 2px solid rgb(var(--v-theme-primary)) !important;
+  padding-top: 8px !important;
+}
+
+/* Drop indicator — item will land BELOW this one */
+.mobile-col-drop-below {
+  border-bottom: 2px solid rgb(var(--v-theme-primary)) !important;
+  padding-bottom: 8px !important;
+}
+
+/* Drag handle icon */
+.touch-drag-handle {
+  cursor: grab !important;
+  touch-action: none;
+  padding: 4px;
 }
 </style>
