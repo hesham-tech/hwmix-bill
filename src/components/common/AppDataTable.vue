@@ -585,57 +585,66 @@
         </div>
 
         <v-list class="pa-0 border rounded-lg overflow-hidden">
-          <v-list-item
-            v-for="(col, index) in customizationColumns"
-            :key="col.key"
-            draggable="true"
-            @dragstart="onDragStart($event, index)"
-            @dragover.prevent
-            @drop="onDrop($event, index)"
-            class="border-bottom py-2 px-3 customization-col-item d-flex align-center justify-space-between"
-            :class="{ 'bg-grey-lighten-4': col.mandatory }"
-          >
-            <div class="d-flex align-center gap-3 w-100">
-              <!-- Drag Handle -->
-              <v-icon
-                icon="ri-drag-move-2-fill"
-                color="grey"
-                class="cursor-grab drag-handle mr-2"
-                style="cursor: grab;"
-              />
+          <transition-group name="flip-list" tag="div">
+            <v-list-item
+              v-for="(col, index) in customizationColumns"
+              :key="col.key"
+              draggable="true"
+              @dragstart="onDragStart($event, index)"
+              @dragover="onDragOver($event, index)"
+              @dragleave="onDragLeave($event, index)"
+              @dragend="onDragEnd"
+              @drop="onDrop($event, index)"
+              class="border-bottom py-2 px-3 customization-col-item d-flex align-center justify-space-between"
+              :class="{
+                'bg-grey-lighten-4': col.mandatory,
+                'drag-active-item': draggingIndex === index,
+                'drag-over-above': dragOverIndex === index && draggingIndex > index,
+                'drag-over-below': dragOverIndex === index && draggingIndex < index
+              }"
+            >
+              <div class="d-flex align-center gap-3 w-100">
+                <!-- Drag Handle -->
+                <v-icon
+                  icon="ri-drag-move-2-fill"
+                  color="grey"
+                  class="cursor-grab drag-handle mr-2"
+                  style="cursor: grab;"
+                />
 
-              <!-- Checkbox -->
-              <v-checkbox
-                v-model="col.visible"
-                :disabled="col.mandatory"
-                :label="col.title"
-                hide-details
-                density="compact"
-                color="primary"
-                class="ma-0 pa-0 flex-grow-1"
-              />
-            </div>
+                <!-- Checkbox -->
+                <v-checkbox
+                  v-model="col.visible"
+                  :disabled="col.mandatory"
+                  :label="col.title"
+                  hide-details
+                  density="compact"
+                  color="primary"
+                  class="ma-0 pa-0 flex-grow-1"
+                />
+              </div>
 
-            <!-- Action buttons for reordering (Arrows) -->
-            <div class="d-flex gap-1 align-center">
-              <v-btn
-                icon="ri-arrow-up-s-line"
-                variant="text"
-                density="compact"
-                color="grey-darken-1"
-                :disabled="index === 0"
-                @click="moveUp(index)"
-              />
-              <v-btn
-                icon="ri-arrow-down-s-line"
-                variant="text"
-                density="compact"
-                color="grey-darken-1"
-                :disabled="index === customizationColumns.length - 1"
-                @click="moveDown(index)"
-              />
-            </div>
-          </v-list-item>
+              <!-- Action buttons for reordering (Arrows) -->
+              <div class="d-flex gap-1 align-center">
+                <v-btn
+                  icon="ri-arrow-up-s-line"
+                  variant="text"
+                  density="compact"
+                  color="grey-darken-1"
+                  :disabled="index === 0"
+                  @click="moveUp(index)"
+                />
+                <v-btn
+                  icon="ri-arrow-down-s-line"
+                  variant="text"
+                  density="compact"
+                  color="grey-darken-1"
+                  :disabled="index === customizationColumns.length - 1"
+                  @click="moveDown(index)"
+                />
+              </div>
+            </v-list-item>
+          </transition-group>
         </v-list>
       </v-card-text>
 
@@ -954,19 +963,44 @@ const openCustomizationDialog = () => {
   dialogOpen.value = true;
 };
 
+const draggingIndex = ref(null);
+const dragOverIndex = ref(null);
+
 const onDragStart = (event, index) => {
   dragIndex = index;
+  draggingIndex.value = index;
   event.dataTransfer.effectAllowed = 'move';
 };
 
+const onDragOver = (event, index) => {
+  event.preventDefault();
+  if (draggingIndex.value === null) return;
+  dragOverIndex.value = index;
+};
+
+const onDragLeave = (event, index) => {
+  if (dragOverIndex.value === index) {
+    dragOverIndex.value = null;
+  }
+};
+
+const onDragEnd = () => {
+  draggingIndex.value = null;
+  dragOverIndex.value = null;
+  dragIndex = null;
+};
+
 const onDrop = (event, index) => {
-  if (dragIndex === null || dragIndex === index) return;
+  if (dragIndex === null || dragIndex === index) {
+    onDragEnd();
+    return;
+  }
   const items = [...customizationColumns.value];
   const draggedItem = items[dragIndex];
   items.splice(dragIndex, 1);
   items.splice(index, 0, draggedItem);
   customizationColumns.value = items;
-  dragIndex = null;
+  onDragEnd();
 };
 
 const moveUp = (index) => {
@@ -1354,5 +1388,34 @@ watch(viewMode, (newVal, oldVal) => {
   .app-table-overflow :deep(.v-table) {
     min-width: 800px; /* Force scroll on small screens for data accessibility */
   }
+}
+
+/* Tactile & Smooth Drag-and-Drop for columns customization */
+.flip-list-move {
+  transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.customization-col-item {
+  transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), 
+              background-color 0.2s ease, 
+              box-shadow 0.2s ease, 
+              opacity 0.2s ease;
+}
+
+.drag-active-item {
+  opacity: 0.55;
+  background-color: rgba(var(--v-theme-primary), 0.05) !important;
+  border: 1px dashed rgb(var(--v-theme-primary)) !important;
+  transform: scale(0.98);
+}
+
+.drag-over-above {
+  box-shadow: inset 0 3px 0 0 rgb(var(--v-theme-primary)) !important;
+  transform: translateY(3px);
+}
+
+.drag-over-below {
+  box-shadow: inset 0 -3px 0 0 rgb(var(--v-theme-primary)) !important;
+  transform: translateY(-3px);
 }
 </style>
