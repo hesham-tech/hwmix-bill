@@ -65,6 +65,7 @@
 
     <v-card class="mx-4 mt-2 border-slate-50" flat>
       <AppDataTable
+        table-key="expenses.index"
         :headers="headers"
         :items="expenses"
         :loading="loading"

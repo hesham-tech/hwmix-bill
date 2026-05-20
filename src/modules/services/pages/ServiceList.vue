@@ -7,6 +7,7 @@
 
     <div class="px-6 pb-6">
       <AppDataTable
+        table-key="services.index"
         :headers="headers"
         :items="services"
         :loading="loading"

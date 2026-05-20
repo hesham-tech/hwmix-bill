@@ -7,6 +7,7 @@
 
     <div :class="hideHeader ? '' : 'px-6 pb-6'">
       <AppDataTable
+        table-key="payments.index"
         :headers="headers"
         :items="payments"
         :loading="loading"

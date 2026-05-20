@@ -14,6 +14,7 @@
 
     <div>
       <AppDataTable
+        table-key="subscriptions.index"
         :headers="headers"
         :items="subscriptions"
         :loading="loading"

@@ -5,6 +5,7 @@
         <v-col cols="12" class="pa-0">
           <v-card rounded="md" class="border shadow-sm">
             <AppDataTable
+              table-key="customers.index"
               v-model:sort-by="sortByVuetify"
               v-model:search="searchText"
               :filters="advancedFilters"

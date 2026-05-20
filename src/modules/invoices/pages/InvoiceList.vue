@@ -1,6 +1,7 @@
 <template>
   <div class="invoice-list-wrapper">
     <AppDataTable
+      table-key="invoices.index"
       v-model:sort-by="sortByVuetify"
       v-model:search="search"
       :headers="headers"

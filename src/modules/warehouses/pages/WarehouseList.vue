@@ -46,6 +46,7 @@
     />
 
     <AppDataTable
+      table-key="warehouses.index"
       v-else
       v-model:page="page"
       v-model:items-per-page="itemsPerPage"
