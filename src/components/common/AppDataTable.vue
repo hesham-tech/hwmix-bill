@@ -33,13 +33,15 @@
             v-if="tableKey"
             variant="tonal"
             color="secondary"
-            icon="ri-settings-3-line"
-            tooltip="تخصيص أعمدة الجدول"
+            prepend-icon="ri-settings-3-line"
+            tooltip="تخصيص أعمدة الجدول وترتيبها"
             size="small"
-            style="height: 28px; min-width: 36px;"
+            style="height: 28px;"
             class="px-2 mr-1"
             @click="openCustomizationDialog"
-          />
+          >
+            <span class="d-none d-sm-inline">تخصيص الأعمدة</span>
+          </AppButton>
 
           <slot name="actions" />
         </div>
