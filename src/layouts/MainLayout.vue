@@ -20,20 +20,22 @@
       />
 
       <!-- Updates History Button -->
-      <v-tooltip location="bottom">
-        <template #activator="{ props: tooltipProps }">
-          <v-btn
-            v-bind="tooltipProps"
-            icon="ri-sparkling-line"
-            variant="text"
-            color="primary"
-            class="rounded-lg"
-            :size="xs ? 30 : 34"
-            @click="showUpdatesHistory"
-          />
-        </template>
-        سجل التحديثات والجديد
-      </v-tooltip>
+      <div class="d-none d-sm-flex">
+        <v-tooltip location="bottom">
+          <template #activator="{ props: tooltipProps }">
+            <v-btn
+              v-bind="tooltipProps"
+              icon="ri-sparkling-line"
+              variant="text"
+              color="primary"
+              class="rounded-lg"
+              size="34"
+              @click="showUpdatesHistory"
+            />
+          </template>
+          سجل التحديثات والجديد
+        </v-tooltip>
+      </div>
 
       <AppBalanceDisplay
         v-if="userStore.currentUser"
@@ -107,7 +109,9 @@
       </v-tooltip> -->
 
       <!-- Theme Switcher -->
-      <NavbarThemeSwitcher class="d-none d-sm-flex" />
+      <div class="d-none d-sm-flex">
+        <NavbarThemeSwitcher />
+      </div>
 
       <!-- أدوات سريعة -->
       <v-menu v-model="isQuickToolsMenuOpen" :close-on-content-click="false">

@@ -3,16 +3,16 @@
     <!-- Header with title and actions -->
     <v-card-title v-if="title" class="px-4 pt-4 pb-2 border-bottom d-flex flex-column ga-3">
       <!-- Row 1: Title and Actions -->
-      <div class="d-flex flex-wrap align-center justify-space-between w-100 gap-2">
+      <div class="d-flex flex-column flex-sm-row align-start align-sm-center justify-space-between w-100 gap-3">
         <div class="d-flex align-center gap-3">
           <v-icon v-if="icon" :icon="icon" color="primary" size="24" class="opacity-80" />
           <div class="d-flex flex-column">
             <span class="text-h6 font-weight-bold lh-1">{{ title }}</span>
-            <span v-if="subtitle" class="text-caption text-grey-darken-1 mt-n1">{{ subtitle }}</span>
+            <span v-if="subtitle" class="text-caption text-grey-darken-1 mt-n1 text-wrap">{{ subtitle }}</span>
           </div>
         </div>
 
-        <div class="d-flex flex-wrap gap-1 flex-grow-1 justify-end align-center">
+        <div class="d-flex flex-wrap gap-2 justify-start justify-sm-end align-center w-100 w-sm-auto">
           <!-- View Mode Toggle (Only if gridEnabled or showViewToggle is true) -->
           <v-btn-toggle
             v-if="showViewToggle || gridEnabled"
@@ -33,7 +33,7 @@
       </div>
 
       <!-- Row 2: Search Controls -->
-      <div v-if="searchable || hasAdvancedFilters" class="d-flex flex-wrap align-center gap-3 w-100 pb-2">
+      <div v-if="searchable || hasAdvancedFilters" class="d-flex flex-column flex-sm-row align-stretch align-sm-center gap-3 w-100 pb-2">
         <!-- Advanced Toggle (Priority Right in RTL) -->
         <AppButton
           v-if="hasAdvancedFilters"
@@ -41,7 +41,7 @@
           :color="showAdvancedSearch ? 'primary' : 'grey-darken-1'"
           :prepend-icon="showAdvancedSearch ? 'ri-filter-off-line' : 'ri-filter-3-line'"
           size="small"
-          class="font-weight-bold"
+          class="font-weight-bold w-100 w-sm-auto"
           @click="showAdvancedSearch = !showAdvancedSearch"
         >
           {{ showAdvancedSearch ? 'إخفاء الفلاتر' : 'بحث متقدم' }}
@@ -55,7 +55,7 @@
           v-model="searchModel"
           placeholder="بحث . . ."
           prepend-inner-icon="ri-search-line"
-          class="flex-grow-1 search-input-mini"
+          class="flex-grow-1 search-input-mini w-100"
           style="max-width: 100%"
           hide-details
           density="compact"

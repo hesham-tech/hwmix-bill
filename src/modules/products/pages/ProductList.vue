@@ -252,22 +252,22 @@
                         <thead class="bg-grey-lighten-5">
                           <tr>
                             <th class="text-center font-weight-bold text-caption px-2 py-1">SKU</th>
-                            <th class="text-center font-weight-bold text-caption px-2 py-1">التكلفة</th>
+                            <th v-if="mdAndUp" class="text-center font-weight-bold text-caption px-2 py-1">التكلفة</th>
                             <th class="text-center font-weight-bold text-caption px-2 py-1">سعر البيع</th>
-                            <th class="text-center font-weight-bold text-caption px-2 py-1">سعر الجملة</th>
-                            <th class="text-center font-weight-bold text-caption px-2 py-1">الخصم</th>
+                            <th v-if="mdAndUp" class="text-center font-weight-bold text-caption px-2 py-1">سعر الجملة</th>
+                            <th v-if="mdAndUp" class="text-center font-weight-bold text-caption px-2 py-1">الخصم</th>
                             <th class="text-center font-weight-bold text-caption px-2 py-1">المخزون</th>
-                            <th class="text-center font-weight-bold text-caption px-2 py-1">الحد الأدنى</th>
-                            <th class="text-left font-weight-bold text-caption px-2 py-1">الباركود</th>
+                            <th v-if="mdAndUp" class="text-center font-weight-bold text-caption px-2 py-1">الحد الأدنى</th>
+                            <th v-if="mdAndUp" class="text-left font-weight-bold text-caption px-2 py-1">الباركود</th>
                           </tr>
                         </thead>
                         <tbody>
                           <tr v-for="variant in item.variants" :key="variant.id">
                             <td class="text-center text-caption text-grey-darken-1 px-2 py-1">{{ variant.sku || '---' }}</td>
-                            <td class="text-center text-caption px-2 py-1">{{ variant.cost > 0 ? formatCurrency(variant.cost) : '---' }}</td>
+                            <td v-if="mdAndUp" class="text-center text-caption px-2 py-1">{{ variant.cost > 0 ? formatCurrency(variant.cost) : '---' }}</td>
                             <td class="text-center text-primary font-weight-bold text-caption px-2 py-1">{{ formatCurrency(variant.retail_price) }}</td>
-                            <td class="text-center text-success font-weight-bold text-caption px-2 py-1">{{ variant.wholesale_price ? formatCurrency(variant.wholesale_price) : '---' }}</td>
-                            <td class="text-center text-caption text-error px-2 py-1">{{ variant.discount ? variant.discount : '---' }}</td>
+                            <td v-if="mdAndUp" class="text-center text-success font-weight-bold text-caption px-2 py-1">{{ variant.wholesale_price ? formatCurrency(variant.wholesale_price) : '---' }}</td>
+                            <td v-if="mdAndUp" class="text-center text-caption text-error px-2 py-1">{{ variant.discount ? variant.discount : '---' }}</td>
                             <td class="text-center px-2 py-1">
                               <v-chip
                                 size="x-small"
@@ -278,8 +278,8 @@
                                 {{ variant.quantity || 0 }}
                               </v-chip>
                             </td>
-                            <td class="text-center text-caption text-grey-darken-1 px-2 py-1">{{ variant.min_quantity || '---' }}</td>
-                            <td class="text-left text-caption code-font px-2 py-1">{{ variant.barcode || '---' }}</td>
+                            <td v-if="mdAndUp" class="text-center text-caption text-grey-darken-1 px-2 py-1">{{ variant.min_quantity || '---' }}</td>
+                            <td v-if="mdAndUp" class="text-left text-caption code-font px-2 py-1">{{ variant.barcode || '---' }}</td>
                           </tr>
                         </tbody>
                       </v-table>
@@ -324,10 +324,12 @@ import AppButton from '@/components/common/AppButton.vue';
 import AppConfirmDialog from '@/components/common/AppConfirmDialog.vue';
 import PrintStickerDialog from '../components/PrintStickerDialog.vue';
 import ProductImportDialog from '../components/ProductImportDialog.vue';
+import { useDisplay } from 'vuetify';
 import { formatCurrency } from '@/utils/formatters';
 
 const router = useRouter();
 const productStore = useProductStore();
+const { mdAndUp } = useDisplay();
 const userStore = useUserStore();
 const { can, canAny } = usePermissions();
 
@@ -498,32 +500,43 @@ const headers = computed(() => {
   const list = [
     { title: '', key: 'data-table-expand', align: 'start', sortable: false, width: '48px' },
     { title: 'المنتج', key: 'name', sortable: true, minWidth: '200px' },
-    { title: 'الرابط البديل (Slug)', key: 'slug', sortable: true, minWidth: '150px' },
   ];
 
-  if (isDigitalEnabled) {
+  if (mdAndUp.value) {
+    list.push({ title: 'الرابط البديل (Slug)', key: 'slug', sortable: true, minWidth: '150px' });
+  }
+
+  if (isDigitalEnabled && mdAndUp.value) {
     list.push({ title: 'نوع المنتج', key: 'product_type', sortable: true, minWidth: '120px' });
   }
 
   list.push(
     { title: 'التصنيف / الماركة', key: 'category_brand', sortable: false, minWidth: '150px' },
-    { title: 'السعر', key: 'price_range', sortable: false, minWidth: '100px' },
-    { title: 'أقل سعر', key: 'min_price', sortable: true, minWidth: '100px' },
-    { title: 'أعلى سعر', key: 'max_price', sortable: true, minWidth: '100px' },
-    { title: 'المخزون', key: 'total_available_quantity', sortable: true, align: 'center', minWidth: '100px' }
+    { title: 'السعر', key: 'price_range', sortable: false, minWidth: '100px' }
   );
 
-  if (isDigitalEnabled) {
+  if (mdAndUp.value) {
+    list.push(
+      { title: 'أقل سعر', key: 'min_price', sortable: true, minWidth: '100px' },
+      { title: 'أعلى سعر', key: 'max_price', sortable: true, minWidth: '100px' }
+    );
+  }
+
+  list.push({ title: 'المخزون', key: 'total_available_quantity', sortable: true, align: 'center', minWidth: '100px' });
+
+  if (isDigitalEnabled && mdAndUp.value) {
     list.push({ title: 'يتطلب مخزون', key: 'require_stock', sortable: true, align: 'center', minWidth: '120px' });
   }
 
-  list.push(
-    { title: 'مميز', key: 'featured', sortable: true, align: 'center', minWidth: '90px' },
-    { title: 'عدد المبيعات', key: 'sales_count', sortable: true, align: 'center', minWidth: '120px' },
-    { title: 'قابل للإرجاع', key: 'returnable', sortable: true, align: 'center', minWidth: '120px' }
-  );
+  if (mdAndUp.value) {
+    list.push(
+      { title: 'مميز', key: 'featured', sortable: true, align: 'center', minWidth: '90px' },
+      { title: 'عدد المبيعات', key: 'sales_count', sortable: true, align: 'center', minWidth: '120px' },
+      { title: 'قابل للإرجاع', key: 'returnable', sortable: true, align: 'center', minWidth: '120px' }
+    );
+  }
 
-  if (isDigitalEnabled) {
+  if (isDigitalEnabled && mdAndUp.value) {
     list.push(
       { title: 'قابل للتنزيل', key: 'is_downloadable', sortable: true, align: 'center', minWidth: '120px' },
       { title: 'حد التنزيل', key: 'download_limit', sortable: true, align: 'center', minWidth: '100px' },
@@ -533,17 +546,28 @@ const headers = computed(() => {
     );
   }
 
+  if (mdAndUp.value) {
+    list.push(
+      { title: 'تاريخ النشر', key: 'published_at', sortable: true, minWidth: '150px' },
+      { title: 'الوصف', key: 'desc', sortable: false, minWidth: '250px' },
+      { title: 'الوصف التفصيلي', key: 'desc_long', sortable: false, minWidth: '250px' }
+    );
+  }
+
   list.push(
-    { title: 'تاريخ النشر', key: 'published_at', sortable: true, minWidth: '150px' },
-    { title: 'الوصف', key: 'desc', sortable: false, minWidth: '250px' },
-    { title: 'الوصف التفصيلي', key: 'desc_long', sortable: false, minWidth: '250px' },
     { title: 'الظهور', key: 'visibility', sortable: false, align: 'center', minWidth: '100px' },
-    { title: 'الحالة', key: 'active', sortable: true, align: 'center', minWidth: '100px' },
-    { title: 'أنشئ بواسطة', key: 'created_by_name', sortable: false, minWidth: '120px' },
-    { title: 'تاريخ الإضافة', key: 'created_at', sortable: true, minWidth: '150px' },
-    { title: 'تاريخ التحديث', key: 'updated_at', sortable: true, minWidth: '150px' },
-    { title: 'الإجراءات', key: 'actions', sortable: false, align: 'end', minWidth: '150px' }
+    { title: 'الحالة', key: 'active', sortable: true, align: 'center', minWidth: '100px' }
   );
+
+  if (mdAndUp.value) {
+    list.push(
+      { title: 'أنشئ بواسطة', key: 'created_by_name', sortable: false, minWidth: '120px' },
+      { title: 'تاريخ الإضافة', key: 'created_at', sortable: true, minWidth: '150px' },
+      { title: 'تاريخ التحديث', key: 'updated_at', sortable: true, minWidth: '150px' }
+    );
+  }
+
+  list.push({ title: 'الإجراءات', key: 'actions', sortable: false, align: 'end', minWidth: '120px' });
 
   return list;
 });
