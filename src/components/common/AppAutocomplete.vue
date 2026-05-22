@@ -24,6 +24,13 @@
     v-bind="$attrs"
     @update:model-value="handleChange"
   >
+    <template v-if="helpText || $slots.label" #label>
+      <slot name="label">
+        <span class="me-1" v-if="label">{{ label }}</span>
+        <span class="me-1" v-else-if="$attrs.label">{{ $attrs.label }}</span>
+        <AppFieldHelp v-if="helpText" :text="helpText" />
+      </slot>
+    </template>
     <template v-if="$slots.noData || canCreate" #no-data>
       <v-list-item v-if="searchQuery && canCreate" @click="handleCreate">
         <template #prepend>
@@ -93,6 +100,7 @@
 import { ref, computed, watch, onMounted, nextTick } from 'vue';
 import apiClient from '@/api/axios.config';
 import { debounce, highlightText } from '@/utils/helpers';
+import AppFieldHelp from '@/components/common/AppFieldHelp.vue';
 
 const props = defineProps({
   modelValue: {
@@ -198,6 +206,10 @@ const props = defineProps({
   hideNoData: {
     type: Boolean,
     default: false,
+  },
+  helpText: {
+    type: String,
+    default: '',
   },
 });
 

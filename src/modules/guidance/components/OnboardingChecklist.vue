@@ -121,11 +121,9 @@ watch(isAllCompleted, (newVal) => {
 });
 
 onMounted(() => {
-  // للعملاء الجدد، افتح اللوحة تلقائياً بعد 2 ثانية كـ Welcome
+  // للعملاء الجدد، نترك اللوحة مطوية افتراضياً لعدم إزعاج المستخدم
   if (shouldShowWidget.value && completedCount.value === 0) {
-    setTimeout(() => {
-      isCollapsed.value = false;
-    }, 2000);
+    // isCollapsed.value = false; (تم الإلغاء بناءً على طلب المستخدم)
   }
   
   // إذا اكتملت الخطوات بالفعل ولم تؤكد التهنئة بعد

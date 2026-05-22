@@ -5,6 +5,7 @@
         <v-col cols="12" class="pa-0">
           <v-card rounded="md" class="border shadow-sm">
             <AppDataTable
+              class="tour-customer-table"
               table-key="customers.index"
               v-model:sort-by="sortByVuetify"
               v-model:search="searchText"
@@ -41,7 +42,7 @@
                   color="primary"
                   prepend-icon="ri-user-add-line"
                   size="small"
-                  class="rounded-pill shadow-sm"
+                  class="rounded-pill shadow-sm tour-customer-add"
                   style="height: 40px"
                   @click="handleCreate"
                 >
@@ -217,7 +218,7 @@ const handleCreate = () => {
 
 // API fetch function
 const fetchUsersApi = async params => {
-  return await userService.getAll({ ...params, role: 'customer' }, { showToast: false });
+  return await userService.getCustomers(params, { showToast: false });
 };
 
 // DataTable Logic

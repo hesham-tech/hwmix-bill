@@ -5,6 +5,7 @@
         <v-col cols="12" class="pa-0">
           <v-card rounded="md" class="border shadow-sm overflow-hidden mb-4">
             <AppDataTable
+              class="tour-product-table"
               table-key="products.index"
               v-model:sort-by="sortByVuetify"
               v-model:search="search"
@@ -75,7 +76,7 @@
                     color="primary"
                     prepend-icon="ri-add-line"
                     size="small"
-                    class="rounded-pill shadow-sm"
+                    class="rounded-pill shadow-sm tour-product-add"
                     style="height: 40px"
                     @click="router.push({ name: 'product-create' })"
                   >

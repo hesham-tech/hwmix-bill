@@ -236,7 +236,9 @@ const {
   loadingUpcoming,
   loadingInstallments,
   refreshing,
-  refreshAll: refreshBasic,
+  fetchDashboardData,
+  fetchUpcomingPayments,
+  fetchUpcomingInstallments,
 } = useDashboardData();
 
 const {
@@ -254,7 +256,47 @@ const handleSortChange = sortBy => {
 };
 
 const refreshAll = async () => {
-  await Promise.all([refreshBasic(), fetchDashboardStats(), fetchTopProducts()]);
+  refreshing.value = true;
+  try {
+    const promises = [];
+    
+    const isVisible = (key, list) => {
+      const item = list.value.find(i => i.key === key);
+      return item ? item.visible : true; // default true if not found
+    };
+
+    // /api/dashboard/summary handles basicStats, salesTrendChart, topProductsChart, recentInvoices
+    if (isVisible('basicStats', localStats) || 
+        isVisible('salesTrendChart', localSections) || 
+        isVisible('topProductsChart', localSections) || 
+        isVisible('recentInvoices', localSections)) {
+      promises.push(fetchDashboardData());
+    }
+
+    // /api/invoices (upcoming payments)
+    if (isVisible('upcomingPayments', localSections)) {
+      promises.push(fetchUpcomingPayments());
+    }
+
+    // /api/installments (upcoming installments)
+    if (isVisible('upcomingInstallments', localSections)) {
+      promises.push(fetchUpcomingInstallments());
+    }
+
+    // advanced stats (analyticsStats)
+    if (isVisible('analyticsStats', localStats)) {
+      promises.push(fetchDashboardStats());
+    }
+
+    // advanced top products (productIntelligenceTable)
+    if (isVisible('productIntelligenceTable', localSections)) {
+      promises.push(fetchTopProducts());
+    }
+
+    await Promise.all(promises);
+  } finally {
+    refreshing.value = false;
+  }
 };
 
 const quickActions = [
@@ -367,6 +409,11 @@ const startCustomization = () => {
 const toggleVisibility = (item) => {
   item.visible = !item.visible;
   savePreferencesToStore(true); // Silent save per Rule 14.2
+  
+  if (item.visible) {
+    // جلب البيانات فور تفعيل البطاقة إذا لم تكن موجودة
+    refreshAll();
+  }
 };
 
 // Drag and drop state
@@ -460,9 +507,9 @@ const resetToDefaults = async () => {
 };
 
 onMounted(async () => {
-  await refreshAll();
   await uiPrefsStore.loadPreferences('dashboard.admin');
   syncLocalWithPreferences();
+  await refreshAll();
 });
 </script>
 

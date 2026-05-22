@@ -143,7 +143,7 @@ async function updateCardPosition() {
       middleware: [
         offset(14), // مسافة كافية عن المربع المضيء
         flip(),
-        shift({ padding: 15 }),
+        shift({ padding: 15, crossAxis: true }),
         arrow({ element: arrowEl.value }),
       ],
     }

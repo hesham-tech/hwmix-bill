@@ -21,6 +21,14 @@
     @blur="$emit('blur', $event)"
     @focus="$emit('focus', $event)"
   >
+    <template v-if="helpText || $slots.label" #label>
+      <slot name="label">
+        <span class="me-1" v-if="label">{{ label }}</span>
+        <span class="me-1" v-else-if="$attrs.label">{{ $attrs.label }}</span>
+        <AppFieldHelp v-if="helpText" :text="helpText" />
+      </slot>
+    </template>
+
     <template v-if="$slots.prepend" #prepend>
       <slot name="prepend" />
     </template>
@@ -37,6 +45,7 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue';
+import AppFieldHelp from '@/components/common/AppFieldHelp.vue';
 
 const props = defineProps({
   modelValue: {
@@ -106,6 +115,10 @@ const props = defineProps({
   variant: {
     type: String,
     default: 'outlined',
+  },
+  helpText: {
+    type: String,
+    default: '',
   },
 });
 

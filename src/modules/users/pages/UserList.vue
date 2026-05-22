@@ -5,6 +5,7 @@
         <v-col cols="12" class="pa-0">
           <v-card rounded="md" class="border shadow-sm">
             <AppDataTable
+              class="tour-user-table"
               table-key="users.index"
               v-model:sort-by="sortByVuetify"
               v-model:search="searchText"
@@ -23,8 +24,8 @@
                 bodyKeys: ['phone', 'roles', 'status'],
               }"
               permission-module="users"
-              title="المستخدمين"
-              subtitle="إدارة الحسابات والصلاحيات في النظام"
+              title="الموظفين"
+              subtitle="إدارة حسابات الموظفين والصلاحيات في النظام"
               icon="ri-group-line"
               @update:filters="applyFilters"
               @update:options="onTableOptionsUpdate"
@@ -58,7 +59,7 @@
                   color="primary"
                   prepend-icon="ri-user-add-line"
                   size="small"
-                  class="rounded-pill shadow-sm"
+                  class="rounded-pill shadow-sm tour-user-add"
                   style="height: 40px"
                   @click="handleCreate"
                 >
@@ -270,7 +271,7 @@ const handleConfirm = async () => {
 
 // API fetch function
 const fetchUsersApi = async params => {
-  return await userService.getAll(params, { showToast: false });
+  return await userService.getStaff(params, { showToast: false });
 };
 
 // DataTable Logic

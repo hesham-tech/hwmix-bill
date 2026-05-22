@@ -78,6 +78,7 @@
                 <AppAutocomplete
                   v-model="productData.name"
                   label="اسم المنتج"
+                  help-text="الاسم التجاري للمنتج كما يظهر للعملاء في الفواتير والمتجر."
                   placeholder="ادخل اسم المنتج (مثال: طقم بيجامة قطن)"
                   required
                   variant="outlined"
@@ -104,6 +105,7 @@
                   v-model="productData.category_id"
                   :items="productData.category ? [productData.category] : []"
                   label="التصنيف"
+                  help-text="يساعد التصنيف في ترتيب المنتجات وتقسيم تقارير المبيعات بدقة."
                   api-endpoint="categories"
                   item-title="full_path"
                   item-value="id"
@@ -126,6 +128,7 @@
                   v-model="productData.brand_id"
                   :items="productData.brand ? [productData.brand] : []"
                   label="العلامة التجارية"
+                  help-text="الماركة أو الشركة المصنعة للمنتج."
                   api-endpoint="brands"
                   item-title="name"
                   item-value="id"
@@ -166,6 +169,7 @@
                   <AppInput
                     v-model="productData.download_url"
                     label="رابط التنزيل"
+                    help-text="الرابط المباشر لتحميل الملف، سيتم تسليمه للعميل بعد الدفع."
                     placeholder="https://example.com/files/..."
                     prepend-inner-icon="ri-link"
                   />
@@ -174,6 +178,7 @@
                   <AppInput
                     v-model.number="productData.download_limit"
                     label="حد مرات التنزيل"
+                    help-text="أقصى عدد مسموح به لتحميل الملف من نفس الرابط."
                     type="number"
                     placeholder="اتركه فارغاً لعدد غير محدود"
                   />
@@ -223,7 +228,10 @@
             <div class="d-flex flex-column gap-2">
               <div class="d-flex align-center justify-space-between pa-2 hover-bg">
                 <div>
-                  <div class="text-body-2 font-weight-bold">متاح للبيع</div>
+                  <div class="text-body-2 font-weight-bold">
+                    متاح للبيع
+                    <AppFieldHelp text="تفعيل أو تعطيل بيع هذا المنتج بشكل كامل. إذا كان معطلاً، فلن تتمكن من بيعه أو عرضه." />
+                  </div>
                   <div class="text-caption text-grey">تفعيل أو تعطيل ظهور المنتج</div>
                 </div>
                 <v-switch v-model="productData.active" color="primary" hide-details inset density="compact" />
@@ -233,7 +241,10 @@
 
               <div class="d-flex align-center justify-space-between pa-2 hover-bg">
                 <div>
-                  <div class="text-body-2 font-weight-bold">منتج مميز</div>
+                  <div class="text-body-2 font-weight-bold">
+                    منتج مميز
+                    <AppFieldHelp text="المنتجات المميزة تظهر عادة في بداية القوائم أو في أقسام خاصة لزيادة مبيعاتها." />
+                  </div>
                   <div class="text-caption text-grey">عرض في الصفحة الرئيسية</div>
                 </div>
                 <v-switch v-model="productData.featured" color="primary" hide-details inset density="compact" />
@@ -243,7 +254,10 @@
 
               <div class="d-flex align-center justify-space-between pa-2 hover-bg">
                 <div>
-                  <div class="text-body-2 font-weight-bold">قابل للإرجاع</div>
+                  <div class="text-body-2 font-weight-bold">
+                    قابل للإرجاع
+                    <AppFieldHelp text="حدد ما إذا كان مسموحاً للعميل إرجاع هذا المنتج بعد شرائه واسترداد مبلغه (ينطبق على سياسة الاسترجاع)." />
+                  </div>
                   <div class="text-caption text-grey">السماح بإرجاع المنتج واسترداد قيمته</div>
                 </div>
                 <v-switch v-model="productData.returnable" color="primary" hide-details inset density="compact" />
@@ -253,7 +267,10 @@
 
               <div class="d-flex align-center justify-space-between pa-2 hover-bg">
                 <div>
-                  <div class="text-body-2 font-weight-bold">يظهر في المتجر</div>
+                  <div class="text-body-2 font-weight-bold">
+                    يظهر في المتجر
+                    <AppFieldHelp text="إذا كان مفوضاً، سيتمكن العملاء من رؤية هذا المنتج وطلبه عبر متجرك الإلكتروني." />
+                  </div>
                   <div class="text-caption text-grey">عرض المنتج في المتجر الإلكتروني</div>
                 </div>
                 <v-switch v-model="productData.is_active_in_store" color="primary" hide-details inset density="compact" />
@@ -263,7 +280,10 @@
 
               <div class="d-flex align-center justify-space-between pa-2 hover-bg">
                 <div>
-                  <div class="text-body-2 font-weight-bold">يظهر في المبيعات / POS</div>
+                  <div class="text-body-2 font-weight-bold">
+                    يظهر في المبيعات / POS
+                    <AppFieldHelp text="يتحكم في إمكانية ظهور هذا المنتج للبائعين (الكاشير) في واجهة نقطة البيع السريعة." />
+                  </div>
                   <div class="text-caption text-grey">عرض المنتج في فواتير البيع ونقاط البيع</div>
                 </div>
                 <v-switch v-model="productData.is_active_in_sales" color="primary" hide-details inset density="compact" />
@@ -319,6 +339,7 @@ import AppInput from '@/components/common/AppInput.vue';
 import AppAutocomplete from '@/components/common/AppAutocomplete.vue';
 import AppTextarea from '@/components/common/AppTextarea.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
+import AppFieldHelp from '@/components/common/AppFieldHelp.vue';
 import VariantManager from './VariantManager.vue';
 import ProductMediaManager from './ProductMediaManager.vue';
 import { useUserStore } from '@/stores/user';

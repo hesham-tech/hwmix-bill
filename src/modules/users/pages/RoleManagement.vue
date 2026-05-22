@@ -11,7 +11,7 @@
         color="primary"
         prepend-icon="ri-add-line"
         size="large"
-        class="px-6 rounded-md shadow-lg"
+        class="tour-role-add px-6 rounded-md shadow-lg"
         @click="openRoleDialog()"
       >
         إضافة دور جديد
@@ -36,7 +36,7 @@
     </v-row>
 
     <!-- Roles Grid -->
-    <v-row v-if="!store.loading">
+    <v-row v-if="!store.loading" class="tour-role-table">
       <v-col v-for="role in store.roles" :key="role.id" cols="12" md="4" lg="3">
         <v-card variant="flat" border class="role-card h-100 transition-swing">
           <v-card-text class="pa-5">

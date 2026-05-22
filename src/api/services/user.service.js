@@ -11,6 +11,32 @@ class UserService extends BaseService {
   }
 
   /**
+   * Get staff (employees) list
+   */
+  async getStaff(params = {}, options = {}) {
+    const { showToast = false } = options;
+    try {
+      const response = await apiClient.get('users/staff', { params });
+      return this.handleSuccess(response, showToast);
+    } catch (error) {
+      return this.handleError(error, showToast);
+    }
+  }
+
+  /**
+   * Get customers list
+   */
+  async getCustomers(params = {}, options = {}) {
+    const { showToast = false } = options;
+    try {
+      const response = await apiClient.get('users/customers', { params });
+      return this.handleSuccess(response, showToast);
+    } catch (error) {
+      return this.handleError(error, showToast);
+    }
+  }
+
+  /**
    * Lookup a user globally by phone or email
    */
   async lookup(params = {}, options = {}) {

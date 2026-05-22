@@ -135,8 +135,7 @@ const formRef = ref(null);
 const loading = ref(false);
 
 const justRegistered = computed(() => !!route.query.registered);
-
-const form = ref({ login: '', password: '', remember: false });
+const form = ref({ login: '', password: '', remember: true });
 
 const badges = [
   { icon: 'ri-shield-check-line', text: 'دفع آمن 100%' },

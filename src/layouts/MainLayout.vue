@@ -426,6 +426,11 @@ import { useTour } from '@/modules/guidance/composables/useTour';
 import { useHint } from '@/modules/guidance/composables/useHint';
 import dashboardTour from '@/modules/guidance/content/tours/dashboard.tour.js';
 import invoicesTour from '@/modules/guidance/content/tours/invoices.tour.js';
+import productsTour from '@/modules/guidance/content/tours/products.tour.js';
+import customersTour from '@/modules/guidance/content/tours/customers.tour.js';
+import settingsTour from '@/modules/guidance/content/tours/settings.tour.js';
+import usersTour from '@/modules/guidance/content/tours/users.tour.js';
+import rolesTour from '@/modules/guidance/content/tours/roles.tour.js';
 
 // تعريف المكونات بشكل غير متزامن (Lazy loading) لمنع زيادة حجم الـ main bundle
 const GuidanceTour = defineAsyncComponent(() => import('@/modules/guidance/components/GuidanceTour.vue'));
@@ -471,17 +476,29 @@ watch(
           });
         }
       } else if (newRouteName === 'products') {
-        showHint({
-          key: 'hint.product_excel',
-          title: 'استيراد سريع للمنتجات',
-          content: 'وفر وقتك واستخدم ميزة استيراد المنتجات من ملف Excel لرفع كافة أصناف ومخزون متجرك دفعة واحدة.'
-        });
+        const started = startTour(productsTour, 'tour.products');
+        if (!started) {
+          showHint({
+            key: 'hint.product_excel',
+            title: 'استيراد سريع للمنتجات',
+            content: 'وفر وقتك واستخدم ميزة استيراد المنتجات من ملف Excel لرفع كافة أصناف ومخزون متجرك دفعة واحدة.'
+          });
+        }
       } else if (newRouteName === 'customers') {
-        showHint({
-          key: 'hint.customer_statement',
-          title: 'كشف حساب العملاء',
-          content: 'يمكنك استخراج كشف حساب مالي تفصيلي لأي عميل بنقرة واحدة وتصديره بصيغة PDF لمشاركته مباشرة.'
-        });
+        const started = startTour(customersTour, 'tour.customers');
+        if (!started) {
+          showHint({
+            key: 'hint.customer_statement',
+            title: 'كشف حساب العملاء',
+            content: 'يمكنك استخراج كشف حساب مالي تفصيلي لأي عميل بنقرة واحدة وتصديره بصيغة PDF لمشاركته مباشرة.'
+          });
+        }
+      } else if (newRouteName === 'company' || newRouteName === 'settings') {
+        startTour(settingsTour, 'tour.settings');
+      } else if (newRouteName === 'users') {
+        startTour(usersTour, 'tour.users');
+      } else if (newRouteName === 'roles') {
+        startTour(rolesTour, 'tour.roles');
       }
     }, 1200);
   },
@@ -492,6 +509,11 @@ watch(
 const activeTourKey = computed(() => {
   if (route.name === 'admin-dashboard') return 'tour.dashboard';
   if (route.name === 'invoices') return 'tour.invoices';
+  if (route.name === 'products') return 'tour.products';
+  if (route.name === 'customers') return 'tour.customers';
+  if (route.name === 'company' || route.name === 'settings') return 'tour.settings';
+  if (route.name === 'users') return 'tour.users';
+  if (route.name === 'roles') return 'tour.roles';
   return '';
 });
 
@@ -504,6 +526,16 @@ const handleRestartTour = () => {
       success = startTour(dashboardTour, 'tour.dashboard', true);
     } else if (route.name === 'invoices') {
       success = startTour(invoicesTour, 'tour.invoices', true);
+    } else if (route.name === 'products') {
+      success = startTour(productsTour, 'tour.products', true);
+    } else if (route.name === 'customers') {
+      success = startTour(customersTour, 'tour.customers', true);
+    } else if (route.name === 'company' || route.name === 'settings') {
+      success = startTour(settingsTour, 'tour.settings', true);
+    } else if (route.name === 'users') {
+      success = startTour(usersTour, 'tour.users', true);
+    } else if (route.name === 'roles') {
+      success = startTour(rolesTour, 'tour.roles', true);
     } else {
       toast.error('عذراً، لا توجد جولة إرشادية لهذه الصفحة.');
       return;

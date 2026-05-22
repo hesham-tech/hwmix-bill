@@ -80,6 +80,7 @@
             v-model="form.email"
             autocomplete="off"
             label="البريد الإلكتروني"
+            help-text="يستخدم لاستعادة كلمة المرور واستقبال إشعارات النظام المهمة."
             type="email"
             :rules="[email]"
             prepend-inner-icon="ri-mail-line"
@@ -104,11 +105,11 @@
         </v-col>
 
         <v-col cols="12" md="6">
-          <AppInput v-model="form.full_name" label="الاسم الكامل *" :rules="[required]" prepend-inner-icon="ri-user-line" autocomplete="off" />
+          <AppInput v-model="form.full_name" label="الاسم الكامل *" help-text="اسم المستخدم بالكامل كما سيظهر في السجلات والتقارير." :rules="[required]" prepend-inner-icon="ri-user-line" autocomplete="off" />
         </v-col>
 
         <v-col cols="12" md="6">
-          <AppInput v-model="form.username" label="اسم المستخدم (Username)" :rules="[]" prepend-inner-icon="ri-at-line" autocomplete="off" />
+          <AppInput v-model="form.username" label="اسم المستخدم (Username)" help-text="الاسم الفريد الذي سيستخدمه الموظف لتسجيل الدخول للنظام (يفضل أن يكون بالإنجليزية وبدون مسافات)." :rules="[]" prepend-inner-icon="ri-at-line" autocomplete="off" />
         </v-col>
 
         <v-col cols="12" md="6">
@@ -161,6 +162,7 @@
           <div class="d-flex align-center gap-2 mb-2 text-info font-weight-bold">
             <v-icon icon="ri-community-line" />
             <span>ربط الشركات</span>
+            <AppFieldHelp text="تحديد الشركات التي ينتمي إليها الحساب. يتيح للمستخدم الوصول لهذه الشركات فقط." />
           </div>
           <v-divider class="mb-4" />
 
@@ -186,6 +188,7 @@
           <div class="d-flex align-center gap-2 mb-2 text-info font-weight-bold">
             <v-icon icon="ri-git-branch-line" />
             <span>تخصيص الفروع</span>
+            <AppFieldHelp text="تحديد الفروع المسموح للمستخدم بالوصول لبياناتها (كالفواتير وحركات المبيعات)." />
           </div>
           <v-divider class="mb-4" />
 
@@ -228,6 +231,7 @@ import AppSwitch from '@/components/common/AppSwitch.vue';
 import AppInput from '@/components/common/AppInput.vue';
 import AppPasswordInput from '@/components/common/AppPasswordInput.vue';
 import AppButton from '@/components/common/AppButton.vue';
+import AppFieldHelp from '@/components/common/AppFieldHelp.vue';
 import { required, email, phone, minLength } from '@/utils/validators';
 import { useUserStore as useUserManagementStore } from '../store/user.store';
 import { useUserStore as useGlobalUserStore } from '@/stores/user';

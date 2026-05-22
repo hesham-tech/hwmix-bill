@@ -15,7 +15,7 @@
             v-model="activeTab"
             direction="vertical"
             color="primary"
-            class="company-settings-tabs"
+            class="company-settings-tabs tour-settings-tabs"
             grow
           >
             <v-tab
@@ -308,11 +308,15 @@
                       <v-col cols="12" md="6" class="d-flex align-center">
                         <v-switch
                           v-model="formData.print_settings.show_logo"
-                          label="إظهار شعار الشركة in المطبوعات"
                           color="primary"
                           hide-details
                           @update:model-value="handleSave"
-                        />
+                        >
+                          <template #label>
+                            <span class="me-2">إظهار شعار الشركة في المطبوعات</span>
+                            <AppFieldHelp text="عند التفعيل، سيتم طباعة شعار الشركة أعلى الترويسة في الفواتير الورقية والإلكترونية." />
+                          </template>
+                        </v-switch>
                       </v-col>
 
                       <v-col cols="12">
@@ -341,11 +345,15 @@
                       <v-col cols="12">
                         <v-switch
                           v-model="formData.settings.enable_digital_products"
-                          label="تفعيل ودعم المنتجات الرقمية (تمكين بيع وتنزيل الكود والملفات وتراخيص الاستخدام)"
                           color="primary"
                           hide-details
                           @update:model-value="handleSave"
-                        />
+                        >
+                          <template #label>
+                            <span class="me-2">تفعيل ودعم المنتجات الرقمية (الأكواد والملفات)</span>
+                            <AppFieldHelp text="يتيح بيع منتجات غير ملموسة وتسليم روابط أو مفاتيح ترخيص للعملاء تلقائياً عند تأكيد البيع." />
+                          </template>
+                        </v-switch>
                       </v-col>
                     </v-row>
                   </AppCard>
@@ -365,7 +373,7 @@
         prepend-icon="ri-save-fill"
         :loading="saving"
         rounded="pill"
-        class="px-12 font-weight-bold"
+        class="px-12 font-weight-bold tour-settings-save"
         @click="handleSave"
       >
         حفظ كافة التغييرات
@@ -397,6 +405,7 @@ import AppImageCropper from '@/components/common/AppImageCropper.vue';
 import AppCard from '@/components/common/AppCard.vue';
 import AppInput from '@/components/common/AppInput.vue';
 import AppButton from '@/components/common/AppButton.vue';
+import AppFieldHelp from '@/components/common/AppFieldHelp.vue';
 import { toast } from 'vue3-toastify';
 import { useAuthStore } from '@/stores/auth';
 import { PERMISSIONS } from '@/config/permissions';

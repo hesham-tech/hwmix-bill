@@ -279,7 +279,13 @@ export default [
     permission: PERMISSIONS.USERS_PAGE,
     children: [
       {
-        title: 'قائمة المستخدمين',
+        title: 'العملاء',
+        to: '/app/customers',
+        icon: 'ri-team-line',
+        permission: [PERMISSIONS.USERS_VIEW_ALL],
+      },
+      {
+        title: 'الموظفين',
         to: '/app/users',
         icon: 'ri-group-line',
         permission: [PERMISSIONS.USERS_VIEW_ALL, PERMISSIONS.USERS_VIEW_CHILDREN, PERMISSIONS.USERS_VIEW_SELF],
@@ -289,12 +295,6 @@ export default [
         to: '/app/roles',
         icon: 'ri-shield-user-line',
         permission: [PERMISSIONS.ROLES_VIEW_ALL, PERMISSIONS.ROLES_VIEW_CHILDREN, PERMISSIONS.ROLES_VIEW_SELF],
-      },
-      {
-        title: 'قائمة العملاء',
-        to: '/app/customers',
-        icon: 'ri-team-line',
-        permission: [PERMISSIONS.USERS_VIEW_ALL],
       },
     ],
   },
