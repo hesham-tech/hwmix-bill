@@ -9,12 +9,14 @@ import { useGuidance } from '../composables/useGuidance';
  */
 
 const props = defineProps({
-  // تحديد جولة تعريفية مرتبطة لإعادة تشغيلها
+  modelValue: {
+    type: Boolean,
+    default: false,
+  },
   tourKey: {
     type: String,
     default: '',
   },
-  // محتوى مخصص للمساعدة (اختياري)
   customTitle: {
     type: String,
     default: '',
@@ -23,22 +25,25 @@ const props = defineProps({
     type: String,
     default: '',
   },
-  // مصفوفة روابط المساعدة المفيدة [{ text, url }]
   links: {
     type: Array,
     default: () => [],
   },
 });
 
-const emit = defineEmits(['restart-tour']);
+const emit = defineEmits(['restart-tour', 'update:modelValue']);
 
 const route = useRoute();
-const drawer = ref(false);
-const { resetProgress, markAsCompleted } = useGuidance();
+const { resetProgress, markAsCompleted, uncompleteStep } = useGuidance();
+
+const drawer = computed({
+  get: () => props.modelValue,
+  set: (val) => emit('update:modelValue', val),
+});
 
 // توليد تفاصيل مساعدة تلقائية بناءً على مسار الصفحة الحالي
 const defaultHelpContent = {
-  '/app/dashboard': {
+  '/app/admin/dashboard': {
     title: 'لوحة التحكم الرئيسية',
     description: 'شاشة إحصائية تلخص أداء عملك اليومي. يمكنك مراقبة المبيعات الإجمالية، الفواتير المستحقة، نشاط المنتجات، والدخول السريع للعمليات الأساسية.',
   },
@@ -69,74 +74,29 @@ const currentHelp = computed(() => {
   };
 });
 
-/**
- * إعادة تشغيل الجولة التعريفية المرتبطة بهذه الصفحة
- */
-async function triggerRestartTour() {
+function triggerRestartTour() {
   drawer.value = false;
   if (props.tourKey) {
-    // 1. إعادة تعيين الخطوة محلياً وسيرفرياً أولاً
-    await resetTourKey(props.tourKey);
-    // 2. بث حدث لإخطار الصفحة ببدء الجولة مجدداً
-    emit('restart-tour');
+    try {
+      uncompleteStep(props.tourKey).catch(() => {});
+    } catch (e) {
+      // Silent fail
+    }
+    setTimeout(() => {
+      emit('restart-tour');
+    }, 350);
   }
 }
-
-async function resetTourKey(key) {
-  // نقوم بإعادة تعيين هذا المفتاح تحديداً من خلال الـ API والـ store
-  const { useGuidanceStore } = await import('../store/useGuidanceStore');
-  const store = useGuidanceStore();
-  
-  // نقوم بإزالة المفتاح من الـ state محلياً
-  store.progress = store.progress.filter(p => p.key !== key);
-  store.saveToLocal();
-
-  // إرسال طلب للحذف من قاعدة البيانات أيضاً
-  try {
-    const apiClient = (await import('@/api/axios.config')).default;
-    await apiClient.post('/guidance/complete', {
-      key: key,
-      skipped: true, // نرسلها كـ skipped لتهيئتها للحذف أو كحيلة لإعادة تعيينها، أو نعتمد على API resetAll.
-      // الأفضل هو أن نوفر endpoint لحذف مفتاح محدد أو نعتمد على الحفظ المؤقت محلياً
-    });
-  } catch (e) {
-    // Silent fail
-  }
-}
-
-defineExpose({
-  open: () => drawer.value = true,
-  close: () => drawer.value = false,
-  drawer
-});
 </script>
 
 <template>
-  <div class="contextual-help-wrapper">
-    <!-- زر أيقونة المساعدة -->
-    <v-tooltip location="bottom">
-      <template #activator="{ props: tooltipProps }">
-        <v-btn
-          v-bind="tooltipProps"
-          icon="ri-question-line"
-          variant="text"
-          color="primary"
-          class="help-trigger-btn rounded-lg d-none d-sm-inline-flex"
-          size="34"
-          @click="drawer = !drawer"
-        />
-      </template>
-      المساعدة الإرشادية ودليل الصفحة
-    </v-tooltip>
-
-    <!-- درج المساعدة الجانبي الفاخر (Drawer) -->
-    <v-navigation-drawer
-      v-model="drawer"
-      location="left"
-      temporary
-      width="340"
-      class="help-navigation-drawer"
-    >
+  <v-navigation-drawer
+    v-model="drawer"
+    location="left"
+    temporary
+    width="340"
+    class="help-navigation-drawer"
+  >
       <div class="help-drawer-header">
         <div class="header-title-box">
           <v-icon icon="ri-guide-line" class="ml-2 text-primary"></v-icon>
@@ -178,7 +138,7 @@ defineExpose({
               @click="triggerRestartTour"
             >
               <v-icon start icon="ri-play-circle-line" class="ml-1"></v-icon>
-              إعادة الجولة التعريفية للصفحة
+              عرض الشرح التوضيحي للصفحة
             </v-btn>
 
             <v-btn
@@ -191,7 +151,7 @@ defineExpose({
               @click="resetProgress"
             >
               <v-icon start icon="ri-refresh-line" class="ml-1"></v-icon>
-              إعادة تفعيل كافة الجولات والتعليمات
+              بدء الشروحات التوضيحية لكل الصفحات
             </v-btn>
           </div>
         </div>
@@ -201,7 +161,6 @@ defineExpose({
         <span class="text-caption text-secondary">نظام المساعدة الذكي v1.0 • HWNix ERP</span>
       </div>
     </v-navigation-drawer>
-  </div>
 </template>
 
 <style scoped>

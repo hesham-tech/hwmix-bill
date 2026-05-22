@@ -12,32 +12,39 @@ export default {
         target: null, // لا يوجد عنصر مستهدف = يظهر في منتصف الشاشة كترحيب
         title: 'مرحباً بك في لوحة التحكم الإحصائية! 👋',
         content: 'هذه جولة سريعة لنساعدك على استكشاف لوحة التحكم الرئيسية وكيفية تتبع وإدارة مبيعاتك وفواتيرك.',
-        placement: 'bottom'
+        placement: 'bottom',
       },
       {
         target: '.tour-dashboard-customize',
         title: 'تخصيص الواجهة وحريتك الكاملة',
         content: 'يمكنك استخدام هذا الزر لإعادة ترتيب الأقسام أو إخفاء الإحصائيات التي لا تحتاج إليها بسحبها وإفلاتها.',
-        placement: 'bottom'
+        placement: 'bottom',
       },
       {
         target: '.tour-dashboard-refresh',
         title: 'تحديث البيانات الفورية',
         content: 'يمكنك جلب آخر الحركات والفواتير والتحليلات المسجلة في السيرفر فوراً دون الحاجة لتحديث الصفحة بالكامل.',
-        placement: 'bottom'
+        placement: 'bottom',
       },
       {
         target: '.tour-nav-search',
         title: 'البحث الشامل والذكي 🔍',
-        content: 'البحث الفوري في جميع أركان النظام للوصول السريع إلى العملاء، أو الفواتير، أو خطط التقسيط بواسطة الاسم، أو رقم الهاتف، أو رقم الفاتورة (أو عبر اختصار الكيبورد Ctrl + K).',
-        placement: 'bottom'
-      }
+        content:
+          'البحث الفوري في جميع أركان النظام للوصول السريع إلى العملاء، أو الفواتير، أو خطط التقسيط بواسطة الاسم، أو رقم الهاتف، أو رقم الفاتورة (أو عبر اختصار الكيبورد Ctrl + K).',
+        placement: 'bottom',
+      },
     ];
 
     if (isMobile) {
       // للهواتف: خطوة خامسة وأخيرة تشرح محتويات القائمة بالكامل
       return [
         ...baseSteps,
+        {
+          target: '.tour-nav-balance',
+          title: 'رصيد الحساب المالي 💰',
+          content: 'يعرض رصيدك المالي الحالي في النظام بشكل فوري، ويوضح ما إذا كان مديناً أو دائناً لتسهيل متابعة وضعك المالي المباشر.',
+          placement: 'bottom',
+        },
         {
           target: '.user-menu-btn',
           title: 'أدوات الوصول السريع وإعدادات الحساب 📱',
@@ -90,42 +97,49 @@ export default {
               </div>
             </div>
           `.trim(),
-          placement: 'bottom'
-        }
+          placement: 'bottom',
+        },
       ];
     } else {
       // للحواسيب والشاشات الكبيرة: خطوة 5 تشرح زر المساعدة فقط، تليها خطوات تشرح باقي شريط الأدوات العلوي
       return [
         ...baseSteps,
         {
-          target: '.contextual-help-trigger',
-          title: 'دليل الصفحة المساعد ❓',
-          content: 'في أي صفحة كنت، يمكنك الضغط على هذا الزر لفتح دليل إرشادي سريع خاص بالصفحة الحالية دون مغادرتها.',
-          placement: 'left'
-        },
-        {
           target: '.tour-nav-updates',
           title: 'سجل التحديثات والجديد 🚀',
           content: 'لمتابعة أحدث الميزات البرمجية والتحسينات المضافة مؤخراً للنظام فور نزولها.',
-          placement: 'bottom'
+          placement: 'bottom',
         },
+        {
+          target: '.tour-nav-help',
+          title: 'المساعدة الإرشادية 💡',
+          content: 'في أي وقت تشعر بالضياع، يمكنك النقر هنا لإعادة هذه الجولة أو استكشاف دليل المساعدة الخاص بكل صفحة.',
+          placement: 'left',
+        },
+        {
+          target: '.tour-nav-balance',
+          title: 'رصيد الحساب المالي 💰',
+          content: 'يعرض رصيدك المالي الحالي في النظام بشكل فوري، ويوضح ما إذا كان مديناً أو دائناً لتسهيل متابعة وضعك المالي المباشر.',
+          placement: 'bottom',
+        },
+
         {
           target: '.tour-nav-branch',
           title: 'التبديل بين الفروع 🏢',
           content: 'تتيح لك هذه القائمة التنقل الفوري بين كافة فروع شركتك النشطة لتحديث نطاق البيانات المعروضة.',
-          placement: 'bottom'
+          placement: 'bottom',
         },
         {
           target: '.tour-nav-print',
           title: 'إعدادات الطباعة السريعة 🖨️',
           content: 'لتغيير مقاس ورق طباعة الفواتير مباشرة للشركة (A4، A5، أو مقاس حراري 80mm/58mm) بنقرة واحدة.',
-          placement: 'bottom'
+          placement: 'bottom',
         },
         {
           target: '.tour-nav-tools',
           title: 'أدوات النظام السريعة 🛠️',
           content: 'اختصار ذكي لفتح الأدوات العائمة التفاعلية كالحاسبة، وحساب النسب المئوية، وحاسبة الأقساط من أي مكان.',
-          placement: 'bottom'
+          placement: 'bottom',
         },
         {
           target: '.user-menu-btn',
@@ -172,9 +186,9 @@ export default {
               </div>
             </div>
           `.trim(),
-          placement: 'bottom'
-        }
+          placement: 'bottom',
+        },
       ];
     }
-  }
+  },
 };

@@ -31,7 +31,7 @@
       @update:filters="applyFilters"
     >
       <template #actions>
-        <AppButton v-if="can(PERMISSIONS.INVOICES_CREATE)" prepend-icon="ri-add-line" @click="navigateToCreate"> فاتورة جديدة </AppButton>
+        <AppButton v-if="can(PERMISSIONS.INVOICES_CREATE)" prepend-icon="ri-add-line" class="tour-invoice-create-btn" @click="navigateToCreate"> فاتورة جديدة </AppButton>
       </template>
 
       <!-- الفاتورة (رقم + نوع) -->

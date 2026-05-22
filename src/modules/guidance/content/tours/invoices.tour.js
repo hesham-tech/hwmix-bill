@@ -11,21 +11,27 @@ export default {
       placement: 'bottom'
     },
     {
-      target: '.invoice-list-wrapper button:has(.ri-add-line), .invoice-list-wrapper button',
+      target: '.tour-invoice-create-btn',
       title: 'إصدار فاتورة جديدة',
       content: 'اضغط هنا لفتح معالج إنشاء الفواتير الذكي، لإصدار فاتورة مبيعات، مشتريات، أو خطة تقسيط لعملائك.',
       placement: 'left'
     },
     {
-      target: '.invoice-list-wrapper .v-table, .invoice-list-wrapper',
+      target: '.invoice-list-wrapper .v-data-table, .invoice-list-wrapper .grid-view-wrapper',
       title: 'جدول البيانات التفاعلي',
       content: 'يعرض هذا الجدول ملخصاً لكل فاتورة: العميل، الصافي المطلوب، والمدفوع. يمكنك الضغط على رقم الفاتورة لاستعراض تفاصيلها كاملة وطباعتها.',
       placement: 'top'
     },
     {
-      target: '.invoice-list-wrapper .v-text-field',
+      target: '.invoice-list-wrapper .search-input-mini',
       title: 'البحث السريع والتصفية',
       content: 'ابحث برقم الفاتورة أو اسم العميل مباشرة، أو استخدم الفلاتر المتقدمة لتصفية الفواتير بحسب حالتها (مسودة، مؤكدة) أو تاريخ الإصدار.',
+      placement: 'bottom'
+    },
+    {
+      target: '.tour-app-table-customize',
+      title: 'تخصيص الجدول ⚙️',
+      content: 'انقر هنا للتحكم في أعمدة الجدول. يمكنك سحب الأعمدة لإعادة ترتيبها أو النقر على رمز العين لإخفاء الأعمدة التي لا تحتاجها لتناسب طبيعة عملك.',
       placement: 'bottom'
     }
   ]

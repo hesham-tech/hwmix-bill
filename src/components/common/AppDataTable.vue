@@ -37,7 +37,7 @@
             tooltip="تخصيص أعمدة الجدول وترتيبها"
             size="small"
             style="height: 28px;"
-            class="px-2 mr-1"
+            class="px-2 mr-1 tour-app-table-customize"
             @click="toggleCustomization"
           >
             <span class="d-none d-sm-inline">{{ isCustomizing ? 'إغلاق التخصيص' : 'تخصيص الأعمدة' }}</span>

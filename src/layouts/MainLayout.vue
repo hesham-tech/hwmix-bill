@@ -38,18 +38,26 @@
       </div>
 
       <!-- Contextual Help Button -->
-      <ContextualHelpBtn
-        ref="helpBtnRef"
-        class="contextual-help-trigger"
-        :tour-key="activeTourKey"
-        @restart-tour="handleRestartTour"
-      />
+      <v-tooltip location="bottom">
+        <template #activator="{ props: tooltipProps }">
+          <v-btn
+            v-bind="tooltipProps"
+            icon="ri-question-line"
+            variant="text"
+            color="primary"
+            class="help-trigger-btn rounded-lg d-none d-sm-inline-flex tour-nav-help contextual-help-trigger"
+            size="34"
+            @click="isHelpDrawerOpen = true"
+          />
+        </template>
+        المساعدة الإرشادية ودليل الصفحة
+      </v-tooltip>
 
       <AppBalanceDisplay
         v-if="userStore.currentUser"
         :amount="userStore.currentUser.balance"
         perspective="admin"
-        custom-class="rounded-pill font-weight-black px-2"
+        custom-class="rounded-pill font-weight-black px-2 tour-nav-balance"
         :height="xs ? 28 : 32"
         prepend-icon="ri-wallet-3-line"
         value-class="text-xxs text-sm-caption"
@@ -375,12 +383,17 @@
 
     <!-- Dialog for System Release Notes / What's New Updates -->
     <AppSystemUpdatesDialog ref="systemUpdatesDialog" />
-
-    <!-- Guidance System Components -->
-    <GuidanceTour />
-    <OnboardingChecklist />
-    <HintBubble />
   </v-main>
+
+  <!-- Guidance System Components -->
+  <ContextualHelpDrawer
+    v-model="isHelpDrawerOpen"
+    :tour-key="activeTourKey"
+    @restart-tour="handleRestartTour"
+  />
+  <GuidanceTour />
+  <OnboardingChecklist />
+  <HintBubble />
 </template>
 
 <script setup>
@@ -418,8 +431,9 @@ import invoicesTour from '@/modules/guidance/content/tours/invoices.tour.js';
 const GuidanceTour = defineAsyncComponent(() => import('@/modules/guidance/components/GuidanceTour.vue'));
 const OnboardingChecklist = defineAsyncComponent(() => import('@/modules/guidance/components/OnboardingChecklist.vue'));
 const HintBubble = defineAsyncComponent(() => import('@/modules/guidance/components/HintBubble.vue'));
-const ContextualHelpBtn = defineAsyncComponent(() => import('@/modules/guidance/components/ContextualHelpBtn.vue'));
+const ContextualHelpDrawer = defineAsyncComponent(() => import('@/modules/guidance/components/ContextualHelpDrawer.vue'));
 
+const isHelpDrawerOpen = ref(false);
 const { xs } = useDisplay();
 const route = useRoute();
 const router = useRouter();
@@ -482,11 +496,23 @@ const activeTourKey = computed(() => {
 });
 
 const handleRestartTour = () => {
-  if (route.name === 'admin-dashboard') {
-    startTour(dashboardTour, 'tour.dashboard', true);
-  } else if (route.name === 'invoices') {
-    startTour(invoicesTour, 'tour.invoices', true);
-  }
+  toast.info('جاري بدء الجولة...', { autoClose: 1500 });
+  
+  setTimeout(() => {
+    let success = false;
+    if (route.name === 'admin-dashboard') {
+      success = startTour(dashboardTour, 'tour.dashboard', true);
+    } else if (route.name === 'invoices') {
+      success = startTour(invoicesTour, 'tour.invoices', true);
+    } else {
+      toast.error('عذراً، لا توجد جولة إرشادية لهذه الصفحة.');
+      return;
+    }
+    
+    if (!success) {
+      toast.error('حدث خطأ أثناء تحميل الجولة. يرجى تنشيط الصفحة.');
+    }
+  }, 350); // delay to let drawer close cleanly
 };
 
 const isSearchOpen = ref(false);

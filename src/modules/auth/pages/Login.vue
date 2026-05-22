@@ -121,7 +121,7 @@ const loading = ref(false);
 const form = ref({
   login: '',
   password: '',
-  remember: false,
+  remember: true,
 });
 
 const handleLogin = async () => {
