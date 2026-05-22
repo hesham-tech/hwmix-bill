@@ -164,7 +164,8 @@ const updateQuantity = (item, val) => {
   let newVal = parseFloat(val);
   if (isNaN(newVal) || newVal < 0.01) newVal = 0.01;
 
-  if (item.requires_stock && typeof item.max_quantity === 'number') {
+  // Only check max quantity if it's not a purchase invoice
+  if (props.invoiceType !== 'purchase' && item.requires_stock && typeof item.max_quantity === 'number') {
     if (newVal > item.max_quantity) {
       const maxQty = item.max_quantity;
 

@@ -5,7 +5,8 @@
       <v-col cols="6" md="4" lg="2" class="pa-2">
         <CustomerSelector
           :model-value="selectedCustomer"
-          label="العميل *"
+          :label="isPurchase ? 'المورد *' : 'العميل *'"
+          :tooltip="isPurchase ? 'إضافة مورد جديد' : 'إضافة عميل جديد'"
           required
           density="compact"
           hide-details="auto"
@@ -119,6 +120,11 @@ defineEmits(['update:selectedCustomer', 'create-customer', 'update:prop']);
 const isInstallmentSale = computed(() => {
   const type = props.invoiceTypes.find(t => t.id === props.modelValue.invoice_type_id);
   return type?.code === 'installment_sale';
+});
+
+const isPurchase = computed(() => {
+  const type = props.invoiceTypes.find(t => t.id === props.modelValue.invoice_type_id);
+  return type?.code === 'purchase';
 });
 </script>
 

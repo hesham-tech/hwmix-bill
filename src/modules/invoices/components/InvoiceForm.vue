@@ -64,6 +64,7 @@
             :financials="financials"
             :cash-boxes="cashBoxes"
             :errors="errors"
+            :is-purchase="currentContext === 'purchase'"
             @update:prop="({ key, value }) => (invoiceData[key] = value)"
           />
         </v-col>
@@ -71,7 +72,7 @@
     </v-form>
 
     <!-- Quick Add Customer Dialog -->
-    <AppDialog v-model="isQuickAddCustomerOpen" title="إضافة عميل جديد سريع" icon="ri-user-add-line" max-width="800" hide-actions draggable>
+    <AppDialog v-model="isQuickAddCustomerOpen" :title="currentContext === 'purchase' ? 'إضافة مورد جديد سريع' : 'إضافة عميل جديد سريع'" icon="ri-user-add-line" max-width="800" hide-actions draggable>
       <UserForm :model-value="{ role: 'customer' }" @save="handleQuickCustomerSave" @cancel="isQuickAddCustomerOpen = false" />
     </AppDialog>
 
@@ -482,11 +483,13 @@ const loadLookups = async () => {
         invoiceData.value.cash_box_id = cashBoxes.value[0].id;
       }
 
-      // ✅ تحديد العميل النقدي الافتراضي تلقائياً لكل فاتورة جديدة
-      const company = userStore.currentCompany;
-      if (company?.default_cash_customer) {
-        selectedCustomerObj.value = company.default_cash_customer;
-        invoiceData.value.user_id = company.default_cash_customer.id;
+      // ✅ تحديد العميل النقدي الافتراضي تلقائياً لكل فاتورة جديدة (باستثناء الشراء)
+      if (currentContext.value !== 'purchase') {
+        const company = userStore.currentCompany;
+        if (company?.default_cash_customer) {
+          selectedCustomerObj.value = company.default_cash_customer;
+          invoiceData.value.user_id = company.default_cash_customer.id;
+        }
       }
     }
   } catch (error) {

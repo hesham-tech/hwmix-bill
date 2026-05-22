@@ -30,14 +30,14 @@
                   <v-col cols="6" class="pe-2">
                     <div class="d-flex flex-column border rounded-md px-2 py-1 bg-neutral-lighten-5" style="height: 28px; justify-content: center;">
                       <div class="d-flex justify-space-between align-center">
-                        <span style="font-size: 8.5px;" class="font-weight-medium text-secondary">رصيد العميل الحالي:</span>
+                        <span style="font-size: 8.5px;" class="font-weight-medium text-secondary">رصيد {{ isPurchase ? 'المورد' : 'العميل' }} الحالي:</span>
                         <AppBalanceDisplay :amount="financials.previous_balance" perspective="admin" value-class="text-xs font-weight-black" hide-label />
                       </div>
                     </div>
                   </v-col>
                   <v-col cols="6">
                     <div class="d-flex align-center justify-between border rounded-md bg-neutral-lighten-5 px-2" style="height: 28px">
-                      <span class="text-xxs font-weight-bold flex-grow-1">احتساب رصيد العميل</span>
+                      <span class="text-xxs font-weight-bold flex-grow-1">احتساب رصيد {{ isPurchase ? 'المورد' : 'العميل' }}</span>
                       <AppSwitch
                         :model-value="modelValue.include_previous_balance"
                         hide-details
@@ -257,6 +257,10 @@ const props = defineProps({
     default: () => ({}),
   },
   showProfit: {
+    type: Boolean,
+    default: false,
+  },
+  isPurchase: {
     type: Boolean,
     default: false,
   },

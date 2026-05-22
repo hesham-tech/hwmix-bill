@@ -32,7 +32,7 @@
         color="primary"
         class="ms-1"
         @click.stop="$emit('create')"
-        v-tooltip="'إضافة عميل جديد'"
+        v-tooltip="tooltip || 'إضافة عميل جديد'"
       />
     </template>
 
@@ -87,6 +87,10 @@ const props = defineProps({
   label: {
     type: String,
     default: 'اختر العميل *',
+  },
+  tooltip: {
+    type: String,
+    default: '',
   },
   returnObject: {
     type: Boolean,
