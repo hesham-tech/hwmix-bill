@@ -36,7 +36,7 @@
 
       <!-- Tabs Column (Mobile) -->
       <v-col cols="12" class="d-md-none">
-        <div class="mobile-tabs-container mb-4">
+        <div class="mobile-tabs-container mb-4 tour-settings-tabs">
           <button
             v-for="tab in tabsList"
             :key="tab.value"
@@ -319,6 +319,27 @@
                     </v-row>
                   </AppCard>
                 </v-col>
+
+                <!-- System Preferences -->
+                <v-col cols="12">
+                  <AppCard title="تفضيلات المنتجات" icon="ri-settings-4-line" icon-color="primary">
+                    <v-row dense>
+                      <v-col cols="12">
+                        <v-switch
+                          v-model="formData.settings.enable_digital_products"
+                          color="primary"
+                          hide-details
+                          @update:model-value="handleSave"
+                        >
+                          <template #label>
+                            <span class="me-2">تفعيل ودعم المنتجات الرقمية (الأكواد والملفات)</span>
+                            <AppFieldHelp text="يتيح بيع منتجات غير ملموسة وتسليم روابط أو مفاتيح ترخيص للعملاء تلقائياً عند تأكيد البيع." />
+                          </template>
+                        </v-switch>
+                      </v-col>
+                    </v-row>
+                  </AppCard>
+                </v-col>
               </v-row>
             </v-window-item>
 
@@ -375,27 +396,6 @@
                             <v-btn icon="ri-close-line" variant="text" color="error" size="x-small" density="comfortable" @click.stop="revertField('print_settings.footer_text')" />
                           </template>
                         </AppInput>
-                      </v-col>
-                    </v-row>
-                  </AppCard>
-                </v-col>
-
-                <!-- System Preferences -->
-                <v-col cols="12">
-                  <AppCard title="تفضيلات النظام" icon="ri-settings-4-line" icon-color="primary">
-                    <v-row dense>
-                      <v-col cols="12">
-                        <v-switch
-                          v-model="formData.settings.enable_digital_products"
-                          color="primary"
-                          hide-details
-                          @update:model-value="handleSave"
-                        >
-                          <template #label>
-                            <span class="me-2">تفعيل ودعم المنتجات الرقمية (الأكواد والملفات)</span>
-                            <AppFieldHelp text="يتيح بيع منتجات غير ملموسة وتسليم روابط أو مفاتيح ترخيص للعملاء تلقائياً عند تأكيد البيع." />
-                          </template>
-                        </v-switch>
                       </v-col>
                     </v-row>
                   </AppCard>

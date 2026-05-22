@@ -126,6 +126,9 @@
 
 
 
+      <!-- Theme Switcher for Desktop -->
+      <NavbarThemeSwitcher class="d-none d-sm-flex mx-1" />
+
       <!-- أدوات سريعة -->
       <v-menu v-model="isQuickToolsMenuOpen" :close-on-content-click="false">
         <template #activator="{ props }">
@@ -192,22 +195,19 @@
         </template>
         <v-list density="compact">
           <v-list-item prepend-icon="ri-user-settings-line" title="الملف الشخصي" to="/app/profile" />
-          <v-list-item prepend-icon="ri-device-line" title="إدارة الأجهزة" to="/app/sessions" />
-          <v-list-item prepend-icon="ri-question-line" title="دليل الصفحة المساعد" @click="openHelpDrawer" />
           <v-list-item v-if="userStore.isStaff" prepend-icon="ri-sparkling-line" title="سجل التحديثات" @click="showUpdatesHistory" />
+          <v-list-item prepend-icon="ri-device-line" title="إدارة الأجهزة" to="/app/sessions" />
           <v-list-item v-if="userStore.isStaff" prepend-icon="ri-settings-3-line" title="الإعدادات" to="/app/settings" />
 
-          <!-- Branch Switcher for Mobile -->
+          <!-- أدوات تظهر فقط على الموبايل في القائمة -->
           <template v-if="xs">
             <v-divider class="my-1" />
+            
             <div class="px-4 py-2">
               <div class="text-xxs text-grey mb-1">الفرع الحالي</div>
               <BranchSwitcher :show-on-mobile="true" />
             </div>
-          </template>
 
-          <!-- أدوات تظهر فقط على الموبايل في القائمة -->
-          <template v-if="xs">
             <v-divider class="my-1" />
 
             <!-- Print Formats Group for Mobile -->
@@ -228,19 +228,37 @@
               />
             </v-list-group>
 
-            <!-- <v-list-item prepend-icon="ri-translate-2" :title="localeStore.locale === 'ar' ? 'English' : 'عربي'" @click="toggleLanguage" />
-            <v-list-item prepend-icon="ri-customer-service-2-line" title="الدعم الفني" @click="handleManualReport('feedback')" /> -->
-            <v-list-item prepend-icon="ri-percent-line" title="حساب نسبة مئوية" @click="appState.openPercentageTool()" />
-            <v-list-item prepend-icon="ri-calculator-line" title="آلة حاسبة" @click="appState.openCalculator()" />
-            <v-list-item prepend-icon="ri-calendar-2-line" title="حساب أقساط" @click="appState.openInstallmentCalc({ mode: 'standalone' })" />
-          </template>
+            <!-- Mini Apps Group for Mobile -->
+            <v-list-group value="mini_apps" fluid :indent-strategy="'none'">
+              <template #activator="{ props }">
+                <v-list-item v-bind="props" prepend-icon="ri-apps-2-line" title="أدوات سريعة" />
+              </template>
+              <v-list-item
+                title="حساب نسبة مئوية"
+                prepend-icon="ri-percent-line"
+                @click="appState.openPercentageTool()"
+                size="small"
+                class="ps-0"
+              />
+              <v-list-item
+                title="آلة حاسبة"
+                prepend-icon="ri-calculator-line"
+                @click="appState.openCalculator()"
+                size="small"
+                class="ps-0"
+              />
+              <v-list-item
+                title="حساب أقساط"
+                prepend-icon="ri-calendar-2-line"
+                @click="appState.openInstallmentCalc({ mode: 'standalone' })"
+                size="small"
+                class="ps-0"
+              />
+            </v-list-group>
 
-          <!-- Theme Switcher -->
-          <v-divider class="my-1" />
-          <div class="px-4 py-1 d-flex align-center justify-space-between">
-            <span class="text-caption text-grey">الوضع (الثيم)</span>
-            <NavbarThemeSwitcher />
-          </div>
+            <v-divider class="my-1" />
+            <v-list-item prepend-icon="ri-question-line" title="دليل الصفحة المساعد" @click="isHelpDrawerOpen = true" />
+          </template>
 
           <v-divider class="my-1" />
           <v-list-item prepend-icon="ri-refresh-line" title="تحديث بيانات النظام" @click="showClearCacheDialog = true" class="text-info" />
