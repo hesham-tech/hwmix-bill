@@ -24,9 +24,9 @@
         <v-list-item
           v-bind="props"
           class="py-2 px-4 search-item-hover"
-          :disabled="item.raw.type === 'product' && invoiceType !== 'purchases' && item.raw.requires_stock && item.raw.quantity <= 0"
+          :disabled="item.raw.type === 'product' && invoiceType !== 'purchase' && item.raw.requires_stock && item.raw.quantity <= 0"
           :style="
-            item.raw.type === 'product' && invoiceType !== 'purchases' && item.raw.requires_stock && item.raw.quantity <= 0
+            item.raw.type === 'product' && invoiceType !== 'purchase' && item.raw.requires_stock && item.raw.quantity <= 0
               ? 'opacity: 0.6; pointer-events: none;'
               : ''
           "
