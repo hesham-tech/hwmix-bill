@@ -19,7 +19,6 @@
               :loading="loading"
               permission-module="products"
               show-view-toggle
-              grid-enabled
               :grid-options="{
                 titleKey: 'name',
                 imageKey: 'primary_image_url',
