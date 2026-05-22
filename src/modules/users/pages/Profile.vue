@@ -129,6 +129,43 @@
           </v-list>
         </AppCard>
       </v-col>
+
+      <!-- Guidance Settings Column -->
+      <v-col cols="12" lg="8">
+        <AppCard title="إعدادات المساعدة والدعم الإرشادي" icon="ri-guide-line">
+          <v-card-text class="pa-4">
+            <div class="d-flex align-center justify-space-between mb-4">
+              <div>
+                <h4 class="text-subtitle-1 font-weight-bold mb-1">نظام التوجيه والتعليم المساعد</h4>
+                <p class="text-caption text-grey">تفعيل أو تعطيل الجولات التعريفية التلقائية والتعليمات التفاعلية داخل النظام.</p>
+              </div>
+              <AppSwitch
+                v-model="guidanceEnabled"
+                hide-details
+                color="primary"
+                @change="handleGuidanceToggle"
+              />
+            </div>
+            
+            <v-divider class="my-4" />
+
+            <div class="d-flex align-center justify-space-between">
+              <div>
+                <h4 class="text-subtitle-1 font-weight-bold mb-1">إعادة تشغيل الجولات الإرشادية</h4>
+                <p class="text-caption text-grey">سيؤدي هذا إلى إعادة تشغيل كافة الجولات التعريفية وقائمة التهيئة من البداية.</p>
+              </div>
+              <AppButton
+                color="warning"
+                variant="tonal"
+                prepend-icon="ri-restart-line"
+                @click="handleResetGuidance"
+              >
+                إعادة ضبط
+              </AppButton>
+            </div>
+          </v-card-text>
+        </AppCard>
+      </v-col>
     </v-row>
 
     <!-- Professional Media Gallery Component -->
@@ -195,7 +232,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted, reactive } from 'vue';
+/**
+ * مكون صفحة الملف الشخصي للمستخدم - إدارة البيانات الشخصية وتفضيلات جولات الدعم والإرشاد والمساعدة الذكية.
+ */
+
+import { ref, onMounted, reactive, computed } from 'vue';
 import { useUserStore } from '@/stores/user';
 import { useApi } from '@/composables/useApi';
 import { toast } from 'vue3-toastify';
@@ -207,6 +248,8 @@ import MediaGallery from '@/components/common/MediaGallery.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
 import AppImageCropper from '@/components/common/AppImageCropper.vue';
 import AppBalanceDisplay from '@/components/common/AppBalanceDisplay.vue';
+import AppSwitch from '@/components/common/AppSwitch.vue';
+import { useGuidance } from '@/modules/guidance/composables/useGuidance';
 
 const userStore = useUserStore();
 const api = useApi('/api/users');
@@ -216,6 +259,26 @@ const saving = ref(false);
 const passwordSaving = ref(false);
 const showMediaGallery = ref(false);
 const showPasswordDialog = ref(false);
+
+const { isEnabled, toggleGuidance, resetProgress } = useGuidance();
+
+const guidanceEnabled = computed({
+  get: () => isEnabled.value,
+  set: (val) => toggleGuidance(val)
+});
+
+const handleGuidanceToggle = (val) => {
+  toast.success(val ? 'تم تفعيل جولات المساعدة والإرشاد بنجاح' : 'تم تعطيل جولات المساعدة والإرشاد');
+};
+
+const handleResetGuidance = async () => {
+  try {
+    await resetProgress();
+    toast.success('تم إعادة ضبط جولات المساعدة والتهيئة بنجاح');
+  } catch (error) {
+    toast.error('حدث خطأ أثناء إعادة ضبط جولات المساعدة');
+  }
+};
 const showPassword = ref(false);
 const errors = ref({});
 

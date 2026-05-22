@@ -94,6 +94,13 @@ async function initializeSecondaryFeatures(appInstance) {
     console.warn('Failed to initialize print system:', e);
   });
 
+  // Initialize guidance system (Lazy Loaded)
+  import('@/modules/guidance')
+    .then(({ default: guidance }) => {
+      appInstance.use(guidance);
+    })
+    .catch(e => console.warn('Failed to initialize guidance system:', e));
+
   // Prefetch common routes
   import('@/router/prefetch')
     .then(({ prefetchCommonRoutes }) => {

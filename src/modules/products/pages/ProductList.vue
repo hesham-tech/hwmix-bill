@@ -33,6 +33,9 @@
               title="المنتجات"
               subtitle="إدارة المخزون والمنتجات والمتغيرات مع ميزات البحث المتقدم"
               icon="ri-box-3-line"
+              empty-state-type="products"
+              :empty-state-show-cta="canAny(PERMISSIONS.PRODUCTS_CREATE)"
+              @empty-action="router.push({ name: 'product-create' })"
               @view="viewProduct"
               @edit="editProduct"
               @delete="confirmDelete"
@@ -313,6 +316,9 @@
 </template>
 
 <script setup>
+/**
+ * صفحة عرض قائمة المنتجات وإدارة المخزون
+ */
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useProductStore } from '../store/product.store';

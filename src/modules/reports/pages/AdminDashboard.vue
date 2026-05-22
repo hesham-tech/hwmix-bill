@@ -38,6 +38,7 @@
               variant="outlined"
               @click="startCustomization"
               :size="xs ? 'x-small' : 'small'"
+              class="tour-dashboard-customize"
             >
               <span v-if="!xs">تخصيص الواجهة</span>
             </AppButton>
@@ -48,6 +49,7 @@
               :loading="refreshing"
               @click="refreshAll"
               :size="xs ? 'x-small' : 'small'"
+              class="tour-dashboard-refresh"
             >
               <span v-if="!xs">تحديث البيانات</span>
             </AppButton>

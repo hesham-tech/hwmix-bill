@@ -314,7 +314,10 @@
           </template>
 
           <template #no-data>
-            <div class="d-flex flex-column align-center justify-center py-10 text-center">
+            <template v-if="emptyStateType">
+              <EmptyStateGuide :type="emptyStateType" :show-cta="emptyStateShowCta" @action="$emit('empty-action')" />
+            </template>
+            <div v-else class="d-flex flex-column align-center justify-center py-10 text-center">
               <div class="bg-grey-lighten-5 rounded-circle pa-4 mb-3">
                 <v-icon icon="ri-search-eye-line" size="32" color="grey-lighten-1" />
               </div>
@@ -418,7 +421,10 @@
 
           <!-- [NEW] Consistent Empty State Slot -->
           <template #no-data>
-            <div class="d-flex flex-column align-center justify-center py-10 text-center">
+            <template v-if="emptyStateType">
+              <EmptyStateGuide :type="emptyStateType" :show-cta="emptyStateShowCta" @action="$emit('empty-action')" />
+            </template>
+            <div v-else class="d-flex flex-column align-center justify-center py-10 text-center">
               <div class="bg-grey-lighten-5 rounded-circle pa-4 mb-3">
                 <v-icon icon="ri-search-eye-line" size="32" color="grey-lighten-1" />
               </div>
@@ -507,7 +513,10 @@
 
           <!-- [NEW] Consistent Empty State Slot for Virtual -->
           <template #no-data>
-            <div class="d-flex flex-column align-center justify-center py-10 text-center">
+            <template v-if="emptyStateType">
+              <EmptyStateGuide :type="emptyStateType" :show-cta="emptyStateShowCta" @action="$emit('empty-action')" />
+            </template>
+            <div v-else class="d-flex flex-column align-center justify-center py-10 text-center">
               <div class="bg-grey-lighten-5 rounded-circle pa-4 mb-3">
                 <v-icon icon="ri-search-eye-line" size="32" color="grey-lighten-1" />
               </div>
@@ -673,12 +682,17 @@
 
         <!-- [NEW] Empty State for Grid Mode -->
         <div v-if="!loading && items.length === 0" class="d-flex flex-column align-center justify-center py-12 text-center h-100">
-          <div class="bg-grey-lighten-5 rounded-circle pa-6 mb-4">
-            <v-icon icon="ri-search-eye-line" size="48" color="grey-lighten-1" />
+          <template v-if="emptyStateType">
+            <EmptyStateGuide :type="emptyStateType" :show-cta="emptyStateShowCta" @action="$emit('empty-action')" />
+          </template>
+          <div v-else class="d-flex flex-column align-center justify-center">
+            <div class="bg-grey-lighten-5 rounded-circle pa-6 mb-4">
+              <v-icon icon="ri-search-eye-line" size="48" color="grey-lighten-1" />
+            </div>
+            <div class="text-h6 font-weight-bold text-grey-darken-2 mb-1">{{ emptyText }}</div>
+            <div class="text-body-2 text-grey mb-4" style="max-width: 300px">{{ emptySubtext }}</div>
+            <slot name="empty-actions" />
           </div>
-          <div class="text-h6 font-weight-bold text-grey-darken-2 mb-1">{{ emptyText }}</div>
-          <div class="text-body-2 text-grey mb-4" style="max-width: 300px">{{ emptySubtext }}</div>
-          <slot name="empty-actions" />
         </div>
       </div>
 
@@ -742,7 +756,7 @@
 </template>
 
 <script setup>
-import { computed, ref, reactive, nextTick, watch, useSlots, useAttrs } from 'vue';
+import { computed, ref, reactive, nextTick, watch, useSlots, useAttrs, defineAsyncComponent } from 'vue';
 import { useRoute } from 'vue-router';
 import { useWindowSize, useElementSize, useLocalStorage } from '@vueuse/core';
 import { useDisplay } from 'vuetify';
@@ -754,6 +768,8 @@ import AppAvatar from '@/components/common/AppAvatar.vue';
 import AppAutocomplete from '@/components/common/AppAutocomplete.vue';
 import AppTableActions from '@/components/common/AppTableActions.vue';
 import { useUIPreferencesStore } from '@/stores/uiPreferences';
+
+const EmptyStateGuide = defineAsyncComponent(() => import('@/modules/guidance/components/EmptyStateGuide.vue'));
 
 const { mobile: isMobile } = useDisplay();
 
@@ -841,6 +857,8 @@ const props = defineProps({
   local: { type: Boolean, default: false },
   itemValue: { type: String, default: 'id' },
   expanded: { type: Array, default: () => [] },
+  emptyStateType: { type: String, default: null },
+  emptyStateShowCta: { type: Boolean, default: true },
 });
 
 const emit = defineEmits([
@@ -856,6 +874,7 @@ const emit = defineEmits([
   'click:row',
   'update:filters',
   'load',
+  'empty-action',
 ]);
 
 // --- Core Composables ---

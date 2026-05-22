@@ -400,11 +400,13 @@ import AppButton from '@/components/common/AppButton.vue';
 import { toast } from 'vue3-toastify';
 import { useAuthStore } from '@/stores/auth';
 import { PERMISSIONS } from '@/config/permissions';
+import { useGuidance } from '@/modules/guidance/composables/useGuidance';
 
 const userStore = useUserStore();
 const authStore = useAuthStore();
 const { can } = usePermissions();
 const api = useApi('/api/companies');
+const { markAsCompleted } = useGuidance();
 
 const activeTab = ref('basic');
 const originalData = ref(null);
@@ -640,6 +642,10 @@ const handleSave = async () => {
     await api.update(formData.value.id, payload);
     originalData.value = JSON.parse(JSON.stringify(formData.value));
     toast.success('تم حفظ التغييرات بنجاح');
+    
+    // وسم خطوة تهيئة بيانات الشركة كمنتهية في نظام التهيئة
+    await markAsCompleted('onboarding.setup_company');
+    
     // Refresh user info to update global branding (like sidebar logo)
     await userStore.fetchUser();
   } catch (error) {

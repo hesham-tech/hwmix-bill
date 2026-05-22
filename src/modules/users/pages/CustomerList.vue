@@ -26,6 +26,9 @@
               title="العملاء"
               subtitle="إدارة بيانات العملاء والبحث في سجلاتهم"
               icon="ri-team-line"
+              empty-state-type="customers"
+              :empty-state-show-cta="can(PERMISSIONS.USERS_CREATE)"
+              @empty-action="handleCreate"
               @update:filters="applyFilters"
               @update:options="onTableOptionsUpdate"
               @edit="handleEdit"
@@ -154,6 +157,10 @@
 </template>
 
 <script setup>
+/**
+ * مكون عرض وإدارة قائمة العملاء.
+ * يعرض قائمة العملاء وحالاتهم وأرصدتهم، ويدعم عمليات الإيداع، السحب، التحويل، وإدارة الدفعات.
+ */
 import { ref, computed } from 'vue';
 import { usePermissions } from '@/composables/usePermissions';
 import { useDataTable } from '@/composables/useDataTable';
@@ -253,7 +260,19 @@ const handleSave = async data => {
     data.roles = ['customer'];
     data.role = 'customer';
   }
+  const isAddingNew = !isEditMode.value;
   await saveUser(data);
+
+  if (isAddingNew) {
+    try {
+      const { useGuidanceStore } = await import('@/modules/guidance/store/useGuidanceStore');
+      const guidanceStore = useGuidanceStore();
+      await guidanceStore.markStepAsCompleted('onboarding.add_customer');
+    } catch (e) {
+      console.warn('Guidance store sync failed:', e);
+    }
+  }
+
   refresh();
   close();
 };

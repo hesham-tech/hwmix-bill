@@ -3,6 +3,7 @@ import { ref, computed } from 'vue';
 import productService from '@/api/services/product.service';
 import warehouseService from '@/api/services/warehouse.service';
 import { toast } from 'vue3-toastify';
+import { useGuidanceStore } from '@/modules/guidance/store/useGuidanceStore';
 
 export const useProductStore = defineStore('product', () => {
   // --- State ---
@@ -68,6 +69,17 @@ export const useProductStore = defineStore('product', () => {
       const response = await productService.save(data, id);
       if (response.status) {
         toast.success(id ? 'تم تحديث المنتج بنجاح' : 'تم إنشاء المنتج بنجاح');
+        
+        // وسم خطوة إضافة منتج في معالج التهيئة كمكتملة
+        if (!id) {
+          try {
+            const guidanceStore = useGuidanceStore();
+            await guidanceStore.markStepAsCompleted('onboarding.add_product');
+          } catch (e) {
+            console.warn('Guidance store sync failed:', e);
+          }
+        }
+        
         await fetchProducts();
       }
       return response;

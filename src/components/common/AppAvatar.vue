@@ -210,6 +210,8 @@ const props = defineProps({
   },
 });
 
+const emit = defineEmits(['edit', 'crop']);
+
 const hasImgError = ref(false);
 const showPreview = ref(false);
 

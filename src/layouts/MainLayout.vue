@@ -15,7 +15,7 @@
         variant="text"
         color="primary"
         @click="isSearchOpen = true"
-        class="rounded-lg"
+        class="rounded-lg tour-nav-search"
         :size="xs ? 30 : 34"
       />
 
@@ -28,7 +28,7 @@
               icon="ri-sparkling-line"
               variant="text"
               color="primary"
-              class="rounded-lg"
+              class="rounded-lg tour-nav-updates"
               size="34"
               @click="showUpdatesHistory"
             />
@@ -36,6 +36,14 @@
           سجل التحديثات والجديد
         </v-tooltip>
       </div>
+
+      <!-- Contextual Help Button -->
+      <ContextualHelpBtn
+        ref="helpBtnRef"
+        class="contextual-help-trigger"
+        :tour-key="activeTourKey"
+        @restart-tour="handleRestartTour"
+      />
 
       <AppBalanceDisplay
         v-if="userStore.currentUser"
@@ -62,7 +70,7 @@
       </v-tooltip> -->
 
       <!-- Branch Switcher -->
-      <BranchSwitcher class="d-none d-sm-flex" />
+      <BranchSwitcher class="d-none d-sm-flex tour-nav-branch" />
 
       <!-- Print Format Selection Menu -->
       <v-menu location="bottom end">
@@ -74,7 +82,7 @@
                 icon
                 variant="text"
                 color="primary"
-                class="d-none d-sm-flex rounded-lg"
+                class="d-none d-sm-flex rounded-lg tour-nav-print"
                 size="34"
                 :loading="isUpdatingPrint"
               >
@@ -113,7 +121,7 @@
       <!-- أدوات سريعة -->
       <v-menu v-model="isQuickToolsMenuOpen" :close-on-content-click="false">
         <template #activator="{ props }">
-          <AppButton v-bind="props" icon variant="text" color="primary" class="d-none d-sm-flex rounded-lg" size="34">
+          <AppButton v-bind="props" icon variant="text" color="primary" class="d-none d-sm-flex rounded-lg tour-nav-tools" size="34">
             <v-icon size="20">ri-apps-2-line</v-icon>
           </AppButton>
         </template>
@@ -177,6 +185,7 @@
         <v-list density="compact">
           <v-list-item prepend-icon="ri-user-settings-line" title="الملف الشخصي" to="/app/profile" />
           <v-list-item prepend-icon="ri-device-line" title="إدارة الأجهزة" to="/app/sessions" />
+          <v-list-item prepend-icon="ri-question-line" title="دليل الصفحة المساعد" @click="openHelpDrawer" />
           <v-list-item v-if="userStore.isStaff" prepend-icon="ri-sparkling-line" title="سجل التحديثات" @click="showUpdatesHistory" />
           <v-list-item v-if="userStore.isStaff" prepend-icon="ri-settings-3-line" title="الإعدادات" to="/app/settings" />
 
@@ -366,11 +375,16 @@
 
     <!-- Dialog for System Release Notes / What's New Updates -->
     <AppSystemUpdatesDialog ref="systemUpdatesDialog" />
+
+    <!-- Guidance System Components -->
+    <GuidanceTour />
+    <OnboardingChecklist />
+    <HintBubble />
   </v-main>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, defineAsyncComponent, onMounted, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 import { useLocaleStore } from '@/stores/locale';
@@ -392,7 +406,19 @@ import { toast } from 'vue3-toastify';
 import { useDisplay } from 'vuetify';
 import { formatCurrency } from '@/utils/formatters';
 import { clearAppCache } from '@/utils/maintenance';
-import { onMounted, onUnmounted } from 'vue';
+
+// استيرادات نظام الإرشاد (Guidance System)
+import { useGuidanceStore } from '@/modules/guidance/store/useGuidanceStore';
+import { useTour } from '@/modules/guidance/composables/useTour';
+import { useHint } from '@/modules/guidance/composables/useHint';
+import dashboardTour from '@/modules/guidance/content/tours/dashboard.tour.js';
+import invoicesTour from '@/modules/guidance/content/tours/invoices.tour.js';
+
+// تعريف المكونات بشكل غير متزامن (Lazy loading) لمنع زيادة حجم الـ main bundle
+const GuidanceTour = defineAsyncComponent(() => import('@/modules/guidance/components/GuidanceTour.vue'));
+const OnboardingChecklist = defineAsyncComponent(() => import('@/modules/guidance/components/OnboardingChecklist.vue'));
+const HintBubble = defineAsyncComponent(() => import('@/modules/guidance/components/HintBubble.vue'));
+const ContextualHelpBtn = defineAsyncComponent(() => import('@/modules/guidance/components/ContextualHelpBtn.vue'));
 
 const { xs } = useDisplay();
 const route = useRoute();
@@ -400,6 +426,68 @@ const router = useRouter();
 const userStore = useUserStore();
 const localeStore = useLocaleStore();
 const appState = useappState();
+const guidanceStore = useGuidanceStore();
+const { startTour } = useTour();
+const { showHint } = useHint();
+
+// مراقبة تغيير الصفحة لبدء الجولة التعريفية المناسبة تلقائياً أو عرض تلميحات سريعة
+watch(
+  () => route.name,
+  (newRouteName) => {
+    if (!newRouteName) return;
+    
+    // تأخير طفيف لضمان استقرار تحميل مكونات الصفحة وتواجد العناصر المستهدفة
+    setTimeout(() => {
+      if (newRouteName === 'admin-dashboard') {
+        const started = startTour(dashboardTour, 'tour.dashboard');
+        if (!started) {
+          showHint({
+            key: 'hint.dashboard_drag',
+            title: 'ترتيب واجهة العمل',
+            content: 'يمكنك سحب وإفلات الأدوات المساعدة كالحاسبة وحاسبة النسب ووضعها في أي مكان يناسبك على الشاشة لسهولة الوصول.'
+          });
+        }
+      } else if (newRouteName === 'invoices') {
+        const started = startTour(invoicesTour, 'tour.invoices');
+        if (!started) {
+          showHint({
+            key: 'hint.invoice_installments',
+            title: 'جدولة المستحقات',
+            content: 'عند إنشاء فاتورة، يمكنك تحديد طريقة الدفع بالأقساط وجدولتها، وسيقوم النظام بتنبيهك تلقائياً عند حلول موعد السداد.'
+          });
+        }
+      } else if (newRouteName === 'products') {
+        showHint({
+          key: 'hint.product_excel',
+          title: 'استيراد سريع للمنتجات',
+          content: 'وفر وقتك واستخدم ميزة استيراد المنتجات من ملف Excel لرفع كافة أصناف ومخزون متجرك دفعة واحدة.'
+        });
+      } else if (newRouteName === 'customers') {
+        showHint({
+          key: 'hint.customer_statement',
+          title: 'كشف حساب العملاء',
+          content: 'يمكنك استخراج كشف حساب مالي تفصيلي لأي عميل بنقرة واحدة وتصديره بصيغة PDF لمشاركته مباشرة.'
+        });
+      }
+    }, 1200);
+  },
+  { immediate: true }
+);
+
+// المساعدة السياقية النشطة للجولة التعريفية
+const activeTourKey = computed(() => {
+  if (route.name === 'admin-dashboard') return 'tour.dashboard';
+  if (route.name === 'invoices') return 'tour.invoices';
+  return '';
+});
+
+const handleRestartTour = () => {
+  if (route.name === 'admin-dashboard') {
+    startTour(dashboardTour, 'tour.dashboard', true);
+  } else if (route.name === 'invoices') {
+    startTour(invoicesTour, 'tour.invoices', true);
+  }
+};
 
 const isSearchOpen = ref(false);
 
@@ -423,8 +511,11 @@ const handleKeyDown = e => {
   }
 };
 
-onMounted(() => {
+onMounted(async () => {
   window.addEventListener('keydown', handleKeyDown);
+
+  // تهيئة إرشاد المستخدم والشركة النشطة
+  await guidanceStore.initGuidance();
 
   // تصفير المواقع الافتراضية القديمة لضمان تفعيل التوسيط الجديد
   const oldCalc = localStorage.getItem('tool_pos_calc');
@@ -522,9 +613,14 @@ const confirmLogoutDialog = ref(null);
 const confirmCacheDialog = ref(null);
 const showClearCacheDialog = ref(false);
 const systemUpdatesDialog = ref(null);
+const helpBtnRef = ref(null);
 
 const showUpdatesHistory = () => {
   systemUpdatesDialog.value?.show(true);
+};
+
+const openHelpDrawer = () => {
+  helpBtnRef.value?.open();
 };
 
 const handleClearCache = async () => {

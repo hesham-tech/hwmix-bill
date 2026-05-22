@@ -19,6 +19,9 @@
       :title="hideHeader ? '' : 'الفواتير'"
       :subtitle="hideHeader ? '' : 'إدارة جميع الفواتير الصادرة والواردة'"
       icon="ri-file-list-3-line"
+      empty-state-type="invoices"
+      :empty-state-show-cta="can(PERMISSIONS.INVOICES_CREATE)"
+      @empty-action="navigateToCreate"
       @update:page="changePage"
       @update:items-per-page="changePerPage"
       @load="loadNextPage"
@@ -119,6 +122,10 @@
 </template>
 
 <script setup>
+/**
+ * مكون عرض وإدارة قائمة الفواتير الصادرة والواردة.
+ * يدعم البحث والتصفية المتقدمة وعرض الجدول كشبكة بطاقات (Grid) أو كجدول تقليدي.
+ */
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useDataTable } from '@/composables/useDataTable';

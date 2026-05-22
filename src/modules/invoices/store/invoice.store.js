@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { invoiceService } from '@/api';
 import { toast } from 'vue3-toastify';
+import { useGuidanceStore } from '@/modules/guidance/store/useGuidanceStore';
 
 export const useInvoiceStore = defineStore('invoice', () => {
   // State
@@ -76,6 +77,15 @@ export const useInvoiceStore = defineStore('invoice', () => {
     try {
       const response = await invoiceService.save(data);
       toast.success('تم إنشاء الفاتورة بنجاح');
+      
+      // وسم خطوة إنشاء فاتورة في معالج التهيئة كمكتملة
+      try {
+        const guidanceStore = useGuidanceStore();
+        await guidanceStore.markStepAsCompleted('onboarding.create_invoice');
+      } catch (e) {
+        console.warn('Guidance store sync failed:', e);
+      }
+
       await fetchInvoices(); // Refresh list
       return response.data[0];
     } catch (error) {
