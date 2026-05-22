@@ -59,9 +59,9 @@ const settingCards = computed(() => {
 
   if (canAny(PERMISSIONS.COMPANIES_VIEW_ALL, PERMISSIONS.COMPANIES_VIEW_CHILDREN, PERMISSIONS.COMPANIES_VIEW_SELF)) {
     cards.push({
-      title: 'بيانات الشركة',
+      title: 'إعدادات الشركة',
       description: 'تحديث هوية الشركة، الشعار، وقنوات التواصل',
-      icon: 'ri-building-line',
+      icon: 'ri-building-2-line',
       color: 'success',
       to: '/app/company',
     });

@@ -140,6 +140,7 @@ async function updateCardPosition() {
     cardEl.value,
     {
       placement,
+      strategy: 'fixed',
       middleware: [
         offset(14), // مسافة كافية عن المربع المضيء
         flip(),
@@ -337,6 +338,7 @@ onUnmounted(() => {
   z-index: 10000;
   width: 320px;
   max-width: 90vw;
+  max-height: 90vh; /* تأكد من عدم خروج البطاقة عن الشاشة */
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -371,6 +373,7 @@ onUnmounted(() => {
   justify-content: space-between;
   border-bottom: 1px solid #f1f5f9;
   padding-bottom: 8px;
+  flex-shrink: 0;
 }
 
 .step-indicator {
@@ -404,6 +407,16 @@ onUnmounted(() => {
 .guidance-card-body {
   line-height: 1.6;
   min-height: 50px;
+  overflow-y: auto; /* إضافة سكرول للبطاقات الطويلة */
+  scrollbar-width: thin;
+}
+
+.guidance-card-body::-webkit-scrollbar {
+  width: 4px;
+}
+.guidance-card-body::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 4px;
 }
 
 .guidance-card-footer {

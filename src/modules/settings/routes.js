@@ -60,7 +60,7 @@ export default [
     name: 'company',
     component: () => import('@/modules/settings/pages/CompanySettings.vue'),
     meta: {
-      title: 'بيانات الشركة',
+      title: 'إعدادات الشركة',
       permission: [PERMISSIONS.COMPANIES_VIEW_ALL, PERMISSIONS.COMPANIES_VIEW_CHILDREN, PERMISSIONS.COMPANIES_VIEW_SELF],
     },
   },

@@ -315,8 +315,8 @@ export default [
     children: [
       // Company Settings
       {
-        title: 'بيانات الشركة',
-        to: '/app/company',
+        title: 'إعدادات الشركة',
+        to: '/app/settings/company',
         icon: 'ri-building-2-line',
         permission: [PERMISSIONS.COMPANIES_VIEW_ALL, PERMISSIONS.COMPANIES_VIEW_CHILDREN, PERMISSIONS.COMPANIES_VIEW_SELF],
       },

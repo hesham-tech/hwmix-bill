@@ -22,7 +22,7 @@
               v-for="tab in tabsList"
               :key="tab.value"
               :value="tab.value"
-              class="justify-start py-3 rounded-lg mb-1"
+              :class="['justify-start py-3 rounded-lg mb-1', 'tour-settings-tab-' + tab.value]"
             >
               <v-icon start :icon="tab.icon" class="me-3" />
               <div class="text-start">
@@ -42,7 +42,7 @@
             :key="tab.value"
             type="button"
             class="mobile-tab-pill"
-            :class="{ 'active': activeTab === tab.value }"
+            :class="[{ 'active': activeTab === tab.value }, 'tour-settings-tab-' + tab.value]"
             @click="activeTab = tab.value"
           >
             <v-icon :icon="tab.icon" size="18" class="me-2" />
@@ -281,9 +281,51 @@
               </v-row>
             </v-window-item>
 
-            <!-- TAB 3: PRINTING & PREFERENCES -->
+            <!-- TAB 3: INVENTORY & PROFIT -->
+            <v-window-item value="inventory">
+              <v-row>
+                <!-- Inventory & Pricing Settings -->
+                <v-col cols="12">
+                  <AppCard title="إعدادات المخزون والتسعير" icon="ri-money-dollar-box-line" class="mb-4 tour-settings-inventory" icon-color="primary">
+                    <v-row dense>
+                      <v-col cols="12">
+                        <v-select
+                          v-model="formData.settings.inventory_valuation_method"
+                          :items="[
+                            { title: 'المتوسط المرجح (Average Cost) - موصى به', value: 'average' },
+                            { title: 'الوارد أولاً يصرف أولاً (FIFO / Batches)', value: 'fifo' },
+                            { title: 'آخر سعر شراء (Last Purchase Price)', value: 'last_purchase_price' },
+                          ]"
+                          label="طريقة تقييم المخزون وحساب الأرباح"
+                          prepend-inner-icon="ri-bar-chart-box-line"
+                          variant="outlined"
+                          density="comfortable"
+                          @update:model-value="handleSave"
+                        />
+                      </v-col>
+                      <v-col cols="12" class="d-flex align-center mt-2">
+                        <v-switch
+                          v-model="formData.settings.auto_update_purchase_price"
+                          color="primary"
+                          hide-details
+                          @update:model-value="handleSave"
+                        >
+                          <template #label>
+                            <span class="me-2">تحديث السعر الافتراضي عند الشراء</span>
+                            <AppFieldHelp text="سيقوم النظام تلقائياً بتحديث سعر الشراء الافتراضي في بطاقة المنتج بآخر سعر تم الشراء به في الفاتورة." />
+                          </template>
+                        </v-switch>
+                      </v-col>
+                    </v-row>
+                  </AppCard>
+                </v-col>
+              </v-row>
+            </v-window-item>
+
+            <!-- TAB 4: PRINTING & PREFERENCES -->
             <v-window-item value="preferences">
               <v-row>
+
                 <!-- Printing Settings -->
                 <v-col cols="12">
                   <AppCard title="إعدادات الطباعة" icon="ri-printer-line" class="mb-4" icon-color="primary">
@@ -451,8 +493,9 @@ const revertField = (path) => {
 
 const tabsList = [
   { value: 'basic', title: 'البيانات الأساسية', icon: 'ri-building-2-line', subtitle: 'هوية المنشأة والشعار' },
-  { value: 'contact', title: 'قنوات التواصل', icon: 'ri-contacts-line', subtitle: 'روابط الاتصال والشبكات' },
-  { value: 'preferences', title: 'التفضيلات والطباعة', icon: 'ri-settings-4-line', subtitle: 'إعدادات الفواتير والمنتجات' }
+  { value: 'inventory', title: 'المخزون والأرباح', icon: 'ri-funds-box-line', subtitle: 'طرق التقييم وتحديث الأسعار' },
+  { value: 'preferences', title: 'الطباعة والتفضيلات', icon: 'ri-printer-line', subtitle: 'إعدادات الفواتير المطبوعة' },
+  { value: 'contact', title: 'قنوات التواصل', icon: 'ri-contacts-line', subtitle: 'روابط الاتصال والشبكات' }
 ];
 
 const isSuperAdmin = computed(() => authStore.user?.permissions?.includes(PERMISSIONS.ADMIN_SUPER));
@@ -488,6 +531,8 @@ const formData = ref({
   images_ids: [],
   settings: {
     enable_digital_products: false,
+    inventory_valuation_method: 'average',
+    auto_update_purchase_price: true,
   },
   print_settings: {
     print_format: 'thermal',
@@ -604,6 +649,8 @@ const loadCompanyData = async () => {
         images_ids: [],
         settings: {
           enable_digital_products: false,
+          inventory_valuation_method: 'average',
+          auto_update_purchase_price: true,
           ...(data.settings || {}),
         },
         print_settings: data.print_settings || {
