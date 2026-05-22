@@ -316,7 +316,7 @@ export default [
       // Company Settings
       {
         title: 'إعدادات الشركة',
-        to: '/app/settings/company',
+        to: '/app/company',
         icon: 'ri-building-2-line',
         permission: [PERMISSIONS.COMPANIES_VIEW_ALL, PERMISSIONS.COMPANIES_VIEW_CHILDREN, PERMISSIONS.COMPANIES_VIEW_SELF],
       },
