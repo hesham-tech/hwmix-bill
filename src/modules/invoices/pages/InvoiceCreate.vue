@@ -1,6 +1,6 @@
 <template>
   <div class="invoice-create-page">
-    <InvoiceForm :initial-type="invoiceType" @success="handleSuccess" @cancel="goBack" />
+    <InvoiceForm :key="invoiceType" :initial-type="invoiceType" @success="handleSuccess" @cancel="goBack" />
   </div>
 </template>
 

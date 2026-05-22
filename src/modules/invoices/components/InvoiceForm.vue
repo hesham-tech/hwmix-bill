@@ -351,12 +351,26 @@ watch(
   }
 );
 
-// Watch for context changes to update include_previous_balance
+// Watch for context changes to update include_previous_balance and reset logic
 watch(
   () => currentContext.value,
-  newContext => {
+  (newContext, oldContext) => {
     const disabledContexts = ['installment_sale', 'purchase'];
     invoiceData.value.include_previous_balance = !disabledContexts.includes(newContext);
+
+    // If changing the invoice type manually after initialization
+    if (oldContext && oldContext !== newContext) {
+      // 1. Reset user (supplier vs customer are different domains)
+      selectedCustomerObj.value = null;
+      invoiceData.value.user_id = null;
+
+      // 2. Reset items (Prices and stock rules vary heavily between sales and purchases)
+      invoiceData.value.items = [];
+      
+      // 3. Reset financials
+      invoiceData.value.paid_amount = 0;
+      invoiceData.value.header_discount = 0;
+    }
   },
   { immediate: true }
 );
