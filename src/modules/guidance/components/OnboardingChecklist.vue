@@ -33,7 +33,7 @@ const steps = ref([
     key: 'onboarding.setup_company',
     title: 'إعداد تفضيلات وبيانات الشركة',
     description: 'إضافة شعار الشركة، الاسم، والعنوان لطباعتها على الفواتير.',
-    route: '/app/settings' // مسار إعدادات الشركة الافتراضي
+    route: '/app/company' // مسار إعدادات الشركة الافتراضي
   },
   {
     key: 'onboarding.add_product',
@@ -45,7 +45,7 @@ const steps = ref([
     key: 'onboarding.add_customer',
     title: 'إضافة عميل جديد للنظام',
     description: 'تسجيل بيانات عملائك لمتابعة حساباتهم وإصدار فواتيرهم.',
-    route: '/app/users'
+    route: '/app/customers'
   },
   {
     key: 'onboarding.create_invoice',
