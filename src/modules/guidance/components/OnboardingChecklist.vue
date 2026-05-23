@@ -160,7 +160,7 @@ onMounted(() => {
         <div class="d-flex align-center justify-space-between w-100">
           <div class="d-flex align-center gap-2">
             <v-icon icon="ri-checkbox-circle-line" class="header-icon" />
-            <span class="header-title font-weight-bold">خطوات الإعداد والتهيئة</span>
+            <span class="header-title font-weight-bold">ابدأ معنا: 4 خطوات وتصبح جاهزاً لإدارة عملك</span>
           </div>
           <div class="d-flex align-center gap-2">
             <span class="progress-label">{{ progressPercent }}%</span>

@@ -1094,6 +1094,16 @@ const processedHeaders = computed(() => {
     }
   }
 
+  // Filter columns on mobile to ensure a clean layout
+  if (isMobile.value && !isCustomizing.value) {
+    const mandatory = finalHeaders.filter(h => h.mandatory || h.showOnMobile);
+    const nonMandatory = finalHeaders.filter(h => !h.mandatory && !h.showOnMobile);
+    const allowedNonMandatoryCount = Math.max(0, props.mobileHeadersCount - mandatory.length);
+    const selectedNonMandatory = nonMandatory.slice(0, allowedNonMandatoryCount);
+    
+    finalHeaders = finalHeaders.filter(h => h.mandatory || h.showOnMobile || selectedNonMandatory.includes(h));
+  }
+
   return finalHeaders;
 });
 
@@ -1246,7 +1256,14 @@ const tablePreferences = useLocalStorage('app-table-preferences', {
 const pageId = computed(() => `${route.path}-${props.title || 'default'}`);
 
 const viewMode = computed({
-  get: () => tablePreferences.value.viewModes[pageId.value] || 'list',
+  get: () => {
+    const saved = tablePreferences.value.viewModes[pageId.value];
+    if (saved) return saved;
+    if (isMobile.value && (props.gridEnabled || props.showViewToggle)) {
+      return 'grid';
+    }
+    return 'list';
+  },
   set: val => {
     tablePreferences.value.viewModes[pageId.value] = val;
   },
