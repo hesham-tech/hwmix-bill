@@ -23,17 +23,30 @@
       </div>
     </template>
 
-    <!-- Prepend inner for adding new customer -->
-    <template #append-inner>
-      <AppButton
-        icon="ri-user-add-line"
-        variant="text"
-        size="small"
-        color="primary"
-        class="ms-1"
-        @click.stop="$emit('create')"
-        v-tooltip="tooltip || 'إضافة عميل جديد'"
-      />
+    <!-- Prepend item slot to show "Add new customer" at the top of the list -->
+    <template #prepend-item>
+      <v-list-item @click.stop="$emit('create')" class="bg-primary-lighten-5 text-primary py-2 border-b cursor-pointer font-weight-bold">
+        <template #prepend>
+          <v-icon icon="ri-user-add-line" class="me-3" color="primary" />
+        </template>
+        <v-list-item-title class="font-weight-bold">
+          {{ tooltip || 'إضافة عميل جديد...' }}
+        </v-list-item-title>
+      </v-list-item>
+    </template>
+
+    <!-- Custom no-data slot to show "Add new customer" when no results are found -->
+    <template #no-data>
+      <v-list density="compact" class="pa-1">
+        <v-list-item @click.stop="$emit('create')" class="bg-primary-lighten-5 text-primary py-2 cursor-pointer font-weight-bold">
+          <template #prepend>
+            <v-icon icon="ri-user-add-line" class="me-3" color="primary" />
+          </template>
+          <v-list-item-title class="font-weight-bold">
+            لا توجد نتائج. {{ tooltip || 'إضافة عميل جديد...' }}
+          </v-list-item-title>
+        </v-list-item>
+      </v-list>
     </template>
 
     <!-- Custom item slot -->
