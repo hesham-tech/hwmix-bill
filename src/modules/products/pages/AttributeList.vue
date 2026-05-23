@@ -169,6 +169,7 @@
               v-model="formData.name"
               label="اسم الخاصية *"
               placeholder="مثال: اللون، المقاس، الحجم..."
+              required
               :rules="[rules.required]"
               prepend-inner-icon="ri-edit-box-line"
             />

@@ -29,13 +29,14 @@
             type="number"
             step="0.01"
             prepend-inner-icon="ri-coins-line"
+            required
             :rules="[rules.required, rules.positive]"
           />
         </v-col>
 
         <!-- Date -->
         <v-col cols="12" md="6">
-          <AppInput v-model="form.payment_date" label="تاريخ التحصيل *" type="date" prepend-inner-icon="ri-calendar-line" :rules="[rules.required]" />
+          <AppInput v-model="form.payment_date" label="تاريخ التحصيل *" type="date" prepend-inner-icon="ri-calendar-line" required :rules="[rules.required]" />
         </v-col>
 
         <!-- Payment Method -->
@@ -50,6 +51,7 @@
             variant="outlined"
             density="comfortable"
             prepend-inner-icon="ri-wallet-line"
+            required
             :rules="[rules.required]"
           />
         </v-col>
@@ -66,6 +68,7 @@
             variant="outlined"
             density="comfortable"
             prepend-inner-icon="ri-safe-2-line"
+            required
             :rules="[rules.required]"
           />
         </v-col>

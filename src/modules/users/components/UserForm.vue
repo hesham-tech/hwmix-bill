@@ -63,6 +63,7 @@
             autocomplete="off"
             label="رقم الهاتف *"
             :rules="[required, phone]"
+            required
             prepend-inner-icon="ri-phone-line"
             :loading="lookupLoading === 'phone'"
             @blur="handleLookup('phone')"
@@ -99,13 +100,14 @@
             v-model="form.nickname"
             label="الاسم المختصر (اللقب) *"
             :rules="[required]"
+            required
             prepend-inner-icon="ri-user-star-line"
             autocomplete="off"
           />
         </v-col>
 
         <v-col cols="12" md="6">
-          <AppInput v-model="form.full_name" label="الاسم الكامل *" help-text="اسم المستخدم بالكامل كما سيظهر في السجلات والتقارير." :rules="[required]" prepend-inner-icon="ri-user-line" autocomplete="off" />
+          <AppInput v-model="form.full_name" label="الاسم الكامل *" help-text="اسم المستخدم بالكامل كما سيظهر في السجلات والتقارير." :rules="[required]" required prepend-inner-icon="ri-user-line" autocomplete="off" />
         </v-col>
 
         <v-col cols="12" md="6">
@@ -141,6 +143,7 @@
             autocomplete="new-password"
             :label="isEditMode ? 'كلمة المرور الجديدة (اتركها فارغة للتخطي)' : 'كلمة المرور *'"
             :rules="isEditMode ? [] : [required, minLength(8)]"
+            :required="!isEditMode"
             prepend-inner-icon="ri-lock-line"
           />
         </v-col>

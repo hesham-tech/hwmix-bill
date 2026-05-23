@@ -18,12 +18,13 @@
         <v-form ref="form" v-model="isValid">
           <AppAutocomplete
             v-model="name"
-            label="اسم القسم (بحث أو إضافة)"
+            label="اسم القسم (بحث أو إضافة) *"
             placeholder="ابحث عن قسم موجود أو اكتب اسماً جديداً"
             api-endpoint="/api/categories"
             item-title="name"
             item-value="name"
             can-create
+            required
             :rules="[required]"
             autofocus
           />

@@ -18,11 +18,12 @@
         <v-form ref="form" v-model="isValid">
           <v-text-field
             v-model="name"
-            label="اسم السمة (AR)"
+            label="اسم السمة (AR) *"
             placeholder="مثال: اللون، المقاس، الخامة"
             variant="solo-filled"
             flat
             rounded="md"
+            required
             :rules="[v => !!v || 'اسم السمة مطلوب']"
             autofocus
           />

@@ -77,7 +77,7 @@
               <v-col cols="12">
                 <AppAutocomplete
                   v-model="productData.name"
-                  label="اسم المنتج"
+                  label="اسم المنتج *"
                   help-text="الاسم التجاري للمنتج كما يظهر للعملاء في الفواتير والمتجر."
                   placeholder="ادخل اسم المنتج (مثال: طقم بيجامة قطن)"
                   required
@@ -219,78 +219,84 @@
       <!-- Sidebar Options -->
       <v-col cols="12" lg="4">
         <!-- Status Card -->
-        <v-card border flat class="mb-2">
-          <div class="pa-2 bg-grey-lighten-5 rounded-t-lg border-b d-flex align-center">
-            <v-icon icon="ri-settings-4-line" color="grey-darken-1" size="14" class="me-2" />
-            <span class="text-xxs font-weight-bold">حالة العرض والخيارات</span>
-          </div>
-          <v-card-text class="pa-2">
-            <div class="d-flex flex-column gap-2">
-              <div class="d-flex align-center justify-space-between pa-2 hover-bg">
-                <div>
-                  <div class="text-body-2 font-weight-bold">
-                    متاح للبيع
-                    <AppFieldHelp text="تفعيل أو تعطيل بيع هذا المنتج بشكل كامل. إذا كان معطلاً، فلن تتمكن من بيعه أو عرضه." />
-                  </div>
-                  <div class="text-caption text-grey">تفعيل أو تعطيل ظهور المنتج</div>
-                </div>
-                <v-switch v-model="productData.active" color="primary" hide-details inset density="compact" />
+        <v-expansion-panels class="mb-2">
+          <v-expansion-panel class="border rounded-md overflow-hidden elevation-0">
+            <v-expansion-panel-title class="pa-2 bg-grey-lighten-5 rounded-t-lg border-b min-height-28">
+              <div class="d-flex align-center">
+                <v-icon icon="ri-settings-4-line" color="grey-darken-1" size="14" class="me-2" />
+                <span class="text-xxs font-weight-bold">حالة العرض والخيارات</span>
               </div>
-
-              <v-divider />
-
-              <div class="d-flex align-center justify-space-between pa-2 hover-bg">
-                <div>
-                  <div class="text-body-2 font-weight-bold">
-                    منتج مميز
-                    <AppFieldHelp text="المنتجات المميزة تظهر عادة في بداية القوائم أو في أقسام خاصة لزيادة مبيعاتها." />
+            </v-expansion-panel-title>
+            <v-expansion-panel-text class="pa-0">
+              <v-card-text class="pa-2">
+                <div class="d-flex flex-column gap-2">
+                  <div class="d-flex align-center justify-space-between pa-2 hover-bg">
+                    <div>
+                      <div class="text-body-2 font-weight-bold">
+                        متاح للبيع
+                        <AppFieldHelp text="تفعيل أو تعطيل بيع هذا المنتج بشكل كامل. إذا كان معطلاً، فلن تتمكن من بيعه أو عرضه." />
+                      </div>
+                      <div class="text-caption text-grey">تفعيل أو تعطيل ظهور المنتج</div>
+                    </div>
+                    <v-switch v-model="productData.active" color="primary" hide-details inset density="compact" />
                   </div>
-                  <div class="text-caption text-grey">عرض في الصفحة الرئيسية</div>
-                </div>
-                <v-switch v-model="productData.featured" color="primary" hide-details inset density="compact" />
-              </div>
 
-              <v-divider />
+                  <v-divider />
 
-              <div class="d-flex align-center justify-space-between pa-2 hover-bg">
-                <div>
-                  <div class="text-body-2 font-weight-bold">
-                    قابل للإرجاع
-                    <AppFieldHelp text="حدد ما إذا كان مسموحاً للعميل إرجاع هذا المنتج بعد شرائه واسترداد مبلغه (ينطبق على سياسة الاسترجاع)." />
+                  <div class="d-flex align-center justify-space-between pa-2 hover-bg">
+                    <div>
+                      <div class="text-body-2 font-weight-bold">
+                        منتج مميز
+                        <AppFieldHelp text="المنتجات المميزة تظهر عادة في بداية القوائم أو في أقسام خاصة لزيادة مبيعاتها." />
+                      </div>
+                      <div class="text-caption text-grey">عرض في الصفحة الرئيسية</div>
+                    </div>
+                    <v-switch v-model="productData.featured" color="primary" hide-details inset density="compact" />
                   </div>
-                  <div class="text-caption text-grey">السماح بإرجاع المنتج واسترداد قيمته</div>
-                </div>
-                <v-switch v-model="productData.returnable" color="primary" hide-details inset density="compact" />
-              </div>
 
-              <v-divider />
+                  <v-divider />
 
-              <div class="d-flex align-center justify-space-between pa-2 hover-bg">
-                <div>
-                  <div class="text-body-2 font-weight-bold">
-                    يظهر في المتجر
-                    <AppFieldHelp text="إذا كان مفوضاً، سيتمكن العملاء من رؤية هذا المنتج وطلبه عبر متجرك الإلكتروني." />
+                  <div class="d-flex align-center justify-space-between pa-2 hover-bg">
+                    <div>
+                      <div class="text-body-2 font-weight-bold">
+                        قابل للإرجاع
+                        <AppFieldHelp text="حدد ما إذا كان مسموحاً للعميل إرجاع هذا المنتج بعد شرائه واسترداد مبلغه (ينطبق على سياسة الاسترجاع)." />
+                      </div>
+                      <div class="text-caption text-grey">السماح بإرجاع المنتج واسترداد قيمته</div>
+                    </div>
+                    <v-switch v-model="productData.returnable" color="primary" hide-details inset density="compact" />
                   </div>
-                  <div class="text-caption text-grey">عرض المنتج في المتجر الإلكتروني</div>
-                </div>
-                <v-switch v-model="productData.is_active_in_store" color="primary" hide-details inset density="compact" />
-              </div>
 
-              <v-divider />
+                  <v-divider />
 
-              <div class="d-flex align-center justify-space-between pa-2 hover-bg">
-                <div>
-                  <div class="text-body-2 font-weight-bold">
-                    يظهر في المبيعات / POS
-                    <AppFieldHelp text="يتحكم في إمكانية ظهور هذا المنتج للبائعين (الكاشير) في واجهة نقطة البيع السريعة." />
+                  <div class="d-flex align-center justify-space-between pa-2 hover-bg">
+                    <div>
+                      <div class="text-body-2 font-weight-bold">
+                        يظهر في المتجر
+                        <AppFieldHelp text="إذا كان مفوضاً، سيتمكن العملاء من رؤية هذا المنتج وطلبه عبر متجرك الإلكتروني." />
+                      </div>
+                      <div class="text-caption text-grey">عرض المنتج في المتجر الإلكتروني</div>
+                    </div>
+                    <v-switch v-model="productData.is_active_in_store" color="primary" hide-details inset density="compact" />
                   </div>
-                  <div class="text-caption text-grey">عرض المنتج في فواتير البيع ونقاط البيع</div>
+
+                  <v-divider />
+
+                  <div class="d-flex align-center justify-space-between pa-2 hover-bg">
+                    <div>
+                      <div class="text-body-2 font-weight-bold">
+                        يظهر في المبيعات / POS
+                        <AppFieldHelp text="يتحكم في إمكانية ظهور هذا المنتج للبائعين (الكاشير) في واجهة نقطة البيع السريعة." />
+                      </div>
+                      <div class="text-caption text-grey">عرض المنتج في فواتير البيع ونقاط البيع</div>
+                    </div>
+                    <v-switch v-model="productData.is_active_in_sales" color="primary" hide-details inset density="compact" />
+                  </div>
                 </div>
-                <v-switch v-model="productData.is_active_in_sales" color="primary" hide-details inset density="compact" />
-              </div>
-            </div>
-          </v-card-text>
-        </v-card>
+              </v-card-text>
+            </v-expansion-panel-text>
+          </v-expansion-panel>
+        </v-expansion-panels>
 
         <!-- Media Card -->
         <v-card border flat class="pb-2">
@@ -363,15 +369,6 @@ const { saveProduct, fetchProduct } = productStore;
 
 const currentProductId = ref(props.productId);
 
-// Sync internal ID if prop changes (for robustness)
-watch(
-  () => props.productId,
-  newId => {
-    currentProductId.value = newId;
-  },
-  { immediate: true }
-);
-
 const isEdit = computed(() => !!currentProductId.value);
 const loading = ref(false);
 const isValid = ref(false);
@@ -402,10 +399,62 @@ const getInitialProductData = () => ({
   is_active_in_sales: true,
   images: [],
   primary_image_id: null,
-  variants: [], // Start empty, will be populated by onMounted or loadProductData
+  variants: [],
 });
 
 const productData = ref(getInitialProductData());
+
+// Ensure we always have at least one variant when creating a product
+if (!props.productId) {
+  productData.value.variants = [
+    {
+      purchase_price: 0,
+      wholesale_price: 0,
+      retail_price: 0,
+      profit_margin: 0,
+      sku: '',
+      barcode: '',
+      stocks: [{ warehouse_id: null, quantity: 0 }],
+      attributes: [{ attribute_id: null, attribute_value_id: null }],
+      images: [],
+      primary_image_id: null,
+    },
+  ];
+}
+
+// Sync internal ID if prop changes (for robustness)
+watch(
+  () => props.productId,
+  newId => {
+    currentProductId.value = newId;
+  },
+  { immediate: true }
+);
+
+// Ensure there is always at least one variant when creating/editing
+watch(
+  () => productData.value.variants,
+  newVariants => {
+    if (!newVariants || newVariants.length === 0) {
+      const defaultWarehouseId = productStore.defaultWarehouseId || null;
+      productData.value.variants = [
+        {
+          purchase_price: 0,
+          wholesale_price: 0,
+          retail_price: 0,
+          profit_margin: 0,
+          sku: '',
+          barcode: '',
+          stocks: [{ warehouse_id: defaultWarehouseId, quantity: 0 }],
+          attributes: [{ attribute_id: null, attribute_value_id: null }],
+          images: [],
+          primary_image_id: null,
+        },
+      ];
+    }
+  },
+  { deep: true }
+);
 
 const productTypes = computed(() => {
   const isDigitalEnabled = userStore.currentCompany?.settings?.enable_digital_products;
@@ -464,32 +513,47 @@ const loadProductData = async id => {
         images: data.images || [],
         primary_image_id: data.images?.find(img => img.is_primary)?.id || null,
         variants:
-          data.variants?.map(v => {
-            // Deduplicate stocks by warehouse_id
-            const stockMap = new Map();
+          (data.variants && data.variants.length > 0)
+            ? data.variants.map(v => {
+                // Deduplicate stocks by warehouse_id
+                const stockMap = new Map();
 
-            (v.stocks || []).forEach(s => {
-              const wid = s.warehouse?.id || s.warehouse_id;
-              if (!wid) return;
+                (v.stocks || []).forEach(s => {
+                  const wid = s.warehouse?.id || s.warehouse_id;
+                  if (!wid) return;
 
-              const existing = stockMap.get(wid);
-              // Priority: 1. Has ID, 2. Has quantity > 0, 3. Priority to first found
-              if (!existing || (!existing.id && s.id) || (existing.quantity === 0 && s.quantity > 0)) {
-                stockMap.set(wid, {
-                  ...s,
-                  warehouse_id: wid,
+                  const existing = stockMap.get(wid);
+                  // Priority: 1. Has ID, 2. Has quantity > 0, 3. Priority to first found
+                  if (!existing || (!existing.id && s.id) || (existing.quantity === 0 && s.quantity > 0)) {
+                    stockMap.set(wid, {
+                      ...s,
+                      warehouse_id: wid,
+                    });
+                  }
                 });
-              }
-            });
 
-            return {
-              ...v,
-              purchase_price: v.purchase_price || 0,
-              images: v.images || [],
-              primary_image_id: v.images?.find(img => img.is_primary)?.id || null,
-              stocks: Array.from(stockMap.values()),
-            };
-          }) || [],
+                return {
+                  ...v,
+                  purchase_price: v.purchase_price || 0,
+                  images: v.images || [],
+                  primary_image_id: v.images?.find(img => img.is_primary)?.id || null,
+                  stocks: Array.from(stockMap.values()),
+                };
+              })
+            : [
+                {
+                  purchase_price: 0,
+                  wholesale_price: 0,
+                  retail_price: 0,
+                  profit_margin: 0,
+                  sku: '',
+                  barcode: '',
+                  stocks: [{ warehouse_id: productStore.defaultWarehouseId || null, quantity: 0 }],
+                  attributes: [{ attribute_id: null, attribute_value_id: null }],
+                  images: [],
+                  primary_image_id: null,
+                },
+              ],
       };
 
       // Force set the value
@@ -572,27 +636,27 @@ onMounted(async () => {
     await loadProductData(currentProductId.value);
   } else {
     // Initialization for NEW product
-    const warehouseId = await productStore.fetchDefaultWarehouse();
+    try {
+      const warehouseId = await productStore.fetchDefaultWarehouse();
 
-    // Critical: Re-check isEdit after async await to avoid race condition
-    // when user selects an existing product while we were fetching the default warehouse
-    if (isEdit.value) return;
+      // Critical: Re-check isEdit after async await to avoid race condition
+      if (isEdit.value) return;
 
-    // Population of initial variant ONLY for new product
-    productData.value.variants = [
-      {
-        purchase_price: 0,
-        wholesale_price: 0,
-        retail_price: 0,
-        profit_margin: 0,
-        sku: '',
-        barcode: '',
-        stocks: [{ warehouse_id: warehouseId, quantity: 0 }],
-        attributes: [{ attribute_id: null, attribute_value_id: null }],
-        images: [],
-        primary_image_id: null,
-      },
-    ];
+      // Update warehouse ID in the existing initial variants if they don't have one
+      if (warehouseId && productData.value.variants.length > 0) {
+        productData.value.variants.forEach(v => {
+          if (v.stocks && v.stocks.length > 0) {
+            v.stocks.forEach(s => {
+              if (s.warehouse_id === null || s.warehouse_id === undefined) {
+                s.warehouse_id = warehouseId;
+              }
+            });
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Failed to fetch default warehouse:', error);
+    }
   }
 });
 
@@ -616,6 +680,20 @@ onUnmounted(() => {
 
 .hover-bg:hover {
   background-color: var(--v-theme-surface-variant);
+}
+
+.min-height-28 {
+  min-height: 28px !important;
+}
+
+:deep(.v-expansion-panel-text__wrapper) {
+  padding: 0 !important;
+}
+
+:deep(.v-expansion-panel-title) {
+  min-height: 28px !important;
+  padding-top: 2px !important;
+  padding-bottom: 2px !important;
 }
 
 /* RTL Breadcrumbs */

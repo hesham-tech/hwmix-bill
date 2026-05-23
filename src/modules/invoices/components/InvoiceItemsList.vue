@@ -58,6 +58,7 @@
                     density="compact"
                     hide-details
                     min="1"
+                    required
                     class="compact-input centered-input"
                     :class="{ 'flash-error': isItemError(item) }"
                     @update:model-value="val => updateQuantity(item, val)"
@@ -74,6 +75,7 @@
                     type="number"
                     density="compact"
                     hide-details
+                    required
                     class="compact-input centered-input"
                     @update:model-value="$emit('calculate', item)"
                   />

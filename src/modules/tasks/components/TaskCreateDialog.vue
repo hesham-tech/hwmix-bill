@@ -12,10 +12,11 @@
         <v-form ref="form" v-model="valid">
           <v-text-field
             v-model="formData.title"
-            label="عنوان المهمة"
+            label="عنوان المهمة *"
             placeholder="مثال: مراجعة مخزون شهر يناير"
             variant="outlined"
             density="comfortable"
+            required
             :rules="[v => !!v || 'العنوان مطلوب']"
             class="mb-4"
           />

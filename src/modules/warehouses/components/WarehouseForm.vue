@@ -7,6 +7,7 @@
           v-model="form.name"
           label="اسم المخزن *"
           placeholder="مثال: المخزن الرئيسي"
+          required
           :rules="[required]"
           prepend-inner-icon="ri-building-4-line"
         />

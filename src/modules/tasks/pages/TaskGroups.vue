@@ -63,7 +63,14 @@
           {{ editingGroup ? 'تعديل مجموعة' : 'مجموعة عمل جديدة' }}
         </v-card-title>
         <v-card-text class="pa-2">
-          <v-text-field v-model="formData.name" label="اسم المجموعة" variant="outlined" class="mb-4" />
+          <v-text-field
+            v-model="formData.name"
+            label="اسم المجموعة *"
+            variant="outlined"
+            required
+            :rules="[v => !!v || 'اسم المجموعة مطلوب']"
+            class="mb-4"
+          />
           <v-textarea v-model="formData.description" label="الوصف" variant="outlined" rows="2" class="mb-4" />
 
           <h4 class="text-subtitle-2 mb-2">أعضاء المجموعة:</h4>

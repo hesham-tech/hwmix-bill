@@ -65,10 +65,10 @@
       <v-form ref="formRef">
         <v-row>
           <v-col cols="12">
-            <AppInput v-model="form.name" label="اسم الخدمة *" :rules="[required]" placeholder="مثال: تركيب مكيف، خدمة شحن" />
+            <AppInput v-model="form.name" label="اسم الخدمة *" required :rules="[required]" placeholder="مثال: تركيب مكيف، خدمة شحن" />
           </v-col>
           <v-col cols="12">
-            <AppInput v-model.number="form.default_price" label="السعر الافتراضي *" type="number" :rules="[required, positiveNumber]" />
+            <AppInput v-model.number="form.default_price" label="السعر الافتراضي *" required type="number" :rules="[required, positiveNumber]" />
           </v-col>
           <v-col cols="12">
             <v-textarea v-model="form.description" label="وصف الخدمة" rows="3" placeholder="تفاصيل إضافية عن الخدمة..." />

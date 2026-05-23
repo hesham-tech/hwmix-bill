@@ -215,7 +215,7 @@
       <v-form ref="formRef" @submit.prevent="handleSave">
         <v-row dense>
           <v-col cols="12">
-            <AppInput v-model="formData.name" label="اسم الخزينة *" placeholder="مثال: الخزينة الرئيسية" :rules="[rules.required]" />
+            <AppInput v-model="formData.name" label="اسم الخزينة *" placeholder="مثال: الخزينة الرئيسية" required :rules="[rules.required]" />
           </v-col>
           <v-col cols="12">
             <v-select
@@ -228,6 +228,7 @@
               variant="outlined"
               density="comfortable"
               prepend-inner-icon="ri-list-settings-line"
+              required
               :rules="[rules.required]"
               hide-details
               class="mb-4"

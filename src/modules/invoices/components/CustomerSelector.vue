@@ -18,7 +18,7 @@
     <!-- Selection slot for the input field -->
     <template #selection="{ item }">
       <div v-if="item.raw" class="d-flex align-center">
-        <AppAvatar :img-url="item.raw.avatar_url" :name="item.raw.nickname || item.raw.name" size="24" rounded="circle" class="me-2 border" />
+        <AppAvatar :img-url="item.raw.avatar_url" :name="item.raw.nickname || item.raw.name" size="24" rounded="circle" class="me-2 border d-none d-sm-inline-flex" />
         <span class="text-body-2 font-weight-medium">{{ item.raw.nickname || item.raw.name }}</span>
       </div>
     </template>

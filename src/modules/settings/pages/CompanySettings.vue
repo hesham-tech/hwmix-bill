@@ -92,6 +92,7 @@
                           v-model="formData.name"
                           label="الاسم التجاري للشركة *"
                           prepend-inner-icon="ri-building-2-fill"
+                          required
                           :rules="[rules.required]"
                           :error-messages="errors.name"
                         >

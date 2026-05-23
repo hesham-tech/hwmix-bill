@@ -125,6 +125,7 @@
                   label="اسم الفرع *" 
                   placeholder="مثلاً: الفرع الرئيسي، فرع القاهرة..."
                   variant="outlined"
+                  required
                   :rules="[v => !!v || 'اسم الفرع مطلوب']"
                   prepend-inner-icon="ri-building-line"
                 />

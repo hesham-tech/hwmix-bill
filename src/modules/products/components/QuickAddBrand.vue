@@ -18,12 +18,13 @@
         <v-form ref="form" v-model="isValid">
           <AppAutocomplete
             v-model="name"
-            label="اسم العلامة التجارية (بحث أو إضافة)"
+            label="اسم العلامة التجارية (بحث أو إضافة) *"
             placeholder="ابحث عن علامة موجودة أو اكتب اسماً جديداً"
             api-endpoint="/api/brands"
             item-title="name"
             item-value="name"
             can-create
+            required
             :rules="[required]"
             autofocus
           />
