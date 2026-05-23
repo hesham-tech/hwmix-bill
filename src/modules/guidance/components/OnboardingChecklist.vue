@@ -438,4 +438,17 @@ onMounted(() => {
     transform: translateY(-8px);
   }
 }
+
+/* تحسينات لشاشات الموبايل (لتوسيط القائمة ومنع خروج العناصر عن الشاشة) */
+@media (max-width: 600px) {
+  .onboarding-checklist-wrapper {
+    width: calc(100% - 32px);
+    left: 16px;
+    bottom: 16px;
+  }
+  
+  .checklist-card.collapsed {
+    width: 100%;
+  }
+}
 </style>
