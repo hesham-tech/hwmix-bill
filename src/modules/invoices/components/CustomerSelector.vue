@@ -18,7 +18,7 @@
     <!-- Selection slot for the input field -->
     <template #selection="{ item }">
       <div v-if="item.raw" class="d-flex align-center">
-        <AppAvatar :img-url="item.raw.avatar_url" :name="item.raw.nickname || item.raw.name" size="24" rounded="circle" class="me-2 border d-none d-sm-inline-flex" />
+        <AppAvatar v-if="$vuetify.display.smAndUp" :img-url="item.raw.avatar_url" :name="item.raw.nickname || item.raw.name" size="24" rounded="circle" class="me-2 border" />
         <span class="text-body-2 font-weight-medium">{{ item.raw.nickname || item.raw.name }}</span>
       </div>
     </template>
@@ -39,7 +39,7 @@
     <!-- Custom item slot -->
     <template #item="{ props, item }">
       <v-list-item v-bind="props" class="py-2">
-        <template #prepend>
+        <template #prepend v-if="$vuetify.display.smAndUp">
           <AppAvatar :img-url="item.raw.avatar_url" :name="item.raw.nickname || item.raw.name" size="40" rounded="md" class="me-3 border" />
         </template>
         <template #title>

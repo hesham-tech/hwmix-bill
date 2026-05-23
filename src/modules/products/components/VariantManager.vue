@@ -325,7 +325,7 @@
                     can-create
                   />
                 </div>
-                <div class="attr-value-box px-3 py-2 flex-grow-1 w-50"">
+                <div class="attr-value-box px-3 py-2 flex-grow-1 w-50">
                   <AppAutocomplete
                     v-if="attr.attribute_id"
                     v-model="attr.attribute_value_id"

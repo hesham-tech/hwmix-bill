@@ -127,7 +127,9 @@
 
 
       <!-- Theme Switcher for Desktop -->
-      <NavbarThemeSwitcher class="d-none d-sm-flex mx-1" />
+      <div class="d-none d-sm-flex mx-1">
+        <NavbarThemeSwitcher />
+      </div>
 
       <!-- أدوات سريعة -->
       <v-menu v-model="isQuickToolsMenuOpen" :close-on-content-click="false">
@@ -223,6 +225,24 @@
                 :prepend-icon="format.icon"
                 :active="userStore.currentCompany?.print_settings?.print_format === format.id"
                 @click="handlePrintFormatChange(format.id)"
+                size="small"
+                class="ps-0"
+              />
+            </v-list-group>
+
+            <!-- Theme Selection Group for Mobile -->
+            <v-list-group value="themes" fluid :indent-strategy="'none'">
+              <template #activator="{ props }">
+                <v-list-item v-bind="props" prepend-icon="ri-palette-line" title="مظهر النظام (الثيم)" />
+              </template>
+
+              <v-list-item
+                v-for="theme in systemThemes"
+                :key="theme.name"
+                :title="themeLabels[theme.name]"
+                :prepend-icon="theme.icon"
+                :active="globalTheme.name.value === theme.name"
+                @click="selectTheme(theme.name)"
                 size="small"
                 class="ps-0"
               />
@@ -434,9 +454,28 @@ import Calculator from '@/components/tools/Calculator.vue';
 import InstallmentCalc from '@/components/tools/InstallmentCalc.vue';
 import PercentageTool from '@/components/tools/PercentageTool.vue';
 import { toast } from 'vue3-toastify';
-import { useDisplay } from 'vuetify';
+import { useDisplay, useTheme } from 'vuetify';
 import { formatCurrency } from '@/utils/formatters';
 import { clearAppCache } from '@/utils/maintenance';
+
+const { global: globalTheme } = useTheme();
+
+const systemThemes = [
+  { name: 'light', icon: 'ri-sun-line' },
+  { name: 'dark', icon: 'ri-moon-clear-line' },
+  { name: 'cozy', icon: 'ri-cup-line' },
+];
+
+const themeLabels = {
+  light: 'الوضع النهاري',
+  dark: 'الوضع الليلي',
+  cozy: 'الوضع الدافئ (كوزي)',
+};
+
+const selectTheme = (themeNameValue) => {
+  globalTheme.name.value = themeNameValue;
+  localStorage.setItem('theme', themeNameValue);
+};
 
 // استيرادات نظام الإرشاد (Guidance System)
 import { useGuidanceStore } from '@/modules/guidance/store/useGuidanceStore';
