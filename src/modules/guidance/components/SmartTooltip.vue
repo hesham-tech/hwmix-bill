@@ -173,14 +173,13 @@ onUnmounted(() => {
 .smart-tooltip-box {
   position: fixed; /* استخدام fixed لتجنب مشاكل overflow الأب */
   z-index: 2000;
-  background: rgba(18, 18, 24, 0.85);
+  background: rgba(15, 32, 67, 0.95);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   color: #f1f3f9;
   padding: 8px 12px;
   border-radius: 8px;
-  font-size: 0.8rem;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
   max-width: 250px;
   direction: rtl;
@@ -212,7 +211,7 @@ onUnmounted(() => {
 
 .tooltip-arrow {
   position: absolute;
-  background: rgba(18, 18, 24, 0.85);
+  background: rgba(15, 32, 67, 0.95);
   width: 8px;
   height: 8px;
   transform: rotate(45deg);

@@ -128,12 +128,12 @@ onBeforeUnmount(() => {
   overflow: hidden;
 }
 
-/* تصميم الزجاج الداكن الفخم */
+/* تصميم الزجاج الملون الفخم المتناسق مع الهوية */
 .glass-panel {
-  background: rgba(20, 20, 27, 0.9) !important;
+  background: linear-gradient(135deg, rgba(var(--v-theme-primary), 0.92), rgba(15, 32, 67, 0.9)) !important;
   backdrop-filter: blur(14px) !important;
   -webkit-backdrop-filter: blur(14px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
 }
 
 .close-btn {

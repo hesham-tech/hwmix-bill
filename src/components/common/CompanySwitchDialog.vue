@@ -27,6 +27,49 @@
         <div class="text-subtitle-2 mb-3 text-grey-darken-1 px-1">الشركات التي يمكنك ادارتها:</div>
 
         <v-row dense>
+          <!-- All Companies Option for Super Admin -->
+          <v-col v-if="userStore.isAdmin" cols="12">
+            <v-card
+              :active="userStore.currentUser?.active_company_id === null"
+              class="company-card mb-2 all-companies-card"
+              variant="outlined"
+              @click="handleSwitch({ id: null, name: 'كل الشركات' })"
+              :disabled="loadingId === 'all'"
+              :class="{ 'active-card': userStore.currentUser?.active_company_id === null }"
+            >
+              <div class="d-flex pa-3 align-start">
+                <v-avatar :size="mobile ? 48 : 64" rounded="md" color="primary-lighten-4" :class="[mobile ? 'me-2' : 'me-4', 'border-thin']">
+                  <v-icon icon="ri-global-line" color="primary" :size="mobile ? 24 : 32" />
+                </v-avatar>
+
+                <div class="flex-grow-1">
+                  <div class="d-flex align-center justify-space-between mb-1">
+                    <h3 class="text-h6 font-weight-bold company-name">
+                      كل الشركات (جميع المدخلات)
+                    </h3>
+                    <v-chip
+                      v-if="userStore.currentUser?.active_company_id === null"
+                      size="x-small"
+                      color="success"
+                      class="text-caption font-weight-bold"
+                      variant="flat"
+                    >
+                      النشطة حالياً
+                    </v-chip>
+                  </div>
+                  <div class="text-caption text-grey">
+                    عرض كافة الحركات والمستندات والعمليات المالية لجميع الشركات والفروع دفعة واحدة.
+                  </div>
+                </div>
+
+                <div class="ms-2 align-self-center">
+                  <v-progress-circular v-if="loadingId === 'all'" indeterminate size="24" width="3" color="primary" />
+                  <v-btn v-else icon="ri-arrow-left-line" variant="text" color="primary" size="small" />
+                </div>
+              </div>
+            </v-card>
+          </v-col>
+
           <v-col v-for="company in filteredCompanies" :key="company.id" cols="12">
             <v-card
               :active="company.id === userStore.currentUser?.active_company_id"
@@ -145,7 +188,7 @@ const handleSwitch = async company => {
   }
 
   try {
-    loadingId.value = company.id;
+    loadingId.value = company.id === null ? 'all' : company.id;
     await userStore.switchCompany(company.id);
     toast.success(`تم الانتقال إلى ${company.name} بنجاح`);
     emit('update:modelValue', false);
