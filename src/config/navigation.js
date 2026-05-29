@@ -349,7 +349,7 @@ export default [
         title: 'إعدادات الشركة',
         to: '/app/company',
         icon: 'ri-building-2-line',
-        permission: [PERMISSIONS.COMPANIES_VIEW_ALL, PERMISSIONS.COMPANIES_VIEW_CHILDREN, PERMISSIONS.COMPANIES_VIEW_SELF],
+        permission: [PERMISSIONS.ADMIN_SUPER, PERMISSIONS.ADMIN_COMPANY],
       },
       // My Subscription
       {

@@ -61,7 +61,7 @@ export default [
     component: () => import('@/modules/settings/pages/CompanySettings.vue'),
     meta: {
       title: 'إعدادات الشركة',
-      permission: [PERMISSIONS.COMPANIES_VIEW_ALL, PERMISSIONS.COMPANIES_VIEW_CHILDREN, PERMISSIONS.COMPANIES_VIEW_SELF],
+      permission: [PERMISSIONS.ADMIN_SUPER, PERMISSIONS.ADMIN_COMPANY],
     },
   },
   {
