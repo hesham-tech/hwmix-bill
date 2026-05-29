@@ -439,6 +439,10 @@ const saveInvoice = async () => {
 
     if (currentContext.value !== 'installment_sale' || financials.value.remaining_amount <= 0) {
       delete payload.installment_plan;
+    } else if (payload.installment_plan) {
+      // Ensure start_date and frequency are set by default if missing
+      payload.installment_plan.start_date = payload.installment_plan.start_date || new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString().split('T')[0];
+      payload.installment_plan.frequency = payload.installment_plan.frequency || 'monthly';
     }
 
     let response;
