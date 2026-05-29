@@ -65,6 +65,24 @@ export default [
     },
   },
   {
+    path: 'mail',
+    name: 'mail-settings',
+    component: () => import('@/modules/settings/pages/MailSettings.vue'),
+    meta: {
+      title: 'إعدادات البريد',
+      permission: [PERMISSIONS.ADMIN_SUPER, PERMISSIONS.ADMIN_COMPANY],
+    },
+  },
+  {
+    path: 'payment-gateways',
+    name: 'payment-gateways',
+    component: () => import('@/modules/settings/pages/PaymentGatewaySettings.vue'),
+    meta: {
+      title: 'بوابات الدفع الإلكتروني',
+      permission: [PERMISSIONS.ADMIN_SUPER, PERMISSIONS.ADMIN_COMPANY],
+    },
+  },
+  {
     path: 'settings',
     name: 'settings',
     component: () => import('@/modules/settings/pages/Settings.vue'),

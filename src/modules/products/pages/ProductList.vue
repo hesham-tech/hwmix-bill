@@ -311,6 +311,47 @@
       />
       <PrintStickerDialog ref="stickerDialog" />
       <ProductImportDialog ref="importDialog" @imported="refresh" />
+
+      <!-- Export Progress Dialog -->
+      <v-dialog v-model="exportDialogOpen" max-width="500" persistent>
+        <v-card class="rounded-xl pa-6 text-center">
+          <v-card-title class="text-h5 font-weight-bold mb-2">تصدير المنتجات</v-card-title>
+          
+          <v-card-text class="py-4">
+            <v-progress-linear
+              v-model="exportProgress"
+              color="primary"
+              height="15"
+              rounded
+              striped
+              class="mb-4"
+            />
+            
+            <div class="text-body-1 font-weight-bold mb-2">{{ exportStatusText }}</div>
+            <p class="text-caption text-grey">يرجى الانتظار حتى اكتمال عملية توليد ملف التصدير بالخلفية.</p>
+          </v-card-text>
+
+          <v-card-actions class="d-flex justify-center gap-2">
+            <v-btn
+              v-if="exportDownloadUrl"
+              color="success"
+              variant="flat"
+              prepend-icon="ri-download-2-line"
+              class="px-8 font-weight-bold rounded-pill"
+              @click="triggerFileDownload(exportDownloadUrl)"
+            >
+              تحميل الملف الناتج
+            </v-btn>
+            <v-btn
+              variant="text"
+              color="grey"
+              @click="closeExportDialog"
+            >
+              إغلاق
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </v-container>
   </div>
 </template>
@@ -324,6 +365,7 @@ import { useRouter } from 'vue-router';
 import { useProductStore } from '../store/product.store';
 import { usePermissions } from '@/composables/usePermissions';
 import { useDataTable } from '@/composables/useDataTable';
+import { useApi } from '@/composables/useApi';
 import productService from '@/api/services/product.service';
 import { PERMISSIONS } from '@/config/permissions';
 import { useUserStore } from '@/stores/user';
@@ -567,31 +609,76 @@ const confirmDelete = async item => {
   }
 };
 
-const exportLoading = ref(false);
+// --- تصدير المنتجات بالخلفية ---
+
+const exportImportApi = useApi('/api/v1/export-import');
+const exportDialogOpen = ref(false);
+const exportProgress = ref(0);
+const exportStatusText = ref('');
+const exportDownloadUrl = ref('');
+const exportJobId = ref(null);
+let exportPollingInterval = null;
 
 const handleExport = async () => {
-  exportLoading.value = true;
+  exportDialogOpen.value = true;
+  exportProgress.value = 10;
+  exportStatusText.value = 'جاري جدولة عملية التصدير بالخلفية...';
+  exportDownloadUrl.value = '';
+  
   try {
-    const response = await productService.export({
-      ...filters.value,
-      search: search.value,
-      sort_by: sortByVuetify.value[0]?.key || 'created_at',
-      sort_order: sortByVuetify.value[0]?.order || 'desc',
-    });
-
-    // Create a download link for the blob
-    const url = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `products_export_${new Date().getTime()}.xlsx`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const res = await exportImportApi.create({ model_type: 'products' }, { showLoading: false });
+    if (res.data && res.data.id) {
+      exportJobId.value = res.data.id;
+      startExportPolling(res.data.id);
+    }
   } catch (error) {
-    console.error('Export error:', error);
-  } finally {
-    exportLoading.value = false;
+    console.error('Export scheduling failed:', error);
+    exportDialogOpen.value = false;
   }
+};
+
+const startExportPolling = (jobId) => {
+  exportPollingInterval = setInterval(async () => {
+    try {
+      const res = await exportImportApi.getById(jobId, { showLoading: false, showError: false });
+      if (res.data) {
+        exportProgress.value = res.data.progress || 10;
+        
+        if (res.data.status === 'processing') {
+          exportStatusText.value = 'جاري تجميع البيانات وتوليد ملف التصدير...';
+        }
+        
+        if (res.data.status === 'completed') {
+          clearInterval(exportPollingInterval);
+          exportStatusText.value = 'اكتمل توليد الملف بنجاح!';
+          exportDownloadUrl.value = res.data.download_url;
+          
+          if (res.data.download_url) {
+            triggerFileDownload(res.data.download_url);
+          }
+        } else if (res.data.status === 'failed') {
+          clearInterval(exportPollingInterval);
+          exportStatusText.value = 'فشلت عملية التصدير. يرجى المحاولة لاحقاً.';
+        }
+      }
+    } catch (error) {
+      console.error('Error polling export job:', error);
+    }
+  }, 2000);
+};
+
+const triggerFileDownload = (url) => {
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', `products_export_${Date.now()}.xlsx`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
+const closeExportDialog = () => {
+  exportDialogOpen.value = false;
+  clearInterval(exportPollingInterval);
 };
 </script>
 

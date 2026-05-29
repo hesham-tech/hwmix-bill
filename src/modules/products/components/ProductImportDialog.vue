@@ -1,322 +1,293 @@
 <template>
-  <AppDialog v-model="isOpen" title="رفع منتجات من إكسيل" icon="ri-upload-cloud-2-line" width="1000" :loading="importing" persistent>
-    <div class="pa-4 import-container">
-      <!-- Step 1: Upload -->
-      <div v-if="step === 1" class="d-flex flex-column align-center justify-center py-10">
-        <v-icon icon="ri-upload-cloud-2-line" size="80" color="primary" class="mb-4 opa-5" />
-        <h3 class="text-h5 font-weight-bold mb-2">اختر ملف الإكسيل</h3>
-        <p class="text-grey mb-6">يمكنك رفع أي ملف إكسيل (XLSX, XLS, CSV) مهما كان ترتيب أعمدته، سنقوم بربطها في الخطوة التالية</p>
+  <v-dialog v-model="isOpen" max-width="800" persistent scrollable>
+    <v-card class="rounded-xl overflow-hidden">
+      <!-- Header -->
+      <v-toolbar color="primary" density="comfortable" flat>
+        <v-icon icon="ri-upload-cloud-2-line" class="ms-4 me-2" />
+        <v-toolbar-title class="text-h6 font-weight-bold">استيراد المنتجات من ملف CSV</v-toolbar-title>
+        <v-spacer />
+        <v-btn icon="ri-close-line" :disabled="importing" @click="close" />
+      </v-toolbar>
 
-        <input type="file" ref="fileInput" accept=".xlsx, .xls, .csv" class="d-none" @change="handleFileChange" />
-
-        <AppButton color="primary" size="large" prepend-icon="ri-file-add-line" class="px-10" @click="$refs.fileInput.click()">
-          اختيار الملف
-        </AppButton>
-      </div>
-
-      <!-- Step 2: Mapping -->
-      <div v-else-if="step === 2">
-        <div class="d-flex align-center justify-space-between mb-4">
-          <div>
-            <h3 class="text-h6 font-weight-bold">ربط أعمدة الملف بحقول النظام</h3>
-            <p class="text-caption text-grey">قم بتحديد الحقل المقابل لكل عمود في ملف الإكسيل الخاص بك</p>
-          </div>
-          <div class="d-flex align-center flex-wrap gap-2 mt-2 mt-sm-0">
-            <div class="d-flex align-center border rounded-pill px-3 py-1 bg-grey-lighten-4">
-              <span class="text-caption font-weight-bold text-grey-darken-1 me-3">تشفير الملف:</span>
-              <div class="d-flex gap-1">
-                <v-btn
-                  size="x-small"
-                  :color="selectedEncoding === 'utf-8' ? 'primary' : 'grey-lighten-2'"
-                  :variant="selectedEncoding === 'utf-8' ? 'flat' : 'text'"
-                  class="text-caption rounded-pill px-3"
-                  @click="
-                    selectedEncoding = 'utf-8';
-                    reparseFile();
-                  "
-                >
-                  UTF-8
-                </v-btn>
-                <v-btn
-                  size="x-small"
-                  :color="selectedEncoding === 'windows-1256' ? 'primary' : 'grey-lighten-2'"
-                  :variant="selectedEncoding === 'windows-1256' ? 'flat' : 'text'"
-                  class="text-caption rounded-pill px-3"
-                  @click="
-                    selectedEncoding = 'windows-1256';
-                    reparseFile();
-                  "
-                >
-                  Arabic (Win-1256)
-                </v-btn>
-              </div>
+      <v-card-text class="pa-6 custom-scrollbar">
+        <!-- Step 1: Upload File & Instructions -->
+        <div v-if="step === 'upload'">
+          <div class="mb-6 bg-blue-lighten-5 border rounded-xl pa-4 text-body-2 text-blue-darken-3 d-flex align-start">
+            <v-icon icon="ri-information-line" class="me-3 mt-1" size="24" />
+            <div>
+              <div class="font-weight-bold mb-1">تعليمات الاستيراد:</div>
+              <ul>
+                <li>يجب أن يكون الملف بامتداد CSV (ترميز UTF-8).</li>
+                <li>يجب أن يحتوي الملف على الأعمدة بالترتيب التالي: (الرقم، اسم المنتج، الوصف، نشط).</li>
+                <li>اسم المنتج هو حقل إلزامي لكل سطر.</li>
+              </ul>
+              <v-btn variant="text" size="small" prepend-icon="ri-download-line" color="primary" class="mt-2 font-weight-bold" @click="downloadSampleCSV">
+                تحميل ملف CSV تجريبي نموذج
+              </v-btn>
             </div>
-            <AppButton variant="text" color="error" size="small" prepend-icon="ri-restart-line" @click="reset"> إعادة البداية </AppButton>
+          </div>
+
+          <!-- Dropzone -->
+          <div
+            class="import-dropzone border-2 border-dashed rounded-xl pa-8 text-center cursor-pointer"
+            :class="{ 'border-primary bg-grey-lighten-4': dragActive }"
+            @dragover.prevent="dragActive = true"
+            @dragleave.prevent="dragActive = false"
+            @drop.prevent="handleDrop"
+            @click="$refs.fileInput.click()"
+          >
+            <input ref="fileInput" type="file" accept=".csv" class="d-none" @change="handleFileSelected" />
+            <v-icon icon="ri-file-excel-2-line" size="64" color="primary" class="mb-4 opacity-75" />
+            <h3 class="text-h6 font-weight-bold mb-2">اسحب وأفلت ملف الـ CSV هنا</h3>
+            <p class="text-caption text-grey mb-4">أو انقر لتصفح واختيار الملف من جهازك (بحد أقصى 10 ميجا)</p>
+            <v-chip v-if="selectedFile" color="primary" label class="font-weight-bold">
+              <v-icon start icon="ri-file-line" />
+              {{ selectedFile.name }} ({{ (selectedFile.size / 1024).toFixed(1) }} KB)
+            </v-chip>
           </div>
         </div>
 
-        <v-alert v-if="mappingError" type="error" variant="tonal" density="compact" class="mb-4" closable>
-          {{ mappingError }}
-        </v-alert>
+        <!-- Step 2: Processing / Progress -->
+        <div v-else-if="step === 'progress'" class="text-center py-10">
+          <v-progress-circular
+            :model-value="progress"
+            :rotate="360"
+            :size="120"
+            :width="12"
+            color="primary"
+            class="mb-6"
+          >
+            <span class="text-h6 font-weight-bold">{{ progress }}%</span>
+          </v-progress-circular>
 
-        <div class="mapping-table-container border rounded-lg overflow-hidden">
-          <v-table density="comfortable" class="mapping-table">
-            <thead>
-              <tr class="bg-grey-lighten-4">
-                <th v-for="(header, idx) in excelHeaders" :key="idx" class="px-3 py-4" style="min-width: 200px">
-                  <v-select
-                    v-model="mappings[header]"
-                    :items="systemFields"
-                    label="ربط بحقل..."
-                    density="compact"
-                    variant="outlined"
-                    hide-details
-                    clearable
-                    class="mb-2 bg-white"
-                    placeholder="تجاهل هذا العمود"
-                    item-title="label"
-                    item-value="key"
-                  >
-                    <template #item="{ props, item }">
-                      <!-- v-bind="props" already handles the title, removed manual title to avoid duplication -->
-                      <v-list-item v-bind="props" :disabled="isFieldSelected(item.raw.key, header)">
-                        <template #prepend>
-                          <v-icon :icon="item.raw.icon" size="18" class="me-2" :color="isFieldSelected(item.raw.key, header) ? 'grey' : 'primary'" />
-                        </template>
-                        <template v-if="item.raw.required" #append>
-                          <v-chip color="error" size="x-small" variant="flat">إجباري</v-chip>
-                        </template>
-                      </v-list-item>
-                    </template>
-                  </v-select>
-                  <div class="text-truncate font-weight-bold text-primary" :title="header">
-                    {{ header }}
-                  </div>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(row, rowIdx) in previewRows" :key="rowIdx">
-                <td v-for="(header, colIdx) in excelHeaders" :key="colIdx" class="px-3 py-2 text-caption text-grey">
-                  {{ row[header] }}
-                </td>
-              </tr>
-            </tbody>
-          </v-table>
+          <h3 class="text-h6 font-weight-bold mb-2">{{ statusText }}</h3>
+          <p class="text-body-2 text-grey">يرجى الانتظار وعدم إغلاق الصفحة حتى تنتهي المعالجة بالخلفية...</p>
         </div>
-      </div>
 
-      <!-- Step 3: Success -->
-      <div v-else-if="step === 3" class="d-flex flex-column align-center justify-center py-10">
-        <v-icon icon="ri-checkbox-circle-fill" size="80" color="success" class="mb-4" />
-        <h3 class="text-h5 font-weight-bold mb-2">تم الرفع بنجاح!</h3>
-        <p class="text-grey mb-6">تمت إضافة {{ resultCount }} منتج إلى نظامك بنجاح.</p>
+        <!-- Step 3: Result Summary -->
+        <div v-else-if="step === 'result'">
+          <div class="text-center mb-6">
+            <v-icon
+              :icon="resultStats.failed_count === 0 ? 'ri-checkbox-circle-fill' : 'ri-error-warning-fill'"
+              :color="resultStats.failed_count === 0 ? 'success' : 'warning'"
+              size="64"
+              class="mb-2"
+            />
+            <h3 class="text-h5 font-weight-bold">اكتملت عملية الاستيراد</h3>
+            <p class="text-subtitle-2 text-grey">تمت معالجة الملف بنجاح، إليك ملخص العملية:</p>
+          </div>
 
-        <AppButton color="primary" @click="close"> إغلاق </AppButton>
-      </div>
-    </div>
+          <!-- Stats Cards -->
+          <v-row class="mb-6 text-center">
+            <v-col cols="6">
+              <div class="border rounded-xl pa-4 bg-success-lighten-5 border-success">
+                <div class="text-h4 font-weight-bold text-success">{{ resultStats.success_count }}</div>
+                <div class="text-caption text-success font-weight-bold">أسطر تم استيرادها بنجاح</div>
+              </div>
+            </v-col>
+            <v-col cols="6">
+              <div class="border rounded-xl pa-4 bg-error-lighten-5 border-error">
+                <div class="text-h4 font-weight-bold text-error">{{ resultStats.failed_count }}</div>
+                <div class="text-caption text-error font-weight-bold">أسطر فشل استيرادها</div>
+              </div>
+            </v-col>
+          </v-row>
 
-    <template #actions>
-      <AppButton v-if="step === 1" variant="text" @click="close">إلغاء</AppButton>
-      <div v-if="step === 2" class="d-flex gap-2">
-        <AppButton variant="text" color="grey" @click="step = 1">السابق</AppButton>
-        <AppButton color="primary" prepend-icon="ri-rocket-2-line" :loading="importing" @click="startImport"> تنفيذ الرفع والربط </AppButton>
-      </div>
-    </template>
-  </AppDialog>
+          <!-- Failed Details Table -->
+          <div v-if="resultStats.failed_details && resultStats.failed_details.length > 0">
+            <h4 class="text-subtitle-1 font-weight-bold mb-3 text-error">تفاصيل الأسطر الفاشلة وأسباب الأخطاء:</h4>
+            <v-table class="border rounded-xl overflow-hidden" density="comfortable">
+              <thead>
+                <tr class="bg-grey-lighten-4">
+                  <th class="font-weight-bold text-caption">رقم السطر</th>
+                  <th class="font-weight-bold text-caption">محتوى السطر</th>
+                  <th class="font-weight-bold text-caption text-error">سبب الفشل</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="errRow in resultStats.failed_details" :key="errRow.row">
+                  <td class="text-caption font-weight-bold text-center" style="width: 80px">{{ errRow.row }}</td>
+                  <td class="text-caption text-truncate" style="max-width: 250px" :title="errRow.data?.join(', ')">
+                    <code>{{ errRow.data?.join(', ') || '---' }}</code>
+                  </td>
+                  <td class="text-caption text-error font-weight-bold">{{ errRow.reason }}</td>
+                </tr>
+              </tbody>
+            </v-table>
+          </div>
+        </div>
+      </v-card-text>
+
+      <v-divider />
+
+      <v-card-actions class="pa-4 bg-grey-lighten-5">
+        <v-btn v-if="step === 'upload'" variant="text" color="grey" @click="close" :disabled="importing">إلغاء</v-btn>
+        <v-spacer />
+        <v-btn
+          v-if="step === 'upload'"
+          color="primary"
+          :disabled="!selectedFile"
+          :loading="importing"
+          class="px-8 font-weight-bold"
+          @click="uploadAndStartImport"
+        >
+          بدء الاستيراد
+        </v-btn>
+        <v-btn v-if="step === 'result'" color="primary" class="px-8 font-weight-bold" @click="close">
+          موافق وإغلاق
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import * as XLSX from 'xlsx';
-import productService from '@/api/services/product.service';
+// تعليق عربي: نافذة ديالوج لاستيراد المنتجات بالخلفية عبر رفع ملف CSV وتتبع التقدم لايف وعرض الأخطاء والسطور الفاشلة.
+
+import { ref } from 'vue';
+import { useApi } from '@/composables/useApi';
 import { toast } from 'vue3-toastify';
 
 const isOpen = ref(false);
-const step = ref(1);
-const importing = ref(false);
+const step = ref('upload'); // upload, progress, result
+const dragActive = ref(false);
+const selectedFile = ref(null);
 const fileInput = ref(null);
-const resultCount = ref(0);
-const mappingError = ref('');
 
-const excelData = ref([]);
-const excelHeaders = ref([]);
-const previewRows = ref([]);
-const mappings = ref({});
-const selectedEncoding = ref('utf-8');
-const rawFileBuffer = ref(null);
-const currentFileName = ref('');
+const progress = ref(0);
+const statusText = ref('');
+const importing = ref(false);
 
-const systemFields = [
-  { key: 'name', label: 'اسم المنتج', icon: 'ri-text', required: true },
-  { key: 'sku', label: 'الباركود / SKU', icon: 'ri-barcode-line' },
-  { key: 'category', label: 'التصنيف', icon: 'ri-folder-line' },
-  { key: 'brand', label: 'الماركة', icon: 'ri-price-tag-3-line' },
-  { key: 'retail_price', label: 'سعر البيع', icon: 'ri-money-dollar-circle-line' },
-  { key: 'purchase_price', label: 'سعر التكلفة', icon: 'ri-hand-coin-line' },
-  { key: 'opening_stock', label: 'الرصيد الافتتاحي', icon: 'ri-stack-line' },
-  { key: 'desc', label: 'الوصف القصير', icon: 'ri-file-text-line' },
-];
+const resultStats = ref({
+  success_count: 0,
+  failed_count: 0,
+  failed_details: []
+});
 
-const isFieldSelected = (fieldKey, currentHeader) => {
-  return Object.entries(mappings.value).some(([h, k]) => k === fieldKey && h !== currentHeader);
+const emit = defineEmits(['imported']);
+const api = useApi('/api/v1/export-import');
+
+let pollingInterval = null;
+
+const open = () => {
+  isOpen.value = true;
+  step.value = 'upload';
+  selectedFile.value = null;
+  progress.value = 0;
+  importing.value = false;
 };
 
-const handleFileChange = e => {
+const close = () => {
+  if (importing.value) return;
+  isOpen.value = false;
+  clearInterval(pollingInterval);
+};
+
+const handleFileSelected = (e) => {
   const file = e.target.files[0];
-  if (!file) return;
-
-  currentFileName.value = file.name;
-  const reader = new FileReader();
-  reader.onload = event => {
-    rawFileBuffer.value = event.target.result;
-
-    // Auto-detect if it looks like it needs windows-1256 (only if it's a CSV)
-    if (file.name.endsWith('.csv')) {
-      const data = new Uint8Array(rawFileBuffer.value);
-      // Sample first few bytes to see if it's standard ASCII or likely Arabic
-      const hasHighAscii = data.slice(0, 1000).some(b => b > 127);
-      if (hasHighAscii) {
-        // We'll let UTF-8 try first, then user can toggle, or we can be smart.
-        // Actually, if it's a CSV and has high ascii, Windows-1256 is VERY common for Arabic Excel users.
-        // selectedEncoding.value = 'windows-1256';
-      }
-    }
-
-    processBuffer();
-  };
-  reader.readAsArrayBuffer(file);
-};
-
-const reparseFile = () => {
-  if (rawFileBuffer.value) {
-    processBuffer();
+  if (file && (file.type === 'text/csv' || file.name.endsWith('.csv'))) {
+    selectedFile.value = file;
+  } else {
+    toast.error('يرجى اختيار ملف CSV صالح فقط.');
   }
 };
 
-const processBuffer = () => {
-  try {
-    const data = new Uint8Array(rawFileBuffer.value);
-    let workbook;
-
-    if (currentFileName.value.toLowerCase().endsWith('.csv')) {
-      // Use TextDecoder for CSV - This is effectively "Solution 3" (Re-encoding)
-      // but using native browser API instead of extra libraries like iconv-lite.
-      const decoder = new TextDecoder(selectedEncoding.value);
-      const decodedText = decoder.decode(data);
-
-      workbook = XLSX.read(decodedText, {
-        type: 'string',
-        codepage: selectedEncoding.value === 'utf-8' ? 65001 : 1256,
-      });
-    } else {
-      // For XLSX, XLSX library handles internal UTF-8 encoding perfectly
-      workbook = XLSX.read(data, { type: 'array', cellDates: true });
-    }
-
-    const firstSheetName = workbook.SheetNames[0];
-    const worksheet = workbook.Sheets[firstSheetName];
-
-    // Explicitly use CP65001 if CSV and UTF-8
-    const json = XLSX.utils.sheet_to_json(worksheet, {
-      defval: '',
-      raw: false,
-      header: 0,
-    });
-
-    if (json.length === 0) {
-      toast.error('الملف فارغ!');
-      return;
-    }
-
-    excelData.value = json;
-    excelHeaders.value = Object.keys(json[0]);
-    previewRows.value = json.slice(0, 5);
-
-    // Initial smart auto-mapping (only if mappings are empty)
-    if (Object.keys(mappings.value).length === 0) {
-      excelHeaders.value.forEach(header => {
-        const match = systemFields.find(f => header.toLowerCase().includes(f.key.toLowerCase()) || header.includes(f.label));
-        if (match) mappings.value[header] = match.key;
-      });
-    }
-
-    step.value = 2;
-  } catch (error) {
-    console.error('File processing error:', error);
-    toast.error('فشل في معالجة الملف. جرب تغيير نظام التشفير.');
+const handleDrop = (e) => {
+  dragActive.value = false;
+  const file = e.dataTransfer.files[0];
+  if (file && (file.type === 'text/csv' || file.name.endsWith('.csv'))) {
+    selectedFile.value = file;
+  } else {
+    toast.error('يرجى اختيار ملف CSV صالح فقط.');
   }
 };
 
-const startImport = async () => {
-  // Check required fields
-  const requiredFields = systemFields.filter(f => f.required).map(f => f.key);
-  const mappedFields = Object.values(mappings.value);
-  const missing = requiredFields.filter(f => !mappedFields.includes(f));
+const downloadSampleCSV = () => {
+  const csvContent = "\uFEFF#,اسم المنتج,الوصف,نشط\n1,منتج ملموس تجريبي 1,هذا وصف قصير للمنتج,نعم\n2,منتج ملموس تجريبي 2,وصف منتج مؤرشف آخر,لا\n";
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.setAttribute('href', url);
+  link.setAttribute('download', 'products_import_sample.csv');
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
 
-  if (missing.length > 0) {
-    const labels = missing.map(f => systemFields.find(sf => sf.key === f).label).join('، ');
-    mappingError.value = `يجب ربط الحقول التالية على الأقل: ${labels}`;
-    return;
-  }
-
-  mappingError.value = '';
+const uploadAndStartImport = async () => {
+  if (!selectedFile.value) return;
   importing.value = true;
+  statusText.value = 'جاري رفع الملف وجدولة عملية الاستيراد...';
+  step.value = 'progress';
 
   try {
-    const payload = {
-      mapping: mappings.value,
-      data: excelData.value,
-    };
+    const formData = new FormData();
+    formData.append('file', selectedFile.value);
+    formData.append('model_type', 'products');
 
-    const response = await productService.import(payload);
-    if (response.status || response.success) {
-      resultCount.value = response.data.count || excelData.value.length;
-      step.value = 3;
-      emit('imported');
+    const res = await api.create(formData, { showLoading: false });
+    if (res.data && res.data.id) {
+      startPolling(res.data.id);
     }
   } catch (error) {
-    console.error('Import Error:', error);
-  } finally {
+    console.error('Import upload failed:', error);
+    step.value = 'upload';
     importing.value = false;
   }
 };
 
-const open = () => {
-  reset();
-  isOpen.value = true;
+const startPolling = (jobId) => {
+  progress.value = 10;
+  statusText.value = 'تمت الجدولة بنجاح. جاري الاستيراد بالخلفية...';
+  
+  pollingInterval = setInterval(async () => {
+    try {
+      const res = await api.getById(jobId, { showLoading: false, showError: false });
+      if (res.data) {
+        progress.value = res.data.progress || 10;
+        
+        if (res.data.status === 'processing') {
+          statusText.value = 'جاري معالجة الأسطر وإدراج المنتجات...';
+        }
+        
+        if (res.data.status === 'completed' || res.data.status === 'failed') {
+          clearInterval(pollingInterval);
+          importing.value = false;
+          
+          if (res.data.errors) {
+            resultStats.value = {
+              success_count: res.data.errors.success_count ?? 0,
+              failed_count: res.data.errors.failed_count ?? 0,
+              failed_details: res.data.errors.failed_details ?? []
+            };
+          } else {
+            resultStats.value = {
+              success_count: 0,
+              failed_count: 0,
+              failed_details: []
+            };
+          }
+          
+          step.value = 'result';
+          emit('imported');
+        }
+      }
+    } catch (error) {
+      console.error('Error polling job status:', error);
+    }
+  }, 2000);
 };
 
-const close = () => {
-  isOpen.value = false;
-};
-
-const reset = () => {
-  step.value = 1;
-  excelData.value = [];
-  excelHeaders.value = [];
-  previewRows.value = [];
-  mappings.value = {};
-  mappingError.value = '';
-  if (fileInput.value) fileInput.value.value = '';
-};
-
-const emit = defineEmits(['imported']);
 defineExpose({ open });
 </script>
 
 <style scoped>
-.import-container {
-  min-height: 400px;
+.import-dropzone {
+  transition: all 0.3s ease;
 }
-.mapping-table-container {
-  max-width: 100%;
-  overflow-x: auto;
-}
-.mapping-table th {
-  vertical-align: top !important;
-}
-.opa-5 {
-  opacity: 0.15;
+.import-dropzone:hover {
+  background-color: #f5f5f5;
+  border-color: rgb(var(--v-theme-primary)) !important;
 }
 </style>

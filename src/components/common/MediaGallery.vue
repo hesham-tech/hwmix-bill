@@ -139,7 +139,7 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'select']);
 
-const api = useApi('/api/images');
+const api = useApi('/api/v1/media');
 const images = ref([]);
 const loading = ref(false);
 const uploading = ref(false);
@@ -163,15 +163,19 @@ const show = computed({
 const filteredImages = computed(() => {
   if (!search.value) return images.value;
   return images.value.filter(
-    img => img.file_name?.toLowerCase().includes(search.value.toLowerCase()) || img.type?.toLowerCase().includes(search.value.toLowerCase())
+    img => img.original_name?.toLowerCase().includes(search.value.toLowerCase()) || img.mime_type?.toLowerCase().includes(search.value.toLowerCase())
   );
 });
 
 const fetchImages = async () => {
   loading.value = true;
   try {
-    const response = await api.get({ linked: '0' });
-    images.value = response.data || [];
+    const response = await api.get();
+    const rawImages = response.data || [];
+    images.value = rawImages.map(img => ({
+      ...img,
+      url: img.file_url
+    }));
   } catch (error) {
     console.error('Failed to fetch images:', error);
   } finally {
@@ -183,7 +187,6 @@ const handleFileUpload = async event => {
   const files = event.target.files;
   if (!files.length) return;
 
-  // For single uploads (like profile/avatar), show cropper first
   if (!props.multiple && files.length === 1) {
     originalFile.value = files[0];
     const reader = new FileReader();
@@ -192,21 +195,17 @@ const handleFileUpload = async event => {
       showCropper.value = true;
     };
     reader.readAsDataURL(files[0]);
-    // Reset input so same file can be selected again if needed
     event.target.value = '';
     return;
   }
 
-  // Fallback for multiple files or if skipping cropper
   uploading.value = true;
-  const formData = new FormData();
-  for (let i = 0; i < files.length; i++) {
-    formData.append('images[]', files[i]);
-  }
-  formData.append('type', props.type);
-
   try {
-    await api.create(formData, { showSuccessMessage: true });
+    for (let i = 0; i < files.length; i++) {
+      const formData = new FormData();
+      formData.append('file', files[i]);
+      await api.request('POST', 'upload', formData, { showSuccess: i === files.length - 1 });
+    }
     await fetchImages();
   } catch (error) {
     console.error('Upload failed:', error);
@@ -220,17 +219,14 @@ const handleCroppedImage = async blob => {
   uploading.value = true;
   const formData = new FormData();
   const file = new File([blob], `cropped_${Date.now()}.jpg`, { type: 'image/jpeg' });
-  formData.append('images[]', file);
-  formData.append('type', props.type);
+  formData.append('file', file);
 
   try {
-    const res = await api.create(formData, { showSuccessMessage: true });
+    const res = await api.request('POST', 'upload', formData, { showSuccess: true });
     await fetchImages();
-    // Auto-select the newly uploaded image if it's a single select gallery
-    if (!props.multiple && res.data && res.data.length > 0) {
-      const newImage = res.data[0];
+    if (!props.multiple && res.data) {
+      const newImage = res.data;
       selectedIds.value = [newImage.id];
-      // Automatically confirm selection for better UX in profile
       confirmSelection();
     }
   } catch (error) {
@@ -246,14 +242,13 @@ const handleSkipCropping = async () => {
 
   uploading.value = true;
   const formData = new FormData();
-  formData.append('images[]', originalFile.value);
-  formData.append('type', props.type);
+  formData.append('file', originalFile.value);
 
   try {
-    const res = await api.create(formData, { showSuccessMessage: true });
+    const res = await api.request('POST', 'upload', formData, { showSuccess: true });
     await fetchImages();
-    if (!props.multiple && res.data && res.data.length > 0) {
-      const newImage = res.data[0];
+    if (!props.multiple && res.data) {
+      const newImage = res.data;
       selectedIds.value = [newImage.id];
       confirmSelection();
     }
@@ -276,7 +271,7 @@ const doDelete = async () => {
 
   deleting.value = true;
   try {
-    await api.request('POST', 'delete', { ids: [imageToDelete.value.id] });
+    await api.remove(imageToDelete.value.id);
     images.value = images.value.filter(img => img.id !== imageToDelete.value.id);
     selectedIds.value = selectedIds.value.filter(id => id !== imageToDelete.value.id);
     deleteConfirmDialog.value = false;

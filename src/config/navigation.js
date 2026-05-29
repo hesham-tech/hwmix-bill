@@ -345,6 +345,20 @@ export default [
         icon: 'ri-building-2-line',
         permission: [PERMISSIONS.COMPANIES_VIEW_ALL, PERMISSIONS.COMPANIES_VIEW_CHILDREN, PERMISSIONS.COMPANIES_VIEW_SELF],
       },
+      // Mail Settings
+      {
+        title: 'إعدادات البريد',
+        to: '/app/mail',
+        icon: 'ri-mail-settings-line',
+        permission: [PERMISSIONS.ADMIN_SUPER, PERMISSIONS.ADMIN_COMPANY],
+      },
+      // Payment Gateways
+      {
+        title: 'بوابات الدفع الإلكتروني',
+        to: '/app/payment-gateways',
+        icon: 'ri-bank-card-line',
+        permission: [PERMISSIONS.ADMIN_SUPER, PERMISSIONS.ADMIN_COMPANY],
+      },
       // Branches Management
       {
         title: 'إدارة الفروع',

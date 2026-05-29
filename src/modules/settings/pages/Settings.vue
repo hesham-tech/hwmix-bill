@@ -67,6 +67,23 @@ const settingCards = computed(() => {
     });
   }
 
+  if (canAny(PERMISSIONS.ADMIN_SUPER, PERMISSIONS.ADMIN_COMPANY)) {
+    cards.push({
+      title: 'إعدادات البريد',
+      description: 'تهيئة خادم SMTP وإرسال الإشعارات البرمجية للفواتير',
+      icon: 'ri-mail-settings-line',
+      color: 'primary',
+      to: '/app/mail',
+    });
+    cards.push({
+      title: 'بوابات الدفع الإلكتروني',
+      description: 'تهيئة Stripe و Paymob وتفعيل الدفع الإلكتروني للعملاء',
+      icon: 'ri-bank-card-line',
+      color: 'success',
+      to: '/app/payment-gateways',
+    });
+  }
+
   if (can(PERMISSIONS.BRANCHES_VIEW_ALL)) {
     cards.push({
       title: 'إدارة الفروع',

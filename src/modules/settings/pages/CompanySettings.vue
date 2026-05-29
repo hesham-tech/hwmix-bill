@@ -433,6 +433,8 @@
 
     <!-- Image Cropper for existing images -->
     <AppImageCropper v-model="showCropper" :image-src="cropperImageSrc" @cropped="handleCroppedImage" />
+
+
   </div>
 </template>
 
@@ -715,8 +717,8 @@ const handleSave = async () => {
   }
 };
 
-onMounted(() => {
-  loadCompanyData();
+onMounted(async () => {
+  await loadCompanyData();
 });
 </script>
 
