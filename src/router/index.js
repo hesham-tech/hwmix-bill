@@ -17,6 +17,7 @@ import reportRoutes from '@/modules/reports/routes';
 import userRoutes from '@/modules/users/routes';
 import warehouseRoutes from '@/modules/warehouses/routes';
 import branchRoutes from '@/modules/branches/routes';
+import companiesRoutes from '@/modules/companies/routes';
 import settingRoutes from '@/modules/settings/routes';
 import taskRoutes from '@/modules/tasks/routes';
 import financialsRoutes from '@/modules/financials/routes';
@@ -64,6 +65,7 @@ const router = createRouter({
         ...userRoutes,
         ...warehouseRoutes,
         ...branchRoutes,
+        ...companiesRoutes,
         ...settingRoutes,
         ...taskRoutes,
         ...financialsRoutes,

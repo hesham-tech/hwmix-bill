@@ -20,11 +20,37 @@
             v-model="filters.category_id"
             label="التصنيف"
             api-endpoint="categories"
-            item-title="name"
+            item-title="full_path"
             item-value="id"
             clearable
             density="comfortable"
-          />
+          >
+            <template #item="{ props, item }">
+              <v-list-item v-bind="props" :title="undefined">
+                <template #title>
+                  <div class="d-flex align-center flex-wrap gap-1">
+                    <span class="font-weight-bold text-body-2 text-slate-800">{{ item.raw.name }}</span>
+                    <v-chip v-if="!item.raw.company_id" size="x-small" color="info" variant="flat" class="px-1" style="height: 16px; font-size: 9px">
+                      عالمي
+                    </v-chip>
+                  </div>
+                </template>
+                <template #subtitle>
+                  <div class="d-flex align-center gap-1 text-caption text-slate-500 mt-1">
+                    <v-icon icon="ri-node-tree" size="12" class="text-primary" />
+                    <span v-if="item.raw.parent_path" class="text-truncate">
+                      ينتمي إلى: <strong class="text-slate-700">{{ item.raw.parent_path }}</strong>
+                    </span>
+                    <span v-else class="text-slate-400">قسم رئيسي</span>
+                  </div>
+                  <div v-if="item.raw.synonyms?.length" class="text-caption text-grey mt-0.5">
+                    <v-icon icon="ri-price-tag-3-line" size="10" class="me-1" />
+                    {{ item.raw.synonyms.join(', ') }}
+                  </div>
+                </template>
+              </v-list-item>
+            </template>
+          </AppAutocomplete>
         </v-col>
         <v-col cols="6" class="mb-2">
           <AppAutocomplete

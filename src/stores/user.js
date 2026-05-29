@@ -71,16 +71,16 @@ export const useUserStore = defineStore('user', () => {
     // Super admin bypasses EVERYTHING
     if (rawPermissions.includes(PERMISSIONS.ADMIN_SUPER)) return true;
 
-    // Helper to determine if a permission strictly requires Super Admin
-    const isSuperAdminPermission = p => p === PERMISSIONS.ADMIN_SUPER;
+    // Helper to determine if a permission strictly requires Super Admin or Company management permissions
+    const isRestrictedPermission = p => p === PERMISSIONS.ADMIN_SUPER || p.startsWith('companies.');
 
-    // Company admin bypasses everything EXCEPT super admin permissions
+    // Company admin bypasses everything EXCEPT super admin and company management permissions
     if (rawPermissions.includes(PERMISSIONS.ADMIN_COMPANY)) {
       if (Array.isArray(permission)) {
-        // If all are super-admin only, block access
-        const hasNonSuper = permission.some(p => !isSuperAdminPermission(p));
-        if (!hasNonSuper) return false;
-      } else if (isSuperAdminPermission(permission)) {
+        // If all are restricted, block access
+        const hasNonRestricted = permission.some(p => !isRestrictedPermission(p));
+        if (!hasNonRestricted) return false;
+      } else if (isRestrictedPermission(permission)) {
         return false;
       }
       return true;

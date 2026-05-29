@@ -378,11 +378,14 @@ const handleLogout = async () => {
 
 /* تخصيص السكرول بار */
 .sidebar-menu-wrapper::-webkit-scrollbar {
-  width: 4px;
+  width: 7px;
 }
 .sidebar-menu-wrapper::-webkit-scrollbar-thumb {
-  background: rgba(var(--v-theme-primary), 0.2);
+  background: rgba(var(--v-theme-primary), 0.25);
   border-radius: 10px;
+}
+.sidebar-menu-wrapper::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--v-theme-primary), 0.45);
 }
 
 .menu-item,

@@ -37,7 +37,10 @@ export const useUIPreferencesStore = defineStore('uiPreferences', () => {
 
       if (cached) {
         try {
-          preferences.value[key] = JSON.parse(cached);
+          preferences.value = {
+            ...preferences.value,
+            [key]: JSON.parse(cached)
+          };
         } catch (e) {
           console.error(`Failed to parse cached preferences for key: ${key}`, e);
         }
@@ -66,7 +69,10 @@ export const useUIPreferencesStore = defineStore('uiPreferences', () => {
 
           // مزامنة التفضيلات إذا كانت نسخة السيرفر أحدث أو غير موجودة محلياً
           if (!cachedPref || serverPref.updated_at !== cachedPref.updated_at) {
-            preferences.value[key] = serverPref;
+            preferences.value = {
+              ...preferences.value,
+              [key]: serverPref
+            };
             localStorage.setItem(cacheKey, JSON.stringify(serverPref));
           }
         }
@@ -100,7 +106,10 @@ export const useUIPreferencesStore = defineStore('uiPreferences', () => {
     };
 
     // 1. تحديث Pinia و LocalStorage فوراً لتجربة مستخدم لحظية
-    preferences.value[tableKey] = updatedPref;
+    preferences.value = {
+      ...preferences.value,
+      [tableKey]: updatedPref
+    };
     localStorage.setItem(cacheKey, JSON.stringify(updatedPref));
 
     // 2. تحديث السيرفر بطريقة Debounced لتقليل الضغط
@@ -134,7 +143,9 @@ export const useUIPreferencesStore = defineStore('uiPreferences', () => {
     const cacheKey = getCacheKey(userId, companyId, tableKey);
 
     // 1. حذف محلي فوري
-    delete preferences.value[tableKey];
+    const updated = { ...preferences.value };
+    delete updated[tableKey];
+    preferences.value = updated;
     localStorage.removeItem(cacheKey);
 
     // 2. طلب حذف من السيرفر

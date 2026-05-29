@@ -938,7 +938,7 @@ watch(() => props.tableKey, (newKey) => {
 
 const currentPref = computed(() => {
   if (!props.tableKey) return null;
-  return uiPrefsStore.getPreference(props.tableKey);
+  return uiPrefsStore.preferences[props.tableKey] || null;
 });
 
 const hasHydrated = ref(false);

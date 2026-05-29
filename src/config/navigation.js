@@ -299,6 +299,31 @@ export default [
     ],
   },
 
+  // ==================== Companies ====================
+  {
+    title: 'الشركات',
+    icon: 'ri-building-line',
+    permission: [
+      PERMISSIONS.ADMIN_SUPER,
+      PERMISSIONS.COMPANIES_VIEW_ALL,
+      PERMISSIONS.COMPANIES_VIEW_CHILDREN,
+      PERMISSIONS.COMPANIES_VIEW_SELF,
+    ],
+    children: [
+      {
+        title: 'قائمة الشركات',
+        to: '/app/companies',
+        icon: 'ri-building-4-line',
+        permission: [
+          PERMISSIONS.ADMIN_SUPER,
+          PERMISSIONS.COMPANIES_VIEW_ALL,
+          PERMISSIONS.COMPANIES_VIEW_CHILDREN,
+          PERMISSIONS.COMPANIES_VIEW_SELF,
+        ],
+      },
+    ],
+  },
+
   // ==================== Activity Logs ====================
   {
     title: 'سجل الأنشطة',
