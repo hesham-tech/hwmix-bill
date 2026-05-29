@@ -82,6 +82,13 @@ const settingCards = computed(() => {
       color: 'success',
       to: '/app/payment-gateways',
     });
+    cards.push({
+      title: 'اشتراكي',
+      description: 'عرض تفاصيل باقتك الحالية واستخدام الموارد والتجديد التلقائي',
+      icon: 'ri-medal-line',
+      color: 'amber',
+      to: '/app/my-subscription',
+    });
   }
 
   if (can(PERMISSIONS.BRANCHES_VIEW_ALL)) {
@@ -138,6 +145,13 @@ const settingCards = computed(() => {
       icon: 'ri-bug-line',
       color: 'warning',
       to: '/app/error-reports',
+    });
+    cards.push({
+      title: 'إدارة باقات SaaS',
+      description: 'إنشاء وتعديل باقات النظام، تحديد الميزات والقيود العددية',
+      icon: 'ri-vip-crown-line',
+      color: 'deep-orange',
+      to: '/app/saas-plans',
     });
   }
 

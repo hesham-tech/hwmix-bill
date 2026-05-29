@@ -151,7 +151,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { authService } from '@/api';
 import { required, phone as phoneValidator, strongPassword } from '@/utils/validators';
 import AppInput from '@/components/common/AppInput.vue';
@@ -159,6 +159,7 @@ import AppPasswordInput from '@/components/common/AppPasswordInput.vue';
 import AppButton from '@/components/common/AppButton.vue';
 
 const router = useRouter();
+const route = useRoute();
 const formRef = ref(null);
 const loading = ref(false);
 const form = ref({
@@ -195,6 +196,7 @@ const handleRegister = async () => {
       phone: form.value.phone,
       email: form.value.email,
       password: form.value.password,
+      plan_id: route.query.plan_id ? Number(route.query.plan_id) : null,
     });
     router.push('/saas/login?registered=1');
   } catch (error) {

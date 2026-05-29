@@ -1,5 +1,5 @@
 {
-  "workbench.colorTheme": "Default Light Modern",
+  "workbench.colorTheme": "Light Modern",
   "editor.formatOnSave": true,
   "files.insertFinalNewline": true,
   "javascript.updateImportsOnFileMove.enabled": "always",

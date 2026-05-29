@@ -323,6 +323,12 @@ export default [
       },
     ],
   },
+  {
+    title: 'باقات SaaS',
+    icon: 'ri-vip-crown-line',
+    to: '/app/saas-plans',
+    permission: PERMISSIONS.ADMIN_SUPER,
+  },
 
   // ==================== Activity Logs ====================
   {
@@ -344,6 +350,13 @@ export default [
         to: '/app/company',
         icon: 'ri-building-2-line',
         permission: [PERMISSIONS.COMPANIES_VIEW_ALL, PERMISSIONS.COMPANIES_VIEW_CHILDREN, PERMISSIONS.COMPANIES_VIEW_SELF],
+      },
+      // My Subscription
+      {
+        title: 'اشتراكي الحالي',
+        to: '/app/my-subscription',
+        icon: 'ri-vip-crown-2-line',
+        permission: [PERMISSIONS.ADMIN_SUPER, PERMISSIONS.ADMIN_COMPANY],
       },
       // Mail Settings
       {

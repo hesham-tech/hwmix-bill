@@ -106,4 +106,22 @@ export default [
       permission: PERMISSIONS.ADMIN_SUPER,
     },
   },
+  {
+    path: 'saas-plans',
+    name: 'saas-plans',
+    component: () => import('@/modules/settings/pages/SaaSPlansList.vue'),
+    meta: {
+      title: 'إدارة باقات SaaS',
+      permission: PERMISSIONS.ADMIN_SUPER,
+    },
+  },
+  {
+    path: 'my-subscription',
+    name: 'my-subscription',
+    component: () => import('@/modules/settings/pages/MySubscription.vue'),
+    meta: {
+      title: 'تفاصيل اشتراكي',
+      permission: [PERMISSIONS.ADMIN_SUPER, PERMISSIONS.ADMIN_COMPANY],
+    },
+  },
 ];

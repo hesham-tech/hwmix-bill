@@ -153,11 +153,95 @@
       </div>
     </section>
 
+    <!-- Pricing Section -->
+    <section class="pricing-section" id="pricing">
+      <div class="section-header">
+        <h2>خطط الأسعار لتناسب كافة الاحتياجات</h2>
+        <p>اختر الباقة المناسبة لأعمالك وابدأ فوراً. بدون عقود طويلة الأجل أو التزامات خفية.</p>
+      </div>
+
+      <div v-if="loadingPlans" class="pricing-loading py-12">
+        <v-progress-circular indeterminate color="primary" size="48" />
+        <div class="mt-4 text-body-2 text-grey">جاري جلب الباقات المتاحة...</div>
+      </div>
+
+      <div v-else class="pricing-grid">
+        <div 
+          v-for="plan in plans" 
+          :key="plan.id" 
+          :class="['pricing-card', { 'featured': plan.price > 0 }]"
+        >
+          <div class="card-header-plan">
+            <div class="plan-badge-label" v-if="plan.price > 0">موصى به</div>
+            <div class="plan-icon-wrap mb-4">
+              <v-icon :icon="plan.icon || 'ri-vip-crown-line'" color="primary" size="32" />
+            </div>
+            <h3 class="plan-name-title">{{ plan.name }}</h3>
+            <p class="plan-desc-text">{{ plan.description }}</p>
+          </div>
+
+          <div class="plan-price-block">
+            <span class="price-amount">{{ plan.price }}</span>
+            <span class="price-curr">EGP</span>
+            <span class="price-period">/ {{ plan.duration }} {{ getDurationUnitLabel(plan.duration_unit) }}</span>
+          </div>
+
+          <div class="plan-trial-pill" v-if="plan.trial_days > 0">
+            <v-icon icon="ri-check-double-line" class="me-1" color="success" size="18" />
+            <span>تجربة مجانية لمدة {{ plan.trial_days }} يوم</span>
+          </div>
+
+          <div class="plan-features-list">
+            <div class="feature-item-row limit">
+              <v-icon icon="ri-checkbox-circle-fill" color="success" class="me-2" size="18" />
+              <span>عدد المستخدمين: <strong>{{ plan.max_users === -1 || plan.max_users === null ? 'غير محدود' : plan.max_users }}</strong></span>
+            </div>
+            <div class="feature-item-row limit">
+              <v-icon icon="ri-checkbox-circle-fill" color="success" class="me-2" size="18" />
+              <span>المنتجات المخزنة: <strong>{{ plan.max_products === -1 || plan.max_products === null ? 'غير محدود' : plan.max_products }}</strong></span>
+            </div>
+            <div class="feature-item-row limit">
+              <v-icon icon="ri-checkbox-circle-fill" color="success" class="me-2" size="18" />
+              <span>الفواتير الصادرة: <strong>{{ plan.max_invoices === -1 || plan.max_invoices === null ? 'غير محدود' : plan.max_invoices }}</strong></span>
+            </div>
+            
+            <div class="feature-item-row" :class="{ 'disabled': !getFeatureFlag(plan, 'payment_gateways') }">
+              <v-icon :icon="getFeatureFlag(plan, 'payment_gateways') ? 'ri-checkbox-circle-fill' : 'ri-close-circle-fill'" :color="getFeatureFlag(plan, 'payment_gateways') ? 'success' : 'grey'" class="me-2" size="18" />
+              <span>بوابات الدفع الإلكتروني</span>
+            </div>
+            <div class="feature-item-row" :class="{ 'disabled': !getFeatureFlag(plan, 'installment_system') }">
+              <v-icon :icon="getFeatureFlag(plan, 'installment_system') ? 'ri-checkbox-circle-fill' : 'ri-close-circle-fill'" :color="getFeatureFlag(plan, 'installment_system') ? 'success' : 'grey'" class="me-2" size="18" />
+              <span>نظام البيع بالتقسيط</span>
+            </div>
+            <div class="feature-item-row" :class="{ 'disabled': !getFeatureFlag(plan, 'warehouses_multi') }">
+              <v-icon :icon="getFeatureFlag(plan, 'warehouses_multi') ? 'ri-checkbox-circle-fill' : 'ri-close-circle-fill'" :color="getFeatureFlag(plan, 'warehouses_multi') ? 'success' : 'grey'" class="me-2" size="18" />
+              <span>المخازن المتعددة</span>
+            </div>
+            <div class="feature-item-row" :class="{ 'disabled': !getFeatureFlag(plan, 'reports_advanced') }">
+              <v-icon :icon="getFeatureFlag(plan, 'reports_advanced') ? 'ri-checkbox-circle-fill' : 'ri-close-circle-fill'" :color="getFeatureFlag(plan, 'reports_advanced') ? 'success' : 'grey'" class="me-2" size="18" />
+              <span>التقارير المالية المتقدمة</span>
+            </div>
+          </div>
+
+          <v-btn
+            block
+            :color="plan.price > 0 ? 'primary' : 'secondary'"
+            class="rounded-pill font-weight-bold card-btn py-3 mt-6"
+            elevation="1"
+            size="large"
+            @click="handleSelectPlan(plan)"
+          >
+            {{ plan.price > 0 ? 'اشترك الآن' : 'ابدأ مجاناً' }}
+          </v-btn>
+        </div>
+      </div>
+    </section>
+
     <!-- Final CTA -->
-    <section class="final-cta" id="pricing">
+    <section class="final-cta">
       <h2>جاهز لتحويل طريقة إدارة أعمالك؟</h2>
-      <p>انضم الآن واحصل على شهر مجاني بدون أي التزامات</p>
-      <router-link to="/register?type=tenant" class="btn-hero-lg">ابدأ مشروعك الآن مجاناً ←</router-link>
+      <p>انضم الآن واحصل على باقتك المجانية للبدء فوراً وبدون أي تعقيد</p>
+      <router-link to="/saas/register" class="btn-hero-lg">سجّل شركتك الآن ←</router-link>
       <div class="cta-guarantees">
         <span>✓ إلغاء في أي وقت</span>
         <span>✓ بياناتك محمية 100%</span>
@@ -184,15 +268,58 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useUserStore } from '@/stores/user';
+import { useApi } from '@/composables/useApi';
 import AppUserBalanceProfile from '@/components/common/AppUserBalanceProfile.vue';
 
+const router = useRouter();
 const mobileDrawer = ref(false);
 const authStore = useAuthStore();
 const userStore = useUserStore();
 
+const plansApi = useApi('/api/public/plans');
+const plans = ref([]);
+const loadingPlans = ref(false);
+
+const loadPlans = async () => {
+  loadingPlans.value = true;
+  try {
+    const response = await plansApi.get();
+    plans.value = response.data || [];
+  } catch (error) {
+    console.error('Failed to load plans:', error);
+  } finally {
+    loadingPlans.value = false;
+  }
+};
+
+const getDurationUnitLabel = unit => {
+  if (unit === 'days') return 'يوم';
+  if (unit === 'months') return 'شهر';
+  if (unit === 'years') return 'سنة';
+  return unit;
+};
+
+const getFeatureFlag = (plan, key) => {
+  let feats = plan.features || {};
+  if (typeof feats === 'string') {
+    try {
+      feats = JSON.parse(feats);
+    } catch (e) {
+      feats = {};
+    }
+  }
+  return !!feats[key];
+};
+
+const handleSelectPlan = plan => {
+  router.push({ name: 'saas-register', query: { plan_id: plan.id } });
+};
+
 onMounted(async () => {
+  loadPlans();
   if (authStore.token && !userStore.currentUser) {
     try {
       await userStore.fetchUser();
@@ -405,6 +532,137 @@ const testimonials = [
 .btn-hero-lg:hover { background: #F5F7FA !important; color: #1A3D8F !important; }
 
 .saas-footer { background: #0d1b4b !important; }
+
+/* Pricing Section */
+.pricing-section {
+  padding: 80px 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.pricing-loading {
+  text-align: center;
+}
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 32px;
+  margin-top: 40px;
+  justify-content: center;
+}
+.pricing-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  padding: 40px 32px;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.pricing-card.featured {
+  border: 2px solid #6a5ae0;
+  box-shadow: 0 20px 40px rgba(106, 90, 224, 0.08);
+}
+.pricing-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 30px 60px rgba(106, 90, 224, 0.15);
+}
+.card-header-plan {
+  margin-bottom: 24px;
+  position: relative;
+}
+.plan-badge-label {
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  background: linear-gradient(135deg, #1A3D8F, #6A5AE0);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+.plan-icon-wrap {
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  background: #eff6ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.plan-name-title {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #1A3D8F !important;
+  margin-bottom: 8px;
+}
+.plan-desc-text {
+  font-size: 0.88rem;
+  color: #64748b;
+  line-height: 1.6;
+}
+.plan-price-block {
+  margin-bottom: 24px;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.price-amount {
+  font-size: 3rem;
+  font-weight: 900;
+  color: #1e1b4b;
+}
+.price-curr {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #64748b;
+}
+.price-period {
+  font-size: 0.88rem;
+  color: #64748b;
+  margin-right: 4px;
+}
+.plan-trial-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #16a34a;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 6px 16px;
+  border-radius: 30px;
+  margin-bottom: 24px;
+  align-self: flex-start;
+}
+.plan-features-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 32px;
+  flex-grow: 1;
+}
+.feature-item-row {
+  display: flex;
+  align-items: center;
+  font-size: 0.92rem;
+  color: #334155;
+}
+.feature-item-row.disabled {
+  color: #94a3b8;
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+.feature-item-row.limit strong {
+  color: #1A3D8F;
+}
+.card-btn {
+  height: 52px !important;
+  font-size: 1rem !important;
+}
 
 /* Responsive */
 @media (max-width: 768px) {
