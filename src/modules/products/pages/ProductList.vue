@@ -611,7 +611,7 @@ const confirmDelete = async item => {
 
 // --- تصدير المنتجات بالخلفية ---
 
-const exportImportApi = useApi('/api/v1/export-import');
+const exportImportApi = useApi('/api/export-import');
 const exportDialogOpen = ref(false);
 const exportProgress = ref(0);
 const exportStatusText = ref('');

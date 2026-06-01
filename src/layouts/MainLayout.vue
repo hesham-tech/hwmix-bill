@@ -197,6 +197,7 @@
         </template>
         <v-list density="compact">
           <v-list-item prepend-icon="ri-user-settings-line" title="الملف الشخصي" to="/app/profile" />
+          <v-list-item v-if="userStore.isAdmin || userStore.isCompanyAdmin" prepend-icon="ri-vip-crown-2-line" title="اشتراكي الحالي" to="/app/my-subscription" />
           <v-list-item v-if="userStore.isStaff" prepend-icon="ri-sparkling-line" title="سجل التحديثات" @click="showUpdatesHistory" />
           <v-list-item prepend-icon="ri-device-line" title="إدارة الأجهزة" to="/app/sessions" />
           <v-list-item v-if="userStore.isStaff" prepend-icon="ri-settings-3-line" title="الإعدادات" to="/app/settings" />

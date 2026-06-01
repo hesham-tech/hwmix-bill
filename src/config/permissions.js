@@ -47,6 +47,7 @@ export const PERMISSIONS = {
   USERS_VIEW_CHILDREN: 'users.view_children',
   USERS_VIEW_SELF: 'users.view_self',
   USERS_CREATE: 'users.create',
+  USERS_EDIT: 'users.update_all',
   USERS_UPDATE_ALL: 'users.update_all',
   USERS_UPDATE_CHILDREN: 'users.update_children',
   USERS_UPDATE_SELF: 'users.update_self',

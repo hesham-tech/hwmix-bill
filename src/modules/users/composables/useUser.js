@@ -1,12 +1,19 @@
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
 import { useUserStore } from '../store/user.store';
+import { useUserStore as useGlobalUserStore } from '@/stores/user';
 import { useDialog, useConfirm } from '@/composables';
 
 export function useUser() {
   const store = useUserStore();
+  const globalStore = useGlobalUserStore();
+
   const { isOpen, formData, isEditMode, open, close } = useDialog();
   const { isOpen: isPermissionOpen, formData: permissionUser, open: openPermissions, close: closePermissions } = useDialog();
+  const { isOpen: isDeleteDialogOpen, formData: userToDelete, open: openDeleteDialog, close: closeDeleteDialog } = useDialog();
   const { showConfirm, confirmMessage, confirm, handleConfirm, handleCancel } = useConfirm();
+
+  const deleteLoading = ref(false);
+  const deleteType = ref('company');
 
   // Computed
   const users = computed(() => store.users);
@@ -37,10 +44,28 @@ export function useUser() {
   };
 
   const handleDelete = user => {
-    const name = user.nickname || user.full_name || user.name || 'هذا المستخدم';
-    confirm(`هل أنت متأكد من حذف المستخدم "${name}"؟`, async () => {
-      await store.deleteUser(user.id);
-    });
+    if (globalStore.isAdmin) {
+      deleteType.value = 'company';
+      openDeleteDialog(user);
+    } else {
+      const name = user.nickname || user.full_name || user.name || 'هذا المستخدم';
+      confirm(`هل أنت متأكد من فصل المستخدم "${name}" من هذه الشركة؟`, async () => {
+        await store.deleteUser(user.id, 'company');
+      });
+    }
+  };
+
+  const confirmDelete = async () => {
+    if (!userToDelete.value?.id) return;
+    deleteLoading.value = true;
+    try {
+      await store.deleteUser(userToDelete.value.id, deleteType.value);
+      closeDeleteDialog();
+    } catch (e) {
+      console.error('Delete user failed:', e);
+    } finally {
+      deleteLoading.value = false;
+    }
   };
 
   const handleEdit = user => {
@@ -79,6 +104,12 @@ export function useUser() {
     permissionUser,
     openPermissions,
     closePermissions,
+    isDeleteDialogOpen,
+    userToDelete,
+    deleteType,
+    deleteLoading,
+    confirmDelete,
+    closeDeleteDialog,
     loadUsers,
     loadMore,
     loadUser,

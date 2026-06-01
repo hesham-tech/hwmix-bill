@@ -201,13 +201,13 @@ class BaseService {
    * @param {Object} options
    */
   async delete(id, options = {}) {
-    const { showToast = false, loading = true } = options;
+    const { showToast = false, loading = true, params = {} } = options;
     const userStore = useUserStore();
 
     if (loading) userStore.loadingApi = true;
 
     try {
-      const response = await apiClient.delete(`${this.resource}/${id}`);
+      const response = await apiClient.delete(`${this.resource}/${id}`, { params });
       return this.handleSuccess(response, showToast);
     } catch (error) {
       return this.handleError(error, showToast);

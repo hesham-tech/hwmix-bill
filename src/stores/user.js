@@ -65,6 +65,8 @@ export const useUserStore = defineStore('user', () => {
 
   // Check if user has a specific permission (can be string or array)
   const hasPermission = (permission, options = {}) => {
+    if (!permission) return false;
+
     // 1. Admin Overrides: Check raw permissions directly to avoid recursion
     const rawPermissions = permissions.value || [];
     
@@ -72,7 +74,10 @@ export const useUserStore = defineStore('user', () => {
     if (rawPermissions.includes(PERMISSIONS.ADMIN_SUPER)) return true;
 
     // Helper to determine if a permission strictly requires Super Admin or Company management permissions
-    const isRestrictedPermission = p => p === PERMISSIONS.ADMIN_SUPER || p.startsWith('companies.');
+    const isRestrictedPermission = p => {
+      if (typeof p !== 'string') return false;
+      return p === PERMISSIONS.ADMIN_SUPER || p.startsWith('companies.');
+    };
 
     // Company admin bypasses everything EXCEPT super admin and company management permissions
     if (rawPermissions.includes(PERMISSIONS.ADMIN_COMPANY)) {
@@ -85,8 +90,6 @@ export const useUserStore = defineStore('user', () => {
       }
       return true;
     }
-
-    if (!permission) return true;
 
     // 2. Handle metadata/ownership if provided
     const { resource = null } = options;

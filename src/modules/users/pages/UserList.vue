@@ -207,6 +207,46 @@
         <AppConfirmDialog v-model="showConfirm" :message="confirmMessage" @confirm="handleConfirm" @cancel="handleCancel" />
       </div>
 
+      <!-- Delete Confirmation Dialog for Super Admin -->
+      <AppDialog
+        v-model="isDeleteDialogOpen"
+        title="تأكيد حذف المستخدم"
+        subtitle="اختر نوع إجراء الحذف المطلوب تنفيذه"
+        icon="ri-delete-bin-line"
+        max-width="500"
+        hide-actions
+      >
+        <div class="pa-4">
+          <p class="text-body-1 mb-4">
+            أنت تقوم بحذف المستخدم <strong>{{ userToDelete?.nickname || userToDelete?.full_name || userToDelete?.name }}</strong>. يرجى تحديد خيار الحذف:
+          </p>
+          <v-radio-group v-model="deleteType" column class="mb-4">
+            <v-radio value="company" color="primary">
+              <template #label>
+                <div>
+                  <span class="font-weight-bold d-block text-primary">فك الارتباط بالشركة الحالية فقط</span>
+                  <span class="text-caption text-grey">سيتم إزالة المستخدم من هذه الشركة فقط، وسيبقى حسابه كما هو في بقية الشركات.</span>
+                </div>
+              </template>
+            </v-radio>
+            <v-radio value="global" color="error" class="mt-4">
+              <template #label>
+                <div>
+                  <span class="font-weight-bold d-block text-error">حذف الحساب نهائياً من النظام</span>
+                  <span class="text-caption text-grey">سيتم إزالة الحساب نهائياً وكلياً من قاعدة البيانات وجميع الشركات المرتبطة به.</span>
+                </div>
+              </template>
+            </v-radio>
+          </v-radio-group>
+        </div>
+        <template #actions>
+          <AppButton variant="tonal" color="grey" @click="closeDeleteDialog">إلغاء</AppButton>
+          <AppButton :loading="deleteLoading" :color="deleteType === 'global' ? 'error' : 'primary'" class="px-8 font-weight-bold rounded-pill shadow-md" @click="confirmDelete">
+            تأكيد الحذف
+          </AppButton>
+        </template>
+      </AppDialog>
+
       <!-- Balance Operations Dialog -->
       <BalanceOperations v-model="isBalanceOpen" :user="balanceUser" :initial-type="balanceType" @success="onBalanceSuccess" />
     </v-container>
@@ -214,7 +254,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useDisplay } from 'vuetify';
 import { usePermissions } from '@/composables/usePermissions';
 import { useDataTable } from '@/composables/useDataTable';
@@ -226,11 +266,20 @@ import BalanceOperations from '@/modules/financials/components/BalanceOperations
 import { AppDataTable, AppButton, AppDialog, AppConfirmDialog, AppUserBalanceProfile } from '@/components';
 import { PERMISSIONS } from '@/config/permissions';
 import { useAuthStore } from '@/stores/auth';
+import { useUserStore } from '@/stores/user';
 
 const { mobile: isMobile } = useDisplay();
 const { can } = usePermissions();
 const userStore = useAuthStore();
+const globalUserStore = useUserStore();
 const userFormRef = ref(null);
+
+onMounted(() => {
+  console.warn('DEBUG - Current User ID & Nickname:', globalUserStore.currentUser?.id, globalUserStore.currentUser?.nickname);
+  console.warn('DEBUG - UserList permissions:', globalUserStore.permissions);
+  console.warn('DEBUG - can(ADMIN_SUPER):', can(PERMISSIONS.ADMIN_SUPER));
+  console.warn('DEBUG - globalUserStore.isAdmin:', globalUserStore.isAdmin);
+});
 
 // Advanced Filters
 const advancedFilters = [
@@ -258,6 +307,12 @@ const {
   permissionUser,
   openPermissions,
   closePermissions,
+  isDeleteDialogOpen,
+  userToDelete,
+  deleteType,
+  deleteLoading,
+  confirmDelete,
+  closeDeleteDialog,
   saveUser,
   handleDelete,
   handleEdit,

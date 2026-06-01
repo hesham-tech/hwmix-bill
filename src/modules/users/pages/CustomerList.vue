@@ -37,17 +37,38 @@
               @view="item => $router.push(`/app/users/${item.id}`)"
             >
               <template #actions>
-                <AppButton
-                  v-if="can(PERMISSIONS.USERS_CREATE)"
-                  color="primary"
-                  prepend-icon="ri-user-add-line"
-                  size="small"
-                  class="rounded-pill shadow-sm tour-customer-add"
-                  style="height: 40px"
-                  @click="handleCreate"
-                >
-                  عميل جديد
-                </AppButton>
+                <div class="d-flex align-center gap-3 flex-wrap">
+                  <v-checkbox
+                    v-if="can(PERMISSIONS.ADMIN_SUPER)"
+                    v-model="currentCompanyOnly"
+                    label="هذه الشركة فقط"
+                    hide-details
+                    density="compact"
+                    color="primary"
+                  />
+                  <!-- Switch: Unaffiliated users -->
+                  <v-switch
+                    v-if="can(PERMISSIONS.ADMIN_SUPER)"
+                    v-model="showUnaffiliated"
+                    label="بلا شركة"
+                    hide-details
+                    density="compact"
+                    color="warning"
+                    inset
+                    class="me-1"
+                  />
+                  <AppButton
+                    v-if="can(PERMISSIONS.USERS_CREATE)"
+                    color="primary"
+                    prepend-icon="ri-user-add-line"
+                    size="small"
+                    class="rounded-pill shadow-sm tour-customer-add"
+                    style="height: 40px"
+                    @click="handleCreate"
+                  >
+                    عميل جديد
+                  </AppButton>
+                </div>
               </template>
 
               <!-- Custom Templates -->
@@ -151,6 +172,46 @@
         <AppConfirmDialog v-model="showConfirm" :message="confirmMessage" @confirm="handleConfirm" @cancel="handleCancel" />
       </div>
 
+      <!-- Delete Confirmation Dialog for Super Admin -->
+      <AppDialog
+        v-model="isDeleteDialogOpen"
+        title="تأكيد حذف العميل"
+        subtitle="اختر نوع إجراء الحذف المطلوب تنفيذه"
+        icon="ri-delete-bin-line"
+        max-width="500"
+        hide-actions
+      >
+        <div class="pa-4">
+          <p class="text-body-1 mb-4">
+            أنت تقوم بحذف العميل <strong>{{ userToDelete?.nickname || userToDelete?.full_name || userToDelete?.name }}</strong>. يرجى تحديد خيار الحذف:
+          </p>
+          <v-radio-group v-model="deleteType" column class="mb-4">
+            <v-radio value="company" color="primary">
+              <template #label>
+                <div>
+                  <span class="font-weight-bold d-block text-primary">فك الارتباط بالشركة الحالية فقط</span>
+                  <span class="text-caption text-grey">سيتم إزالة العميل من هذه الشركة فقط، وسيبقى حسابه كما هو في بقية الشركات.</span>
+                </div>
+              </template>
+            </v-radio>
+            <v-radio value="global" color="error" class="mt-4">
+              <template #label>
+                <div>
+                  <span class="font-weight-bold d-block text-error">حذف الحساب نهائياً من النظام</span>
+                  <span class="text-caption text-grey">سيتم إزالة الحساب نهائياً وكلياً من قاعدة البيانات وجميع الشركات المرتبطة به.</span>
+                </div>
+              </template>
+            </v-radio>
+          </v-radio-group>
+        </div>
+        <template #actions>
+          <AppButton variant="tonal" color="grey" @click="closeDeleteDialog">إلغاء</AppButton>
+          <AppButton :loading="deleteLoading" :color="deleteType === 'global' ? 'error' : 'primary'" class="px-8 font-weight-bold rounded-pill shadow-md" @click="confirmDelete">
+            تأكيد الحذف
+          </AppButton>
+        </template>
+      </AppDialog>
+
       <!-- Balance Operations Dialog -->
       <BalanceOperations v-model="isBalanceOpen" :user="balanceUser" :initial-type="balanceType" @success="onBalanceSuccess" />
     </v-container>
@@ -162,7 +223,7 @@
  * مكون عرض وإدارة قائمة العملاء.
  * يعرض قائمة العملاء وحالاتهم وأرصدتهم، ويدعم عمليات الإيداع، السحب، التحويل، وإدارة الدفعات.
  */
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { usePermissions } from '@/composables/usePermissions';
 import { useDataTable } from '@/composables/useDataTable';
 import { userService } from '@/api';
@@ -172,8 +233,10 @@ import BalanceOperations from '@/modules/financials/components/BalanceOperations
 import { AppDataTable, AppButton, AppDialog, AppConfirmDialog, AppUserBalanceProfile, AppBalanceDisplay } from '@/components';
 import { PERMISSIONS } from '@/config/permissions';
 import { formatCurrency } from '@/utils/formatters';
+import { useUserStore } from '@/stores/user';
 
 const { can } = usePermissions();
+const userStore = useUserStore();
 const userFormRef = ref(null);
 
 // Advanced Filters (Simplified for Customers)
@@ -198,6 +261,12 @@ const {
   confirmMessage,
   handleConfirm: baseHandleConfirm,
   handleCancel,
+  isDeleteDialogOpen,
+  userToDelete,
+  deleteType,
+  deleteLoading,
+  confirmDelete,
+  closeDeleteDialog,
   saveUser,
   handleDelete,
   handleEdit,
@@ -230,6 +299,7 @@ const {
   total: totalItems,
   lastPage,
   search: searchText,
+  filters,
   sortByVuetify,
   changeSort,
   applyFilters,
@@ -245,6 +315,22 @@ const {
 const onTableOptionsUpdate = options => {
   changeSort(options);
 };
+
+// Computed for company visibility filter
+const currentCompanyOnly = computed({
+  get: () => !filters.value?.global,
+  set: val => {
+    filters.value.global = !val;
+    applyFilters(filters.value);
+  },
+});
+
+// Switch: show users with no active company (unaffiliated)
+const showUnaffiliated = ref(false);
+watch(showUnaffiliated, val => {
+  filters.value.unaffiliated = val ? 1 : undefined;
+  applyFilters(filters.value);
+});
 
 const handleSubmit = () => {
   // Ensure role is set before submit
@@ -313,5 +399,9 @@ const onBalanceSuccess = () => {
 <style scoped>
 .customers-page :deep(.v-container) {
   max-width: 100% !important;
+}
+
+.gap-3 {
+  gap: 12px;
 }
 </style>

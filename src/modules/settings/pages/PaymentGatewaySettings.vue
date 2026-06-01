@@ -225,7 +225,7 @@ import AppInput from '@/components/common/AppInput.vue';
 import { toast } from 'vue3-toastify';
 
 const router = useRouter();
-const gatewaysApi = useApi('/api/v1/payment-gateways');
+const gatewaysApi = useApi('/api/payment-gateways');
 
 const loading = ref(false);
 const saving = ref(false);

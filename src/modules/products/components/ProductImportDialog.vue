@@ -165,7 +165,7 @@ const resultStats = ref({
 });
 
 const emit = defineEmits(['imported']);
-const api = useApi('/api/v1/export-import');
+const api = useApi('/api/export-import');
 
 let pollingInterval = null;
 

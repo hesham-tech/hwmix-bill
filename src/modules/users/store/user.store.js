@@ -133,11 +133,11 @@ export const useUserStore = defineStore('userManagement', () => {
     }
   }
 
-  async function deleteUser(id) {
+  async function deleteUser(id, deleteType = 'company') {
     loading.value = true;
     try {
-      await userService.delete(id);
-      toast.success('تم حذف المستخدم بنجاح');
+      await userService.delete(id, { params: { delete_type: deleteType } });
+      toast.success(deleteType === 'global' ? 'تم حذف المستخدم نهائياً بنجاح' : 'تم فك ارتباط المستخدم بنجاح');
       await fetchUsers();
       await fetchStats();
     } catch (error) {

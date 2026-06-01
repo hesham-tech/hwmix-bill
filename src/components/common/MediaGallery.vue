@@ -139,7 +139,7 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'select']);
 
-const api = useApi('/api/v1/media');
+const api = useApi('/api/media');
 const images = ref([]);
 const loading = ref(false);
 const uploading = ref(false);

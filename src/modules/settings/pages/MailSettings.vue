@@ -345,7 +345,7 @@ import AppInput from '@/components/common/AppInput.vue';
 import { toast } from 'vue3-toastify';
 
 const router = useRouter();
-const mailApi = useApi('/api/v1/mail-settings');
+const mailApi = useApi('/api/mail-settings');
 
 const loading = ref(false);
 const saving = ref(false);

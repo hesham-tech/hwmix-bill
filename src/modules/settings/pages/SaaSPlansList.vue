@@ -1,4 +1,4 @@
-<!-- تعليق عربي: شاشة إدارة باقات الساس (SaaS Plans) للسوبر أدمن لإنشاء وتعديل الباقات والتحكم بمرونة في الميزات والحدود العددية للمستأجرين -->
+<!-- تعليق عربي: شاشة إدارة باقات الساس (SaaS Plans) للسوبر أدمن لإنشاء وتعديل الباقات والتحكم بمرونة في الميزات والحدود العددية للمستأجرين ومتابعة اشتراكات الشركات وتغيير باقاتهم -->
 
 <template>
   <div class="saas-plans-page">
@@ -9,7 +9,7 @@
           <v-btn icon="ri-arrow-right-line" variant="text" @click="router.push({ name: 'settings' })" />
           <h1 class="text-h3 font-weight-bold primary--text">إدارة باقات SaaS</h1>
         </div>
-        <p class="text-subtitle-1 text-grey-darken-1">تحديد الميزات وتعيين قيود الموارد وتشكيل الباقات بمرونة كاملة للسوبر أدمن</p>
+        <p class="text-subtitle-1 text-grey-darken-1">تحديد الميزات وتعيين قيود الموارد وتشكيل الباقات مع متابعة اشتراكات المستأجرين وتحديثها للسوبر أدمن</p>
       </div>
       <div>
         <v-btn
@@ -24,72 +24,210 @@
       </div>
     </div>
 
-    <!-- Plans Table -->
-    <v-card class="rounded-xl border border-opacity-10 shadow-sm overflow-hidden">
-      <v-card-title class="d-flex align-center py-4 px-6 bg-light-primary">
-        <v-icon icon="ri-vip-crown-line" color="primary" class="me-2" />
-        <span class="font-weight-bold text-h6">قائمة الباقات والأسعار</span>
-      </v-card-title>
+    <!-- Navigation Tabs -->
+    <v-tabs v-model="activeTab" color="primary" align-tabs="start" class="border-b mb-6 tour-saas-tabs">
+      <v-tab :value="0">
+        <v-icon icon="ri-vip-crown-line" class="me-2" />
+        الباقات والأسعار
+      </v-tab>
+      <v-tab :value="1" @click="loadCompanies">
+        <v-icon icon="ri-building-line" class="me-2" />
+        اشتراكات الشركات
+      </v-tab>
+    </v-tabs>
 
-      <v-card-text class="pa-0">
-        <v-data-table
-          :headers="headers"
-          :items="plans"
-          :loading="loading"
-          density="comfortable"
-          class="plans-table"
-        >
-          <template #item.name="{ item }">
-            <div class="d-flex align-center py-2">
-              <v-avatar color="primary" variant="tonal" size="36" class="me-3">
-                <v-icon :icon="item.icon || 'ri-vip-crown-line'" size="18" />
-              </v-avatar>
-              <div>
-                <div class="font-weight-bold text-body-1">{{ item.name }}</div>
-                <div class="text-caption text-grey">{{ item.code }}</div>
-              </div>
+    <v-window v-model="activeTab">
+      <!-- Tab 1: Plans and Prices -->
+      <v-window-item :value="0">
+        <v-card class="rounded-xl border border-opacity-10 shadow-sm overflow-hidden">
+          <v-card-title class="d-flex align-center py-4 px-6 bg-light-primary">
+            <v-icon icon="ri-vip-crown-line" color="primary" class="me-2" />
+            <span class="font-weight-bold text-h6">قائمة الباقات والأسعار</span>
+          </v-card-title>
+
+          <v-card-text class="pa-0">
+            <v-data-table
+              :headers="headers"
+              :items="plans"
+              :loading="loading"
+              density="comfortable"
+              class="plans-table"
+            >
+              <template #item.name="{ item }">
+                <div class="d-flex align-center py-2">
+                  <v-avatar color="primary" variant="tonal" size="36" class="me-3">
+                    <v-icon :icon="item.icon || 'ri-vip-crown-line'" size="18" />
+                  </v-avatar>
+                  <div>
+                    <div class="font-weight-bold text-body-1">{{ item.name }}</div>
+                    <div class="text-caption text-grey">{{ item.code }}</div>
+                  </div>
+                </div>
+              </template>
+
+              <template #item.price="{ item }">
+                <span class="font-weight-bold text-primary">{{ item.price }} {{ item.currency }}</span>
+              </template>
+
+              <template #item.duration="{ item }">
+                <span>{{ item.duration }} / {{ getDurationUnitLabel(item.duration_unit) }}</span>
+              </template>
+
+              <template #item.trial_days="{ item }">
+                <v-chip size="small" color="info" variant="tonal">
+                  {{ item.trial_days }} يوم تجربة
+                </v-chip>
+              </template>
+
+              <template #item.active_companies_count="{ item }">
+                <v-chip size="small" color="primary" variant="flat" class="font-weight-bold">
+                  {{ item.active_companies_count ?? 0 }} شركة
+                </v-chip>
+              </template>
+
+              <template #item.active_users_count="{ item }">
+                <v-chip size="small" color="secondary" variant="flat" class="font-weight-bold">
+                  {{ item.active_users_count ?? 0 }} مستخدم
+                </v-chip>
+              </template>
+
+              <template #item.is_active="{ item }">
+                <v-chip :color="item.is_active ? 'success' : 'error'" size="small" variant="flat" class="font-weight-bold">
+                  {{ item.is_active ? 'نشط' : 'معطل' }}
+                </v-chip>
+              </template>
+
+              <template #item.actions="{ item }">
+                <div class="d-flex gap-1 justify-end">
+                  <v-btn icon="ri-edit-line" size="small" variant="text" color="primary" @click="handleEdit(item)" />
+                  <v-btn icon="ri-delete-bin-line" size="small" variant="text" color="error" @click="handleDelete(item)" />
+                </div>
+              </template>
+
+              <template #no-data>
+                <div class="text-center py-12 text-grey-darken-1">
+                  <v-icon icon="ri-vip-crown-line" size="64" class="mb-4 text-grey-lighten-1" />
+                  <div class="text-h6 mb-2">لا توجد باقات حالياً</div>
+                  <p class="text-body-2">قم بإنشاء باقتك الأولى لتظهر للمستخدمين بصفحة التسجيل والهبوط</p>
+                </div>
+              </template>
+            </v-data-table>
+          </v-card-text>
+        </v-card>
+      </v-window-item>
+
+      <!-- Tab 2: Companies Subscriptions -->
+      <v-window-item :value="1">
+        <v-card class="rounded-xl border border-opacity-10 shadow-sm overflow-hidden">
+          <v-card-title class="d-flex align-center py-4 px-6 bg-light-primary flex-wrap gap-4">
+            <div class="d-flex align-center">
+              <v-icon icon="ri-building-line" color="primary" class="me-2" />
+              <span class="font-weight-bold text-h6">اشتراكات المستأجرين والشركات</span>
             </div>
-          </template>
+            <v-spacer />
+            <v-text-field
+              v-model="searchCompany"
+              prepend-inner-icon="ri-search-line"
+              label="البحث عن شركة..."
+              variant="outlined"
+              density="compact"
+              hide-details
+              style="max-width: 300px;"
+              @update:model-value="loadCompanies"
+              clearable
+            />
+          </v-card-title>
 
-          <template #item.price="{ item }">
-            <span class="font-weight-bold text-primary">{{ item.price }} {{ item.currency }}</span>
-          </template>
+          <v-card-text class="pa-0">
+            <v-data-table
+              :headers="companyHeaders"
+              :items="companies"
+              :loading="loadingCompanies"
+              density="comfortable"
+              class="plans-table"
+            >
+              <template #item.company_name="{ item }">
+                <div class="py-2">
+                  <div class="font-weight-bold text-body-1">{{ item.company_name }}</div>
+                  <div class="text-caption text-grey">معرف الشركة: {{ item.company_id }}</div>
+                </div>
+              </template>
 
-          <template #item.duration="{ item }">
-            <span>{{ item.duration }} / {{ getDurationUnitLabel(item.duration_unit) }}</span>
-          </template>
+              <template #item.owner="{ item }">
+                <div class="py-2">
+                  <div class="font-weight-medium">{{ item.owner_name }}</div>
+                  <div class="text-caption text-grey">{{ item.owner_phone || item.company_phone }}</div>
+                </div>
+              </template>
 
-          <template #item.trial_days="{ item }">
-            <v-chip size="small" color="info" variant="tonal">
-              {{ item.trial_days }} يوم تجربة
-            </v-chip>
-          </template>
+              <template #item.plan_name="{ item }">
+                <v-chip size="small" :color="item.is_master ? 'amber-darken-3' : 'primary'" variant="tonal" class="font-weight-bold">
+                  {{ item.is_master ? 'باقة الإدارة (الشركة الأم)' : item.plan_name }}
+                </v-chip>
+              </template>
 
-          <template #item.is_active="{ item }">
-            <v-chip :color="item.is_active ? 'success' : 'error'" size="small" variant="flat" class="font-weight-bold">
-              {{ item.is_active ? 'نشط' : 'معطل' }}
-            </v-chip>
-          </template>
+              <template #item.subscription_status="{ item }">
+                <v-chip
+                  :color="getSubscriptionStatusColor(item.subscription_status)"
+                  size="small"
+                  variant="flat"
+                  class="font-weight-bold text-capitalize"
+                >
+                  {{ getSubscriptionStatusLabel(item.subscription_status) }}
+                </v-chip>
+              </template>
 
-          <template #item.actions="{ item }">
-            <div class="d-flex gap-1 justify-end">
-              <v-btn icon="ri-edit-line" size="small" variant="text" color="primary" @click="handleEdit(item)" />
-              <v-btn icon="ri-delete-bin-line" size="small" variant="text" color="error" @click="handleDelete(item)" />
-            </div>
-          </template>
+              <template #item.usage="{ item }">
+                <div class="d-flex flex-wrap gap-2 py-2">
+                  <span class="border rounded-pill px-3 py-1 text-caption bg-grey-lighten-4 d-inline-flex align-center gap-1">
+                    <v-icon icon="ri-user-line" size="12" />
+                    <strong>{{ item.usage.users }}</strong> مستخدم
+                  </span>
+                  <span class="border rounded-pill px-3 py-1 text-caption bg-grey-lighten-4 d-inline-flex align-center gap-1">
+                    <v-icon icon="ri-box-3-line" size="12" />
+                    <strong>{{ item.usage.products }}</strong> منتج
+                  </span>
+                  <span class="border rounded-pill px-3 py-1 text-caption bg-grey-lighten-4 d-inline-flex align-center gap-1">
+                    <v-icon icon="ri-bill-line" size="12" />
+                    <strong>{{ item.usage.invoices }}</strong> فاتورة
+                  </span>
+                  <span class="border rounded-pill px-3 py-1 text-caption bg-grey-lighten-4 d-inline-flex align-center gap-1">
+                    <v-icon icon="ri-store-line" size="12" />
+                    <strong>{{ item.usage.warehouses }}</strong> مخزن
+                  </span>
+                </div>
+              </template>
 
-          <template #no-data>
-            <div class="text-center py-12 text-grey-darken-1">
-              <v-icon icon="ri-vip-crown-line" size="64" class="mb-4 text-grey-lighten-1" />
-              <div class="text-h6 mb-2">لا توجد باقات حالياً</div>
-              <p class="text-body-2">قم بإنشاء باقتك الأولى لتظهر للمستخدمين بصفحة التسجيل والهبوط</p>
-            </div>
-          </template>
-        </v-data-table>
-      </v-card-text>
-    </v-card>
+              <template #item.actions="{ item }">
+                <div class="d-flex gap-1 justify-end py-2">
+                  <v-btn
+                    v-if="!item.is_master"
+                    color="primary"
+                    variant="outlined"
+                    size="small"
+                    class="rounded-pill font-weight-bold tour-change-plan-btn"
+                    prepend-icon="ri-exchange-line"
+                    @click="handleOpenChangePlan(item)"
+                  >
+                    تغيير الباقة
+                  </v-btn>
+                  <span v-else class="text-caption text-grey me-2 font-weight-bold">الشركة الأم</span>
+                </div>
+              </template>
 
-    <!-- Dialog Edit/Add -->
+              <template #no-data>
+                <div class="text-center py-12 text-grey-darken-1">
+                  <v-icon icon="ri-building-line" size="64" class="mb-4 text-grey-lighten-1" />
+                  <div class="text-h6 mb-2">لا توجد شركات مستأجرة متطابقة</div>
+                </div>
+              </template>
+            </v-data-table>
+          </v-card-text>
+        </v-card>
+      </v-window-item>
+    </v-window>
+
+    <!-- Dialog Edit/Add Plan -->
     <v-dialog v-model="showDialog" max-width="850" persistent scrollable>
       <v-card class="rounded-xl">
         <v-card-title class="pa-4 bg-primary text-white d-flex align-center">
@@ -324,6 +462,54 @@
       </v-card>
     </v-dialog>
 
+    <!-- Dialog Change Company Plan -->
+    <v-dialog v-model="showChangePlanDialog" max-width="500" persistent>
+      <v-card class="rounded-xl">
+        <v-card-title class="pa-4 bg-primary text-white d-flex align-center">
+          <v-icon icon="ri-exchange-line" class="me-2" />
+          <span class="font-weight-bold">تغيير باقة الشركة</span>
+          <v-spacer />
+          <v-btn icon="ri-close-line" color="white" variant="text" @click="showChangePlanDialog = false" />
+        </v-card-title>
+
+        <v-card-text class="pa-6">
+          <div class="mb-6">
+            <div class="text-subtitle-1 text-grey mb-1">الشركة المستهدفة:</div>
+            <div class="text-h6 font-weight-bold text-primary">{{ selectedCompany?.company_name }}</div>
+            <div class="text-body-2 text-grey-darken-1 mt-1">
+              المالك: {{ selectedCompany?.owner_name }} ({{ selectedCompany?.company_phone || selectedCompany?.owner_phone }})
+            </div>
+            <div class="text-body-2 font-weight-bold mt-2">
+              الباقة الحالية: <v-chip size="small" color="primary" variant="tonal" class="font-weight-bold">{{ selectedCompany?.plan_name }}</v-chip>
+              <span class="ms-2">({{ getSubscriptionStatusLabel(selectedCompany?.subscription_status) }})</span>
+            </div>
+          </div>
+
+          <v-select
+            v-model="selectedPlanId"
+            label="اختر الباقة الجديدة *"
+            :items="plans"
+            item-title="name"
+            item-value="id"
+            variant="outlined"
+            density="comfortable"
+            placeholder="اختر الباقة لتغيير اشتراك الشركة إليها"
+            class="mt-2"
+          >
+            <template #item="{ props, item }">
+              <v-list-item v-bind="props" :subtitle="`${item.raw.price} EGP / ${item.raw.duration} ${getDurationUnitLabel(item.raw.duration_unit)}`" />
+            </template>
+          </v-select>
+        </v-card-text>
+
+        <v-card-actions class="pa-4 bg-grey-lighten-4">
+          <v-spacer />
+          <v-btn variant="text" class="rounded-pill font-weight-bold" @click="showChangePlanDialog = false">إلغاء</v-btn>
+          <v-btn color="primary" class="rounded-pill px-6 font-weight-bold" :loading="changingPlan" @click="confirmChangePlan">تغيير الباقة وتحديث الاشتراك</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <!-- Confirm Delete Dialog -->
     <v-dialog v-model="showDeleteDialog" max-width="400">
       <v-card class="rounded-xl">
@@ -350,7 +536,10 @@ import { toast } from 'vue3-toastify';
 
 const router = useRouter();
 const api = useApi('/api/plans');
+const companiesApi = useApi('/api/saas/companies-subscriptions');
+const changePlanApi = useApi('/api/saas/companies-subscriptions/change-plan');
 
+const activeTab = ref(0);
 const plans = ref([]);
 const loading = ref(false);
 const showDialog = ref(false);
@@ -360,6 +549,15 @@ const saving = ref(false);
 const deleting = ref(false);
 const formValid = ref(false);
 const formRef = ref(null);
+
+// بيانات اشتراكات الشركات
+const companies = ref([]);
+const loadingCompanies = ref(false);
+const showChangePlanDialog = ref(false);
+const selectedCompany = ref(null);
+const selectedPlanId = ref(null);
+const changingPlan = ref(false);
+const searchCompany = ref('');
 
 const formData = ref({
   name: '',
@@ -395,7 +593,18 @@ const headers = [
   { title: 'السعر', key: 'price', sortable: true },
   { title: 'المدة', key: 'duration', sortable: true },
   { title: 'فترة التجربة', key: 'trial_days', sortable: true },
+  { title: 'الشركات المشتركة', key: 'active_companies_count', sortable: true, align: 'center' },
+  { title: 'المستخدمون المشتركون', key: 'active_users_count', sortable: true, align: 'center' },
   { title: 'حالة الباقة', key: 'is_active', sortable: true },
+  { title: 'الإجراءات', key: 'actions', sortable: false, align: 'end' },
+];
+
+const companyHeaders = [
+  { title: 'اسم الشركة والمعرف', key: 'company_name', sortable: true },
+  { title: 'المالك والتواصل', key: 'owner', sortable: false },
+  { title: 'الباقة الحالية', key: 'plan_name', sortable: true },
+  { title: 'حالة الاشتراك', key: 'subscription_status', sortable: true },
+  { title: 'استهلاك الموارد', key: 'usage', sortable: false },
   { title: 'الإجراءات', key: 'actions', sortable: false, align: 'end' },
 ];
 
@@ -410,6 +619,22 @@ const getDurationUnitLabel = unit => {
   return unit;
 };
 
+const getSubscriptionStatusColor = status => {
+  if (status === 'active') return 'success';
+  if (status === 'trial') return 'info';
+  if (status === 'canceled') return 'warning';
+  if (status === 'expired') return 'error';
+  return 'grey';
+};
+
+const getSubscriptionStatusLabel = status => {
+  if (status === 'active') return 'نشط';
+  if (status === 'trial') return 'تجريبي';
+  if (status === 'canceled') return 'ملغي';
+  if (status === 'expired') return 'منتهي';
+  return 'غير نشط';
+};
+
 const loadData = async () => {
   loading.value = true;
   try {
@@ -419,6 +644,18 @@ const loadData = async () => {
     console.error('Failed to load plans:', error);
   } finally {
     loading.value = false;
+  }
+};
+
+const loadCompanies = async () => {
+  loadingCompanies.value = true;
+  try {
+    const response = await companiesApi.get({ search: searchCompany.value });
+    companies.value = response.data || [];
+  } catch (error) {
+    console.error('Failed to load companies:', error);
+  } finally {
+    loadingCompanies.value = false;
   }
 };
 
@@ -470,7 +707,6 @@ const handleEdit = item => {
     icon: item.icon || 'ri-vip-crown-line'
   };
 
-  // فك ميزات JSON وتعبئتها
   let feats = item.features || {};
   if (typeof feats === 'string') {
     try {
@@ -507,7 +743,6 @@ const handleSave = async () => {
 
   saving.value = true;
 
-  // إعداد حقل features كـ JSON object بالكامل للميزات والحدود
   const finalFeatures = {
     payment_gateways: !!featuresData.value.payment_gateways,
     export_import: !!featuresData.value.export_import,
@@ -525,7 +760,6 @@ const handleSave = async () => {
   const payload = {
     ...formData.value,
     features: finalFeatures,
-    // أيضاً نملأ الأعمدة المباشرة بقاعدة البيانات للحدود المتوافقة
     max_users: formData.value.max_users !== null && formData.value.max_users !== '' ? Number(formData.value.max_users) : -1,
     max_products: formData.value.max_products !== null && formData.value.max_products !== '' ? Number(formData.value.max_products) : -1,
     max_invoices: formData.value.max_invoices !== null && formData.value.max_invoices !== '' ? Number(formData.value.max_invoices) : -1,
@@ -559,7 +793,34 @@ const confirmDelete = async () => {
   }
 };
 
-onMounted(loadData);
+// عمليات تغيير باقة شركة
+const handleOpenChangePlan = company => {
+  selectedCompany.value = company;
+  selectedPlanId.value = company.plan_id;
+  showChangePlanDialog.value = true;
+};
+
+const confirmChangePlan = async () => {
+  if (!selectedPlanId.value) return;
+  changingPlan.value = true;
+  try {
+    await changePlanApi.create({
+      company_id: selectedCompany.value.company_id,
+      plan_id: selectedPlanId.value
+    }, { successMessage: 'تم تغيير باقة الشركة بنجاح' });
+    showChangePlanDialog.value = false;
+    loadCompanies();
+    loadData(); // لتحديث إحصائيات الأعداد المشتركة
+  } catch (error) {
+    console.error('Failed to change company plan:', error);
+  } finally {
+    changingPlan.value = false;
+  }
+};
+
+onMounted(() => {
+  loadData();
+});
 </script>
 
 <style scoped>
