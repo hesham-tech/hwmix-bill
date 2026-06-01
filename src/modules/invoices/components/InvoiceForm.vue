@@ -65,6 +65,7 @@
             :cash-boxes="cashBoxes"
             :errors="errors"
             :is-purchase="currentContext === 'purchase'"
+            :is-installment="currentContext === 'installment_sale'"
             @update:prop="({ key, value }) => (invoiceData[key] = value)"
           />
         </v-col>
@@ -169,6 +170,7 @@ const isInstallmentFinalized = ref(false);
 
 const handleInstallmentConfirmation = data => {
   invoiceData.value.installment_plan = data;
+  invoiceData.value.paid_amount = data.down_payment || 0; // الربط التلقائي للمقدم بالمدفوع للفاتورة
   isInstallmentFinalized.value = true;
   saveInvoice();
 };

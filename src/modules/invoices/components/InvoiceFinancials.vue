@@ -25,7 +25,7 @@
               </div>
 
               <!-- Row 2: Previous Balance Display & Switch (50/50) -->
-              <div class="input-item">
+              <div v-if="!isInstallment" class="input-item">
                 <v-row dense no-gutters align="center">
                   <v-col cols="6" class="pe-2">
                     <div class="d-flex flex-column border rounded-md px-2 py-1 bg-neutral-lighten-5" style="height: 28px; justify-content: center;">
@@ -51,7 +51,7 @@
               </div>
 
               <!-- Row 3: Paid Amount & Additional Discount (50/50) -->
-              <div class="input-item">
+              <div v-if="!isInstallment" class="input-item">
                 <v-row dense no-gutters align="center">
                   <v-col cols="6" class="pe-2">
                     <AppInput
@@ -81,8 +81,8 @@
               </div>
 
               <!-- Row 4: Tax Row (Restored Balanced Layout) -->
-              <div class="input-item">
-                <v-row dense no-gutters align="center">
+                <div v-if="!isInstallment" class="input-item">
+                  <v-row dense no-gutters align="center">
                   <v-col cols="6" class="pe-2">
                     <AppInput
                       :model-value="modelValue.tax_rate"
@@ -261,6 +261,10 @@ const props = defineProps({
     default: false,
   },
   isPurchase: {
+    type: Boolean,
+    default: false,
+  },
+  isInstallment: {
     type: Boolean,
     default: false,
   },
