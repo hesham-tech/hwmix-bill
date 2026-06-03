@@ -43,8 +43,8 @@ jobs:
 
       - name: Ensure Remote Directory Exists
         run: |
-          ssh -p 65002 -o StrictHostKeyChecking=no u715355537@212.107.17.234 "mkdir -p /home/u715355537/domains/hwnix.com/public_html/bill/"
+          ssh -p 65002 -o StrictHostKeyChecking=no -o ConnectTimeout=15 -o ServerAliveInterval=15 u715355537@212.107.17.234 "mkdir -p /home/u715355537/domains/hwnix.com/public_html/bill/"
 
       - name: Deploy via Rsync
         run: |
-          rsync -avz --delete -e "ssh -p 65002 -o StrictHostKeyChecking=no" ./dist/ u715355537@212.107.17.234:/home/u715355537/domains/hwnix.com/public_html/bill/
+          rsync -avz --delete -e "ssh -p 65002 -o StrictHostKeyChecking=no -o ConnectTimeout=15 -o ServerAliveInterval=15" ./dist/ u715355537@212.107.17.234:/home/u715355537/domains/hwnix.com/public_html/bill/

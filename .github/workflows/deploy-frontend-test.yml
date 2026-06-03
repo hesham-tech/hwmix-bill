@@ -44,8 +44,8 @@ jobs:
 
       - name: Ensure Remote Directory Exists
         run: |
-          ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "mkdir -p /home/u715355537/domains/hwnix.com/public_html/bill-teste/"
+          ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no -o ConnectTimeout=15 -o ServerAliveInterval=15 ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "mkdir -p /home/u715355537/domains/hwnix.com/public_html/bill-teste/"
 
       - name: Deploy via Rsync
         run: |
-          rsync -avz --delete -e "ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no" ./dist/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/u715355537/domains/hwnix.com/public_html/bill-teste/
+          rsync -avz --delete -e "ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no -o ConnectTimeout=15 -o ServerAliveInterval=15" ./dist/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/u715355537/domains/hwnix.com/public_html/bill-teste/
