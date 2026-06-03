@@ -59,7 +59,7 @@
                 <!-- Selection Overlay (Mobile/Visual) -->
                 <div v-if="isSelected(image.id)" class="selection-overlay" />
 
-                <v-img :src="image.url" aspect-ratio="1" cover crossorigin="anonymous" class="bg-grey-lighten-3">
+                <v-img :src="image.url" aspect-ratio="1" cover class="bg-grey-lighten-3">
                   <template #placeholder>
                     <v-row class="fill-height ma-0" align="center" justify="center">
                       <v-progress-circular indeterminate color="grey-lighten-5" />
@@ -122,6 +122,7 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
 import { useApi } from '@/composables/useApi';
+import { toast } from 'vue3-toastify';
 import AppConfirmDialog from './AppConfirmDialog.vue';
 import AppImageCropper from './AppImageCropper.vue';
 
@@ -303,12 +304,33 @@ const close = () => {
   emit('update:modelValue', false);
 };
 
-const confirmSelection = () => {
+const confirmSelection = async () => {
   const selected = images.value.filter(img => selectedIds.value.includes(img.id));
   if (selected.length) {
-    // If multiple is false, send the single object, otherwise send array
-    emit('select', props.multiple ? selected : selected[0]);
-    close();
+    loading.value = true;
+    try {
+      const imageApi = useApi('/api/images');
+      const payload = {
+        media_file_ids: selected.map(img => img.id),
+        type: props.type || 'logo'
+      };
+      
+      const res = await imageApi.create(payload, { showLoading: false, showError: false, showSuccess: false });
+      
+      const createdImages = Array.isArray(res.data) ? res.data : (res.data ? [res.data] : []);
+      
+      if (createdImages.length) {
+        emit('select', props.multiple ? createdImages : createdImages[0]);
+        close();
+      } else {
+        toast.error('لم نتمكن من تهيئة الصورة المحددة.');
+      }
+    } catch (error) {
+      console.error('Failed to register images:', error);
+      toast.error('فشل في تعيين الصور من المعرض');
+    } finally {
+      loading.value = false;
+    }
   }
 };
 
