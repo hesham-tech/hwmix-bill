@@ -1,6 +1,6 @@
 <!-- تعليق عربي: مكون التنبيه المنبثق لعرض التحديثات والميزات الجديدة وتوضيح طريقة استخدامها وفائدتها للمستخدمين -->
 <template>
-  <v-dialog v-model="visible" max-width="600" scrollable transition="dialog-bottom-transition">
+  <v-dialog v-model="visible" max-width="600" scrollable transition="dialog-bottom-transition" z-index="11000">
     <v-card class="system-updates-card rounded-xl overflow-hidden elevation-24 border-0">
       <!-- Card Header with beautiful gradient & icon -->
       <div class="header-gradient pa-6 text-center text-white relative">
@@ -121,12 +121,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useAuthStore } from '@/stores/auth';
+import { useUserStore } from '@/stores/user';
 import userService from '@/api/services/user.service';
 import changelogs from '@/config/changelogs.json';
 
 const authStore = useAuthStore();
+const userStore = useUserStore();
+
 const visible = ref(false);
 const saving = ref(false);
 const showAllVersions = ref(false);
@@ -134,27 +137,21 @@ const showAllVersions = ref(false);
 const latestChangelog = computed(() => changelogs[0] || null);
 const changelogsList = computed(() => changelogs);
 
+// Get the active user object from reactive userStore or fallback to authStore
+const currentUser = computed(() => userStore.currentUser || authStore.user);
+
 const missedChangelogs = computed(() => {
-  if (!authStore.user) return [];
-  const userSettings = authStore.user.settings || {};
+  const userObj = currentUser.value;
+  if (!userObj) return [];
+  const userSettings = userObj.settings || {};
   const acknowledged = userSettings.acknowledged_updates || [];
   return changelogsList.value.filter(release => !acknowledged.includes(release.version));
 });
 
-onMounted(() => {
-  // Check if we should show the dialog
-  setTimeout(() => {
-    checkShowCondition();
-  }, 2000); // 2 seconds delay to allow system state stabilization
-});
-
-const checkShowCondition = () => {
-  if (!authStore.isAuthenticated || !authStore.user) {
-    return;
-  }
-  
-  // Do not show updates dialog to customers/clients (only show to staff/admin)
-  if (!authStore.user.is_staff_or_admin) {
+// الدوال الأساسية للمكون مع حل مشكلة TDZ (التعريف قبل الاستدعاء)
+function checkShowCondition() {
+  const userObj = currentUser.value;
+  if (!authStore.isAuthenticated || !userObj) {
     return;
   }
   
@@ -162,27 +159,24 @@ const checkShowCondition = () => {
     showAllVersions.value = false;
     visible.value = true;
   }
-};
+}
 
-const closeLater = () => {
+function closeLater() {
   visible.value = false;
-};
+}
 
-const show = (forceAll = false) => {
-  // Do not show updates dialog to customers/clients (only show to staff/admin)
-  if (!authStore.user?.is_staff_or_admin) {
-    return;
-  }
+function show(forceAll = false) {
   showAllVersions.value = forceAll;
   visible.value = true;
-};
+}
 
-const acknowledgeUpdate = async () => {
-  if (!authStore.user) return;
+async function acknowledgeUpdate() {
+  const userObj = currentUser.value;
+  if (!userObj) return;
   
   saving.value = true;
   try {
-    const currentSettings = authStore.user.settings || {};
+    const currentSettings = userObj.settings || {};
     const acknowledged = [...(currentSettings.acknowledged_updates || [])];
     
     // Add all missed versions
@@ -197,18 +191,19 @@ const acknowledgeUpdate = async () => {
       acknowledged_updates: acknowledged
     };
     
-    const response = await userService.update(authStore.user.id, {
+    const response = await userService.update(userObj.id, {
       settings: updatedSettings
     });
     
     if (response.success) {
-      // Update local auth store state
-      authStore.user.settings = updatedSettings;
+      // Update local stores state
+      if (authStore.user) authStore.user.settings = updatedSettings;
+      if (userStore.currentUser) userStore.currentUser.settings = updatedSettings;
       
       // Persist user data back into local/session storage
       const remember = !!localStorage.getItem('token');
       const storage = remember ? localStorage : sessionStorage;
-      storage.setItem('user', JSON.stringify(authStore.user));
+      storage.setItem('user', JSON.stringify(currentUser.value));
       
       visible.value = false;
     }
@@ -217,7 +212,21 @@ const acknowledgeUpdate = async () => {
   } finally {
     saving.value = false;
   }
-};
+}
+
+// Watch currentUser to trigger checkShowCondition as soon as the bootstrap completes
+watch(() => userStore.currentUser, (newVal) => {
+  if (newVal) {
+    checkShowCondition();
+  }
+}, { immediate: true });
+
+onMounted(() => {
+  // Check if we should show the dialog
+  setTimeout(() => {
+    checkShowCondition();
+  }, 2000); // 2 seconds delay to allow system state stabilization
+});
 
 defineExpose({ show });
 </script>

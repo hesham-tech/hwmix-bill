@@ -233,9 +233,21 @@
                     </div>
                   </div>
 
-                  <div class="plan-pricing mb-4">
+                  <div class="plan-pricing mb-2">
                     <span class="text-h4 font-weight-black text-primary">{{ plan.price }}</span>
                     <span class="text-caption text-grey ms-1">EGP / {{ plan.duration }} {{ getDurationUnitLabel(plan.duration_unit) }}</span>
+                  </div>
+
+                  <div class="mb-4">
+                    <v-chip v-if="plan.trial_days > 0" size="small" color="info" variant="tonal" class="font-weight-bold">
+                      فترة تجربة مجانية: {{ plan.trial_days }} يوم
+                    </v-chip>
+                    <v-chip v-else-if="plan.price > 0" size="small" color="warning" variant="tonal" class="font-weight-bold">
+                      تفعيل فوري بالدفع (بدون تجربة)
+                    </v-chip>
+                    <v-chip v-else size="small" color="success" variant="tonal" class="font-weight-bold">
+                      مجانية بالكامل (بدون تجربة)
+                    </v-chip>
                   </div>
 
                   <v-divider class="mb-4" />
@@ -311,11 +323,12 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { useApi } from '@/composables/useApi';
 import { toast } from 'vue3-toastify';
 
 const router = useRouter();
+const route = useRoute();
 const subApi = useApi('/api/saas/my-subscription');
 const plansApi = useApi('/api/public/plans');
 
@@ -457,7 +470,20 @@ const handleUpgrade = async () => {
   if (!selectedUpgradePlanId.value) return;
   loadingUpgrade.value = true;
   try {
-    const response = await subApi.request('post', 'upgrade', { plan_id: selectedUpgradePlanId.value });
+    const redirectUrl = window.location.origin + '/app/my-subscription';
+    const response = await subApi.request('post', 'upgrade', { 
+      plan_id: selectedUpgradePlanId.value,
+      redirect_url: redirectUrl
+    });
+
+    if (response.data?.requires_payment && response.data?.payment_url) {
+      toast.info('جاري توجيهك لبوابة الدفع الإلكتروني لإتمام عملية الاشتراك...');
+      setTimeout(() => {
+        window.location.href = response.data.payment_url;
+      }, 1000);
+      return;
+    }
+
     toast.success(response.message || 'تم ترقية وتغيير باقة الاشتراك بنجاح');
     subscriptionData.value = response.data || null;
     showConfirmDialog.value = false;
@@ -469,7 +495,18 @@ const handleUpgrade = async () => {
   }
 };
 
-onMounted(loadSubscription);
+onMounted(async () => {
+  await loadSubscription();
+  
+  if (route.query.payment_status) {
+    if (route.query.payment_status === 'success') {
+      toast.success('تمت عملية الدفع بنجاح! وتفعيل اشتراكك بالباقة الجديدة.');
+    } else if (route.query.payment_status === 'cancel') {
+      toast.warning('تم إلغاء عملية الدفع ولم يتم تغيير الباقة.');
+    }
+    router.replace({ query: {} });
+  }
+});
 </script>
 
 <script>

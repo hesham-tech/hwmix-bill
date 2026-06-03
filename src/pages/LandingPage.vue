@@ -275,7 +275,7 @@
               <h4 class="text-h6 font-weight-bold mb-6">الدعم</h4>
               <div class="d-flex flex-column gap-3">
                 <a href="#" class="footer-link">الأسئلة الشائعة</a>
-                <a href="#" class="footer-link">سياسة الاسترجاع</a>
+                <router-link to="/legal/refund-policy" class="footer-link">سياسة الاسترجاع</router-link>
                 <a href="#" class="footer-link">طرق الدفع</a>
                 <a href="#" class="footer-link">تواصل معنا</a>
               </div>
@@ -307,8 +307,9 @@
           <div class="d-flex flex-column flex-md-row justify-space-between align-center gap-4">
             <div class="text-caption text-grey-lighten-1">جميع الحقوق محفوظة © {{ new Date().getFullYear() }} - hwmix-bill</div>
             <div class="d-flex gap-6 text-caption text-grey-lighten-1">
-              <a href="#" class="text-decoration-none text-inherit">سياسة الخصوصية</a>
-              <a href="#" class="text-decoration-none text-inherit">شروط الخدمة</a>
+              <router-link to="/legal/privacy-policy" class="text-decoration-none text-inherit">سياسة الخصوصية</router-link>
+              <router-link to="/legal/terms-of-use" class="text-decoration-none text-inherit">شروط الاستخدام</router-link>
+              <router-link to="/legal/refund-policy" class="text-decoration-none text-inherit">سياسة الاسترجاع</router-link>
             </div>
           </div>
         </v-container>
@@ -318,6 +319,7 @@
 </template>
 
 <script setup>
+// تعليق عربي: صفحة الهبوط الرئيسية الخاصة بمتجر المنتجات وإتاحة التصفح والطلب المباشر للعملاء
 import { ref, onMounted } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { useUserStore } from '@/stores/user';

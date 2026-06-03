@@ -14,7 +14,10 @@
         <v-col cols="12">
           <div class="pa-4 rounded-md bg-primary-lighten-5 border-primary border-opacity-25 mb-4 d-flex align-center justify-space-between">
             <div>
-              <div class="text-caption text-primary font-weight-bold mb-1">المبلغ المطلوب تحصيله (المتبقي)</div>
+              <div class="text-caption text-primary font-weight-bold mb-1 d-flex align-center">
+                <span>المبلغ المطلوب تحصيله (المتبقي)</span>
+                <AppActionHelp action-key="installment_payment" color="primary" size="x-small" class="ms-1" />
+              </div>
               <div class="text-h5 font-weight-bold text-primary">{{ formatCurrency(installment?.remaining ?? installment?.amount ?? 0) }}</div>
             </div>
             <v-icon icon="ri-money-dollar-circle-line" size="48" color="primary" class="opacity-25" />
@@ -99,8 +102,10 @@
 </template>
 
 <script setup>
+// تعليق عربي: نافذة تحصيل الأقساط وتحديث حالة الأقساط وإضافة المبالغ الزائدة لرصيد العميل
 import { ref, watch, onMounted, computed } from 'vue';
 import { AppDialog, AppInput, AppConfirmDialog } from '@/components';
+import AppActionHelp from '@/components/common/AppActionHelp.vue';
 import { useApi } from '@/composables/useApi';
 import { installmentService } from '@/api';
 import { useUserStore } from '@/stores/user';

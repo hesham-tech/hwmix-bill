@@ -259,6 +259,9 @@
         <div class="footer-links">
           <router-link to="/">المتجر الرئيسي</router-link>
           <router-link to="/login">تسجيل الدخول</router-link>
+          <router-link to="/legal/privacy-policy">سياسة الخصوصية</router-link>
+          <router-link to="/legal/terms-of-use">شروط الاستخدام</router-link>
+          <router-link to="/legal/refund-policy">سياسة الاسترجاع</router-link>
         </div>
         <div class="footer-copy">© {{ new Date().getFullYear() }} HWNix — جميع الحقوق محفوظة</div>
       </div>
@@ -267,6 +270,7 @@
 </template>
 
 <script setup>
+// تعليق عربي: صفحة الهبوط الخاصة بنظام إدارة المنشأة (SaaS) لعرض المميزات والأسعار وخطط الاشتراك
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';

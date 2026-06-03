@@ -74,6 +74,33 @@ export default [
     },
   },
   {
+    path: 'whatsapp',
+    name: 'whatsapp-settings',
+    component: () => import('@/modules/settings/pages/WhatsAppSettings.vue'),
+    meta: {
+      title: 'إعدادات الواتساب',
+      permission: [PERMISSIONS.ADMIN_SUPER, PERMISSIONS.ADMIN_COMPANY],
+    },
+  },
+  {
+    path: 'notification-templates',
+    name: 'notification-templates',
+    component: () => import('@/modules/settings/pages/NotificationTemplates.vue'),
+    meta: {
+      title: 'قوالب الرسائل والإشعارات',
+      permission: [PERMISSIONS.ADMIN_SUPER, PERMISSIONS.ADMIN_COMPANY],
+    },
+  },
+  {
+    path: 'notification-workflows',
+    name: 'notification-workflows',
+    component: () => import('@/modules/settings/pages/NotificationWorkflows.vue'),
+    meta: {
+      title: 'أتمتة وجدولة الإشعارات',
+      permission: [PERMISSIONS.ADMIN_SUPER, PERMISSIONS.ADMIN_COMPANY],
+    },
+  },
+  {
     path: 'payment-gateways',
     name: 'payment-gateways',
     component: () => import('@/modules/settings/pages/PaymentGatewaySettings.vue'),

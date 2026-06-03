@@ -20,7 +20,7 @@
       />
 
       <!-- Updates History Button -->
-      <div v-if="userStore.isStaff" class="d-none d-sm-flex">
+      <div v-if="userStore.currentUser" class="d-none d-sm-flex">
         <v-tooltip location="bottom">
           <template #activator="{ props: tooltipProps }">
             <v-btn
@@ -198,7 +198,7 @@
         <v-list density="compact">
           <v-list-item prepend-icon="ri-user-settings-line" title="الملف الشخصي" to="/app/profile" />
           <v-list-item v-if="userStore.isAdmin || userStore.isCompanyAdmin" prepend-icon="ri-vip-crown-2-line" title="اشتراكي الحالي" to="/app/my-subscription" />
-          <v-list-item v-if="userStore.isStaff" prepend-icon="ri-sparkling-line" title="سجل التحديثات" @click="showUpdatesHistory" />
+          <v-list-item v-if="userStore.currentUser" prepend-icon="ri-sparkling-line" title="سجل التحديثات" @click="showUpdatesHistory" />
           <v-list-item prepend-icon="ri-device-line" title="إدارة الأجهزة" to="/app/sessions" />
           <v-list-item v-if="userStore.isStaff" prepend-icon="ri-settings-3-line" title="الإعدادات" to="/app/settings" />
 
@@ -433,6 +433,9 @@
   <GuidanceTour />
   <OnboardingChecklist />
   <HintBubble />
+  
+  <!-- Legal Document Acceptance Modal -->
+  <LegalAcceptanceModal ref="legalAcceptanceModal" />
 </template>
 
 <script setup>
@@ -454,6 +457,7 @@ import AppBalanceDisplay from '@/components/common/AppBalanceDisplay.vue';
 import Calculator from '@/components/tools/Calculator.vue';
 import InstallmentCalc from '@/components/tools/InstallmentCalc.vue';
 import PercentageTool from '@/components/tools/PercentageTool.vue';
+import LegalAcceptanceModal from '@/modules/legal/components/LegalAcceptanceModal.vue';
 import { toast } from 'vue3-toastify';
 import { useDisplay, useTheme } from 'vuetify';
 import { formatCurrency } from '@/utils/formatters';
@@ -489,6 +493,10 @@ import customersTour from '@/modules/guidance/content/tours/customers.tour.js';
 import settingsTour from '@/modules/guidance/content/tours/settings.tour.js';
 import usersTour from '@/modules/guidance/content/tours/users.tour.js';
 import rolesTour from '@/modules/guidance/content/tours/roles.tour.js';
+import notificationWorkflowsTour from '@/modules/guidance/content/tours/notification-workflows.tour.js';
+import notificationTemplatesTour from '@/modules/guidance/content/tours/notification-templates.tour.js';
+import mailSettingsTour from '@/modules/guidance/content/tours/mail-settings.tour.js';
+import whatsappSettingsTour from '@/modules/guidance/content/tours/whatsapp-settings.tour.js';
 
 // تعريف المكونات بشكل غير متزامن (Lazy loading) لمنع زيادة حجم الـ main bundle
 const GuidanceTour = defineAsyncComponent(() => import('@/modules/guidance/components/GuidanceTour.vue'));
@@ -557,6 +565,14 @@ watch(
         startTour(usersTour, 'tour.users');
       } else if (newRouteName === 'roles') {
         startTour(rolesTour, 'tour.roles');
+      } else if (newRouteName === 'notification-workflows') {
+        startTour(notificationWorkflowsTour, 'tour.notification_workflows');
+      } else if (newRouteName === 'notification-templates') {
+        startTour(notificationTemplatesTour, 'tour.notification_templates');
+      } else if (newRouteName === 'mail-settings') {
+        startTour(mailSettingsTour, 'tour.mail_settings');
+      } else if (newRouteName === 'whatsapp-settings') {
+        startTour(whatsappSettingsTour, 'tour.whatsapp_settings');
       }
     }, 1200);
   },
@@ -572,6 +588,10 @@ const activeTourKey = computed(() => {
   if (route.name === 'company' || route.name === 'settings') return 'tour.settings';
   if (route.name === 'users') return 'tour.users';
   if (route.name === 'roles') return 'tour.roles';
+  if (route.name === 'notification-workflows') return 'tour.notification_workflows';
+  if (route.name === 'notification-templates') return 'tour.notification_templates';
+  if (route.name === 'mail-settings') return 'tour.mail_settings';
+  if (route.name === 'whatsapp-settings') return 'tour.whatsapp_settings';
   return '';
 });
 
@@ -594,6 +614,14 @@ const handleRestartTour = () => {
       success = startTour(usersTour, 'tour.users', true);
     } else if (route.name === 'roles') {
       success = startTour(rolesTour, 'tour.roles', true);
+    } else if (route.name === 'notification-workflows') {
+      success = startTour(notificationWorkflowsTour, 'tour.notification_workflows', true);
+    } else if (route.name === 'notification-templates') {
+      success = startTour(notificationTemplatesTour, 'tour.notification_templates', true);
+    } else if (route.name === 'mail-settings') {
+      success = startTour(mailSettingsTour, 'tour.mail_settings', true);
+    } else if (route.name === 'whatsapp-settings') {
+      success = startTour(whatsappSettingsTour, 'tour.whatsapp_settings', true);
     } else {
       toast.error('عذراً، لا توجد جولة إرشادية لهذه الصفحة.');
       return;
@@ -642,10 +670,22 @@ onMounted(async () => {
 
   const oldInst = localStorage.getItem('tool_pos_installment');
   if (oldInst === '{"x":400,"y":100}') {
-    localStorage.removeItem('tool_pos_installment');
     toolPositions.value.installment = null;
   }
+
+  // فحص الشروط والمستندات القانونية المعلقة للمستخدم عند دخول لوحة التحكم
+  legalAcceptanceModal.value?.checkPendingAgreements();
 });
+
+const legalAcceptanceModal = ref(null);
+
+// إعادة الفحص عند تغيير مسار الصفحة لضمان الامتثال
+watch(
+  () => route.path,
+  () => {
+    legalAcceptanceModal.value?.checkPendingAgreements();
+  }
+);
 
 onUnmounted(() => {
   window.removeEventListener('keydown', handleKeyDown);

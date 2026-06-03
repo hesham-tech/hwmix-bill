@@ -7,15 +7,10 @@
         var APP_VERSION = '__APP_VERSION__';
         var savedVersion = localStorage.getItem('app_version');
         if (savedVersion !== APP_VERSION) {
-          // 1. Halt all further browser loading and DOM parsing instantly!
           if (window.stop) {
             window.stop();
           }
-
-          // 2. Clear Session Storage
           sessionStorage.clear();
-
-          // 3. Delete Cache Storage sequentially
           var clearCaches = function() {
             if ('caches' in window) {
               return caches.keys().then(function(names) {
@@ -26,8 +21,6 @@
             }
             return { then: function(cb) { cb(); } };
           };
-
-          // 4. Unregister Service Workers sequentially
           var unregisterSW = function() {
             if ('serviceWorker' in navigator) {
               return navigator.serviceWorker.getRegistrations().then(function(regs) {
@@ -38,8 +31,6 @@
             }
             return { then: function(cb) { cb(); } };
           };
-
-          // 5. Run sequential execution and then set new version and reload
           clearCaches().then(unregisterSW).then(function() {
             localStorage.setItem('app_version', APP_VERSION);
             window.location.reload(true);
@@ -52,37 +43,29 @@
     </script>
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>HWNiX ERP - نظام الفوترة وإدارة الحسابات والمخازن المتكامل</title>
-    <meta name="description" content="نظام هونكس المتكامل لإدارة المبيعات، الحسابات، المشتريات، المخازن، والتقسيط للشركات والمتاجر بمختلف أحجامها. جربه الآن مجاناً." />
+    <title>HWNiX Store - نظام إدارة المبيعات ونقاط البيع للمتاجر</title>
+    <meta name="description" content="أدر متجرك، فواتيرك، المخزون، وحسابات عملائك والتقسيط بسهولة تامة مع نظام هونكس المخصص للمتاجر." />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://bill.hwnix.com/" />
-    <meta property="og:title" content="HWNiX ERP - نظام الفوترة وإدارة الحسابات والمخازن المتكامل" />
-    <meta property="og:description" content="نظام هونكس المتكامل لإدارة المبيعات، الحسابات، المشتريات، المخازن، والتقسيط للشركات والمتاجر بمختلف أحجامها. جربه الآن مجاناً." />
+    <meta property="og:url" content="https://bill.hwnix.com/store" />
+    <meta property="og:title" content="HWNiX Store - نظام إدارة المبيعات ونقاط البيع للمتاجر" />
+    <meta property="og:description" content="أدر متجرك، فواتيرك، المخزون، وحسابات عملائك والتقسيط بسهولة تامة مع نظام هونكس المخصص للمتاجر." />
     <meta property="og:image" content="https://bill.hwnix.com/favicon.ico" />
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary" />
-    <meta property="twitter:url" content="https://bill.hwnix.com/" />
-    <meta property="twitter:title" content="HWNiX ERP - نظام الفوترة وإدارة الحسابات والمخازن المتكامل" />
-    <meta property="twitter:description" content="نظام هونكس المتكامل لإدارة المبيعات، الحسابات، المشتريات، المخازن، والتقسيط للشركات والمتاجر بمختلف أحجامها. جربه الآن مجاناً." />
+    <meta property="twitter:url" content="https://bill.hwnix.com/store" />
+    <meta property="twitter:title" content="HWNiX Store - نظام إدارة المبيعات ونقاط البيع للمتاجر" />
+    <meta property="twitter:description" content="أدر متجرك، فواتيرك، المخزون، وحسابات عملائك والتقسيط بسهولة تامة مع نظام هونكس المخصص للمتاجر." />
     <meta property="twitter:image" content="https://bill.hwnix.com/favicon.ico" />
 
     <script>
       (function() {
         var path = window.location.pathname;
-        var title = "HWNiX ERP - نظام الفوترة وإدارة الحسابات والمخازن المتكامل";
-        var description = "نظام هونكس المتكامل لإدارة المبيعات، الحسابات، المشتريات، المخازن، والتقسيط للشركات والمتاجر بمختلف أحجامها. جربه الآن مجاناً.";
+        var title = "HWNiX Store - نظام إدارة المبيعات ونقاط البيع للمتاجر";
+        var description = "أدر متجرك، فواتيرك، المخزون، وحسابات عملائك والتقسيط بسهولة تامة مع نظام هونكس المخصص للمتاجر.";
         
-        if (path.indexOf('/saas') !== -1) {
-          title = "HWNiX SaaS - منصة إدارة الشركات الموحدة";
-          description = "سجّل شركتك الآن في منصة هونكس لإدارة المبيعات، المشتريات، الفروع، والمخازن بالكامل سحابياً بدون تعقيد.";
-        } else if (path.indexOf('/store') !== -1) {
-          title = "HWNiX Store - نظام إدارة المبيعات ونقاط البيع للمتاجر";
-          description = "أدر متجرك، فواتيرك، المخزون، وحسابات عملائك والتقسيط بسهولة تامة مع نظام هونكس المخصص للمتاجر.";
-        }
-
         document.title = title;
 
         var updateMeta = function(attrName, attrValue, content) {

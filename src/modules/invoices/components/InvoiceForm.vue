@@ -7,6 +7,7 @@
       :loading="loading"
       :can-submit="canSubmit"
       :title="formTitle"
+      :type="currentContext"
       @save="saveInvoice"
       @cancel="$emit('cancel')"
     />

@@ -341,6 +341,49 @@
                     </v-row>
                   </AppCard>
                 </v-col>
+
+                <!-- Retention Settings -->
+                <v-col cols="12">
+                  <AppCard title="إعدادات الاحتفاظ بسجلات الأنشطة" icon="ri-history-line" icon-color="primary">
+                    <v-row dense>
+                      <v-col cols="12" md="6">
+                        <AppInput
+                          v-model.number="formData.settings.activity_log_retention_value"
+                          label="مدة الاحتفاظ بالسجلات"
+                          type="number"
+                          min="1"
+                          required
+                          prepend-inner-icon="ri-time-line"
+                        >
+                          <template v-if="isFieldChanged('settings.activity_log_retention_value')" #append-inner>
+                            <v-btn icon="ri-check-line" variant="text" color="success" size="x-small" density="comfortable" class="me-1" @click.stop="handleSave" />
+                            <v-btn icon="ri-close-line" variant="text" color="error" size="x-small" density="comfortable" @click.stop="revertField('settings.activity_log_retention_value')" />
+                          </template>
+                        </AppInput>
+                      </v-col>
+                      <v-col cols="12" md="6">
+                        <v-select
+                          v-model="formData.settings.activity_log_retention_unit"
+                          :items="[
+                            { title: 'يوم (Days)', value: 'days' },
+                            { title: 'شهر (Months)', value: 'months' },
+                            { title: 'سنة (Years)', value: 'years' },
+                          ]"
+                          label="وحدة الوقت"
+                          prepend-inner-icon="ri-calendar-line"
+                          variant="outlined"
+                          density="comfortable"
+                          @update:model-value="handleSave"
+                        />
+                      </v-col>
+                      <v-col cols="12">
+                        <p class="text-caption text-grey-darken-1 px-2 mb-0">
+                          * سيقوم النظام تلقائياً بحذف سجلات الأنشطة القديمة التي تجاوزت المدة المحددة لتوفير مساحة الاستضافة والحفاظ على الأداء العام للنظام.
+                        </p>
+                      </v-col>
+                    </v-row>
+                  </AppCard>
+                </v-col>
               </v-row>
             </v-window-item>
 
@@ -536,6 +579,8 @@ const formData = ref({
     enable_digital_products: false,
     inventory_valuation_method: 'average',
     auto_update_purchase_price: true,
+    activity_log_retention_value: 1,
+    activity_log_retention_unit: 'years',
   },
   print_settings: {
     print_format: 'thermal',
@@ -654,6 +699,8 @@ const loadCompanyData = async () => {
           enable_digital_products: false,
           inventory_valuation_method: 'average',
           auto_update_purchase_price: true,
+          activity_log_retention_value: 1,
+          activity_log_retention_unit: 'years',
           ...(data.settings || {}),
         },
         print_settings: data.print_settings || {

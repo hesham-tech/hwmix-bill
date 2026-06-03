@@ -126,6 +126,11 @@ export default defineConfig({
   build: {
     chunkSizeWarningLimit: 5000,
     rollupOptions: {
+      input: {
+        main: fileURLToPath(new URL('./index.html', import.meta.url)),
+        saas: fileURLToPath(new URL('./saas/index.html', import.meta.url)),
+        store: fileURLToPath(new URL('./store/index.html', import.meta.url)),
+      },
       output: {
         manualChunks: {
           'vendor-vue': ['vue', 'vue-router', 'pinia'],

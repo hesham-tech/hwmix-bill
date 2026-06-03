@@ -49,7 +49,9 @@
 
     <!-- الأكوان المخصصة للأزرار حسب Guidelines -->
     <template #actions>
-      <div class="d-flex w-full ga-2 flex-wrap">
+      <div class="d-flex w-full ga-2 flex-wrap align-center">
+        <AppActionHelp action-key="expense" size="small" class="me-2" />
+        <v-spacer />
         <AppButton color="primary" class="flex-grow-1" :loading="loading" @click="handleSave">
           {{ isEdit ? 'تحديث' : 'حفظ' }}
         </AppButton>
@@ -60,13 +62,15 @@
 </template>
 
 <script setup>
-import { ref, watch, reactive } from 'vue';
+// تعليق عربي: نافذة منبثقة لتسجيل وتعديل بيانات المصاريف التشغيلية للمنشأة
+import { ref, watch, reactive, computed } from 'vue';
 import AppDialog from '@/components/common/AppDialog.vue';
 import AppInput from '@/components/common/AppInput.vue';
 import AppTextarea from '@/components/common/AppTextarea.vue';
 import AppButton from '@/components/common/AppButton.vue';
 import AppDatePicker from '@/components/common/AppDatePicker.vue';
 import AppAutocomplete from '@/components/common/AppAutocomplete.vue';
+import AppActionHelp from '@/components/common/AppActionHelp.vue';
 import { useExpenseCategories } from '../composables/useExpenseCategories';
 
 const props = defineProps({

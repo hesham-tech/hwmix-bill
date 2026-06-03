@@ -16,7 +16,7 @@
         </div>
 
         <!-- Operation Types -->
-        <v-btn-toggle v-model="operationType" mandatory color="primary" variant="tonal" class="w-100 mb-6 rounded-lg" style="height: 48px">
+        <v-btn-toggle v-model="operationType" mandatory color="primary" variant="tonal" class="w-100 mb-2 rounded-lg" style="height: 48px">
           <v-btn v-if="canDeposit" value="deposit" class="flex-grow-1" :disabled="loading">
             <v-icon icon="ri-qr-code-line" start />
             إيداع
@@ -30,6 +30,12 @@
             تحويل
           </v-btn>
         </v-btn-toggle>
+
+        <!-- Help Info Row -->
+        <div v-if="hasAnyOperation" class="d-flex align-center justify-end mb-4 px-1">
+          <span class="text-caption text-grey me-1">معلومات وتأثير العملية:</span>
+          <AppActionHelp :action-key="helpActionKey" :color="variant" size="small" />
+        </div>
 
         <v-alert v-if="!hasAnyOperation" type="warning" variant="tonal" class="mb-4"> ليس لديك صلاحية لإجراء أي عمليات مالية. </v-alert>
 
@@ -89,9 +95,11 @@
 </template>
 
 <script setup>
+// تعليق عربي: مكون لإدارة عمليات رصيد المستخدمين المباشرة (سحب، إيداع، تحويل) من لوحة التحكم
 import { ref, reactive, computed, watch } from 'vue';
 import { AppDialog, AppButton, AppUserBalanceProfile } from '@/components';
 import AppBalanceDisplay from '@/components/common/AppBalanceDisplay.vue';
+import AppActionHelp from '@/components/common/AppActionHelp.vue';
 import { transactionService, userService } from '@/api';
 import { formatCurrency } from '@/utils/formatters';
 import { toast } from 'vue3-toastify';
@@ -147,6 +155,12 @@ const canTransfer = computed(() => {
 });
 
 const hasAnyOperation = computed(() => canDeposit.value || canWithdraw.value || canTransfer.value);
+
+const helpActionKey = computed(() => {
+  if (operationType.value === 'deposit') return 'balance_deposit';
+  if (operationType.value === 'withdraw') return 'balance_withdraw';
+  return 'balance_transfer';
+});
 
 const title = computed(() => {
   if (operationType.value === 'deposit') return 'إيداع رصيد';

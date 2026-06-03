@@ -127,9 +127,18 @@
               </v-row>
             </div>
 
-            <v-checkbox v-model="form.agree" color="warning" density="compact" :rules="[v => !!v || 'يجب الموافقة على الشروط']" hide-details class="saas-checkbox mb-1">
+            <v-checkbox
+              v-model="form.agree"
+              color="warning"
+              density="compact"
+              readonly
+              @click.prevent="showLegalDialog = true"
+              :rules="[v => !!v || 'يجب الموافقة على الشروط']"
+              hide-details
+              class="saas-checkbox mb-1"
+            >
               <template #label>
-                <span class="terms-text">أوافق على <a href="#" class="terms-link">شروط الخدمة</a> و<a href="#" class="terms-link">سياسة الخصوصية</a></span>
+                <span class="terms-text">أوافق على <a href="/legal.html?key=terms-of-use" target="_blank" class="terms-link" @click.stop>شروط الخدمة</a> و<a href="/legal.html?key=privacy-policy" target="_blank" class="terms-link" @click.stop>سياسة الخصوصية</a></span>
               </template>
             </v-checkbox>
 
@@ -146,6 +155,11 @@
         </div>
       </div>
     </div>
+    <RegistrationLegalDialog
+      v-model="showLegalDialog"
+      @agree="form.agree = true"
+      @disagree="form.agree = false"
+    />
   </div>
 </template>
 
@@ -157,11 +171,13 @@ import { required, phone as phoneValidator, strongPassword } from '@/utils/valid
 import AppInput from '@/components/common/AppInput.vue';
 import AppPasswordInput from '@/components/common/AppPasswordInput.vue';
 import AppButton from '@/components/common/AppButton.vue';
+import RegistrationLegalDialog from '@/modules/auth/components/RegistrationLegalDialog.vue';
 
 const router = useRouter();
 const route = useRoute();
 const formRef = ref(null);
 const loading = ref(false);
+const showLegalDialog = ref(false);
 const form = ref({
   company_name: '', company_phone: '', address: '',
   full_name: '', phone: '', email: '', password: '',

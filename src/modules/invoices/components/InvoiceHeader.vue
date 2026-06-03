@@ -40,6 +40,7 @@
         >
           إلغاء
         </AppButton>
+        <AppActionHelp :action-key="helpActionKey" color="primary" size="small" class="me-1" />
         <AppButton
           color="primary"
           prepend-icon="ri-save-line"
@@ -75,9 +76,12 @@
 </template>
 
 <script setup>
+// تعليق عربي: هيدر الفاتورة الموحد لعرض الإجماليات وأزرار الإجراءات وحفظ فواتير البيع والشراء
+import { computed } from 'vue';
 import { formatCurrency } from '@/utils/formatters';
+import AppActionHelp from '@/components/common/AppActionHelp.vue';
 
-defineProps({
+const props = defineProps({
   isEdit: Boolean,
   financials: {
     type: Object,
@@ -86,6 +90,14 @@ defineProps({
   loading: Boolean,
   canSubmit: Boolean,
   title: String,
+  type: {
+    type: String,
+    default: 'sales',
+  },
+});
+
+const helpActionKey = computed(() => {
+  return props.type === 'purchase' ? 'invoice_purchase' : 'invoice_sale';
 });
 
 defineEmits(['save', 'cancel']);

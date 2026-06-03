@@ -21,6 +21,7 @@ import companiesRoutes from '@/modules/companies/routes';
 import settingRoutes from '@/modules/settings/routes';
 import taskRoutes from '@/modules/tasks/routes';
 import financialsRoutes from '@/modules/financials/routes';
+import legalRoutes from '@/modules/legal/routes';
 import devRoutes from '@/modules/dev/routes';
 import errorRoutes from './errorRoutes';
 
@@ -69,6 +70,7 @@ const router = createRouter({
         ...settingRoutes,
         ...taskRoutes,
         ...financialsRoutes,
+        ...legalRoutes,
         ...devRoutes,
         ...errorRoutes,
       ],

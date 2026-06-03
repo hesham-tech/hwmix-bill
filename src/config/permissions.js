@@ -546,6 +546,13 @@ export const PERMISSIONS = {
   BRANCHES_CREATE: 'branches.create',
   BRANCHES_UPDATE_ALL: 'branches.update_all',
   BRANCHES_DELETE_ALL: 'branches.delete_all',
+
+  // ==================== Legal Documents ====================
+  LEGAL_DOCUMENTS_PAGE: 'legal_documents.page',
+  LEGAL_DOCUMENTS_VIEW_ALL: 'legal_documents.view_all',
+  LEGAL_DOCUMENTS_CREATE: 'legal_documents.create',
+  LEGAL_DOCUMENTS_UPDATE: 'legal_documents.update_all',
+  LEGAL_DOCUMENTS_DELETE: 'legal_documents.delete_all',
 };
 
 /**

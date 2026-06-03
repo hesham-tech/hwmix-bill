@@ -6,11 +6,13 @@ import { required, phone as phoneValidator, strongPassword } from '@/utils/valid
 import AppInput from '@/components/common/AppInput.vue';
 import AppPasswordInput from '@/components/common/AppPasswordInput.vue';
 import AppButton from '@/components/common/AppButton.vue';
+import RegistrationLegalDialog from '@/modules/auth/components/RegistrationLegalDialog.vue';
 
 const router = useRouter();
 const route = useRoute();
 const formRef = ref(null);
 const loading = ref(false);
+const showLegalDialog = ref(false);
 
 const registrationType = computed(() => route.query.type || 'customer');
 const isTenant = computed(() => registrationType.value === 'tenant');
@@ -234,11 +236,19 @@ const handleRegister = async () => {
                   </v-col>
 
                   <v-col cols="12" class="pt-0">
-                    <v-checkbox v-model="form.agree" color="primary" density="compact" :rules="[v => !!v || 'يجب الموافقة على الشروط']" hide-details>
+                    <v-checkbox
+                      v-model="form.agree"
+                      color="primary"
+                      density="compact"
+                      readonly
+                      @click.prevent="showLegalDialog = true"
+                      :rules="[v => !!v || 'يجب الموافقة على الشروط']"
+                      hide-details
+                    >
                       <template #label>
                         <span class="text-caption text-slate-600">
-                          أوافق على <a href="#" class="text-primary font-weight-bold text-decoration-none">سياسة الخصوصية</a> و
-                          <a href="#" class="text-primary font-weight-bold text-decoration-none">شروط الاستخدام</a>
+                          أوافق على <a href="/legal.html?key=privacy-policy" target="_blank" class="text-primary font-weight-bold text-decoration-none" @click.stop>سياسة الخصوصية</a> و
+                          <a href="/legal.html?key=terms-of-use" target="_blank" class="text-primary font-weight-bold text-decoration-none" @click.stop>شروط الاستخدام</a>
                         </span>
                       </template>
                     </v-checkbox>
@@ -261,6 +271,11 @@ const handleRegister = async () => {
           </v-col>
         </v-row>
       </div>
+      <RegistrationLegalDialog
+        v-model="showLegalDialog"
+        @agree="form.agree = true"
+        @disagree="form.agree = false"
+      />
     </v-container>
   </div>
 </template>

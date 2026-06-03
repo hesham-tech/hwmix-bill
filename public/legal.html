@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>المستندات القانونية - HWNiX</title>
+  <!-- Google Fonts: Cairo -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <!-- Remix Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1a3d8f;
+      --primary-light: rgba(26, 61, 143, 0.08);
+      --secondary: #6a5ae0;
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-700: #334155;
+      --slate-800: #1e293b;
+      --slate-900: #0f172a;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Cairo', sans-serif;
+      background-color: var(--slate-50);
+      color: var(--slate-700);
+      line-height: 1.8;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* Decorative blobs */
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.08;
+      z-index: -1;
+    }
+    .blob-1 {
+      width: 400px;
+      height: 400px;
+      background: var(--primary);
+      top: -100px;
+      right: -100px;
+    }
+    .blob-2 {
+      width: 500px;
+      height: 500px;
+      background: var(--secondary);
+      bottom: -150px;
+      left: -150px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      flex-grow: 1;
+    }
+
+    /* Branding Header */
+    .header-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 30px;
+      text-decoration: none;
+    }
+    .logo-icon {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(26, 61, 143, 0.25);
+    }
+    .logo-icon span {
+      color: #fff;
+      font-size: 1.25rem;
+      font-weight: 900;
+    }
+    .logo-name {
+      font-size: 1.4rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Card Layout */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(26, 61, 143, 0.08);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.05);
+      position: relative;
+    }
+
+    /* Buttons Toolbar */
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 20px;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      border: none;
+    }
+    .btn-text {
+      color: var(--primary);
+      background: transparent;
+    }
+    .btn-text:hover {
+      background: var(--primary-light);
+    }
+    .btn-outline {
+      color: var(--primary);
+      border: 1.5px solid var(--primary);
+      background: transparent;
+    }
+    .btn-outline:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    /* Document Metadata */
+    .doc-header {
+      border-bottom: 1.5px solid var(--slate-200);
+      padding-bottom: 24px;
+      margin-bottom: 30px;
+    }
+    .doc-title {
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--slate-900);
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .doc-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      font-size: 0.82rem;
+      color: #64748b;
+      font-weight: 600;
+    }
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Legal HTML content styling */
+    .legal-content {
+      font-size: 1.05rem;
+      color: var(--slate-800);
+      line-height: 2.1;
+    }
+    .legal-content p {
+      margin-bottom: 20px;
+    }
+    .legal-content h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-top: 35px;
+      margin-bottom: 15px;
+    }
+    .legal-content ul, .legal-content ol {
+      margin-bottom: 20px;
+      padding-right: 25px;
+    }
+    .legal-content li {
+      margin-bottom: 8px;
+    }
+
+    /* Loading state animation */
+    .loader-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 0;
+    }
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid var(--slate-200);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Error state styling */
+    .error-container {
+      text-align: center;
+      padding: 40px 0;
+    }
+    .error-icon {
+      font-size: 4rem;
+      color: #ef4444;
+      margin-bottom: 20px;
+    }
+    .error-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--slate-900);
+      margin-bottom: 10px;
+    }
+
+    /* Print settings */
+    @media print {
+      body {
+        background: white;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .glass-card {
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        background: transparent;
+      }
+      .container {
+        padding: 0;
+      }
+      .blob {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+
+  <div class="container">
+    <!-- Brand Logo -->
+    <a href="/" class="header-logo no-print">
+      <div class="logo-icon"><span>H</span></div>
+      <span class="logo-name">HWNiX</span>
+    </a>
+
+    <!-- Glass Card -->
+    <div class="glass-card">
+      
+      <!-- Loading State -->
+      <div id="loader" class="loader-container">
+        <div class="spinner"></div>
+        <div>جاري تحميل المستند القانوني...</div>
+      </div>
+
+      <!-- Error State (Hidden) -->
+      <div id="error-pane" class="error-container" style="display: none;">
+        <i class="ri-error-warning-line error-icon"></i>
+        <div class="error-title">تعذر العثور على الصفحة</div>
+        <p style="margin-bottom: 24px;">المستند القانوني غير منشور حالياً أو ربما تم حذفه.</p>
+        <button onclick="window.close()" class="btn btn-outline no-print">إغلاق الصفحة</button>
+      </div>
+
+      <!-- Content Area (Hidden) -->
+      <div id="content-pane" style="display: none;">
+        <!-- Toolbar -->
+        <div class="toolbar no-print">
+          <button onclick="window.close()" class="btn btn-text"><i class="ri-arrow-right-line"></i> إغلاق</button>
+          <button onclick="window.print()" class="btn btn-outline"><i class="ri-printer-line"></i> طباعة المستند</button>
+        </div>
+
+        <!-- Meta Header -->
+        <div class="doc-header">
+          <h1 id="doc-title-placeholder" class="doc-title">العنوان</h1>
+          <div class="doc-meta">
+            <div class="meta-item">
+              <i class="ri-git-commit-line"></i>
+              <span id="doc-version-placeholder">v1.0</span>
+            </div>
+            <div class="meta-item">
+              <i class="ri-time-line"></i>
+              <span id="doc-date-placeholder">تاريخ النشر</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rendered HTML Content -->
+        <div id="doc-content-placeholder" class="legal-content"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // الحصول على مفتاح الوثيقة من رابط الصفحة (?key=privacy-policy)
+    const getQueryParam = (name) => {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name);
+    };
+
+    // تحديد مسار الـ API ديناميكياً
+    const getApiBaseUrl = () => {
+      const host = window.location.hostname;
+      if (host.includes('hwnix.com') || host.includes('bill.hwnix.com')) {
+        return 'https://bill-api.hwnix.com/api/v1/legal/documents/';
+      }
+      return 'http://127.0.0.1:8000/api/v1/legal/documents/';
+    };
+
+    const formatDate = (dateString) => {
+      if (!dateString) return 'غير محدد';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('ar-EG', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    };
+
+    const loadLegalDocument = async () => {
+      const key = getQueryParam('key') || 'terms-of-use';
+      const loader = document.getElementById('loader');
+      const errorPane = document.getElementById('error-pane');
+      const contentPane = document.getElementById('content-pane');
+
+      try {
+        const response = await fetch(`${getApiBaseUrl()}${key}/active`);
+        if (!response.ok) {
+          throw new Error('Document not found');
+        }
+        const result = await response.json();
+        
+        if (result && result.status && result.data) {
+          const doc = result.data;
+          
+          // تحديث المحتوى في الصفحة
+          document.getElementById('doc-title-placeholder').textContent = doc.title;
+          document.getElementById('doc-version-placeholder').textContent = `رقم الإصدار: ${doc.version}`;
+          document.getElementById('doc-date-placeholder').textContent = `تاريخ النشر: ${formatDate(doc.published_at)}`;
+          document.getElementById('doc-content-placeholder').innerHTML = doc.content;
+          document.title = `${doc.title} - HWNiX`;
+          
+          // عرض المحتوى وإخفاء التحميل
+          loader.style.display = 'none';
+          contentPane.style.display = 'block';
+        } else {
+          throw new Error('Malformed response');
+        }
+      } catch (err) {
+        console.error('Failed to fetch legal document:', err);
+        loader.style.display = 'none';
+        errorPane.style.display = 'block';
+      }
+    };
+
+    // تشغيل الجلب فور التحميل
+    window.addEventListener('DOMContentLoaded', loadLegalDocument);
+  </script>
+</body>
+</html>
