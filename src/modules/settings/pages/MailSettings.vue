@@ -453,7 +453,7 @@ const openEditDialog = (account) => {
     mail_host: account.mail_host || '',
     mail_port: account.mail_port || 587,
     mail_username: account.mail_username || '',
-    mail_password: '', // نتركها فارغة إلا في حال رغب في تغييرها
+    mail_password: account.mail_password || '', // إظهار كلمة المرور الحالية المسترجعة من الباك اند
     mail_encryption: account.mail_encryption || 'tls',
     mail_from_address: account.mail_from_address || '',
     mail_from_name: account.mail_from_name || '',
