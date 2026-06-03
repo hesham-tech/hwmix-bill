@@ -27,10 +27,10 @@
             <AppButton type="submit" color="primary" size="large" block :loading="loading" class="mb-4"> إرسال رابط الاستعادة </AppButton>
 
             <div class="text-center">
-              <a href="/login" class="text-primary text-decoration-none">
+              <router-link :to="loginPath" class="text-primary text-decoration-none">
                 <v-icon icon="ri-arrow-right-line" size="small" class="me-1" />
                 العودة لتسجيل الدخول
-              </a>
+              </router-link>
             </div>
           </v-form>
 
@@ -38,7 +38,7 @@
             <v-icon icon="ri-checkbox-circle-line" size="64" color="success" class="mb-4" />
             <h3 class="text-h6 mb-2">تم إرسال الرابط!</h3>
             <p class="text-body-2 text-grey mb-4">تحقق من بريدك الإلكتروني واتبع التعليمات لإعادة تعيين كلمة المرور</p>
-            <AppButton color="primary" variant="outlined" href="/login" block> العودة لتسجيل الدخول </AppButton>
+            <AppButton color="primary" variant="outlined" :to="loginPath" block> العودة لتسجيل الدخول </AppButton>
           </div>
         </div>
       </div>
@@ -47,11 +47,21 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+// تعليق عربي: مكون لاستعادة كلمة المرور وإرسال رابط تعيين كلمة السر للبريد الإلكتروني للعملاء والموظفين
+import { ref, computed } from 'vue';
+import { useRoute } from 'vue-router';
 import { authService } from '@/api';
 import { required, email } from '@/utils/validators';
 import AppInput from '@/components/common/AppInput.vue';
 import AppButton from '@/components/common/AppButton.vue';
+
+const route = useRoute();
+const loginPath = computed(() => {
+  if (route.query.from === 'saas') {
+    return '/saas/login';
+  }
+  return '/login';
+});
 
 const formRef = ref(null);
 const loading = ref(false);

@@ -77,8 +77,19 @@
                       </div>
                       <h3 class="text-subtitle-1 font-weight-bold mb-1">شعار الشركة</h3>
                       <p class="text-caption text-grey-darken-1 px-2">
-                        سيظهر هذا الشعار في الفواتير، التقارير، وفي القائمة الجانبية للنظام. يُنصح باستخدام صورة بخلفية شفافة (PNG) وبأبعاد 512×512.
+                        سيظهر هذا الشعار في الفواتير، التقارير، وفي القائمة الجانبية للنظام. يدعم النظام الصور المتجهية (SVG) لضمان مظهر نقي وعالي الدقة دائماً.
                       </p>
+                      <v-btn
+                        v-if="formData.logo"
+                        variant="tonal"
+                        color="secondary"
+                        prepend-icon="ri-file-copy-line"
+                        size="small"
+                        class="mt-4 rounded-pill"
+                        @click="copyLogoUrl"
+                      >
+                        نسخ رابط الشعار لمشاركته
+                      </v-btn>
                     </v-card-text>
                   </AppCard>
                 </v-col>
@@ -633,6 +644,23 @@ const sanitizeUrl = (obj, key) => {
 
 const rules = {
   required: v => !!v || 'هذا الحقل مطلوب أساسي لاستكمال البيانات',
+};
+
+const copyLogoUrl = () => {
+  if (!formData.value.logo) return;
+  let url = formData.value.logo;
+  if (!/^https?:\/\//i.test(url)) {
+    const origin = window.location.origin;
+    url = url.startsWith('/') ? `${origin}${url}` : `${origin}/${url}`;
+  }
+  
+  navigator.clipboard.writeText(url)
+    .then(() => {
+      toast.success('تم نسخ رابط الشعار بنجاح');
+    })
+    .catch(() => {
+      toast.error('فشل نسخ الرابط');
+    });
 };
 
 const handleImageSelect = async image => {

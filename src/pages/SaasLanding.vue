@@ -4,12 +4,13 @@
     <nav class="saas-nav">
       <div class="nav-inner">
         <div class="brand">
-          <div class="brand-logo">
-            <span class="logo-h">H</span>
+          <div class="brand-logo" :style="logoUrl ? 'background: transparent; box-shadow: none;' : ''">
+            <img v-if="logoUrl" :src="logoUrl" alt="Logo" class="logo-img-saas" />
+            <span v-else class="logo-h">{{ companyName.charAt(0) }}</span>
           </div>
           <div class="brand-text-group">
-            <span class="brand-name">HWNiX</span>
-            <span class="brand-tagline">الثقة في كل اختيار</span>
+            <span class="brand-name">{{ companyName }}</span>
+            <span class="brand-tagline">{{ tagline }}</span>
           </div>
           <span class="brand-badge">SaaS</span>
         </div>
@@ -253,8 +254,11 @@
     <footer class="saas-footer">
       <div class="footer-inner">
         <div class="footer-brand">
-          <span class="brand-icon">⚡</span>
-          <strong>HWNix Solutions</strong>
+          <v-avatar v-if="logoUrl" rounded="md" size="28" class="me-2">
+            <v-img :src="logoUrl" alt="Logo" />
+          </v-avatar>
+          <span v-else class="brand-icon me-2">⚡</span>
+          <strong>{{ companyName }}</strong>
         </div>
         <div class="footer-links">
           <router-link to="/">المتجر الرئيسي</router-link>
@@ -263,7 +267,7 @@
           <router-link to="/legal/terms-of-use">شروط الاستخدام</router-link>
           <router-link to="/legal/refund-policy">سياسة الاسترجاع</router-link>
         </div>
-        <div class="footer-copy">© {{ new Date().getFullYear() }} HWNix — جميع الحقوق محفوظة</div>
+        <div class="footer-copy">© {{ new Date().getFullYear() }} {{ companyName }} — جميع الحقوق محفوظة</div>
       </div>
     </footer>
   </div>
@@ -276,12 +280,15 @@ import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useUserStore } from '@/stores/user';
 import { useApi } from '@/composables/useApi';
+import { useBranding } from '@/composables/useBranding';
 import AppUserBalanceProfile from '@/components/common/AppUserBalanceProfile.vue';
 
 const router = useRouter();
 const mobileDrawer = ref(false);
 const authStore = useAuthStore();
 const userStore = useUserStore();
+
+const { logoUrl, companyName, tagline, fetchBranding } = useBranding();
 
 const plansApi = useApi('/api/public/plans');
 const plans = ref([]);
@@ -323,6 +330,7 @@ const handleSelectPlan = plan => {
 };
 
 onMounted(async () => {
+  fetchBranding();
   loadPlans();
   if (authStore.token && !userStore.currentUser) {
     try {
@@ -498,6 +506,11 @@ const testimonials = [
   display: flex; align-items: center; justify-content: center;
   box-shadow: 0 4px 12px rgba(26,61,143,.35);
   flex-shrink: 0;
+}
+.logo-img-saas {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 .logo-h { color: #fff; font-size: 1.25rem; font-weight: 900; font-family: 'Montserrat', sans-serif; line-height: 1; }
 .brand-text-group { display: flex; flex-direction: column; gap: 0; }

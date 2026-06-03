@@ -25,7 +25,7 @@
       <p class="text-body-1 text-grey mb-6">
         لم نقم بتسجيل أي موافقة على شروط الاستخدام أو سياسات الخصوصية لحسابك بعد.
       </p>
-      <v-btn color="primary" variant="flat" to="/" class="rounded-pill px-8 font-weight-bold">
+      <v-btn color="primary" variant="flat" :to="homePath" class="rounded-pill px-8 font-weight-bold">
         الذهاب للرئيسية
       </v-btn>
     </v-card>
@@ -122,9 +122,21 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { getAll } from '@/services/api';
 import { toast } from 'vue3-toastify';
+import { useAuthStore } from '@/stores/auth';
+import { useUserStore } from '@/stores/user';
+
+const authStore = useAuthStore();
+const userStore = useUserStore();
+
+const homePath = computed(() => {
+  if (authStore.isAuthenticated && userStore.isStaff) {
+    return '/app/admin/dashboard';
+  }
+  return '/';
+});
 
 const loading = ref(true);
 const history = ref([]);
@@ -146,7 +158,7 @@ const formatDate = (dateString) => {
 const loadHistory = async () => {
   loading.value = true;
   try {
-    const res = await getAll('legal/my-acceptances', null, false, false, false);
+    const res = await getAll('v1/legal/my-acceptances', null, false, false, false);
     if (res && res.status) {
       history.value = res.data;
     }

@@ -110,7 +110,7 @@
             </AppButton>
 
             <div class="saas-forgot-simple">
-              <router-link to="/forgot-password">نسيت كلمة السر؟ اضغط هنا لاستعادتها</router-link>
+              <router-link to="/forgot-password?from=saas">نسيت كلمة السر؟ اضغط هنا لاستعادتها</router-link>
             </div>
           </v-form>
 
@@ -133,6 +133,7 @@
 </template>
 
 <script setup>
+// تعليق عربي: مكون تسجيل دخول الموظفين وأصحاب الشركات إلى لوحة تحكم الساس
 import { ref, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { authService } from '@/api';

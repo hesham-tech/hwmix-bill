@@ -7,11 +7,12 @@
     <v-container class="py-12 position-relative" style="z-index: 10;">
       <!-- Header / Brand logo -->
       <div class="d-flex align-center justify-center gap-2 mb-8 no-print">
-        <router-link to="/" class="d-flex align-center gap-2 text-decoration-none">
-          <div class="store-logo">
-            <span class="logo-h-store">H</span>
+        <router-link :to="homePath" class="d-flex align-center gap-2 text-decoration-none">
+          <div class="store-logo" :style="logoUrl ? 'background: transparent; box-shadow: none;' : ''">
+            <img v-if="logoUrl" :src="logoUrl" alt="Logo" class="logo-img-store" />
+            <span v-else class="logo-h-store">{{ companyName.charAt(0) }}</span>
           </div>
-          <span class="store-brand-name font-weight-black text-h5">HWNiX</span>
+          <span class="store-brand-name font-weight-black text-h5">{{ companyName }}</span>
         </router-link>
       </div>
 
@@ -35,7 +36,7 @@
               <p class="text-body-1 text-grey mb-8 max-w-500">
                 المستند القانوني المطلوب غير منشور حالياً أو ربما تم تغييره.
               </p>
-              <v-btn color="primary" variant="elevated" prepend-icon="ri-home-4-line" to="/" class="rounded-pill px-8">
+              <v-btn color="primary" variant="elevated" prepend-icon="ri-home-4-line" :to="homePath" class="rounded-pill px-8">
                 العودة للرئيسية
               </v-btn>
             </div>
@@ -77,7 +78,7 @@
                 <p class="text-subtitle-2 text-grey mb-4">
                   تصفحك للموقع أو استخدامك للمنصة يعتبر موافقة تلقائية على هذا المستند والشروط المنصوص عليها فيه.
                 </p>
-                <v-btn color="primary" variant="flat" to="/" class="rounded-pill px-8 font-weight-bold">
+                <v-btn color="primary" variant="flat" :to="homePath" class="rounded-pill px-8 font-weight-bold">
                   أوافق والعودة للموقع
                 </v-btn>
               </div>
@@ -91,11 +92,29 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import apiClient from '@/services/api';
+import { useAuthStore } from '@/stores/auth';
+import { useUserStore } from '@/stores/user';
+import { useBranding } from '@/composables/useBranding';
 
 const route = useRoute();
+const authStore = useAuthStore();
+const userStore = useUserStore();
+
+const { logoUrl, companyName, fetchBranding } = useBranding();
+
+const homePath = computed(() => {
+  if (route.query.from === 'saas') {
+    return '/saas';
+  }
+  if (authStore.isAuthenticated && userStore.isStaff) {
+    return '/app/admin/dashboard';
+  }
+  return '/';
+});
+
 const loading = ref(true);
 const error = ref(false);
 const documentVersion = ref(null);
@@ -141,6 +160,7 @@ const printDocument = () => {
 };
 
 onMounted(() => {
+  fetchBranding();
   fetchLegalDocument(route.params.key);
 });
 
@@ -195,6 +215,11 @@ watch(() => route.params.key, (newKey) => {
   align-items: center;
   justify-content: center;
   box-shadow: 0 4px 12px rgba(26, 61, 143, 0.3);
+}
+.logo-img-store {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 .logo-h-store {
   color: #fff;

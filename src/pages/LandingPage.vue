@@ -3,12 +3,13 @@
     <!-- Navigation Bar -->
     <nav class="landing-nav pa-4 d-flex align-center justify-space-between glass-effect">
       <div class="d-flex align-center gap-2">
-        <div class="store-logo">
-          <span class="logo-h-store">H</span>
+        <div class="store-logo" :style="logoUrl ? 'background: transparent; box-shadow: none;' : ''">
+          <img v-if="logoUrl" :src="logoUrl" alt="Logo" class="logo-img-store" />
+          <span v-else class="logo-h-store">{{ companyName.charAt(0) }}</span>
         </div>
         <div class="brand-text-group">
-          <span class="store-brand-name">HWNiX</span>
-          <span class="store-tagline">الثقة في كل اختيار</span>
+          <span class="store-brand-name">{{ companyName }}</span>
+          <span class="store-tagline">{{ tagline }}</span>
         </div>
       </div>
 
@@ -56,10 +57,13 @@
     <v-navigation-drawer v-model="mobileDrawer" location="right" temporary class="pa-4">
       <div class="d-flex flex-column gap-4 mt-4">
         <div class="d-flex align-center gap-2 mb-6 px-2">
-          <v-avatar color="primary" rounded="md" size="32">
+          <v-avatar v-if="logoUrl" rounded="md" size="32">
+            <v-img :src="logoUrl" alt="Logo" />
+          </v-avatar>
+          <v-avatar v-else color="primary" rounded="md" size="32">
             <v-icon icon="ri-building-line" color="white" size="18" />
           </v-avatar>
-          <span class="text-subtitle-1 font-weight-bold text-primary">hwmix-bill</span>
+          <span class="text-subtitle-1 font-weight-bold text-primary">{{ companyName }}</span>
         </div>
 
         <router-link
@@ -305,7 +309,7 @@
           <v-divider class="my-10 border-primary-lighten-4" />
 
           <div class="d-flex flex-column flex-md-row justify-space-between align-center gap-4">
-            <div class="text-caption text-grey-lighten-1">جميع الحقوق محفوظة © {{ new Date().getFullYear() }} - hwmix-bill</div>
+            <div class="text-caption text-grey-lighten-1">جميع الحقوق محفوظة © {{ new Date().getFullYear() }} - {{ companyName }}</div>
             <div class="d-flex gap-6 text-caption text-grey-lighten-1">
               <router-link to="/legal/privacy-policy" class="text-decoration-none text-inherit">سياسة الخصوصية</router-link>
               <router-link to="/legal/terms-of-use" class="text-decoration-none text-inherit">شروط الاستخدام</router-link>
@@ -323,13 +327,17 @@
 import { ref, onMounted } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { useUserStore } from '@/stores/user';
+import { useBranding } from '@/composables/useBranding';
 import AppUserBalanceProfile from '@/components/common/AppUserBalanceProfile.vue';
 
 const authStore = useAuthStore();
 const userStore = useUserStore();
 const mobileDrawer = ref(false);
 
+const { logoUrl, companyName, tagline, fetchBranding } = useBranding();
+
 onMounted(async () => {
+  fetchBranding();
   if (authStore.token && !userStore.currentUser) {
     try {
       await userStore.fetchUser();
@@ -405,6 +413,11 @@ const scrollToFeatures = () => {
   justify-content: center;
   box-shadow: 0 4px 12px rgba(26, 61, 143, 0.3);
   flex-shrink: 0;
+}
+.logo-img-store {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 .logo-h-store {
   color: #fff;
