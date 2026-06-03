@@ -385,7 +385,7 @@ const deletePlan = async () => {
   if (!planToDelete.value) return;
   deleting.value = true;
   try {
-    await api.remove(planToDelete.value.id);
+    await api.remove(planToDelete.value.id, { showSuccess: false });
     // useDataTable provides items as a reactive array, but we should use the removeItem if provided or manually filter
     // In this useDataTable implementation, we can call performSearch to refresh or manually update
     // If useDataTable doesn't export removeItem, we can just refresh

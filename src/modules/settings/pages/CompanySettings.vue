@@ -773,7 +773,7 @@ const handleSave = async () => {
     };
     delete payload.print_settings;
 
-    await api.update(formData.value.id, payload);
+    await api.update(formData.value.id, payload, { showSuccess: false });
     originalData.value = JSON.parse(JSON.stringify(formData.value));
     toast.success('تم حفظ التغييرات بنجاح');
     

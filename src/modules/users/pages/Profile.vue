@@ -358,7 +358,7 @@ const handleSave = async () => {
       delete payload.images_ids;
     }
 
-    await api.update(formData.id, payload);
+    await api.update(formData.id, payload, { showSuccess: false });
 
     // Refresh user data in store
     await userStore.fetchUser();
@@ -396,7 +396,7 @@ const handleUpdatePassword = async () => {
   try {
     await api.update(formData.id, {
       password: passwordForm.password,
-    });
+    }, { showSuccess: false });
     toast.success('تم تحديث كلمة المرور بنجاح');
     closePasswordDialog();
   } catch (error) {

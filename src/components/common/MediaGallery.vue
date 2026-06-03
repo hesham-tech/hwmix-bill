@@ -190,6 +190,14 @@ const handleFileUpload = async event => {
 
   if (!props.multiple && files.length === 1) {
     originalFile.value = files[0];
+    const isSvg = files[0].name.toLowerCase().endsWith('.svg') || files[0].type === 'image/svg+xml';
+    
+    if (isSvg) {
+      await handleSkipCropping();
+      event.target.value = '';
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = e => {
       cropperImageSrc.value = e.target.result;

@@ -333,7 +333,7 @@ const deleteInvoice = async () => {
   if (!itemToDelete.value) return;
   deleting.value = true;
   try {
-    await invoiceApi.remove(itemToDelete.value.id);
+    await invoiceApi.remove(itemToDelete.value.id, { showSuccess: false });
     removeItem(itemToDelete.value.id);
     deleteDialog.value = false;
     itemToDelete.value = null;
