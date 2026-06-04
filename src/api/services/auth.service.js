@@ -105,6 +105,26 @@ class AuthService {
   }
 
   /**
+   * Verify OTP
+   * @param {Object} data - { email, otp }
+   */
+  async verifyOtp(data, options = {}) {
+    const { loading = false } = options;
+    const userStore = useUserStore();
+
+    if (loading) userStore.loadingApi = true;
+
+    try {
+      const response = await apiClient.post('verify-otp', data);
+      if (loading) userStore.loadingApi = false;
+      return response.data;
+    } catch (error) {
+      if (loading) userStore.loadingApi = false;
+      throw error;
+    }
+  }
+
+  /**
    * Reset Password
    * @param {Object} data - { email, otp, password, password_confirmation }
    */
