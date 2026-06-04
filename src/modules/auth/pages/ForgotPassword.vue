@@ -55,9 +55,17 @@
 
             <!-- الخطوة 2: التحقق من الـ OTP وإدخال كلمة المرور الجديدة -->
             <v-form v-else-if="step === 2" ref="formRefStep2" @submit.prevent="handleResetPassword">
-              <div class="text-caption text-primary mb-2 text-center text-md-right">
-                تم إرسال كود التحقق إلى: <strong>{{ form.email }}</strong>
-              </div>
+              <v-alert
+                type="info"
+                variant="tonal"
+                density="compact"
+                class="mb-4 text-body-2"
+                border="start"
+              >
+                تم إرسال رمز التحقق (OTP) إلى:
+                <strong class="d-block mt-1 text-primary text-ltr" style="direction: ltr; text-align: right;">{{ form.email }}</strong>
+                يرجى مراجعة بريدك الإلكتروني (صندوق الوارد والرسائل غير المرغوب فيها Spam).
+              </v-alert>
 
               <AppInput
                 v-model="form.otp"
@@ -69,6 +77,22 @@
                 class="mb-4 text-center font-weight-bold"
                 style="letter-spacing: 4px;"
               />
+
+              <!-- زر إعادة إرسال الرمز مع التايمر -->
+              <div class="d-flex justify-center align-center mb-4">
+                <v-btn
+                  variant="text"
+                  size="small"
+                  color="primary"
+                  :disabled="timer > 0 || resendLoading"
+                  :loading="resendLoading"
+                  @click="handleResendOtp"
+                  class="font-weight-bold"
+                >
+                  <v-icon icon="ri-refresh-line" size="small" class="me-1" />
+                  {{ timer > 0 ? `إعادة إرسال الرمز خلال (${timer}ث)` : 'إعادة إرسال رمز التحقق' }}
+                </v-btn>
+              </div>
 
               <AppInput
                 v-model="form.password"
@@ -117,8 +141,8 @@
 </template>
 
 <script setup>
-// تعليق عربي: مكون استعادة كلمة المرور عبر الـ OTP مع دعم التجاوب الكامل للأجهزة المحمولة وتقليل حشو مسافات الصفحة
-import { ref, computed, onMounted } from 'vue';
+// تعليق عربي: مكون استعادة كلمة المرور عبر الـ OTP مع دعم التجاوب الكامل للأجهزة المحمولة وتحديث رمز التحقق ومؤقت إعادة الإرسال
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { authService } from '@/api';
 import { required, email } from '@/utils/validators';
@@ -137,13 +161,33 @@ const step = ref(1);
 const formRefStep1 = ref(null);
 const formRefStep2 = ref(null);
 const loading = ref(false);
+const resendLoading = ref(false);
 const sent = ref(false);
+const timer = ref(0);
+let timerInterval = null;
 
 const form = ref({
   email: '',
   otp: '',
   password: '',
   password_confirmation: '',
+});
+
+// دالة بدء التايمر التنازلي
+const startTimer = () => {
+  timer.value = 60;
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    if (timer.value > 0) {
+      timer.value--;
+    } else {
+      clearInterval(timerInterval);
+    }
+  }, 1000);
+};
+
+onUnmounted(() => {
+  if (timerInterval) clearInterval(timerInterval);
 });
 
 // استقبال البارامترات تلقائياً من الرابط عند نقر زر الإيميل المباشر
@@ -180,12 +224,34 @@ const handleSendOtp = async () => {
 
   loading.value = true;
   try {
-    await authService.forgotPassword({ email: form.value.email });
+    await authService.forgotPassword({
+      email: form.value.email,
+      frontend_url: window.location.origin + window.location.pathname,
+    });
     step.value = 2;
+    startTimer();
   } catch (error) {
     // الأخطاء تعالج تلقائياً في axios拦截器 أو نظام التنبيهات العام
   } finally {
     loading.value = false;
+  }
+};
+
+// إعادة إرسال الـ OTP
+const handleResendOtp = async () => {
+  if (timer.value > 0 || resendLoading.value) return;
+
+  resendLoading.value = true;
+  try {
+    await authService.forgotPassword({
+      email: form.value.email,
+      frontend_url: window.location.origin + window.location.pathname,
+    });
+    startTimer();
+  } catch (error) {
+    // الأخطاء معالجة
+  } finally {
+    resendLoading.value = false;
   }
 };
 
