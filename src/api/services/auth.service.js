@@ -92,7 +92,33 @@ class AuthService {
       const response = await apiClient.post('forgot-password', data);
 
       if (showToast) {
-        toast.success(response.data.message || 'تم إرسال رابط الاستعادة');
+        toast.success(response.data.message || 'تم إرسال كود التحقق بنجاح');
+      }
+
+      if (loading) userStore.loadingApi = false;
+      return response.data;
+    } catch (error) {
+      if (loading) userStore.loadingApi = false;
+
+      throw error;
+    }
+  }
+
+  /**
+   * Reset Password
+   * @param {Object} data - { email, otp, password, password_confirmation }
+   */
+  async resetPassword(data, options = {}) {
+    const { showToast = true, loading = true } = options;
+    const userStore = useUserStore();
+
+    if (loading) userStore.loadingApi = true;
+
+    try {
+      const response = await apiClient.post('reset-password', data);
+
+      if (showToast) {
+        toast.success(response.data.message || 'تم إعادة تعيين كلمة المرور بنجاح');
       }
 
       if (loading) userStore.loadingApi = false;

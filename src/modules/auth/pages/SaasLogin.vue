@@ -79,6 +79,7 @@
               <label class="saas-field-label">رقم الهاتف أو البريد الإلكتروني</label>
               <AppInput
                 v-model="form.login"
+                autocomplete="username"
                 placeholder="أدخل بريدك أو رقم هاتفك"
                 :rules="[required]"
                 prepend-inner-icon="ri-building-line"
