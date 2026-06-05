@@ -25,6 +25,12 @@ export const useappState = defineStore('appState', {
     percentageTool: {
       isOpen: false,
     },
+    // SaaS Limits Dialog Global State
+    saasLimit: {
+      isOpen: false,
+      resource: '',
+      message: '',
+    },
   }),
   actions: {
     openCalculator() {
@@ -58,6 +64,16 @@ export const useappState = defineStore('appState', {
         severity: 'info',
         message: type === 'suggestion' ? 'اقتراح جديد' : 'بلاغ عن مشكلة',
       });
+    },
+    openSaasLimit(resource, message) {
+      this.saasLimit = {
+        isOpen: true,
+        resource: resource || 'resources',
+        message: message || 'لقد وصلت للحد الأقصى للاستخدام.',
+      };
+    },
+    closeSaasLimit() {
+      this.saasLimit.isOpen = false;
     },
   },
 });

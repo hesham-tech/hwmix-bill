@@ -205,20 +205,54 @@
       max-width="500"
     >
       <v-form ref="passwordFormRef" @submit.prevent="handleUpdatePassword">
-        <v-alert type="info" variant="tonal" class="mb-6 rounded-lg text-caption" density="compact">
-          يجب أن تحتوي كلمة المرور على 8 أحرف على الأقل.
+        <v-alert type="info" variant="tonal" class="mb-4 rounded-lg text-caption" density="compact">
+          يجب أن تحتوي كلمة المرور على 8 أحرف على الأقل وتكون مزيجاً من الأحرف والأرقام.
         </v-alert>
 
         <AppInput
           v-model="passwordForm.password"
-          label="كلمة المرور الجديدة"
+          label="كلمة المرور الجديدة *"
           :type="showPassword ? 'text' : 'password'"
           prepend-inner-icon="ri-lock-2-line"
           :append-inner-icon="showPassword ? 'ri-eye-line' : 'ri-eye-off-line'"
           @click:append-inner="showPassword = !showPassword"
           :rules="[rules.required, rules.minLength(8)]"
           required
+          class="mb-1"
         />
+
+        <!-- مؤشر قوة كلمة المرور -->
+        <div class="strength-meter mb-4" v-if="passwordForm.password.length > 0">
+          <div class="strength-bars">
+            <div v-for="n in 4" :key="n" class="strength-bar"
+              :class="{ 'strength-bar--active': passwordStrength >= n, [`strength-bar--${passwordStrengthColor}`]: passwordStrength >= n }">
+            </div>
+          </div>
+          <span class="strength-label" :class="`text-${passwordStrengthColor}`">{{ passwordStrengthLabel }}</span>
+        </div>
+
+        <AppInput
+          v-model="passwordForm.password_confirmation"
+          label="تأكيد كلمة المرور الجديدة *"
+          :type="showPasswordConfirm ? 'text' : 'password'"
+          prepend-inner-icon="ri-lock-check-line"
+          :append-inner-icon="showPasswordConfirm ? 'ri-eye-line' : 'ri-eye-off-line'"
+          @click:append-inner="showPasswordConfirm = !showPasswordConfirm"
+          :rules="[rules.required, confirmPasswordRule]"
+          required
+        />
+
+        <!-- علامة تطابق كلمتي المرور -->
+        <div v-if="passwordForm.password_confirmation && passwordForm.password" class="match-indicator mb-2">
+          <template v-if="passwordForm.password === passwordForm.password_confirmation">
+            <v-icon icon="ri-checkbox-circle-line" size="14" class="me-1" color="success" />
+            <span class="text-success text-caption font-weight-bold">كلمتا المرور متطابقتان</span>
+          </template>
+          <template v-else>
+            <v-icon icon="ri-close-circle-line" size="14" class="me-1" color="error" />
+            <span class="text-error text-caption font-weight-bold">كلمتا المرور غير متطابقتين</span>
+          </template>
+        </div>
       </v-form>
 
       <template #actions>
@@ -280,6 +314,7 @@ const handleResetGuidance = async () => {
   }
 };
 const showPassword = ref(false);
+const showPasswordConfirm = ref(false);
 const errors = ref({});
 
 const formData = reactive({
@@ -300,7 +335,34 @@ const cropperImageSrc = ref('');
 
 const passwordForm = reactive({
   password: '',
+  password_confirmation: '',
 });
+
+// مؤشر قوة كلمة المرور
+const passwordStrength = computed(() => {
+  const p = passwordForm.password;
+  if (!p) return 0;
+  let score = 0;
+  if (p.length >= 8) score++;
+  if (p.length >= 12) score++;
+  if (/[A-Z]/.test(p) || /[a-z]/.test(p)) score++;
+  if (/[0-9]/.test(p) && /[^A-Za-z0-9]/.test(p)) score++;
+  return Math.min(score, 4);
+});
+
+const passwordStrengthColor = computed(() => {
+  const map = ['', 'error', 'warning', 'blue', 'success'];
+  return map[passwordStrength.value] || '';
+});
+
+const passwordStrengthLabel = computed(() => {
+  const map = ['', 'ضعيفة جداً', 'ضعيفة', 'جيدة', 'قوية جداً'];
+  return map[passwordStrength.value] || '';
+});
+
+const confirmPasswordRule = (val) => {
+  return val === passwordForm.password || 'تأكيد كلمة المرور غير متطابق';
+};
 
 const rules = {
   required: v => !!v || 'هذا الحقل مطلوب',
@@ -396,6 +458,7 @@ const handleUpdatePassword = async () => {
   try {
     await api.update(formData.id, {
       password: passwordForm.password,
+      password_confirmation: passwordForm.password_confirmation,
     }, { showSuccess: false });
     toast.success('تم تحديث كلمة المرور بنجاح');
     closePasswordDialog();
@@ -411,7 +474,9 @@ const handleUpdatePassword = async () => {
 const closePasswordDialog = () => {
   showPasswordDialog.value = false;
   passwordForm.password = '';
+  passwordForm.password_confirmation = '';
   showPassword.value = false;
+  showPasswordConfirm.value = false;
 };
 
 onMounted(() => {
@@ -496,5 +561,39 @@ onMounted(() => {
 /* Ensure content doesn't get hidden behind the sticky footer */
 .pb-16 {
   padding-bottom: 100px !important;
+}
+
+/* Password Strength Meter */
+.strength-meter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+.strength-bars {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+}
+.strength-bar {
+  height: 4px;
+  flex: 1;
+  border-radius: 2px;
+  background: rgba(0, 0, 0, 0.06);
+  transition: background 0.3s ease;
+}
+.strength-bar--active.strength-bar--error { background: #f87171; }
+.strength-bar--active.strength-bar--warning { background: #fbbf24; }
+.strength-bar--active.strength-bar--blue { background: #60a5fa; }
+.strength-bar--active.strength-bar--success { background: #4ade80; }
+.strength-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.match-indicator {
+  display: flex;
+  align-items: center;
+  margin-top: 4px;
 }
 </style>

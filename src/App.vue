@@ -4,6 +4,7 @@
     <ErrorDialog />
     <CaptureOverlay />
     <AppPrinter />
+    <SaaSLimitDialog />
 
     <!-- Floating Action Button for Manual Reports/Feedback -->
     <v-tooltip location="top">
@@ -36,6 +37,7 @@ import { ref, onMounted, watch } from 'vue';
 import ErrorDialog from '@/modules/support/components/ErrorDialog.vue';
 import CaptureOverlay from '@/modules/capture/components/CaptureOverlay.vue';
 import AppPrinter from '@/modules/print/components/PrintDriver.vue';
+import SaaSLimitDialog from '@/components/common/SaaSLimitDialog.vue';
 import { useLocaleStore } from '@/stores/locale';
 import { useUserStore } from '@/stores/user';
 import { useNotifications } from '@/plugins/notification';

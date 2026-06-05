@@ -143,11 +143,21 @@ apiClient.interceptors.response.use(
     // 403: Forbidden - No permission
     if (error?.response?.status === 403) {
       const serverMessage = error?.response?.data?.message;
-      toast.error(serverMessage || 'ليس لديك صلاحية للوصول إلى هذا المورد.');
-      router.push({
-        path: '/app/forbidden',
-        query: { message: serverMessage },
-      });
+      const errorCode = error?.response?.data?.error_code;
+
+      if (errorCode === 'SUBSCRIPTION_LIMIT_REACHED') {
+        const resource = error?.response?.data?.errors?.resource || 'resources';
+        import('@/stores/appState').then(m => {
+          const appState = m.useappState();
+          appState.openSaasLimit(resource, serverMessage);
+        });
+      } else {
+        toast.error(serverMessage || 'ليس لديك صلاحية للوصول إلى هذا المورد.');
+        router.push({
+          path: '/app/forbidden',
+          query: { message: serverMessage },
+        });
+      }
       return Promise.reject(error);
     }
 
