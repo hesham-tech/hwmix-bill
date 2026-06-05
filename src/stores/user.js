@@ -76,7 +76,12 @@ export const useUserStore = defineStore('user', () => {
     // Helper to determine if a permission strictly requires Super Admin or Company management permissions
     const isRestrictedPermission = p => {
       if (typeof p !== 'string') return false;
-      return p === PERMISSIONS.ADMIN_SUPER || p.startsWith('companies.');
+      return p === PERMISSIONS.ADMIN_SUPER ||
+             p.startsWith('companies.') ||
+             p.startsWith('subscriptions.') ||
+             p.startsWith('plans.') ||
+             p.startsWith('backups.') ||
+             p.startsWith('error_reports.');
     };
 
     // Company admin bypasses everything EXCEPT super admin and company management permissions

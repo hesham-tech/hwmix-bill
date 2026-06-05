@@ -236,6 +236,7 @@
         <!-- Data Table (Local / Client Side) -->
         <v-data-table
           v-if="local"
+          :key="processedHeadersKey"
           :item-value="itemValue"
           v-model:items-per-page="itemsPerPageModel"
           v-model:page="pageModel"
@@ -256,7 +257,7 @@
           :no-data-text="emptyText"
           :hide-default-footer="true"
           :row-props="processedRowProps"
-          @click:row="(event, { item }) => $emit('click:row', item)"
+          @click:row="(event, { item }) => $emit('click:row', item && item.raw ? item.raw : item)"
           @contextmenu:row="handleContextMenu"
         >
           <!-- Common Slots -->
@@ -331,6 +332,7 @@
         <!-- Data Table (Server Side) -->
         <v-data-table-server
           v-else-if="!virtual"
+          :key="processedHeadersKey"
           :item-value="itemValue"
           v-model:items-per-page="itemsPerPageModel"
           v-model:page="pageModel"
@@ -353,7 +355,7 @@
           :hide-default-footer="true"
           :row-props="processedRowProps"
           @update:options="handleOptionsUpdate"
-          @click:row="(event, { item }) => $emit('click:row', item)"
+          @click:row="(event, { item }) => $emit('click:row', item && item.raw ? item.raw : item)"
           @contextmenu:row="handleContextMenu"
         >
           <!-- Common Slots -->
@@ -438,6 +440,7 @@
         <!-- Data Table (Virtual Scrolling) -->
         <v-data-table-virtual
           v-else
+          :key="processedHeadersKey"
           :item-value="itemValue"
           v-model:sort-by="sortByModel"
           v-model:expanded="expandedModel"
@@ -453,7 +456,7 @@
           striped="even"
           :no-data-text="emptyText"
           :row-props="processedRowProps"
-          @click:row="(event, { item }) => $emit('click:row', item)"
+          @click:row="(event, { item }) => $emit('click:row', item && item.raw ? item.raw : item)"
           @contextmenu:row="handleContextMenu"
         >
           <!-- Common Slots -->
@@ -1094,17 +1097,13 @@ const processedHeaders = computed(() => {
     }
   }
 
-  // Filter columns on mobile to ensure a clean layout
-  if (isMobile.value && !isCustomizing.value) {
-    const mandatory = finalHeaders.filter(h => h.mandatory || h.showOnMobile);
-    const nonMandatory = finalHeaders.filter(h => !h.mandatory && !h.showOnMobile);
-    const allowedNonMandatoryCount = Math.max(0, props.mobileHeadersCount - mandatory.length);
-    const selectedNonMandatory = nonMandatory.slice(0, allowedNonMandatoryCount);
-    
-    finalHeaders = finalHeaders.filter(h => h.mandatory || h.showOnMobile || selectedNonMandatory.includes(h));
-  }
-
   return finalHeaders;
+});
+
+const processedHeadersKey = computed(() => {
+  if (!props.tableKey) return undefined;
+  const headerKeys = processedHeaders.value.map(h => h.key).join(',');
+  return `${props.tableKey}-${headerKeys}-${isCustomizing.value ? 'customizing' : 'normal'}`;
 });
 
 const hiddenHeaders = computed(() => {
@@ -1426,13 +1425,13 @@ const menuModel = ref(false);
 const menuProps = reactive({ x: 0, y: 0, item: null });
 
 const handleContextMenu = (event, { item }) => {
-
+  // تعليق عربي: إلغاء السلوك الافتراضي للمتصفح وجلب العنصر الخام (raw) إذا كان مغلفاً بواسطة Vuetify
   event.preventDefault();
   menuModel.value = false;
   nextTick(() => {
     menuProps.x = event.clientX;
     menuProps.y = event.clientY;
-    menuProps.item = item;
+    menuProps.item = item && item.raw ? item.raw : item;
     menuModel.value = true;
   });
 };

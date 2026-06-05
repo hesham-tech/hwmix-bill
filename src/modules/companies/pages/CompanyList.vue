@@ -25,6 +25,7 @@
       icon="ri-building-line"
       empty-state-type="companies"
       @update:options="onTableOptionsUpdate"
+      @view="handleView"
       @edit="handleEdit"
       @delete="handleDelete"
     >
@@ -129,12 +130,12 @@
       </template>
     </AppDataTable>
 
-    <!-- Create/Edit Dialog -->
+    <!-- Create/Edit/View Dialog -->
     <AppDialog
       v-model="showDialog"
-      :title="isEdit ? 'تعديل بيانات الشركة' : 'إضافة شركة جديدة'"
-      subtitle="أدخل بيانات وتفاصيل الشركة"
-      :icon="isEdit ? 'ri-edit-line' : 'ri-add-line'"
+      :title="isViewOnly ? 'تفاصيل الشركة' : (isEdit ? 'تعديل بيانات الشركة' : 'إضافة شركة جديدة')"
+      :subtitle="isViewOnly ? 'عرض تفاصيل الشركة الحالية' : 'أدخل بيانات وتفاصيل الشركة'"
+      :icon="isViewOnly ? 'ri-eye-line' : (isEdit ? 'ri-edit-line' : 'ri-add-line')"
       max-width="650"
       hide-actions
     >
@@ -142,15 +143,19 @@
         <v-row dense>
           <!-- Logo Upload Zone -->
           <v-col cols="12" class="text-center mb-4">
-            <div class="logo-uploader-zone mx-auto cursor-pointer" @click="showMediaGallery = true">
+            <div 
+              class="logo-uploader-zone mx-auto" 
+              :class="{ 'cursor-pointer': !isViewOnly }" 
+              @click="!isViewOnly ? (showMediaGallery = true) : null"
+            >
               <v-avatar size="90" rounded="lg" color="grey-lighten-4" class="border logo-preview-avatar">
                 <v-img v-if="formData.logo" :src="formData.logo" contain />
                 <div v-else class="text-center text-grey d-flex flex-column align-center justify-center">
                   <v-icon icon="ri-image-add-line" size="28" class="mb-1" />
-                  <span class="text-xxs">اختر شعاراً</span>
+                  <span class="text-xxs">{{ isViewOnly ? 'لا يوجد شعار' : 'اختر شعاراً' }}</span>
                 </div>
               </v-avatar>
-              <div class="mt-2 text-caption text-primary font-weight-medium">تغيير الشعار</div>
+              <div v-if="!isViewOnly" class="mt-2 text-caption text-primary font-weight-medium">تغيير الشعار</div>
             </div>
           </v-col>
 
@@ -163,6 +168,7 @@
               required
               :rules="[v => !!v || 'اسم الشركة مطلوب']"
               prepend-inner-icon="ri-building-line"
+              :readonly="isViewOnly"
             />
           </v-col>
 
@@ -173,6 +179,7 @@
               placeholder="الاسم الكامل لمالك الشركة..."
               variant="outlined"
               prepend-inner-icon="ri-user-line"
+              :readonly="isViewOnly"
             />
           </v-col>
 
@@ -183,6 +190,7 @@
               placeholder="مثال: تجارة التجزئة، خدمات برمجية..."
               variant="outlined"
               prepend-inner-icon="ri-service-line"
+              :readonly="isViewOnly"
             />
           </v-col>
 
@@ -192,6 +200,7 @@
               label="رقم الهاتف"
               variant="outlined"
               prepend-inner-icon="ri-phone-line"
+              :readonly="isViewOnly"
             />
           </v-col>
 
@@ -202,6 +211,7 @@
               variant="outlined"
               prepend-inner-icon="ri-mail-line"
               :rules="[v => !v || /.+@.+\..+/.test(v) || 'بريد إلكتروني غير صحيح']"
+              :readonly="isViewOnly"
             />
           </v-col>
 
@@ -213,14 +223,16 @@
               variant="outlined"
               prepend-inner-icon="ri-map-pin-line"
               rows="2"
+              :readonly="isViewOnly"
             />
           </v-col>
         </v-row>
       </v-form>
 
       <template #actions>
-        <AppButton variant="tonal" color="grey" @click="showDialog = false">إلغاء</AppButton>
+        <AppButton variant="tonal" color="grey" @click="showDialog = false">{{ isViewOnly ? 'إغلاق' : 'إلغاء' }}</AppButton>
         <AppButton
+          v-if="!isViewOnly"
           color="primary"
           :loading="saving"
           :disabled="!isFormValid"
@@ -256,7 +268,8 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { useApi } from '@/composables/useApi';
 import { useUserStore } from '@/stores/user';
 import { PERMISSIONS } from '@/config/permissions';
@@ -267,6 +280,8 @@ import MediaGallery from '@/components/common/MediaGallery.vue';
 
 const userStore = useUserStore();
 const api = useApi('/api/companies');
+const route = useRoute();
+const router = useRouter();
 
 // Check Permissions
 const canCreate = computed(() => userStore.hasPermission(PERMISSIONS.COMPANIES_CREATE));
@@ -337,15 +352,38 @@ const saving = ref(false);
 const deleting = ref(false);
 const formRef = ref(null);
 const isFormValid = ref(false);
+const isViewOnly = ref(false);
+
+// تعليق عربي: مراقبة معلمة الاستعلام لفتح حوار إضافة الشركة تلقائياً عند الدخول من القائمة الجانبية
+watch(
+  () => route.query.action,
+  (action) => {
+    if (action === 'create') {
+      if (canCreate.value) {
+        handleCreate();
+      } else {
+        toast.error('ليس لديك صلاحية إضافة شركة جديدة');
+      }
+    }
+  },
+  { immediate: true }
+);
+
+// تعليق عربي: مسح معلمة الاستعلام من الرابط عند إغلاق حوار الإضافة/التعديل
+watch(showDialog, (newVal) => {
+  if (!newVal && route.query.action === 'create') {
+    router.replace({ query: { ...route.query, action: undefined } });
+  }
+});
 
 // Table Settings
 const headers = [
-  { title: 'اسم الشركة والنشاط', key: 'name', align: 'start', sortable: true },
+  { title: 'اسم الشركة والنشاط', key: 'name', align: 'start', sortable: true, mandatory: true },
   { title: 'المدير / المالك', key: 'owner_name', sortable: true },
   { title: 'رقم الهاتف', key: 'phone', sortable: false },
   { title: 'الفروع', key: 'branches_count', align: 'center', sortable: false },
   { title: 'تاريخ الإنشاء', key: 'created_at', sortable: true },
-  { title: 'الإجراءات', key: 'actions', sortable: false, align: 'end' },
+  { title: 'الإجراءات', key: 'actions', sortable: false, align: 'end', mandatory: true },
 ];
 
 const formData = ref({
@@ -377,6 +415,7 @@ const handleCreate = () => {
     logo: '',
     images_ids: [],
   };
+  isViewOnly.value = false;
   showDialog.value = true;
 };
 
@@ -392,6 +431,24 @@ const handleEdit = (item) => {
     logo: item.logo || '',
     images_ids: [],
   };
+  isViewOnly.value = false;
+  showDialog.value = true;
+};
+
+// تعليق عربي: دالة عرض تفاصيل الشركة الحالية في حوار العرض (Read-Only)
+const handleView = (item) => {
+  selectedItem.value = item;
+  formData.value = {
+    name: item.name || '',
+    owner_name: item.owner_name || '',
+    field: item.field || '',
+    phone: item.phone || '',
+    email: item.email || '',
+    address: item.address || '',
+    logo: item.logo || '',
+    images_ids: [],
+  };
+  isViewOnly.value = true;
   showDialog.value = true;
 };
 
@@ -443,10 +500,10 @@ const confirmDelete = async () => {
   try {
     if (isBatchDelete.value) {
       // Bulk delete using API custom request
-      await api.request('POST', 'companies/delete', { item_ids: selectedItems.value }, { successMessage: 'تم حذف الشركات المحددة بنجاح' });
+      await api.request('POST', 'delete', { item_ids: selectedItems.value }, { successMessage: 'تم حذف الشركات المحددة بنجاح' });
       selectedItems.value = [];
     } else {
-      await api.request('POST', 'companies/delete', { item_ids: [selectedItem.value.id] }, { successMessage: 'تم حذف الشركة بنجاح' });
+      await api.request('POST', 'delete', { item_ids: [selectedItem.value.id] }, { successMessage: 'تم حذف الشركة بنجاح' });
     }
     showDeleteDialog.value = false;
     refresh();

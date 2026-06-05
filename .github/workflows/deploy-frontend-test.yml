@@ -5,6 +5,10 @@ on:
     branches:
       - restructure-v2 # هذا هو البرانش الذي تعمل عليه حالياً
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -47,3 +51,8 @@ jobs:
           rsync -avz --delete -e "ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no -o ConnectTimeout=30 -o ServerAliveInterval=15" \
           --rsync-path="mkdir -p /home/u715355537/domains/hwnix.com/public_html/bill-teste/ && rsync" \
           ./dist/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/u715355537/domains/hwnix.com/public_html/bill-teste/
+
+      - name: Run Post-Deployment Health Check
+        run: |
+          echo "🔍 Running Frontend health check on test subdomain..."
+          curl -f -I -k https://bill-teste.hwnix.com || curl -f -I -k https://hwnix.com/bill-teste/ || exit 1

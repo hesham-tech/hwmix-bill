@@ -292,7 +292,7 @@
   <v-main class="main-content">
     <!-- حزام تحذير قرب انتهاء ليميت الباقة (يظهر تلقائياً عند 90% استهلاك لأي مورد) -->
     <transition name="expand">
-      <div v-if="nearingLimitResources.length > 0" class="limit-warning-bar bg-warning-glow border-b py-2 px-4 d-flex align-center justify-space-between text-caption font-weight-bold">
+      <div v-if="nearingLimitResources.length > 0" class="limit-warning-bar border-b py-2 px-4 d-flex align-center justify-space-between text-caption font-weight-bold">
         <div class="d-flex align-center ga-2 flex-wrap">
           <v-icon icon="ri-error-warning-fill" color="warning" class="animate-pulse me-1" size="18" />
           <span class="text-warning-light">تنبيه استهلاك الباقة:</span>
@@ -996,24 +996,39 @@ watch(
 
 /* Limit Warning Bar Styles */
 .limit-warning-bar {
-  background: linear-gradient(90deg, rgba(217, 119, 6, 0.12), rgba(245, 158, 11, 0.04));
-  border-bottom: 1px solid rgba(245, 158, 11, 0.22) !important;
-  color: #fef08a;
+  background: #fffbeb;
+  border-bottom: 1px solid #fde68a !important;
+  color: #92400e !important;
   z-index: 10;
   position: relative;
   transition: all 0.3s ease;
 }
 
 .text-warning-light {
-  color: #fbbf24 !important;
+  color: #b45309 !important;
 }
 
 .text-amber-light {
-  color: #fef08a !important;
+  color: #d97706 !important;
 }
 
 .bg-warning-glow {
   background: rgba(245, 158, 11, 0.08) !important;
+}
+
+/* Dark Theme overrides for Limit Warning Bar */
+.v-theme--dark .limit-warning-bar {
+  background: linear-gradient(90deg, rgba(217, 119, 6, 0.16), rgba(245, 158, 11, 0.05)) !important;
+  border-bottom: 1px solid rgba(245, 158, 11, 0.28) !important;
+  color: #fef08a !important;
+}
+
+.v-theme--dark .text-warning-light {
+  color: #fbbf24 !important;
+}
+
+.v-theme--dark .text-amber-light {
+  color: #fef08a !important;
 }
 
 @keyframes warningPulse {

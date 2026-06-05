@@ -437,6 +437,15 @@ export default [
         ],
       },
       {
+        title: 'إضافة شركة جديدة',
+        to: '/app/companies?action=create',
+        icon: 'ri-add-box-line',
+        permission: [
+          PERMISSIONS.ADMIN_SUPER,
+          PERMISSIONS.COMPANIES_CREATE,
+        ],
+      },
+      {
         title: 'باقات SaaS',
         to: '/app/saas-plans',
         icon: 'ri-vip-crown-line',
