@@ -117,7 +117,7 @@ import { ref, onMounted, watch } from 'vue';
 import taskService from '@/api/services/task.service';
 import TaskCreateDialog from '../components/TaskCreateDialog.vue';
 import TaskDetailsDialog from '../components/TaskDetailsDialog.vue';
-import dayjs from 'dayjs';
+import { formatDate as globalFormatDate } from '@/utils/formatters';
 
 const tasks = ref([]);
 const loading = ref(true);
@@ -183,7 +183,7 @@ const getStatusColor = s => {
 const translatePriority = p => priorityItems.find(i => i.value === p)?.title || p;
 const translateStatus = s => statusItems.find(i => i.value === s)?.title || s;
 
-const formatDate = d => (d ? dayjs(d).format('YYYY-MM-DD HH:mm') : 'بدون موعد');
+const formatDate = d => (d ? globalFormatDate(d) : 'بدون موعد');
 
 const setupEchoListeners = () => {
   const companyId = JSON.parse(localStorage.getItem('user'))?.active_company_id;

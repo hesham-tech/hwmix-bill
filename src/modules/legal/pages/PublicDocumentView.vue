@@ -98,6 +98,7 @@ import apiClient from '@/services/api';
 import { useAuthStore } from '@/stores/auth';
 import { useUserStore } from '@/stores/user';
 import { useBranding } from '@/composables/useBranding';
+import { formatDate as globalFormatDate } from '@/utils/formatters';
 
 const route = useRoute();
 const authStore = useAuthStore();
@@ -147,12 +148,7 @@ const fetchLegalDocument = async (key) => {
 
 const formatDate = (dateString) => {
   if (!dateString) return 'غير محدد';
-  const date = new Date(dateString);
-  return date.toLocaleDateString('ar-EG', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
+  return globalFormatDate(dateString);
 };
 
 const printDocument = () => {

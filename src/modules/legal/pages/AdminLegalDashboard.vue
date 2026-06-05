@@ -316,6 +316,7 @@ import { useRouter } from 'vue-router';
 import { getAll, saveItem, deleteOne } from '@/services/api';
 import apiClient from '@/services/api';
 import { toast } from 'vue3-toastify';
+import { formatDateTime } from '@/utils/formatters';
 
 const router = useRouter();
 const loading = ref(true);
@@ -368,14 +369,7 @@ const getStatusText = (status) => {
 
 const formatDate = (dateString) => {
   if (!dateString) return 'مسودة (لم ينشر)';
-  const date = new Date(dateString);
-  return date.toLocaleDateString('ar-EG', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+  return formatDateTime(dateString);
 };
 
 const loadDocuments = async () => {

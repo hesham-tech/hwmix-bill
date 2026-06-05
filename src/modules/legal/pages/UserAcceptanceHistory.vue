@@ -127,6 +127,7 @@ import { getAll } from '@/services/api';
 import { toast } from 'vue3-toastify';
 import { useAuthStore } from '@/stores/auth';
 import { useUserStore } from '@/stores/user';
+import { formatDateTime } from '@/utils/formatters';
 
 const authStore = useAuthStore();
 const userStore = useUserStore();
@@ -145,14 +146,7 @@ const selectedAcceptance = ref(null);
 
 const formatDate = (dateString) => {
   if (!dateString) return '';
-  const date = new Date(dateString);
-  return date.toLocaleDateString('ar-EG', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+  return formatDateTime(dateString);
 };
 
 const loadHistory = async () => {

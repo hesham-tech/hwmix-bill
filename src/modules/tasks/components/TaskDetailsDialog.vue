@@ -136,7 +136,7 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue';
 import taskService from '@/api/services/task.service';
-import dayjs from 'dayjs';
+import { formatDate as globalFormatDate, formatDateTime as globalFormatDateTime } from '@/utils/formatters';
 
 const props = defineProps(['modelValue', 'taskId']);
 const emit = defineEmits(['update:modelValue', 'updated']);
@@ -229,8 +229,8 @@ const getStatusColor = s => {
 
 const translateStatus = s => statusItems.find(i => i.value === s)?.title || s;
 
-const formatDate = d => (d ? dayjs(d).format('YYYY-MM-DD') : 'بدون موعد');
-const formatDateTime = d => dayjs(d).format('DD/MM HH:mm');
+const formatDate = d => (d ? globalFormatDate(d) : 'بدون موعد');
+const formatDateTime = d => (d ? globalFormatDateTime(d) : '');
 
 watch(() => props.taskId, fetchTask);
 

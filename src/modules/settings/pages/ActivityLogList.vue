@@ -179,6 +179,7 @@ import { usePermissions } from '@/composables/usePermissions';
 import { PERMISSIONS } from '@/config/permissions';
 import { useApi } from '@/composables/useApi';
 import AppDataTable from '@/components/common/AppDataTable.vue';
+import { formatDate as globalFormatDate, formatTime } from '@/utils/formatters';
 
 const props = defineProps({
   userId: { type: [Number, String], default: null },
@@ -319,10 +320,9 @@ const getBrowserLabel = ua => {
 
 const formatDate = date => {
   if (!date) return { date: '-', time: '' };
-  const d = new Date(date);
   return {
-    date: d.toLocaleDateString('ar-EG'),
-    time: d.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }),
+    date: globalFormatDate(date),
+    time: formatTime(date),
   };
 };
 

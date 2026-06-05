@@ -128,6 +128,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import apiClient from '@/services/api';
 import { toast } from 'vue3-toastify';
+import { formatDate as globalFormatDate, formatDateTime } from '@/utils/formatters';
 
 const route = useRoute();
 const loading = ref(true);
@@ -147,24 +148,12 @@ const filteredAcceptances = computed(() => {
 
 const formatDate = (dateString) => {
   if (!dateString) return '';
-  const date = new Date(dateString);
-  return date.toLocaleDateString('ar-EG', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+  return formatDateTime(dateString);
 };
 
 const formatPublishDate = (dateString) => {
   if (!dateString) return 'مسودة (لم ينشر)';
-  const date = new Date(dateString);
-  return date.toLocaleDateString('ar-EG', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
+  return globalFormatDate(dateString);
 };
 
 const loadReport = async () => {

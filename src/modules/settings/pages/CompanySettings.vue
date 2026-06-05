@@ -11,13 +11,7 @@
       <!-- Tabs Column (Desktop) -->
       <v-col cols="12" md="3" class="d-none d-md-block">
         <v-card flat border class="pa-2 rounded-xl mb-4">
-          <v-tabs
-            v-model="activeTab"
-            direction="vertical"
-            color="primary"
-            class="company-settings-tabs tour-settings-tabs"
-            grow
-          >
+          <v-tabs v-model="activeTab" direction="vertical" color="primary" class="company-settings-tabs tour-settings-tabs" grow>
             <v-tab
               v-for="tab in tabsList"
               :key="tab.value"
@@ -42,7 +36,7 @@
             :key="tab.value"
             type="button"
             class="mobile-tab-pill"
-            :class="[{ 'active': activeTab === tab.value }, 'tour-settings-tab-' + tab.value]"
+            :class="[{ active: activeTab === tab.value }, 'tour-settings-tab-' + tab.value]"
             @click="activeTab = tab.value"
           >
             <v-icon :icon="tab.icon" size="18" class="me-2" />
@@ -77,7 +71,8 @@
                       </div>
                       <h3 class="text-subtitle-1 font-weight-bold mb-1">شعار الشركة</h3>
                       <p class="text-caption text-grey-darken-1 px-2">
-                        سيظهر هذا الشعار في الفواتير، التقارير، وفي القائمة الجانبية للنظام. يدعم النظام الصور المتجهية (SVG) لضمان مظهر نقي وعالي الدقة دائماً.
+                        سيظهر هذا الشعار في الفواتير، التقارير، وفي القائمة الجانبية للنظام. يدعم النظام الصور المتجهية (SVG) لضمان مظهر نقي وعالي
+                        الدقة دائماً.
                       </p>
                       <v-btn
                         v-if="formData.logo"
@@ -108,8 +103,23 @@
                           :error-messages="errors.name"
                         >
                           <template v-if="isFieldChanged('name')" #append-inner>
-                            <v-btn icon="ri-check-line" variant="text" color="success" size="x-small" density="comfortable" class="me-1" @click.stop="handleSave" />
-                            <v-btn icon="ri-close-line" variant="text" color="error" size="x-small" density="comfortable" @click.stop="revertField('name')" />
+                            <v-btn
+                              icon="ri-check-line"
+                              variant="text"
+                              color="success"
+                              size="x-small"
+                              density="comfortable"
+                              class="me-1"
+                              @click.stop="handleSave"
+                            />
+                            <v-btn
+                              icon="ri-close-line"
+                              variant="text"
+                              color="error"
+                              size="x-small"
+                              density="comfortable"
+                              @click.stop="revertField('name')"
+                            />
                           </template>
                         </AppInput>
                       </v-col>
@@ -122,8 +132,23 @@
                           :error-messages="errors.owner_name"
                         >
                           <template v-if="isFieldChanged('owner_name')" #append-inner>
-                            <v-btn icon="ri-check-line" variant="text" color="success" size="x-small" density="comfortable" class="me-1" @click.stop="handleSave" />
-                            <v-btn icon="ri-close-line" variant="text" color="error" size="x-small" density="comfortable" @click.stop="revertField('owner_name')" />
+                            <v-btn
+                              icon="ri-check-line"
+                              variant="text"
+                              color="success"
+                              size="x-small"
+                              density="comfortable"
+                              class="me-1"
+                              @click.stop="handleSave"
+                            />
+                            <v-btn
+                              icon="ri-close-line"
+                              variant="text"
+                              color="error"
+                              size="x-small"
+                              density="comfortable"
+                              @click.stop="revertField('owner_name')"
+                            />
                           </template>
                         </AppInput>
                       </v-col>
@@ -137,8 +162,23 @@
                           :error-messages="errors.tax_number"
                         >
                           <template v-if="isFieldChanged('tax_number')" #append-inner>
-                            <v-btn icon="ri-check-line" variant="text" color="success" size="x-small" density="comfortable" class="me-1" @click.stop="handleSave" />
-                            <v-btn icon="ri-close-line" variant="text" color="error" size="x-small" density="comfortable" @click.stop="revertField('tax_number')" />
+                            <v-btn
+                              icon="ri-check-line"
+                              variant="text"
+                              color="success"
+                              size="x-small"
+                              density="comfortable"
+                              class="me-1"
+                              @click.stop="handleSave"
+                            />
+                            <v-btn
+                              icon="ri-close-line"
+                              variant="text"
+                              color="error"
+                              size="x-small"
+                              density="comfortable"
+                              @click.stop="revertField('tax_number')"
+                            />
                           </template>
                         </AppInput>
                       </v-col>
@@ -152,8 +192,23 @@
                           :error-messages="errors.address"
                         >
                           <template v-if="isFieldChanged('address')" #append-inner>
-                            <v-btn icon="ri-check-line" variant="text" color="success" size="x-small" density="comfortable" class="me-1" @click.stop="handleSave" />
-                            <v-btn icon="ri-close-line" variant="text" color="error" size="x-small" density="comfortable" @click.stop="revertField('address')" />
+                            <v-btn
+                              icon="ri-check-line"
+                              variant="text"
+                              color="success"
+                              size="x-small"
+                              density="comfortable"
+                              class="me-1"
+                              @click.stop="handleSave"
+                            />
+                            <v-btn
+                              icon="ri-close-line"
+                              variant="text"
+                              color="error"
+                              size="x-small"
+                              density="comfortable"
+                              @click.stop="revertField('address')"
+                            />
                           </template>
                         </AppInput>
                       </v-col>
@@ -171,8 +226,23 @@
                       :error-messages="errors.field"
                     >
                       <template v-if="isFieldChanged('field')" #append-inner>
-                        <v-btn icon="ri-check-line" variant="text" color="success" size="x-small" density="comfortable" class="me-1" @click.stop="handleSave" />
-                        <v-btn icon="ri-close-line" variant="text" color="error" size="x-small" density="comfortable" @click.stop="revertField('field')" />
+                        <v-btn
+                          icon="ri-check-line"
+                          variant="text"
+                          color="success"
+                          size="x-small"
+                          density="comfortable"
+                          class="me-1"
+                          @click.stop="handleSave"
+                        />
+                        <v-btn
+                          icon="ri-close-line"
+                          variant="text"
+                          color="error"
+                          size="x-small"
+                          density="comfortable"
+                          @click.stop="revertField('field')"
+                        />
                       </template>
                     </AppInput>
                     <AppInput
@@ -187,8 +257,23 @@
                       :error-messages="errors.description"
                     >
                       <template v-if="isFieldChanged('description')" #append-inner>
-                        <v-btn icon="ri-check-line" variant="text" color="success" size="x-small" density="comfortable" class="me-1" @click.stop="handleSave" />
-                        <v-btn icon="ri-close-line" variant="text" color="error" size="x-small" density="comfortable" @click.stop="revertField('description')" />
+                        <v-btn
+                          icon="ri-check-line"
+                          variant="text"
+                          color="success"
+                          size="x-small"
+                          density="comfortable"
+                          class="me-1"
+                          @click.stop="handleSave"
+                        />
+                        <v-btn
+                          icon="ri-close-line"
+                          variant="text"
+                          color="error"
+                          size="x-small"
+                          density="comfortable"
+                          @click.stop="revertField('description')"
+                        />
                       </template>
                     </AppInput>
                   </AppCard>
@@ -211,8 +296,23 @@
                           :error-messages="errors.phone"
                         >
                           <template v-if="isFieldChanged('phone')" #append-inner>
-                            <v-btn icon="ri-check-line" variant="text" color="success" size="x-small" density="comfortable" class="me-1" @click.stop="handleSave" />
-                            <v-btn icon="ri-close-line" variant="text" color="error" size="x-small" density="comfortable" @click.stop="revertField('phone')" />
+                            <v-btn
+                              icon="ri-check-line"
+                              variant="text"
+                              color="success"
+                              size="x-small"
+                              density="comfortable"
+                              class="me-1"
+                              @click.stop="handleSave"
+                            />
+                            <v-btn
+                              icon="ri-close-line"
+                              variant="text"
+                              color="error"
+                              size="x-small"
+                              density="comfortable"
+                              @click.stop="revertField('phone')"
+                            />
                           </template>
                         </AppInput>
                       </v-col>
@@ -227,8 +327,23 @@
                           :error-messages="errors.email"
                         >
                           <template v-if="isFieldChanged('email')" #append-inner>
-                            <v-btn icon="ri-check-line" variant="text" color="success" size="x-small" density="comfortable" class="me-1" @click.stop="handleSave" />
-                            <v-btn icon="ri-close-line" variant="text" color="error" size="x-small" density="comfortable" @click.stop="revertField('email')" />
+                            <v-btn
+                              icon="ri-check-line"
+                              variant="text"
+                              color="success"
+                              size="x-small"
+                              density="comfortable"
+                              class="me-1"
+                              @click.stop="handleSave"
+                            />
+                            <v-btn
+                              icon="ri-close-line"
+                              variant="text"
+                              color="error"
+                              size="x-small"
+                              density="comfortable"
+                              @click.stop="revertField('email')"
+                            />
                           </template>
                         </AppInput>
                       </v-col>
@@ -244,8 +359,23 @@
                           @blur="sanitizeUrl(formData, 'website')"
                         >
                           <template v-if="isFieldChanged('website')" #append-inner>
-                            <v-btn icon="ri-check-line" variant="text" color="success" size="x-small" density="comfortable" class="me-1" @click.stop="handleSave" />
-                            <v-btn icon="ri-close-line" variant="text" color="error" size="x-small" density="comfortable" @click.stop="revertField('website')" />
+                            <v-btn
+                              icon="ri-check-line"
+                              variant="text"
+                              color="success"
+                              size="x-small"
+                              density="comfortable"
+                              class="me-1"
+                              @click.stop="handleSave"
+                            />
+                            <v-btn
+                              icon="ri-close-line"
+                              variant="text"
+                              color="error"
+                              size="x-small"
+                              density="comfortable"
+                              @click.stop="revertField('website')"
+                            />
                           </template>
                         </AppInput>
                       </v-col>
@@ -278,8 +408,23 @@
                           @blur="sanitizeUrl(link, 'url')"
                         >
                           <template v-if="isFieldChanged('social_links.' + index + '.url')" #append-inner>
-                            <v-btn icon="ri-check-line" variant="text" color="success" size="x-small" density="comfortable" class="me-1" @click.stop="handleSave" />
-                            <v-btn icon="ri-close-line" variant="text" color="error" size="x-small" density="comfortable" @click.stop="revertField('social_links.' + index + '.url')" />
+                            <v-btn
+                              icon="ri-check-line"
+                              variant="text"
+                              color="success"
+                              size="x-small"
+                              density="comfortable"
+                              class="me-1"
+                              @click.stop="handleSave"
+                            />
+                            <v-btn
+                              icon="ri-close-line"
+                              variant="text"
+                              color="error"
+                              size="x-small"
+                              density="comfortable"
+                              @click.stop="revertField('social_links.' + index + '.url')"
+                            />
                           </template>
                         </AppInput>
 
@@ -324,7 +469,9 @@
                         >
                           <template #label>
                             <span class="me-2">تحديث السعر الافتراضي عند الشراء</span>
-                            <AppFieldHelp text="سيقوم النظام تلقائياً بتحديث سعر الشراء الافتراضي في بطاقة المنتج بآخر سعر تم الشراء به في الفاتورة." />
+                            <AppFieldHelp
+                              text="سيقوم النظام تلقائياً بتحديث سعر الشراء الافتراضي في بطاقة المنتج بآخر سعر تم الشراء به في الفاتورة."
+                            />
                           </template>
                         </v-switch>
                       </v-col>
@@ -337,12 +484,7 @@
                   <AppCard title="تفضيلات المنتجات" icon="ri-settings-4-line" icon-color="primary">
                     <v-row dense>
                       <v-col cols="12">
-                        <v-switch
-                          v-model="formData.settings.enable_digital_products"
-                          color="primary"
-                          hide-details
-                          @update:model-value="handleSave"
-                        >
+                        <v-switch v-model="formData.settings.enable_digital_products" color="primary" hide-details @update:model-value="handleSave">
                           <template #label>
                             <span class="me-2">تفعيل ودعم المنتجات الرقمية (الأكواد والملفات)</span>
                             <AppFieldHelp text="يتيح بيع منتجات غير ملموسة وتسليم روابط أو مفاتيح ترخيص للعملاء تلقائياً عند تأكيد البيع." />
@@ -367,8 +509,23 @@
                           prepend-inner-icon="ri-time-line"
                         >
                           <template v-if="isFieldChanged('settings.activity_log_retention_value')" #append-inner>
-                            <v-btn icon="ri-check-line" variant="text" color="success" size="x-small" density="comfortable" class="me-1" @click.stop="handleSave" />
-                            <v-btn icon="ri-close-line" variant="text" color="error" size="x-small" density="comfortable" @click.stop="revertField('settings.activity_log_retention_value')" />
+                            <v-btn
+                              icon="ri-check-line"
+                              variant="text"
+                              color="success"
+                              size="x-small"
+                              density="comfortable"
+                              class="me-1"
+                              @click.stop="handleSave"
+                            />
+                            <v-btn
+                              icon="ri-close-line"
+                              variant="text"
+                              color="error"
+                              size="x-small"
+                              density="comfortable"
+                              @click.stop="revertField('settings.activity_log_retention_value')"
+                            />
                           </template>
                         </AppInput>
                       </v-col>
@@ -389,7 +546,8 @@
                       </v-col>
                       <v-col cols="12">
                         <p class="text-caption text-grey-darken-1 px-2 mb-0">
-                          * سيقوم النظام تلقائياً بحذف سجلات الأنشطة القديمة التي تجاوزت المدة المحددة لتوفير مساحة الاستضافة والحفاظ على الأداء العام للنظام.
+                          * سيقوم النظام تلقائياً بحذف سجلات الأنشطة القديمة التي تجاوزت المدة المحددة لتوفير مساحة الاستضافة والحفاظ على الأداء العام
+                          للنظام.
                         </p>
                       </v-col>
                     </v-row>
@@ -401,7 +559,6 @@
             <!-- TAB 4: PRINTING & PREFERENCES -->
             <v-window-item value="preferences">
               <v-row>
-
                 <!-- Printing Settings -->
                 <v-col cols="12">
                   <AppCard title="إعدادات الطباعة" icon="ri-printer-line" class="mb-4" icon-color="primary">
@@ -424,12 +581,7 @@
                       </v-col>
 
                       <v-col cols="12" md="6" class="d-flex align-center">
-                        <v-switch
-                          v-model="formData.print_settings.show_logo"
-                          color="primary"
-                          hide-details
-                          @update:model-value="handleSave"
-                        >
+                        <v-switch v-model="formData.print_settings.show_logo" color="primary" hide-details @update:model-value="handleSave">
                           <template #label>
                             <span class="me-2">إظهار شعار الشركة في المطبوعات</span>
                             <AppFieldHelp text="عند التفعيل، سيتم طباعة شعار الشركة أعلى الترويسة في الفواتير الورقية والإلكترونية." />
@@ -447,8 +599,72 @@
                           rows="2"
                         >
                           <template v-if="isFieldChanged('print_settings.footer_text')" #append-inner>
-                            <v-btn icon="ri-check-line" variant="text" color="success" size="x-small" density="comfortable" class="me-1" @click.stop="handleSave" />
-                            <v-btn icon="ri-close-line" variant="text" color="error" size="x-small" density="comfortable" @click.stop="revertField('print_settings.footer_text')" />
+                            <v-btn
+                              icon="ri-check-line"
+                              variant="text"
+                              color="success"
+                              size="x-small"
+                              density="comfortable"
+                              class="me-1"
+                              @click.stop="handleSave"
+                            />
+                            <v-btn
+                              icon="ri-close-line"
+                              variant="text"
+                              color="error"
+                              size="x-small"
+                              density="comfortable"
+                              @click.stop="revertField('print_settings.footer_text')"
+                            />
+                          </template>
+                        </AppInput>
+                      </v-col>
+                    </v-row>
+                  </AppCard>
+                </v-col>
+
+                <!-- General Preferences (Date Format) -->
+                <v-col cols="12">
+                  <AppCard title="التفضيلات العامة للنظام" icon="ri-settings-5-line" class="mb-4" icon-color="primary">
+                    <v-row dense>
+                      <v-col cols="12" md="6">
+                        <v-select
+                          v-model="formData.settings.date_format"
+                          :items="dateFormatItems"
+                          label="تنسيق التاريخ المفضل"
+                          prepend-inner-icon="ri-calendar-event-line"
+                          variant="outlined"
+                          density="comfortable"
+                          @update:model-value="handleSave"
+                        />
+                      </v-col>
+
+                      <v-col cols="12" md="6">
+                        <AppInput
+                          v-model="formData.settings.date_separator"
+                          label="فاصل التاريخ المخصص"
+                          placeholder="مثال: - أو / أو . أو مسافة"
+                          prepend-inner-icon="ri-split-cells-vertical"
+                          density="comfortable"
+                        >
+                          <template v-if="isFieldChanged('settings.date_separator')" #append-inner>
+                            <v-btn
+                              icon="ri-check-line"
+                              variant="text"
+                              color="success"
+                              size="x-small"
+                              density="comfortable"
+                              class="me-1"
+                              @click.stop="handleSave"
+                            />
+                            <v-btn
+                              icon="ri-close-line"
+                              variant="text"
+                              color="error"
+                              size="x-small"
+                              density="comfortable"
+                              @click.stop="revertField('settings.date_separator')"
+                            />
                           </template>
                         </AppInput>
                       </v-col>
@@ -471,7 +687,7 @@
         :loading="saving"
         rounded="pill"
         class="px-12 font-weight-bold tour-settings-save"
-        @click="handleSave"
+        @click="handleSave({ validate: true })"
       >
         حفظ كافة التغييرات
       </AppButton>
@@ -487,14 +703,16 @@
 
     <!-- Image Cropper for existing images -->
     <AppImageCropper v-model="showCropper" :image-src="cropperImageSrc" @cropped="handleCroppedImage" />
-
-
   </div>
 </template>
 
 <script setup>
 // مكون إعدادات الشركة: يتيح تعديل الشعار، البيانات الأساسية والقانونية، قنوات التواصل، وتفضيلات النظام والطباعة.
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
+import dayjs from 'dayjs';
+import 'dayjs/locale/ar';
+dayjs.locale('ar');
+
 import { useApi } from '@/composables/useApi';
 import { useUserStore } from '@/stores/user';
 import { usePermissions } from '@/composables/usePermissions';
@@ -519,7 +737,35 @@ const { markAsCompleted } = useGuidance();
 const activeTab = ref('basic');
 const originalData = ref(null);
 
-const isFieldChanged = (path) => {
+const dateFormatItems = computed(() => {
+  const today = dayjs();
+  const separator = formData.value.settings?.date_separator || '/';
+  const formats = [
+    { title: `DD/MM/YYYY (سنة/شهر/يوم)`, value: 'DD/MM/YYYY' },
+    { title: `YYYY/MM/DD (يوم/شهر/سنة)`, value: 'YYYY/MM/DD' },
+    { title: `MM/DD/YYYY (شهر/يوم/سنة)`, value: 'MM/DD/YYYY' },
+    { title: `D MMMM YYYY (يوم اسم الشهر سنة)`, value: 'D MMMM YYYY' },
+    { title: `D MMM YYYY (يوم اسم الشهر قصير سنة)`, value: 'D MMM YYYY' },
+    { title: `dddd, D MMMM YYYY (اسم اليوم، يوم اسم الشهر سنة)`, value: 'dddd, D MMMM YYYY' },
+    { title: `MMMM D, YYYY (اسم الشهر يوم، سنة)`, value: 'MMMM D, YYYY' },
+    { title: `dddd D / M / YYYY (اسم اليوم، يوم / شهر / سنة)`, value: 'dddd D / M / YYYY' },
+  ];
+
+  return formats.map(f => {
+    let pattern = f.value;
+    if (separator) {
+      pattern = pattern.replace(/[-/]/g, separator);
+    }
+    const formattedDate = today.format(pattern);
+    const label = f.title.substring(f.title.indexOf('('));
+    return {
+      title: `${formattedDate} ${label}`,
+      value: f.value,
+    };
+  });
+});
+
+const isFieldChanged = path => {
   if (!originalData.value) return false;
   const keys = path.split('.');
   let currentVal = formData.value;
@@ -533,17 +779,17 @@ const isFieldChanged = (path) => {
   return currentVal !== originalVal;
 };
 
-const revertField = (path) => {
+const revertField = path => {
   if (!originalData.value) return;
   const keys = path.split('.');
   let currentParent = formData.value;
   let originalParent = originalData.value;
-  
+
   for (let i = 0; i < keys.length - 1; i++) {
     currentParent = currentParent[keys[i]];
     originalParent = originalParent[keys[i]];
   }
-  
+
   const lastKey = keys[keys.length - 1];
   currentParent[lastKey] = originalParent[lastKey];
 };
@@ -552,7 +798,7 @@ const tabsList = [
   { value: 'basic', title: 'البيانات الأساسية', icon: 'ri-building-2-line', subtitle: 'هوية المنشأة والشعار' },
   { value: 'inventory', title: 'المخزون والأرباح', icon: 'ri-funds-box-line', subtitle: 'طرق التقييم وتحديث الأسعار' },
   { value: 'preferences', title: 'الطباعة والتفضيلات', icon: 'ri-printer-line', subtitle: 'إعدادات الفواتير المطبوعة' },
-  { value: 'contact', title: 'قنوات التواصل', icon: 'ri-contacts-line', subtitle: 'روابط الاتصال والشبكات' }
+  { value: 'contact', title: 'قنوات التواصل', icon: 'ri-contacts-line', subtitle: 'روابط الاتصال والشبكات' },
 ];
 
 const isSuperAdmin = computed(() => authStore.user?.permissions?.includes(PERMISSIONS.ADMIN_SUPER));
@@ -592,6 +838,8 @@ const formData = ref({
     auto_update_purchase_price: true,
     activity_log_retention_value: 1,
     activity_log_retention_unit: 'years',
+    date_format: 'dddd D / M / YYYY',
+    date_separator: '',
   },
   print_settings: {
     print_format: 'thermal',
@@ -653,8 +901,9 @@ const copyLogoUrl = () => {
     const origin = window.location.origin;
     url = url.startsWith('/') ? `${origin}${url}` : `${origin}/${url}`;
   }
-  
-  navigator.clipboard.writeText(url)
+
+  navigator.clipboard
+    .writeText(url)
     .then(() => {
       toast.success('تم نسخ رابط الشعار بنجاح');
     })
@@ -701,7 +950,7 @@ const handleCroppedImage = async blob => {
 };
 
 const loadCompanyData = async () => {
-  const companyId = userStore.currentUser?.active_company_id;
+  const companyId = userStore.currentUser?.active_company_id || userStore.currentCompany?.id;
   if (!companyId) return;
 
   loading.value = true;
@@ -729,6 +978,8 @@ const loadCompanyData = async () => {
           auto_update_purchase_price: true,
           activity_log_retention_value: 1,
           activity_log_retention_unit: 'years',
+          date_format: 'dddd D / M / YYYY',
+          date_separator: '',
           ...(data.settings || {}),
         },
         print_settings: data.print_settings || {
@@ -747,12 +998,20 @@ const loadCompanyData = async () => {
   }
 };
 
-const handleSave = async () => {
-  if (!formRef.value) return;
-  const { valid } = await formRef.value.validate();
-  if (!valid) {
-    toast.error('يرجى تصحيح الأخطاء في الحقول المطلوبة');
+const handleSave = async (options = {}) => {
+  if (!formData.value || !formData.value.id) {
+    console.warn('Skipping save: company data is not loaded yet');
     return;
+  }
+
+  const opts = options && typeof options === 'object' && !Array.isArray(options) ? options : { validate: false };
+
+  if (opts.validate === true && formRef.value) {
+    const { valid } = await formRef.value.validate();
+    if (!valid) {
+      toast.error('يرجى تصحيح الأخطاء في الحقول المطلوبة');
+      return;
+    }
   }
 
   saving.value = true;
@@ -776,10 +1035,10 @@ const handleSave = async () => {
     await api.update(formData.value.id, payload, { showSuccess: false });
     originalData.value = JSON.parse(JSON.stringify(formData.value));
     toast.success('تم حفظ التغييرات بنجاح');
-    
+
     // وسم خطوة تهيئة بيانات الشركة كمنتهية في نظام التهيئة
     await markAsCompleted('onboarding.setup_company');
-    
+
     // Refresh user info to update global branding (like sidebar logo)
     await userStore.fetchUser();
   } catch (error) {
@@ -792,8 +1051,20 @@ const handleSave = async () => {
   }
 };
 
+watch(
+  () => userStore.currentCompany?.id,
+  async newCompanyId => {
+    if (newCompanyId) {
+      await loadCompanyData();
+    }
+  }
+);
+
 onMounted(async () => {
-  await loadCompanyData();
+  const companyId = userStore.currentUser?.active_company_id || userStore.currentCompany?.id;
+  if (companyId) {
+    await loadCompanyData();
+  }
 });
 </script>
 

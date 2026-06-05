@@ -277,6 +277,7 @@ import { toast } from 'vue3-toastify';
 import { useDataTable } from '@/composables/useDataTable';
 import { AppDataTable, AppButton, AppDialog, AppConfirmDialog } from '@/components';
 import MediaGallery from '@/components/common/MediaGallery.vue';
+import { formatDate } from '@/utils/formatters';
 
 const userStore = useUserStore();
 const api = useApi('/api/companies');
@@ -514,12 +515,6 @@ const confirmDelete = async () => {
   }
 };
 
-// Utils
-const formatDate = (dateStr) => {
-  if (!dateStr) return '-';
-  const date = new Date(dateStr);
-  return date.toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
-};
 </script>
 
 <style scoped>

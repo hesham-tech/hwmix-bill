@@ -1258,9 +1258,6 @@ const viewMode = computed({
   get: () => {
     const saved = tablePreferences.value.viewModes[pageId.value];
     if (saved) return saved;
-    if (isMobile.value && (props.gridEnabled || props.showViewToggle)) {
-      return 'grid';
-    }
     return 'list';
   },
   set: val => {

@@ -264,6 +264,7 @@ import { PERMISSIONS } from '@/config/permissions';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
 import AppButton from '@/components/common/AppButton.vue';
+import { formatDate as globalFormatDate, formatTime, formatDateTime } from '@/utils/formatters';
 
 const api = useApi('/api/error-reports');
 const { can } = usePermissions();
@@ -346,11 +347,10 @@ const getOSIcon = os => {
 
 const formatDate = date => {
   if (!date) return { date: '-', time: '', full: '-' };
-  const d = new Date(date);
   return {
-    date: d.toLocaleDateString('ar-EG'),
-    time: d.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }),
-    full: d.toLocaleString('ar-EG'),
+    date: globalFormatDate(date),
+    time: formatTime(date),
+    full: formatDateTime(date),
   };
 };
 

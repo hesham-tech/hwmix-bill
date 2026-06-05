@@ -250,7 +250,7 @@ import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useApi } from '@/composables/useApi';
 import { useDataTable } from '@/composables/useDataTable';
-import { formatCurrency } from '@/utils/formatters';
+import { formatCurrency, formatDate } from '@/utils/formatters';
 import { AppPageHeader, AppDataTable, AppUserBalanceProfile } from '@/components';
 
 // --- Initialization ---
@@ -407,15 +407,6 @@ const deletePlan = async () => {
   } finally {
     deleting.value = false;
   }
-};
-
-const formatDate = dateString => {
-  if (!dateString) return '-';
-  return new Date(dateString).toLocaleDateString('ar-EG', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
 };
 
 const handleOptionsUpdate = options => {

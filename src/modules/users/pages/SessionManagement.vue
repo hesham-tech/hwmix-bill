@@ -103,10 +103,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { authService } from '@/api';
-import dayjs from 'dayjs';
-import 'dayjs/locale/ar';
-
-dayjs.locale('ar');
+import { formatDateTime } from '@/utils/formatters';
 
 const sessions = ref([]);
 const loading = ref(false);
@@ -152,7 +149,7 @@ const formatDeviceName = userAgent => {
 
 const formatDate = date => {
   if (!date) return 'متاح الآن';
-  return dayjs(date).format('D MMMM YYYY - h:mm A');
+  return formatDateTime(date);
 };
 
 const confirmRevoke = session => {

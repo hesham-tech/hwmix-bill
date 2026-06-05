@@ -1,21 +1,54 @@
+import dayjs from 'dayjs';
+import 'dayjs/locale/ar';
+import { useUserStore } from '@/stores/user';
+
+dayjs.locale('ar');
+
+let userStore = null;
+const getUserStore = () => {
+  if (!userStore) {
+    try {
+      userStore = useUserStore();
+    } catch (e) {
+      // Pinia not active yet
+    }
+  }
+  return userStore;
+};
+
 /**
  * Date Formatter Utilities
  */
 
 /**
- * Format date to Arabic locale
+ * Format date to Arabic locale / custom settings
  */
 export const formatDate = (date, options = {}) => {
   if (!date) return '-';
 
-  const d = new Date(date);
-  if (isNaN(d.getTime())) return '-';
+  const d = dayjs(date);
+  if (!d.isValid()) return '-';
 
-  const day = String(d.getDate()).padStart(2, '0');
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const year = d.getFullYear();
+  if (typeof options === 'string') {
+    return d.format(options);
+  }
 
-  return `${day}-${month}-${year}`;
+  let formatPattern = 'dddd D / M / YYYY';
+  let separator = '/';
+
+  const store = getUserStore();
+  if (store?.currentCompany?.settings?.date_format) {
+    formatPattern = store.currentCompany.settings.date_format;
+  }
+  
+  const savedSeparator = store?.currentCompany?.settings?.date_separator;
+  if (savedSeparator !== undefined && savedSeparator !== null && savedSeparator !== '') {
+    separator = savedSeparator;
+  }
+
+  formatPattern = formatPattern.replace(/[-/]/g, separator);
+
+  return d.format(formatPattern);
 };
 
 /**
