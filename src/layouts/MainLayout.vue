@@ -290,6 +290,29 @@
   </v-app-bar>
 
   <v-main class="main-content">
+    <!-- حزام تحذير قرب انتهاء ليميت الباقة (يظهر تلقائياً عند 90% استهلاك لأي مورد) -->
+    <transition name="expand">
+      <div v-if="nearingLimitResources.length > 0" class="limit-warning-bar bg-warning-glow border-b py-2 px-4 d-flex align-center justify-space-between text-caption font-weight-bold">
+        <div class="d-flex align-center ga-2 flex-wrap">
+          <v-icon icon="ri-error-warning-fill" color="warning" class="animate-pulse me-1" size="18" />
+          <span class="text-warning-light">تنبيه استهلاك الباقة:</span>
+          <span v-for="res in nearingLimitResources" :key="res.key" class="text-amber-light me-3">
+            وصل استهلاك {{ res.name }} إلى {{ res.percent }}% ({{ res.current }} من {{ res.max }})
+          </span>
+        </div>
+        <v-btn
+          color="warning"
+          size="x-small"
+          variant="flat"
+          class="font-weight-black rounded-lg px-3 ms-2"
+          to="/app/my-subscription"
+        >
+          <v-icon icon="ri-vip-crown-line" size="12" class="me-1" />
+          ترقية الاشتراك
+        </v-btn>
+      </div>
+    </transition>
+
     <div class="sticky-breadcrumbs-container border-b bg-surface">
       <v-container fluid class="py-0 px-1">
         <v-breadcrumbs :items="breadcrumbs" class="pa-0 text-caption">
@@ -693,6 +716,35 @@ onUnmounted(() => {
 
 const userName = computed(() => userStore.currentUser?.full_name || 'المستخدم');
 
+// فحص الموارد التي تقترب من استهلاك 90% أو أكثر
+const nearingLimitResources = computed(() => {
+  const limits = userStore.currentUser?.subscription?.limits;
+  if (!limits) return [];
+
+  const result = [];
+  const resourceNames = {
+    users: 'المستخدمين',
+    products: 'المنتجات',
+    invoices: 'الفواتير',
+    warehouses: 'المخازن'
+  };
+
+  Object.keys(limits).forEach(key => {
+    const limitObj = limits[key];
+    if (limitObj && !limitObj.is_unlimited && limitObj.percent >= 90) {
+      result.push({
+        key,
+        name: resourceNames[key] || key,
+        current: limitObj.current,
+        max: limitObj.max,
+        percent: limitObj.percent
+      });
+    }
+  });
+
+  return result;
+});
+
 const breadcrumbs = computed(() => {
   const homePath = userStore.isStaff ? '/app/admin/dashboard' : '/app/portal';
   const items = [{ title: 'الرئيسية', to: homePath, disabled: false }];
@@ -940,5 +992,52 @@ watch(
 .scale-leave-to {
   opacity: 0;
   transform: scale(0.9);
+}
+
+/* Limit Warning Bar Styles */
+.limit-warning-bar {
+  background: linear-gradient(90deg, rgba(217, 119, 6, 0.12), rgba(245, 158, 11, 0.04));
+  border-bottom: 1px solid rgba(245, 158, 11, 0.22) !important;
+  color: #fef08a;
+  z-index: 10;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.text-warning-light {
+  color: #fbbf24 !important;
+}
+
+.text-amber-light {
+  color: #fef08a !important;
+}
+
+.bg-warning-glow {
+  background: rgba(245, 158, 11, 0.08) !important;
+}
+
+@keyframes warningPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.05); }
+}
+
+.animate-pulse {
+  animation: warningPulse 2s infinite ease-in-out;
+  display: inline-block;
+}
+
+/* Expand Transition */
+.expand-enter-active,
+.expand-leave-active {
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  max-height: 100px;
+  overflow: hidden;
+}
+.expand-enter-from,
+.expand-leave-to {
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
 }
 </style>
