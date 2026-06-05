@@ -450,7 +450,121 @@
                   placeholder="غير محدود"
                 />
               </v-col>
+              <v-col cols="12" md="6" lg="3">
+                <v-text-field
+                  v-model="formData.max_projects"
+                  label="الحد الأقصى للمشاريع"
+                  type="number"
+                  variant="outlined"
+                  density="comfortable"
+                  placeholder="غير محدود"
+                />
+              </v-col>
+              <v-col cols="12" md="6" lg="3">
+                <v-text-field
+                  v-model="formData.max_storage_mb"
+                  label="الحد الأقصى للمساحة (ميجابايت)"
+                  type="number"
+                  variant="outlined"
+                  density="comfortable"
+                  placeholder="غير محدود"
+                />
+              </v-col>
+              <v-col cols="12" md="6" lg="3">
+                <v-text-field
+                  v-model="featuresData.max_whatsapp_messages"
+                  label="الحد الأقصى لرسائل الواتساب"
+                  type="number"
+                  variant="outlined"
+                  density="comfortable"
+                  placeholder="غير محدود"
+                />
+              </v-col>
+              <v-col cols="12" md="6" lg="3">
+                <v-text-field
+                  v-model="featuresData.max_api_calls"
+                  label="الحد الأقصى لطلبات API"
+                  type="number"
+                  variant="outlined"
+                  density="comfortable"
+                  placeholder="غير محدود"
+                />
+              </v-col>
             </v-row>
+
+            <v-divider class="my-6" />
+
+            <div class="d-flex align-center justify-between mb-4 flex-wrap gap-2">
+              <h3 class="text-subtitle-1 font-weight-bold mb-0 text-primary">شرائح أسعار الاشتراكات والخصومات (Pricing Tiers)</h3>
+              <v-btn
+                color="secondary"
+                variant="outlined"
+                size="small"
+                prepend-icon="ri-add-line"
+                class="rounded-pill font-weight-bold"
+                @click="addPricingTier"
+              >
+                إضافة شريحة سعريّة
+              </v-btn>
+            </div>
+            <p class="text-caption text-grey mb-4">حدد السعر المخفض لكل شهر بناءً على عدد أشهر حجز الباقة (Tiered Pricing).</p>
+            
+            <v-row v-if="formData.pricing_tiers && formData.pricing_tiers.length > 0" class="mb-6">
+              <v-col cols="12">
+                <v-row v-for="(tier, index) in formData.pricing_tiers" :key="index" class="align-center mb-2 dense">
+                  <v-col cols="12" sm="3">
+                    <v-text-field
+                      v-model="tier.min_months"
+                      label="الحد الأدنى للأشهر *"
+                      type="number"
+                      variant="outlined"
+                      density="compact"
+                      hide-details
+                      min="1"
+                    />
+                  </v-col>
+                  <v-col cols="12" sm="3">
+                    <v-text-field
+                      v-model="tier.max_months"
+                      label="الحد الأقصى للأشهر"
+                      type="number"
+                      variant="outlined"
+                      density="compact"
+                      hide-details
+                      placeholder="ما لا نهاية"
+                    />
+                  </v-col>
+                  <v-col cols="12" sm="3">
+                    <v-text-field
+                      v-model="tier.price_per_month"
+                      label="السعر لكل شهر *"
+                      type="number"
+                      variant="outlined"
+                      density="compact"
+                      hide-details
+                      suffix="EGP"
+                    />
+                  </v-col>
+                  <v-col cols="12" sm="2">
+                    <v-text-field
+                      v-model="tier.discount_percent"
+                      label="الخصم %"
+                      type="number"
+                      variant="outlined"
+                      density="compact"
+                      hide-details
+                      suffix="%"
+                    />
+                  </v-col>
+                  <v-col cols="12" sm="1" class="text-center">
+                    <v-btn icon="ri-delete-bin-line" color="error" variant="text" size="small" @click="removePricingTier(index)" />
+                  </v-col>
+                </v-row>
+              </v-col>
+            </v-row>
+            <div v-else class="text-center py-4 bg-grey-lighten-4 rounded-lg mb-6 text-grey text-body-2 border border-dashed">
+              لم يتم تحديد أي شرائح أسعار مخصصة لهذه الباقة حالياً. سيتم استخدام السعر الأساسي لكافة المدد.
+            </div>
           </v-form>
         </v-card-text>
 
@@ -575,7 +689,10 @@ const formData = ref({
   max_users: null,
   max_products: null,
   max_invoices: null,
-  icon: 'ri-vip-crown-line'
+  max_projects: null,
+  max_storage_mb: null,
+  icon: 'ri-vip-crown-line',
+  pricing_tiers: []
 });
 
 const featuresData = ref({
@@ -586,7 +703,9 @@ const featuresData = ref({
   installment_system: false,
   activity_logs: false,
   reports_advanced: false,
-  max_warehouses: null
+  max_warehouses: null,
+  max_whatsapp_messages: null,
+  max_api_calls: null
 });
 
 const isEdit = computed(() => !!selectedItem.value?.id);
@@ -662,6 +781,22 @@ const loadCompanies = async () => {
   }
 };
 
+const addPricingTier = () => {
+  if (!formData.value.pricing_tiers) {
+    formData.value.pricing_tiers = [];
+  }
+  formData.value.pricing_tiers.push({
+    min_months: 3,
+    max_months: null,
+    price_per_month: 0,
+    discount_percent: 0
+  });
+};
+
+const removePricingTier = index => {
+  formData.value.pricing_tiers.splice(index, 1);
+};
+
 const handleCreate = () => {
   selectedItem.value = null;
   formData.value = {
@@ -677,7 +812,10 @@ const handleCreate = () => {
     max_users: null,
     max_products: null,
     max_invoices: null,
-    icon: 'ri-vip-crown-line'
+    max_projects: null,
+    max_storage_mb: null,
+    icon: 'ri-vip-crown-line',
+    pricing_tiers: []
   };
   featuresData.value = {
     payment_gateways: false,
@@ -687,7 +825,9 @@ const handleCreate = () => {
     installment_system: false,
     activity_logs: false,
     reports_advanced: false,
-    max_warehouses: null
+    max_warehouses: null,
+    max_whatsapp_messages: null,
+    max_api_calls: null
   };
   showDialog.value = true;
 };
@@ -707,7 +847,10 @@ const handleEdit = item => {
     max_users: item.max_users === -1 ? null : item.max_users,
     max_products: item.max_products === -1 ? null : item.max_products,
     max_invoices: item.max_invoices === -1 ? null : item.max_invoices,
-    icon: item.icon || 'ri-vip-crown-line'
+    max_projects: item.max_projects === -1 ? null : item.max_projects,
+    max_storage_mb: item.max_storage_mb === -1 ? null : item.max_storage_mb,
+    icon: item.icon || 'ri-vip-crown-line',
+    pricing_tiers: item.pricing_tiers || []
   };
 
   let feats = item.features || {};
@@ -727,7 +870,9 @@ const handleEdit = item => {
     installment_system: !!feats.installment_system,
     activity_logs: !!feats.activity_logs,
     reports_advanced: !!feats.reports_advanced,
-    max_warehouses: feats.max_warehouses === -1 || !feats.max_warehouses ? null : feats.max_warehouses
+    max_warehouses: feats.max_warehouses === -1 || !feats.max_warehouses ? null : feats.max_warehouses,
+    max_whatsapp_messages: feats.max_whatsapp_messages === -1 || !feats.max_whatsapp_messages ? null : feats.max_whatsapp_messages,
+    max_api_calls: feats.max_api_calls === -1 || !feats.max_api_calls ? null : feats.max_api_calls
   };
 
   showDialog.value = true;
@@ -757,8 +902,19 @@ const handleSave = async () => {
     max_users: formData.value.max_users !== null && formData.value.max_users !== '' ? Number(formData.value.max_users) : -1,
     max_products: formData.value.max_products !== null && formData.value.max_products !== '' ? Number(formData.value.max_products) : -1,
     max_invoices: formData.value.max_invoices !== null && formData.value.max_invoices !== '' ? Number(formData.value.max_invoices) : -1,
+    max_projects: formData.value.max_projects !== null && formData.value.max_projects !== '' ? Number(formData.value.max_projects) : -1,
+    max_storage_mb: formData.value.max_storage_mb !== null && formData.value.max_storage_mb !== '' ? Number(formData.value.max_storage_mb) : -1,
     max_warehouses: featuresData.value.max_warehouses !== null && featuresData.value.max_warehouses !== '' ? Number(featuresData.value.max_warehouses) : -1,
+    max_whatsapp_messages: featuresData.value.max_whatsapp_messages !== null && featuresData.value.max_whatsapp_messages !== '' ? Number(featuresData.value.max_whatsapp_messages) : -1,
+    max_api_calls: featuresData.value.max_api_calls !== null && featuresData.value.max_api_calls !== '' ? Number(featuresData.value.max_api_calls) : -1,
   };
+
+  const cleanTiers = (formData.value.pricing_tiers || []).map(t => ({
+    min_months: Number(t.min_months),
+    max_months: t.max_months !== null && t.max_months !== '' ? Number(t.max_months) : null,
+    price_per_month: Number(t.price_per_month),
+    discount_percent: t.discount_percent !== null && t.discount_percent !== '' ? Number(t.discount_percent) : 0,
+  }));
 
   const payload = {
     ...formData.value,
@@ -766,6 +922,9 @@ const handleSave = async () => {
     max_users: formData.value.max_users !== null && formData.value.max_users !== '' ? Number(formData.value.max_users) : -1,
     max_products: formData.value.max_products !== null && formData.value.max_products !== '' ? Number(formData.value.max_products) : -1,
     max_invoices: formData.value.max_invoices !== null && formData.value.max_invoices !== '' ? Number(formData.value.max_invoices) : -1,
+    max_projects: formData.value.max_projects !== null && formData.value.max_projects !== '' ? Number(formData.value.max_projects) : -1,
+    max_storage_mb: formData.value.max_storage_mb !== null && formData.value.max_storage_mb !== '' ? Number(formData.value.max_storage_mb) : -1,
+    pricing_tiers: cleanTiers
   };
 
   try {

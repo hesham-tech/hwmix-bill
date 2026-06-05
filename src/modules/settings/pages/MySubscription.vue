@@ -407,6 +407,10 @@ const getResourceIcon = key => {
   if (key === 'products') return 'ri-box-3-line';
   if (key === 'invoices') return 'ri-file-list-3-line';
   if (key === 'warehouses') return 'ri-store-line';
+  if (key === 'projects') return 'ri-folder-open-line';
+  if (key === 'storage_size') return 'ri-database-2-line';
+  if (key === 'whatsapp_messages') return 'ri-whatsapp-line';
+  if (key === 'api_calls') return 'ri-code-s-slash-line';
   return 'ri-information-line';
 };
 
@@ -415,6 +419,10 @@ const getResourceColor = key => {
   if (key === 'products') return 'success';
   if (key === 'invoices') return 'info';
   if (key === 'warehouses') return 'warning';
+  if (key === 'projects') return 'amber';
+  if (key === 'storage_size') return 'teal';
+  if (key === 'whatsapp_messages') return 'success';
+  if (key === 'api_calls') return 'deep-purple';
   return 'grey';
 };
 
@@ -423,6 +431,10 @@ const getResourceLabel = key => {
   if (key === 'products') return 'المنتجات والخدمات';
   if (key === 'invoices') return 'الفواتير الصادرة';
   if (key === 'warehouses') return 'المخازن والمستودعات';
+  if (key === 'projects') return 'المشاريع المفتوحة';
+  if (key === 'storage_size') return 'مساحة التخزين (ميجابايت)';
+  if (key === 'whatsapp_messages') return 'رسائل الواتساب المرسلة';
+  if (key === 'api_calls') return 'طلبات API الشهرية';
   return key;
 };
 
