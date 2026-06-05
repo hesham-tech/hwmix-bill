@@ -139,7 +139,11 @@ export default [
     component: () => import('@/modules/settings/pages/SaaSPlansList.vue'),
     meta: {
       title: 'إدارة باقات SaaS',
-      permission: PERMISSIONS.ADMIN_SUPER,
+      permission: [
+        PERMISSIONS.ADMIN_SUPER,
+        PERMISSIONS.SUBSCRIPTIONS_VIEW_ALL,
+        PERMISSIONS.PLANS_VIEW_ALL
+      ],
     },
   },
   {

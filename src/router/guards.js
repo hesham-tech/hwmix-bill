@@ -63,6 +63,20 @@ export const permissionGuard = async (to, from, next) => {
     }
   }
 
+  // === SAAS SUBSCRIPTION CHECK ===
+  // Super admins and customer portal users are exempt from subscription page locking
+  const isSuperAdmin = userStore.isAdmin;
+  const isCustomer = !userStore.isStaff;
+  
+  if (!isSuperAdmin && !isCustomer) {
+    const subStatus = userStore.currentUser?.subscription?.status || 'inactive';
+    if (subStatus === 'pending' || subStatus === 'expired' || subStatus === 'inactive') {
+      if (to.name !== 'my-subscription') {
+        return next({ name: 'my-subscription' });
+      }
+    }
+  }
+
   // === CUSTOMER PORTAL RESTRICTION ===
   // If the user is NOT staff (meaning they are a Customer), they must ONLY access customer/portal pages, sessions, or profile
   if (!userStore.isStaff) {

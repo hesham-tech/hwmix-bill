@@ -127,6 +127,90 @@
               </v-row>
             </div>
 
+            <!-- Subscription Plan details (only if plan_id is passed and it's a paid plan) -->
+            <div v-if="selectedPlan && selectedPlan.price > 0" class="form-section mt-4">
+              <div class="section-header">
+                <i class="ri-vip-crown-line section-icon"></i>
+                <span class="section-title">تفاصيل باقة الاشتراك والدفع</span>
+              </div>
+              
+              <div class="selected-plan-info pa-4 rounded-lg bg-white bg-opacity-5 mb-4 border border-white-5">
+                <div class="d-flex align-center justify-between mb-2">
+                  <span class="font-weight-bold text-subtitle-1 text-white">{{ selectedPlan.name }}</span>
+                  <span class="text-caption text-grey">باقة مميزة</span>
+                </div>
+                <div class="text-body-2 text-grey-lighten-1">{{ selectedPlan.description }}</div>
+              </div>
+
+              <!-- Months Selector -->
+              <div class="saas-field-group mb-4">
+                <label class="saas-field-label d-flex justify-between">
+                  <span>مدة الاشتراك بالباقة:</span>
+                  <span class="text-warning font-weight-bold">{{ selectedMonths }} شهر</span>
+                </label>
+                
+                <v-slider
+                  v-model="selectedMonths"
+                  min="1"
+                  max="48"
+                  step="1"
+                  color="warning"
+                  track-color="grey-darken-3"
+                  hide-details
+                  class="mt-4 mb-2"
+                />
+              </div>
+
+              <!-- Coupon Code -->
+              <div class="saas-field-group mb-4">
+                <label class="saas-field-label">كود الخصم (الكوبون):</label>
+                <div class="d-flex gap-2">
+                  <AppInput
+                    v-model="couponCode"
+                    placeholder="أدخل كود الخصم (مثال: SAVE20)"
+                    prepend-inner-icon="ri-coupon-3-line"
+                    class="saas-input flex-grow-1"
+                    density="compact"
+                    clearable
+                    @click:clear="clearCoupon"
+                  />
+                  <v-btn
+                    color="warning"
+                    variant="tonal"
+                    style="height: 40px;"
+                    class="rounded-lg font-weight-bold"
+                    :loading="calculating"
+                    @click="applyCoupon"
+                  >
+                    تطبيق
+                  </v-btn>
+                </div>
+                <div v-if="couponSuccessMsg" class="text-success text-caption font-weight-bold mt-1">
+                  ✓ {{ couponSuccessMsg }}
+                </div>
+                <div v-if="couponErrorMsg" class="text-error text-caption font-weight-bold mt-1">
+                  ✗ {{ couponErrorMsg }}
+                </div>
+              </div>
+
+              <!-- Pricing breakdown -->
+              <div v-if="breakdown" class="pricing-breakdown pa-4 rounded-lg bg-black bg-opacity-30 border border-white-5 mb-4">
+                <div class="d-flex justify-between text-caption text-grey mb-2">
+                  <span>السعر الأصلي:</span>
+                  <span class="text-ltr text-decoration-line-through">{{ breakdown.subtotal }} EGP</span>
+                </div>
+                <div v-if="breakdown.total_discount_amount > 0" class="d-flex justify-between text-caption text-success mb-2">
+                  <span>خصومات وتوفير:</span>
+                  <span class="text-ltr">-{{ breakdown.total_discount_amount }} EGP</span>
+                </div>
+                <v-divider class="my-2 border-opacity-10" />
+                <div class="d-flex justify-between align-center">
+                  <span class="text-body-2 font-weight-bold text-white">إجمالي المبلغ المطلوب:</span>
+                  <span class="text-h5 font-weight-black text-warning text-ltr">{{ breakdown.total_price }} EGP</span>
+                </div>
+              </div>
+            </div>
+
             <v-checkbox
               v-model="form.agree"
               color="warning"
@@ -144,7 +228,7 @@
 
             <AppButton type="submit" color="warning" size="x-large" block active :loading="loading" class="saas-reg-btn">
               <i class="ri-rocket-line me-2"></i>
-              تفعيل النظام الآن — مجاناً
+              تفعيل النظام الآن
             </AppButton>
           </v-form>
 
@@ -164,10 +248,11 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { authService } from '@/api';
 import { required, phone as phoneValidator, strongPassword } from '@/utils/validators';
+import { useApi } from '@/composables/useApi';
 import AppInput from '@/components/common/AppInput.vue';
 import AppPasswordInput from '@/components/common/AppPasswordInput.vue';
 import AppButton from '@/components/common/AppButton.vue';
@@ -182,6 +267,91 @@ const form = ref({
   company_name: '', company_phone: '', address: '',
   full_name: '', phone: '', email: '', password: '',
   agree: false,
+});
+
+const planId = route.query.plan_id ? Number(route.query.plan_id) : null;
+const selectedPlan = ref(null);
+const loadingPlan = ref(false);
+const selectedMonths = ref(route.query.months ? Number(route.query.months) : 1);
+const couponCode = ref('');
+const appliedCoupon = ref('');
+const calculating = ref(false);
+const breakdown = ref(null);
+const couponSuccessMsg = ref('');
+const couponErrorMsg = ref('');
+
+const fetchPlan = async () => {
+  if (!planId) return;
+  loadingPlan.value = true;
+  try {
+    const plansApi = useApi('/api/public/plans');
+    const res = await plansApi.get();
+    const plans = res.data || [];
+    selectedPlan.value = plans.find(p => p.id === planId) || null;
+    if (selectedPlan.value && selectedPlan.value.price > 0) {
+      calculatePricing();
+    }
+  } catch (error) {
+    console.error('Failed to fetch plan:', error);
+  } finally {
+    loadingPlan.value = false;
+  }
+};
+
+const calculatePricing = async () => {
+  if (!planId) return;
+  calculating.value = true;
+  try {
+    const pricingApi = useApi('/api/saas/pricing/calculate');
+    const response = await pricingApi.post({
+      plan_id: planId,
+      months: selectedMonths.value,
+      coupon_code: appliedCoupon.value || null
+    });
+
+    if (response.success && response.data) {
+      breakdown.value = response.data;
+      if (appliedCoupon.value) {
+        if (response.data.coupon_error) {
+          couponErrorMsg.value = response.data.coupon_error;
+          couponSuccessMsg.value = '';
+          appliedCoupon.value = '';
+        } else if (response.data.coupon) {
+          couponSuccessMsg.value = `تم تطبيق الكوبون (${response.data.coupon.code}) بنجاح!`;
+          couponErrorMsg.value = '';
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Failed to calculate pricing:', error);
+  } finally {
+    calculating.value = false;
+  }
+};
+
+const applyCoupon = () => {
+  if (!couponCode.value || couponCode.value.trim() === '') {
+    couponErrorMsg.value = 'يرجى إدخال كود كوبون صالح أولاً.';
+    return;
+  }
+  appliedCoupon.value = couponCode.value.trim().toUpperCase();
+  calculatePricing();
+};
+
+const clearCoupon = () => {
+  couponCode.value = '';
+  appliedCoupon.value = '';
+  couponSuccessMsg.value = '';
+  couponErrorMsg.value = '';
+  calculatePricing();
+};
+
+watch(selectedMonths, () => {
+  calculatePricing();
+});
+
+onMounted(() => {
+  fetchPlan();
 });
 
 const steps = [
@@ -212,7 +382,9 @@ const handleRegister = async () => {
       phone: form.value.phone,
       email: form.value.email,
       password: form.value.password,
-      plan_id: route.query.plan_id ? Number(route.query.plan_id) : null,
+      plan_id: planId,
+      months: selectedPlan.value?.price > 0 ? selectedMonths.value : 1,
+      coupon_code: (selectedPlan.value?.price > 0 && appliedCoupon.value) ? appliedCoupon.value : null,
     });
     router.push('/saas/login?registered=1');
   } catch (error) {
@@ -356,6 +528,14 @@ const handleRegister = async () => {
   margin-right: 3px;
 }
 .saas-bottom-hint .terms-link:hover { text-decoration: underline; }
+
+.border-white-5 {
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+}
+.text-ltr {
+  direction: ltr;
+  display: inline-block;
+}
 
 @media (max-width: 768px) {
   .saas-reg-container { grid-template-columns: 1fr; }

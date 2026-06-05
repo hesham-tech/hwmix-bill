@@ -184,7 +184,24 @@
           <div class="plan-price-block">
             <span class="price-amount">{{ plan.price }}</span>
             <span class="price-curr">EGP</span>
-            <span class="price-period">/ {{ plan.duration }} {{ getDurationUnitLabel(plan.duration_unit) }}</span>
+            <span class="price-period">لكل شهر</span>
+          </div>
+
+          <!-- سكشن عرض الفروق السعرية للمدد المختلفة (ديناميكي) -->
+          <div v-if="plan.price > 0" class="plan-tiered-prices-list mb-6">
+            <div class="tiered-title">خيارات الاشتراك المخفضة:</div>
+            <div class="tiered-grid-options">
+              <div v-for="m in [3, 6, 12]" :key="m" class="tiered-option-item" @click="handleSelectPlan(plan, m)">
+                <span class="tiered-months">{{ m }} أشهر:</span>
+                <span class="tiered-price-val">
+                  <strong>{{ getTierPriceForMonths(plan, m) }}</strong> EGP/شهر
+                </span>
+                <span v-if="getTierSavingsPercent(plan, m) > 0" class="tiered-save-badge">
+                  (وفر {{ getTierSavingsPercent(plan, m) }}%)
+                </span>
+                <v-icon icon="ri-arrow-left-s-line" size="14" class="ms-1" color="grey" />
+              </div>
+            </div>
           </div>
 
           <div class="plan-trial-pill" v-if="plan.trial_days > 0">
@@ -230,7 +247,7 @@
             class="rounded-pill font-weight-bold card-btn py-3 mt-6"
             elevation="1"
             size="large"
-            @click="handleSelectPlan(plan)"
+            @click="handleSelectPlan(plan, 1)"
           >
             {{ plan.price > 0 ? 'اشترك الآن' : 'ابدأ مجاناً' }}
           </v-btn>
@@ -325,8 +342,45 @@ const getFeatureFlag = (plan, key) => {
   return !!feats[key];
 };
 
-const handleSelectPlan = plan => {
-  router.push({ name: 'saas-register', query: { plan_id: plan.id } });
+const getTierPriceForMonths = (plan, months) => {
+  const tiers = plan.pricing_tiers || [];
+  const basePrice = parseFloat(plan.price) || 0;
+  if (basePrice === 0) return 0;
+  
+  const tier = tiers.find(t => months >= t.min_months && (t.max_months === null || months <= t.max_months));
+  if (tier) {
+    if (parseFloat(tier.price_per_month) > 0) {
+      return parseFloat(tier.price_per_month);
+    } else if (parseFloat(tier.discount_percent) > 0) {
+      return basePrice * (1 - parseFloat(tier.discount_percent) / 100);
+    }
+  }
+  return basePrice;
+};
+
+const getTierSavingsPercent = (plan, months) => {
+  const tiers = plan.pricing_tiers || [];
+  const basePrice = parseFloat(plan.price) || 0;
+  if (basePrice === 0) return 0;
+  
+  const tier = tiers.find(t => months >= t.min_months && (t.max_months === null || months <= t.max_months));
+  if (tier) {
+    if (parseFloat(tier.discount_percent) > 0) {
+      return Math.round(parseFloat(tier.discount_percent));
+    } else if (parseFloat(tier.price_per_month) > 0) {
+      const price = parseFloat(tier.price_per_month);
+      return Math.round(((basePrice - price) / basePrice) * 100);
+    }
+  }
+  return 0;
+};
+
+const handleSelectPlan = (plan, months = 1) => {
+  if (authStore.isAuthenticated) {
+    router.push({ name: 'my-subscription', query: { upgrade_plan_id: plan.id, months: months } });
+  } else {
+    router.push({ name: 'saas-register', query: { plan_id: plan.id, months: months } });
+  }
 };
 
 onMounted(async () => {
@@ -679,6 +733,70 @@ const testimonials = [
 .card-btn {
   height: 52px !important;
   font-size: 1rem !important;
+}
+
+/* Tiered Pricing List Styles */
+.plan-tiered-prices-list {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 14px 18px;
+  margin-top: -8px;
+  transition: all 0.2s ease;
+}
+.pricing-card.featured .plan-tiered-prices-list {
+  background: #f5f3ff;
+  border-color: #e4dffd;
+}
+.tiered-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #64748b;
+  margin-bottom: 8px;
+  text-align: right;
+}
+.tiered-grid-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tiered-option-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.82rem;
+  color: #334155;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(0, 0, 0, 0.02);
+  transition: all 0.2s ease;
+}
+.tiered-option-item:hover {
+  background: #ffffff;
+  border-color: #6a5ae0;
+  transform: translateX(-3px);
+  box-shadow: 0 4px 12px rgba(106, 90, 224, 0.08);
+}
+.tiered-months {
+  font-weight: 700;
+  color: #475569;
+}
+.tiered-price-val {
+  color: #1a3d8f;
+  font-weight: 600;
+}
+.tiered-price-val strong {
+  font-size: 0.95rem;
+  color: #1a3d8f;
+}
+.tiered-save-badge {
+  font-size: 0.72rem;
+  color: #16a34a;
+  font-weight: 700;
+  background: #eafaf1;
+  padding: 2px 6px;
+  border-radius: 4px;
 }
 
 /* Responsive */

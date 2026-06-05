@@ -11,7 +11,7 @@
         </div>
         <p class="text-subtitle-1 text-grey-darken-1">تحديد الميزات وتعيين قيود الموارد وتشكيل الباقات مع متابعة اشتراكات المستأجرين وتحديثها للسوبر أدمن</p>
       </div>
-      <div>
+      <div v-if="can(PERMISSIONS.PLANS_CREATE) || can(PERMISSIONS.ADMIN_SUPER)">
         <v-btn
           color="primary"
           prepend-icon="ri-add-line"
@@ -99,8 +99,8 @@
 
               <template #item.actions="{ item }">
                 <div class="d-flex gap-1 justify-end">
-                  <v-btn icon="ri-edit-line" size="small" variant="text" color="primary" @click="handleEdit(item)" />
-                  <v-btn icon="ri-delete-bin-line" size="small" variant="text" color="error" @click="handleDelete(item)" />
+                  <v-btn v-if="can(PERMISSIONS.PLANS_UPDATE_ALL) || can(PERMISSIONS.ADMIN_SUPER)" icon="ri-edit-line" size="small" variant="text" color="primary" @click="handleEdit(item)" />
+                  <v-btn v-if="can(PERMISSIONS.PLANS_DELETE_ALL) || can(PERMISSIONS.ADMIN_SUPER)" icon="ri-delete-bin-line" size="small" variant="text" color="error" @click="handleDelete(item)" />
                 </div>
               </template>
 
@@ -201,7 +201,7 @@
               <template #item.actions="{ item }">
                 <div class="d-flex gap-1 justify-end py-2">
                   <v-btn
-                    v-if="!item.is_master"
+                    v-if="!item.is_master && (can(PERMISSIONS.SUBSCRIPTIONS_UPDATE_ALL) || can(PERMISSIONS.ADMIN_SUPER))"
                     color="primary"
                     variant="outlined"
                     size="small"
@@ -533,8 +533,11 @@ import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useApi } from '@/composables/useApi';
 import { toast } from 'vue3-toastify';
+import { usePermissions } from '@/composables/usePermissions';
+import { PERMISSIONS } from '@/config/permissions';
 
 const router = useRouter();
+const { can, canAny } = usePermissions();
 const api = useApi('/api/plans');
 const companiesApi = useApi('/api/saas/companies-subscriptions');
 const changePlanApi = useApi('/api/saas/companies-subscriptions/change-plan');

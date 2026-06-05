@@ -418,7 +418,12 @@ export default [
   {
     title: 'إدارة الساس',
     icon: 'ri-vip-crown-line',
-    permission: PERMISSIONS.ADMIN_SUPER,
+    permission: [
+      PERMISSIONS.ADMIN_SUPER,
+      PERMISSIONS.COMPANIES_VIEW_ALL,
+      PERMISSIONS.SUBSCRIPTIONS_VIEW_ALL,
+      PERMISSIONS.PLANS_VIEW_ALL
+    ],
     children: [
       {
         title: 'قائمة الشركات',
@@ -435,7 +440,11 @@ export default [
         title: 'باقات SaaS',
         to: '/app/saas-plans',
         icon: 'ri-vip-crown-line',
-        permission: PERMISSIONS.ADMIN_SUPER,
+        permission: [
+          PERMISSIONS.ADMIN_SUPER,
+          PERMISSIONS.SUBSCRIPTIONS_VIEW_ALL,
+          PERMISSIONS.PLANS_VIEW_ALL
+        ],
       },
       {
         title: 'النسخ الاحتياطي',

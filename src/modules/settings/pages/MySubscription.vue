@@ -33,6 +33,33 @@
     </v-row>
 
     <template v-else-if="subscriptionData">
+      <!-- تنبيه معلق الدفع أو انتهاء الصلاحية -->
+      <v-alert
+        v-if="subscriptionData.status === 'pending' || subscriptionData.status === 'expired'"
+        type="warning"
+        variant="flat"
+        class="rounded-xl mb-6 font-weight-bold text-white"
+        density="comfortable"
+        prominent
+      >
+        <template #prepend>
+          <v-icon icon="ri-error-warning-fill" size="28" />
+        </template>
+        <div class="d-flex align-center justify-between flex-wrap gap-4 w-100">
+          <div>
+            <div class="text-subtitle-1 font-weight-black">
+              {{ subscriptionData.status === 'pending' ? 'بانتظار سداد قيمة الاشتراك' : 'انتهت صلاحية باقة الاشتراك الحالي' }}
+            </div>
+            <div class="text-caption opacity-90">
+              {{ subscriptionData.status === 'pending' ? 'يرجى استكمال الدفع لتفعيل باقتك والبدء باستخدام النظام دون قيود.' : 'يرجى تجديد الاشتراك أو ترقية الباقة لضمان استمرار تقديم الخدمة.' }}
+            </div>
+          </div>
+          <v-btn color="white" class="text-warning font-weight-bold rounded-pill" @click="openUpgradeDialog">
+            {{ subscriptionData.status === 'pending' ? 'ادفع الآن لتفعيل الباقة' : 'تجديد / ترقية الباقة' }}
+          </v-btn>
+        </div>
+      </v-alert>
+
       <v-row>
         <!-- Subscription Summary Card -->
         <v-col cols="12" lg="8">
@@ -284,13 +311,20 @@
 
                   <v-btn
                     block
-                    :color="subscriptionData.plan_id === plan.id ? 'grey' : 'primary'"
-                    :disabled="subscriptionData.plan_id === plan.id"
+                    :color="subscriptionData.plan_id === plan.id && subscriptionData.status !== 'pending' && subscriptionData.status !== 'expired' ? 'grey' : 'primary'"
+                    :disabled="subscriptionData.plan_id === plan.id && subscriptionData.status !== 'pending' && subscriptionData.status !== 'expired'"
                     class="rounded-pill font-weight-bold py-2 mt-4"
                     :loading="loadingUpgrade && selectedUpgradePlanId === plan.id"
                     @click="confirmUpgrade(plan)"
                   >
-                    {{ subscriptionData.plan_id === plan.id ? 'باقتك الحالية' : 'تفعيل هذه الباقة' }}
+                    <template v-if="subscriptionData.plan_id === plan.id">
+                      <span v-if="subscriptionData.status === 'pending'">إتمام الدفع والتفعيل</span>
+                      <span v-else-if="subscriptionData.status === 'expired'">تجديد الاشتراك</span>
+                      <span v-else>باقتك الحالية</span>
+                    </template>
+                    <template v-else>
+                      تفعيل هذه الباقة
+                    </template>
                   </v-btn>
                 </v-card-text>
               </v-card>
@@ -300,22 +334,27 @@
       </v-card>
     </v-dialog>
 
-    <!-- Confirm Upgrade Dialog -->
-    <v-dialog v-model="showConfirmDialog" max-width="450">
-      <v-card class="rounded-xl">
-        <v-card-title class="font-weight-bold d-flex align-center py-4 px-6 bg-light-primary text-primary">
-          <v-icon icon="ri-question-line" class="me-2" />
-          <span>تأكيد تغيير الباقة</span>
-        </v-card-title>
-        <v-card-text class="pa-6">
-          هل أنت متأكد من الانتقال إلى باقة "<strong>{{ planToUpgrade?.name }}</strong>"؟
-          <div class="text-caption text-warning mt-2">ملاحظة: سيتم إلغاء باقتك الحالية فوراً وتفعيل الباقة الجديدة وحساب دورة الفوترة الجديدة لها.</div>
-        </v-card-text>
-        <v-card-actions class="pa-4 bg-grey-lighten-4">
+    <!-- Pricing Calculator & Checkout Dialog -->
+    <v-dialog v-model="showConfirmDialog" max-width="750" scrollable>
+      <v-card class="rounded-xl overflow-hidden">
+        <v-card-title class="pa-4 bg-primary text-white d-flex align-center">
+          <v-icon icon="ri-shopping-cart-2-line" class="me-2" />
+          <span class="font-weight-bold">تجهيز واحتساب قيمة الاشتراك بالباقة</span>
           <v-spacer />
-          <v-btn variant="text" class="rounded-pill font-weight-bold" @click="showConfirmDialog = false">إلغاء</v-btn>
-          <v-btn color="primary" class="rounded-pill font-weight-bold px-6" :loading="loadingUpgrade" @click="handleUpgrade">تأكيد التفعيل</v-btn>
-        </v-card-actions>
+          <v-btn icon="ri-close-line" color="white" variant="text" @click="showConfirmDialog = false" />
+        </v-card-title>
+        <v-card-text class="pa-4 bg-grey-lighten-5" style="max-height: 80vh;">
+          <div class="mb-4 text-body-2 text-warning font-weight-bold pa-3 rounded bg-amber-lighten-5 border-warning d-flex align-center gap-2">
+            <v-icon icon="ri-alert-line" color="warning" />
+            <span>ملاحظة: تفعيل هذه الباقة سيقوم بإلغاء اشتراكك الحالي تلقائياً وتفعيل الباقة الجديدة بالمدد والخصومات المحتسبة.</span>
+          </div>
+          <PricingCalculatorWidget
+            v-if="planToUpgrade"
+            :plan="planToUpgrade"
+            :submitting="loadingUpgrade"
+            @confirm="handleUpgrade"
+          />
+        </v-card-text>
       </v-card>
     </v-dialog>
   </div>
@@ -326,6 +365,7 @@ import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useApi } from '@/composables/useApi';
 import { toast } from 'vue3-toastify';
+import PricingCalculatorWidget from '@/modules/settings/components/PricingCalculatorWidget.vue';
 
 const router = useRouter();
 const route = useRoute();
@@ -347,6 +387,7 @@ const planToUpgrade = ref(null);
 const getStatusColor = status => {
   if (status === 'active') return 'success';
   if (status === 'trial') return 'info';
+  if (status === 'pending') return 'warning';
   if (status === 'canceled') return 'error';
   if (status === 'expired') return 'error';
   return 'grey';
@@ -355,6 +396,7 @@ const getStatusColor = status => {
 const getStatusLabel = status => {
   if (status === 'active') return 'باقة نشطة';
   if (status === 'trial') return 'فترة تجريبية مجانية';
+  if (status === 'pending') return 'معلق بانتظار الدفع';
   if (status === 'canceled') return 'ملغي';
   if (status === 'expired') return 'منتهي الصلاحية';
   return status;
@@ -466,13 +508,19 @@ const confirmUpgrade = (plan) => {
   showConfirmDialog.value = true;
 };
 
-const handleUpgrade = async () => {
-  if (!selectedUpgradePlanId.value) return;
+const handleUpgrade = async (checkoutData) => {
+  const planId = checkoutData?.plan_id || selectedUpgradePlanId.value;
+  const months = checkoutData?.months || 1;
+  const couponCode = checkoutData?.coupon_code || null;
+
+  if (!planId) return;
   loadingUpgrade.value = true;
   try {
     const redirectUrl = window.location.origin + '/app/my-subscription';
     const response = await subApi.request('post', 'upgrade', { 
-      plan_id: selectedUpgradePlanId.value,
+      plan_id: planId,
+      months: months,
+      coupon_code: couponCode,
       redirect_url: redirectUrl
     });
 
@@ -504,6 +552,15 @@ onMounted(async () => {
     } else if (route.query.payment_status === 'cancel') {
       toast.warning('تم إلغاء عملية الدفع ولم يتم تغيير الباقة.');
     }
+    router.replace({ query: {} });
+  } else if (route.query.upgrade_plan_id) {
+    const planId = Number(route.query.upgrade_plan_id);
+    await loadPlans();
+    const foundPlan = plans.value.find(p => p.id === planId);
+    if (foundPlan) {
+      confirmUpgrade(foundPlan);
+    }
+    // Clean up the query param
     router.replace({ query: {} });
   }
 });
