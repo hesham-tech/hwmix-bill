@@ -201,12 +201,14 @@ const handleLogin = async () => {
   background: #060b18;
   position: relative;
   overflow: hidden;
+  overflow-x: clip;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
   width: 100%;
-  max-width: 100vw;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 /* Mesh Background */
@@ -214,32 +216,36 @@ const handleLogin = async () => {
   position: absolute;
   inset: 0;
   z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
 }
 .mesh-orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(100px);
+  filter: blur(80px);
   opacity: 0.18;
   animation: meshFloat 12s ease-in-out infinite;
+  /* منع التمدد الأفقي خارج الشاشة */
+  max-width: 100vw;
 }
 .orb-1 {
-  width: 600px;
-  height: 600px;
+  width: min(600px, 150vw);
+  height: min(600px, 150vw);
   background: #4f46e5;
   top: -200px;
   left: -200px;
 }
 .orb-2 {
-  width: 500px;
-  height: 500px;
+  width: min(500px, 130vw);
+  height: min(500px, 130vw);
   background: #f59e0b;
   bottom: -150px;
   right: -150px;
   animation-delay: -4s;
 }
 .orb-3 {
-  width: 400px;
-  height: 400px;
+  width: min(400px, 100vw);
+  height: min(400px, 100vw);
   background: #7c3aed;
   top: 40%;
   left: 40%;

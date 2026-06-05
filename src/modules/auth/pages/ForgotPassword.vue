@@ -376,12 +376,14 @@ const handleResetPassword = async () => {
   background: #060b18;
   position: relative;
   overflow: hidden;
+  overflow-x: clip;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
   width: 100%;
-  max-width: 100vw;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 /* Mesh Background */
@@ -389,32 +391,35 @@ const handleResetPassword = async () => {
   position: absolute;
   inset: 0;
   z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
 }
 .mesh-orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(100px);
+  filter: blur(80px);
   opacity: 0.15;
   animation: meshFloat 12s ease-in-out infinite;
+  max-width: 100vw;
 }
 .orb-1 {
-  width: 500px;
-  height: 500px;
+  width: min(500px, 150vw);
+  height: min(500px, 150vw);
   background: #4f46e5;
   top: -150px;
   left: -150px;
 }
 .orb-2 {
-  width: 400px;
-  height: 400px;
+  width: min(400px, 130vw);
+  height: min(400px, 130vw);
   background: #f59e0b;
   bottom: -120px;
   right: -120px;
   animation-delay: -4s;
 }
 .orb-3 {
-  width: 300px;
-  height: 300px;
+  width: min(300px, 100vw);
+  height: min(300px, 100vw);
   background: #7c3aed;
   top: 40%;
   left: 40%;
