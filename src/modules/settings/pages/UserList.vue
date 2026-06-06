@@ -1,78 +1,64 @@
 <template>
   <div class="users-page">
-    <div class="page-header mb-2">
-      <h1 class="text-h4 font-weight-bold">المستخدمين</h1>
-      <p class="text-body-1 text-grey">إدارة مستخ دمي النظام والعملاء</p>
-    </div>
+    <AppDataTable
+      :headers="headers"
+      :items="users"
+      :loading="loading"
+      v-model:page="page"
+      v-model:items-per-page="itemsPerPage"
+      :total-items="total"
+      title="المستخدمين"
+      subtitle="إدارة مستخدمي النظام والعملاء"
+      icon="ri-user-line"
+      table-key="users.index"
+      class="premium-card"
+      @update:page="loadData"
+      @update:items-per-page="handleItemsPerPageChange"
+    >
+      <template #actions>
+        <v-btn color="primary" prepend-icon="ri-add-line" class="rounded-lg font-weight-bold" @click="handleCreate"> مستخدم جديد </v-btn>
+      </template>
 
-    <v-card>
-      <v-card-title class="d-flex align-center">
-        <v-icon icon="ri-user-line" class="me-2" />
-        المستخدمين
-        <v-spacer />
-        <v-btn color="primary" prepend-icon="ri-add-line" @click="handleCreate"> مستخدم جديد </v-btn>
-      </v-card-title>
+      <template #item.full_name="{ item }">
+        <div class="d-flex align-center">
+          <v-avatar size="32" color="primary" class="me-2">
+            <span class="text-white text-caption">{{ item.full_name?.charAt(0) }}</span>
+          </v-avatar>
+          <div>
+            <div class="font-weight-medium">{{ item.full_name }}</div>
+            <div class="text-caption text-medium-emphasis">{{ item.email }}</div>
+          </div>
+        </div>
+      </template>
 
-      <v-card-text>
-        <v-data-table
-          :headers="headers"
-          :items="users"
-          :loading="loading"
-          :items-per-page="itemsPerPage"
-          :page="page"
-          :items-length="total"
-          @update:page="
-            page = $event;
-            loadData();
-          "
-          @update:items-per-page="handleItemsPerPageChange"
-          density="comfortable"
-        >
-          <template #item.full_name="{ item }">
-            <div class="d-flex align-center">
-              <v-avatar size="32" color="primary" class="me-2">
-                <span class="text-white text-caption">{{ item.full_name?.charAt(0) }}</span>
-              </v-avatar>
-              <div>
-                <div class="font-weight-medium">{{ item.full_name }}</div>
-                <div class="text-caption text-medium-emphasis">{{ item.email }}</div>
-              </div>
-            </div>
-          </template>
+      <template #item.role="{ item }">
+        <v-chip v-if="item.role" size="small" variant="tonal" color="info">
+          {{ item.role.name }}
+        </v-chip>
+        <span v-else class="text-grey">-</span>
+      </template>
 
-          <template #item.role="{ item }">
-            <v-chip v-if="item.role" size="small" variant="tonal" color="info">
-              {{ item.role.name }}
-            </v-chip>
-            <span v-else class="text-grey">-</span>
-          </template>
+      <template #item.phone="{ item }">
+        <AppPhone :phone="item.phone" />
+      </template>
 
-          <template #item.phone="{ item }">
-            <AppPhone :phone="item.phone" />
-          </template>
+      <template #item.is_active="{ item }">
+        <v-chip :color="item.is_active ? 'success' : 'error'" size="small" variant="tonal">
+          {{ item.is_active ? 'نشط' : 'غير نشط' }}
+        </v-chip>
+      </template>
 
-          <template #item.is_active="{ item }">
-            <v-chip :color="item.is_active ? 'success' : 'error'" size="small" variant="tonal">
-              {{ item.is_active ? 'نشط' : 'غير نشط' }}
-            </v-chip>
-          </template>
+      <template #item.actions="{ item }">
+        <div class="d-flex gap-2">
+          <v-btn icon="ri-edit-line" size="small" variant="text" color="primary" @click="handleEdit(item)" />
+          <v-btn icon="ri-delete-bin-line" size="small" variant="text" color="error" @click="handleDelete(item)" />
+        </div>
+      </template>
 
-          <template #item.actions="{ item }">
-            <div class="d-flex gap-2">
-              <v-btn icon="ri-edit-line" size="small" variant="text" color="primary" @click="handleEdit(item)" />
-              <v-btn icon="ri-delete-bin-line" size="small" variant="text" color="error" @click="handleDelete(item)" />
-            </div>
-          </template>
-
-          <template #no-data>
-            <div class="text-center pa-4">
-              <v-icon icon="ri-user-line" size="48" color="grey" class="mb-2" />
-              <div class="text-medium-emphasis">لا يوجد مستخدمين</div>
-            </div>
-          </template>
-        </v-data-table>
-      </v-card-text>
-    </v-card>
+      <template #empty-actions>
+        <v-btn color="primary" variant="outlined" @click="handleCreate">إضافة مستخدم</v-btn>
+      </template>
+    </AppDataTable>
 
     <!-- Form Dialog -->
     <v-dialog v-model="showDialog" max-width="700" persistent>
@@ -145,8 +131,8 @@ import { ref, onMounted, computed } from 'vue';
 import { useUsersData } from '../composables/useUsersData';
 import { useApi } from '@/composables/useApi';
 import AppSwitch from '@/components/common/AppSwitch.vue';
-import AppCard from '@/components/common/AppCard.vue';
 import AppPasswordInput from '@/components/common/AppPasswordInput.vue';
+import AppDataTable from '@/components/common/AppDataTable.vue';
 const { users, loading, total, fetchUsers, deleteUser } = useUsersData();
 const api = useApi('/api/users');
 const rolesApi = useApi('/api/roles');

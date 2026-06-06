@@ -9,6 +9,7 @@
       <v-col cols="12" class="pa-0">
         <v-card rounded="md" class="border shadow-sm">
           <InstallmentsTable
+            table-key="installments.index"
             :items="installments"
             :loading="loading"
             :total-items="total"

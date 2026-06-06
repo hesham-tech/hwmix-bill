@@ -226,7 +226,12 @@ export default [
   {
     title: 'الحسابات والمالية',
     icon: 'ri-bank-card-2-line',
-    permission: PERMISSIONS.EXPENSES_PAGE,
+    permission: [
+      PERMISSIONS.TRANSACTIONS_VIEW_ALL,
+      PERMISSIONS.FINANCIAL_LEDGER_VIEW_ALL,
+      PERMISSIONS.FINANCIAL_LEDGER_VIEW_CHILDREN,
+      PERMISSIONS.FINANCIAL_LEDGER_VIEW_SELF
+    ],
     children: [
       {
         title: 'سجل المعاملات',

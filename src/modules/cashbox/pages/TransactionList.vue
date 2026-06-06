@@ -41,6 +41,7 @@
         <v-col cols="12" md="8" class="pa-0">
           <v-card rounded="md" class="border shadow-sm">
             <AppDataTable
+              table-key="cash_transfers.index"
               :headers="headers"
               :items="transactions"
               :loading="loading"
@@ -196,7 +197,7 @@ const cashBoxesApi = useApi('/api/cash-boxes');
 
 // API fetch function for useDataTable
 const fetchTransactions = async params => {
-  return await api.get(params, { showLoading: false });
+  return await api.get({ ...params, is_transfer: true }, { showLoading: false });
 };
 
 // DataTable logic

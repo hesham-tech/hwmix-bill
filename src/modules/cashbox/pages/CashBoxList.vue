@@ -141,6 +141,7 @@
           <!-- List View -->
           <AppDataTable
             v-else
+            table-key="cash_boxes.index"
             :headers="headers"
             :items="cashBoxes"
             :loading="loading"

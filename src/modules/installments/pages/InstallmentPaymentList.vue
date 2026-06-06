@@ -5,6 +5,7 @@
   >
     <div>
       <AppDataTable
+        table-key="installment_payments.index"
         :headers="headers"
         :items="payments"
         :loading="loading"

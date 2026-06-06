@@ -5,6 +5,7 @@
         <v-col cols="12" class="pa-0">
           <v-card rounded="md" class="border shadow-sm overflow-hidden mb-4">
             <AppDataTable
+              table-key="product_variants.index"
               v-model:sort-by="sortByVuetify"
               v-model:search="search"
               v-model:page="page"

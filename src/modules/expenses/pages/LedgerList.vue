@@ -1,100 +1,86 @@
+<!-- تعليق عربي: صفحة دفتر الأستاذ العام - تعرض جميع الحركات المالية المسجلة في النظام -->
+
 <template>
   <div class="ledger-list-page">
-    <AppPageHeader title="دفتر الأستاذ" subtitle="سجل تدقيق لجميع الحركات المالية داخل النظام" icon="ri-book-open-line">
-      <template #controls>
-        <v-col cols="12" md="4" lg="3">
-          <AppInput
-            v-model="filters.search"
-            prepend-inner-icon="ri-search-line"
-            placeholder="البحث في الملاحظات أو المرجع..."
-            hide-details
-            @update:model-value="handleSearch"
-          />
+    <v-container fluid class="pa-0">
+      <v-row class="ma-0">
+        <v-col cols="12" class="pa-0">
+          <v-card rounded="md" class="border shadow-sm">
+            <AppDataTable
+              table-key="ledger.index"
+              v-model:sort-by="sortByVuetify"
+              v-model:search="searchText"
+              v-model:page="currentPage"
+              v-model:items-per-page="perPage"
+              :filters="advancedFilters"
+              :headers="headers"
+              :items="ledgerEntries || []"
+              :total-items="totalItems || 0"
+              :loading="loading"
+              title="دفتر الأستاذ"
+              subtitle="سجل تدقيق لجميع الحركات المالية داخل النظام"
+              icon="ri-book-open-line"
+              permission-module="financial_ledger"
+              :can-create="false"
+              @update:filters="applyFilters"
+              @update:options="handleOptionsUpdate"
+            >
+              <!-- زر تصدير Excel في منطقة الإجراءات -->
+              <template #actions>
+                <AppButton
+                  variant="outlined"
+                  prepend-icon="ri-download-2-line"
+                  color="success"
+                  :loading="exportLoading"
+                  size="small"
+                  style="height: 28px;"
+                  class="px-2"
+                  @click="handleExport"
+                >
+                  <span class="d-none d-sm-inline">تصدير Excel</span>
+                </AppButton>
+              </template>
+
+              <!-- عمود النوع -->
+              <template #item.type_label="{ item }">
+                <v-chip size="small" :color="getTypeColor(item.type)" variant="tonal" class="font-weight-bold">
+                  {{ item.type_label }}
+                </v-chip>
+              </template>
+
+              <!-- عمود المبلغ -->
+              <template #item.amount="{ item }">
+                <span :class="item.amount < 0 ? 'text-error' : 'text-success'" class="font-weight-bold">
+                  {{ formatCurrency(Math.abs(item.amount)) }}
+                  <v-icon :icon="item.amount < 0 ? 'ri-arrow-down-line' : 'ri-arrow-up-line'" size="x-small" />
+                </span>
+              </template>
+
+              <!-- عمود الرصيد بعد -->
+              <template #item.balance_after="{ item }">
+                <span class="font-weight-bold">{{ formatCurrency(item.balance_after) }}</span>
+              </template>
+
+              <!-- عمود المرجع -->
+              <template #item.source_id="{ item }">
+                <span class="text-caption text-grey">{{ item.source_id || '—' }}</span>
+              </template>
+            </AppDataTable>
+          </v-card>
         </v-col>
-
-        <v-col cols="auto">
-          <AppButton
-            :variant="showAdvancedSearch ? 'tonal' : 'text'"
-            prepend-icon="ri-filter-3-line"
-            @click="showAdvancedSearch = !showAdvancedSearch"
-          >
-            فلترة متقدمة
-          </AppButton>
-        </v-col>
-
-        <v-spacer />
-
-        <v-col cols="auto">
-          <AppButton variant="outlined" prepend-icon="ri-download-2-line" color="success" :loading="exportLoading" @click="handleExport">
-            تصدير Excel
-          </AppButton>
-        </v-col>
-      </template>
-    </AppPageHeader>
-
-    <v-expand-transition>
-      <v-card v-if="showAdvancedSearch" class="mx-4 mb-4 pa-4 border-slate-50" flat>
-        <v-row>
-          <v-col cols="12" sm="6" md="3">
-            <AppDatePicker v-model="filters.date_from" label="من تاريخ" clearable @update:model-value="handleAdvancedFilters" />
-          </v-col>
-          <v-col cols="12" sm="6" md="3">
-            <AppDatePicker v-model="filters.date_to" label="إلى تاريخ" clearable @update:model-value="handleAdvancedFilters" />
-          </v-col>
-          <v-col cols="12" sm="6" md="3">
-            <AppAutocomplete v-model="filters.type" :items="ledgerTypes" label="نوع الحركة" clearable @update:model-value="handleAdvancedFilters" />
-          </v-col>
-          <v-col cols="12" sm="6" md="3" class="d-flex align-end pb-3">
-            <AppButton variant="text" color="error" @click="resetFilters">تصفية الكل</AppButton>
-          </v-col>
-        </v-row>
-      </v-card>
-    </v-expand-transition>
-
-    <v-card class="mx-4 mt-2 border-slate-50" flat>
-      <AppDataTable
-        :headers="headers"
-        :items="ledgerEntries"
-        :loading="loading"
-        :total-items="totalItems"
-        v-model:page="currentPage"
-        v-model:items-per-page="perPage"
-        v-model:sort-by="sortByVuetify"
-        @update:options="handleOptionsUpdate"
-      >
-        <template #[`item.type_label`]="{ item }">
-          <v-chip size="small" :color="getTypeColor(item.type)" variant="tonal">
-            {{ item.type_label }}
-          </v-chip>
-        </template>
-
-        <template #[`item.amount`]="{ item }">
-          <span :class="item.amount < 0 ? 'text-error' : 'text-success'" class="font-weight-bold">
-            {{ formatCurrency(Math.abs(item.amount)) }}
-            <v-icon :icon="item.amount < 0 ? 'ri-arrow-down-line' : 'ri-arrow-up-line'" size="x-small" />
-          </span>
-        </template>
-
-        <template #[`item.balance_after`]="{ item }">
-          <span class="font-weight-bold">{{ formatCurrency(item.balance_after) }}</span>
-        </template>
-      </AppDataTable>
-    </v-card>
+      </v-row>
+    </v-container>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
-import AppPageHeader from '@/components/common/AppPageHeader.vue';
+// تعليق عربي: منطق صفحة دفتر الأستاذ وجلب بيانات الحركات المالية من API
+import { ref } from 'vue';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 import AppButton from '@/components/common/AppButton.vue';
-import AppInput from '@/components/common/AppInput.vue';
-import AppDatePicker from '@/components/common/AppDatePicker.vue';
-import AppAutocomplete from '@/components/common/AppAutocomplete.vue';
 import { formatCurrency } from '@/utils/formatters';
 import { financialLedgerService } from '@/api';
 import { useDataTable } from '@/composables/useDataTable';
-import debounce from 'lodash/debounce';
 
 const {
   items: ledgerEntries,
@@ -103,25 +89,17 @@ const {
   perPage,
   total: totalItems,
   sortByVuetify,
-  sortBy,
+  search: searchText,
   changeSort,
   applyFilters,
-  fetchData,
 } = useDataTable(params => financialLedgerService.getAll(params), {
+  syncWithUrl: true,
   initialSortBy: 'created_at',
   initialSortOrder: 'desc',
   immediate: true,
 });
 
 const exportLoading = ref(false);
-const showAdvancedSearch = ref(false);
-
-const filters = reactive({
-  search: '',
-  date_from: null,
-  date_to: null,
-  type: null,
-});
 
 const headers = [
   { title: 'التاريخ', key: 'created_at', sortable: true },
@@ -132,36 +110,45 @@ const headers = [
   { title: 'الملاحظات', key: 'description', sortable: false },
 ];
 
-const ledgerTypes = [
-  { title: 'فاتورة مبيعات', value: 'sale' },
-  { title: 'فاتورة مشتريات', value: 'purchase' },
-  { title: 'مصروفات', value: 'expense' },
-  { title: 'سداد دفعة', value: 'payment' },
+// فلاتر متقدمة مدمجة داخل AppDataTable تلقائياً
+const advancedFilters = [
+  {
+    key: 'date_from',
+    title: 'من تاريخ',
+    type: 'date',
+  },
+  {
+    key: 'date_to',
+    title: 'إلى تاريخ',
+    type: 'date',
+  },
+  {
+    key: 'type',
+    title: 'نوع الحركة',
+    type: 'select',
+    items: [
+      { title: 'فاتورة مبيعات', value: 'sale' },
+      { title: 'فاتورة مشتريات', value: 'purchase' },
+      { title: 'مصروفات', value: 'expense' },
+      { title: 'سداد دفعة', value: 'payment' },
+      { title: 'إيداع', value: 'deposit' },
+      { title: 'سحب', value: 'withdraw' },
+      { title: 'تحويل', value: 'transfer' },
+    ],
+  },
 ];
-
-// fetchData is now provided by useDataTable
-
-const handleSearch = debounce(() => {
-  applyFilters({ ...filters });
-}, 500);
-
-const handleAdvancedFilters = () => {
-  applyFilters({ ...filters });
-};
 
 const handleOptionsUpdate = options => {
   changeSort(options);
 };
 
-const resetFilters = () => {
-  Object.assign(filters, { search: '', date_from: null, date_to: null, type: null });
-  applyFilters({ ...filters });
-};
-
 const handleExport = async () => {
   exportLoading.value = true;
-  await financialLedgerService.export(filters);
-  exportLoading.value = false;
+  try {
+    await financialLedgerService.export({});
+  } finally {
+    exportLoading.value = false;
+  }
 };
 
 const getTypeColor = type => {
@@ -170,17 +157,10 @@ const getTypeColor = type => {
     purchase: 'info',
     expense: 'error',
     payment: 'warning',
+    deposit: 'info',
+    withdraw: 'error',
+    transfer: 'orange',
   };
   return colors[type] || 'grey';
 };
-
-onMounted(() => {
-  // Rely on AppDataTable update:options to fetch initial data
-});
 </script>
-
-<style scoped>
-.border-slate-50 {
-  border: 1px solid #f1f5f9 !important;
-}
-</style>

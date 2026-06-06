@@ -5,6 +5,7 @@
     <v-container fluid class="pt-0">
       <v-card rounded="md" class="border shadow-sm overflow-hidden mb-2">
         <AppDataTable
+          table-key="installment_plans.index"
           :headers="headers"
           :items="plans"
           :loading="loading"

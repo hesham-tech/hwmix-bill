@@ -1,71 +1,60 @@
 <template>
   <div class="warehouses-page">
-    <div class="page-header mb-2">
-      <h1 class="text-h4 font-weight-bold">المخازن</h1>
-      <p class="text-body-1 text-grey">إدارة مخازن المنتجات</p>
-    </div>
+    <AppDataTable
+      :headers="headers"
+      :items="warehouses"
+      :loading="loading"
+      v-model:page="page"
+      v-model:items-per-page="itemsPerPage"
+      :total-items="total"
+      title="المخازن"
+      subtitle="إدارة مخازن المنتجات والعهدة"
+      icon="ri-store-line"
+      table-key="warehouses.index"
+      class="premium-card"
+      @update:page="loadData"
+      @update:items-per-page="handleItemsPerPageChange"
+    >
+      <template #actions>
+        <v-btn color="primary" prepend-icon="ri-add-line" class="rounded-lg font-weight-bold" @click="handleCreate"> مخزن جديد </v-btn>
+      </template>
 
-    <v-card>
-      <v-card-title class="d-flex align-center">
-        <v-icon icon="ri-store-line" class="me-2" />
-        المخازن
-        <v-spacer />
-        <v-btn color="primary" prepend-icon="ri-add-line" @click="handleCreate"> مخزن جديد </v-btn>
-      </v-card-title>
+      <template #item.name="{ item }">
+        <div class="d-flex align-center">
+          <v-icon icon="ri-building-line" size="small" color="primary" class="me-2" />
+          <span class="font-weight-medium">{{ item.name }}</span>
+        </div>
+      </template>
 
-      <v-card-text>
-        <v-data-table
-          :headers="headers"
-          :items="warehouses"
-          :loading="loading"
-          :items-per-page="itemsPerPage"
-          :page="page"
-          :items-length="total"
-          @update:page="page = $event"
-          @update:items-per-page="handleItemsPerPageChange"
-          density="comfortable"
-        >
-          <template #item.name="{ item }">
-            <div class="d-flex align-center">
-              <v-icon icon="ri-building-line" size="small" color="primary" class="me-2" />
-              <span class="font-weight-medium">{{ item.name }}</span>
-            </div>
-          </template>
+      <template #item.location="{ item }">
+        <span class="text-medium-emphasis">{{ item.location || '-' }}</span>
+      </template>
 
-          <template #item.location="{ item }">
-            <span class="text-medium-emphasis">{{ item.location || '-' }}</span>
-          </template>
+      <template #item.manager="{ item }">
+        <v-chip v-if="item.manager?.name" size="small" variant="tonal" color="info">
+          <v-icon icon="ri-user-line" size="small" class="me-1" />
+          {{ item.manager.name }}
+        </v-chip>
+        <span v-else class="text-grey">-</span>
+      </template>
 
-          <template #item.manager="{ item }">
-            <v-chip v-if="item.manager?.name" size="small" variant="tonal" color="info">
-              <v-icon icon="ri-user-line" size="small" class="me-1" />
-              {{ item.manager.name }}
-            </v-chip>
-            <span v-else class="text-grey">-</span>
-          </template>
+      <template #item.is_active="{ item }">
+        <v-chip :color="item.is_active ? 'success' : 'error'" size="small" variant="tonal">
+          {{ item.is_active ? 'نشط' : 'غير نشط' }}
+        </v-chip>
+      </template>
 
-          <template #item.is_active="{ item }">
-            <v-chip :color="item.is_active ? 'success' : 'error'" size="small" variant="tonal">
-              {{ item.is_active ? 'نشط' : 'غير نشط' }}
-            </v-chip>
-          </template>
+      <template #item.actions="{ item }">
+        <div class="d-flex gap-2">
+          <v-btn icon="ri-edit-line" size="small" variant="text" color="primary" @click="handleEdit(item)" />
+          <v-btn icon="ri-delete-bin-line" size="small" variant="text" color="error" @click="handleDelete(item)" />
+        </div>
+      </template>
 
-          <template #item.actions="{ item }">
-            <div class="d-flex gap-2">
-              <v-btn icon="ri-edit-line" size="small" variant="text" color="primary" @click="handleEdit(item)" />
-              <v-btn icon="ri-delete-bin-line" size="small" variant="text" color="error" @click="handleDelete(item)" />
-            </div>
-          </template>
-
-          <template #no-data>
-            <div class="text-center pa-4">
-              <v-icon icon="ri-store-line" size="48" color="grey" class="mb-2" />
-              <div class="text-medium-emphasis">لا توجد مخازن</div>
-            </div>
-          </template>
-        </v-data-table>
-      </v-card-text>
-    </v-card>
+      <template #empty-actions>
+        <v-btn color="primary" variant="outlined" @click="handleCreate">إضافة مخزن</v-btn>
+      </template>
+    </AppDataTable>
 
     <!-- Form Dialog -->
     <v-dialog v-model="showDialog" max-width="700" persistent>
@@ -111,8 +100,7 @@
       <v-card>
         <v-card-title>تأكيد الحذف</v-card-title>
         <v-card-text>
-          هل أنت متأكد من حذف المخزن "<strong>{{ selectedItem?.name }}</strong
-          >"؟
+          هل أنت متأكد من حذف المخزن "<strong>{{ selectedItem?.name }}</strong>"؟
         </v-card-text>
         <v-card-actions>
           <v-spacer />
@@ -129,7 +117,7 @@ import { ref, onMounted, computed } from 'vue';
 import { useWarehousesData } from '../composables/useWarehousesData';
 import { useApi } from '@/composables/useApi';
 import AppSwitch from '@/components/common/AppSwitch.vue';
-import AppCard from '@/components/common/AppCard.vue';
+import AppDataTable from '@/components/common/AppDataTable.vue';
 
 const { warehouses, loading, total, fetchWarehouses, deleteWarehouse } = useWarehousesData();
 const api = useApi('/api/warehouses');

@@ -475,7 +475,8 @@ const savePreferencesToStore = async (silent = false) => {
       ...localStats.value.map(s => ({ key: s.key, visible: s.visible })),
       ...localSections.value.map(s => ({ key: s.key, visible: s.visible }))
     ];
-    await uiPrefsStore.savePreference('dashboard.admin', { columns });
+    // immediate=true: يرسل للسيرفر فوراً بدون debounce لضمان عدم فقدان التخصيص
+    await uiPrefsStore.savePreference('dashboard.admin', { columns }, true);
     if (!silent) {
       toast.success('تم حفظ التخصيص بنجاح');
       isCustomizing.value = false;

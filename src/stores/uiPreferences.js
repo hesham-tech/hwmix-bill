@@ -67,14 +67,18 @@ export const useUIPreferencesStore = defineStore('uiPreferences', () => {
         if (serverPref) {
           const cachedPref = preferences.value[key];
 
-          // مزامنة التفضيلات إذا كانت نسخة السيرفر أحدث أو غير موجودة محلياً
-          if (!cachedPref || serverPref.updated_at !== cachedPref.updated_at) {
+          // مزامنة التفضيلات فقط إذا كانت نسخة السيرفر أحدث من النسخة المحلية
+          const serverTime = serverPref.updated_at ? new Date(serverPref.updated_at).getTime() : 0;
+          const localTime = cachedPref?.updated_at ? new Date(cachedPref.updated_at).getTime() : 0;
+
+          if (!cachedPref || serverTime > localTime) {
             preferences.value = {
               ...preferences.value,
               [key]: serverPref
             };
             localStorage.setItem(cacheKey, JSON.stringify(serverPref));
           }
+          // إذا كانت النسخة المحلية أحدث (حُفظت حديثاً ولم تُزامَن بعد)، نتجاهل نسخة السيرفر
         }
       });
     } catch (error) {
@@ -91,8 +95,11 @@ export const useUIPreferencesStore = defineStore('uiPreferences', () => {
 
   /**
    * حفظ أو تحديث تفضيلات جدول محدد فوراً محلياً وبشكل Debounced على السيرفر
+   * @param {string} tableKey - مفتاح الجدول
+   * @param {object} prefData - بيانات التفضيلات
+   * @param {boolean} immediate - إذا true يرسل للسيرفر فوراً بدون debounce
    */
-  const savePreference = (tableKey, prefData) => {
+  const savePreference = async (tableKey, prefData, immediate = false) => {
     const userStore = useUserStore();
     const userId = userStore.currentUser?.id;
     const companyId = userStore.currentUser?.active_company_id;
@@ -112,7 +119,24 @@ export const useUIPreferencesStore = defineStore('uiPreferences', () => {
     };
     localStorage.setItem(cacheKey, JSON.stringify(updatedPref));
 
-    // 2. تحديث السيرفر بطريقة Debounced لتقليل الضغط
+    // 2أ. إذا طُلب الإرسال الفوري (مثل حفظ تخصيص الداشبورد) - بدون debounce
+    if (immediate) {
+      if (debounceTimers[tableKey]) {
+        clearTimeout(debounceTimers[tableKey]);
+        delete debounceTimers[tableKey];
+      }
+      try {
+        await apiClient.post('ui-preferences', {
+          table_key: tableKey,
+          preferences: updatedPref
+        });
+      } catch (error) {
+        console.error(`Failed to save preferences immediately for ${tableKey}:`, error);
+      }
+      return;
+    }
+
+    // 2ب. تحديث السيرفر بطريقة Debounced لتقليل الضغط (للجداول العادية)
     if (debounceTimers[tableKey]) {
       clearTimeout(debounceTimers[tableKey]);
     }

@@ -5,105 +5,96 @@
       <p class="text-body-1 text-grey">عرض وإدارة فروع شركتك، وتعيين الفرع الافتراضي.</p>
     </div>
 
-    <v-card class="premium-card">
-      <v-card-title class="d-flex align-center pa-4">
-        <v-icon icon="ri-git-branch-line" class="me-2" color="primary" />
-        <span class="text-h6 font-weight-bold">قائمة الفروع</span>
-        <v-spacer />
+    <AppDataTable
+      :headers="headers"
+      :items="branches"
+      :loading="loading"
+      title="إدارة الفروع"
+      subtitle="عرض وإدارة فروع شركتك، وتعيين الفرع الافتراضي."
+      icon="ri-git-branch-line"
+      table-key="branches.index"
+      :items-per-page="15"
+      permission-module="branches"
+      class="premium-card"
+    >
+      <template #actions v-if="canCreate">
         <v-btn 
-          v-if="canCreate"
           color="primary" 
           prepend-icon="ri-add-line" 
-          class="rounded-lg"
+          class="rounded-lg font-weight-bold"
           @click="handleCreate"
         > 
           إضافة فرع جديد 
         </v-btn>
-      </v-card-title>
+      </template>
 
-      <v-divider />
-
-      <v-data-table
-        :headers="headers"
-        :items="branches"
-        :loading="loading"
-        density="comfortable"
-        hover
-        class="branch-table"
-      >
-        <template #item.name="{ item }">
-          <div class="d-flex align-center">
-            <v-avatar size="32" color="primary-lighten-5" class="me-3 rounded-lg">
-              <v-icon icon="ri-building-line" color="primary" size="18" />
-            </v-avatar>
-            <div>
-              <div class="font-weight-bold text-primary">{{ item.name }}</div>
-              <div class="text-caption text-grey">{{ item.email || 'لا يوجد بريد إلكتروني' }}</div>
-            </div>
+      <template #item.name="{ item }">
+        <div class="d-flex align-center">
+          <v-avatar size="32" color="primary-lighten-5" class="me-3 rounded-lg">
+            <v-icon icon="ri-building-line" color="primary" size="18" />
+          </v-avatar>
+          <div>
+            <div class="font-weight-bold text-primary">{{ item.name }}</div>
+            <div class="text-caption text-grey">{{ item.email || 'لا يوجد بريد إلكتروني' }}</div>
           </div>
-        </template>
+        </div>
+      </template>
 
-        <template #item.is_default="{ item }">
-          <v-chip 
-            v-if="item.is_default" 
-            color="success" 
-            size="small" 
-            variant="flat"
-            prepend-icon="ri-check-line"
-          >
-            الافتراضي
-          </v-chip>
-          <span v-else class="text-grey text-caption">-</span>
-        </template>
+      <template #item.is_default="{ item }">
+        <v-chip 
+          v-if="item.is_default" 
+          color="success" 
+          size="small" 
+          variant="flat"
+          prepend-icon="ri-check-line"
+        >
+          الافتراضي
+        </v-chip>
+        <span v-else class="text-grey text-caption">-</span>
+      </template>
 
-        <template #item.phone="{ item }">
-          <div v-if="item.phone" class="d-flex align-center">
-            <v-icon icon="ri-phone-line" size="14" class="me-1 text-grey" />
-            <span class="text-body-2">{{ item.phone }}</span>
-          </div>
-          <span v-else class="text-grey">-</span>
-        </template>
+      <template #item.phone="{ item }">
+        <div v-if="item.phone" class="d-flex align-center">
+          <v-icon icon="ri-phone-line" size="14" class="me-1 text-grey" />
+          <span class="text-body-2">{{ item.phone }}</span>
+        </div>
+        <span v-else class="text-grey">-</span>
+      </template>
 
-        <template #item.actions="{ item }">
-          <div class="d-flex justify-end gap-2">
-            <v-tooltip location="top" text="تعديل">
-              <template #activator="{ props }">
-                <v-btn 
-                  v-if="canUpdate"
-                  v-bind="props"
-                  icon="ri-edit-line" 
-                  size="small" 
-                  variant="tonal" 
-                  color="primary" 
-                  @click="handleEdit(item)" 
-                />
-              </template>
-            </v-tooltip>
-            <v-tooltip location="top" text="حذف" v-if="!item.is_default && canDelete">
-              <template #activator="{ props }">
-                <v-btn 
-                  v-bind="props"
-                  icon="ri-delete-bin-line" 
-                  size="small" 
-                  variant="tonal" 
-                  color="error" 
-                  @click="handleDelete(item)" 
-                />
-              </template>
-            </v-tooltip>
-          </div>
-        </template>
+      <template #item.actions="{ item }">
+        <div class="d-flex justify-end gap-2">
+          <v-tooltip location="top" text="تعديل">
+            <template #activator="{ props }">
+              <v-btn 
+                v-if="canUpdate"
+                v-bind="props"
+                icon="ri-edit-line" 
+                size="small" 
+                variant="tonal" 
+                color="primary" 
+                @click="handleEdit(item)" 
+              />
+            </template>
+          </v-tooltip>
+          <v-tooltip location="top" text="حذف" v-if="!item.is_default && canDelete">
+            <template #activator="{ props }">
+              <v-btn 
+                v-bind="props"
+                icon="ri-delete-bin-line" 
+                size="small" 
+                variant="tonal" 
+                color="error" 
+                @click="handleDelete(item)" 
+              />
+            </template>
+          </v-tooltip>
+        </div>
+      </template>
 
-        <template #no-data>
-          <div class="text-center pa-10">
-            <v-icon icon="ri-git-branch-line" size="64" color="grey-lighten-2" class="mb-4" />
-            <div class="text-h6 text-grey">لا توجد فروع مضافة</div>
-            <p class="text-caption text-grey mb-4">ابدأ بإضافة أول فرع لشركتك الآن</p>
-            <v-btn v-if="canCreate" color="primary" variant="outlined" @click="handleCreate">إضافة فرع</v-btn>
-          </div>
-        </template>
-      </v-data-table>
-    </v-card>
+      <template #empty-actions>
+        <v-btn v-if="canCreate" color="primary" variant="outlined" @click="handleCreate">إضافة فرع</v-btn>
+      </template>
+    </AppDataTable>
 
     <!-- Form Dialog -->
     <v-dialog v-model="showDialog" max-width="600" persistent transition="dialog-bottom-transition">
@@ -217,6 +208,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useApi } from '@/composables/useApi';
+import AppDataTable from '@/components/common/AppDataTable.vue';
 import { useUserStore } from '@/stores/user';
 import { PERMISSIONS } from '@/config/permissions';
 import { toast } from 'vue3-toastify';

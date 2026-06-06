@@ -20,6 +20,7 @@
 
     <AppDataTable
       v-else
+      table-key="attributes.index"
       v-model:page="page"
       v-model:items-per-page="itemsPerPage"
       v-model:search="search"

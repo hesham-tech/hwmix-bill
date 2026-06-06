@@ -3,25 +3,12 @@
 <template>
   <div class="saas-plans-page">
     <!-- Header -->
-    <div class="page-header mb-6 d-flex align-center justify-between flex-wrap gap-4">
-      <div>
-        <div class="d-flex align-center gap-2 mb-2">
-          <v-btn icon="ri-arrow-right-line" variant="text" @click="router.push({ name: 'settings' })" />
-          <h1 class="text-h3 font-weight-bold primary--text">إدارة باقات SaaS</h1>
-        </div>
-        <p class="text-subtitle-1 text-grey-darken-1">تحديد الميزات وتعيين قيود الموارد وتشكيل الباقات مع متابعة اشتراكات المستأجرين وتحديثها للسوبر أدمن</p>
+    <div class="page-header mb-6">
+      <div class="d-flex align-center gap-2 mb-2">
+        <v-btn icon="ri-arrow-right-line" variant="text" @click="router.push({ name: 'settings' })" />
+        <h1 class="text-h3 font-weight-bold primary--text">إدارة باقات SaaS</h1>
       </div>
-      <div v-if="can(PERMISSIONS.PLANS_CREATE) || can(PERMISSIONS.ADMIN_SUPER)">
-        <v-btn
-          color="primary"
-          prepend-icon="ri-add-line"
-          class="rounded-pill font-weight-bold"
-          elevation="2"
-          @click="handleCreate"
-        >
-          إضافة باقة جديدة
-        </v-btn>
-      </div>
+      <p class="text-subtitle-1 text-grey-darken-1">تحديد الميزات وتعيين قيود الموارد وتشكيل الباقات مع متابعة اشتراكات المستأجرين وتحديثها للسوبر أدمن</p>
     </div>
 
     <!-- Navigation Tabs -->
@@ -39,92 +26,99 @@
     <v-window v-model="activeTab">
       <!-- Tab 1: Plans and Prices -->
       <v-window-item :value="0">
-        <v-card class="rounded-xl border border-opacity-10 shadow-sm overflow-hidden">
-          <v-card-title class="d-flex align-center py-4 px-6 bg-light-primary">
-            <v-icon icon="ri-vip-crown-line" color="primary" class="me-2" />
-            <span class="font-weight-bold text-h6">قائمة الباقات والأسعار</span>
-          </v-card-title>
-
-          <v-card-text class="pa-0">
-            <v-data-table
-              :headers="headers"
-              :items="plans"
-              :loading="loading"
-              density="comfortable"
-              class="plans-table"
+        <AppDataTable
+          :headers="headers"
+          :items="plans"
+          :loading="loading"
+          :local="true"
+          title="قائمة الباقات والأسعار"
+          subtitle="تحديد الميزات وتعيين قيود الموارد وتشكيل باقات النظام"
+          icon="ri-vip-crown-line"
+          table-key="saas_plans.index"
+          class="premium-card"
+        >
+          <template #actions v-if="can(PERMISSIONS.PLANS_CREATE) || can(PERMISSIONS.ADMIN_SUPER)">
+            <v-btn
+              color="primary"
+              prepend-icon="ri-add-line"
+              class="rounded-lg font-weight-bold"
+              @click="handleCreate"
             >
-              <template #item.name="{ item }">
-                <div class="d-flex align-center py-2">
-                  <v-avatar color="primary" variant="tonal" size="36" class="me-3">
-                    <v-icon :icon="item.icon || 'ri-vip-crown-line'" size="18" />
-                  </v-avatar>
-                  <div>
-                    <div class="font-weight-bold text-body-1">{{ item.name }}</div>
-                    <div class="text-caption text-grey">{{ item.code }}</div>
-                  </div>
-                </div>
-              </template>
+              إضافة باقة جديدة
+            </v-btn>
+          </template>
 
-              <template #item.price="{ item }">
-                <span class="font-weight-bold text-primary">{{ item.price }} {{ item.currency }}</span>
-              </template>
+          <template #item.name="{ item }">
+            <div class="d-flex align-center py-2">
+              <v-avatar color="primary" variant="tonal" size="36" class="me-3">
+                <v-icon :icon="item.icon || 'ri-vip-crown-line'" size="18" />
+              </v-avatar>
+              <div>
+                <div class="font-weight-bold text-body-1">{{ item.name }}</div>
+                <div class="text-caption text-grey">{{ item.code }}</div>
+              </div>
+            </div>
+          </template>
 
-              <template #item.duration="{ item }">
-                <span>{{ item.duration }} / {{ getDurationUnitLabel(item.duration_unit) }}</span>
-              </template>
+          <template #item.price="{ item }">
+            <span class="font-weight-bold text-primary">{{ item.price }} {{ item.currency }}</span>
+          </template>
 
-              <template #item.trial_days="{ item }">
-                <v-chip size="small" color="info" variant="tonal">
-                  {{ item.trial_days }} يوم تجربة
-                </v-chip>
-              </template>
+          <template #item.duration="{ item }">
+            <span>{{ item.duration }} / {{ getDurationUnitLabel(item.duration_unit) }}</span>
+          </template>
 
-              <template #item.active_companies_count="{ item }">
-                <v-chip size="small" color="primary" variant="flat" class="font-weight-bold">
-                  {{ item.active_companies_count ?? 0 }} شركة
-                </v-chip>
-              </template>
+          <template #item.trial_days="{ item }">
+            <v-chip size="small" color="info" variant="tonal">
+              {{ item.trial_days }} يوم تجربة
+            </v-chip>
+          </template>
 
-              <template #item.active_users_count="{ item }">
-                <v-chip size="small" color="secondary" variant="flat" class="font-weight-bold">
-                  {{ item.active_users_count ?? 0 }} مستخدم
-                </v-chip>
-              </template>
+          <template #item.active_companies_count="{ item }">
+            <v-chip size="small" color="primary" variant="flat" class="font-weight-bold">
+              {{ item.active_companies_count ?? 0 }} شركة
+            </v-chip>
+          </template>
 
-              <template #item.is_active="{ item }">
-                <v-chip :color="item.is_active ? 'success' : 'error'" size="small" variant="flat" class="font-weight-bold">
-                  {{ item.is_active ? 'نشط' : 'معطل' }}
-                </v-chip>
-              </template>
+          <template #item.active_users_count="{ item }">
+            <v-chip size="small" color="secondary" variant="flat" class="font-weight-bold">
+              {{ item.active_users_count ?? 0 }} مستخدم
+            </v-chip>
+          </template>
 
-              <template #item.actions="{ item }">
-                <div class="d-flex gap-1 justify-end">
-                  <v-btn v-if="can(PERMISSIONS.PLANS_UPDATE_ALL) || can(PERMISSIONS.ADMIN_SUPER)" icon="ri-edit-line" size="small" variant="text" color="primary" @click="handleEdit(item)" />
-                  <v-btn v-if="can(PERMISSIONS.PLANS_DELETE_ALL) || can(PERMISSIONS.ADMIN_SUPER)" icon="ri-delete-bin-line" size="small" variant="text" color="error" @click="handleDelete(item)" />
-                </div>
-              </template>
+          <template #item.is_active="{ item }">
+            <v-chip :color="item.is_active ? 'success' : 'error'" size="small" variant="flat" class="font-weight-bold">
+              {{ item.is_active ? 'نشط' : 'معطل' }}
+            </v-chip>
+          </template>
 
-              <template #no-data>
-                <div class="text-center py-12 text-grey-darken-1">
-                  <v-icon icon="ri-vip-crown-line" size="64" class="mb-4 text-grey-lighten-1" />
-                  <div class="text-h6 mb-2">لا توجد باقات حالياً</div>
-                  <p class="text-body-2">قم بإنشاء باقتك الأولى لتظهر للمستخدمين بصفحة التسجيل والهبوط</p>
-                </div>
-              </template>
-            </v-data-table>
-          </v-card-text>
-        </v-card>
+          <template #item.actions="{ item }">
+            <div class="d-flex gap-1 justify-end">
+              <v-btn v-if="can(PERMISSIONS.PLANS_UPDATE_ALL) || can(PERMISSIONS.ADMIN_SUPER)" icon="ri-edit-line" size="small" variant="text" color="primary" @click="handleEdit(item)" />
+              <v-btn v-if="can(PERMISSIONS.PLANS_DELETE_ALL) || can(PERMISSIONS.ADMIN_SUPER)" icon="ri-delete-bin-line" size="small" variant="text" color="error" @click="handleDelete(item)" />
+            </div>
+          </template>
+
+          <template #empty-actions v-if="can(PERMISSIONS.PLANS_CREATE) || can(PERMISSIONS.ADMIN_SUPER)">
+            <v-btn color="primary" variant="outlined" @click="handleCreate">إضافة باقة</v-btn>
+          </template>
+        </AppDataTable>
       </v-window-item>
 
       <!-- Tab 2: Companies Subscriptions -->
       <v-window-item :value="1">
-        <v-card class="rounded-xl border border-opacity-10 shadow-sm overflow-hidden">
-          <v-card-title class="d-flex align-center py-4 px-6 bg-light-primary flex-wrap gap-4">
-            <div class="d-flex align-center">
-              <v-icon icon="ri-building-line" color="primary" class="me-2" />
-              <span class="font-weight-bold text-h6">اشتراكات المستأجرين والشركات</span>
-            </div>
-            <v-spacer />
+        <AppDataTable
+          :headers="companyHeaders"
+          :items="companies"
+          :loading="loadingCompanies"
+          :local="true"
+          title="اشتراكات المستأجرين والشركات"
+          subtitle="متابعة اشتراكات المستأجرين والشركات واستهلاك موارد الساس"
+          icon="ri-building-line"
+          table-key="saas_subscriptions.index"
+          class="premium-card"
+        >
+          <template #actions>
             <v-text-field
               v-model="searchCompany"
               prepend-inner-icon="ri-search-line"
@@ -132,98 +126,81 @@
               variant="outlined"
               density="compact"
               hide-details
-              style="max-width: 300px;"
+              style="max-width: 300px; min-width: 200px;"
               @update:model-value="loadCompanies"
               clearable
             />
-          </v-card-title>
+          </template>
 
-          <v-card-text class="pa-0">
-            <v-data-table
-              :headers="companyHeaders"
-              :items="companies"
-              :loading="loadingCompanies"
-              density="comfortable"
-              class="plans-table"
+          <template #item.company_name="{ item }">
+            <div class="py-2">
+              <div class="font-weight-bold text-body-1">{{ item.company_name }}</div>
+              <div class="text-caption text-grey">معرف الشركة: {{ item.company_id }}</div>
+            </div>
+          </template>
+
+          <template #item.owner="{ item }">
+            <div class="py-2">
+              <div class="font-weight-medium">{{ item.owner_name }}</div>
+              <div class="text-caption text-grey">{{ item.owner_phone || item.company_phone }}</div>
+            </div>
+          </template>
+
+          <template #item.plan_name="{ item }">
+            <v-chip size="small" :color="item.is_master ? 'amber-darken-3' : 'primary'" variant="tonal" class="font-weight-bold">
+              {{ item.is_master ? 'باقة الإدارة (الشركة الأم)' : item.plan_name }}
+            </v-chip>
+          </template>
+
+          <template #item.subscription_status="{ item }">
+            <v-chip
+              :color="getSubscriptionStatusColor(item.subscription_status)"
+              size="small"
+              variant="flat"
+              class="font-weight-bold text-capitalize"
             >
-              <template #item.company_name="{ item }">
-                <div class="py-2">
-                  <div class="font-weight-bold text-body-1">{{ item.company_name }}</div>
-                  <div class="text-caption text-grey">معرف الشركة: {{ item.company_id }}</div>
-                </div>
-              </template>
+              {{ getSubscriptionStatusLabel(item.subscription_status) }}
+            </v-chip>
+          </template>
 
-              <template #item.owner="{ item }">
-                <div class="py-2">
-                  <div class="font-weight-medium">{{ item.owner_name }}</div>
-                  <div class="text-caption text-grey">{{ item.owner_phone || item.company_phone }}</div>
-                </div>
-              </template>
+          <template #item.usage="{ item }">
+            <div class="d-flex flex-wrap gap-2 py-2">
+              <span class="border rounded-pill px-3 py-1 text-caption bg-grey-lighten-4 d-inline-flex align-center gap-1">
+                <v-icon icon="ri-user-line" size="12" />
+                <strong>{{ item.usage.users }}</strong> مستخدم
+              </span>
+              <span class="border rounded-pill px-3 py-1 text-caption bg-grey-lighten-4 d-inline-flex align-center gap-1">
+                <v-icon icon="ri-box-3-line" size="12" />
+                <strong>{{ item.usage.products }}</strong> منتج
+              </span>
+              <span class="border rounded-pill px-3 py-1 text-caption bg-grey-lighten-4 d-inline-flex align-center gap-1">
+                <v-icon icon="ri-bill-line" size="12" />
+                <strong>{{ item.usage.invoices }}</strong> فاتورة
+              </span>
+              <span class="border rounded-pill px-3 py-1 text-caption bg-grey-lighten-4 d-inline-flex align-center gap-1">
+                <v-icon icon="ri-store-line" size="12" />
+                <strong>{{ item.usage.warehouses }}</strong> مخزن
+              </span>
+            </div>
+          </template>
 
-              <template #item.plan_name="{ item }">
-                <v-chip size="small" :color="item.is_master ? 'amber-darken-3' : 'primary'" variant="tonal" class="font-weight-bold">
-                  {{ item.is_master ? 'باقة الإدارة (الشركة الأم)' : item.plan_name }}
-                </v-chip>
-              </template>
-
-              <template #item.subscription_status="{ item }">
-                <v-chip
-                  :color="getSubscriptionStatusColor(item.subscription_status)"
-                  size="small"
-                  variant="flat"
-                  class="font-weight-bold text-capitalize"
-                >
-                  {{ getSubscriptionStatusLabel(item.subscription_status) }}
-                </v-chip>
-              </template>
-
-              <template #item.usage="{ item }">
-                <div class="d-flex flex-wrap gap-2 py-2">
-                  <span class="border rounded-pill px-3 py-1 text-caption bg-grey-lighten-4 d-inline-flex align-center gap-1">
-                    <v-icon icon="ri-user-line" size="12" />
-                    <strong>{{ item.usage.users }}</strong> مستخدم
-                  </span>
-                  <span class="border rounded-pill px-3 py-1 text-caption bg-grey-lighten-4 d-inline-flex align-center gap-1">
-                    <v-icon icon="ri-box-3-line" size="12" />
-                    <strong>{{ item.usage.products }}</strong> منتج
-                  </span>
-                  <span class="border rounded-pill px-3 py-1 text-caption bg-grey-lighten-4 d-inline-flex align-center gap-1">
-                    <v-icon icon="ri-bill-line" size="12" />
-                    <strong>{{ item.usage.invoices }}</strong> فاتورة
-                  </span>
-                  <span class="border rounded-pill px-3 py-1 text-caption bg-grey-lighten-4 d-inline-flex align-center gap-1">
-                    <v-icon icon="ri-store-line" size="12" />
-                    <strong>{{ item.usage.warehouses }}</strong> مخزن
-                  </span>
-                </div>
-              </template>
-
-              <template #item.actions="{ item }">
-                <div class="d-flex gap-1 justify-end py-2">
-                  <v-btn
-                    v-if="!item.is_master && (can(PERMISSIONS.SUBSCRIPTIONS_UPDATE_ALL) || can(PERMISSIONS.ADMIN_SUPER))"
-                    color="primary"
-                    variant="outlined"
-                    size="small"
-                    class="rounded-pill font-weight-bold tour-change-plan-btn"
-                    prepend-icon="ri-exchange-line"
-                    @click="handleOpenChangePlan(item)"
-                  >
-                    تغيير الباقة
-                  </v-btn>
-                  <span v-else class="text-caption text-grey me-2 font-weight-bold">الشركة الأم</span>
-                </div>
-              </template>
-
-              <template #no-data>
-                <div class="text-center py-12 text-grey-darken-1">
-                  <v-icon icon="ri-building-line" size="64" class="mb-4 text-grey-lighten-1" />
-                  <div class="text-h6 mb-2">لا توجد شركات مستأجرة متطابقة</div>
-                </div>
-              </template>
-            </v-data-table>
-          </v-card-text>
-        </v-card>
+          <template #item.actions="{ item }">
+            <div class="d-flex gap-1 justify-end py-2">
+              <v-btn
+                v-if="!item.is_master && (can(PERMISSIONS.SUBSCRIPTIONS_UPDATE_ALL) || can(PERMISSIONS.ADMIN_SUPER))"
+                color="primary"
+                variant="outlined"
+                size="small"
+                class="rounded-pill font-weight-bold tour-change-plan-btn"
+                prepend-icon="ri-exchange-line"
+                @click="handleOpenChangePlan(item)"
+              >
+                تغيير الباقة
+              </v-btn>
+              <span v-else class="text-caption text-grey me-2 font-weight-bold">الشركة الأم</span>
+            </div>
+          </template>
+        </AppDataTable>
       </v-window-item>
     </v-window>
 
@@ -362,7 +339,7 @@
                 <v-switch
                   v-model="featuresData.mail_settings"
                   color="primary"
-                  label="إتاحة إعدادات خادم البريد المخصص للشركة"
+                  label="إلى حد ما إعدادات خادم البريد المخصص للشركة"
                   inset
                   density="compact"
                 />
@@ -649,6 +626,7 @@ import { useApi } from '@/composables/useApi';
 import { toast } from 'vue3-toastify';
 import { usePermissions } from '@/composables/usePermissions';
 import { PERMISSIONS } from '@/config/permissions';
+import AppDataTable from '@/components/common/AppDataTable.vue';
 
 const router = useRouter();
 const { can, canAny } = usePermissions();

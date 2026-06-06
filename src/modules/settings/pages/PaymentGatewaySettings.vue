@@ -11,123 +11,118 @@
         </div>
         <p class="text-subtitle-1 text-grey-darken-1">تهيئة وإعداد بوابات الدفع Stripe و Paymob لتوفير الدفع الإلكتروني الآمن لعملائك</p>
       </div>
-      <div>
-        <v-btn
-          color="primary"
-          prepend-icon="ri-add-line"
-          class="rounded-pill font-weight-bold tour-payment-add"
-          elevation="2"
-          @click="openAddDialog"
-        >
-          إضافة بوابة دفع
-        </v-btn>
-      </div>
     </div>
 
-    <!-- Payment Gateways Table Card -->
-    <AppCard title="بوابات الدفع المتاحة للشركة" icon="ri-bank-card-line" icon-color="primary" class="tour-payment-list">
-      <v-table class="gateways-table">
-        <thead>
-          <tr>
-            <th class="text-start">اسم البوابة</th>
-            <th class="text-start">المشغل (Driver)</th>
-            <th class="text-center">وضع التجربة</th>
-            <th class="text-center">حالة التنشيط</th>
-            <th class="text-center">الافتراضي</th>
-            <th class="text-end">الإجراءات</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-if="gateways.length === 0">
-            <td colspan="6" class="text-center py-8 text-grey-darken-1">
-              <v-icon icon="ri-bank-card-2-line" size="40" class="mb-2 d-block mx-auto text-grey-lighten-1" />
-              لا توجد بوابات دفع مضافة حالياً. قم بإضافة بوابة دفع للبدء.
-            </td>
-          </tr>
-          <tr v-for="gateway in gateways" :key="gateway.id">
-            <td class="font-weight-bold">{{ gateway.name }}</td>
-            <td>
-              <v-chip size="small" :color="getDriverColor(gateway.driver)" variant="tonal" class="text-uppercase font-weight-bold">
-                {{ gateway.driver }}
-              </v-chip>
-            </td>
-            <td class="text-center">
-              <v-chip
-                size="small"
-                :color="gateway.is_test_mode ? 'warning' : 'success'"
-                variant="flat"
-                class="font-weight-bold"
-              >
-                {{ gateway.is_test_mode ? 'وضع تجريبي' : 'وضع حقيقي' }}
-              </v-chip>
-            </td>
-            <td class="text-center">
-              <v-switch
-                v-model="gateway.is_active"
-                color="success"
-                hide-details
-                inset
-                density="compact"
-                class="d-inline-block"
-                @update:model-value="toggleGatewayActive(gateway)"
-              />
-            </td>
-            <td class="text-center">
-              <v-chip
-                v-if="gateway.is_default"
-                color="warning"
-                size="small"
-                variant="flat"
-                prepend-icon="ri-star-fill"
-                class="font-weight-bold"
-              >
-                الافتراضية
-              </v-chip>
-              <v-btn
-                v-else
-                size="x-small"
-                variant="outlined"
-                color="grey-darken-1"
-                class="rounded-pill"
-                :disabled="!gateway.is_active"
-                @click="setGatewayDefault(gateway)"
-              >
-                تعيين كافتراضي
-              </v-btn>
-            </td>
-            <td class="text-end">
-              <div class="d-flex align-center justify-end gap-1">
-                <v-tooltip text="تعديل الإعدادات" location="top">
-                  <template #activator="{ props: tooltipProps }">
-                    <v-btn
-                      v-bind="tooltipProps"
-                      icon="ri-edit-line"
-                      variant="text"
-                      color="info"
-                      size="small"
-                      @click="openEditDialog(gateway)"
-                    />
-                  </template>
-                </v-tooltip>
+    <!-- Payment Gateways Table using AppDataTable -->
+    <v-card rounded="md" class="border shadow-sm mb-4 tour-payment-list">
+      <AppDataTable
+        local
+        table-key="payment_gateways.index"
+        :headers="headers"
+        :items="gateways"
+        :loading="loading"
+        title="بوابات الدفع المتاحة للشركة"
+        subtitle="إدارة وتنشيط بوابات الدفع الإلكتروني المرتبطة بشركتك"
+        icon="ri-bank-card-line"
+        permission-module="admin"
+        :can-create="true"
+        @create="openAddDialog"
+      >
+        <!-- اسم البوابة -->
+        <template #item.name="{ item }">
+          <span class="font-weight-bold">{{ item.name }}</span>
+        </template>
 
-                <v-tooltip text="حذف" location="top">
-                  <template #activator="{ props: tooltipProps }">
-                    <v-btn
-                      v-bind="tooltipProps"
-                      icon="ri-delete-bin-line"
-                      variant="text"
-                      color="error"
-                      size="small"
-                      @click="confirmDeleteGateway(gateway)"
-                    />
-                  </template>
-                </v-tooltip>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </v-table>
-    </AppCard>
+        <!-- المشغل (Driver) -->
+        <template #item.driver="{ item }">
+          <v-chip size="small" :color="getDriverColor(item.driver)" variant="tonal" class="text-uppercase font-weight-bold">
+            {{ item.driver }}
+          </v-chip>
+        </template>
+
+        <!-- وضع التجربة -->
+        <template #item.is_test_mode="{ item }">
+          <v-chip
+            size="small"
+            :color="item.is_test_mode ? 'warning' : 'success'"
+            variant="flat"
+            class="font-weight-bold"
+          >
+            {{ item.is_test_mode ? 'وضع تجريبي' : 'وضع حقيقي' }}
+          </v-chip>
+        </template>
+
+        <!-- حالة التنشيط -->
+        <template #item.is_active="{ item }">
+          <v-switch
+            v-model="item.is_active"
+            color="success"
+            hide-details
+            inset
+            density="compact"
+            class="d-inline-block"
+            @update:model-value="toggleGatewayActive(item)"
+          />
+        </template>
+
+        <!-- الافتراضي -->
+        <template #item.is_default="{ item }">
+          <v-chip
+            v-if="item.is_default"
+            color="warning"
+            size="small"
+            variant="flat"
+            prepend-icon="ri-star-fill"
+            class="font-weight-bold"
+          >
+            الافتراضية
+          </v-chip>
+          <v-btn
+            v-else
+            size="x-small"
+            variant="outlined"
+            color="grey-darken-1"
+            class="rounded-pill"
+            :disabled="!item.is_active"
+            @click="setGatewayDefault(item)"
+          >
+            تعيين كافتراضي
+          </v-btn>
+        </template>
+
+        <!-- الإجراءات -->
+        <template #item.actions="{ item }">
+          <div class="d-flex align-center justify-end gap-1">
+            <v-tooltip text="تعديل الإعدادات" location="top">
+              <template #activator="{ props: tooltipProps }">
+                <v-btn
+                  v-bind="tooltipProps"
+                  icon="ri-edit-line"
+                  variant="text"
+                  color="info"
+                  size="small"
+                  @click="openEditDialog(item)"
+                />
+              </template>
+            </v-tooltip>
+
+            <v-tooltip text="حذف" location="top">
+              <template #activator="{ props: tooltipProps }">
+                <v-btn
+                  v-bind="tooltipProps"
+                  icon="ri-delete-bin-line"
+                  variant="text"
+                  color="error"
+                  size="small"
+                  @click="confirmDeleteGateway(item)"
+                />
+              </template>
+            </v-tooltip>
+          </div>
+        </template>
+      </AppDataTable>
+    </v-card>
+
 
     <!-- Add/Edit Gateway Modal Dialog -->
     <v-dialog v-model="showDialog" max-width="700" persistent>
@@ -336,6 +331,7 @@ import { useRouter } from 'vue-router';
 import { useApi } from '@/composables/useApi';
 import AppCard from '@/components/common/AppCard.vue';
 import AppInput from '@/components/common/AppInput.vue';
+import AppDataTable from '@/components/common/AppDataTable.vue';
 import { toast } from 'vue3-toastify';
 
 const router = useRouter();
@@ -355,6 +351,16 @@ const isEdit = ref(false);
 
 const gateways = ref([]);
 const gatewayToDelete = ref(null);
+
+// رؤوس أعمدة جدول بوابات الدفع
+const headers = [
+  { title: 'اسم البوابة', key: 'name', sortable: true },
+  { title: 'المشغل (Driver)', key: 'driver', sortable: true },
+  { title: 'وضع التجربة', key: 'is_test_mode', sortable: false, align: 'center' },
+  { title: 'حالة التنشيط', key: 'is_active', sortable: false, align: 'center' },
+  { title: 'الافتراضي', key: 'is_default', sortable: false, align: 'center' },
+  { title: 'الإجراءات', key: 'actions', sortable: false, align: 'end' },
+];
 
 const formData = ref({
   id: null,

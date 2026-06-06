@@ -1,75 +1,61 @@
 <template>
   <div class="roles-page">
-    <div class="page-header mb-2">
-      <h1 class="text-h4 font-weight-bold">الأدوار والصلاحيات</h1>
-      <p class="text-body-1 text-grey">إدارة أدوار المستخدمين والصلاحيات</p>
-    </div>
+    <AppDataTable
+      :headers="headers"
+      :items="roles"
+      :loading="loading"
+      v-model:page="page"
+      v-model:items-per-page="itemsPerPage"
+      :total-items="total"
+      title="الأدوار والصلاحيات"
+      subtitle="إدارة أدوار المستخدمين والصلاحيات"
+      icon="ri-shield-user-line"
+      table-key="roles.index"
+      class="premium-card"
+      @update:page="loadData"
+      @update:items-per-page="handleItemsPerPageChange"
+    >
+      <template #actions v-if="can(PERMISSIONS.ROLES_CREATE)">
+        <v-btn color="primary" prepend-icon="ri-add-line" class="rounded-lg font-weight-bold" @click="handleCreate"> دور جديد </v-btn>
+      </template>
 
-    <v-card>
-      <v-card-title class="d-flex align-center">
-        <v-icon icon="ri-shield-user-line" class="me-2" />
-        الأدوار
-        <v-spacer />
-        <v-btn v-if="can(PERMISSIONS.ROLES_CREATE)" color="primary" prepend-icon="ri-add-line" @click="handleCreate"> دور جديد </v-btn>
-      </v-card-title>
+      <template #item.name="{ item }">
+        <div class="d-flex align-center">
+          <v-icon icon="ri-vip-crown-line" size="small" color="warning" class="me-2" />
+          <span class="font-weight-medium">{{ item.name }}</span>
+        </div>
+      </template>
 
-      <v-card-text>
-        <v-data-table
-          :headers="headers"
-          :items="roles"
-          :loading="loading"
-          :items-per-page="itemsPerPage"
-          :page="page"
-          :items-length="total"
-          @update:page="
-            page = $event;
-            loadData();
-          "
-          @update:items-per-page="handleItemsPerPageChange"
-          density="comfortable"
-        >
-          <template #item.name="{ item }">
-            <div class="d-flex align-center">
-              <v-icon icon="ri-vip-crown-line" size="small" color="warning" class="me-2" />
-              <span class="font-weight-medium">{{ item.name }}</span>
-            </div>
-          </template>
+      <template #item.users_count="{ item }">
+        <v-chip size="small" variant="tonal"> {{ item.users_count || 0 }} مستخدم </v-chip>
+      </template>
 
-          <template #item.users_count="{ item }">
-            <v-chip size="small" variant="tonal"> {{ item.users_count || 0 }} مستخدم </v-chip>
-          </template>
+      <template #item.actions="{ item }">
+        <div class="d-flex gap-2">
+          <v-btn
+            v-if="canAny(PERMISSIONS.ROLES_UPDATE_ALL, PERMISSIONS.ROLES_UPDATE_CHILDREN, PERMISSIONS.ROLES_UPDATE_SELF, { resource: item })"
+            icon="ri-edit-line"
+            size="small"
+            variant="text"
+            color="primary"
+            @click="handleEdit(item)"
+          />
+          <v-btn
+            v-if="canAny(PERMISSIONS.ROLES_DELETE_ALL, PERMISSIONS.ROLES_DELETE_CHILDREN, PERMISSIONS.ROLES_DELETE_SELF, { resource: item })"
+            icon="ri-delete-bin-line"
+            size="small"
+            variant="text"
+            color="error"
+            :disabled="item.name === 'Admin'"
+            @click="handleDelete(item)"
+          />
+        </div>
+      </template>
 
-          <template #item.actions="{ item }">
-            <div class="d-flex gap-2">
-              <v-btn
-                v-if="canAny(PERMISSIONS.ROLES_UPDATE_ALL, PERMISSIONS.ROLES_UPDATE_CHILDREN, PERMISSIONS.ROLES_UPDATE_SELF, { resource: item })"
-                icon="ri-edit-line"
-                size="small"
-                variant="text"
-                color="primary"
-                @click="handleEdit(item)"
-              />
-              <v-btn
-                v-if="canAny(PERMISSIONS.ROLES_DELETE_ALL, PERMISSIONS.ROLES_DELETE_CHILDREN, PERMISSIONS.ROLES_DELETE_SELF, { resource: item })"
-                icon="ri-delete-bin-line"
-                size="small"
-                variant="text"
-                color="error"
-                :disabled="item.name === 'Admin'"
-                @click="handleDelete(item)"
-              />
-            </div>
-          </template>
-
-          <template #no-data>
-            <div class="text-center pa-4">
-              <v-icon icon="ri-shield-user-line" size="48" color="grey" class="mb-2" />
-              <div class="text-medium-emphasis">لا توجد أدوار</div>
-            </div>
-          </template>
-        </v-data-table>
-      </v-card-text>
-    </v-card>
+      <template #empty-actions v-if="can(PERMISSIONS.ROLES_CREATE)">
+        <v-btn color="primary" variant="outlined" @click="handleCreate">إضافة دور</v-btn>
+      </template>
+    </AppDataTable>
 
     <!-- Form Dialog (Simplified - permissions in backend) -->
     <v-dialog v-model="showDialog" max-width="600" persistent>
@@ -94,8 +80,7 @@
       <v-card>
         <v-card-title>تأكيد الحذف</v-card-title>
         <v-card-text>
-          هل أنت متأكد من حذف "<strong>{{ selectedItem?.name }}</strong
-          >"؟
+          هل أنت متأكد من حذف "<strong>{{ selectedItem?.name }}</strong>"؟
         </v-card-text>
         <v-card-actions>
           <v-spacer />
@@ -108,10 +93,12 @@
 </template>
 
 <script setup>
+import { ref, computed, onMounted } from 'vue';
 import { useRolesData } from '../composables/useRolesData';
 import { useApi } from '@/composables/useApi';
 import { usePermissions } from '@/composables/usePermissions';
 import { PERMISSIONS } from '@/config/permissions';
+import AppDataTable from '@/components/common/AppDataTable.vue';
 
 const { can, canAny } = usePermissions();
 const { roles, loading, total, fetchRoles, deleteRole } = useRolesData();
@@ -196,5 +183,10 @@ onMounted(loadData);
 <style scoped>
 .roles-page {
   padding: 24px;
+}
+.premium-card {
+  border-radius: 16px !important;
+  border: 1px solid rgba(var(--v-border-color), 0.1) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03) !important;
 }
 </style>

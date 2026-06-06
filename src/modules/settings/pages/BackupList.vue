@@ -1,77 +1,71 @@
 <template>
   <div v-if="can(PERMISSIONS.ADMIN_SUPER)" class="backup-page">
-    <div class="page-header mb-8 d-flex justify-space-between align-center">
-      <div>
-        <h1 class="text-h3 font-weight-bold primary--text mb-2">النسخ الاحتياطي</h1>
-        <p class="text-subtitle-1 text-grey-darken-1">إدارة النسخ الاحتياطية واستعادة النظام</p>
-      </div>
-      <div class="d-flex gap-3">
-        <v-btn color="warning" variant="tonal" prepend-icon="ri-settings-4-line" @click="openSettings"> الإعدادات </v-btn>
-        <v-btn color="primary" prepend-icon="ri-database-2-line" :loading="loadingBackup" @click="runBackup"> إنشاء نسخة الآن </v-btn>
-      </div>
-    </div>
+    <AppDataTable
+      :headers="headers"
+      :items="backups"
+      :loading="loading"
+      :local="true"
+      title="النسخ الاحتياطي"
+      subtitle="إدارة النسخ الاحتياطية واستعادة النظام"
+      icon="ri-database-2-line"
+      table-key="backups.index"
+      class="premium-card"
+      empty-text="لا يوجد نسخ احتياطية مسجلة"
+    >
+      <template #actions>
+        <v-btn color="warning" variant="tonal" prepend-icon="ri-settings-4-line" class="rounded-lg font-weight-bold" @click="openSettings"> الإعدادات </v-btn>
+        <v-btn color="primary" prepend-icon="ri-database-2-line" class="rounded-lg font-weight-bold" :loading="loadingBackup" @click="runBackup"> إنشاء نسخة الآن </v-btn>
+      </template>
 
-    <v-card rounded="md" elevation="2">
-      <v-card-text class="pa-0">
-        <v-data-table
-          :headers="headers"
-          :items="backups"
-          :loading="loading"
-          hover
-          no-data-text="لا يوجد نسخ احتياطية مسجلة"
-          loading-text="جاري تحميل البيانات..."
-        >
-          <template #item.filename="{ item }">
-            <div class="font-weight-medium text-primary">
-              {{ item.filename }}
-            </div>
-          </template>
+      <template #item.filename="{ item }">
+        <div class="font-weight-medium text-primary">
+          {{ item.filename }}
+        </div>
+      </template>
 
-          <template #item.size_bytes="{ item }">
-            {{ formatSize(item.size_bytes) }}
-          </template>
+      <template #item.size_bytes="{ item }">
+        {{ formatSize(item.size_bytes) }}
+      </template>
 
-          <template #item.status="{ item }">
-            <v-chip :color="getStatusColor(item.status)" size="small" class="font-weight-bold">
-              {{ getStatusText(item.status) }}
-            </v-chip>
-          </template>
+      <template #item.status="{ item }">
+        <v-chip :color="getStatusColor(item.status)" size="small" class="font-weight-bold">
+          {{ getStatusText(item.status) }}
+        </v-chip>
+      </template>
 
-          <template #item.completed_at="{ item }">
-            {{ new Date(item.completed_at).toLocaleString('ar-EG') }}
-          </template>
+      <template #item.completed_at="{ item }">
+        {{ new Date(item.completed_at).toLocaleString('ar-EG') }}
+      </template>
 
-          <template #item.actions="{ item }">
-            <div class="d-flex justify-end gap-1">
-              <v-tooltip text="تحميل">
-                <template #activator="{ props }">
-                  <v-btn
-                    v-bind="props"
-                    icon="ri-download-line"
-                    variant="text"
-                    color="primary"
-                    size="small"
-                    @click="backupService.download(item.id)"
-                  />
-                </template>
-              </v-tooltip>
+      <template #item.actions="{ item }">
+        <div class="d-flex justify-end gap-1">
+          <v-tooltip text="تحميل">
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+                icon="ri-download-line"
+                variant="text"
+                color="primary"
+                size="small"
+                @click="backupService.download(item.id)"
+              />
+            </template>
+          </v-tooltip>
 
-              <v-tooltip text="استعادة">
-                <template #activator="{ props }">
-                  <v-btn v-bind="props" icon="ri-history-line" variant="text" color="warning" size="small" @click="confirmRestore(item)" />
-                </template>
-              </v-tooltip>
+          <v-tooltip text="استعادة">
+            <template #activator="{ props }">
+              <v-btn v-bind="props" icon="ri-history-line" variant="text" color="warning" size="small" @click="confirmRestore(item)" />
+            </template>
+          </v-tooltip>
 
-              <v-tooltip text="حذف">
-                <template #activator="{ props }">
-                  <v-btn v-bind="props" icon="ri-delete-bin-line" variant="text" color="error" size="small" @click="confirmDelete(item)" />
-                </template>
-              </v-tooltip>
-            </div>
-          </template>
-        </v-data-table>
-      </v-card-text>
-    </v-card>
+          <v-tooltip text="حذف">
+            <template #activator="{ props }">
+              <v-btn v-bind="props" icon="ri-delete-bin-line" variant="text" color="error" size="small" @click="confirmDelete(item)" />
+            </template>
+          </v-tooltip>
+        </div>
+      </template>
+    </AppDataTable>
 
     <!-- Settings Dialog -->
     <v-dialog v-model="settingsDialog" max-width="500" persistent>
@@ -159,6 +153,7 @@ import { usePermissions } from '@/composables/usePermissions';
 import { PERMISSIONS } from '@/config/permissions';
 import backupService from '@/api/services/backup.service';
 import { toast } from 'vue3-toastify';
+import AppDataTable from '@/components/common/AppDataTable.vue';
 
 const { can } = usePermissions();
 const backups = ref([]);
