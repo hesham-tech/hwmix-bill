@@ -31,7 +31,7 @@
         <AppFieldHelp v-if="helpText" :text="helpText" />
       </slot>
     </template>
-    <template v-if="$slots.noData || canCreate" #no-data>
+    <template v-if="$slots.noData || $slots['no-data'] || canCreate" #no-data>
       <v-list-item v-if="searchQuery && canCreate" @click="handleCreate">
         <template #prepend>
           <v-icon color="primary" icon="ri-add-line" />

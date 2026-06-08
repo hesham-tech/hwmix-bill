@@ -322,8 +322,16 @@
                     variant="plain"
                     hide-details
                     class="attr-fixed-width"
-                    can-create
-                  />
+                  >
+                    <template #no-data>
+                      <v-list-item @click="openCreateAttributeDialog(vIndex, aIndex)">
+                        <template #prepend>
+                          <v-icon color="primary" icon="ri-add-line" />
+                        </template>
+                        <v-list-item-title>إضافة خاصية جديدة...</v-list-item-title>
+                      </v-list-item>
+                    </template>
+                  </AppAutocomplete>
                 </div>
                 <div class="attr-value-box px-3 py-2 flex-grow-1 w-50">
                   <AppAutocomplete
@@ -337,9 +345,15 @@
                     variant="plain"
                     hide-details
                     class="attr-fixed-width"
-                    can-create
-                    create-field="name"
                   >
+                    <template #no-data>
+                      <v-list-item @click="openCreateValueDialog(attr.attribute_id, vIndex, aIndex)">
+                        <template #prepend>
+                          <v-icon color="primary" icon="ri-add-line" />
+                        </template>
+                        <v-list-item-title>إضافة قيمة جديدة...</v-list-item-title>
+                      </v-list-item>
+                    </template>
                     <template #selection="{ item }">
                        <v-chip
                           v-if="item && item.raw && item.raw.color"
@@ -381,6 +395,18 @@
         </v-expansion-panel-text>
       </v-expansion-panel>
     </v-expansion-panels>
+
+    <!-- Dialogs for Quick Creation -->
+    <AttributeFormDialog
+      v-model="showAttrDialog"
+      @saved="handleAttributeSaved"
+    />
+    <AttributeValueFormDialog
+      v-if="selectedAttributeForValue"
+      v-model="showValueDialog"
+      :attribute="selectedAttributeForValue"
+      @saved="handleValueSaved"
+    />
   </div>
 </template>
 
@@ -390,6 +416,8 @@ import AppInput from '@/components/common/AppInput.vue';
 import AppAutocomplete from '@/components/common/AppAutocomplete.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
 import ProductMediaManager from './ProductMediaManager.vue';
+import AttributeFormDialog from './AttributeFormDialog.vue';
+import AttributeValueFormDialog from './AttributeValueFormDialog.vue';
 import { usePermissions } from '@/composables/usePermissions';
 import { PERMISSIONS } from '@/config/permissions';
 import { useProductStore } from '../store/product.store';
@@ -574,7 +602,44 @@ const attributeValuesMap = computed(() => {
     return map;
 });
 
-// ... existing logic ...
+const showAttrDialog = ref(false);
+const showValueDialog = ref(false);
+const activeAttrIndex = ref({ vIndex: null, aIndex: null });
+const selectedAttributeForValue = ref(null);
+
+const openCreateAttributeDialog = (vIndex, aIndex) => {
+  activeAttrIndex.value = { vIndex, aIndex };
+  showAttrDialog.value = true;
+};
+
+const openCreateValueDialog = (attributeId, vIndex, aIndex) => {
+  const attribute = attributeList.value.find(a => a.id === attributeId);
+  if (!attribute) return;
+  selectedAttributeForValue.value = attribute;
+  activeAttrIndex.value = { vIndex, aIndex };
+  showValueDialog.value = true;
+};
+
+const handleAttributeSaved = async (newAttr) => {
+  await fetchAttributes();
+  const { vIndex, aIndex } = activeAttrIndex.value;
+  if (vIndex !== null && aIndex !== null && props.modelValue[vIndex]?.attributes?.[aIndex]) {
+    const newVariants = [...props.modelValue];
+    newVariants[vIndex].attributes[aIndex].attribute_id = newAttr.id;
+    newVariants[vIndex].attributes[aIndex].attribute_value_id = null;
+    emit('update:modelValue', newVariants);
+  }
+};
+
+const handleValueSaved = async (newValue) => {
+  await fetchAttributes();
+  const { vIndex, aIndex } = activeAttrIndex.value;
+  if (vIndex !== null && aIndex !== null && props.modelValue[vIndex]?.attributes?.[aIndex]) {
+    const newVariants = [...props.modelValue];
+    newVariants[vIndex].attributes[aIndex].attribute_value_id = newValue.id;
+    emit('update:modelValue', newVariants);
+  }
+};
 
 onMounted(() => {
     fetchAttributes();

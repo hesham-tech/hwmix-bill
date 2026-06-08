@@ -47,7 +47,8 @@
               v-model="searchQuery"
               prepend-inner-icon="ri-search-2-line"
               placeholder="بحث عن قيمة..."
-              variant="flat"
+              variant="solo"
+              flat
               density="compact"
               hide-details
               class="pill-search-input w-full me-4"
@@ -159,76 +160,12 @@
     </v-card>
 
     <!-- Refined Form Dialog -->
-    <AppDialog
+    <AttributeValueFormDialog
       v-model="showFormDialog"
-      :title="isEdit ? 'تعديل البيانات' : 'إضافة جديدة'"
-      :icon="isEdit ? 'ri-edit-2-line' : 'ri-magic-line'"
-      :loading="saving"
-      max-width="550"
-      @confirm="handleSave"
-    >
-      <v-form ref="formRef" class="pt-2">
-        <!-- Visual Preview Cell -->
-        <div class="preview-cell mb-2 rounded-md pa-4 bg-slate-50 border border-dashed">
-          <div class="d-flex align-center mb-4">
-            <div class="text-caption font-weight-bold text-slate-400">معاينة القيمة</div>
-            <v-spacer />
-            <v-chip v-if="isColor" size="x-small" color="primary" variant="flat" class="mono font-weight-bold">
-              {{ formData.color || '#000000' }}
-            </v-chip>
-          </div>
-          <div class="d-flex align-center justify-center py-2">
-            <v-avatar v-if="isColor" size="80" class="elevation-6 border-white-4" :style="{ backgroundColor: previewHex || '#f1f5f9' }">
-              <v-icon v-if="!previewHex" icon="ri-palette-line" color="slate-300" />
-            </v-avatar>
-            <div v-else class="text-h4 font-weight-bold text-primary px-6 py-2 bg-white rounded-md border elevation-1">
-              {{ formData.name || '---' }}
-            </div>
-          </div>
-        </div>
-
-        <v-row>
-          <v-col cols="12">
-            <template v-if="isColor">
-              <div class="color-control mb-2">
-                <v-color-picker v-model="formData.color" hide-inputs show-swatches width="100%" class="rounded-md border flat" elevation="0" />
-              </div>
-
-              <v-combobox
-                v-model="formData.name"
-                :items="colorSuggestions"
-                item-title="name_ar"
-                item-value="name_ar"
-                label="اسم اللون"
-                placeholder="أدخل اسماً أو اختر من المقترحات..."
-                variant="outlined"
-                bg-color="white"
-                rounded="md"
-                class="mb-2"
-                @update:model-value="handleColorSelection"
-              >
-                <template v-slot:item="{ props, item }">
-                  <v-list-item v-bind="props" :title="item.raw.name_ar">
-                    <template v-slot:prepend>
-                      <v-avatar size="20" :style="{ backgroundColor: item.raw.hex }" class="me-2 border"></v-avatar>
-                    </template>
-                  </v-list-item>
-                </template>
-              </v-combobox>
-            </template>
-
-            <AppInput
-              v-else
-              v-model="formData.name"
-              label="اسم القيمة"
-              placeholder="مثال: XL، قطن، 128GB..."
-              :rules="[v => !!v || 'هذا الحقل مطلوب']"
-              rounded="md"
-            />
-          </v-col>
-        </v-row>
-      </v-form>
-    </AppDialog>
+      :attribute="attribute"
+      :attribute-value="selectedItem"
+      @saved="fetchValues"
+    />
 
     <!-- Confirm Dialog -->
     <AppConfirmDialog
@@ -248,12 +185,11 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
 import { useApi } from '@/composables/useApi';
-import { isColorProperty, suggestClosestColors, getExactColorHexCode } from '@/utils/color-utils';
+import { isColorProperty } from '@/utils/color-utils';
 import AppDataTable from '@/components/common/AppDataTable.vue';
-import AppDialog from '@/components/common/AppDialog.vue';
-import AppInput from '@/components/common/AppInput.vue';
 import AppConfirmDialog from '@/components/common/AppConfirmDialog.vue';
 import EmptyState from '@/components/common/EmptyState.vue';
+import AttributeValueFormDialog from './AttributeValueFormDialog.vue';
 
 const props = defineProps({
   modelValue: {
@@ -275,14 +211,10 @@ const viewMode = ref('grid');
 const showFormDialog = ref(false);
 const showDeleteDialog = ref(false);
 const selectedItem = ref(null);
-const saving = ref(false);
 const deleting = ref(false);
-const formRef = ref(null);
 const searchQuery = ref('');
 const revealedItems = ref({});
 
-const formData = ref({ name: '', color: '', attribute_id: null });
-const isEdit = computed(() => !!selectedItem.value?.id);
 const isColor = computed(() => (props.attribute ? isColorProperty(props.attribute.name) : false));
 
 const filteredValues = computed(() => {
@@ -298,19 +230,6 @@ const headers = computed(() => {
   }
   baseHeaders.push({ title: 'الإجراءات', key: 'actions', sortable: false, align: 'end' });
   return baseHeaders;
-});
-
-const colorSuggestions = computed(() => {
-  if (!formData.value.name || typeof formData.value.name !== 'string') return [];
-  return suggestClosestColors(formData.value.name, 5);
-});
-
-const previewHex = computed(() => {
-  if (formData.value.color) return formData.value.color;
-  if (formData.value.name) {
-    return getExactColorHexCode(formData.value.name);
-  }
-  return null;
 });
 
 const fetchValues = async () => {
@@ -331,32 +250,13 @@ const onReveal = (index, isVisible) => {
   if (isVisible) revealedItems.value[index] = true;
 };
 
-const handleColorSelection = val => {
-  if (typeof val === 'object' && val !== null) {
-    formData.value.name = val.name_ar;
-    formData.value.color = val.hex;
-  } else {
-    const hex = getExactColorHexCode(val);
-    if (hex) {
-      formData.value.color = hex;
-    }
-  }
-};
-
 const handleCreate = () => {
   selectedItem.value = null;
-  formData.value = { name: '', color: '', attribute_id: props.attribute.id };
   showFormDialog.value = true;
 };
 
 const handleEdit = item => {
   selectedItem.value = item;
-  formData.value = {
-    name: item.name,
-    color: item.color || item.value || '',
-    attribute_id: props.attribute.id,
-    id: item.id,
-  };
   showFormDialog.value = true;
 };
 
@@ -365,24 +265,6 @@ const handleDelete = item => {
   showDeleteDialog.value = true;
 };
 
-const handleSave = async () => {
-  const { valid } = await formRef.value.validate();
-  if (!valid) return;
-
-  saving.value = true;
-  try {
-    const payload = { ...formData.value };
-    if (payload.id) {
-      await api.update(payload.id, payload, { successMessage: 'تم التحديث بنجاح' });
-    } else {
-      await api.create(payload, { successMessage: 'تمت الإضافة بنجاح' });
-    }
-    showFormDialog.value = false;
-    fetchValues();
-  } finally {
-    saving.value = false;
-  }
-};
 
 const confirmDelete = async () => {
   deleting.value = true;
