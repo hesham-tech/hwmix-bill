@@ -789,6 +789,7 @@ const isSubscriptionBlocked = computed(() => {
 
 // فحص الموارد التي تقترب من استهلاك 90% أو أكثر
 const nearingLimitResources = computed(() => {
+  if (!userStore.isStaff) return []; // مستخدمو بوابة العملاء مستثنون من تحذيرات الباقة
   const limits = userStore.currentUser?.subscription?.limits;
   if (!limits) return [];
 
