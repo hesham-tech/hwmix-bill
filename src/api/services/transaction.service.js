@@ -1,29 +1,66 @@
+import BaseService from '../base.service';
 import apiClient from '../axios.config';
 
-const transactionService = {
-  getAll(params = {}) {
-    return apiClient.get('/transactions', { params });
-  },
+/**
+ * Transaction Service
+ * سجل المعاملات المالية والحركات
+ */
+class TransactionService extends BaseService {
+  constructor() {
+    super('transactions');
+  }
 
-  getById(id) {
-    return apiClient.get(`/transactions/${id}`);
-  },
+  /**
+   * Deposit balance
+   */
+  async deposit(data, options = {}) {
+    const { showToast = true } = options;
+    try {
+      const response = await apiClient.post('transactions/deposit', data);
+      return this.handleSuccess(response, showToast);
+    } catch (error) {
+      return this.handleError(error, showToast);
+    }
+  }
 
-  deposit(data) {
-    return apiClient.post('/transactions/deposit', data);
-  },
+  /**
+   * Withdraw balance
+   */
+  async withdraw(data, options = {}) {
+    const { showToast = true } = options;
+    try {
+      const response = await apiClient.post('transactions/withdraw', data);
+      return this.handleSuccess(response, showToast);
+    } catch (error) {
+      return this.handleError(error, showToast);
+    }
+  }
 
-  withdraw(data) {
-    return apiClient.post('/transactions/withdraw', data);
-  },
+  /**
+   * Transfer balance
+   */
+  async transfer(data, options = {}) {
+    const { showToast = true } = options;
+    try {
+      const response = await apiClient.post('transactions/transfer', data);
+      return this.handleSuccess(response, showToast);
+    } catch (error) {
+      return this.handleError(error, showToast);
+    }
+  }
 
-  transfer(data) {
-    return apiClient.post('/transactions/transfer', data);
-  },
+  /**
+   * Reverse transaction
+   */
+  async reverse(id, data = {}, options = {}) {
+    const { showToast = true } = options;
+    try {
+      const response = await apiClient.post(`transactions/${id}/reverse`, data);
+      return this.handleSuccess(response, showToast);
+    } catch (error) {
+      return this.handleError(error, showToast);
+    }
+  }
+}
 
-  reverse(id, data = {}) {
-    return apiClient.post(`/transactions/${id}/reverse`, data);
-  },
-};
-
-export default transactionService;
+export default new TransactionService();
