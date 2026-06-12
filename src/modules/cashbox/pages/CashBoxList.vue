@@ -15,7 +15,7 @@
 
       <template #controls>
         <v-row align="center" class="w-100 mx-0">
-          <v-col cols="12" md="8">
+          <v-col cols="12" :md="canViewAllCompanyBoxes ? 5 : 8">
             <AppInput
               v-model="search"
               placeholder="بحث عن خزينة..."
@@ -29,7 +29,18 @@
               @update:model-value="handleSearch"
             />
           </v-col>
-          <v-col cols="12" md="4" class="text-end">
+          <v-col v-if="canViewAllCompanyBoxes" cols="12" sm="6" md="3" class="d-flex align-center">
+            <AppSwitch
+              v-model="showAllBoxes"
+              label="عرض جميع صناديق الشركة"
+              hide-details
+              density="comfortable"
+              color="primary"
+              class="tour-toggle-all-boxes"
+              @update:model-value="handleToggleAllBoxes"
+            />
+          </v-col>
+          <v-col cols="12" :sm="canViewAllCompanyBoxes ? 6 : 12" :md="canViewAllCompanyBoxes ? 4 : 4" class="text-end">
             <v-btn-group variant="tonal" density="comfortable" color="primary" class="rounded-md bg-primary-lighten-5">
               <AppButton :active="viewMode === 'grid'" icon="ri-grid-fill" tooltip="عرض شبكي" @click="viewMode = 'grid'" />
               <AppButton :active="viewMode === 'list'" icon="ri-list-check" tooltip="عرض قائمة" @click="viewMode = 'list'" />
@@ -315,6 +326,7 @@
 </template>
 
 <script setup>
+// عرض وإدارة قائمة صناديق النقد وتصفية الأرصدة وإدارة الصلاحيات
 import { ref, onMounted, computed, watch } from 'vue';
 import { useCashBoxesData } from '../composables/useCashBoxesData';
 import { useDataTable } from '@/composables/useDataTable';
@@ -356,6 +368,9 @@ const fetchCashBoxesApi = async params => {
   if (props.userId) {
     finalParams.user_id = props.userId;
   }
+  if (showAllBoxes.value) {
+    finalParams.all_company_boxes = true;
+  }
   return await api.get(finalParams, { showLoading: false });
 };
 
@@ -396,6 +411,20 @@ const branches = ref([]);
 const loadingBranches = ref(false);
 const branchesApi = useApi('/api/branches');
 const formData = ref({ name: '', cash_box_type_id: null, branch_id: authStore.user?.branch_id || null, initial_balance: 0, is_active: 1, is_default: 0 });
+
+const showAllBoxes = ref(false);
+
+const canViewAllCompanyBoxes = computed(() => {
+  return authStore.user?.is_super_admin || 
+         can(PERMISSIONS.ADMIN_SUPER) || 
+         can(PERMISSIONS.ADMIN_COMPANY) || 
+         can(PERMISSIONS.CASH_BOXES_VIEW_ALL);
+});
+
+const handleToggleAllBoxes = () => {
+  page.value = 1;
+  fetchData();
+};
 
 const isEdit = computed(() => !!selectedItem.value);
 
