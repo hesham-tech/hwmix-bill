@@ -1,7 +1,6 @@
 <template>
   <!-- مكون استعادة كلمة المرور بتصميم متجدد وتجربة مستخدم متكاملة -->
   <div class="fp-page" dir="rtl">
-
     <!-- ═══════════════ خلفية متحركة ═══════════════ -->
     <div class="fp-bg" aria-hidden="true">
       <div class="fp-orb fp-orb--1"></div>
@@ -15,7 +14,6 @@
 
     <!-- ═══════════════ الكارد الرئيسي ═══════════════ -->
     <div class="fp-card">
-
       <!-- شريط التقدم العلوي -->
       <div class="fp-progress-bar" v-if="!sent">
         <div class="fp-progress-fill" :style="{ width: step === 1 ? '50%' : '100%' }"></div>
@@ -23,7 +21,6 @@
 
       <!-- محتوى الكارد -->
       <div class="fp-card-body">
-
         <!-- ══ حالة النجاح ══ -->
         <Transition name="fade-slide" mode="out-in">
           <div v-if="sent" class="fp-success" key="success">
@@ -32,9 +29,7 @@
               <v-icon icon="ri-shield-check-fill" size="36" color="white" />
             </div>
             <h1 class="fp-success-title">تم تحديث كلمة المرور!</h1>
-            <p class="fp-success-sub">
-              تم إعادة تعيين كلمة مرورك بنجاح.<br>يمكنك الآن تسجيل الدخول باستخدام كلمة المرور الجديدة.
-            </p>
+            <p class="fp-success-sub">تم إعادة تعيين كلمة مرورك بنجاح.<br />يمكنك الآن تسجيل الدخول باستخدام كلمة المرور الجديدة.</p>
             <button class="fp-btn fp-btn--primary fp-btn--full mt-6" @click="$router.push(loginPath)">
               <v-icon icon="ri-login-circle-line" size="18" class="me-2" />
               الذهاب لتسجيل الدخول
@@ -44,7 +39,6 @@
 
         <!-- ══ خطوات الاستعادة ══ -->
         <div v-if="!sent">
-
           <!-- ── شعار + عنوان ── -->
           <div class="fp-header">
             <div class="fp-logo-wrap">
@@ -56,7 +50,9 @@
               </h1>
               <p class="fp-subtitle">
                 <span v-if="step === 1">أدخل بريدك الإلكتروني وسنرسل لك رمز التحقق فوراً</span>
-                <span v-else>أدخل الرمز الذي أرسلناه إلى <strong class="text-amber">{{ form.email }}</strong></span>
+                <span v-else
+                  >أدخل الرمز الذي أرسلناه إلى <strong class="text-amber">{{ form.email }}</strong></span
+                >
               </p>
             </div>
           </div>
@@ -100,7 +96,7 @@
 
                 <!-- بطاقة المعلومات -->
                 <div class="fp-info-card mb-4">
-                  <v-icon icon="ri-information-line" size="16" class="me-2 flex-shrink-0" style="color:#60a5fa" />
+                  <v-icon icon="ri-information-line" size="16" class="me-2 flex-shrink-0" style="color: #60a5fa" />
                   <span>سيتم إرسال رمز التحقق ورابط الاستعادة إلى بريدك الإلكتروني المسجل في النظام.</span>
                 </div>
 
@@ -123,7 +119,6 @@
           <!-- ──────────── الخطوة 2: OTP + كلمة المرور ──────────── -->
           <Transition name="step-slide" mode="out-in">
             <div v-if="step === 2" key="step2">
-
               <!-- تنبيه الإرسال (يختفي لو الزيارة من إيميل مباشر) -->
               <div v-if="!cameFromEmail" class="fp-sent-badge mb-4">
                 <div class="fp-sent-badge__icon">
@@ -131,12 +126,13 @@
                 </div>
                 <div>
                   <div class="fp-sent-badge__title">تم إرسال الرمز بنجاح!</div>
-                  <div class="fp-sent-badge__sub">تحقق من بريدك: <span class="text-amber">{{ form.email }}</span></div>
+                  <div class="fp-sent-badge__sub">
+                    تحقق من بريدك: <span class="text-amber">{{ form.email }}</span>
+                  </div>
                 </div>
               </div>
 
               <v-form ref="formRefStep2" @submit.prevent="handleResetPassword">
-
                 <!-- ── حقل OTP مع مؤشر الحالة ── -->
                 <div class="fp-field">
                   <div class="fp-label-row">
@@ -157,14 +153,21 @@
                     </div>
                   </div>
                   <!-- صناديق OTP -->
-                  <div class="fp-otp-boxes" :class="{
-                    'fp-otp-boxes--valid': otpStatus === 'valid',
-                    'fp-otp-boxes--invalid': otpStatus === 'invalid'
-                  }">
+                  <div
+                    class="fp-otp-boxes"
+                    :class="{
+                      'fp-otp-boxes--valid': otpStatus === 'valid',
+                      'fp-otp-boxes--invalid': otpStatus === 'invalid',
+                    }"
+                  >
                     <input
                       v-for="(_, i) in 6"
                       :key="i"
-                      :ref="el => { if (el) otpInputs[i] = el }"
+                      :ref="
+                        el => {
+                          if (el) otpInputs[i] = el;
+                        }
+                      "
                       v-model="otpDigits[i]"
                       type="text"
                       inputmode="numeric"
@@ -173,7 +176,7 @@
                       :class="{
                         'fp-otp-box--filled': otpDigits[i],
                         'fp-otp-box--valid': otpStatus === 'valid',
-                        'fp-otp-box--invalid': otpStatus === 'invalid'
+                        'fp-otp-box--invalid': otpStatus === 'invalid',
                       }"
                       @input="onOtpInput(i, $event)"
                       @keydown="onOtpKeydown(i, $event)"
@@ -224,9 +227,15 @@
                   <!-- مؤشر قوة كلمة المرور -->
                   <div class="fp-strength" v-if="form.password.length > 0">
                     <div class="fp-strength-bars">
-                      <div v-for="n in 4" :key="n" class="fp-strength-bar"
-                        :class="{ 'fp-strength-bar--active': passwordStrength >= n, [`fp-strength-bar--${passwordStrengthColor}`]: passwordStrength >= n }">
-                      </div>
+                      <div
+                        v-for="n in 4"
+                        :key="n"
+                        class="fp-strength-bar"
+                        :class="{
+                          'fp-strength-bar--active': passwordStrength >= n,
+                          [`fp-strength-bar--${passwordStrengthColor}`]: passwordStrength >= n,
+                        }"
+                      ></div>
                     </div>
                     <span class="fp-strength-label" :class="`text-${passwordStrengthColor}`">{{ passwordStrengthLabel }}</span>
                   </div>
@@ -251,12 +260,12 @@
                   <!-- علامة التطابق -->
                   <div v-if="form.password_confirmation && form.password" class="fp-match-indicator">
                     <template v-if="form.password === form.password_confirmation">
-                      <v-icon icon="ri-checkbox-circle-line" size="14" class="me-1" style="color:#4ade80" />
-                      <span style="color:#4ade80;font-size:0.75rem">كلمتا المرور متطابقتان</span>
+                      <v-icon icon="ri-checkbox-circle-line" size="14" class="me-1" style="color: #4ade80" />
+                      <span style="color: #4ade80; font-size: 0.75rem">كلمتا المرور متطابقتان</span>
                     </template>
                     <template v-else>
-                      <v-icon icon="ri-close-circle-line" size="14" class="me-1" style="color:#f87171" />
-                      <span style="color:#f87171;font-size:0.75rem">كلمتا المرور غير متطابقتين</span>
+                      <v-icon icon="ri-close-circle-line" size="14" class="me-1" style="color: #f87171" />
+                      <span style="color: #f87171; font-size: 0.75rem">كلمتا المرور غير متطابقتين</span>
                     </template>
                   </div>
                 </div>
@@ -284,21 +293,19 @@
                     تسجيل الدخول
                   </router-link>
                 </div>
-
               </v-form>
             </div>
           </Transition>
-
         </div>
-      </div><!-- / fp-card-body -->
-
-    </div><!-- / fp-card -->
-
+      </div>
+      <!-- / fp-card-body -->
+    </div>
+    <!-- / fp-card -->
   </div>
 </template>
 
 <script setup>
-// تعليق عربي: مكون استعادة كلمة المرور بتصميم متجدد مع OTP boxes و password strength meter
+//   مكون استعادة كلمة المرور بتصميم متجدد مع OTP boxes و password strength meter
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
 import { authService } from '@/api';
@@ -393,7 +400,7 @@ const onOtpKeydown = (index, event) => {
   }
 };
 
-const onOtpPaste = (event) => {
+const onOtpPaste = event => {
   event.preventDefault();
   const pasted = event.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
   pasted.split('').forEach((char, i) => {
@@ -427,7 +434,7 @@ const checkOtp = async () => {
 
 watch(
   () => form.value.otp,
-  (newVal) => {
+  newVal => {
     if (newVal && newVal.length === 6) {
       checkOtp();
     } else {
@@ -444,7 +451,9 @@ onMounted(() => {
   if (emailParam) form.value.email = decodeURIComponent(emailParam);
   if (otpParam) {
     const digits = decodeURIComponent(otpParam).slice(0, 6).split('');
-    digits.forEach((d, i) => { otpDigits.value[i] = d; });
+    digits.forEach((d, i) => {
+      otpDigits.value[i] = d;
+    });
     form.value.otp = digits.join('');
     step.value = 2;
     cameFromEmail.value = true;
@@ -467,14 +476,11 @@ const startTimer = () => {
 };
 
 // ═══ قواعد التحقق ═══
-const otpRule = (val) =>
-  (val && val.length === 6 && /^\d+$/.test(val)) || 'يجب إدخال رمز التحقق المكون من 6 أرقام';
+const otpRule = val => (val && val.length === 6 && /^\d+$/.test(val)) || 'يجب إدخال رمز التحقق المكون من 6 أرقام';
 
-const minLengthRule = (min) => (val) =>
-  (val && val.length >= min) || `يجب ألا تقل كلمة المرور عن ${min} أحرف`;
+const minLengthRule = min => val => (val && val.length >= min) || `يجب ألا تقل كلمة المرور عن ${min} أحرف`;
 
-const confirmPasswordRule = (val) =>
-  val === form.value.password || 'تأكيد كلمة المرور غير متطابق';
+const confirmPasswordRule = val => val === form.value.password || 'تأكيد كلمة المرور غير متطابق';
 
 // ═══ إرسال OTP ═══
 const handleSendOtp = async () => {
@@ -555,10 +561,10 @@ const goBackToEmail = () => {
   --fp-amber-dark: #d97706;
   --fp-amber-glow: rgba(245, 158, 11, 0.25);
   --fp-bg: #060b18;
-  --fp-surface: rgba(255,255,255,0.05);
-  --fp-border: rgba(255,255,255,0.10);
-  --fp-text: rgba(255,255,255,0.9);
-  --fp-text-muted: rgba(255,255,255,0.5);
+  --fp-surface: rgba(255, 255, 255, 0.05);
+  --fp-border: rgba(255, 255, 255, 0.1);
+  --fp-text: rgba(255, 255, 255, 0.9);
+  --fp-text-muted: rgba(255, 255, 255, 0.5);
   --fp-success: #4ade80;
   --fp-error: #f87171;
 }
@@ -601,54 +607,82 @@ const goBackToEmail = () => {
   animation: fpFloat 14s ease-in-out infinite;
 }
 .fp-orb--1 {
-  width: min(500px, 120vw); height: min(500px, 120vw);
+  width: min(500px, 120vw);
+  height: min(500px, 120vw);
   background: radial-gradient(circle, #4f46e5 0%, transparent 70%);
-  top: -150px; left: -150px;
+  top: -150px;
+  left: -150px;
 }
 .fp-orb--2 {
-  width: min(400px, 100vw); height: min(400px, 100vw);
+  width: min(400px, 100vw);
+  height: min(400px, 100vw);
   background: radial-gradient(circle, #f59e0b 0%, transparent 70%);
-  bottom: -120px; right: -120px;
+  bottom: -120px;
+  right: -120px;
   animation-delay: -6s;
 }
 .fp-orb--3 {
-  width: min(300px, 80vw); height: min(300px, 80vw);
+  width: min(300px, 80vw);
+  height: min(300px, 80vw);
   background: radial-gradient(circle, #7c3aed 0%, transparent 70%);
-  top: 40%; left: 40%;
+  top: 40%;
+  left: 40%;
   animation-delay: -10s;
   opacity: 0.12;
 }
 
 @keyframes fpFloat {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(20px, -25px) scale(1.03); }
-  66% { transform: translate(-15px, 15px) scale(0.97); }
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(20px, -25px) scale(1.03);
+  }
+  66% {
+    transform: translate(-15px, 15px) scale(0.97);
+  }
 }
 
 .fp-grid {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
   background-size: 48px 48px;
 }
 
 .fp-line {
   position: absolute;
-  background: linear-gradient(90deg, transparent, rgba(245,158,11,0.15), transparent);
+  background: linear-gradient(90deg, transparent, rgba(245, 158, 11, 0.15), transparent);
   height: 1px;
   width: 100%;
   animation: fpLineScan 8s linear infinite;
 }
-.fp-line--1 { top: 30%; animation-delay: 0s; }
-.fp-line--2 { top: 70%; animation-delay: -4s; }
+.fp-line--1 {
+  top: 30%;
+  animation-delay: 0s;
+}
+.fp-line--2 {
+  top: 70%;
+  animation-delay: -4s;
+}
 
 @keyframes fpLineScan {
-  0% { opacity: 0; transform: translateX(-100%); }
-  20% { opacity: 1; }
-  80% { opacity: 1; }
-  100% { opacity: 0; transform: translateX(100%); }
+  0% {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(100%);
+  }
 }
 
 /* ═══════════════════════════════
@@ -660,27 +694,27 @@ const goBackToEmail = () => {
   width: 100%;
   max-width: 460px;
   background: rgba(10, 16, 34, 0.85);
-  border: 1px solid rgba(255,255,255,0.10);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 24px;
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   box-shadow:
-    0 32px 80px rgba(0,0,0,0.5),
-    0 0 0 1px rgba(245,158,11,0.08),
-    inset 0 1px 0 rgba(255,255,255,0.06);
+    0 32px 80px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(245, 158, 11, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
   overflow: hidden;
 }
 
 /* شريط تقدم علوي */
 .fp-progress-bar {
   height: 3px;
-  background: rgba(255,255,255,0.06);
+  background: rgba(255, 255, 255, 0.06);
 }
 .fp-progress-fill {
   height: 100%;
   background: linear-gradient(90deg, #f59e0b, #fbbf24);
   transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 0 12px rgba(245,158,11,0.5);
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.5);
 }
 
 .fp-card-body {
@@ -700,13 +734,13 @@ const goBackToEmail = () => {
   width: 44px;
   height: 44px;
   border-radius: 12px;
-  background: linear-gradient(135deg, rgba(245,158,11,0.3), rgba(245,158,11,0.1));
-  border: 1px solid rgba(245,158,11,0.3);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(245, 158, 11, 0.1));
+  border: 1px solid rgba(245, 158, 11, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 4px 16px rgba(245,158,11,0.2);
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.2);
 }
 .fp-title {
   font-size: 1.35rem;
@@ -721,7 +755,9 @@ const goBackToEmail = () => {
   margin: 0;
   line-height: 1.6;
 }
-.text-amber { color: #fbbf24 !important; }
+.text-amber {
+  color: #fbbf24 !important;
+}
 
 /* ═══════════════════════════════
    مؤشر الخطوات
@@ -747,41 +783,45 @@ const goBackToEmail = () => {
   justify-content: center;
   font-size: 0.75rem;
   font-weight: 700;
-  background: rgba(255,255,255,0.08);
-  border: 1.5px solid rgba(255,255,255,0.15);
-  color: rgba(255,255,255,0.4);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.4);
   transition: all 0.35s ease;
 }
 .fp-step--active .fp-step-dot {
   background: linear-gradient(135deg, #f59e0b, #d97706);
   border-color: #f59e0b;
   color: white;
-  box-shadow: 0 0 16px rgba(245,158,11,0.4);
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.4);
 }
 .fp-step--done .fp-step-dot {
-  background: rgba(74,222,128,0.2);
+  background: rgba(74, 222, 128, 0.2);
   border-color: #4ade80;
   color: #4ade80;
 }
 .fp-step-label {
   font-size: 0.75rem;
   font-weight: 600;
-  color: rgba(255,255,255,0.35);
+  color: rgba(255, 255, 255, 0.35);
   transition: color 0.3s;
   white-space: nowrap;
 }
-.fp-step--active .fp-step-label { color: #fbbf24; }
-.fp-step--done .fp-step-label { color: #4ade80; }
+.fp-step--active .fp-step-label {
+  color: #fbbf24;
+}
+.fp-step--done .fp-step-label {
+  color: #4ade80;
+}
 
 .fp-step-line {
   flex: 1;
   height: 1.5px;
-  background: rgba(255,255,255,0.10);
+  background: rgba(255, 255, 255, 0.1);
   margin: 0 8px;
   transition: background 0.5s ease;
 }
 .fp-step-line--done {
-  background: linear-gradient(90deg, #4ade80, rgba(74,222,128,0.3));
+  background: linear-gradient(90deg, #4ade80, rgba(74, 222, 128, 0.3));
 }
 
 /* ═══════════════════════════════
@@ -795,7 +835,7 @@ const goBackToEmail = () => {
   align-items: center;
   font-size: 0.78rem;
   font-weight: 700;
-  color: rgba(255,255,255,0.55);
+  color: rgba(255, 255, 255, 0.55);
   margin-bottom: 7px;
 }
 .fp-label-row {
@@ -811,19 +851,31 @@ const goBackToEmail = () => {
 /* تخصيص AppInput ليتناسب مع التصميم */
 .fp-input :deep(.v-field) {
   border-radius: 12px !important;
-  background: rgba(255,255,255,0.06) !important;
-  border: 1.5px solid rgba(255,255,255,0.10) !important;
-  transition: border-color 0.2s, box-shadow 0.2s !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.1) !important;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s !important;
 }
 .fp-input :deep(.v-field--focused) {
-  border-color: rgba(245,158,11,0.7) !important;
-  box-shadow: 0 0 0 3px rgba(245,158,11,0.12) !important;
-  background: rgba(255,255,255,0.08) !important;
+  border-color: rgba(245, 158, 11, 0.7) !important;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
 }
-.fp-input :deep(.v-field__input) { color: white !important; font-size: 0.9rem !important; }
-.fp-input :deep(.v-icon) { color: rgba(255,255,255,0.35) !important; }
-.fp-input :deep(input::placeholder) { color: rgba(255,255,255,0.25) !important; }
-.fp-input :deep(.v-messages) { color: rgba(255,100,100,0.9) !important; font-size: 0.75rem !important; }
+.fp-input :deep(.v-field__input) {
+  color: white !important;
+  font-size: 0.9rem !important;
+}
+.fp-input :deep(.v-icon) {
+  color: rgba(255, 255, 255, 0.35) !important;
+}
+.fp-input :deep(input::placeholder) {
+  color: rgba(255, 255, 255, 0.25) !important;
+}
+.fp-input :deep(.v-messages) {
+  color: rgba(255, 100, 100, 0.9) !important;
+  font-size: 0.75rem !important;
+}
 
 /* ═══════════════════════════════
    صناديق OTP
@@ -839,8 +891,8 @@ const goBackToEmail = () => {
   aspect-ratio: 1;
   max-width: 52px;
   border-radius: 12px;
-  background: rgba(255,255,255,0.06);
-  border: 1.5px solid rgba(255,255,255,0.12);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
   color: white;
   font-family: 'Cairo', sans-serif;
   font-size: 1.3rem;
@@ -851,36 +903,45 @@ const goBackToEmail = () => {
   caret-color: #f59e0b;
 }
 .fp-otp-box:focus {
-  border-color: rgba(245,158,11,0.8);
-  box-shadow: 0 0 0 3px rgba(245,158,11,0.15);
-  background: rgba(245,158,11,0.06);
+  border-color: rgba(245, 158, 11, 0.8);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+  background: rgba(245, 158, 11, 0.06);
 }
 .fp-otp-box--filled {
-  border-color: rgba(245,158,11,0.5);
-  background: rgba(245,158,11,0.08);
+  border-color: rgba(245, 158, 11, 0.5);
+  background: rgba(245, 158, 11, 0.08);
 }
 .fp-otp-box--valid {
-  border-color: rgba(74,222,128,0.7) !important;
-  background: rgba(74,222,128,0.08) !important;
+  border-color: rgba(74, 222, 128, 0.7) !important;
+  background: rgba(74, 222, 128, 0.08) !important;
   color: #4ade80 !important;
 }
 .fp-otp-box--invalid {
-  border-color: rgba(248,113,113,0.7) !important;
-  background: rgba(248,113,113,0.08) !important;
+  border-color: rgba(248, 113, 113, 0.7) !important;
+  background: rgba(248, 113, 113, 0.08) !important;
   color: #f87171 !important;
 }
 
 /* مؤشر حالة OTP */
-.fp-otp-status { display: flex; align-items: center; }
+.fp-otp-status {
+  display: flex;
+  align-items: center;
+}
 .fp-status {
   display: flex;
   align-items: center;
   font-size: 0.75rem;
   font-weight: 600;
 }
-.fp-status--loading { color: rgba(255,255,255,0.5); }
-.fp-status--valid { color: #4ade80; }
-.fp-status--invalid { color: #f87171; }
+.fp-status--loading {
+  color: rgba(255, 255, 255, 0.5);
+}
+.fp-status--valid {
+  color: #4ade80;
+}
+.fp-status--invalid {
+  color: #f87171;
+}
 
 .fp-error-text {
   display: flex;
@@ -901,7 +962,7 @@ const goBackToEmail = () => {
 }
 .fp-resend__label {
   font-size: 0.78rem;
-  color: rgba(255,255,255,0.4);
+  color: rgba(255, 255, 255, 0.4);
 }
 .fp-resend__btn {
   display: inline-flex;
@@ -914,10 +975,18 @@ const goBackToEmail = () => {
   border: none;
   padding: 0;
   cursor: pointer;
-  transition: color 0.2s, opacity 0.2s;
+  transition:
+    color 0.2s,
+    opacity 0.2s;
 }
-.fp-resend__btn:hover:not(:disabled) { color: #fbbf24; text-decoration: underline; }
-.fp-resend__btn--disabled { color: rgba(255,255,255,0.3) !important; cursor: not-allowed; }
+.fp-resend__btn:hover:not(:disabled) {
+  color: #fbbf24;
+  text-decoration: underline;
+}
+.fp-resend__btn--disabled {
+  color: rgba(255, 255, 255, 0.3) !important;
+  cursor: not-allowed;
+}
 
 /* ═══════════════════════════════
    مؤشر قوة كلمة المرور
@@ -937,22 +1006,38 @@ const goBackToEmail = () => {
   height: 4px;
   flex: 1;
   border-radius: 2px;
-  background: rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, 0.08);
   transition: background 0.3s ease;
 }
-.fp-strength-bar--active.fp-strength-bar--error { background: #f87171; }
-.fp-strength-bar--active.fp-strength-bar--warning { background: #fbbf24; }
-.fp-strength-bar--active.fp-strength-bar--blue { background: #60a5fa; }
-.fp-strength-bar--active.fp-strength-bar--success { background: #4ade80; }
+.fp-strength-bar--active.fp-strength-bar--error {
+  background: #f87171;
+}
+.fp-strength-bar--active.fp-strength-bar--warning {
+  background: #fbbf24;
+}
+.fp-strength-bar--active.fp-strength-bar--blue {
+  background: #60a5fa;
+}
+.fp-strength-bar--active.fp-strength-bar--success {
+  background: #4ade80;
+}
 .fp-strength-label {
   font-size: 0.72rem;
   font-weight: 700;
   white-space: nowrap;
 }
-.fp-strength-label.text-error { color: #f87171; }
-.fp-strength-label.text-warning { color: #fbbf24; }
-.fp-strength-label.text-blue { color: #60a5fa; }
-.fp-strength-label.text-success { color: #4ade80; }
+.fp-strength-label.text-error {
+  color: #f87171;
+}
+.fp-strength-label.text-warning {
+  color: #fbbf24;
+}
+.fp-strength-label.text-blue {
+  color: #60a5fa;
+}
+.fp-strength-label.text-success {
+  color: #4ade80;
+}
 
 /* ═══════════════════════════════
    علامة تطابق كلمتي المرور
@@ -984,21 +1069,25 @@ const goBackToEmail = () => {
 .fp-btn--primary {
   background: linear-gradient(135deg, #f59e0b, #d97706);
   color: #1a0a00;
-  box-shadow: 0 6px 20px rgba(245,158,11,0.35);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.35);
 }
 .fp-btn--primary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 12px 32px rgba(245,158,11,0.45);
+  box-shadow: 0 12px 32px rgba(245, 158, 11, 0.45);
   background: linear-gradient(135deg, #fbbf24, #f59e0b);
 }
-.fp-btn--primary:active:not(:disabled) { transform: translateY(0); }
+.fp-btn--primary:active:not(:disabled) {
+  transform: translateY(0);
+}
 .fp-btn--primary:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
 }
-.fp-btn--full { width: 100%; }
+.fp-btn--full {
+  width: 100%;
+}
 
 /* ═══════════════════════════════
    بطاقة المعلومات
@@ -1007,12 +1096,12 @@ const goBackToEmail = () => {
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  background: rgba(96,165,250,0.08);
-  border: 1px solid rgba(96,165,250,0.18);
+  background: rgba(96, 165, 250, 0.08);
+  border: 1px solid rgba(96, 165, 250, 0.18);
   border-radius: 10px;
   padding: 10px 12px;
   font-size: 0.78rem;
-  color: rgba(255,255,255,0.65);
+  color: rgba(255, 255, 255, 0.65);
   line-height: 1.6;
 }
 
@@ -1023,8 +1112,8 @@ const goBackToEmail = () => {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(74,222,128,0.06);
-  border: 1px solid rgba(74,222,128,0.18);
+  background: rgba(74, 222, 128, 0.06);
+  border: 1px solid rgba(74, 222, 128, 0.18);
   border-radius: 12px;
   padding: 12px 14px;
   animation: fpSlideIn 0.3s ease-out;
@@ -1033,7 +1122,7 @@ const goBackToEmail = () => {
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  background: rgba(74,222,128,0.2);
+  background: rgba(74, 222, 128, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1046,32 +1135,43 @@ const goBackToEmail = () => {
 }
 .fp-sent-badge__sub {
   font-size: 0.76rem;
-  color: rgba(255,255,255,0.5);
+  color: rgba(255, 255, 255, 0.5);
   margin-top: 2px;
 }
 
 @keyframes fpSlideIn {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ═══════════════════════════════
    روابط سفلية
 ═══════════════════════════════ */
-.fp-back-link { text-align: center; }
+.fp-back-link {
+  text-align: center;
+}
 .fp-footer-links {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
 }
-.fp-dot-sep { color: rgba(255,255,255,0.25); font-size: 0.9rem; }
+.fp-dot-sep {
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 0.9rem;
+}
 .fp-link {
   display: inline-flex;
   align-items: center;
   font-size: 0.78rem;
   font-weight: 600;
-  color: rgba(255,255,255,0.4);
+  color: rgba(255, 255, 255, 0.4);
   text-decoration: none;
   background: none;
   border: none;
@@ -1080,7 +1180,9 @@ const goBackToEmail = () => {
   transition: color 0.2s;
   padding: 0;
 }
-.fp-link:hover { color: #f59e0b; }
+.fp-link:hover {
+  color: #f59e0b;
+}
 
 /* ═══════════════════════════════
    الـ Spinner
@@ -1089,7 +1191,7 @@ const goBackToEmail = () => {
   display: inline-block;
   width: 18px;
   height: 18px;
-  border: 2px solid rgba(255,255,255,0.2);
+  border: 2px solid rgba(255, 255, 255, 0.2);
   border-top-color: currentColor;
   border-radius: 50%;
   animation: fpSpin 0.7s linear infinite;
@@ -1100,7 +1202,11 @@ const goBackToEmail = () => {
   height: 12px;
   border-width: 1.5px;
 }
-@keyframes fpSpin { to { transform: rotate(360deg); } }
+@keyframes fpSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 /* ═══════════════════════════════
    حالة النجاح
@@ -1113,8 +1219,8 @@ const goBackToEmail = () => {
   width: 76px;
   height: 76px;
   border-radius: 50%;
-  background: rgba(74,222,128,0.15);
-  border: 1.5px solid rgba(74,222,128,0.3);
+  background: rgba(74, 222, 128, 0.15);
+  border: 1.5px solid rgba(74, 222, 128, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1126,16 +1232,29 @@ const goBackToEmail = () => {
   position: absolute;
   inset: -6px;
   border-radius: 50%;
-  border: 1px solid rgba(74,222,128,0.15);
+  border: 1px solid rgba(74, 222, 128, 0.15);
   animation: fpRingPulse 2s ease-in-out infinite;
 }
 @keyframes fpSuccessIn {
-  from { transform: scale(0.6); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+  from {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 @keyframes fpRingPulse {
-  0%, 100% { transform: scale(1); opacity: 0.5; }
-  50% { transform: scale(1.08); opacity: 0.15; }
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.15;
+  }
 }
 .fp-success-title {
   font-size: 1.4rem;
@@ -1145,7 +1264,7 @@ const goBackToEmail = () => {
 }
 .fp-success-sub {
   font-size: 0.85rem;
-  color: rgba(255,255,255,0.55);
+  color: rgba(255, 255, 255, 0.55);
   line-height: 1.7;
   margin-bottom: 0;
 }
@@ -1183,24 +1302,54 @@ const goBackToEmail = () => {
    تجاوب الشاشات الصغيرة
 ═══════════════════════════════ */
 @media (max-width: 480px) {
-  .fp-card-body { padding: 24px 18px; }
-  .fp-title { font-size: 1.15rem; }
-  .fp-otp-box { font-size: 1.1rem; border-radius: 10px; }
-  .fp-otp-boxes { gap: 6px; }
-  .fp-btn { font-size: 0.87rem; padding: 11px 20px; }
-  .fp-step-label { font-size: 0.68rem; }
+  .fp-card-body {
+    padding: 24px 18px;
+  }
+  .fp-title {
+    font-size: 1.15rem;
+  }
+  .fp-otp-box {
+    font-size: 1.1rem;
+    border-radius: 10px;
+  }
+  .fp-otp-boxes {
+    gap: 6px;
+  }
+  .fp-btn {
+    font-size: 0.87rem;
+    padding: 11px 20px;
+  }
+  .fp-step-label {
+    font-size: 0.68rem;
+  }
 }
 
 @media (max-width: 360px) {
-  .fp-card-body { padding: 20px 14px; }
-  .fp-otp-boxes { gap: 4px; }
-  .fp-otp-box { border-radius: 8px; font-size: 1rem; }
-  .fp-header { gap: 10px; }
-  .fp-logo-wrap { width: 38px; height: 38px; }
-  .fp-title { font-size: 1.05rem; }
+  .fp-card-body {
+    padding: 20px 14px;
+  }
+  .fp-otp-boxes {
+    gap: 4px;
+  }
+  .fp-otp-box {
+    border-radius: 8px;
+    font-size: 1rem;
+  }
+  .fp-header {
+    gap: 10px;
+  }
+  .fp-logo-wrap {
+    width: 38px;
+    height: 38px;
+  }
+  .fp-title {
+    font-size: 1.05rem;
+  }
 }
 
 @media (max-width: 320px) {
-  .fp-steps { display: none; }
+  .fp-steps {
+    display: none;
+  }
 }
 </style>

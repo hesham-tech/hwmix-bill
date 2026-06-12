@@ -1,4 +1,4 @@
-<!-- تعليق عربي: مكون أيقونة المساعدة التوجيهي (AppActionHelp) لعرض تأثير العمليات على المخزون والحسابات عند تمرير الماوس أو النقر -->
+<!--   مكون أيقونة المساعدة التوجيهي (AppActionHelp) لعرض تأثير العمليات على المخزون والحسابات عند تمرير الماوس أو النقر -->
 <template>
   <div v-if="helpData" class="d-inline-flex align-center">
     <!-- Tooltip on Hover -->
@@ -37,11 +37,7 @@
           </div>
 
           <v-list class="bg-transparent pa-0 gap-3 d-flex flex-column">
-            <v-list-item
-              v-for="(point, idx) in helpData.points"
-              :key="idx"
-              class="help-point-item px-4 py-3 rounded-lg border bg-white"
-            >
+            <v-list-item v-for="(point, idx) in helpData.points" :key="idx" class="help-point-item px-4 py-3 rounded-lg border bg-white">
               <template #prepend>
                 <v-avatar color="primary-lighten-5" rounded size="36" class="me-3">
                   <v-icon :icon="point.icon" color="primary" size="20" />
@@ -56,16 +52,7 @@
 
         <!-- Actions -->
         <v-card-actions class="pa-4 border-t bg-white">
-          <v-btn
-            block
-            variant="flat"
-            color="primary"
-            class="font-weight-black rounded-lg"
-            height="44"
-            @click="dialogOpen = false"
-          >
-            فهمت ذلك
-          </v-btn>
+          <v-btn block variant="flat" color="primary" class="font-weight-black rounded-lg" height="44" @click="dialogOpen = false"> فهمت ذلك </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

@@ -1,7 +1,6 @@
-<!-- تعليق عربي: شاشة إعداد وأتمتة مسارات العمل وجدولة الإشعارات الديناميكية لكل حدث، تتيح للشركات تفعيل القواعد وتحديد قنوات وخطوات التذكير المجدولة بفروق زمنية مخصصة. -->
+<!--   شاشة إعداد وأتمتة مسارات العمل وجدولة الإشعارات الديناميكية لكل حدث، تتيح للشركات تفعيل القواعد وتحديد قنوات وخطوات التذكير المجدولة بفروق زمنية مخصصة. -->
 <template>
   <div class="wf-page">
-
     <!-- ═══════════════════════════════ TOP BAR ═══════════════════════════════ -->
     <div class="wf-topbar">
       <div class="wf-topbar-inner">
@@ -32,7 +31,10 @@
           </div>
           <v-btn
             v-if="!integrationsStatus.email && !integrationsStatus.whatsapp"
-            size="x-small" variant="tonal" color="warning" rounded
+            size="x-small"
+            variant="tonal"
+            color="warning"
+            rounded
             prepend-icon="ri-settings-3-line"
             @click="router.push({ name: 'settings' })"
           >
@@ -44,7 +46,6 @@
 
     <!-- ═══════════════════════════════ LAYOUT ═══════════════════════════════ -->
     <div class="wf-layout">
-
       <!-- ──────── LEFT SIDEBAR ──────── -->
       <aside class="wf-sidebar tour-workflows-select">
         <div class="wf-sidebar-search">
@@ -73,7 +74,15 @@
               <div class="wf-event-desc">{{ ev.description }}</div>
             </div>
             <div class="wf-event-status-wrap">
-              <v-chip v-if="getWorkflow(ev.type)?.is_global" color="purple" size="x-small" variant="flat" class="me-1 font-weight-bold" style="font-size: 8px !important; height: 16px; min-width: auto; padding: 0 4px;">سيستم</v-chip>
+              <v-chip
+                v-if="getWorkflow(ev.type)?.is_global"
+                color="purple"
+                size="x-small"
+                variant="flat"
+                class="me-1 font-weight-bold"
+                style="font-size: 8px !important; height: 16px; min-width: auto; padding: 0 4px"
+                >سيستم</v-chip
+              >
               <div
                 class="wf-status-badge"
                 :class="{
@@ -109,7 +118,15 @@
               <div class="wf-event-desc">{{ ev.description }}</div>
             </div>
             <div class="wf-event-status-wrap">
-              <v-chip v-if="getWorkflow(ev.type)?.is_global" color="purple" size="x-small" variant="flat" class="me-1 font-weight-bold" style="font-size: 8px !important; height: 16px; min-width: auto; padding: 0 4px;">سيستم</v-chip>
+              <v-chip
+                v-if="getWorkflow(ev.type)?.is_global"
+                color="purple"
+                size="x-small"
+                variant="flat"
+                class="me-1 font-weight-bold"
+                style="font-size: 8px !important; height: 16px; min-width: auto; padding: 0 4px"
+                >سيستم</v-chip
+              >
               <div
                 class="wf-status-badge"
                 :class="{
@@ -127,7 +144,6 @@
 
       <!-- ──────── RIGHT PANEL ──────── -->
       <main class="wf-panel">
-
         <!-- EMPTY STATE -->
         <div v-if="!selectedEventType" class="wf-empty">
           <div class="wf-empty-graphic">
@@ -141,9 +157,7 @@
             </div>
           </div>
           <h3 class="wf-empty-title">اختر حدثاً لبدء التهيئة</h3>
-          <p class="wf-empty-desc">
-            اختر من القائمة اليسرى أي حدث لتعيين قواعد الإرسال والتذكير التلقائي
-          </p>
+          <p class="wf-empty-desc">اختر من القائمة اليسرى أي حدث لتعيين قواعد الإرسال والتذكير التلقائي</p>
           <div class="wf-empty-hints">
             <div class="wf-hint-chip wf-hint-chip--orange">
               <v-icon icon="ri-flashlight-line" size="13" />
@@ -158,10 +172,12 @@
 
         <!-- EDITOR -->
         <template v-else>
-
           <!-- Editor Header Bar -->
           <div class="wf-editor-header">
-            <div class="wf-editor-event-pill" :class="isScheduledEvent(selectedEventType) ? 'wf-editor-event-pill--blue' : 'wf-editor-event-pill--orange'">
+            <div
+              class="wf-editor-event-pill"
+              :class="isScheduledEvent(selectedEventType) ? 'wf-editor-event-pill--blue' : 'wf-editor-event-pill--orange'"
+            >
               <v-icon :icon="activeEventDetails?.icon" size="16" />
               <span>{{ activeEventDetails?.label }}</span>
               <div class="wf-event-type-tag">{{ isScheduledEvent(selectedEventType) ? 'مجدول' : 'فوري' }}</div>
@@ -171,7 +187,9 @@
               <!-- Run Now -->
               <v-btn
                 v-if="isScheduledEvent(selectedEventType)"
-                size="small" variant="tonal" color="warning"
+                size="small"
+                variant="tonal"
+                color="warning"
                 prepend-icon="ri-play-circle-line"
                 class="rounded-pill font-weight-bold tour-workflows-run-now"
                 :disabled="!hasSavedWorkflow || !editorData.is_active || (!integrationsStatus.email && !integrationsStatus.whatsapp)"
@@ -186,7 +204,10 @@
                 <span class="wf-toggle-label">{{ editorData.is_active ? 'مُفعّل' : 'معطّل' }}</span>
                 <v-switch
                   v-model="editorData.is_active"
-                  color="success" hide-details inset density="compact"
+                  color="success"
+                  hide-details
+                  inset
+                  density="compact"
                   class="tour-workflows-toggle"
                   :disabled="isFormDisabled || (!integrationsStatus.email && !integrationsStatus.whatsapp)"
                 />
@@ -197,7 +218,10 @@
                 <span class="wf-toggle-label text-purple font-weight-bold">سيستم عام</span>
                 <v-switch
                   v-model="editorData.is_global"
-                  color="purple" hide-details inset density="compact"
+                  color="purple"
+                  hide-details
+                  inset
+                  density="compact"
                   :disabled="isFormDisabled || (!integrationsStatus.email && !integrationsStatus.whatsapp)"
                 />
               </div>
@@ -205,7 +229,9 @@
               <!-- Save -->
               <v-btn
                 v-if="!isFormDisabled"
-                color="primary" size="small" rounded="pill"
+                color="primary"
+                size="small"
+                rounded="pill"
                 prepend-icon="ri-save-3-line"
                 class="font-weight-bold wf-save-btn tour-workflows-save"
                 :loading="saving"
@@ -248,7 +274,10 @@
               </div>
               <v-btn
                 v-if="!isFormDisabled"
-                size="x-small" color="primary" variant="tonal" rounded="pill"
+                size="x-small"
+                color="primary"
+                variant="tonal"
+                rounded="pill"
                 prepend-icon="ri-add-line"
                 class="font-weight-bold tour-workflows-step-add"
                 :disabled="!integrationsStatus.email && !integrationsStatus.whatsapp"
@@ -267,10 +296,8 @@
             <!-- Pipeline Steps -->
             <div v-else class="wf-pipeline">
               <template v-for="(step, index) in editorData.steps" :key="index">
-
                 <!-- Step Card -->
                 <div class="wf-step" :class="[{ 'wf-step--off': !step.is_active }, index === 0 ? 'tour-workflows-step-card' : '']">
-
                   <!-- Step Number -->
                   <div class="wf-step-num">
                     <span>{{ index + 1 }}</span>
@@ -278,7 +305,6 @@
 
                   <!-- Step Body -->
                   <div class="wf-step-body">
-
                     <!-- Delay Row -->
                     <div class="wf-step-delay-row">
                       <div v-if="isImmediateEvent(selectedEventType)" class="wf-instant-tag">
@@ -334,7 +360,8 @@
                           :items="templates"
                           item-title="name"
                           item-value="id"
-                          variant="outlined" density="compact"
+                          variant="outlined"
+                          density="compact"
                           :rules="[v => !!v || 'القالب مطلوب']"
                           hide-details
                           class="wf-select"
@@ -347,7 +374,10 @@
                         <v-btn
                           v-if="!isFormDisabled"
                           icon="ri-delete-bin-5-line"
-                          variant="text" color="error" size="small" density="compact"
+                          variant="text"
+                          color="error"
+                          size="small"
+                          density="compact"
                           class="mt-1"
                           @click="removeStep(index)"
                         />
@@ -361,7 +391,6 @@
                   <div class="wf-connector-line" />
                   <v-icon icon="ri-arrow-down-line" size="14" class="wf-connector-arrow" />
                 </div>
-
               </template>
             </div>
           </div>
@@ -401,7 +430,7 @@ const integrationsStatus = ref({ email: false, whatsapp: false });
 
 const editorData = ref({ id: null, event_type: '', is_active: true, is_global: false, steps: [] });
 
-const getWorkflow = (type) => {
+const getWorkflow = type => {
   return workflows.value.find(w => w.event_type === type);
 };
 
@@ -412,13 +441,17 @@ const isFormDisabled = computed(() => {
 
 // ربط الجولة الإرشادية بتفعيل حدث تلقائياً لمنع خلو الدوم من عناصر التعديل
 const { isActive, activeTourKey } = useTour();
-watch([isActive, activeTourKey], ([active, key]) => {
-  if (active && key === 'tour.notification_workflows') {
-    if (!selectedEventType.value && eventsList.length > 0 && !loading.value) {
-      selectEvent(eventsList[0].type);
+watch(
+  [isActive, activeTourKey],
+  ([active, key]) => {
+    if (active && key === 'tour.notification_workflows') {
+      if (!selectedEventType.value && eventsList.length > 0 && !loading.value) {
+        selectEvent(eventsList[0].type);
+      }
     }
-  }
-}, { immediate: true });
+  },
+  { immediate: true }
+);
 
 // القنوات المتاحة بناءً على ما هو مفعل في الشركة
 const stepChannelOptions = computed(() => {
@@ -440,25 +473,132 @@ const toggleStepChannel = (step, value) => {
 };
 
 const eventsList = [
-  { type: 'invoice.created', label: 'فاتورة مبيعات جديدة', description: 'فوري عند تأكيد وحفظ الفاتورة', icon: 'ri-file-add-line', helpText: 'يتم تشغيل هذا الحدث بمجرد حفظ فاتورة مبيعات جديدة بالكامل في النظام.' },
-  { type: 'invoice.due_soon', label: 'فاتورة تقترب من الاستحقاق', description: 'مجدول يومي قبل تاريخ الاستحقاق', icon: 'ri-time-line', helpText: 'يقوم النظام يومياً بفحص الفواتير غير المدفوعة التي يقترب موعد استحقاقها.' },
-  { type: 'invoice.overdue', label: 'فاتورة متأخرة السداد', description: 'مجدول يومي بعد تاريخ الاستحقاق', icon: 'ri-error-warning-line', helpText: 'يقوم النظام يومياً بفحص الفواتير المتأخرة لتنبيه العميل وطلب سداد المستحقات.' },
-  { type: 'payment.received', label: 'سند قبض / دفعة مستلمة', description: 'فوري عند تسجيل دفع للفاتورة', icon: 'ri-checkbox-circle-line', helpText: 'يتم تشغيل هذا الحدث بمجرد سداد الفاتورة أو دفع جزء منها.' },
-  { type: 'installment.due_soon', label: 'قسط يستحق قريباً', description: 'مجدول يومي قبل موعد قسط الدفع', icon: 'ri-calendar-event-line', helpText: 'تذكير للعملاء باقتراب موعد استحقاق قسط الدفع المستقبلي.' },
-  { type: 'stock.low', label: 'انخفاض المخزون للحد الأدنى', description: 'مجدول يومي لمدير المستودع', icon: 'ri-archive-line', helpText: 'تنبيه دوري بالمنتجات التي وصلت لكمياتها للأمان المنخفض.' },
-  { type: 'subscription.expiring', label: 'اشتراك يوشك على الانتهاء', description: 'مجدول يومي قبل انتهاء الخطة', icon: 'ri-vip-crown-line', helpText: 'تنبيه العملاء باقتراب انتهاء صلاحية اشتراك باقتهم.' },
-  { type: 'subscription.expired', label: 'اشتراك منتهي الصلاحية', description: 'فوري عند تحول حالة الاشتراك لمنتهٍ', icon: 'ri-spam-3-line', helpText: 'يتم تشغيله فوراً عند إيقاف اشتراك العميل بسبب انتهاء الباقة.' },
-  { type: 'customer.birthday', label: 'يوم ميلاد العميل (تهنئة)', description: 'مجدول يومي في تاريخ ميلاد العميل', icon: 'ri-cake-2-line', helpText: 'تهنئة العميل التلقائية في تاريخ ميلاده لزيادة الولاء.' },
-  { type: 'transaction.created', label: 'معاملة مالية جديدة', description: 'فوري عند تسجيل معاملة بالخزائن', icon: 'ri-exchange-funds-line', helpText: 'يتم تشغيل هذا الحدث بمجرد تسجيل عملية مالية جديدة في الخزائن.' },
-  { type: 'task.updated', label: 'تحديث حالة مهمة عمل', description: 'فوري عند تعديل مهمة عمل', icon: 'ri-task-line', helpText: 'يتم تشغيل هذا الحدث عند تحديث حالة مهمة العمل أو تقدمها.' },
-  { type: 'task.created', label: 'إنشاء مهمة عمل جديدة', description: 'فوري عند إسناد مهمة لموظف', icon: 'ri-chat-new-line', helpText: 'يتم تشغيل هذا الحدث عند إضافة مهمة عمل جديدة وإسنادها للموظف.' },
-  { type: 'product.created', label: 'إضافة منتج جديد للمخازن', description: 'فوري عند إضافة منتج بالنظام', icon: 'ri-add-box-line', helpText: 'يتم تشغيل هذا الحدث فور تسجيل منتج جديد في المخازن.' },
-  { type: 'product.stock_updated', label: 'تحديث كمية منتج بالمخازن', description: 'فوري عند تعديل كميات المخزون', icon: 'ri-refresh-line', helpText: 'يتم تشغيل هذا الحدث فور تعديل كمية المخزون لمنتج ما.' },
-  { type: 'invoice.returned', label: 'مرتجع فاتورة مبيعات', description: 'فوري عند إصدار فاتورة مرتجع', icon: 'ri-refund-2-line', helpText: 'يتم تشغيل هذا الحدث بمجرد تسجيل فاتورة مرتجع مبيعات.' },
-  { type: 'cashbox.created', label: 'إنشاء صندوق / خزينة جديدة', description: 'فوري عند إضافة خزينة أموال', icon: 'ri-bank-card-line', helpText: 'يتم تشغيل هذا الحدث فور إضافة صندوق أو خزينة مالية جديدة.' },
+  {
+    type: 'invoice.created',
+    label: 'فاتورة مبيعات جديدة',
+    description: 'فوري عند تأكيد وحفظ الفاتورة',
+    icon: 'ri-file-add-line',
+    helpText: 'يتم تشغيل هذا الحدث بمجرد حفظ فاتورة مبيعات جديدة بالكامل في النظام.',
+  },
+  {
+    type: 'invoice.due_soon',
+    label: 'فاتورة تقترب من الاستحقاق',
+    description: 'مجدول يومي قبل تاريخ الاستحقاق',
+    icon: 'ri-time-line',
+    helpText: 'يقوم النظام يومياً بفحص الفواتير غير المدفوعة التي يقترب موعد استحقاقها.',
+  },
+  {
+    type: 'invoice.overdue',
+    label: 'فاتورة متأخرة السداد',
+    description: 'مجدول يومي بعد تاريخ الاستحقاق',
+    icon: 'ri-error-warning-line',
+    helpText: 'يقوم النظام يومياً بفحص الفواتير المتأخرة لتنبيه العميل وطلب سداد المستحقات.',
+  },
+  {
+    type: 'payment.received',
+    label: 'سند قبض / دفعة مستلمة',
+    description: 'فوري عند تسجيل دفع للفاتورة',
+    icon: 'ri-checkbox-circle-line',
+    helpText: 'يتم تشغيل هذا الحدث بمجرد سداد الفاتورة أو دفع جزء منها.',
+  },
+  {
+    type: 'installment.due_soon',
+    label: 'قسط يستحق قريباً',
+    description: 'مجدول يومي قبل موعد قسط الدفع',
+    icon: 'ri-calendar-event-line',
+    helpText: 'تذكير للعملاء باقتراب موعد استحقاق قسط الدفع المستقبلي.',
+  },
+  {
+    type: 'stock.low',
+    label: 'انخفاض المخزون للحد الأدنى',
+    description: 'مجدول يومي لمدير المستودع',
+    icon: 'ri-archive-line',
+    helpText: 'تنبيه دوري بالمنتجات التي وصلت لكمياتها للأمان المنخفض.',
+  },
+  {
+    type: 'subscription.expiring',
+    label: 'اشتراك يوشك على الانتهاء',
+    description: 'مجدول يومي قبل انتهاء الخطة',
+    icon: 'ri-vip-crown-line',
+    helpText: 'تنبيه العملاء باقتراب انتهاء صلاحية اشتراك باقتهم.',
+  },
+  {
+    type: 'subscription.expired',
+    label: 'اشتراك منتهي الصلاحية',
+    description: 'فوري عند تحول حالة الاشتراك لمنتهٍ',
+    icon: 'ri-spam-3-line',
+    helpText: 'يتم تشغيله فوراً عند إيقاف اشتراك العميل بسبب انتهاء الباقة.',
+  },
+  {
+    type: 'customer.birthday',
+    label: 'يوم ميلاد العميل (تهنئة)',
+    description: 'مجدول يومي في تاريخ ميلاد العميل',
+    icon: 'ri-cake-2-line',
+    helpText: 'تهنئة العميل التلقائية في تاريخ ميلاده لزيادة الولاء.',
+  },
+  {
+    type: 'transaction.created',
+    label: 'معاملة مالية جديدة',
+    description: 'فوري عند تسجيل معاملة بالخزائن',
+    icon: 'ri-exchange-funds-line',
+    helpText: 'يتم تشغيل هذا الحدث بمجرد تسجيل عملية مالية جديدة في الخزائن.',
+  },
+  {
+    type: 'task.updated',
+    label: 'تحديث حالة مهمة عمل',
+    description: 'فوري عند تعديل مهمة عمل',
+    icon: 'ri-task-line',
+    helpText: 'يتم تشغيل هذا الحدث عند تحديث حالة مهمة العمل أو تقدمها.',
+  },
+  {
+    type: 'task.created',
+    label: 'إنشاء مهمة عمل جديدة',
+    description: 'فوري عند إسناد مهمة لموظف',
+    icon: 'ri-chat-new-line',
+    helpText: 'يتم تشغيل هذا الحدث عند إضافة مهمة عمل جديدة وإسنادها للموظف.',
+  },
+  {
+    type: 'product.created',
+    label: 'إضافة منتج جديد للمخازن',
+    description: 'فوري عند إضافة منتج بالنظام',
+    icon: 'ri-add-box-line',
+    helpText: 'يتم تشغيل هذا الحدث فور تسجيل منتج جديد في المخازن.',
+  },
+  {
+    type: 'product.stock_updated',
+    label: 'تحديث كمية منتج بالمخازن',
+    description: 'فوري عند تعديل كميات المخزون',
+    icon: 'ri-refresh-line',
+    helpText: 'يتم تشغيل هذا الحدث فور تعديل كمية المخزون لمنتج ما.',
+  },
+  {
+    type: 'invoice.returned',
+    label: 'مرتجع فاتورة مبيعات',
+    description: 'فوري عند إصدار فاتورة مرتجع',
+    icon: 'ri-refund-2-line',
+    helpText: 'يتم تشغيل هذا الحدث بمجرد تسجيل فاتورة مرتجع مبيعات.',
+  },
+  {
+    type: 'cashbox.created',
+    label: 'إنشاء صندوق / خزينة جديدة',
+    description: 'فوري عند إضافة خزينة أموال',
+    icon: 'ri-bank-card-line',
+    helpText: 'يتم تشغيل هذا الحدث فور إضافة صندوق أو خزينة مالية جديدة.',
+  },
 ];
 
-const immediateTypes = ['invoice.created', 'payment.received', 'subscription.expired', 'transaction.created', 'task.updated', 'task.created', 'product.created', 'product.stock_updated', 'invoice.returned', 'cashbox.created'];
+const immediateTypes = [
+  'invoice.created',
+  'payment.received',
+  'subscription.expired',
+  'transaction.created',
+  'task.updated',
+  'task.created',
+  'product.created',
+  'product.stock_updated',
+  'invoice.returned',
+  'cashbox.created',
+];
 
 const filteredImmediateEvents = computed(() => {
   const q = sidebarSearch.value.toLowerCase();
@@ -470,27 +610,30 @@ const filteredScheduledEvents = computed(() => {
 });
 const activeEventDetails = computed(() => eventsList.find(e => e.type === selectedEventType.value));
 const hasSavedWorkflow = computed(() => !!editorData.value.id);
-const isImmediateEvent = (type) => immediateTypes.includes(type);
-const isScheduledEvent = (type) => !isImmediateEvent(type);
+const isImmediateEvent = type => immediateTypes.includes(type);
+const isScheduledEvent = type => !isImmediateEvent(type);
 
-const getWorkflowStatusLabel = (type) => {
+const getWorkflowStatusLabel = type => {
   const wf = workflows.value.find(w => w.event_type === type);
   if (!wf) return 'غير مهيأ';
   return wf.is_active ? 'نشط' : 'معطّل';
 };
-const getWorkflowStatusColor = (type) => {
+const getWorkflowStatusColor = type => {
   const wf = workflows.value.find(w => w.event_type === type);
   if (!wf) return 'grey-lighten-1';
   return wf.is_active ? 'success' : 'warning';
 };
-const getDelayLabel = (type) => ['invoice.due_soon', 'installment.due_soon', 'subscription.expiring'].includes(type) ? 'الإرسال قبل الموعد بـ (أيام) *' : 'الإرسال بعد الموعد بـ (أيام) *';
+const getDelayLabel = type =>
+  ['invoice.due_soon', 'installment.due_soon', 'subscription.expiring'].includes(type)
+    ? 'الإرسال قبل الموعد بـ (أيام) *'
+    : 'الإرسال بعد الموعد بـ (أيام) *';
 const getDelayHelperText = (type, userDays) => {
   const days = userDays || 0;
   return ['invoice.due_soon', 'installment.due_soon', 'subscription.expiring'].includes(type)
     ? `سيُرسل قبل تاريخ الاستحقاق بـ ${days} أيام`
     : `سيُرسل بعد تاريخ الاستحقاق بـ ${days} أيام`;
 };
-const updateStepDelay = (step) => {
+const updateStepDelay = step => {
   const isNegative = ['invoice.due_soon', 'installment.due_soon', 'subscription.expiring'].includes(selectedEventType.value);
   const val = Math.abs(parseInt(step.userDelayDays) || 0);
   step.delay_days = isNegative ? -val : val;
@@ -507,7 +650,7 @@ const loadData = async () => {
     templates.value = templatesRes.data || [];
     workflows.value = workflowsRes.data || [];
     integrationsStatus.value = statusRes?.data || { email: false, whatsapp: false };
-    
+
     if (selectedEventType.value) {
       selectEvent(selectedEventType.value);
     } else if (isActive.value && activeTourKey.value === 'tour.notification_workflows' && eventsList.length > 0) {
@@ -520,7 +663,7 @@ const loadData = async () => {
   }
 };
 
-const selectEvent = (type) => {
+const selectEvent = type => {
   selectedEventType.value = type;
   const existingWf = workflows.value.find(w => w.event_type === type);
   if (existingWf) {
@@ -533,12 +676,16 @@ const selectEvent = (type) => {
         // دعم القيم القديمة (both/email/whatsapp كـ string) والجديدة (array)
         let ch = s.channel;
         if (!Array.isArray(ch)) {
-          ch = ch === 'both' ? ['email', 'whatsapp'] : (ch ? [ch] : []);
+          ch = ch === 'both' ? ['email', 'whatsapp'] : ch ? [ch] : [];
         }
         return {
-          id: s.id, step_number: s.step_number, delay_days: s.delay_days,
-          userDelayDays: Math.abs(s.delay_days), channel: ch,
-          template_id: s.template_id, is_active: !!s.is_active,
+          id: s.id,
+          step_number: s.step_number,
+          delay_days: s.delay_days,
+          userDelayDays: Math.abs(s.delay_days),
+          channel: ch,
+          template_id: s.template_id,
+          is_active: !!s.is_active,
         };
       }),
     };
@@ -556,41 +703,67 @@ const addNewStep = () => {
   if (integrationsStatus.value.email) defaultChannels.push('email');
   if (integrationsStatus.value.whatsapp) defaultChannels.push('whatsapp');
   const newStep = {
-    id: null, step_number: editorData.value.steps.length + 1,
-    delay_days: defaultDelay, userDelayDays: defaultDelay,
-    channel: defaultChannels, template_id: templates.value.length > 0 ? templates.value[0].id : null, is_active: true,
+    id: null,
+    step_number: editorData.value.steps.length + 1,
+    delay_days: defaultDelay,
+    userDelayDays: defaultDelay,
+    channel: defaultChannels,
+    template_id: templates.value.length > 0 ? templates.value[0].id : null,
+    is_active: true,
   };
   if (['invoice.due_soon', 'installment.due_soon', 'subscription.expiring'].includes(selectedEventType.value)) newStep.delay_days = -defaultDelay;
   editorData.value.steps.push(newStep);
 };
 
-const removeStep = (index) => {
+const removeStep = index => {
   editorData.value.steps.splice(index, 1);
-  editorData.value.steps.forEach((step, idx) => { step.step_number = idx + 1; });
+  editorData.value.steps.forEach((step, idx) => {
+    step.step_number = idx + 1;
+  });
 };
 
 const saveWorkflow = async () => {
   const invalidStep = editorData.value.steps.find(s => !s.template_id);
-  if (invalidStep) { toast.error('يرجى تحديد قالب رسالة لجميع الخطوات.'); return; }
+  if (invalidStep) {
+    toast.error('يرجى تحديد قالب رسالة لجميع الخطوات.');
+    return;
+  }
   const emptyChannel = editorData.value.steps.find(s => !s.channel || s.channel.length === 0);
-  if (emptyChannel) { toast.error('يرجى تحديد قناة إرسال لجميع الخطوات.'); return; }
+  if (emptyChannel) {
+    toast.error('يرجى تحديد قناة إرسال لجميع الخطوات.');
+    return;
+  }
   saving.value = true;
   try {
-    const isNeg = (t) => ['invoice.due_soon', 'installment.due_soon', 'subscription.expiring'].includes(t);
+    const isNeg = t => ['invoice.due_soon', 'installment.due_soon', 'subscription.expiring'].includes(t);
     const stepsPayload = editorData.value.steps.map((s, idx) => ({
-      id: s.id, step_number: idx + 1,
-      delay_days: isImmediateEvent(editorData.value.event_type) ? 0 : (isNeg(editorData.value.event_type) ? -Math.abs(parseInt(s.userDelayDays) || 0) : Math.abs(parseInt(s.userDelayDays) || 0)),
+      id: s.id,
+      step_number: idx + 1,
+      delay_days: isImmediateEvent(editorData.value.event_type)
+        ? 0
+        : isNeg(editorData.value.event_type)
+          ? -Math.abs(parseInt(s.userDelayDays) || 0)
+          : Math.abs(parseInt(s.userDelayDays) || 0),
       channel: Array.isArray(s.channel) ? s.channel : [s.channel].filter(Boolean),
-      template_id: s.template_id, is_active: s.is_active,
+      template_id: s.template_id,
+      is_active: s.is_active,
     }));
-    const payload = { event_type: editorData.value.event_type, is_active: editorData.value.is_active, is_global: !!editorData.value.is_global, steps: stepsPayload };
+    const payload = {
+      event_type: editorData.value.event_type,
+      is_active: editorData.value.is_active,
+      is_global: !!editorData.value.is_global,
+      steps: stepsPayload,
+    };
     let response;
     if (editorData.value.id) {
       response = await workflowsApi.update(editorData.value.id, payload, { showLoading: false });
     } else {
       response = await workflowsApi.create(payload, { showLoading: false });
     }
-    if (response.data) { toast.success('تم حفظ قاعدة الأتمتة بنجاح.'); await loadData(); }
+    if (response.data) {
+      toast.success('تم حفظ قاعدة الأتمتة بنجاح.');
+      await loadData();
+    }
   } catch (e) {
     console.error('Save workflow failed', e);
   } finally {
@@ -611,7 +784,9 @@ const runWorkflowNow = async () => {
   }
 };
 
-onMounted(async () => { await loadData(); });
+onMounted(async () => {
+  await loadData();
+});
 </script>
 
 <style scoped>
@@ -670,7 +845,9 @@ onMounted(async () => { await loadData(); });
   color: rgba(var(--v-theme-on-surface), 0.45);
   margin-top: 1px;
 }
-.wf-topbar-spacer { flex: 1; }
+.wf-topbar-spacer {
+  flex: 1;
+}
 
 /* Channel Badges */
 .wf-channel-badges {
@@ -704,8 +881,12 @@ onMounted(async () => { await loadData(); });
   height: 6px;
   border-radius: 50%;
 }
-.wf-ch-badge--on .wf-ch-dot { background: rgb(var(--v-theme-success)); }
-.wf-ch-badge--off .wf-ch-dot { background: rgba(var(--v-theme-on-surface), 0.2); }
+.wf-ch-badge--on .wf-ch-dot {
+  background: rgb(var(--v-theme-success));
+}
+.wf-ch-badge--off .wf-ch-dot {
+  background: rgba(var(--v-theme-on-surface), 0.2);
+}
 
 /* ══════════════════════════════════════════════
    LAYOUT
@@ -765,8 +946,13 @@ onMounted(async () => { await loadData(); });
   flex: 1;
   overflow-y: auto;
 }
-.wf-group::-webkit-scrollbar { width: 3px; }
-.wf-group::-webkit-scrollbar-thumb { background: rgba(var(--v-theme-on-surface), 0.12); border-radius: 2px; }
+.wf-group::-webkit-scrollbar {
+  width: 3px;
+}
+.wf-group::-webkit-scrollbar-thumb {
+  background: rgba(var(--v-theme-on-surface), 0.12);
+  border-radius: 2px;
+}
 
 .wf-group-header {
   display: flex;
@@ -785,8 +971,12 @@ onMounted(async () => { await loadData(); });
   border-radius: 50%;
   flex-shrink: 0;
 }
-.wf-group-dot--orange { background: #f97316; }
-.wf-group-dot--blue { background: rgb(var(--v-theme-info)); }
+.wf-group-dot--orange {
+  background: #f97316;
+}
+.wf-group-dot--blue {
+  background: rgb(var(--v-theme-info));
+}
 
 /* Event Row */
 .wf-event-row {
@@ -827,10 +1017,19 @@ onMounted(async () => { await loadData(); });
   background: rgba(var(--v-theme-info), 0.1);
   color: rgb(var(--v-theme-info));
 }
-.wf-event-row--active .wf-event-icon--orange { background: #f97316; color: #fff; }
-.wf-event-row--active .wf-event-icon--blue { background: rgb(var(--v-theme-info)); color: #fff; }
+.wf-event-row--active .wf-event-icon--orange {
+  background: #f97316;
+  color: #fff;
+}
+.wf-event-row--active .wf-event-icon--blue {
+  background: rgb(var(--v-theme-info));
+  color: #fff;
+}
 
-.wf-event-info { flex: 1; min-width: 0; }
+.wf-event-info {
+  flex: 1;
+  min-width: 0;
+}
 .wf-event-name {
   font-size: 11.5px;
   font-weight: 600;
@@ -849,7 +1048,9 @@ onMounted(async () => { await loadData(); });
   text-overflow: ellipsis;
 }
 
-.wf-event-status-wrap { flex-shrink: 0; }
+.wf-event-status-wrap {
+  flex-shrink: 0;
+}
 .wf-status-badge {
   font-size: 9px;
   font-weight: 700;
@@ -915,12 +1116,30 @@ onMounted(async () => { await loadData(); });
   border: 1px solid rgba(var(--v-theme-primary), 0.15);
   animation: ringPulse 3s ease-in-out infinite;
 }
-.wf-ring--1 { inset: 0; animation-delay: 0s; }
-.wf-ring--2 { inset: 10px; animation-delay: 0.5s; border-color: rgba(var(--v-theme-primary), 0.1); }
-.wf-ring--3 { inset: 20px; animation-delay: 1s; border-color: rgba(var(--v-theme-primary), 0.08); }
+.wf-ring--1 {
+  inset: 0;
+  animation-delay: 0s;
+}
+.wf-ring--2 {
+  inset: 10px;
+  animation-delay: 0.5s;
+  border-color: rgba(var(--v-theme-primary), 0.1);
+}
+.wf-ring--3 {
+  inset: 20px;
+  animation-delay: 1s;
+  border-color: rgba(var(--v-theme-primary), 0.08);
+}
 @keyframes ringPulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.04); opacity: 0.6; }
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.04);
+    opacity: 0.6;
+  }
 }
 .wf-empty-inner-icon {
   position: relative;
@@ -1008,8 +1227,8 @@ onMounted(async () => { await loadData(); });
   font-weight: 700;
   padding: 2px 6px;
   border-radius: 8px;
-  background: rgba(255,255,255,0.5);
-  border: 1px solid rgba(255,255,255,0.3);
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   letter-spacing: 0.3px;
   color: inherit;
 }
@@ -1066,7 +1285,11 @@ onMounted(async () => { await loadData(); });
   color: rgb(var(--v-theme-primary));
   margin-inline-start: 4px;
 }
-.wf-alert-err { color: rgb(var(--v-theme-error)); font-weight: 600; margin-inline-start: 4px; }
+.wf-alert-err {
+  color: rgb(var(--v-theme-error));
+  font-weight: 600;
+  margin-inline-start: 4px;
+}
 
 /* ══════════════════════════════════════════════
    HELP BAR
@@ -1094,8 +1317,13 @@ onMounted(async () => { await loadData(); });
   display: flex;
   flex-direction: column;
 }
-.wf-pipeline-wrap::-webkit-scrollbar { width: 4px; }
-.wf-pipeline-wrap::-webkit-scrollbar-thumb { background: rgba(var(--v-theme-on-surface), 0.12); border-radius: 2px; }
+.wf-pipeline-wrap::-webkit-scrollbar {
+  width: 4px;
+}
+.wf-pipeline-wrap::-webkit-scrollbar-thumb {
+  background: rgba(var(--v-theme-on-surface), 0.12);
+  border-radius: 2px;
+}
 
 .wf-pipeline-title-row {
   display: flex;
@@ -1251,8 +1479,13 @@ onMounted(async () => { await loadData(); });
   align-items: flex-end;
   gap: 10px;
 }
-.wf-step-field { flex: 1; min-width: 0; }
-.wf-step-field--lg { flex: 1.6; }
+.wf-step-field {
+  flex: 1;
+  min-width: 0;
+}
+.wf-step-field--lg {
+  flex: 1.6;
+}
 
 /* ── Multi-Channel Checkboxes ── */
 .wf-channel-checks {
@@ -1304,7 +1537,9 @@ onMounted(async () => { await loadData(); });
   display: block;
   margin-bottom: 4px;
 }
-.wf-required { color: rgb(var(--v-theme-error)); }
+.wf-required {
+  color: rgb(var(--v-theme-error));
+}
 .wf-select :deep(.v-field__outline) {
   border-radius: 8px !important;
 }

@@ -1,4 +1,4 @@
-<!-- تعليق عربي: شاشة إدارة حسابات البريد الإلكتروني المتعددة للشركة، تدعم عرض القائمة، إضافة/تعديل الحسابات، اختبار الاتصال وتحديد الحساب الافتراضي والنشط -->
+<!--   شاشة إدارة حسابات البريد الإلكتروني المتعددة للشركة، تدعم عرض القائمة، إضافة/تعديل الحسابات، اختبار الاتصال وتحديد الحساب الافتراضي والنشط -->
 
 <template>
   <div class="mail-settings-page">
@@ -12,13 +12,7 @@
         <p class="text-subtitle-1 text-grey-darken-1">إضافة وإدارة خوادم SMTP أو مزودي الخدمة وتعيين الحساب الافتراضي للمراسلات التلقائية</p>
       </div>
       <div>
-        <v-btn
-          color="primary"
-          prepend-icon="ri-add-line"
-          class="rounded-pill font-weight-bold tour-mail-add"
-          elevation="2"
-          @click="openAddDialog"
-        >
+        <v-btn color="primary" prepend-icon="ri-add-line" class="rounded-pill font-weight-bold tour-mail-add" elevation="2" @click="openAddDialog">
           إضافة حساب بريد
         </v-btn>
       </div>
@@ -155,12 +149,7 @@
             <v-row dense>
               <!-- Account Title -->
               <v-col cols="12" md="6">
-                <AppInput
-                  v-model="formData.title"
-                  label="عنوان الحساب (تسمية توضيحية) *"
-                  placeholder="مثال: بريد الفواتير الأساسي"
-                  required
-                />
+                <AppInput v-model="formData.title" label="عنوان الحساب (تسمية توضيحية) *" placeholder="مثال: بريد الفواتير الأساسي" required />
               </v-col>
 
               <!-- Transport Selection -->
@@ -170,7 +159,7 @@
                   :items="[
                     { title: 'SMTP Server', value: 'smtp' },
                     { title: 'Mailgun Service', value: 'mailgun' },
-                    { title: 'Amazon SES', value: 'ses' }
+                    { title: 'Amazon SES', value: 'ses' },
                   ]"
                   label="مزود الخدمة (Transport) *"
                   variant="outlined"
@@ -193,45 +182,21 @@
 
               <!-- Default Sender Name -->
               <v-col cols="12" md="6">
-                <AppInput
-                  v-model="formData.mail_from_name"
-                  label="اسم المرسل الافتراضي *"
-                  placeholder="مثال: شركة هيرميس للفواتير"
-                  required
-                />
+                <AppInput v-model="formData.mail_from_name" label="اسم المرسل الافتراضي *" placeholder="مثال: شركة هيرميس للفواتير" required />
               </v-col>
 
               <!-- SMTP Config Fields -->
               <template v-if="formData.mail_transport === 'smtp'">
                 <v-col cols="12" md="8">
-                  <AppInput
-                    v-model="formData.mail_host"
-                    label="عنوان خادم SMTP *"
-                    placeholder="smtp.mailtrap.io"
-                    dir="ltr"
-                    required
-                  />
+                  <AppInput v-model="formData.mail_host" label="عنوان خادم SMTP *" placeholder="smtp.mailtrap.io" dir="ltr" required />
                 </v-col>
 
                 <v-col cols="12" md="4">
-                  <AppInput
-                    v-model="formData.mail_port"
-                    label="منفذ خادم SMTP *"
-                    placeholder="587"
-                    type="number"
-                    dir="ltr"
-                    required
-                  />
+                  <AppInput v-model="formData.mail_port" label="منفذ خادم SMTP *" placeholder="587" type="number" dir="ltr" required />
                 </v-col>
 
                 <v-col cols="12" md="6">
-                  <AppInput
-                    v-model="formData.mail_username"
-                    label="اسم المستخدم لـ SMTP *"
-                    placeholder="username / api_key"
-                    dir="ltr"
-                    required
-                  />
+                  <AppInput v-model="formData.mail_username" label="اسم المستخدم لـ SMTP *" placeholder="username / api_key" dir="ltr" required />
                 </v-col>
 
                 <v-col cols="12" md="6">
@@ -257,7 +222,7 @@
                     :items="[
                       { title: 'TLS (افتراضي)', value: 'tls' },
                       { title: 'SSL', value: 'ssl' },
-                      { title: 'بدون تشفير', value: null }
+                      { title: 'بدون تشفير', value: null },
                     ]"
                     label="نوع التشفير"
                     variant="outlined"
@@ -268,13 +233,7 @@
 
               <!-- Switches for Active and Default -->
               <v-col cols="12" class="d-flex align-center flex-wrap gap-4 mt-2">
-                <v-switch
-                  v-model="formData.is_active"
-                  label="تنشيط الحساب مباشرة"
-                  color="success"
-                  hide-details
-                  density="comfortable"
-                />
+                <v-switch v-model="formData.is_active" label="تنشيط الحساب مباشرة" color="success" hide-details density="comfortable" />
                 <v-switch
                   v-model="formData.is_default"
                   label="تعيين كحساب بريد افتراضي للنظام"
@@ -298,7 +257,14 @@
 
         <v-card-actions class="d-flex justify-end gap-2 mt-4">
           <v-btn variant="text" color="grey" @click="showDialog = false">إلغاء</v-btn>
-          <v-btn color="success" :loading="saving" :disabled="!formValid" prepend-icon="ri-save-line" class="px-6 rounded-pill font-weight-bold" @click="saveAccount">
+          <v-btn
+            color="success"
+            :loading="saving"
+            :disabled="!formValid"
+            prepend-icon="ri-save-line"
+            class="px-6 rounded-pill font-weight-bold"
+            @click="saveAccount"
+          >
             حفظ
           </v-btn>
         </v-card-actions>
@@ -314,14 +280,7 @@
             أدخل البريد الإلكتروني الذي ترغب في استقبال رسالة الاختبار عليه للتأكد من فاعلية خادم البريد المختار:
             <strong>({{ activeAccountForTest?.title }})</strong>
           </p>
-          <AppInput
-            v-model="testEmail"
-            label="البريد المستلم"
-            placeholder="recipient@example.com"
-            type="email"
-            dir="ltr"
-            required
-          />
+          <AppInput v-model="testEmail" label="البريد المستلم" placeholder="recipient@example.com" type="email" dir="ltr" required />
         </v-card-text>
         <v-card-actions class="d-flex justify-end gap-2">
           <v-btn variant="text" color="grey" @click="showTestDialog = false">إلغاء</v-btn>
@@ -418,7 +377,7 @@ const loadMailAccounts = async () => {
   }
 };
 
-const getTransportColor = (transport) => {
+const getTransportColor = transport => {
   if (transport === 'smtp') return 'primary';
   if (transport === 'mailgun') return 'purple';
   return 'indigo';
@@ -444,7 +403,7 @@ const openAddDialog = () => {
   showDialog.value = true;
 };
 
-const openEditDialog = (account) => {
+const openEditDialog = account => {
   isEdit.value = true;
   formData.value = {
     id: account.id,
@@ -493,7 +452,7 @@ const saveAccount = async () => {
   }
 };
 
-const toggleAccountActive = async (account) => {
+const toggleAccountActive = async account => {
   try {
     const payload = {
       title: account.title,
@@ -516,7 +475,7 @@ const toggleAccountActive = async (account) => {
   }
 };
 
-const setAccountDefault = async (account) => {
+const setAccountDefault = async account => {
   try {
     const response = await mailApi.request('POST', `${account.id}/set-default`, null, { showLoading: true });
     if (response.status) {
@@ -528,7 +487,7 @@ const setAccountDefault = async (account) => {
   }
 };
 
-const openTestMailDialog = (account) => {
+const openTestMailDialog = account => {
   activeAccountForTest.value = account;
   testEmail.value = '';
   showTestDialog.value = true;
@@ -548,7 +507,7 @@ const testMailConnection = async () => {
   }
 };
 
-const confirmDeleteAccount = (account) => {
+const confirmDeleteAccount = account => {
   accountToDelete.value = account;
   showDeleteDialog.value = true;
 };

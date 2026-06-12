@@ -1,4 +1,4 @@
-<!-- تعليق عربي: شاشة إدارة حسابات الواتساب المتعددة للشركة، تدعم عرض القائمة، إضافة/تعديل الحسابات، اختبار الاتصال وتحديد الحساب الافتراضي والنشط -->
+<!--   شاشة إدارة حسابات الواتساب المتعددة للشركة، تدعم عرض القائمة، إضافة/تعديل الحسابات، اختبار الاتصال وتحديد الحساب الافتراضي والنشط -->
 
 <template>
   <div class="whatsapp-settings-page">
@@ -203,13 +203,7 @@
 
               <!-- Switches for Active and Default -->
               <v-col cols="12" class="d-flex align-center flex-wrap gap-4 mt-4">
-                <v-switch
-                  v-model="formData.is_active"
-                  label="تنشيط الحساب مباشرة"
-                  color="success"
-                  hide-details
-                  density="comfortable"
-                />
+                <v-switch v-model="formData.is_active" label="تنشيط الحساب مباشرة" color="success" hide-details density="comfortable" />
                 <v-switch
                   v-model="formData.is_default"
                   label="تعيين كحساب افتراضي للنظام"
@@ -253,16 +247,11 @@
         <v-card-title class="text-h5 font-weight-bold mb-2">إرسال رسالة تجريبية</v-card-title>
         <v-card-text>
           <p class="text-body-2 text-grey-darken-1 mb-4">
-            أدخل رقم الهاتف الذي ترغب في استقبال رسالة الاختبار عليه (بصيغة كود الدولة الكامل بدون أصفار أو علامة +، مثال: 201001234567) للتحقق من الاتصال بالحساب:
+            أدخل رقم الهاتف الذي ترغب في استقبال رسالة الاختبار عليه (بصيغة كود الدولة الكامل بدون أصفار أو علامة +، مثال: 201001234567) للتحقق من
+            الاتصال بالحساب:
             <strong>({{ activeAccountForTest?.title }})</strong>
           </p>
-          <AppInput
-            v-model="testRecipient"
-            label="رقم الهاتف المستلم (رمز الدولة + الرقم)"
-            placeholder="201001234567"
-            dir="ltr"
-            required
-          />
+          <AppInput v-model="testRecipient" label="رقم الهاتف المستلم (رمز الدولة + الرقم)" placeholder="201001234567" dir="ltr" required />
         </v-card-text>
         <v-card-actions class="d-flex justify-end gap-2">
           <v-btn variant="text" color="grey" @click="showTestDialog = false">إلغاء</v-btn>
@@ -371,7 +360,7 @@ const openAddDialog = () => {
   showDialog.value = true;
 };
 
-const openEditDialog = (account) => {
+const openEditDialog = account => {
   isEdit.value = true;
   accountTokenConfigured.value = !!account.access_token_configured;
   formData.value = {
@@ -416,7 +405,7 @@ const saveAccount = async () => {
   }
 };
 
-const toggleAccountActive = async (account) => {
+const toggleAccountActive = async account => {
   try {
     const payload = {
       title: account.title,
@@ -435,7 +424,7 @@ const toggleAccountActive = async (account) => {
   }
 };
 
-const setAccountDefault = async (account) => {
+const setAccountDefault = async account => {
   try {
     const response = await whatsappApi.request('POST', `${account.id}/set-default`, null, { showLoading: true });
     if (response.status) {
@@ -447,7 +436,7 @@ const setAccountDefault = async (account) => {
   }
 };
 
-const openTestDialog = (account) => {
+const openTestDialog = account => {
   activeAccountForTest.value = account;
   testRecipient.value = '';
   showTestDialog.value = true;
@@ -457,7 +446,12 @@ const testWhatsAppConnection = async () => {
   if (!testRecipient.value || !activeAccountForTest.value) return;
   testingConnection.value = true;
   try {
-    const response = await whatsappApi.request('POST', `${activeAccountForTest.value.id}/test`, { recipient: testRecipient.value }, { showLoading: false });
+    const response = await whatsappApi.request(
+      'POST',
+      `${activeAccountForTest.value.id}/test`,
+      { recipient: testRecipient.value },
+      { showLoading: false }
+    );
     toast.success(response.message || 'تم إرسال رسالة الاختبار بنجاح، يرجى التحقق من جوال المستلم.');
     showTestDialog.value = false;
   } catch (e) {
@@ -467,7 +461,7 @@ const testWhatsAppConnection = async () => {
   }
 };
 
-const confirmDeleteAccount = (account) => {
+const confirmDeleteAccount = account => {
   accountToDelete.value = account;
   showDeleteDialog.value = true;
 };

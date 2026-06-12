@@ -7,11 +7,7 @@
           <AppUserBalanceProfile :user="user" hide-balance :clickable="false" />
           <div class="text-right">
             <div class="text-caption text-grey">الرصيد الحالي</div>
-            <AppBalanceDisplay 
-              :amount="user.balance || 0" 
-              perspective="admin"
-              value-class="text-h6 font-weight-bold"
-            />
+            <AppBalanceDisplay :amount="user.balance || 0" perspective="admin" value-class="text-h6 font-weight-bold" />
           </div>
         </div>
 
@@ -95,7 +91,7 @@
 </template>
 
 <script setup>
-// تعليق عربي: مكون لإدارة عمليات رصيد المستخدمين المباشرة (سحب، إيداع، تحويل) من لوحة التحكم
+//   مكون لإدارة عمليات رصيد المستخدمين المباشرة (سحب، إيداع، تحويل) من لوحة التحكم
 import { ref, reactive, computed, watch } from 'vue';
 import { AppDialog, AppButton, AppUserBalanceProfile } from '@/components';
 import AppBalanceDisplay from '@/components/common/AppBalanceDisplay.vue';

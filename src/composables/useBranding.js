@@ -1,4 +1,4 @@
-// تعليق عربي: موجه لإدارة وجلب الهوية البصرية للشركة (الاسم والشعار والتواصل) لمشاركتها مع الصفحات العامة والخاصة.
+//   موجه لإدارة وجلب الهوية البصرية للشركة (الاسم والشعار والتواصل) لمشاركتها مع الصفحات العامة والخاصة.
 import { ref, computed } from 'vue';
 import apiClient from '@/api/axios.config';
 
@@ -40,6 +40,6 @@ export function useBranding() {
     fetchBranding,
     logoUrl,
     companyName,
-    tagline
+    tagline,
   };
 }

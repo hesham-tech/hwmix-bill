@@ -62,7 +62,7 @@
 </template>
 
 <script setup>
-// تعليق عربي: نافذة منبثقة لتسجيل وتعديل بيانات المصاريف التشغيلية للمنشأة
+//   نافذة منبثقة لتسجيل وتعديل بيانات المصاريف التشغيلية للمنشأة
 import { ref, watch, reactive, computed } from 'vue';
 import AppDialog from '@/components/common/AppDialog.vue';
 import AppInput from '@/components/common/AppInput.vue';

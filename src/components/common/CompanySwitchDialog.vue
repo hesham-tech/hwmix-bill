@@ -1,5 +1,5 @@
 <template>
-  <!-- تعليق عربي: كلاس نافذة تبديل المتجر أو الشركة مع إمكانية القفل (Persistent) في حال حذف الشركة النشطة حالياً. -->
+  <!--   كلاس نافذة تبديل المتجر أو الشركة مع إمكانية القفل (Persistent) في حال حذف الشركة النشطة حالياً. -->
   <AppDialog
     :model-value="modelValue"
     :title="companyDeletedMode ? 'الشركة الحالية محذوفة' : 'تبديل المتجر / الشركة'"
@@ -11,15 +11,8 @@
   >
     <div class="pa-0 dialog-content">
       <!-- Warning alert when current active company is deleted -->
-      <v-alert
-        v-if="companyDeletedMode"
-        type="error"
-        variant="tonal"
-        class="ma-4 mb-2 rounded-lg font-weight-medium"
-        icon="ri-error-warning-line"
-      >
-        تنبيه: لقد تم حذف الشركة أو المتجر النشط حالياً الخاص بك من قبل المسؤول.
-        يرجى اختيار شركة أو متجر آخر من القائمة التالية للمتابعة.
+      <v-alert v-if="companyDeletedMode" type="error" variant="tonal" class="ma-4 mb-2 rounded-lg font-weight-medium" icon="ri-error-warning-line">
+        تنبيه: لقد تم حذف الشركة أو المتجر النشط حالياً الخاص بك من قبل المسؤول. يرجى اختيار شركة أو متجر آخر من القائمة التالية للمتابعة.
       </v-alert>
 
       <div class="pa-4 pt-2 overflow-y-auto" style="max-height: 500px">
@@ -43,9 +36,7 @@
 
                 <div class="flex-grow-1">
                   <div class="d-flex align-center justify-space-between mb-1">
-                    <h3 class="text-h6 font-weight-bold company-name">
-                      كل الشركات (جميع المدخلات)
-                    </h3>
+                    <h3 class="text-h6 font-weight-bold company-name">كل الشركات (جميع المدخلات)</h3>
                     <v-chip
                       v-if="userStore.currentUser?.active_company_id === null"
                       size="x-small"
@@ -56,9 +47,7 @@
                       النشطة حالياً
                     </v-chip>
                   </div>
-                  <div class="text-caption text-grey">
-                    عرض كافة الحركات والمستندات والعمليات المالية لجميع الشركات والفروع دفعة واحدة.
-                  </div>
+                  <div class="text-caption text-grey">عرض كافة الحركات والمستندات والعمليات المالية لجميع الشركات والفروع دفعة واحدة.</div>
                 </div>
 
                 <div class="ms-2 align-self-center">
@@ -78,7 +67,7 @@
               :disabled="loadingId === company.id || (companyDeletedMode && company.id === userStore.currentUser?.active_company_id)"
               :class="{
                 'active-card': company.id === userStore.currentUser?.active_company_id && !companyDeletedMode,
-                'deleted-active-card': company.id === userStore.currentUser?.active_company_id && companyDeletedMode
+                'deleted-active-card': company.id === userStore.currentUser?.active_company_id && companyDeletedMode,
               }"
             >
               <div class="d-flex pa-3 align-start">

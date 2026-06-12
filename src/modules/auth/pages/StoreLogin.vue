@@ -122,7 +122,7 @@
 </template>
 
 <script setup>
-// تعليق عربي: مكون تسجيل دخول عملاء المتجر لعرض الطلبات وتتبع الحساب الشخصي
+//   مكون تسجيل دخول عملاء المتجر لعرض الطلبات وتتبع الحساب الشخصي
 import { ref, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { authService } from '@/api';

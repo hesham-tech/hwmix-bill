@@ -21,7 +21,14 @@
                 <li>يجب أن يحتوي الملف على الأعمدة بالترتيب التالي: (الرقم، اسم المنتج، الوصف، نشط).</li>
                 <li>اسم المنتج هو حقل إلزامي لكل سطر.</li>
               </ul>
-              <v-btn variant="text" size="small" prepend-icon="ri-download-line" color="primary" class="mt-2 font-weight-bold" @click="downloadSampleCSV">
+              <v-btn
+                variant="text"
+                size="small"
+                prepend-icon="ri-download-line"
+                color="primary"
+                class="mt-2 font-weight-bold"
+                @click="downloadSampleCSV"
+              >
                 تحميل ملف CSV تجريبي نموذج
               </v-btn>
             </div>
@@ -49,14 +56,7 @@
 
         <!-- Step 2: Processing / Progress -->
         <div v-else-if="step === 'progress'" class="text-center py-10">
-          <v-progress-circular
-            :model-value="progress"
-            :rotate="360"
-            :size="120"
-            :width="12"
-            color="primary"
-            class="mb-6"
-          >
+          <v-progress-circular :model-value="progress" :rotate="360" :size="120" :width="12" color="primary" class="mb-6">
             <span class="text-h6 font-weight-bold">{{ progress }}%</span>
           </v-progress-circular>
 
@@ -133,16 +133,14 @@
         >
           بدء الاستيراد
         </v-btn>
-        <v-btn v-if="step === 'result'" color="primary" class="px-8 font-weight-bold" @click="close">
-          موافق وإغلاق
-        </v-btn>
+        <v-btn v-if="step === 'result'" color="primary" class="px-8 font-weight-bold" @click="close"> موافق وإغلاق </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
 <script setup>
-// تعليق عربي: نافذة ديالوج لاستيراد المنتجات بالخلفية عبر رفع ملف CSV وتتبع التقدم لايف وعرض الأخطاء والسطور الفاشلة.
+//   نافذة ديالوج لاستيراد المنتجات بالخلفية عبر رفع ملف CSV وتتبع التقدم لايف وعرض الأخطاء والسطور الفاشلة.
 
 import { ref } from 'vue';
 import { useApi } from '@/composables/useApi';
@@ -161,7 +159,7 @@ const importing = ref(false);
 const resultStats = ref({
   success_count: 0,
   failed_count: 0,
-  failed_details: []
+  failed_details: [],
 });
 
 const emit = defineEmits(['imported']);
@@ -183,7 +181,7 @@ const close = () => {
   clearInterval(pollingInterval);
 };
 
-const handleFileSelected = (e) => {
+const handleFileSelected = e => {
   const file = e.target.files[0];
   if (file && (file.type === 'text/csv' || file.name.endsWith('.csv'))) {
     selectedFile.value = file;
@@ -192,7 +190,7 @@ const handleFileSelected = (e) => {
   }
 };
 
-const handleDrop = (e) => {
+const handleDrop = e => {
   dragActive.value = false;
   const file = e.dataTransfer.files[0];
   if (file && (file.type === 'text/csv' || file.name.endsWith('.csv'))) {
@@ -203,7 +201,7 @@ const handleDrop = (e) => {
 };
 
 const downloadSampleCSV = () => {
-  const csvContent = "\uFEFF#,اسم المنتج,الوصف,نشط\n1,منتج ملموس تجريبي 1,هذا وصف قصير للمنتج,نعم\n2,منتج ملموس تجريبي 2,وصف منتج مؤرشف آخر,لا\n";
+  const csvContent = '\uFEFF#,اسم المنتج,الوصف,نشط\n1,منتج ملموس تجريبي 1,هذا وصف قصير للمنتج,نعم\n2,منتج ملموس تجريبي 2,وصف منتج مؤرشف آخر,لا\n';
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
@@ -237,38 +235,38 @@ const uploadAndStartImport = async () => {
   }
 };
 
-const startPolling = (jobId) => {
+const startPolling = jobId => {
   progress.value = 10;
   statusText.value = 'تمت الجدولة بنجاح. جاري الاستيراد بالخلفية...';
-  
+
   pollingInterval = setInterval(async () => {
     try {
       const res = await api.getById(jobId, { showLoading: false, showError: false });
       if (res.data) {
         progress.value = res.data.progress || 10;
-        
+
         if (res.data.status === 'processing') {
           statusText.value = 'جاري معالجة الأسطر وإدراج المنتجات...';
         }
-        
+
         if (res.data.status === 'completed' || res.data.status === 'failed') {
           clearInterval(pollingInterval);
           importing.value = false;
-          
+
           if (res.data.errors) {
             resultStats.value = {
               success_count: res.data.errors.success_count ?? 0,
               failed_count: res.data.errors.failed_count ?? 0,
-              failed_details: res.data.errors.failed_details ?? []
+              failed_details: res.data.errors.failed_details ?? [],
             };
           } else {
             resultStats.value = {
               success_count: 0,
               failed_count: 0,
-              failed_details: []
+              failed_details: [],
             };
           }
-          
+
           step.value = 'result';
           emit('imported');
         }

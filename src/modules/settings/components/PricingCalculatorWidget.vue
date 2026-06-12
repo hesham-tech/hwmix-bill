@@ -1,4 +1,4 @@
-<!-- تعليق عربي: مكون تفاعلي لحساب تكلفة اشتراكات SaaS المخصصة والشرائح الزمنية وتطبيق الكوبونات والخصومات (Pricing Calculator Widget) -->
+<!--   مكون تفاعلي لحساب تكلفة اشتراكات SaaS المخصصة والشرائح الزمنية وتطبيق الكوبونات والخصومات (Pricing Calculator Widget) -->
 
 <template>
   <v-card class="pricing-calculator-widget rounded-xl border border-opacity-10 shadow-md bg-white overflow-hidden">
@@ -13,9 +13,7 @@
             <p class="text-caption text-grey mb-0">قم بتخصيص مدة الاشتراك واحصل على خصومات إضافية فورية</p>
           </div>
         </div>
-        <v-chip color="primary" variant="flat" size="small" class="font-weight-bold">
-          باقة: {{ plan?.name }}
-        </v-chip>
+        <v-chip color="primary" variant="flat" size="small" class="font-weight-bold"> باقة: {{ plan?.name }} </v-chip>
       </div>
     </div>
 
@@ -87,15 +85,7 @@
                 clearable
                 @click:clear="clearCoupon"
               />
-              <v-btn
-                color="secondary"
-                variant="flat"
-                class="rounded-lg font-weight-bold"
-                :loading="calculating"
-                @click="applyCoupon"
-              >
-                تطبيق
-              </v-btn>
+              <v-btn color="secondary" variant="flat" class="rounded-lg font-weight-bold" :loading="calculating" @click="applyCoupon"> تطبيق </v-btn>
             </div>
             <div v-if="couponSuccessMsg" class="text-success text-caption font-weight-bold mt-2 d-flex align-center gap-1">
               <v-icon icon="ri-checkbox-circle-fill" size="14" />
@@ -118,7 +108,7 @@
           <div v-else-if="breakdown" class="d-flex flex-column justify-between h-100">
             <div>
               <h4 class="text-subtitle-2 font-weight-bold text-grey-darken-4 mb-4">تفاصيل الحساب والتوفير</h4>
-              
+
               <div class="pricing-rows d-flex flex-column gap-3 mb-4">
                 <div class="d-flex align-center justify-between text-body-2 text-grey-darken-1">
                   <span>سعر الشهر الأساسي:</span>
@@ -132,20 +122,29 @@
                   <span>المبلغ الإجمالي (قبل الخصم):</span>
                   <span class="font-weight-bold text-decoration-line-through text-ltr">{{ breakdown.subtotal }} EGP</span>
                 </div>
-                
+
                 <v-divider class="my-1 border-dashed" />
 
                 <!-- Discounts Breakdown -->
-                <div v-if="breakdown.tiered_discount_amount > 0" class="d-flex align-center justify-between text-caption text-success font-weight-medium">
+                <div
+                  v-if="breakdown.tiered_discount_amount > 0"
+                  class="d-flex align-center justify-between text-caption text-success font-weight-medium"
+                >
                   <span>خصم مدة الاشتراك:</span>
                   <span class="text-ltr">-{{ breakdown.tiered_discount_amount }} EGP</span>
                 </div>
-                <div v-if="breakdown.coupon_discount_amount > 0" class="d-flex align-center justify-between text-caption text-secondary font-weight-medium">
+                <div
+                  v-if="breakdown.coupon_discount_amount > 0"
+                  class="d-flex align-center justify-between text-caption text-secondary font-weight-medium"
+                >
                   <span>خصم الكوبون ({{ breakdown.coupon?.code }}):</span>
                   <span class="text-ltr">-{{ breakdown.coupon_discount_amount }} EGP</span>
                 </div>
 
-                <div v-if="breakdown.total_discount_amount > 0" class="d-flex align-center justify-between alert-savings pa-3 rounded-lg bg-green-lighten-5 text-green-darken-2 font-weight-bold text-caption mt-2">
+                <div
+                  v-if="breakdown.total_discount_amount > 0"
+                  class="d-flex align-center justify-between alert-savings pa-3 rounded-lg bg-green-lighten-5 text-green-darken-2 font-weight-bold text-caption mt-2"
+                >
                   <span class="d-flex align-center gap-1">
                     <v-icon icon="ri-sparkles-line" size="14" />
                     <span>إجمالي التوفير والخصومات:</span>
@@ -160,9 +159,7 @@
                 <span class="text-subtitle-1 font-weight-bold text-grey-darken-3">المبلغ الكلي المطلوب:</span>
                 <span class="text-h4 font-weight-black text-primary text-ltr">{{ breakdown.total_price }} EGP</span>
               </div>
-              <div class="text-caption text-grey text-end mb-4">
-                تأثير التكلفة: {{ breakdown.effective_price_per_month }} EGP شهرياً
-              </div>
+              <div class="text-caption text-grey text-end mb-4">تأثير التكلفة: {{ breakdown.effective_price_per_month }} EGP شهرياً</div>
 
               <v-btn
                 color="primary"
@@ -190,12 +187,12 @@ import { useApi } from '@/composables/useApi';
 const props = defineProps({
   plan: {
     type: Object,
-    required: true
+    required: true,
   },
   submitting: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
 
 const emit = defineEmits(['confirm']);
@@ -218,7 +215,7 @@ const durationTiers = [
   { months: 48, label: '4 سنوات', discount: 'وفر 33%' },
 ];
 
-const getMonthLabel = (m) => {
+const getMonthLabel = m => {
   if (m === 1) return 'شهر';
   if (m === 2) return 'شهران';
   if (m >= 3 && m <= 10) return 'أشهر';
@@ -233,12 +230,12 @@ const calculatePricing = async () => {
     const response = await api.post({
       plan_id: props.plan.id,
       months: selectedMonths.value,
-      coupon_code: appliedCoupon.value || null
+      coupon_code: appliedCoupon.value || null,
     });
 
     if (response.success && response.data) {
       breakdown.value = response.data;
-      
+
       // تحديث تنبيهات الكوبون
       if (appliedCoupon.value) {
         if (response.data.coupon_error) {
@@ -279,13 +276,16 @@ const onConfirm = () => {
   emit('confirm', {
     plan_id: props.plan.id,
     months: selectedMonths.value,
-    coupon_code: appliedCoupon.value || null
+    coupon_code: appliedCoupon.value || null,
   });
 };
 
-watch(() => props.plan?.id, () => {
-  clearCoupon();
-});
+watch(
+  () => props.plan?.id,
+  () => {
+    clearCoupon();
+  }
+);
 
 watch(selectedMonths, () => {
   calculatePricing();

@@ -1,5 +1,5 @@
 <!-- 
-  تعليق عربي: شاشة إدارة الشركات المخصصة للسوبر أدمن أو من يملك صلاحيات إدارة الشركات في النظام.
+    شاشة إدارة الشركات المخصصة للسوبر أدمن أو من يملك صلاحيات إدارة الشركات في النظام.
   تمت إعادة هيكلتها لتستخدم المكون المشترك AppDataTable لتوفير تصميم موحد واحترافي.
 -->
 <template>
@@ -90,9 +90,7 @@
       <template #item.owner_name="{ item }">
         <div>
           <div class="font-weight-medium">{{ item.owner_name || '-' }}</div>
-          <div class="text-caption text-grey" v-if="item.email">
-            <v-icon icon="ri-mail-line" size="12" class="me-1" />{{ item.email }}
-          </div>
+          <div class="text-caption text-grey" v-if="item.email"><v-icon icon="ri-mail-line" size="12" class="me-1" />{{ item.email }}</div>
         </div>
       </template>
 
@@ -107,9 +105,7 @@
 
       <!-- Branches Count -->
       <template #item.branches_count="{ item }">
-        <v-chip color="info" size="small" variant="tonal" prepend-icon="ri-git-branch-line">
-          {{ item.branches_count || 0 }} فروع
-        </v-chip>
+        <v-chip color="info" size="small" variant="tonal" prepend-icon="ri-git-branch-line"> {{ item.branches_count || 0 }} فروع </v-chip>
       </template>
 
       <!-- Created At -->
@@ -120,15 +116,7 @@
       <!-- Actions Column -->
       <template #item.actions="{ item }">
         <div class="d-flex justify-end gap-1">
-          <AppButton
-            v-if="canUpdate"
-            icon="ri-pencil-line"
-            variant="text"
-            color="primary"
-            size="small"
-            tooltip="تعديل"
-            @click="handleEdit(item)"
-          />
+          <AppButton v-if="canUpdate" icon="ri-pencil-line" variant="text" color="primary" size="small" tooltip="تعديل" @click="handleEdit(item)" />
           <AppButton
             v-if="canDelete && item.id !== userStore.currentUser?.active_company_id"
             icon="ri-delete-bin-line"
@@ -145,9 +133,9 @@
     <!-- Create/Edit/View Dialog -->
     <AppDialog
       v-model="showDialog"
-      :title="isViewOnly ? 'تفاصيل الشركة' : (isEdit ? 'تعديل بيانات الشركة' : 'إضافة شركة جديدة')"
+      :title="isViewOnly ? 'تفاصيل الشركة' : isEdit ? 'تعديل بيانات الشركة' : 'إضافة شركة جديدة'"
       :subtitle="isViewOnly ? 'عرض تفاصيل الشركة الحالية' : 'أدخل بيانات وتفاصيل الشركة'"
-      :icon="isViewOnly ? 'ri-eye-line' : (isEdit ? 'ri-edit-line' : 'ri-add-line')"
+      :icon="isViewOnly ? 'ri-eye-line' : isEdit ? 'ri-edit-line' : 'ri-add-line'"
       max-width="650"
       hide-actions
     >
@@ -155,9 +143,9 @@
         <v-row dense>
           <!-- Logo Upload Zone -->
           <v-col cols="12" class="text-center mb-4">
-            <div 
-              class="logo-uploader-zone mx-auto" 
-              :class="{ 'cursor-pointer': !isViewOnly }" 
+            <div
+              class="logo-uploader-zone mx-auto"
+              :class="{ 'cursor-pointer': !isViewOnly }"
               @click="!isViewOnly ? (showMediaGallery = true) : null"
             >
               <v-avatar size="90" rounded="lg" color="grey-lighten-4" class="border logo-preview-avatar">
@@ -207,13 +195,7 @@
           </v-col>
 
           <v-col cols="12" md="6">
-            <v-text-field
-              v-model="formData.phone"
-              label="رقم الهاتف"
-              variant="outlined"
-              prepend-inner-icon="ri-phone-line"
-              :readonly="isViewOnly"
-            />
+            <v-text-field v-model="formData.phone" label="رقم الهاتف" variant="outlined" prepend-inner-icon="ri-phone-line" :readonly="isViewOnly" />
           </v-col>
 
           <v-col cols="12" md="6">
@@ -299,25 +281,12 @@ const router = useRouter();
 // Check Permissions
 const canCreate = computed(() => userStore.hasPermission(PERMISSIONS.COMPANIES_CREATE));
 const canUpdate = computed(() =>
-  userStore.hasPermission([
-    PERMISSIONS.COMPANIES_UPDATE_ALL,
-    PERMISSIONS.COMPANIES_UPDATE_CHILDREN,
-    PERMISSIONS.COMPANIES_UPDATE_SELF,
-  ])
+  userStore.hasPermission([PERMISSIONS.COMPANIES_UPDATE_ALL, PERMISSIONS.COMPANIES_UPDATE_CHILDREN, PERMISSIONS.COMPANIES_UPDATE_SELF])
 );
 const canDelete = computed(() =>
-  userStore.hasPermission([
-    PERMISSIONS.COMPANIES_DELETE_ALL,
-    PERMISSIONS.COMPANIES_DELETE_CHILDREN,
-    PERMISSIONS.COMPANIES_DELETE_SELF,
-  ])
+  userStore.hasPermission([PERMISSIONS.COMPANIES_DELETE_ALL, PERMISSIONS.COMPANIES_DELETE_CHILDREN, PERMISSIONS.COMPANIES_DELETE_SELF])
 );
-const canViewTrash = computed(() =>
-  userStore.hasPermission([
-    PERMISSIONS.ADMIN_SUPER,
-    PERMISSIONS.COMPANIES_DELETE_ALL,
-  ])
-);
+const canViewTrash = computed(() => userStore.hasPermission([PERMISSIONS.ADMIN_SUPER, PERMISSIONS.COMPANIES_DELETE_ALL]));
 
 // Advanced Filters Definition
 const advancedFilters = computed(() => {
@@ -373,10 +342,10 @@ const formRef = ref(null);
 const isFormValid = ref(false);
 const isViewOnly = ref(false);
 
-// تعليق عربي: مراقبة معلمة الاستعلام لفتح حوار إضافة الشركة تلقائياً عند الدخول من القائمة الجانبية
+//   مراقبة معلمة الاستعلام لفتح حوار إضافة الشركة تلقائياً عند الدخول من القائمة الجانبية
 watch(
   () => route.query.action,
-  (action) => {
+  action => {
     if (action === 'create') {
       if (canCreate.value) {
         handleCreate();
@@ -388,8 +357,8 @@ watch(
   { immediate: true }
 );
 
-// تعليق عربي: مسح معلمة الاستعلام من الرابط عند إغلاق حوار الإضافة/التعديل
-watch(showDialog, (newVal) => {
+//   مسح معلمة الاستعلام من الرابط عند إغلاق حوار الإضافة/التعديل
+watch(showDialog, newVal => {
   if (!newVal && route.query.action === 'create') {
     router.replace({ query: { ...route.query, action: undefined } });
   }
@@ -438,7 +407,7 @@ const handleCreate = () => {
   showDialog.value = true;
 };
 
-const handleEdit = (item) => {
+const handleEdit = item => {
   selectedItem.value = item;
   formData.value = {
     name: item.name || '',
@@ -454,8 +423,8 @@ const handleEdit = (item) => {
   showDialog.value = true;
 };
 
-// تعليق عربي: دالة عرض تفاصيل الشركة الحالية في حوار العرض (Read-Only)
-const handleView = (item) => {
+//   دالة عرض تفاصيل الشركة الحالية في حوار العرض (Read-Only)
+const handleView = item => {
   selectedItem.value = item;
   formData.value = {
     name: item.name || '',
@@ -471,13 +440,13 @@ const handleView = (item) => {
   showDialog.value = true;
 };
 
-const handleImageSelect = (image) => {
+const handleImageSelect = image => {
   formData.value.logo = image.url;
   formData.value.images_ids = [image.id];
   showMediaGallery.value = false;
 };
 
-const handleDelete = (item) => {
+const handleDelete = item => {
   selectedItem.value = item;
   isBatchDelete.value = false;
   showDeleteDialog.value = true;
@@ -532,7 +501,6 @@ const confirmDelete = async () => {
     deleting.value = false;
   }
 };
-
 </script>
 
 <style scoped>

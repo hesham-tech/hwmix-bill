@@ -1,4 +1,4 @@
-<!-- تعليق عربي: صفحة دفتر الأستاذ العام - تعرض جميع الحركات المالية المسجلة في النظام -->
+<!--   صفحة دفتر الأستاذ العام - تعرض جميع الحركات المالية المسجلة في النظام -->
 
 <template>
   <div class="ledger-list-page">
@@ -33,7 +33,7 @@
                   color="success"
                   :loading="exportLoading"
                   size="small"
-                  style="height: 28px;"
+                  style="height: 28px"
                   class="px-2"
                   @click="handleExport"
                 >
@@ -74,7 +74,7 @@
 </template>
 
 <script setup>
-// تعليق عربي: منطق صفحة دفتر الأستاذ وجلب بيانات الحركات المالية من API
+//   منطق صفحة دفتر الأستاذ وجلب بيانات الحركات المالية من API
 import { ref } from 'vue';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 import AppButton from '@/components/common/AppButton.vue';

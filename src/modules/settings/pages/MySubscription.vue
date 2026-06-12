@@ -1,4 +1,4 @@
-<!-- تعليق عربي: شاشة تفاصيل اشتراك الشركة (My Subscription) لمتابعة حدود الموارد المستخدمة وتفعيل/تعطيل التجديد التلقائي للاشتراك تلقائياً -->
+<!--   شاشة تفاصيل اشتراك الشركة (My Subscription) لمتابعة حدود الموارد المستخدمة وتفعيل/تعطيل التجديد التلقائي للاشتراك تلقائياً -->
 
 <template>
   <div class="my-subscription-page">
@@ -51,7 +51,11 @@
               {{ subscriptionData.status === 'pending' ? 'بانتظار سداد قيمة الاشتراك' : 'انتهت صلاحية باقة الاشتراك الحالي' }}
             </div>
             <div class="text-caption opacity-90">
-              {{ subscriptionData.status === 'pending' ? 'يرجى استكمال الدفع لتفعيل باقتك والبدء باستخدام النظام دون قيود.' : 'يرجى تجديد الاشتراك أو ترقية الباقة لضمان استمرار تقديم الخدمة.' }}
+              {{
+                subscriptionData.status === 'pending'
+                  ? 'يرجى استكمال الدفع لتفعيل باقتك والبدء باستخدام النظام دون قيود.'
+                  : 'يرجى تجديد الاشتراك أو ترقية الباقة لضمان استمرار تقديم الخدمة.'
+              }}
             </div>
           </div>
           <v-btn color="white" class="text-warning font-weight-bold rounded-pill" @click="openUpgradeDialog">
@@ -83,7 +87,7 @@
                       </div>
                     </div>
                   </div>
-                  
+
                   <!-- Auto Renew Switch Card inside Summary -->
                   <div class="auto-renew-box pa-4 rounded-xl border border-opacity-10 bg-grey-lighten-4 d-flex align-center gap-4">
                     <div>
@@ -219,7 +223,7 @@
           <v-btn icon="ri-close-line" color="white" variant="text" @click="showUpgradeDialog = false" />
         </v-card-title>
 
-        <v-card-text class="pa-6 bg-grey-lighten-4" style="max-height: 75vh;">
+        <v-card-text class="pa-6 bg-grey-lighten-4" style="max-height: 75vh">
           <v-row v-if="loadingPlans">
             <v-col cols="12" class="text-center py-12">
               <v-progress-circular indeterminate color="primary" size="48" />
@@ -233,14 +237,7 @@
               <p class="text-body-2 text-grey">تتم الترقية فوراً ويتم تحديث حدود حسابك مباشرة</p>
             </v-col>
 
-            <v-col
-              v-for="plan in plans"
-              :key="plan.id"
-              cols="12"
-              md="6"
-              lg="4"
-              class="d-flex"
-            >
+            <v-col v-for="plan in plans" :key="plan.id" cols="12" md="6" lg="4" class="d-flex">
               <v-card
                 class="rounded-xl border border-opacity-10 shadow-sm d-flex flex-column justify-between w-100 position-relative overflow-hidden transition-all duration-300"
                 :class="{ 'featured-plan-card': plan.price > 0, 'current-plan-card': subscriptionData.plan_id === plan.id }"
@@ -272,9 +269,7 @@
                     <v-chip v-else-if="plan.price > 0" size="small" color="warning" variant="tonal" class="font-weight-bold">
                       تفعيل فوري بالدفع (بدون تجربة)
                     </v-chip>
-                    <v-chip v-else size="small" color="success" variant="tonal" class="font-weight-bold">
-                      مجانية بالكامل (بدون تجربة)
-                    </v-chip>
+                    <v-chip v-else size="small" color="success" variant="tonal" class="font-weight-bold"> مجانية بالكامل (بدون تجربة) </v-chip>
                   </div>
 
                   <v-divider class="mb-4" />
@@ -283,26 +278,49 @@
                   <div class="plan-features d-flex flex-column gap-2 mb-6">
                     <div class="d-flex align-center gap-2 text-body-2">
                       <v-icon icon="ri-checkbox-circle-fill" color="success" size="16" />
-                      <span>المستخدمين: <strong>{{ plan.max_users === -1 || plan.max_users === null ? 'غير محدود' : plan.max_users }}</strong></span>
+                      <span
+                        >المستخدمين: <strong>{{ plan.max_users === -1 || plan.max_users === null ? 'غير محدود' : plan.max_users }}</strong></span
+                      >
                     </div>
                     <div class="d-flex align-center gap-2 text-body-2">
                       <v-icon icon="ri-checkbox-circle-fill" color="success" size="16" />
-                      <span>المنتجات: <strong>{{ plan.max_products === -1 || plan.max_products === null ? 'غير محدود' : plan.max_products }}</strong></span>
+                      <span
+                        >المنتجات:
+                        <strong>{{ plan.max_products === -1 || plan.max_products === null ? 'غير محدود' : plan.max_products }}</strong></span
+                      >
                     </div>
                     <div class="d-flex align-center gap-2 text-body-2">
                       <v-icon icon="ri-checkbox-circle-fill" color="success" size="16" />
-                      <span>الفواتير: <strong>{{ plan.max_invoices === -1 || plan.max_invoices === null ? 'غير محدود' : plan.max_invoices }}</strong></span>
+                      <span
+                        >الفواتير:
+                        <strong>{{ plan.max_invoices === -1 || plan.max_invoices === null ? 'غير محدود' : plan.max_invoices }}</strong></span
+                      >
                     </div>
                     <div class="d-flex align-center gap-2 text-body-2" :class="{ 'text-grey opacity-60': !getFeatureFlag(plan, 'payment_gateways') }">
-                      <v-icon :icon="getFeatureFlag(plan, 'payment_gateways') ? 'ri-checkbox-circle-fill' : 'ri-close-circle-fill'" :color="getFeatureFlag(plan, 'payment_gateways') ? 'success' : 'grey'" size="16" />
+                      <v-icon
+                        :icon="getFeatureFlag(plan, 'payment_gateways') ? 'ri-checkbox-circle-fill' : 'ri-close-circle-fill'"
+                        :color="getFeatureFlag(plan, 'payment_gateways') ? 'success' : 'grey'"
+                        size="16"
+                      />
                       <span>بوابات الدفع الإلكتروني</span>
                     </div>
-                    <div class="d-flex align-center gap-2 text-body-2" :class="{ 'text-grey opacity-60': !getFeatureFlag(plan, 'installment_system') }">
-                      <v-icon :icon="getFeatureFlag(plan, 'installment_system') ? 'ri-checkbox-circle-fill' : 'ri-close-circle-fill'" :color="getFeatureFlag(plan, 'installment_system') ? 'success' : 'grey'" size="16" />
+                    <div
+                      class="d-flex align-center gap-2 text-body-2"
+                      :class="{ 'text-grey opacity-60': !getFeatureFlag(plan, 'installment_system') }"
+                    >
+                      <v-icon
+                        :icon="getFeatureFlag(plan, 'installment_system') ? 'ri-checkbox-circle-fill' : 'ri-close-circle-fill'"
+                        :color="getFeatureFlag(plan, 'installment_system') ? 'success' : 'grey'"
+                        size="16"
+                      />
                       <span>نظام التقسيط</span>
                     </div>
                     <div class="d-flex align-center gap-2 text-body-2" :class="{ 'text-grey opacity-60': !getFeatureFlag(plan, 'warehouses_multi') }">
-                      <v-icon :icon="getFeatureFlag(plan, 'warehouses_multi') ? 'ri-checkbox-circle-fill' : 'ri-close-circle-fill'" :color="getFeatureFlag(plan, 'warehouses_multi') ? 'success' : 'grey'" size="16" />
+                      <v-icon
+                        :icon="getFeatureFlag(plan, 'warehouses_multi') ? 'ri-checkbox-circle-fill' : 'ri-close-circle-fill'"
+                        :color="getFeatureFlag(plan, 'warehouses_multi') ? 'success' : 'grey'"
+                        size="16"
+                      />
                       <span>المخازن المتعددة</span>
                     </div>
                   </div>
@@ -311,7 +329,11 @@
 
                   <v-btn
                     block
-                    :color="subscriptionData.plan_id === plan.id && subscriptionData.status !== 'pending' && subscriptionData.status !== 'expired' ? 'grey' : 'primary'"
+                    :color="
+                      subscriptionData.plan_id === plan.id && subscriptionData.status !== 'pending' && subscriptionData.status !== 'expired'
+                        ? 'grey'
+                        : 'primary'
+                    "
                     :disabled="subscriptionData.plan_id === plan.id && subscriptionData.status !== 'pending' && subscriptionData.status !== 'expired'"
                     class="rounded-pill font-weight-bold py-2 mt-4"
                     :loading="loadingUpgrade && selectedUpgradePlanId === plan.id"
@@ -322,9 +344,7 @@
                       <span v-else-if="subscriptionData.status === 'expired'">تجديد الاشتراك</span>
                       <span v-else>باقتك الحالية</span>
                     </template>
-                    <template v-else>
-                      تفعيل هذه الباقة
-                    </template>
+                    <template v-else> تفعيل هذه الباقة </template>
                   </v-btn>
                 </v-card-text>
               </v-card>
@@ -343,17 +363,12 @@
           <v-spacer />
           <v-btn icon="ri-close-line" color="white" variant="text" @click="showConfirmDialog = false" />
         </v-card-title>
-        <v-card-text class="pa-4 bg-grey-lighten-5" style="max-height: 80vh;">
+        <v-card-text class="pa-4 bg-grey-lighten-5" style="max-height: 80vh">
           <div class="mb-4 text-body-2 text-warning font-weight-bold pa-3 rounded bg-amber-lighten-5 border-warning d-flex align-center gap-2">
             <v-icon icon="ri-alert-line" color="warning" />
             <span>ملاحظة: تفعيل هذه الباقة سيقوم بإلغاء اشتراكك الحالي تلقائياً وتفعيل الباقة الجديدة بالمدد والخصومات المحتسبة.</span>
           </div>
-          <PricingCalculatorWidget
-            v-if="planToUpgrade"
-            :plan="planToUpgrade"
-            :submitting="loadingUpgrade"
-            @confirm="handleUpgrade"
-          />
+          <PricingCalculatorWidget v-if="planToUpgrade" :plan="planToUpgrade" :submitting="loadingUpgrade" @confirm="handleUpgrade" />
         </v-card-text>
       </v-card>
     </v-dialog>
@@ -514,13 +529,13 @@ const loadPlans = async () => {
   }
 };
 
-const confirmUpgrade = (plan) => {
+const confirmUpgrade = plan => {
   planToUpgrade.value = plan;
   selectedUpgradePlanId.value = plan.id;
   showConfirmDialog.value = true;
 };
 
-const handleUpgrade = async (checkoutData) => {
+const handleUpgrade = async checkoutData => {
   const planId = checkoutData?.plan_id || selectedUpgradePlanId.value;
   const months = checkoutData?.months || 1;
   const couponCode = checkoutData?.coupon_code || null;
@@ -529,11 +544,11 @@ const handleUpgrade = async (checkoutData) => {
   loadingUpgrade.value = true;
   try {
     const redirectUrl = window.location.origin + '/app/my-subscription';
-    const response = await subApi.request('post', 'upgrade', { 
+    const response = await subApi.request('post', 'upgrade', {
       plan_id: planId,
       months: months,
       coupon_code: couponCode,
-      redirect_url: redirectUrl
+      redirect_url: redirectUrl,
     });
 
     if (response.data?.requires_payment && response.data?.payment_url) {
@@ -557,7 +572,7 @@ const handleUpgrade = async (checkoutData) => {
 
 onMounted(async () => {
   await loadSubscription();
-  
+
   if (route.query.payment_status) {
     if (route.query.payment_status === 'success') {
       toast.success('تمت عملية الدفع بنجاح! وتفعيل اشتراكك بالباقة الجديدة.');

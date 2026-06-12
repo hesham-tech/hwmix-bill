@@ -1,4 +1,4 @@
-<!-- تعليق عربي: مكون التنبيه المنبثق لعرض التحديثات والميزات الجديدة وتوضيح طريقة استخدامها وفائدتها للمستخدمين -->
+<!--   مكون التنبيه المنبثق لعرض التحديثات والميزات الجديدة وتوضيح طريقة استخدامها وفائدتها للمستخدمين -->
 <template>
   <v-dialog v-model="visible" max-width="600" scrollable transition="dialog-bottom-transition" z-index="11000">
     <v-card class="system-updates-card rounded-xl overflow-hidden elevation-24 border-0">
@@ -25,11 +25,9 @@
           <div v-for="(release, rIdx) in changelogsList" :key="release.version" class="release-group mb-8">
             <div class="d-flex align-center justify-space-between mb-4 border-b pb-2">
               <span class="text-h6 font-weight-bold text-primary">{{ release.title }}</span>
-              <v-chip color="primary" variant="flat" size="small" class="font-weight-bold">
-                {{ release.version }} ({{ release.date }})
-              </v-chip>
+              <v-chip color="primary" variant="flat" size="small" class="font-weight-bold"> {{ release.version }} ({{ release.date }}) </v-chip>
             </div>
-            
+
             <div v-for="(feature, idx) in release.features" :key="idx" class="feature-item mb-5">
               <h3 class="text-subtitle-1 font-weight-bold text-grey-darken-4 d-flex align-center mb-1">
                 <v-icon icon="ri-arrow-left-s-fill" color="primary" class="me-1" size="18" />
@@ -48,15 +46,17 @@
         <!-- Mode: Show Only Missed (Auto-popup) -->
         <div v-else>
           <div class="welcome-text mb-6 text-body-1 text-grey-darken-2 text-center">
-            {{ missedChangelogs.length > 1 ? 'إليك دليل سريع للميزات الجديدة والتحسينات المضافة في التحديثات الأخيرة وطريقة الوصول إليها:' : 'إليك دليل سريع للميزات الجديدة والتحسينات المضافة في هذا الإصدار وطريقة الوصول إليها:' }}
+            {{
+              missedChangelogs.length > 1
+                ? 'إليك دليل سريع للميزات الجديدة والتحسينات المضافة في التحديثات الأخيرة وطريقة الوصول إليها:'
+                : 'إليك دليل سريع للميزات الجديدة والتحسينات المضافة في هذا الإصدار وطريقة الوصول إليها:'
+            }}
           </div>
 
           <div v-for="(release, rIdx) in missedChangelogs" :key="release.version" class="release-group mb-6">
             <div v-if="missedChangelogs.length > 1" class="d-flex align-center justify-space-between mb-4 border-b pb-2">
               <span class="text-subtitle-1 font-weight-bold text-primary">{{ release.title }}</span>
-              <v-chip color="primary" variant="flat" size="x-small" class="font-weight-bold">
-                {{ release.version }} ({{ release.date }})
-              </v-chip>
+              <v-chip color="primary" variant="flat" size="x-small" class="font-weight-bold"> {{ release.version }} ({{ release.date }}) </v-chip>
             </div>
 
             <div v-for="(feature, idx) in release.features" :key="idx" class="feature-item mb-5">
@@ -94,13 +94,7 @@
 
         <!-- If showing auto-popup: Acknowledge and Close Later buttons -->
         <template v-else>
-          <v-btn
-            variant="tonal"
-            color="grey-darken-1"
-            class="flex-grow-1 font-weight-bold rounded-lg"
-            height="48"
-            @click="closeLater"
-          >
+          <v-btn variant="tonal" color="grey-darken-1" class="flex-grow-1 font-weight-bold rounded-lg" height="48" @click="closeLater">
             لاحقاً
           </v-btn>
 
@@ -154,7 +148,7 @@ function checkShowCondition() {
   if (!authStore.isAuthenticated || !userObj) {
     return;
   }
-  
+
   if (missedChangelogs.value.length > 0) {
     showAllVersions.value = false;
     visible.value = true;
@@ -173,38 +167,38 @@ function show(forceAll = false) {
 async function acknowledgeUpdate() {
   const userObj = currentUser.value;
   if (!userObj) return;
-  
+
   saving.value = true;
   try {
     const currentSettings = userObj.settings || {};
     const acknowledged = [...(currentSettings.acknowledged_updates || [])];
-    
+
     // Add all missed versions
     missedChangelogs.value.forEach(release => {
       if (!acknowledged.includes(release.version)) {
         acknowledged.push(release.version);
       }
     });
-    
+
     const updatedSettings = {
       ...currentSettings,
-      acknowledged_updates: acknowledged
+      acknowledged_updates: acknowledged,
     };
-    
+
     const response = await userService.update(userObj.id, {
-      settings: updatedSettings
+      settings: updatedSettings,
     });
-    
+
     if (response.success) {
       // Update local stores state
       if (authStore.user) authStore.user.settings = updatedSettings;
       if (userStore.currentUser) userStore.currentUser.settings = updatedSettings;
-      
+
       // Persist user data back into local/session storage
       const remember = !!localStorage.getItem('token');
       const storage = remember ? localStorage : sessionStorage;
       storage.setItem('user', JSON.stringify(currentUser.value));
-      
+
       visible.value = false;
     }
   } catch (error) {
@@ -215,11 +209,15 @@ async function acknowledgeUpdate() {
 }
 
 // Watch currentUser to trigger checkShowCondition as soon as the bootstrap completes
-watch(() => userStore.currentUser, (newVal) => {
-  if (newVal) {
-    checkShowCondition();
-  }
-}, { immediate: true });
+watch(
+  () => userStore.currentUser,
+  newVal => {
+    if (newVal) {
+      checkShowCondition();
+    }
+  },
+  { immediate: true }
+);
 
 onMounted(() => {
   // Check if we should show the dialog
@@ -294,6 +292,8 @@ defineExpose({ show });
 }
 
 .shadow-md {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1) !important;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -2px rgba(0, 0, 0, 0.1) !important;
 }
 </style>

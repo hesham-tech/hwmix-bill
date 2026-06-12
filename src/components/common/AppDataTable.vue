@@ -36,7 +36,7 @@
             :prepend-icon="isCustomizing ? 'ri-close-line' : 'ri-settings-3-line'"
             tooltip="تخصيص أعمدة الجدول وترتيبها"
             size="small"
-            style="height: 28px;"
+            style="height: 28px"
             class="px-2 mr-1 tour-app-table-customize"
             @click="toggleCustomization"
           >
@@ -87,13 +87,26 @@
               <v-icon icon="ri-layout-column-line" /> تخصيص ترتيب وأعمدة الجدول المباشر
             </div>
             <div class="text-caption text-grey-darken-1">
-              <span class="d-none d-sm-inline">اسحب <strong>عناوين الأعمدة داخل الجدول</strong> بالأسفل لترتيبها. اضغط على أيقونة العين لإخفاء العمود، وسيظهر بشكل باهت أثناء التعديل.</span>
+              <span class="d-none d-sm-inline"
+                >اسحب <strong>عناوين الأعمدة داخل الجدول</strong> بالأسفل لترتيبها. اضغط على أيقونة العين لإخفاء العمود، وسيظهر بشكل باهت أثناء
+                التعديل.</span
+              >
               <span class="d-sm-none">اضغط على أيقونة العين لإخفاء العمود أو استخدم الأسهم لإعادة الترتيب.</span>
             </div>
           </div>
           <div class="d-flex gap-2">
-            <AppButton size="small" variant="outlined" color="error" @click="resetCustomization" prepend-icon="ri-refresh-line">إعادة الضبط</AppButton>
-            <AppButton size="small" variant="flat" color="primary" @click="saveCustomization" prepend-icon="ri-check-line" :loading="savingPreferences">حفظ التغييرات</AppButton>
+            <AppButton size="small" variant="outlined" color="error" @click="resetCustomization" prepend-icon="ri-refresh-line"
+              >إعادة الضبط</AppButton
+            >
+            <AppButton
+              size="small"
+              variant="flat"
+              color="primary"
+              @click="saveCustomization"
+              prepend-icon="ri-check-line"
+              :loading="savingPreferences"
+              >حفظ التغييرات</AppButton
+            >
           </div>
         </div>
 
@@ -134,10 +147,7 @@
                 @click="toggleColumn(col)"
               />
               <!-- Column name -->
-              <span
-                class="text-body-2 flex-grow-1"
-                :class="!col.visible ? 'text-grey-lighten-1 text-decoration-line-through' : ''"
-              >
+              <span class="text-body-2 flex-grow-1" :class="!col.visible ? 'text-grey-lighten-1 text-decoration-line-through' : ''">
                 {{ col.title }}
               </span>
               <!-- Up/Down arrows -->
@@ -266,18 +276,27 @@
           </template>
 
           <!-- Dynamic Header Slots for Customization -->
-          <template v-for="col in customizationColumns" :key="`header-slot-${col.key}`" #[`header.${col.key}`]="{ column, isSorted, getSortIcon, toggleSort }">
+          <template
+            v-for="col in customizationColumns"
+            :key="`header-slot-${col.key}`"
+            #[`header.${col.key}`]="{ column, isSorted, getSortIcon, toggleSort }"
+          >
             <div v-if="$slots[`header.${col.key}`]">
               <slot :name="`header.${col.key}`" v-bind="{ column, isSorted, getSortIcon, toggleSort }" />
             </div>
             <div v-else class="d-flex align-center justify-space-between w-100 position-relative w-100">
-              <div 
-                class="d-flex align-center flex-grow-1" 
+              <div
+                class="d-flex align-center flex-grow-1"
                 :class="!isCustomizing && column.sortable !== false ? 'cursor-pointer' : ''"
                 @click="!isCustomizing && column.sortable !== false ? toggleSort(column) : null"
               >
                 <span>{{ column.title }}</span>
-                <v-icon v-if="!isCustomizing && column.sortable !== false && isSorted(column)" size="small" class="ml-1" :icon="getSortIcon(column)" />
+                <v-icon
+                  v-if="!isCustomizing && column.sortable !== false && isSorted(column)"
+                  size="small"
+                  class="ml-1"
+                  :icon="getSortIcon(column)"
+                />
               </div>
               <div v-if="isCustomizing" class="d-flex align-center ml-2">
                 <v-icon
@@ -362,20 +381,29 @@
           <template v-for="(_, slot) in $slots" #[slot]="scope">
             <slot :name="slot" v-bind="{ ...(scope || {}), isGrid: false, viewMode: 'list' }" />
           </template>
-          
+
           <!-- Dynamic Header Slots for Customization -->
-          <template v-for="col in customizationColumns" :key="`header-slot-${col.key}`" #[`header.${col.key}`]="{ column, isSorted, getSortIcon, toggleSort }">
+          <template
+            v-for="col in customizationColumns"
+            :key="`header-slot-${col.key}`"
+            #[`header.${col.key}`]="{ column, isSorted, getSortIcon, toggleSort }"
+          >
             <div v-if="$slots[`header.${col.key}`]">
               <slot :name="`header.${col.key}`" v-bind="{ column, isSorted, getSortIcon, toggleSort }" />
             </div>
             <div v-else class="d-flex align-center justify-space-between w-100 position-relative w-100">
-              <div 
-                class="d-flex align-center flex-grow-1" 
+              <div
+                class="d-flex align-center flex-grow-1"
                 :class="!isCustomizing && column.sortable !== false ? 'cursor-pointer' : ''"
                 @click="!isCustomizing && column.sortable !== false ? toggleSort(column) : null"
               >
                 <span>{{ column.title }}</span>
-                <v-icon v-if="!isCustomizing && column.sortable !== false && isSorted(column)" size="small" class="ml-1" :icon="getSortIcon(column)" />
+                <v-icon
+                  v-if="!isCustomizing && column.sortable !== false && isSorted(column)"
+                  size="small"
+                  class="ml-1"
+                  :icon="getSortIcon(column)"
+                />
               </div>
               <div v-if="isCustomizing" class="d-flex align-center ml-2">
                 <v-icon
@@ -463,20 +491,29 @@
           <template v-for="(_, slot) in $slots" #[slot]="scope">
             <slot :name="slot" v-bind="{ ...(scope || {}), isGrid: false, viewMode: 'list' }" />
           </template>
-          
+
           <!-- Dynamic Header Slots for Customization -->
-          <template v-for="col in customizationColumns" :key="`header-slot-${col.key}`" #[`header.${col.key}`]="{ column, isSorted, getSortIcon, toggleSort }">
+          <template
+            v-for="col in customizationColumns"
+            :key="`header-slot-${col.key}`"
+            #[`header.${col.key}`]="{ column, isSorted, getSortIcon, toggleSort }"
+          >
             <div v-if="$slots[`header.${col.key}`]">
               <slot :name="`header.${col.key}`" v-bind="{ column, isSorted, getSortIcon, toggleSort }" />
             </div>
             <div v-else class="d-flex align-center justify-space-between w-100 position-relative w-100">
-              <div 
-                class="d-flex align-center flex-grow-1" 
+              <div
+                class="d-flex align-center flex-grow-1"
                 :class="!isCustomizing && column.sortable !== false ? 'cursor-pointer' : ''"
                 @click="!isCustomizing && column.sortable !== false ? toggleSort(column) : null"
               >
                 <span>{{ column.title }}</span>
-                <v-icon v-if="!isCustomizing && column.sortable !== false && isSorted(column)" size="small" class="ml-1" :icon="getSortIcon(column)" />
+                <v-icon
+                  v-if="!isCustomizing && column.sortable !== false && isSorted(column)"
+                  size="small"
+                  class="ml-1"
+                  :icon="getSortIcon(column)"
+                />
               </div>
               <div v-if="isCustomizing" class="d-flex align-center ml-2">
                 <v-icon
@@ -731,13 +768,7 @@
     </div>
 
     <!-- Context Menu -->
-    <v-menu
-      v-model="menuModel"
-      :target="[menuProps.x, menuProps.y]"
-      transition="scale-transition"
-      offset="5"
-      :close-on-content-click="true"
-    >
+    <v-menu v-model="menuModel" :target="[menuProps.x, menuProps.y]" transition="scale-transition" offset="5" :close-on-content-click="true">
       <AppTableActions
         v-if="menuProps.item"
         :item="menuProps.item"
@@ -755,7 +786,6 @@
       </AppTableActions>
     </v-menu>
   </v-card>
-
 </template>
 
 <script setup>
@@ -933,11 +963,15 @@ const paginationInfo = computed(() => {
 // --- Table Headers Processing ---
 const uiPrefsStore = useUIPreferencesStore();
 
-watch(() => props.tableKey, (newKey) => {
-  if (newKey) {
-    uiPrefsStore.loadPreferences(newKey);
-  }
-}, { immediate: true });
+watch(
+  () => props.tableKey,
+  newKey => {
+    if (newKey) {
+      uiPrefsStore.loadPreferences(newKey);
+    }
+  },
+  { immediate: true }
+);
 
 const currentPref = computed(() => {
   if (!props.tableKey) return null;
@@ -945,37 +979,41 @@ const currentPref = computed(() => {
 });
 
 const hasHydrated = ref(false);
-watch(currentPref, (newPref) => {
-  if (!newPref || hasHydrated.value) return;
-  
-  let optionsChanged = false;
-  let newItemsPerPage = props.itemsPerPage;
-  let newSortBy = props.sortBy;
+watch(
+  currentPref,
+  newPref => {
+    if (!newPref || hasHydrated.value) return;
 
-  if (newPref.itemsPerPage !== undefined && newPref.itemsPerPage !== props.itemsPerPage) {
-    emit('update:items-per-page', newPref.itemsPerPage);
-    newItemsPerPage = newPref.itemsPerPage;
-    optionsChanged = true;
-  }
+    let optionsChanged = false;
+    let newItemsPerPage = props.itemsPerPage;
+    let newSortBy = props.sortBy;
 
-  if (newPref.sortBy !== undefined && JSON.stringify(newPref.sortBy) !== JSON.stringify(props.sortBy)) {
-    emit('update:sortBy', newPref.sortBy);
-    newSortBy = newPref.sortBy;
-    optionsChanged = true;
-  }
+    if (newPref.itemsPerPage !== undefined && newPref.itemsPerPage !== props.itemsPerPage) {
+      emit('update:items-per-page', newPref.itemsPerPage);
+      newItemsPerPage = newPref.itemsPerPage;
+      optionsChanged = true;
+    }
 
-  if (optionsChanged) {
-    nextTick(() => {
-      emit('update:options', {
-        page: props.page,
-        itemsPerPage: newItemsPerPage,
-        sortBy: newSortBy
+    if (newPref.sortBy !== undefined && JSON.stringify(newPref.sortBy) !== JSON.stringify(props.sortBy)) {
+      emit('update:sortBy', newPref.sortBy);
+      newSortBy = newPref.sortBy;
+      optionsChanged = true;
+    }
+
+    if (optionsChanged) {
+      nextTick(() => {
+        emit('update:options', {
+          page: props.page,
+          itemsPerPage: newItemsPerPage,
+          sortBy: newSortBy,
+        });
       });
-    });
-  }
+    }
 
-  hasHydrated.value = true;
-}, { immediate: true });
+    hasHydrated.value = true;
+  },
+  { immediate: true }
+);
 
 const processedHeaders = computed(() => {
   let finalHeaders = [...props.headers];
@@ -984,30 +1022,31 @@ const processedHeaders = computed(() => {
   // AND inject drag & drop properties directly into the Vuetify TH headers!
   if (isCustomizing.value && customizationColumns.value.length > 0) {
     const headerMap = {};
-    finalHeaders.forEach(h => headerMap[h.key] = h);
-    
+    finalHeaders.forEach(h => (headerMap[h.key] = h));
+
     const liveHeaders = [];
     customizationColumns.value.forEach((col, index) => {
       const header = headerMap[col.key];
-      if (header) { // REMOVED && col.visible to keep the column in the DOM while customizing
+      if (header) {
+        // REMOVED && col.visible to keep the column in the DOM while customizing
         liveHeaders.push({
           ...header,
           headerProps: {
             ...(header.headerProps || {}),
             draggable: true,
-            onDragstart: (e) => {
+            onDragstart: e => {
               dragIndex = index;
               draggingIndex.value = index;
               if (e.dataTransfer) {
                 e.dataTransfer.effectAllowed = 'move';
               }
             },
-            onDragover: (e) => {
+            onDragover: e => {
               e.preventDefault();
               if (draggingIndex.value === null || draggingIndex.value === index) return;
               dragOverIndex.value = index;
             },
-            onDragleave: (e) => {
+            onDragleave: e => {
               if (dragOverIndex.value === index) dragOverIndex.value = null;
             },
             onDragend: () => {
@@ -1015,7 +1054,7 @@ const processedHeaders = computed(() => {
               dragOverIndex.value = null;
               dragIndex = null;
             },
-            onDrop: (e) => {
+            onDrop: e => {
               e.preventDefault();
               if (dragIndex === null || dragIndex === index) {
                 draggingIndex.value = null;
@@ -1028,11 +1067,11 @@ const processedHeaders = computed(() => {
               items.splice(dragIndex, 1);
               items.splice(index, 0, draggedItem);
               customizationColumns.value = items;
-              
+
               draggingIndex.value = null;
               dragOverIndex.value = null;
               dragIndex = null;
-              
+
               saveCustomizationSilent();
             },
             class: [
@@ -1041,8 +1080,8 @@ const processedHeaders = computed(() => {
               draggingIndex.value === index ? 'drag-active-item' : '',
               dragOverIndex.value === index && draggingIndex.value < index ? 'drag-over-right' : '',
               dragOverIndex.value === index && draggingIndex.value > index ? 'drag-over-left' : '',
-              !col.visible ? 'hidden-column-faded' : ''
-            ]
+              !col.visible ? 'hidden-column-faded' : '',
+            ],
           },
           cellProps: {
             ...(header.cellProps || {}),
@@ -1052,9 +1091,9 @@ const processedHeaders = computed(() => {
               draggingIndex.value === index ? 'drag-active-td' : '',
               dragOverIndex.value === index && draggingIndex.value < index ? 'drag-over-right-td' : '',
               dragOverIndex.value === index && draggingIndex.value > index ? 'drag-over-left-td' : '',
-              !col.visible ? 'hidden-column-faded' : ''
-            ]
-          }
+              !col.visible ? 'hidden-column-faded' : '',
+            ],
+          },
         });
       }
     });
@@ -1073,7 +1112,8 @@ const processedHeaders = computed(() => {
       const header = headerMap[colPref.key];
       if (header) {
         const isVisible = colPref.visible ?? !header.defaultHide;
-        if (isVisible || isCustomizing.value) { // Always include if customizing
+        if (isVisible || isCustomizing.value) {
+          // Always include if customizing
           orderedHeaders.push(header);
         }
         delete headerMap[colPref.key];
@@ -1083,7 +1123,8 @@ const processedHeaders = computed(() => {
     finalHeaders.forEach(h => {
       if (headerMap[h.key]) {
         const isVisible = !h.defaultHide;
-        if (isVisible || isCustomizing.value) { // Always include if customizing
+        if (isVisible || isCustomizing.value) {
+          // Always include if customizing
           orderedHeaders.push(h);
         }
       }
@@ -1134,7 +1175,7 @@ const syncCustomizationColumns = () => {
       title: h.title || h.key,
       visible: hasPref ? hasPref.visible : !h.defaultHide,
       mandatory: false, // Override to false during customization to allow dragging everything
-      order: hasPref ? hasPref.order : 999
+      order: hasPref ? hasPref.order : 999,
     };
   });
 
@@ -1151,7 +1192,7 @@ const toggleCustomization = () => {
   }
 };
 
-const toggleColumn = (col) => {
+const toggleColumn = col => {
   col.visible = !col.visible;
   saveCustomizationSilent();
 };
@@ -1168,19 +1209,19 @@ const moveColumn = (fromIndex, toIndex) => {
 
 // ── Touch Drag & Drop (mobile) ──────────────────────────────────────────────
 const mobileColListRef = ref(null);
-const touchDragIndex   = ref(null);
+const touchDragIndex = ref(null);
 const touchDragOverIndex = ref(null);
 
 const onTouchDragStart = (event, index) => {
-  touchDragIndex.value     = index;
+  touchDragIndex.value = index;
   touchDragOverIndex.value = index;
 };
 
-const onTouchDragMove = (event) => {
+const onTouchDragMove = event => {
   if (touchDragIndex.value === null) return;
 
-  const touch    = event.touches[0];
-  const listEl   = mobileColListRef.value;
+  const touch = event.touches[0];
+  const listEl = mobileColListRef.value;
   if (!listEl) return;
 
   // Find which item the finger is currently over
@@ -1199,14 +1240,10 @@ const onTouchDragMove = (event) => {
 };
 
 const onTouchDragEnd = () => {
-  if (
-    touchDragIndex.value !== null &&
-    touchDragOverIndex.value !== null &&
-    touchDragIndex.value !== touchDragOverIndex.value
-  ) {
+  if (touchDragIndex.value !== null && touchDragOverIndex.value !== null && touchDragIndex.value !== touchDragOverIndex.value) {
     moveColumn(touchDragIndex.value, touchDragOverIndex.value);
   }
-  touchDragIndex.value     = null;
+  touchDragIndex.value = null;
   touchDragOverIndex.value = null;
 };
 // ────────────────────────────────────────────────────────────────────────────
@@ -1221,12 +1258,12 @@ const saveCustomizationSilent = async () => {
   if (props.tableKey) {
     const columns = customizationColumns.value.map(c => ({
       key: c.key,
-      visible: c.visible
+      visible: c.visible,
     }));
     const existing = currentPref.value || {};
     await uiPrefsStore.savePreference(props.tableKey, {
       ...existing,
-      columns
+      columns,
     });
   }
 };
@@ -1289,13 +1326,13 @@ const itemsPerPageModel = computed({
   set: val => {
     if (val === props.itemsPerPage) return;
     emit('update:items-per-page', val);
-    
+
     // Save to preferences if tableKey is set
     if (props.tableKey) {
       const existing = currentPref.value || {};
       uiPrefsStore.savePreference(props.tableKey, {
         ...existing,
-        itemsPerPage: val
+        itemsPerPage: val,
       });
     }
 
@@ -1314,13 +1351,13 @@ const sortByModel = computed({
   get: () => props.sortBy,
   set: val => {
     emit('update:sortBy', val);
-    
+
     // Save to preferences if tableKey is set
     if (props.tableKey) {
       const existing = currentPref.value || {};
       uiPrefsStore.savePreference(props.tableKey, {
         ...existing,
-        sortBy: val
+        sortBy: val,
       });
     }
   },
@@ -1422,7 +1459,7 @@ const menuModel = ref(false);
 const menuProps = reactive({ x: 0, y: 0, item: null });
 
 const handleContextMenu = (event, { item }) => {
-  // تعليق عربي: إلغاء السلوك الافتراضي للمتصفح وجلب العنصر الخام (raw) إذا كان مغلفاً بواسطة Vuetify
+  //   إلغاء السلوك الافتراضي للمتصفح وجلب العنصر الخام (raw) إذا كان مغلفاً بواسطة Vuetify
   event.preventDefault();
   menuModel.value = false;
   nextTick(() => {
@@ -1623,7 +1660,10 @@ watch(viewMode, (newVal, oldVal) => {
 /* Must use :deep() because classes are added via headerProps by Vuetify (outside scoped template) */
 :deep(.customization-th) {
   user-select: none;
-  transition: background-color 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    opacity 0.2s ease,
+    box-shadow 0.2s ease;
   box-shadow:
     inset 1px 0 0 0 rgba(var(--v-theme-primary), 0.3),
     inset -1px 0 0 0 rgba(var(--v-theme-primary), 0.3) !important;
@@ -1631,7 +1671,10 @@ watch(viewMode, (newVal, oldVal) => {
 
 /* Body cells also get vertical borders (via cellProps) */
 :deep(.customization-td) {
-  transition: background-color 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    opacity 0.2s ease,
+    box-shadow 0.2s ease;
   box-shadow:
     inset 1px 0 0 0 rgba(var(--v-theme-primary), 0.15),
     inset -1px 0 0 0 rgba(var(--v-theme-primary), 0.15) !important;
@@ -1646,11 +1689,7 @@ watch(viewMode, (newVal, oldVal) => {
 /* The column actively being DRAGGED — header */
 :deep(.drag-active-item) {
   opacity: 0.85 !important;
-  background: linear-gradient(
-    135deg,
-    rgba(var(--v-theme-primary), 0.18) 0%,
-    rgba(var(--v-theme-primary), 0.10) 100%
-  ) !important;
+  background: linear-gradient(135deg, rgba(var(--v-theme-primary), 0.18) 0%, rgba(var(--v-theme-primary), 0.1) 100%) !important;
   box-shadow:
     inset 0 0 0 2px rgb(var(--v-theme-primary)),
     0 4px 20px rgba(var(--v-theme-primary), 0.3) !important;
@@ -1662,8 +1701,7 @@ watch(viewMode, (newVal, oldVal) => {
 /* The column actively being DRAGGED — body cells */
 :deep(.drag-active-td) {
   background: rgba(var(--v-theme-primary), 0.08) !important;
-  box-shadow:
-    inset 0 0 0 1px rgba(var(--v-theme-primary), 0.4) !important;
+  box-shadow: inset 0 0 0 1px rgba(var(--v-theme-primary), 0.4) !important;
   opacity: 0.75 !important;
 }
 
@@ -1713,10 +1751,11 @@ watch(viewMode, (newVal, oldVal) => {
 }
 
 .customization-col-item {
-  transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1),
-              background-color 0.2s ease,
-              box-shadow 0.2s ease,
-              opacity 0.2s ease;
+  transition:
+    transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1),
+    background-color 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
 }
 
 .drag-over-above {
@@ -1743,7 +1782,10 @@ watch(viewMode, (newVal, oldVal) => {
   cursor: grabbing !important;
 }
 .transition-colors {
-  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    border-color 0.2s;
 }
 
 /* Mobile column reorder list */

@@ -81,23 +81,23 @@
             'drag-over-right': dragOverIndex === index && draggingIndex < index && dragType === 'stats',
             'drag-over-left': dragOverIndex === index && draggingIndex > index && dragType === 'stats',
             'opacity-50 grayscale': isCustomizing && !stat.visible,
-            'flex-grow-1': stat.key === 'balance'
+            'flex-grow-1': stat.key === 'balance',
           }"
         >
           <!-- Customizer Overlay -->
           <div v-if="isCustomizing" class="customizer-overlay rounded-xl d-flex align-start justify-space-between pa-2">
-             <div class="d-flex align-center bg-white rounded shadow-sm px-2 py-1 drag-handle cursor-grab border">
-               <v-icon icon="ri-drag-move-2-fill" size="20" color="primary" class="mr-2" />
-               <span class="text-caption font-weight-bold text-primary">{{ stat.title }}</span>
-             </div>
-             <v-btn 
-               :icon="stat.visible ? 'ri-eye-line' : 'ri-eye-off-line'" 
-               size="small" 
-               variant="flat"
-               class="shadow-sm border"
-               :color="stat.visible ? 'white' : 'error'"
-               @click="toggleVisibility(stat)"
-             />
+            <div class="d-flex align-center bg-white rounded shadow-sm px-2 py-1 drag-handle cursor-grab border">
+              <v-icon icon="ri-drag-move-2-fill" size="20" color="primary" class="mr-2" />
+              <span class="text-caption font-weight-bold text-primary">{{ stat.title }}</span>
+            </div>
+            <v-btn
+              :icon="stat.visible ? 'ri-eye-line' : 'ri-eye-off-line'"
+              size="small"
+              variant="flat"
+              class="shadow-sm border"
+              :color="stat.visible ? 'white' : 'error'"
+              @click="toggleVisibility(stat)"
+            />
           </div>
 
           <div :class="{ 'pointer-events-none': isCustomizing }" class="h-100">
@@ -176,23 +176,23 @@
             'drag-active-item': draggingIndex === index && dragType === 'sections',
             'drag-over-above': dragOverIndex === index && draggingIndex > index && dragType === 'sections',
             'drag-over-below': dragOverIndex === index && draggingIndex < index && dragType === 'sections',
-            'opacity-50 grayscale': isCustomizing && !section.visible
+            'opacity-50 grayscale': isCustomizing && !section.visible,
           }"
         >
           <!-- Customizer Overlay -->
           <div v-if="isCustomizing" class="customizer-overlay customizer-overlay-col rounded-lg d-flex align-start justify-space-between pa-2">
-             <div class="d-flex align-center bg-white rounded shadow-sm px-2 py-1 drag-handle cursor-grab border">
-               <v-icon icon="ri-drag-move-2-fill" size="20" color="primary" class="mr-2" />
-               <span class="text-caption font-weight-bold text-primary">{{ section.title }}</span>
-             </div>
-             <v-btn 
-               :icon="section.visible ? 'ri-eye-line' : 'ri-eye-off-line'" 
-               size="small" 
-               variant="flat"
-               class="shadow-sm border"
-               :color="section.visible ? 'white' : 'error'"
-               @click="toggleVisibility(section)"
-             />
+            <div class="d-flex align-center bg-white rounded shadow-sm px-2 py-1 drag-handle cursor-grab border">
+              <v-icon icon="ri-drag-move-2-fill" size="20" color="primary" class="mr-2" />
+              <span class="text-caption font-weight-bold text-primary">{{ section.title }}</span>
+            </div>
+            <v-btn
+              :icon="section.visible ? 'ri-eye-line' : 'ri-eye-off-line'"
+              size="small"
+              variant="flat"
+              class="shadow-sm border"
+              :color="section.visible ? 'white' : 'error'"
+              @click="toggleVisibility(section)"
+            />
           </div>
 
           <div :class="{ 'pointer-events-none': isCustomizing }">
@@ -440,7 +440,7 @@ const startCustomization = () => {
   isCustomizing.value = true;
 };
 
-const toggleVisibility = (item) => {
+const toggleVisibility = item => {
   item.visible = !item.visible;
   savePreferencesToStore(true);
 };
@@ -504,7 +504,7 @@ const savePreferencesToStore = async (silent = false) => {
   try {
     const columns = [
       ...localStats.value.map(s => ({ key: s.key, visible: s.visible })),
-      ...localSections.value.map(s => ({ key: s.key, visible: s.visible }))
+      ...localSections.value.map(s => ({ key: s.key, visible: s.visible })),
     ];
 
     await uiPrefsStore.savePreference('dashboard.client', { columns });
@@ -548,10 +548,10 @@ onMounted(async () => {
 </script>
 
 <script>
-// تعليق عربي: كلاس لإدارة وعرض لوحة تحكم العميل مع التخصيص المباشر
+//   كلاس لإدارة وعرض لوحة تحكم العميل مع التخصيص المباشر
 export default {
-  name: 'CustomerDashboard'
-}
+  name: 'CustomerDashboard',
+};
 </script>
 
 <style scoped>
@@ -665,7 +665,10 @@ export default {
   transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 .customization-col-item {
-  transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.2s ease, filter 0.2s ease;
+  transition:
+    transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1),
+    opacity 0.2s ease,
+    filter 0.2s ease;
   user-select: none;
 }
 .drag-active-item {

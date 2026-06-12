@@ -1,18 +1,13 @@
 <!-- 
-  تعليق عربي: شاشة عرض وإدارة سلة محذوفات الشركات (Soft Deleted Tenants).
+    شاشة عرض وإدارة سلة محذوفات الشركات (Soft Deleted Tenants).
   تتيح استعراض الشركات المحذوفة مؤقتاً، استعادتها، أو حذفها نهائياً مع تنظيف وتحديث بيانات المستخدمين المرتبطين.
 -->
 <template>
   <div class="companies-trash-page">
     <!-- تنبيه عن الحذف التلقائي بعد 30 يوماً -->
-    <v-alert
-      type="warning"
-      variant="tonal"
-      class="mb-4 rounded-lg font-weight-medium"
-      border="start"
-      elevation="0"
-    >
-      تنبيه: سيتم حذف الشركات الموجودة في سلة المحذوفات تلقائياً وبشكل نهائي بعد مرور 30 يوماً من تاريخ حذفها. الحذف النهائي يؤدي لتطهير جميع السجلات والمستندات وحسابات المستخدمين غير المرتبطين بشركات أخرى.
+    <v-alert type="warning" variant="tonal" class="mb-4 rounded-lg font-weight-medium" border="start" elevation="0">
+      تنبيه: سيتم حذف الشركات الموجودة في سلة المحذوفات تلقائياً وبشكل نهائي بعد مرور 30 يوماً من تاريخ حذفها. الحذف النهائي يؤدي لتطهير جميع السجلات
+      والمستندات وحسابات المستخدمين غير المرتبطين بشركات أخرى.
     </v-alert>
 
     <AppDataTable
@@ -104,22 +99,8 @@
       <!-- Actions Column -->
       <template #item.actions="{ item }">
         <div class="d-flex justify-end gap-1">
-          <AppButton
-            icon="ri-refresh-line"
-            variant="text"
-            color="success"
-            size="small"
-            tooltip="استعادة الشركة"
-            @click="handleRestore(item)"
-          />
-          <AppButton
-            icon="ri-delete-bin-line"
-            variant="text"
-            color="error"
-            size="small"
-            tooltip="حذف نهائي"
-            @click="handleForceDelete(item)"
-          />
+          <AppButton icon="ri-refresh-line" variant="text" color="success" size="small" tooltip="استعادة الشركة" @click="handleRestore(item)" />
+          <AppButton icon="ri-delete-bin-line" variant="text" color="error" size="small" tooltip="حذف نهائي" @click="handleForceDelete(item)" />
         </div>
       </template>
     </AppDataTable>
@@ -214,7 +195,7 @@ const onTableOptionsUpdate = options => {
 };
 
 // Actions
-const handleRestore = (item) => {
+const handleRestore = item => {
   selectedItem.value = item;
   isBatchAction.value = false;
   showRestoreDialog.value = true;
@@ -240,7 +221,7 @@ const confirmRestore = async () => {
   }
 };
 
-const handleForceDelete = (item) => {
+const handleForceDelete = item => {
   selectedItem.value = item;
   isBatchAction.value = false;
   showDeleteDialog.value = true;

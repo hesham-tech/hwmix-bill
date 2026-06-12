@@ -1,7 +1,6 @@
-<!-- تعليق عربي: شاشة إدارة قوالب الرسائل والإشعارات للشركة، تدعم عرض القائمة، إنشاء وتعديل وحذف القوالب مع توفير أزرار سريعة لإدراج المتغيرات الديناميكية مثل اسم العميل ورقم الفاتورة. -->
+<!--   شاشة إدارة قوالب الرسائل والإشعارات للشركة، تدعم عرض القائمة، إنشاء وتعديل وحذف القوالب مع توفير أزرار سريعة لإدراج المتغيرات الديناميكية مثل اسم العميل ورقم الفاتورة. -->
 <template>
   <div class="tp-page">
-
     <!-- ═══════════════════════════════ TOP BAR ═══════════════════════════════ -->
     <div class="tp-topbar">
       <div class="tp-topbar-inner">
@@ -37,12 +36,7 @@
               {{ opt.label }}
             </button>
           </div>
-          <v-btn
-            color="primary" size="small" rounded="pill"
-            prepend-icon="ri-add-line"
-            class="font-weight-bold tour-templates-add"
-            @click="openNew"
-          >
+          <v-btn color="primary" size="small" rounded="pill" prepend-icon="ri-add-line" class="font-weight-bold tour-templates-add" @click="openNew">
             قالب جديد
           </v-btn>
         </div>
@@ -51,17 +45,13 @@
 
     <!-- ═══════════════════════════════ LAYOUT ═══════════════════════════════ -->
     <div class="tp-layout">
-
       <!-- ──────── LEFT: Templates List ──────── -->
       <aside class="tp-list tour-templates-list">
-
         <!-- Empty -->
         <div v-if="filteredTemplates.length === 0" class="tp-list-empty">
           <v-icon icon="ri-file-add-line" size="36" />
           <p>لا توجد قوالب تطابق البحث</p>
-          <v-btn size="x-small" color="primary" variant="tonal" rounded="pill" @click="openNew">
-            أضف أول قالب
-          </v-btn>
+          <v-btn size="x-small" color="primary" variant="tonal" rounded="pill" @click="openNew"> أضف أول قالب </v-btn>
         </div>
 
         <!-- Template Cards -->
@@ -86,7 +76,15 @@
               </div>
               <span class="tp-card-name">
                 {{ tpl.name }}
-                <v-chip v-if="tpl.is_global" color="purple" size="x-small" variant="flat" class="ms-1 font-weight-bold" style="font-size: 8px !important; height: 16px; min-width: auto; padding: 0 4px;">سيستم</v-chip>
+                <v-chip
+                  v-if="tpl.is_global"
+                  color="purple"
+                  size="x-small"
+                  variant="flat"
+                  class="ms-1 font-weight-bold"
+                  style="font-size: 8px !important; height: 16px; min-width: auto; padding: 0 4px"
+                  >سيستم</v-chip
+                >
               </span>
               <div class="tp-card-badges">
                 <span class="tp-active-dot" :class="tpl.is_active ? 'tp-active-dot--on' : 'tp-active-dot--off'" />
@@ -105,8 +103,10 @@
           <div class="tp-card-actions">
             <v-btn
               icon="ri-delete-bin-5-line"
-              variant="text" color="error"
-              size="x-small" density="compact"
+              variant="text"
+              color="error"
+              size="x-small"
+              density="compact"
               class="tp-del-btn"
               :disabled="tpl.is_global && !userStore.isAdmin"
               @click.stop="confirmDeleteTemplate(tpl)"
@@ -117,7 +117,6 @@
 
       <!-- ──────── RIGHT: Editor ──────── -->
       <main class="tp-editor">
-
         <!-- No Selection -->
         <div v-if="!showEditorPanel" class="tp-editor-empty">
           <div class="tp-empty-gfx">
@@ -149,17 +148,13 @@
                 </span>
                 <v-switch v-model="formData.is_active" color="success" hide-details inset density="compact" :disabled="isFormDisabled" />
               </div>
-              <v-btn
-                icon="ri-close-line" variant="text" size="small" density="compact"
-                @click="closeEditor"
-              />
+              <v-btn icon="ri-close-line" variant="text" size="small" density="compact" @click="closeEditor" />
             </div>
           </div>
 
           <!-- Scrollable Form -->
           <div class="tp-form-scroll">
             <v-form ref="formRef" v-model="formValid">
-
               <!-- Section: Basic Info -->
               <div class="tp-form-section tour-templates-form-info">
                 <div class="tp-section-label">
@@ -239,13 +234,7 @@
 
                 <!-- Placeholder Chips -->
                 <div v-if="!isFormDisabled" class="tp-placeholder-grid tour-templates-variable-chips">
-                  <button
-                    v-for="ph in filteredPlaceholders"
-                    :key="ph.tag"
-                    type="button"
-                    class="tp-ph-chip"
-                    @click="insertPlaceholder(ph.tag)"
-                  >
+                  <button v-for="ph in filteredPlaceholders" :key="ph.tag" type="button" class="tp-ph-chip" @click="insertPlaceholder(ph.tag)">
                     {{ ph.label }}
                   </button>
                 </div>
@@ -272,7 +261,9 @@
             <v-btn variant="text" size="small" color="grey" @click="closeEditor">إلغاء</v-btn>
             <v-btn
               v-if="!isFormDisabled"
-              color="primary" size="small" rounded="pill"
+              color="primary"
+              size="small"
+              rounded="pill"
               prepend-icon="ri-save-3-line"
               class="font-weight-bold px-5 tour-templates-save"
               :loading="saving"
@@ -299,8 +290,7 @@
           </div>
         </div>
         <v-card-text class="pt-0 text-body-2 text-grey-darken-2">
-          هل تريد حذف القالب <strong class="text-error">"{{ templateToDelete?.name }}"</strong> نهائياً؟
-          سيتوقف استخدامه في أي قواعد أتمتة حالية.
+          هل تريد حذف القالب <strong class="text-error">"{{ templateToDelete?.name }}"</strong> نهائياً؟ سيتوقف استخدامه في أي قواعد أتمتة حالية.
         </v-card-text>
         <v-card-actions class="d-flex justify-end gap-2 px-4 pb-4">
           <v-btn variant="text" size="small" color="grey" @click="showDeleteDialog = false">تراجع</v-btn>
@@ -339,13 +329,17 @@ const showEditorPanel = ref(false);
 
 // ربط الجولة الإرشادية بفتح منطقة التحرير تلقائياً لتهيئة عناصر النموذج في الدوم
 const { isActive, activeTourKey } = useTour();
-watch([isActive, activeTourKey], ([active, key]) => {
-  if (active && key === 'tour.notification_templates') {
-    if (!showEditorPanel.value) {
-      openNew();
+watch(
+  [isActive, activeTourKey],
+  ([active, key]) => {
+    if (active && key === 'tour.notification_templates') {
+      if (!showEditorPanel.value) {
+        openNew();
+      }
     }
-  }
-}, { immediate: true });
+  },
+  { immediate: true }
+);
 
 const formValid = ref(false);
 const formRef = ref(null);
@@ -457,8 +451,8 @@ const filteredTemplates = computed(() =>
   })
 );
 
-const getChannelLabel = (ch) => ({ email: 'بريد إلكتروني', whatsapp: 'واتساب', both: 'بريد + واتساب' }[ch] || ch);
-const getChannelIcon = (ch) => ({ email: 'ri-mail-line', whatsapp: 'ri-whatsapp-line', both: 'ri-mail-send-line' }[ch] || 'ri-question-line');
+const getChannelLabel = ch => ({ email: 'بريد إلكتروني', whatsapp: 'واتساب', both: 'بريد + واتساب' })[ch] || ch;
+const getChannelIcon = ch => ({ email: 'ri-mail-line', whatsapp: 'ri-whatsapp-line', both: 'ri-mail-send-line' })[ch] || 'ri-question-line';
 
 const loadTemplates = async () => {
   loading.value = true;
@@ -472,7 +466,7 @@ const loadTemplates = async () => {
   }
 };
 
-const selectTemplate = (tpl) => {
+const selectTemplate = tpl => {
   selectedTemplate.value = tpl;
   openEditDialog(tpl);
 };
@@ -485,12 +479,16 @@ const openNew = () => {
   showEditorPanel.value = true;
 };
 
-const openEditDialog = (template) => {
+const openEditDialog = template => {
   placeholderEventFilter.value = 'all';
   isEdit.value = true;
   formData.value = {
-    id: template.id, name: template.name || '', channel: template.channel || 'both',
-    subject: template.subject || '', body: template.body || '', is_active: !!template.is_active,
+    id: template.id,
+    name: template.name || '',
+    channel: template.channel || 'both',
+    subject: template.subject || '',
+    body: template.body || '',
+    is_active: !!template.is_active,
     is_global: !!template.is_global,
   };
   showEditorPanel.value = true;
@@ -501,7 +499,7 @@ const closeEditor = () => {
   selectedTemplate.value = null;
 };
 
-const insertPlaceholder = (placeholder) => {
+const insertPlaceholder = placeholder => {
   const textarea = bodyInputRef.value?.$el?.querySelector('textarea');
   if (textarea) {
     const start = textarea.selectionStart || 0;
@@ -520,7 +518,10 @@ const insertPlaceholder = (placeholder) => {
 const saveTemplate = async () => {
   if (!formRef.value) return;
   const { valid } = await formRef.value.validate();
-  if (!valid) { toast.error('يرجى التحقق من المدخلات.'); return; }
+  if (!valid) {
+    toast.error('يرجى التحقق من المدخلات.');
+    return;
+  }
   saving.value = true;
   try {
     if (formData.value.channel === 'whatsapp') formData.value.subject = null;
@@ -533,8 +534,10 @@ const saveTemplate = async () => {
     if (response.data) {
       toast.success(isEdit.value ? 'تم تحديث القالب بنجاح' : 'تم إنشاء القالب بنجاح');
       await loadTemplates();
-      if (isEdit.value && response.data) { selectedTemplate.value = response.data; openEditDialog(response.data); }
-      else closeEditor();
+      if (isEdit.value && response.data) {
+        selectedTemplate.value = response.data;
+        openEditDialog(response.data);
+      } else closeEditor();
     }
   } catch (e) {
     console.error('Save template failed', e);
@@ -543,7 +546,7 @@ const saveTemplate = async () => {
   }
 };
 
-const confirmDeleteTemplate = (template) => {
+const confirmDeleteTemplate = template => {
   templateToDelete.value = template;
   showDeleteDialog.value = true;
 };
@@ -568,7 +571,9 @@ const deleteTemplate = async () => {
   }
 };
 
-onMounted(async () => { await loadTemplates(); });
+onMounted(async () => {
+  await loadTemplates();
+});
 </script>
 
 <style scoped>
@@ -635,7 +640,9 @@ onMounted(async () => { await loadTemplates(); });
   color: rgba(var(--v-theme-on-surface), 0.4);
   margin-top: 1px;
 }
-.tp-topbar-spacer { flex: 1; }
+.tp-topbar-spacer {
+  flex: 1;
+}
 
 /* Filters */
 .tp-filters {
@@ -653,13 +660,20 @@ onMounted(async () => { await loadTemplates(); });
   border-radius: 20px;
   padding: 5px 12px;
 }
-.tp-search-icon { color: rgba(var(--v-theme-on-surface), 0.35); }
+.tp-search-icon {
+  color: rgba(var(--v-theme-on-surface), 0.35);
+}
 .tp-search-input {
-  border: none; outline: none; background: transparent;
-  font-size: 12px; color: rgb(var(--v-theme-on-surface));
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 12px;
+  color: rgb(var(--v-theme-on-surface));
   width: 150px;
 }
-.tp-search-input::placeholder { color: rgba(var(--v-theme-on-surface), 0.35); }
+.tp-search-input::placeholder {
+  color: rgba(var(--v-theme-on-surface), 0.35);
+}
 
 .tp-channel-tabs {
   display: flex;
@@ -683,11 +697,13 @@ onMounted(async () => { await loadTemplates(); });
   cursor: pointer;
   transition: all 0.15s ease;
 }
-.tp-ch-tab:hover { color: rgb(var(--v-theme-primary)); }
+.tp-ch-tab:hover {
+  color: rgb(var(--v-theme-primary));
+}
 .tp-ch-tab--active {
   background: rgba(var(--v-theme-surface), 1);
   color: rgb(var(--v-theme-primary));
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* ══════════════════════════════════════════════
@@ -716,8 +732,13 @@ onMounted(async () => { await loadTemplates(); });
   flex-direction: column;
   gap: 4px;
 }
-.tp-list::-webkit-scrollbar { width: 3px; }
-.tp-list::-webkit-scrollbar-thumb { background: rgba(var(--v-theme-on-surface), 0.12); border-radius: 2px; }
+.tp-list::-webkit-scrollbar {
+  width: 3px;
+}
+.tp-list::-webkit-scrollbar-thumb {
+  background: rgba(var(--v-theme-on-surface), 0.12);
+  border-radius: 2px;
+}
 
 .tp-list-empty {
   flex: 1;
@@ -730,7 +751,10 @@ onMounted(async () => { await loadTemplates(); });
   color: rgba(var(--v-theme-on-surface), 0.3);
   text-align: center;
 }
-.tp-list-empty p { font-size: 12px; margin: 0; }
+.tp-list-empty p {
+  font-size: 12px;
+  margin: 0;
+}
 
 /* Template Card */
 .tp-card {
@@ -756,16 +780,24 @@ onMounted(async () => { await loadTemplates(); });
   transform: translateX(-3px) !important;
   box-shadow: 4px 0 16px rgba(var(--v-theme-primary), 0.1) !important;
 }
-.tp-card--inactive { opacity: 0.55; }
+.tp-card--inactive {
+  opacity: 0.55;
+}
 
 .tp-card-accent {
   width: 3px;
   flex-shrink: 0;
   border-radius: 0;
 }
-.tp-card-accent--email { background: rgb(var(--v-theme-info)); }
-.tp-card-accent--whatsapp { background: #25d366; }
-.tp-card-accent--both { background: linear-gradient(to bottom, rgb(var(--v-theme-primary)), rgb(var(--v-theme-info))); }
+.tp-card-accent--email {
+  background: rgb(var(--v-theme-info));
+}
+.tp-card-accent--whatsapp {
+  background: #25d366;
+}
+.tp-card-accent--both {
+  background: linear-gradient(to bottom, rgb(var(--v-theme-primary)), rgb(var(--v-theme-info)));
+}
 
 .tp-card-body {
   flex: 1;
@@ -788,21 +820,44 @@ onMounted(async () => { await loadTemplates(); });
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.tp-card-badges { display: flex; align-items: center; gap: 4px; }
-.tp-active-dot {
-  width: 7px; height: 7px; border-radius: 50%;
+.tp-card-badges {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
-.tp-active-dot--on { background: rgb(var(--v-theme-success)); }
-.tp-active-dot--off { background: rgba(var(--v-theme-on-surface), 0.2); }
+.tp-active-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+.tp-active-dot--on {
+  background: rgb(var(--v-theme-success));
+}
+.tp-active-dot--off {
+  background: rgba(var(--v-theme-on-surface), 0.2);
+}
 
 .tp-ch-icon {
-  width: 18px; height: 18px; border-radius: 4px;
-  display: inline-flex; align-items: center; justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
 }
-.tp-ch-icon--email { background: rgba(var(--v-theme-info), 0.12); color: rgb(var(--v-theme-info)); }
-.tp-ch-icon--whatsapp { background: rgba(37, 211, 102, 0.12); color: #25d366; }
-.tp-ch-icon--both { background: rgba(var(--v-theme-primary), 0.12); color: rgb(var(--v-theme-primary)); }
+.tp-ch-icon--email {
+  background: rgba(var(--v-theme-info), 0.12);
+  color: rgb(var(--v-theme-info));
+}
+.tp-ch-icon--whatsapp {
+  background: rgba(37, 211, 102, 0.12);
+  color: #25d366;
+}
+.tp-ch-icon--both {
+  background: rgba(var(--v-theme-primary), 0.12);
+  color: rgb(var(--v-theme-primary));
+}
 
 .tp-card-meta {
   display: flex;
@@ -817,23 +872,41 @@ onMounted(async () => { await loadTemplates(); });
   padding: 1px 5px;
   border-radius: 4px;
 }
-.tp-meta-ch--email { background: rgba(var(--v-theme-info), 0.1); color: rgb(var(--v-theme-info)); }
-.tp-meta-ch--whatsapp { background: rgba(37, 211, 102, 0.1); color: #25d366; }
-.tp-meta-ch--both { background: rgba(var(--v-theme-primary), 0.1); color: rgb(var(--v-theme-primary)); }
-.tp-meta-sep { opacity: 0.4; }
+.tp-meta-ch--email {
+  background: rgba(var(--v-theme-info), 0.1);
+  color: rgb(var(--v-theme-info));
+}
+.tp-meta-ch--whatsapp {
+  background: rgba(37, 211, 102, 0.1);
+  color: #25d366;
+}
+.tp-meta-ch--both {
+  background: rgba(var(--v-theme-primary), 0.1);
+  color: rgb(var(--v-theme-primary));
+}
+.tp-meta-sep {
+  opacity: 0.4;
+}
 .tp-meta-sub {
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   max-width: 120px;
 }
 
 .tp-card-actions {
-  display: flex; align-items: center; padding-inline-end: 6px; flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding-inline-end: 6px;
+  flex-shrink: 0;
 }
 .tp-del-btn {
   opacity: 0;
   transition: opacity 0.15s ease;
 }
-.tp-card:hover .tp-del-btn { opacity: 1; }
+.tp-card:hover .tp-del-btn {
+  opacity: 1;
+}
 
 /* ══════════════════════════════════════════════
    EDITOR
@@ -877,14 +950,30 @@ onMounted(async () => { await loadTemplates(); });
   animation: emptyPulse 2.5s ease-in-out infinite;
 }
 @keyframes emptyPulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.05); opacity: 0.7; }
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.7;
+  }
 }
-.tp-empty-gfx-icon { position: relative; }
-.tp-empty-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+.tp-empty-gfx-icon {
+  position: relative;
+}
+.tp-empty-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
 .tp-empty-desc {
-  font-size: 13px; color: rgba(var(--v-theme-on-surface), 0.45);
-  max-width: 340px; line-height: 1.5; margin-bottom: 4px;
+  font-size: 13px;
+  color: rgba(var(--v-theme-on-surface), 0.45);
+  max-width: 340px;
+  line-height: 1.5;
+  margin-bottom: 4px;
 }
 
 /* Editor Header */
@@ -938,8 +1027,12 @@ onMounted(async () => { await loadTemplates(); });
   font-size: 11px;
   font-weight: 600;
 }
-.tp-active-toggle-label--on { color: rgb(var(--v-theme-success)); }
-.tp-active-toggle-label--off { color: rgba(var(--v-theme-on-surface), 0.4); }
+.tp-active-toggle-label--on {
+  color: rgb(var(--v-theme-success));
+}
+.tp-active-toggle-label--off {
+  color: rgba(var(--v-theme-on-surface), 0.4);
+}
 
 /* Form Scroll */
 .tp-form-scroll {
@@ -947,8 +1040,13 @@ onMounted(async () => { await loadTemplates(); });
   overflow-y: auto;
   padding: 16px 20px;
 }
-.tp-form-scroll::-webkit-scrollbar { width: 4px; }
-.tp-form-scroll::-webkit-scrollbar-thumb { background: rgba(var(--v-theme-on-surface), 0.12); border-radius: 2px; }
+.tp-form-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.tp-form-scroll::-webkit-scrollbar-thumb {
+  background: rgba(var(--v-theme-on-surface), 0.12);
+  border-radius: 2px;
+}
 
 /* Form Section */
 .tp-form-section {
@@ -1006,7 +1104,10 @@ onMounted(async () => { await loadTemplates(); });
   cursor: pointer;
   transition: all 0.14s ease;
 }
-.tp-filter-pill:hover { color: rgb(var(--v-theme-primary)); border-color: rgba(var(--v-theme-primary), 0.2); }
+.tp-filter-pill:hover {
+  color: rgb(var(--v-theme-primary));
+  border-color: rgba(var(--v-theme-primary), 0.2);
+}
 .tp-filter-pill--active {
   background: rgba(var(--v-theme-primary), 0.1);
   color: rgb(var(--v-theme-primary));
@@ -1026,8 +1127,14 @@ onMounted(async () => { await loadTemplates(); });
   max-height: 110px;
   overflow-y: auto;
 }
-.tp-placeholder-grid::-webkit-scrollbar { height: 3px; width: 3px; }
-.tp-placeholder-grid::-webkit-scrollbar-thumb { background: rgba(var(--v-theme-primary), 0.2); border-radius: 2px; }
+.tp-placeholder-grid::-webkit-scrollbar {
+  height: 3px;
+  width: 3px;
+}
+.tp-placeholder-grid::-webkit-scrollbar-thumb {
+  background: rgba(var(--v-theme-primary), 0.2);
+  border-radius: 2px;
+}
 
 .tp-ph-chip {
   display: inline-flex;
@@ -1049,7 +1156,9 @@ onMounted(async () => { await loadTemplates(); });
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(var(--v-theme-primary), 0.15);
 }
-.tp-textarea :deep(.v-field__outline) { border-radius: 10px !important; }
+.tp-textarea :deep(.v-field__outline) {
+  border-radius: 10px !important;
+}
 
 /* Form Footer */
 .tp-form-footer {
@@ -1071,10 +1180,14 @@ onMounted(async () => { await loadTemplates(); });
   padding: 18px 20px 14px;
 }
 .tp-delete-icon {
-  width: 44px; height: 44px; border-radius: 12px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
   background: rgba(var(--v-theme-error), 0.1);
   border: 1px solid rgba(var(--v-theme-error), 0.18);
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: rgb(var(--v-theme-error));
   flex-shrink: 0;
 }

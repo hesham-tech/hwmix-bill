@@ -1,4 +1,4 @@
-<!-- تعليق عربي: شاشة إدارة باقات الساس (SaaS Plans) للسوبر أدمن لإنشاء وتعديل الباقات والتحكم بمرونة في الميزات والحدود العددية للمستأجرين ومتابعة اشتراكات الشركات وتغيير باقاتهم -->
+<!--   شاشة إدارة باقات الساس (SaaS Plans) للسوبر أدمن لإنشاء وتعديل الباقات والتحكم بمرونة في الميزات والحدود العددية للمستأجرين ومتابعة اشتراكات الشركات وتغيير باقاتهم -->
 
 <template>
   <div class="saas-plans-page">
@@ -8,7 +8,9 @@
         <v-btn icon="ri-arrow-right-line" variant="text" @click="router.push({ name: 'settings' })" />
         <h1 class="text-h3 font-weight-bold primary--text">إدارة باقات SaaS</h1>
       </div>
-      <p class="text-subtitle-1 text-grey-darken-1">تحديد الميزات وتعيين قيود الموارد وتشكيل الباقات مع متابعة اشتراكات المستأجرين وتحديثها للسوبر أدمن</p>
+      <p class="text-subtitle-1 text-grey-darken-1">
+        تحديد الميزات وتعيين قيود الموارد وتشكيل الباقات مع متابعة اشتراكات المستأجرين وتحديثها للسوبر أدمن
+      </p>
     </div>
 
     <!-- Navigation Tabs -->
@@ -38,14 +40,7 @@
           class="premium-card"
         >
           <template #actions v-if="can(PERMISSIONS.PLANS_CREATE) || can(PERMISSIONS.ADMIN_SUPER)">
-            <v-btn
-              color="primary"
-              prepend-icon="ri-add-line"
-              class="rounded-lg font-weight-bold"
-              @click="handleCreate"
-            >
-              إضافة باقة جديدة
-            </v-btn>
+            <v-btn color="primary" prepend-icon="ri-add-line" class="rounded-lg font-weight-bold" @click="handleCreate"> إضافة باقة جديدة </v-btn>
           </template>
 
           <template #item.name="{ item }">
@@ -69,21 +64,15 @@
           </template>
 
           <template #item.trial_days="{ item }">
-            <v-chip size="small" color="info" variant="tonal">
-              {{ item.trial_days }} يوم تجربة
-            </v-chip>
+            <v-chip size="small" color="info" variant="tonal"> {{ item.trial_days }} يوم تجربة </v-chip>
           </template>
 
           <template #item.active_companies_count="{ item }">
-            <v-chip size="small" color="primary" variant="flat" class="font-weight-bold">
-              {{ item.active_companies_count ?? 0 }} شركة
-            </v-chip>
+            <v-chip size="small" color="primary" variant="flat" class="font-weight-bold"> {{ item.active_companies_count ?? 0 }} شركة </v-chip>
           </template>
 
           <template #item.active_users_count="{ item }">
-            <v-chip size="small" color="secondary" variant="flat" class="font-weight-bold">
-              {{ item.active_users_count ?? 0 }} مستخدم
-            </v-chip>
+            <v-chip size="small" color="secondary" variant="flat" class="font-weight-bold"> {{ item.active_users_count ?? 0 }} مستخدم </v-chip>
           </template>
 
           <template #item.is_active="{ item }">
@@ -94,8 +83,22 @@
 
           <template #item.actions="{ item }">
             <div class="d-flex gap-1 justify-end">
-              <v-btn v-if="can(PERMISSIONS.PLANS_UPDATE_ALL) || can(PERMISSIONS.ADMIN_SUPER)" icon="ri-edit-line" size="small" variant="text" color="primary" @click="handleEdit(item)" />
-              <v-btn v-if="can(PERMISSIONS.PLANS_DELETE_ALL) || can(PERMISSIONS.ADMIN_SUPER)" icon="ri-delete-bin-line" size="small" variant="text" color="error" @click="handleDelete(item)" />
+              <v-btn
+                v-if="can(PERMISSIONS.PLANS_UPDATE_ALL) || can(PERMISSIONS.ADMIN_SUPER)"
+                icon="ri-edit-line"
+                size="small"
+                variant="text"
+                color="primary"
+                @click="handleEdit(item)"
+              />
+              <v-btn
+                v-if="can(PERMISSIONS.PLANS_DELETE_ALL) || can(PERMISSIONS.ADMIN_SUPER)"
+                icon="ri-delete-bin-line"
+                size="small"
+                variant="text"
+                color="error"
+                @click="handleDelete(item)"
+              />
             </div>
           </template>
 
@@ -126,7 +129,7 @@
               variant="outlined"
               density="compact"
               hide-details
-              style="max-width: 300px; min-width: 200px;"
+              style="max-width: 300px; min-width: 200px"
               @update:model-value="loadCompanies"
               clearable
             />
@@ -214,7 +217,7 @@
           <v-btn icon="ri-close-line" color="white" variant="text" @click="showDialog = false" />
         </v-card-title>
 
-        <v-card-text class="pa-6" style="max-height: 70vh;">
+        <v-card-text class="pa-6" style="max-height: 70vh">
           <v-form ref="formRef" v-model="formValid">
             <h3 class="text-subtitle-1 font-weight-bold mb-4 text-primary">المعلومات الأساسية</h3>
             <v-row class="mb-6">
@@ -267,7 +270,7 @@
                   :items="[
                     { title: 'أيام', value: 'days' },
                     { title: 'شهور', value: 'months' },
-                    { title: 'سنوات', value: 'years' }
+                    { title: 'سنوات', value: 'years' },
                   ]"
                   variant="outlined"
                   density="comfortable"
@@ -275,13 +278,7 @@
                 />
               </v-col>
               <v-col cols="12" md="6" class="d-flex align-center">
-                <v-switch
-                  v-model="formData.enable_trial"
-                  color="primary"
-                  label="تفعيل فترة تجربة مجانية للباقة"
-                  inset
-                  hide-details
-                />
+                <v-switch v-model="formData.enable_trial" color="primary" label="تفعيل فترة تجربة مجانية للباقة" inset hide-details />
               </v-col>
               <v-col cols="12" md="6">
                 <v-text-field
@@ -314,12 +311,7 @@
                 />
               </v-col>
               <v-col cols="12">
-                <v-switch
-                  v-model="formData.is_active"
-                  color="success"
-                  label="تنشيط الباقة لعرضها بالموقع والاشتراكات"
-                  inset
-                />
+                <v-switch v-model="formData.is_active" color="success" label="تنشيط الباقة لعرضها بالموقع والاشتراكات" inset />
               </v-col>
             </v-row>
 
@@ -355,40 +347,16 @@
                 />
               </v-col>
               <v-col cols="12" md="6">
-                <v-switch
-                  v-model="featuresData.warehouses_multi"
-                  color="primary"
-                  label="تنشيط المخازن المتعددة"
-                  inset
-                  density="compact"
-                />
+                <v-switch v-model="featuresData.warehouses_multi" color="primary" label="تنشيط المخازن المتعددة" inset density="compact" />
               </v-col>
               <v-col cols="12" md="6">
-                <v-switch
-                  v-model="featuresData.installment_system"
-                  color="primary"
-                  label="تنشيط نظام التقسيط وإدارة الخطط"
-                  inset
-                  density="compact"
-                />
+                <v-switch v-model="featuresData.installment_system" color="primary" label="تنشيط نظام التقسيط وإدارة الخطط" inset density="compact" />
               </v-col>
               <v-col cols="12" md="6">
-                <v-switch
-                  v-model="featuresData.activity_logs"
-                  color="primary"
-                  label="إتاحة الوصول لسجل الأنشطة والعمليات"
-                  inset
-                  density="compact"
-                />
+                <v-switch v-model="featuresData.activity_logs" color="primary" label="إتاحة الوصول لسجل الأنشطة والعمليات" inset density="compact" />
               </v-col>
               <v-col cols="12" md="6">
-                <v-switch
-                  v-model="featuresData.reports_advanced"
-                  color="primary"
-                  label="تنشيط التقارير المالية المتقدمة"
-                  inset
-                  density="compact"
-                />
+                <v-switch v-model="featuresData.reports_advanced" color="primary" label="تنشيط التقارير المالية المتقدمة" inset density="compact" />
               </v-col>
             </v-row>
 
@@ -495,7 +463,7 @@
               </v-btn>
             </div>
             <p class="text-caption text-grey mb-4">حدد السعر المخفض لكل شهر بناءً على عدد أشهر حجز الباقة (Tiered Pricing).</p>
-            
+
             <v-row v-if="formData.pricing_tiers && formData.pricing_tiers.length > 0" class="mb-6">
               <v-col cols="12">
                 <v-row v-for="(tier, index) in formData.pricing_tiers" :key="index" class="align-center mb-2 dense">
@@ -598,7 +566,10 @@
             class="mt-2"
           >
             <template #item="{ props, item }">
-              <v-list-item v-bind="props" :subtitle="`${item.raw.price} EGP / ${item.raw.duration} ${getDurationUnitLabel(item.raw.duration_unit)}`" />
+              <v-list-item
+                v-bind="props"
+                :subtitle="`${item.raw.price} EGP / ${item.raw.duration} ${getDurationUnitLabel(item.raw.duration_unit)}`"
+              />
             </template>
           </v-select>
         </v-card-text>
@@ -606,7 +577,9 @@
         <v-card-actions class="pa-4 bg-grey-lighten-4">
           <v-spacer />
           <v-btn variant="text" class="rounded-pill font-weight-bold" @click="showChangePlanDialog = false">إلغاء</v-btn>
-          <v-btn color="primary" class="rounded-pill px-6 font-weight-bold" :loading="changingPlan" @click="confirmChangePlan">تغيير الباقة وتحديث الاشتراك</v-btn>
+          <v-btn color="primary" class="rounded-pill px-6 font-weight-bold" :loading="changingPlan" @click="confirmChangePlan"
+            >تغيير الباقة وتحديث الاشتراك</v-btn
+          >
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -616,7 +589,8 @@
       <v-card class="rounded-xl">
         <v-card-title class="font-weight-bold">تأكيد الحذف</v-card-title>
         <v-card-text>
-          هل أنت متأكد من حذف الباقة "<strong>{{ selectedItem?.name }}</strong>"؟
+          هل أنت متأكد من حذف الباقة "<strong>{{ selectedItem?.name }}</strong
+          >"؟
           <div class="text-caption text-error mt-2">لا يمكن الحذف إذا كانت الباقة مرتبطة باشتراك نشط حالي لبعض الشركات.</div>
         </v-card-text>
         <v-card-actions class="pa-4">
@@ -681,7 +655,7 @@ const formData = ref({
   max_projects: null,
   max_storage_mb: null,
   icon: 'ri-vip-crown-line',
-  pricing_tiers: []
+  pricing_tiers: [],
 });
 
 const featuresData = ref({
@@ -694,7 +668,7 @@ const featuresData = ref({
   reports_advanced: false,
   max_warehouses: null,
   max_whatsapp_messages: null,
-  max_api_calls: null
+  max_api_calls: null,
 });
 
 const isEdit = computed(() => !!selectedItem.value?.id);
@@ -720,7 +694,7 @@ const companyHeaders = [
 ];
 
 const rules = {
-  required: v => !!v || 'هذا الحقل مطلوب'
+  required: v => !!v || 'هذا الحقل مطلوب',
 };
 
 const getDurationUnitLabel = unit => {
@@ -778,7 +752,7 @@ const addPricingTier = () => {
     min_months: 3,
     max_months: null,
     price_per_month: 0,
-    discount_percent: 0
+    discount_percent: 0,
   });
 };
 
@@ -805,7 +779,7 @@ const handleCreate = () => {
     max_projects: null,
     max_storage_mb: null,
     icon: 'ri-vip-crown-line',
-    pricing_tiers: []
+    pricing_tiers: [],
   };
   featuresData.value = {
     payment_gateways: false,
@@ -817,7 +791,7 @@ const handleCreate = () => {
     reports_advanced: false,
     max_warehouses: null,
     max_whatsapp_messages: null,
-    max_api_calls: null
+    max_api_calls: null,
   };
   showDialog.value = true;
 };
@@ -841,7 +815,7 @@ const handleEdit = item => {
     max_projects: item.max_projects === -1 ? null : item.max_projects,
     max_storage_mb: item.max_storage_mb === -1 ? null : item.max_storage_mb,
     icon: item.icon || 'ri-vip-crown-line',
-    pricing_tiers: item.pricing_tiers || []
+    pricing_tiers: item.pricing_tiers || [],
   };
 
   let feats = item.features || {};
@@ -863,7 +837,7 @@ const handleEdit = item => {
     reports_advanced: !!feats.reports_advanced,
     max_warehouses: feats.max_warehouses === -1 || !feats.max_warehouses ? null : feats.max_warehouses,
     max_whatsapp_messages: feats.max_whatsapp_messages === -1 || !feats.max_whatsapp_messages ? null : feats.max_whatsapp_messages,
-    max_api_calls: feats.max_api_calls === -1 || !feats.max_api_calls ? null : feats.max_api_calls
+    max_api_calls: feats.max_api_calls === -1 || !feats.max_api_calls ? null : feats.max_api_calls,
   };
 
   showDialog.value = true;
@@ -895,9 +869,14 @@ const handleSave = async () => {
     max_invoices: formData.value.max_invoices !== null && formData.value.max_invoices !== '' ? Number(formData.value.max_invoices) : -1,
     max_projects: formData.value.max_projects !== null && formData.value.max_projects !== '' ? Number(formData.value.max_projects) : -1,
     max_storage_mb: formData.value.max_storage_mb !== null && formData.value.max_storage_mb !== '' ? Number(formData.value.max_storage_mb) : -1,
-    max_warehouses: featuresData.value.max_warehouses !== null && featuresData.value.max_warehouses !== '' ? Number(featuresData.value.max_warehouses) : -1,
-    max_whatsapp_messages: featuresData.value.max_whatsapp_messages !== null && featuresData.value.max_whatsapp_messages !== '' ? Number(featuresData.value.max_whatsapp_messages) : -1,
-    max_api_calls: featuresData.value.max_api_calls !== null && featuresData.value.max_api_calls !== '' ? Number(featuresData.value.max_api_calls) : -1,
+    max_warehouses:
+      featuresData.value.max_warehouses !== null && featuresData.value.max_warehouses !== '' ? Number(featuresData.value.max_warehouses) : -1,
+    max_whatsapp_messages:
+      featuresData.value.max_whatsapp_messages !== null && featuresData.value.max_whatsapp_messages !== ''
+        ? Number(featuresData.value.max_whatsapp_messages)
+        : -1,
+    max_api_calls:
+      featuresData.value.max_api_calls !== null && featuresData.value.max_api_calls !== '' ? Number(featuresData.value.max_api_calls) : -1,
   };
 
   const cleanTiers = (formData.value.pricing_tiers || []).map(t => ({
@@ -916,7 +895,7 @@ const handleSave = async () => {
     max_invoices: formData.value.max_invoices !== null && formData.value.max_invoices !== '' ? Number(formData.value.max_invoices) : -1,
     max_projects: formData.value.max_projects !== null && formData.value.max_projects !== '' ? Number(formData.value.max_projects) : -1,
     max_storage_mb: formData.value.max_storage_mb !== null && formData.value.max_storage_mb !== '' ? Number(formData.value.max_storage_mb) : -1,
-    pricing_tiers: cleanTiers
+    pricing_tiers: cleanTiers,
   };
 
   try {
@@ -958,10 +937,13 @@ const confirmChangePlan = async () => {
   if (!selectedPlanId.value) return;
   changingPlan.value = true;
   try {
-    await changePlanApi.create({
-      company_id: selectedCompany.value.company_id,
-      plan_id: selectedPlanId.value
-    }, { successMessage: 'تم تغيير باقة الشركة بنجاح' });
+    await changePlanApi.create(
+      {
+        company_id: selectedCompany.value.company_id,
+        plan_id: selectedPlanId.value,
+      },
+      { successMessage: 'تم تغيير باقة الشركة بنجاح' }
+    );
     showChangePlanDialog.value = false;
     loadCompanies();
     loadData(); // لتحديث إحصائيات الأعداد المشتركة
@@ -973,7 +955,7 @@ const confirmChangePlan = async () => {
 };
 
 // مراقبة التبويب النشط لضمان تحميل البيانات تلقائياً وبشكل موثوق
-watch(activeTab, (newVal) => {
+watch(activeTab, newVal => {
   if (newVal === 1) {
     loadCompanies();
   } else {

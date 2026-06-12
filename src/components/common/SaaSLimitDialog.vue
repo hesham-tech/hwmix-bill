@@ -1,20 +1,8 @@
 <template>
-  <v-dialog
-    v-model="appState.saasLimit.isOpen"
-    max-width="500"
-    persistent
-    class="saas-limit-dialog"
-  >
+  <v-dialog v-model="appState.saasLimit.isOpen" max-width="500" persistent class="saas-limit-dialog">
     <div class="saas-limit-card">
       <!-- زر الإغلاق العلوي -->
-      <v-btn
-        icon="ri-close-line"
-        variant="text"
-        color="white"
-        size="small"
-        class="close-btn"
-        @click="appState.closeSaasLimit()"
-      />
+      <v-btn icon="ri-close-line" variant="text" color="white" size="small" class="close-btn" @click="appState.closeSaasLimit()" />
 
       <div class="saas-limit-body">
         <!-- الأيقونة التنبيهية المتوهجة -->
@@ -26,7 +14,8 @@
         <!-- العنوان -->
         <h2 class="dialog-title mt-4">خطتك الحالية بحاجة لترقية!</h2>
         <p class="dialog-subtitle">
-          لقد وصلت للحد الأقصى المسموح به لإنشاء <strong class="highlight-text">{{ resourceLabel }}</strong>.
+          لقد وصلت للحد الأقصى المسموح به لإنشاء <strong class="highlight-text">{{ resourceLabel }}</strong
+          >.
         </p>
 
         <!-- حالة التحميل -->
@@ -40,20 +29,14 @@
           <div class="usage-card">
             <div class="d-flex justify-space-between align-center mb-2">
               <span class="usage-label">الاستهلاك الحالي لمورد {{ resourceLabel }}:</span>
-              <span class="usage-number font-weight-bold">
-                {{ usage.current }} / {{ usage.max === 'غير محدود' ? '∞' : usage.max }}
-              </span>
+              <span class="usage-number font-weight-bold"> {{ usage.current }} / {{ usage.max === 'غير محدود' ? '∞' : usage.max }} </span>
             </div>
-            
+
             <!-- شريط التقدم التفاعلي -->
             <div class="progress-track">
-              <div 
-                class="progress-fill" 
-                :class="progressColorClass"
-                :style="{ width: progressPercent + '%' }"
-              ></div>
+              <div class="progress-fill" :class="progressColorClass" :style="{ width: progressPercent + '%' }"></div>
             </div>
-            
+
             <div class="d-flex justify-between text-caption mt-1 text-grey-darken-1">
               <span>خطتك: {{ planName }}</span>
               <span class="ms-auto" :class="progressTextClass">{{ progressPercent }}% مستهلك</span>
@@ -63,7 +46,7 @@
 
         <!-- رسالة الخطأ الواردة من السيرفر -->
         <div class="server-msg-box mt-4">
-          <v-icon icon="ri-information-line" size="16" class="me-2" style="color: #60a5fa;" />
+          <v-icon icon="ri-information-line" size="16" class="me-2" style="color: #60a5fa" />
           <p class="server-msg">{{ appState.saasLimit.message }}</p>
         </div>
 
@@ -79,10 +62,8 @@
             <v-icon icon="ri-arrow-left-up-line" size="16" class="me-1" />
             ترقية باقة الاشتراك الآن
           </button>
-          
-          <button class="action-btn action-btn--secondary mt-2" @click="appState.closeSaasLimit()">
-            إغلاق ومراجعة البيانات
-          </button>
+
+          <button class="action-btn action-btn--secondary mt-2" @click="appState.closeSaasLimit()">إغلاق ومراجعة البيانات</button>
         </div>
       </div>
     </div>
@@ -90,7 +71,7 @@
 </template>
 
 <script setup>
-// تعليق عربي: مكون SaaSLimitDialog لعرض تحذيرات ناعمة ومفصلة عند تخطي حدود الموارد باشتراك SaaS
+//   مكون SaaSLimitDialog لعرض تحذيرات ناعمة ومفصلة عند تخطي حدود الموارد باشتراك SaaS
 import { ref, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useappState } from '@/stores/appState';
@@ -162,7 +143,7 @@ const fetchSubscriptionStats = async () => {
 // مراقبة فتح الديالوج لجلب الإحصائيات فوراً
 watch(
   () => appState.saasLimit.isOpen,
-  (newVal) => {
+  newVal => {
     if (newVal && resource.value) {
       fetchSubscriptionStats();
     }
@@ -192,7 +173,7 @@ const goToUpgrade = () => {
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 24px;
-  box-shadow: 
+  box-shadow:
     0 24px 70px rgba(0, 0, 0, 0.6),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
   position: relative;
@@ -244,8 +225,15 @@ const goToUpgrade = () => {
 }
 
 @keyframes glowPulse {
-  0%, 100% { transform: scale(1); opacity: 0.7; }
-  50% { transform: scale(1.12); opacity: 0.15; }
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.12);
+    opacity: 0.15;
+  }
 }
 
 /* نصوص الديالوج */
@@ -297,13 +285,28 @@ const goToUpgrade = () => {
   border-radius: 3px;
   transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.fill-info { background: #60a5fa; box-shadow: 0 0 8px rgba(96,165,250,0.5); }
-.fill-warning { background: #fbbf24; box-shadow: 0 0 8px rgba(251,191,36,0.5); }
-.fill-danger { background: #f87171; box-shadow: 0 0 8px rgba(248,113,113,0.5); }
+.fill-info {
+  background: #60a5fa;
+  box-shadow: 0 0 8px rgba(96, 165, 250, 0.5);
+}
+.fill-warning {
+  background: #fbbf24;
+  box-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
+}
+.fill-danger {
+  background: #f87171;
+  box-shadow: 0 0 8px rgba(248, 113, 113, 0.5);
+}
 
-.text-info { color: #60a5fa !important; }
-.text-warning { color: #fbbf24 !important; }
-.text-danger { color: #f87171 !important; }
+.text-info {
+  color: #60a5fa !important;
+}
+.text-warning {
+  color: #fbbf24 !important;
+}
+.text-danger {
+  color: #f87171 !important;
+}
 
 /* صندوق الرسالة القادمة من السيرفر */
 .server-msg-box {
@@ -373,7 +376,7 @@ const goToUpgrade = () => {
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 .action-btn--secondary:hover {
-  background: rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.1);
   color: white;
 }
 </style>

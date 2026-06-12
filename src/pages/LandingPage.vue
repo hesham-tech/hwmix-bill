@@ -323,7 +323,7 @@
 </template>
 
 <script setup>
-// تعليق عربي: صفحة الهبوط الرئيسية الخاصة بمتجر المنتجات وإتاحة التصفح والطلب المباشر للعملاء
+//   صفحة الهبوط الرئيسية الخاصة بمتجر المنتجات وإتاحة التصفح والطلب المباشر للعملاء
 import { ref, onMounted } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { useUserStore } from '@/stores/user';

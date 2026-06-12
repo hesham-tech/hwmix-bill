@@ -134,7 +134,7 @@
 </template>
 
 <script setup>
-// تعليق عربي: مكون تسجيل دخول الموظفين وأصحاب الشركات إلى لوحة تحكم الساس
+//   مكون تسجيل دخول الموظفين وأصحاب الشركات إلى لوحة تحكم الساس
 import { ref, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { authService } from '@/api';

@@ -1,4 +1,4 @@
-<!-- تعليق عربي: صفحة إدارة وإعداد بوابات الدفع الإلكتروني المتعددة للشركة، تتيح سرد البوابات وتنشيطها وحذفها وتعيين البوابة الافتراضية للمعاملات. -->
+<!--   صفحة إدارة وإعداد بوابات الدفع الإلكتروني المتعددة للشركة، تتيح سرد البوابات وتنشيطها وحذفها وتعيين البوابة الافتراضية للمعاملات. -->
 
 <template>
   <div class="payment-gateway-settings-page">
@@ -42,12 +42,7 @@
 
         <!-- وضع التجربة -->
         <template #item.is_test_mode="{ item }">
-          <v-chip
-            size="small"
-            :color="item.is_test_mode ? 'warning' : 'success'"
-            variant="flat"
-            class="font-weight-bold"
-          >
+          <v-chip size="small" :color="item.is_test_mode ? 'warning' : 'success'" variant="flat" class="font-weight-bold">
             {{ item.is_test_mode ? 'وضع تجريبي' : 'وضع حقيقي' }}
           </v-chip>
         </template>
@@ -67,14 +62,7 @@
 
         <!-- الافتراضي -->
         <template #item.is_default="{ item }">
-          <v-chip
-            v-if="item.is_default"
-            color="warning"
-            size="small"
-            variant="flat"
-            prepend-icon="ri-star-fill"
-            class="font-weight-bold"
-          >
+          <v-chip v-if="item.is_default" color="warning" size="small" variant="flat" prepend-icon="ri-star-fill" class="font-weight-bold">
             الافتراضية
           </v-chip>
           <v-btn
@@ -95,14 +83,7 @@
           <div class="d-flex align-center justify-end gap-1">
             <v-tooltip text="تعديل الإعدادات" location="top">
               <template #activator="{ props: tooltipProps }">
-                <v-btn
-                  v-bind="tooltipProps"
-                  icon="ri-edit-line"
-                  variant="text"
-                  color="info"
-                  size="small"
-                  @click="openEditDialog(item)"
-                />
+                <v-btn v-bind="tooltipProps" icon="ri-edit-line" variant="text" color="info" size="small" @click="openEditDialog(item)" />
               </template>
             </v-tooltip>
 
@@ -123,7 +104,6 @@
       </AppDataTable>
     </v-card>
 
-
     <!-- Add/Edit Gateway Modal Dialog -->
     <v-dialog v-model="showDialog" max-width="700" persistent>
       <v-card class="rounded-xl pa-4">
@@ -137,12 +117,7 @@
             <v-row dense>
               <!-- Gateway Name -->
               <v-col cols="12" md="6">
-                <AppInput
-                  v-model="formData.name"
-                  label="اسم البوابة (تسمية توضيحية) *"
-                  placeholder="مثال: الدفع عبر فيزا / ماستر كارد"
-                  required
-                />
+                <AppInput v-model="formData.name" label="اسم البوابة (تسمية توضيحية) *" placeholder="مثال: الدفع عبر فيزا / ماستر كارد" required />
               </v-col>
 
               <!-- Driver Selection -->
@@ -151,7 +126,7 @@
                   v-model="formData.driver"
                   :items="[
                     { title: 'Stripe Gateway', value: 'stripe' },
-                    { title: 'Paymob Gateway', value: 'paymob' }
+                    { title: 'Paymob Gateway', value: 'paymob' },
                   ]"
                   label="نوع بوابة الدفع (Driver) *"
                   variant="outlined"
@@ -165,13 +140,7 @@
               <!-- Stripe Config Fields -->
               <template v-if="formData.driver === 'stripe'">
                 <v-col cols="12">
-                  <AppInput
-                    v-model="formData.config.publishable_key"
-                    label="Publishable Key *"
-                    placeholder="pk_test_..."
-                    dir="ltr"
-                    required
-                  />
+                  <AppInput v-model="formData.config.publishable_key" label="Publishable Key *" placeholder="pk_test_..." dir="ltr" required />
                 </v-col>
 
                 <v-col cols="12">
@@ -238,13 +207,7 @@
                 </v-col>
 
                 <v-col cols="12" md="6">
-                  <AppInput
-                    v-model="formData.config.iframe_id"
-                    label="Iframe ID *"
-                    placeholder="معرف الإطار (Iframe ID)"
-                    dir="ltr"
-                    required
-                  />
+                  <AppInput v-model="formData.config.iframe_id" label="Iframe ID *" placeholder="معرف الإطار (Iframe ID)" dir="ltr" required />
                 </v-col>
 
                 <v-col cols="12">
@@ -267,20 +230,8 @@
 
               <!-- Switches for Active, Test Mode, and Default -->
               <v-col cols="12" class="d-flex align-center flex-wrap gap-4 mt-2">
-                <v-switch
-                  v-model="formData.is_active"
-                  label="تنشيط البوابة مباشرة"
-                  color="success"
-                  hide-details
-                  density="comfortable"
-                />
-                <v-switch
-                  v-model="formData.is_test_mode"
-                  label="وضع التجربة (Test Mode)"
-                  color="warning"
-                  hide-details
-                  density="comfortable"
-                />
+                <v-switch v-model="formData.is_active" label="تنشيط البوابة مباشرة" color="success" hide-details density="comfortable" />
+                <v-switch v-model="formData.is_test_mode" label="وضع التجربة (Test Mode)" color="warning" hide-details density="comfortable" />
                 <v-switch
                   v-model="formData.is_default"
                   label="تعيين كبوابة دفع افتراضية للنظام"
@@ -296,7 +247,14 @@
 
         <v-card-actions class="d-flex justify-end gap-2 mt-4">
           <v-btn variant="text" color="grey" @click="showDialog = false">إلغاء</v-btn>
-          <v-btn color="success" :loading="saving" :disabled="!formValid" prepend-icon="ri-save-line" class="px-6 rounded-pill font-weight-bold" @click="saveGateway">
+          <v-btn
+            color="success"
+            :loading="saving"
+            :disabled="!formValid"
+            prepend-icon="ri-save-line"
+            class="px-6 rounded-pill font-weight-bold"
+            @click="saveGateway"
+          >
             حفظ
           </v-btn>
         </v-card-actions>
@@ -373,7 +331,7 @@ const formData = ref({
     secret_key: '',
     publishable_key: '',
     webhook_secret: '',
-  }
+  },
 });
 
 const isDefaultDisabled = computed(() => {
@@ -395,12 +353,12 @@ const loadPaymentGateways = async () => {
   }
 };
 
-const getDriverColor = (driver) => {
+const getDriverColor = driver => {
   if (driver === 'stripe') return 'primary';
   return 'indigo';
 };
 
-const onDriverChange = (driver) => {
+const onDriverChange = driver => {
   if (driver === 'stripe') {
     formData.value.config = {
       secret_key: '',
@@ -430,16 +388,16 @@ const openAddDialog = () => {
       secret_key: '',
       publishable_key: '',
       webhook_secret: '',
-    }
+    },
   };
   showSecret.value = false;
   showWebhook.value = false;
   showDialog.value = true;
 };
 
-const openEditDialog = (gateway) => {
+const openEditDialog = gateway => {
   isEdit.value = true;
-  
+
   // فك التغليف للبيانات للتعديل
   const configData = {};
   if (gateway.driver === 'stripe') {
@@ -462,7 +420,7 @@ const openEditDialog = (gateway) => {
     is_default: !!gateway.is_default,
     config: configData,
   };
-  
+
   showSecret.value = false;
   showWebhook.value = false;
   showDialog.value = true;
@@ -479,7 +437,7 @@ const saveGateway = async () => {
   saving.value = true;
   try {
     let response;
-    
+
     // إزالة كلمات المرور المقنعة (التي لم تتغير) لتفادي إعادة حفظها وهي مقنعة
     const sanitizedConfig = { ...formData.value.config };
     Object.keys(sanitizedConfig).forEach(key => {
@@ -494,7 +452,7 @@ const saveGateway = async () => {
       is_active: formData.value.is_active,
       is_test_mode: formData.value.is_test_mode,
       is_default: formData.value.is_default,
-      config: sanitizedConfig
+      config: sanitizedConfig,
     };
 
     if (isEdit.value) {
@@ -515,7 +473,7 @@ const saveGateway = async () => {
   }
 };
 
-const toggleGatewayActive = async (gateway) => {
+const toggleGatewayActive = async gateway => {
   try {
     const payload = {
       name: gateway.name,
@@ -523,7 +481,7 @@ const toggleGatewayActive = async (gateway) => {
       is_active: gateway.is_active,
       is_test_mode: gateway.is_test_mode,
       is_default: gateway.is_default,
-      config: {} // نرسل التكوين فارغ لكي لا نعدله ونبقي عليه مشفر بالخلفية
+      config: {}, // نرسل التكوين فارغ لكي لا نعدله ونبقي عليه مشفر بالخلفية
     };
     await gatewaysApi.update(gateway.id, payload, { showLoading: false });
     toast.success(`تم ${gateway.is_active ? 'تنشيط' : 'تعطيل'} بوابة الدفع "${gateway.name}" بنجاح.`);
@@ -534,7 +492,7 @@ const toggleGatewayActive = async (gateway) => {
   }
 };
 
-const setGatewayDefault = async (gateway) => {
+const setGatewayDefault = async gateway => {
   try {
     const response = await gatewaysApi.request('PATCH', `${gateway.id}/set-default`, null, { showLoading: true });
     if (response.status) {
@@ -546,7 +504,7 @@ const setGatewayDefault = async (gateway) => {
   }
 };
 
-const confirmDeleteGateway = (gateway) => {
+const confirmDeleteGateway = gateway => {
   gatewayToDelete.value = gateway;
   showDeleteDialog.value = true;
 };

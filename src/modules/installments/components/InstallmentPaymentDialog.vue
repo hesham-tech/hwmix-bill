@@ -39,7 +39,14 @@
 
         <!-- Date -->
         <v-col cols="12" md="6">
-          <AppInput v-model="form.payment_date" label="تاريخ التحصيل *" type="date" prepend-inner-icon="ri-calendar-line" required :rules="[rules.required]" />
+          <AppInput
+            v-model="form.payment_date"
+            label="تاريخ التحصيل *"
+            type="date"
+            prepend-inner-icon="ri-calendar-line"
+            required
+            :rules="[rules.required]"
+          />
         </v-col>
 
         <!-- Payment Method -->
@@ -102,7 +109,7 @@
 </template>
 
 <script setup>
-// تعليق عربي: نافذة تحصيل الأقساط وتحديث حالة الأقساط وإضافة المبالغ الزائدة لرصيد العميل
+//   نافذة تحصيل الأقساط وتحديث حالة الأقساط وإضافة المبالغ الزائدة لرصيد العميل
 import { ref, watch, onMounted, computed } from 'vue';
 import { AppDialog, AppInput, AppConfirmDialog } from '@/components';
 import AppActionHelp from '@/components/common/AppActionHelp.vue';

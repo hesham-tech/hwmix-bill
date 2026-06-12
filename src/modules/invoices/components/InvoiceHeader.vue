@@ -76,7 +76,7 @@
 </template>
 
 <script setup>
-// تعليق عربي: هيدر الفاتورة الموحد لعرض الإجماليات وأزرار الإجراءات وحفظ فواتير البيع والشراء
+//   هيدر الفاتورة الموحد لعرض الإجماليات وأزرار الإجراءات وحفظ فواتير البيع والشراء
 import { computed } from 'vue';
 import { formatCurrency } from '@/utils/formatters';
 import AppActionHelp from '@/components/common/AppActionHelp.vue';
