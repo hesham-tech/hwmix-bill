@@ -42,63 +42,7 @@
 
     <v-container fluid class="pa-3 pa-md-4">
 
-      <!-- بطاقات الملخص -->
-      <v-row class="mb-4" dense>
-        <v-col cols="6" sm="3">
-          <v-card class="summary-card summary-card--total pa-3" rounded="lg" flat>
-            <div class="d-flex align-center justify-space-between">
-              <div>
-                <div class="text-caption text-medium-emphasis mb-1">إجمالي القيود</div>
-                <div class="text-h6 font-weight-bold">{{ totalItems?.toLocaleString('ar') || '0' }}</div>
-              </div>
-              <v-avatar style="background-color: #eff6ff !important;" size="40" rounded="lg">
-                <v-icon icon="ri-book-2-line" color="primary" size="22" />
-              </v-avatar>
-            </div>
-          </v-card>
-        </v-col>
-        <v-col cols="6" sm="3">
-          <v-card class="summary-card summary-card--income pa-3" rounded="lg" flat>
-            <div class="d-flex align-center justify-space-between">
-              <div>
-                <div class="text-caption text-medium-emphasis mb-1">إيرادات الصفحة</div>
-                <div class="text-h6 font-weight-bold text-success">{{ formatCurrency(pageIncome) }}</div>
-              </div>
-              <v-avatar style="background-color: #ecfdf5 !important;" size="40" rounded="lg">
-                <v-icon icon="ri-arrow-left-down-line" color="success" size="22" />
-              </v-avatar>
-            </div>
-          </v-card>
-        </v-col>
-        <v-col cols="6" sm="3">
-          <v-card class="summary-card summary-card--expense pa-3" rounded="lg" flat>
-            <div class="d-flex align-center justify-space-between">
-              <div>
-                <div class="text-caption text-medium-emphasis mb-1">مصروفات الصفحة</div>
-                <div class="text-h6 font-weight-bold text-error">{{ formatCurrency(pageExpense) }}</div>
-              </div>
-              <v-avatar style="background-color: #fef2f2 !important;" size="40" rounded="lg">
-                <v-icon icon="ri-arrow-right-up-line" color="error" size="22" />
-              </v-avatar>
-            </div>
-          </v-card>
-        </v-col>
-        <v-col cols="6" sm="3">
-          <v-card class="summary-card pa-3" rounded="lg" flat :class="pageNet >= 0 ? 'summary-card--positive' : 'summary-card--negative'">
-            <div class="d-flex align-center justify-space-between">
-              <div>
-                <div class="text-caption text-medium-emphasis mb-1">صافي الصفحة</div>
-                <div class="text-h6 font-weight-bold" :class="pageNet >= 0 ? 'text-success' : 'text-error'">
-                  {{ pageNet >= 0 ? '+' : '' }}{{ formatCurrency(pageNet) }}
-                </div>
-              </div>
-              <v-avatar :style="{ backgroundColor: pageNet >= 0 ? '#ecfdf5 !important' : '#fef2f2 !important' }" size="40" rounded="lg">
-                <v-icon :icon="pageNet >= 0 ? 'ri-trending-up-line' : 'ri-trending-down-line'" :color="pageNet >= 0 ? 'success' : 'error'" size="22" />
-              </v-avatar>
-            </div>
-          </v-card>
-        </v-col>
-      </v-row>
+
 
       <!-- لوحة الفلاتر المتقدمة -->
       <v-expand-transition>
@@ -321,20 +265,7 @@ const activeFiltersCount = computed(() => {
   return Object.values(filters.value || {}).filter(v => v !== null && v !== undefined && v !== '').length;
 });
 
-// إحصائيات الصفحة الحالية
-const pageIncome = computed(() => {
-  return (ledgerEntries.value || [])
-    .filter(e => isIncomeType(e.type))
-    .reduce((sum, e) => sum + Math.abs(parseFloat(e.amount || 0)), 0);
-});
 
-const pageExpense = computed(() => {
-  return (ledgerEntries.value || [])
-    .filter(e => !isIncomeType(e.type))
-    .reduce((sum, e) => sum + Math.abs(parseFloat(e.amount || 0)), 0);
-});
-
-const pageNet = computed(() => pageIncome.value - pageExpense.value);
 
 // دوال معالجة الأحداث
 const handleOptionsUpdate = options => {
@@ -425,37 +356,7 @@ const getSourceTypeLabel = sourceType => {
   max-width: 100% !important;
 }
 
-/* بطاقات الملخص */
-.summary-card {
-  background-color: #ffffff !important;
-  border: 1px solid #f1f5f9 !important;
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
-}
 
-.summary-card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05) !important;
-  transform: translateY(-1px);
-}
-
-.summary-card--total {
-  border-left: 3px solid #3b82f6 !important;
-}
-
-.summary-card--income {
-  border-left: 3px solid #10b981 !important;
-}
-
-.summary-card--expense {
-  border-left: 3px solid #ef4444 !important;
-}
-
-.summary-card--positive {
-  border-left: 3px solid #10b981 !important;
-}
-
-.summary-card--negative {
-  border-left: 3px solid #ef4444 !important;
-}
 
 /* لوحة الفلاتر */
 .filter-panel {
