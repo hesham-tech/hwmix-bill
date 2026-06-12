@@ -274,6 +274,15 @@
                   :rules="[rules.required]"
                 />
               </v-col>
+              <v-col cols="12" md="6" class="d-flex align-center">
+                <v-switch
+                  v-model="formData.enable_trial"
+                  color="primary"
+                  label="تفعيل فترة تجربة مجانية للباقة"
+                  inset
+                  hide-details
+                />
+              </v-col>
               <v-col cols="12" md="6">
                 <v-text-field
                   v-model="formData.trial_days"
@@ -281,7 +290,8 @@
                   type="number"
                   variant="outlined"
                   density="comfortable"
-                  :rules="[rules.required]"
+                  :disabled="!formData.enable_trial"
+                  :rules="[formData.enable_trial ? rules.required : null]"
                 />
               </v-col>
               <v-col cols="12" md="6">
@@ -620,7 +630,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useApi } from '@/composables/useApi';
 import { toast } from 'vue3-toastify';
@@ -663,6 +673,7 @@ const formData = ref({
   duration: 1,
   duration_unit: 'months',
   trial_days: 0,
+  enable_trial: false,
   is_active: true,
   max_users: null,
   max_products: null,
@@ -786,6 +797,7 @@ const handleCreate = () => {
     duration: 1,
     duration_unit: 'months',
     trial_days: 0,
+    enable_trial: false,
     is_active: true,
     max_users: null,
     max_products: null,
@@ -821,6 +833,7 @@ const handleEdit = item => {
     duration: item.duration,
     duration_unit: item.duration_unit || 'months',
     trial_days: item.trial_days || 0,
+    enable_trial: (item.trial_days || 0) > 0,
     is_active: !!item.is_active,
     max_users: item.max_users === -1 ? null : item.max_users,
     max_products: item.max_products === -1 ? null : item.max_products,
@@ -896,6 +909,7 @@ const handleSave = async () => {
 
   const payload = {
     ...formData.value,
+    trial_days: formData.value.enable_trial ? Number(formData.value.trial_days) : 0,
     features: finalFeatures,
     max_users: formData.value.max_users !== null && formData.value.max_users !== '' ? Number(formData.value.max_users) : -1,
     max_products: formData.value.max_products !== null && formData.value.max_products !== '' ? Number(formData.value.max_products) : -1,
@@ -958,8 +972,21 @@ const confirmChangePlan = async () => {
   }
 };
 
+// مراقبة التبويب النشط لضمان تحميل البيانات تلقائياً وبشكل موثوق
+watch(activeTab, (newVal) => {
+  if (newVal === 1) {
+    loadCompanies();
+  } else {
+    loadData();
+  }
+});
+
 onMounted(() => {
-  loadData();
+  if (activeTab.value === 1) {
+    loadCompanies();
+  } else {
+    loadData();
+  }
 });
 </script>
 

@@ -581,14 +581,14 @@ const headers = computed(() => {
   ];
 
   if (can('products.view_purchase_price') || userStore.isAdmin) {
-    list.push({ title: 'متوسط سعر الشراء', key: 'avg_purchase_price', sortable: true, minWidth: '130px', defaultHide: true });
+    list.push({ title: 'متوسط سعر الشراء', key: 'avg_purchase_price', sortable: true, minWidth: '130px' });
   }
 
   if (can('products.view_wholesale_price') || userStore.isAdmin) {
-    list.push({ title: 'متوسط سعر الجملة', key: 'avg_wholesale_price', sortable: true, minWidth: '130px', defaultHide: true });
+    list.push({ title: 'متوسط سعر الجملة', key: 'avg_wholesale_price', sortable: true, minWidth: '130px' });
   }
 
-  list.push({ title: 'متوسط سعر القطاعي', key: 'avg_retail_price', sortable: true, minWidth: '130px', defaultHide: true });
+  list.push({ title: 'متوسط سعر القطاعي', key: 'avg_retail_price', sortable: true, minWidth: '130px' });
 
   list.push(
     { title: 'المخزون', key: 'total_available_quantity', sortable: true, align: 'center', minWidth: '100px', showOnMobile: true },
