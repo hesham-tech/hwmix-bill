@@ -64,7 +64,10 @@ export const permissionGuard = async (to, from, next) => {
   }
 
   // === SAAS SUBSCRIPTION CHECK ===
-  // Super admins and customer portal users are exempt from subscription page locking
+  // تم إلغاء التوجيه الصامت من هنا لتجنب إيهام المستخدم بوجود عطل في الروابط.
+  // بدلاً من ذلك، سيقوم المكون MainLayout.vue بعرض غطاء القفل الفاخر (Paywall)
+  // فوق الصفحات عند انتهاء الاشتراك مع السماح بالتنقل وإبقاء القائمة الجانبية نشطة.
+  /*
   const isSuperAdmin = userStore.isAdmin;
   const isCustomer = !userStore.isStaff;
   
@@ -76,6 +79,7 @@ export const permissionGuard = async (to, from, next) => {
       }
     }
   }
+  */
 
   // === CUSTOMER PORTAL RESTRICTION ===
   // If the user is NOT staff (meaning they are a Customer), they must ONLY access customer/portal pages, sessions, or profile

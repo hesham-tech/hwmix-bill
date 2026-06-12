@@ -323,12 +323,50 @@
       </v-container>
     </div>
 
-    <v-container fluid class="pa-6">
+    <v-container fluid class="pa-6 position-relative">
       <router-view v-slot="{ Component }">
         <transition name="page" mode="out-in">
           <component :is="Component" />
         </transition>
       </router-view>
+
+      <!-- Glassmorphic Paywall Subscription Lock Overlay -->
+      <transition name="fade">
+        <div v-if="isSubscriptionBlocked" class="premium-subscription-lock-overlay">
+          <v-card class="premium-paywall-card text-center pa-6 elevation-8" max-width="480">
+            <div class="lock-icon-container mb-4">
+              <v-icon icon="ri-lock-password-fill" size="48" color="amber" class="lock-pulse-icon" />
+            </div>
+            
+            <h3 class="text-h6 font-weight-black mb-3 text-white">انتهت الفترة التجريبية للاشتراك 🔒</h3>
+            <p class="text-body-2 text-grey-lighten-1 mb-6 lh-relaxed">
+              لتتمكن من مواصلة استخدام النظام والوصول إلى كافة الأقسام ولوحة التحكم، يرجى تفعيل أو تجديد باقة اشتراكك.
+            </p>
+            
+            <div class="d-flex flex-column gap-3 align-stretch">
+              <v-btn
+                color="amber"
+                block
+                class="font-weight-black text-subtitle-2 rounded-lg py-3 paywall-btn mb-2"
+                to="/app/my-subscription"
+              >
+                <v-icon icon="ri-vip-crown-fill" size="18" class="me-2" />
+                تجديد / ترقية الاشتراك الآن
+              </v-btn>
+              
+              <v-btn
+                variant="text"
+                color="grey-lighten-1"
+                class="text-caption rounded-lg"
+                @click="handleLogout"
+              >
+                <v-icon icon="ri-logout-box-line" size="14" class="me-1" />
+                تسجيل الخروج
+              </v-btn>
+            </div>
+          </v-card>
+        </div>
+      </transition>
     </v-container>
 
     <!-- Tools Overlay (Non-modal) -->
@@ -716,6 +754,28 @@ onUnmounted(() => {
 
 const userName = computed(() => userStore.currentUser?.full_name || 'المستخدم');
 
+// التحقق من حالة الاشتراك لتأمين لوحة العمل في حال انتهاء الصلاحية
+const isSubscriptionBlocked = computed(() => {
+  if (!userStore.currentUser) return false;
+  if (userStore.isAdmin) return false; // السوبر أدمن مستثنى
+  if (!userStore.isStaff) return false; // مستخدمو بوابة العملاء مستثنون
+  if (route.name === 'my-subscription') return false; // صفحة الاشتراك مستثناة لتمكين الدفع
+
+  const sub = userStore.currentUser?.subscription;
+  if (!sub) return true; // غياب معلومات الاشتراك يعني غير نشط
+
+  const status = sub.status || 'inactive';
+  if (status === 'inactive' || status === 'expired' || status === 'pending') {
+    return true;
+  }
+
+  if (status === 'trial' && sub.trial_ends_at) {
+    return new Date(sub.trial_ends_at) < new Date();
+  }
+
+  return false;
+});
+
 // فحص الموارد التي تقترب من استهلاك 90% أو أكثر
 const nearingLimitResources = computed(() => {
   const limits = userStore.currentUser?.subscription?.limits;
@@ -890,6 +950,80 @@ watch(
 </script>
 
 <style scoped>
+/* Glassmorphic Subscription Paywall Lock Overlay */
+.premium-subscription-lock-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.75); /* Slate 900 with opacity */
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  border-radius: 16px;
+  animation: fadeIn 0.4s ease;
+  padding: 24px;
+}
+
+.premium-paywall-card {
+  background: rgba(30, 41, 59, 0.8) !important; /* Slate 800 with opacity */
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(8px);
+  border-radius: 20px !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2) !important;
+}
+
+.lock-icon-container {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  background: rgba(245, 158, 11, 0.1); /* Amber 500 with opacity */
+  border-radius: 50%;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  margin: 0 auto;
+}
+
+.lock-pulse-icon {
+  animation: pulseLock 2s infinite ease-in-out;
+}
+
+.paywall-btn {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+  color: #0f172a !important;
+  box-shadow: 0 4px 14px 0 rgba(245, 158, 11, 0.3) !important;
+  transition: all 0.3s ease !important;
+}
+
+.paywall-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px 0 rgba(245, 158, 11, 0.4) !important;
+}
+
+/* Fade Transition for paywall */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pulseLock {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.5)); }
+}
+
 .sticky-breadcrumbs-container {
   position: sticky;
   top: 33px;
