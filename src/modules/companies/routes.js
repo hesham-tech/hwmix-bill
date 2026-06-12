@@ -15,4 +15,16 @@ export default [
       ],
     },
   },
+  {
+    path: 'companies/trash',
+    name: 'companies-trash',
+    component: () => import('./pages/CompanyTrash.vue'),
+    meta: {
+      title: 'سلة محذوفات الشركات',
+      permission: [
+        PERMISSIONS.ADMIN_SUPER,
+        PERMISSIONS.COMPANIES_DELETE_ALL,
+      ],
+    },
+  },
 ];

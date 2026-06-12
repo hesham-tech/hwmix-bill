@@ -497,6 +497,13 @@
   
   <!-- Legal Document Acceptance Modal -->
   <LegalAcceptanceModal ref="legalAcceptanceModal" />
+
+  <!-- Company Deleted Switch Modal -->
+  <CompanySwitchDialog
+    :model-value="isCompanyDeletedDialogOpen"
+    :persistent="true"
+    :company-deleted-mode="true"
+  />
 </template>
 
 <script setup>
@@ -519,6 +526,7 @@ import Calculator from '@/components/tools/Calculator.vue';
 import InstallmentCalc from '@/components/tools/InstallmentCalc.vue';
 import PercentageTool from '@/components/tools/PercentageTool.vue';
 import LegalAcceptanceModal from '@/modules/legal/components/LegalAcceptanceModal.vue';
+import CompanySwitchDialog from '@/components/common/CompanySwitchDialog.vue';
 import { toast } from 'vue3-toastify';
 import { useDisplay, useTheme } from 'vuetify';
 import { formatCurrency } from '@/utils/formatters';
@@ -570,6 +578,9 @@ const { xs } = useDisplay();
 const route = useRoute();
 const router = useRouter();
 const userStore = useUserStore();
+const isCompanyDeletedDialogOpen = computed(() => {
+  return !!userStore.currentUser?.is_active_company_deleted;
+});
 const localeStore = useLocaleStore();
 const appState = useappState();
 const guidanceStore = useGuidanceStore();

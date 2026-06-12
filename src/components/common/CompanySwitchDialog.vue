@@ -1,34 +1,33 @@
 <template>
+  <!-- تعليق عربي: كلاس نافذة تبديل المتجر أو الشركة مع إمكانية القفل (Persistent) في حال حذف الشركة النشطة حالياً. -->
   <AppDialog
     :model-value="modelValue"
-    title="تبديل المتجر / الشركة"
-    icon="ri-exchange-funds-line"
+    :title="companyDeletedMode ? 'الشركة الحالية محذوفة' : 'تبديل المتجر / الشركة'"
+    :icon="companyDeletedMode ? 'ri-error-warning-line' : 'ri-exchange-funds-line'"
     max-width="700"
     :hide-actions="true"
-    @update:model-value="$emit('update:modelValue', $event)"
+    :persistent="persistent"
+    @update:model-value="!persistent && $emit('update:modelValue', $event)"
   >
     <div class="pa-0 dialog-content">
-      <!-- Search Header -->
-      <!-- <div class="pa-4 bg-grey-lighten-4 border-bottom">
-        <v-text-field
-          v-model="search"
-          placeholder="ابحث عن شركة أو متجر..."
-          prepend-inner-icon="ri-search-line"
-          variant="solo"
-          density="comfortable"
-          flat
-          hide-details
-          rounded="md"
-          class="search-field"
-        />
-      </div> -->
+      <!-- Warning alert when current active company is deleted -->
+      <v-alert
+        v-if="companyDeletedMode"
+        type="error"
+        variant="tonal"
+        class="ma-4 mb-2 rounded-lg font-weight-medium"
+        icon="ri-error-warning-line"
+      >
+        تنبيه: لقد تم حذف الشركة أو المتجر النشط حالياً الخاص بك من قبل المسؤول.
+        يرجى اختيار شركة أو متجر آخر من القائمة التالية للمتابعة.
+      </v-alert>
 
       <div class="pa-4 pt-2 overflow-y-auto" style="max-height: 500px">
         <div class="text-subtitle-2 mb-3 text-grey-darken-1 px-1">الشركات التي يمكنك ادارتها:</div>
 
         <v-row dense>
           <!-- All Companies Option for Super Admin -->
-          <v-col v-if="userStore.isAdmin" cols="12">
+          <v-col v-if="userStore.isAdmin && !companyDeletedMode" cols="12">
             <v-card
               :active="userStore.currentUser?.active_company_id === null"
               class="company-card mb-2 all-companies-card"
@@ -76,8 +75,11 @@
               class="company-card mb-2"
               variant="outlined"
               @click="handleSwitch(company)"
-              :disabled="loadingId === company.id"
-              :class="{ 'active-card': company.id === userStore.currentUser?.active_company_id }"
+              :disabled="loadingId === company.id || (companyDeletedMode && company.id === userStore.currentUser?.active_company_id)"
+              :class="{
+                'active-card': company.id === userStore.currentUser?.active_company_id && !companyDeletedMode,
+                'deleted-active-card': company.id === userStore.currentUser?.active_company_id && companyDeletedMode
+              }"
             >
               <div class="d-flex pa-3 align-start">
                 <!-- Company Logo -->
@@ -94,11 +96,11 @@
                     <v-chip
                       v-if="company.id === userStore.currentUser?.active_company_id"
                       size="x-small"
-                      color="success"
+                      :color="companyDeletedMode ? 'error' : 'success'"
                       class="text-caption font-weight-bold"
                       variant="flat"
                     >
-                      النشطة حالياً
+                      {{ companyDeletedMode ? 'محذوفة حالياً' : 'النشطة حالياً' }}
                     </v-chip>
                   </div>
 
@@ -116,17 +118,6 @@
                   <div v-if="company.description" class="text-caption text-grey mb-2 line-clamp-1">
                     {{ company.description }}
                   </div>
-
-                  <!-- <div class="d-flex align-center text-caption text-grey-darken-1 gap-3">
-                    <span v-if="company.address" class="d-flex align-center">
-                      <v-icon icon="ri-map-pin-line" size="14" class="me-1" />
-                      {{ company.address }}
-                    </span>
-                    <span v-if="company.phone" class="d-flex align-center">
-                      <v-icon icon="ri-phone-line" size="14" class="me-1" />
-                      {{ company.phone }}
-                    </span>
-                  </div> -->
                 </div>
 
                 <div class="ms-2 align-self-center">
@@ -143,6 +134,20 @@
           <v-icon icon="ri-building-2-line" size="64" color="grey-lighten-2" class="mb-3" />
           <div class="text-h6 text-grey">لا توجد شركات تطابق بحثك</div>
         </div>
+
+        <!-- Logout button when stuck with no other companies -->
+        <div v-if="companyDeletedMode" class="d-flex justify-center mt-6 pt-4 border-t">
+          <v-btn
+            color="error"
+            variant="tonal"
+            prepend-icon="ri-logout-box-line"
+            @click="handleLogout"
+            :loading="loggingOut"
+            class="px-6 rounded-pill"
+          >
+            تسجيل الخروج من الحساب
+          </v-btn>
+        </div>
       </div>
     </div>
   </AppDialog>
@@ -151,6 +156,8 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useUserStore } from '@/stores/user';
+import { useAuthStore } from '@/stores/auth';
+import { useRouter } from 'vue-router';
 import { useDisplay } from 'vuetify';
 import AppDialog from '@/components/common/AppDialog.vue';
 import { toast } from 'vue3-toastify';
@@ -160,13 +167,24 @@ const props = defineProps({
     type: Boolean,
     required: true,
   },
+  persistent: {
+    type: Boolean,
+    default: false,
+  },
+  companyDeletedMode: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(['update:modelValue']);
 
 const userStore = useUserStore();
+const authStore = useAuthStore();
+const router = useRouter();
 const { mobile } = useDisplay();
 const loadingId = ref(null);
+const loggingOut = ref(false);
 const search = ref('');
 
 const filteredCompanies = computed(() => {
@@ -198,6 +216,19 @@ const handleSwitch = async company => {
     loadingId.value = null;
   }
 };
+
+const handleLogout = async () => {
+  loggingOut.value = true;
+  try {
+    await authStore.logout();
+    router.push('/login');
+    emit('update:modelValue', false);
+  } catch (error) {
+    toast.error('فشل في تسجيل الخروج، يرجى المحاولة مرة أخرى');
+  } finally {
+    loggingOut.value = false;
+  }
+};
 </script>
 
 <style scoped>
@@ -215,7 +246,7 @@ const handleSwitch = async company => {
   border-radius: 12px !important;
 }
 
-.company-card:hover:not(.active-card) {
+.company-card:hover:not(.active-card):not(.deleted-active-card) {
   border-color: rgb(var(--v-theme-primary));
   background-color: rgba(var(--v-theme-primary), 0.02);
   transform: translateY(-2px);
@@ -225,6 +256,13 @@ const handleSwitch = async company => {
 .active-card {
   border-color: rgb(var(--v-theme-success)) !important;
   background-color: rgba(var(--v-theme-success), 0.04) !important;
+}
+
+.deleted-active-card {
+  border-color: rgb(var(--v-theme-error)) !important;
+  background-color: rgba(var(--v-theme-error), 0.02) !important;
+  cursor: not-allowed;
+  opacity: 0.8;
 }
 
 .company-name {
@@ -245,6 +283,10 @@ const handleSwitch = async company => {
 }
 .gap-3 {
   gap: 12px;
+}
+
+.border-t {
+  border-top: 1px solid rgba(var(--v-theme-on-surface), 0.08);
 }
 
 .search-field :deep(.v-field) {

@@ -47,6 +47,18 @@
             </AppButton>
           </transition>
           <AppButton
+            v-if="canViewTrash"
+            color="warning"
+            variant="tonal"
+            prepend-icon="ri-delete-bin-7-line"
+            size="small"
+            class="rounded-pill shadow-sm"
+            style="height: 40px"
+            @click="router.push({ name: 'companies-trash' })"
+          >
+            <span>سلة المحذوفات</span>
+          </AppButton>
+          <AppButton
             v-if="canCreate"
             color="primary"
             prepend-icon="ri-add-line"
@@ -248,14 +260,14 @@
     <!-- Delete Confirmation Dialog -->
     <AppConfirmDialog
       v-model="showDeleteDialog"
-      type="error"
-      title="تأكيد الحذف"
+      type="warning"
+      title="نقل إلى سلة المحذوفات"
       :message="
         isBatchDelete
-          ? `هل أنت متأكد من حذف الشركات المحددة وعددها ${selectedItems.length}؟ سيتم حذف كافة البيانات المرتبطة بها نهائياً ولا يمكن التراجع عن هذا الإجراء.`
-          : `هل أنت متأكد من حذف الشركة '${selectedItem?.name}'؟ سيتم حذف كافة البيانات المرتبطة بها نهائياً ولا يمكن التراجع عن هذا الإجراء.`
+          ? `هل أنت متأكد من نقل الشركات المحددة وعددها ${selectedItems.length} إلى سلة المحذوفات؟ سيتم الاحتفاظ بها لمدة 30 يوماً مع إمكانية استعادتها في أي وقت.`
+          : `هل أنت متأكد من نقل الشركة '${selectedItem?.name}' إلى سلة المحذوفات؟ سيتم الاحتفاظ بها لمدة 30 يوماً مع إمكانية استعادتها في أي وقت.`
       "
-      confirm-text="حذف نهائي"
+      confirm-text="نقل إلى السلة"
       cancel-text="تراجع"
       :loading="deleting"
       @confirm="confirmDelete"
@@ -298,6 +310,12 @@ const canDelete = computed(() =>
     PERMISSIONS.COMPANIES_DELETE_ALL,
     PERMISSIONS.COMPANIES_DELETE_CHILDREN,
     PERMISSIONS.COMPANIES_DELETE_SELF,
+  ])
+);
+const canViewTrash = computed(() =>
+  userStore.hasPermission([
+    PERMISSIONS.ADMIN_SUPER,
+    PERMISSIONS.COMPANIES_DELETE_ALL,
   ])
 );
 
@@ -501,10 +519,10 @@ const confirmDelete = async () => {
   try {
     if (isBatchDelete.value) {
       // Bulk delete using API custom request
-      await api.request('POST', 'delete', { item_ids: selectedItems.value }, { successMessage: 'تم حذف الشركات المحددة بنجاح' });
+      await api.request('POST', 'delete', { item_ids: selectedItems.value }, { successMessage: 'تم نقل الشركات المحددة إلى سلة المحذوفات بنجاح' });
       selectedItems.value = [];
     } else {
-      await api.request('POST', 'delete', { item_ids: [selectedItem.value.id] }, { successMessage: 'تم حذف الشركة بنجاح' });
+      await api.request('POST', 'delete', { item_ids: [selectedItem.value.id] }, { successMessage: 'تم نقل الشركة إلى سلة المحذوفات بنجاح' });
     }
     showDeleteDialog.value = false;
     refresh();
