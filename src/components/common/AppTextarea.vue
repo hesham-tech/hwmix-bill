@@ -119,7 +119,7 @@ const computedRules = computed(() => {
   const rules = [...props.rules];
 
   if (props.required && !rules.some(rule => rule.toString().includes('required'))) {
-    rules.unshift(v => !!v || 'هذا الحقل مطلوب');
+    rules.unshift(v => (v !== null && v !== undefined && v !== '') || 'هذا الحقل مطلوب');
   }
 
   return rules;

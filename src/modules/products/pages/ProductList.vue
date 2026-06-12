@@ -124,6 +124,27 @@
                 <span class="text-caption text-grey-darken-2">{{ item.max_price > 0 ? formatCurrency(item.max_price) : '---' }}</span>
               </template>
 
+              <!-- Avg Purchase Price Column -->
+              <template #item.avg_purchase_price="{ item }">
+                <span class="text-caption text-grey-darken-2 font-weight-medium">
+                  {{ item.avg_purchase_price > 0 ? formatCurrency(item.avg_purchase_price) : '---' }}
+                </span>
+              </template>
+
+              <!-- Avg Wholesale Price Column -->
+              <template #item.avg_wholesale_price="{ item }">
+                <span class="text-caption text-grey-darken-2 font-weight-medium">
+                  {{ item.avg_wholesale_price > 0 ? formatCurrency(item.avg_wholesale_price) : '---' }}
+                </span>
+              </template>
+
+              <!-- Avg Retail Price Column -->
+              <template #item.avg_retail_price="{ item }">
+                <span class="text-caption text-grey-darken-2 font-weight-medium">
+                  {{ item.avg_retail_price > 0 ? formatCurrency(item.avg_retail_price) : '---' }}
+                </span>
+              </template>
+
               <!-- Require Stock Column -->
               <template #item.require_stock="{ item }">
                 <v-icon
@@ -548,7 +569,7 @@ const onTableOptionsUpdate = options => {
 
 const headers = computed(() => {
   const isDigitalEnabled = userStore.currentCompany?.settings?.enable_digital_products;
-  return [
+  const list = [
     { title: '', key: 'data-table-expand', align: 'start', sortable: false, width: '48px', mandatory: true },
     { title: 'المنتج', key: 'name', sortable: true, minWidth: '200px', mandatory: true },
     { title: 'الرابط البديل (Slug)', key: 'slug', sortable: true, minWidth: '150px', defaultHide: true },
@@ -557,6 +578,19 @@ const headers = computed(() => {
     { title: 'السعر', key: 'price_range', sortable: false, minWidth: '100px', showOnMobile: true },
     { title: 'أقل سعر', key: 'min_price', sortable: true, minWidth: '100px', defaultHide: true },
     { title: 'أعلى سعر', key: 'max_price', sortable: true, minWidth: '100px', defaultHide: true },
+  ];
+
+  if (can('products.view_purchase_price') || userStore.isAdmin) {
+    list.push({ title: 'متوسط سعر الشراء', key: 'avg_purchase_price', sortable: true, minWidth: '130px', defaultHide: true });
+  }
+
+  if (can('products.view_wholesale_price') || userStore.isAdmin) {
+    list.push({ title: 'متوسط سعر الجملة', key: 'avg_wholesale_price', sortable: true, minWidth: '130px', defaultHide: true });
+  }
+
+  list.push({ title: 'متوسط سعر القطاعي', key: 'avg_retail_price', sortable: true, minWidth: '130px', defaultHide: true });
+
+  list.push(
     { title: 'المخزون', key: 'total_available_quantity', sortable: true, align: 'center', minWidth: '100px', showOnMobile: true },
     { title: 'يتطلب مخزون', key: 'require_stock', sortable: true, align: 'center', minWidth: '120px', defaultHide: !isDigitalEnabled },
     { title: 'مميز', key: 'featured', sortable: true, align: 'center', minWidth: '90px', defaultHide: true },
@@ -576,7 +610,9 @@ const headers = computed(() => {
     { title: 'تاريخ الإضافة', key: 'created_at', sortable: true, minWidth: '150px', defaultHide: true },
     { title: 'تاريخ التحديث', key: 'updated_at', sortable: true, minWidth: '150px', defaultHide: true },
     { title: 'الإجراءات', key: 'actions', sortable: false, align: 'end', minWidth: '120px', mandatory: true }
-  ];
+  );
+
+  return list;
 });
 
 const formatProductType = type => {

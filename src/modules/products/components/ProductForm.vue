@@ -104,7 +104,8 @@
                 <AppAutocomplete
                   v-model="productData.category_id"
                   :items="productData.category ? [productData.category] : []"
-                  label="التصنيف"
+                  :label="productData.is_active_in_store ? 'التصنيف *' : 'التصنيف'"
+                  :required="productData.is_active_in_store"
                   help-text="يساعد التصنيف في ترتيب المنتجات وتقسيم تقارير المبيعات بدقة."
                   api-endpoint="categories"
                   item-title="full_path"
@@ -142,7 +143,8 @@
                 <AppAutocomplete
                   v-model="productData.brand_id"
                   :items="productData.brand ? [productData.brand] : []"
-                  label="العلامة التجارية"
+                  :label="productData.is_active_in_store ? 'العلامة التجارية *' : 'العلامة التجارية'"
+                  :required="productData.is_active_in_store"
                   help-text="الماركة أو الشركة المصنعة للمنتج."
                   api-endpoint="brands"
                   item-title="name"
@@ -162,7 +164,13 @@
                 </AppAutocomplete>
               </v-col>
               <v-col cols="12">
-                <AppTextarea v-model="productData.desc" label="وصف موجز" placeholder="اكتب وصفاً مختصراً للمنتج يظهر في قوائم البحث..." rows="3" />
+                <AppTextarea
+                  v-model="productData.desc"
+                  :label="productData.is_active_in_store ? 'وصف موجز *' : 'وصف موجز'"
+                  :required="productData.is_active_in_store"
+                  placeholder="اكتب وصفاً مختصراً للمنتج يظهر في قوائم البحث..."
+                  rows="3"
+                />
               </v-col>
             </v-row>
           </v-card-text>
@@ -317,10 +325,16 @@
         <v-card border flat class="pb-2">
           <div class="pa-2 bg-grey-lighten-5 rounded-t-lg border-b d-flex align-center">
             <v-icon icon="ri-image-line" color="grey-darken-1" size="14" class="me-2" />
-            <span class="text-xxs font-weight-bold">صور المنتج</span>
+            <span class="text-xxs font-weight-bold">
+              صور المنتج
+              <span v-if="productData.is_active_in_store" class="text-error font-weight-bold">*</span>
+            </span>
           </div>
           <v-card-text class="pa-2">
             <ProductMediaManager v-model="productData.images" v-model:primaryImageId="productData.primary_image_id" class="mt-1" />
+            <div v-if="productData.is_active_in_store && (!productData.images || productData.images.length === 0)" class="text-caption text-error px-2 mt-1 font-weight-bold">
+              يجب إضافة صورة واحدة على الأقل عند التفعيل للمتجر.
+            </div>
           </v-card-text>
         </v-card>
       </v-col>
@@ -364,6 +378,7 @@ import AppFieldHelp from '@/components/common/AppFieldHelp.vue';
 import VariantManager from './VariantManager.vue';
 import ProductMediaManager from './ProductMediaManager.vue';
 import { useUserStore } from '@/stores/user';
+import { toast } from 'vue3-toastify';
 const props = defineProps({
   productId: {
     type: [String, Number],
@@ -429,7 +444,7 @@ if (!props.productId) {
       profit_margin: 0,
       sku: '',
       barcode: '',
-      stocks: [{ warehouse_id: null, quantity: 0 }],
+      stocks: [{ warehouse_id: null, quantity: null }],
       attributes: [{ attribute_id: null, attribute_value_id: null }],
       images: [],
       primary_image_id: null,
@@ -460,7 +475,7 @@ watch(
           profit_margin: 0,
           sku: '',
           barcode: '',
-          stocks: [{ warehouse_id: defaultWarehouseId, quantity: 0 }],
+          stocks: [{ warehouse_id: defaultWarehouseId, quantity: null }],
           attributes: [{ attribute_id: null, attribute_value_id: null }],
           images: [],
           primary_image_id: null,
@@ -555,7 +570,7 @@ const loadProductData = async id => {
                   stocks: Array.from(stockMap.values()),
                 };
               })
-            : [
+              : [
                 {
                   purchase_price: 0,
                   wholesale_price: 0,
@@ -563,7 +578,7 @@ const loadProductData = async id => {
                   profit_margin: 0,
                   sku: '',
                   barcode: '',
-                  stocks: [{ warehouse_id: productStore.defaultWarehouseId || null, quantity: 0 }],
+                  stocks: [{ warehouse_id: productStore.defaultWarehouseId || null, quantity: null }],
                   attributes: [{ attribute_id: null, attribute_value_id: null }],
                   images: [],
                   primary_image_id: null,
@@ -604,6 +619,13 @@ const handleTypeChange = type => {
 
 const handleSubmit = async () => {
   if (!isValid.value) return;
+
+  if (productData.value.is_active_in_store) {
+    if (!productData.value.images || productData.value.images.length === 0) {
+      toast.error('يجب إضافة صورة واحدة على الأقل لعرض المنتج في المتجر.');
+      return;
+    }
+  }
 
   loading.value = true;
   try {

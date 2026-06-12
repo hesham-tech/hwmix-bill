@@ -254,7 +254,7 @@ const computedRules = computed(() => {
       if (props.multiple) {
         return (v && v.length > 0) || 'هذا الحقل مطلوب';
       }
-      return !!v || 'هذا الحقل مطلوب';
+      return (v !== null && v !== undefined && v !== '') || 'هذا الحقل مطلوب';
     });
   }
 

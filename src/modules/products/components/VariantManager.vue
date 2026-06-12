@@ -251,14 +251,15 @@
                     <v-col cols="8" md="4">
                         <AppInput
                           v-model.number="stock.quantity"
-                          label="الكمية المتوفرة"
+                          label="الكمية المتوفرة *"
                           type="number"
                           density="compact"
                           variant="outlined"
                           bg-color="white"
-                          hide-details
+                          hide-details="auto"
                           placeholder="0"
                           prepend-inner-icon="ri-stack-line"
+                          :rules="stockRules"
                           :readonly="!can(PERMISSIONS.STOCKS_MANUAL_ADJUSTMENT) && !can(PERMISSIONS.ADMIN_SUPER) && !can(PERMISSIONS.ADMIN_COMPANY)"
                           :hint="!can(PERMISSIONS.STOCKS_MANUAL_ADJUSTMENT) && !can(PERMISSIONS.ADMIN_SUPER) && !can(PERMISSIONS.ADMIN_COMPANY) ? 'ليس لديك صلاحية تعديل الكمية يدوياً' : ''"
                           persistent-hint
@@ -412,6 +413,11 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
+
+const stockRules = [
+  v => (v !== null && v !== undefined && v !== '') || 'قيمة المخزون مطلوبة',
+  v => /^\d+$/.test(v) || 'يجب إدخال أرقام فقط'
+];
 import AppInput from '@/components/common/AppInput.vue';
 import AppAutocomplete from '@/components/common/AppAutocomplete.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
@@ -516,7 +522,7 @@ const addVariant = async () => {
       retail_price: lastVariant.retail_price,
       sku: '',
       barcode: '',
-      stocks: lastVariant.stocks.map(s => ({ warehouse_id: s.warehouse_id, quantity: 0 })),
+      stocks: lastVariant.stocks.map(s => ({ warehouse_id: s.warehouse_id, quantity: null })),
       images: [],
       primary_image_id: null,
       attributes: lastVariant.attributes ? lastVariant.attributes.map(a => ({ ...a })) : [],
@@ -530,7 +536,7 @@ const addVariant = async () => {
       profit_margin: 0,
       sku: '',
       barcode: '',
-      stocks: [{ warehouse_id: warehouseId, quantity: 0 }],
+      stocks: [{ warehouse_id: warehouseId, quantity: null }],
       images: [],
       primary_image_id: null,
       attributes: [{ attribute_id: null, attribute_value_id: null }],
@@ -550,7 +556,7 @@ const duplicateVariant = index => {
     id: undefined,
     sku: '',
     barcode: '',
-    stocks: source.stocks.map(s => ({ ...s, quantity: 0, id: undefined })),
+    stocks: source.stocks.map(s => ({ ...s, quantity: null, id: undefined })),
   };
 
   newVariants.splice(index + 1, 0, clone);
@@ -568,7 +574,7 @@ const removeVariant = index => {
 const addStock = async vIndex => {
   const newVariants = [...props.modelValue];
   const warehouseId = await productStore.fetchDefaultWarehouse();
-  newVariants[vIndex].stocks.push({ warehouse_id: warehouseId, quantity: 0 });
+  newVariants[vIndex].stocks.push({ warehouse_id: warehouseId, quantity: null });
   emit('update:modelValue', newVariants);
 };
 
