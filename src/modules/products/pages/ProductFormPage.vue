@@ -44,7 +44,9 @@ onErrorCaptured((err) => {
 });
 
 const handleSuccess = () => {
-  router.push({ name: 'products' });
+  if (productId.value) {
+    router.push({ name: 'products' });
+  }
 };
 
 const handleCancel = () => {

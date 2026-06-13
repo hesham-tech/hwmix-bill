@@ -418,7 +418,9 @@ const getInitialProductData = () => ({
   validity_days: null,
   delivery_instructions: '',
   category_id: null,
+  category: null,
   brand_id: null,
+  brand: null,
   desc: '',
   active: true,
   featured: false,
@@ -615,6 +617,36 @@ const handleTypeChange = type => {
   }
 };
 
+const resetForm = () => {
+  const currentType = productData.value.product_type || 'physical';
+  const defaultWarehouseId = productStore.defaultWarehouseId || null;
+
+  productData.value = {
+    ...getInitialProductData(),
+    product_type: currentType,
+    require_stock: currentType === 'physical',
+  };
+
+  productData.value.variants = [
+    {
+      purchase_price: 0,
+      wholesale_price: 0,
+      retail_price: 0,
+      profit_margin: 0,
+      sku: '',
+      barcode: '',
+      stocks: [{ warehouse_id: defaultWarehouseId, quantity: null }],
+      attributes: [{ attribute_id: null, attribute_value_id: null }],
+      images: [],
+      primary_image_id: null,
+    },
+  ];
+
+  if (form.value) {
+    form.value.resetValidation();
+  }
+};
+
 const handleSubmit = async () => {
   if (!isValid.value) return;
 
@@ -641,6 +673,9 @@ const handleSubmit = async () => {
     const response = await saveProduct(payload, currentProductId.value);
     if (response.status) {
       emit('success', response.data);
+      if (!isEdit.value) {
+        resetForm();
+      }
     }
   } finally {
     loading.value = false;
