@@ -103,7 +103,7 @@
                       </div>
                       <div :class="[mobile ? 'text-h6' : 'text-h5', 'font-weight-bold']">
                         {{ product.product_type === 'physical' ? totalStock : product.product_type === 'digital' ? 'رقمي' : 'خدمة' }}
-                        <span v-if="product.product_type === 'physical'" class="text-caption">قطعة</span>
+                        <span v-if="product.product_type === 'physical'" class="text-caption text-grey">{{ product.base_unit?.code || product.base_unit?.name || 'وحدة' }}</span>
                       </div>
                     </div>
                   </div>
@@ -218,16 +218,19 @@
 
                 <!-- Total Stock Column -->
                 <template #item.quantity="{ item }">
-                  <v-chip
-                    v-if="product.product_type === 'physical'"
-                    :color="getStockColor(item.quantity)"
-                    :size="mobile ? 'x-small' : 'small'"
-                    variant="flat"
-                    class="font-weight-bold"
-                  >
-                    {{ item.quantity }}
-                  </v-chip>
-                  <v-chip v-else color="info" :size="mobile ? 'x-small' : 'small'" variant="tonal" class="font-weight-bold"> غير محدود </v-chip>
+                  <div class="d-flex align-center justify-center gap-1">
+                    <v-chip
+                      v-if="product.product_type === 'physical'"
+                      :color="getStockColor(item.quantity)"
+                      :size="mobile ? 'x-small' : 'small'"
+                      variant="flat"
+                      class="font-weight-bold"
+                    >
+                      {{ item.quantity }}
+                    </v-chip>
+                    <span v-if="product.product_type === 'physical'" class="text-caption text-grey-darken-1">{{ product.base_unit?.code || '' }}</span>
+                    <v-chip v-if="product.product_type !== 'physical'" color="info" :size="mobile ? 'x-small' : 'small'" variant="tonal" class="font-weight-bold"> غير محدود </v-chip>
+                  </div>
                 </template>
 
                 <!-- Expanded Row: Mobile Fields + Warehouse Breakdown -->
@@ -416,6 +419,42 @@
                   </v-hover>
                 </v-col>
               </v-row>
+            </v-card>
+
+            <!-- Measurement Units Card -->
+            <v-card v-if="product.base_unit" border flat class="rounded-md mb-4 pa-4 bg-primary-lighten-5">
+              <div class="text-subtitle-2 font-weight-bold mb-3 d-flex align-center">
+                <v-icon icon="ri-scales-3-line" class="me-2" color="primary" size="small" />
+                وحدات القياس
+              </div>
+              <div class="d-flex flex-column gap-3">
+                <div class="d-flex justify-space-between align-center">
+                  <span class="text-caption text-grey">الوحدة الأساسية للمخزون</span>
+                  <v-chip size="x-small" color="primary" variant="flat" class="font-weight-bold">
+                    {{ product.base_unit?.name }} ({{ product.base_unit?.code }})
+                  </v-chip>
+                </div>
+                <div v-if="product.purchase_unit" class="d-flex justify-space-between align-center">
+                  <span class="text-caption text-grey">وحدة الشراء</span>
+                  <v-chip size="x-small" color="info" variant="tonal" class="font-weight-bold">
+                    {{ product.purchase_unit?.name }}
+                  </v-chip>
+                </div>
+                <div v-if="product.display_unit" class="d-flex justify-space-between align-center">
+                  <span class="text-caption text-grey">وحدة البيع/العرض</span>
+                  <v-chip size="x-small" color="success" variant="tonal" class="font-weight-bold">
+                    {{ product.display_unit?.name }}
+                  </v-chip>
+                </div>
+                <div class="d-flex justify-space-between align-center">
+                  <span class="text-caption text-grey">الكميات الكسرية</span>
+                  <v-icon
+                    :icon="product.allow_decimal_quantities ? 'ri-checkbox-circle-fill' : 'ri-close-circle-fill'"
+                    :color="product.allow_decimal_quantities ? 'success' : 'grey-lighten-1'"
+                    size="16"
+                  />
+                </div>
+              </div>
             </v-card>
 
             <!-- System Settings Card -->

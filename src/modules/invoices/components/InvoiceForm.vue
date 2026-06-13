@@ -426,6 +426,11 @@ const saveInvoice = async () => {
       total_discount: invoiceData.value.header_discount || 0,
       invoice_type_code: currentContext.value,
       previous_balance: financials.value.previous_balance,
+      // تضمين unit_id صراحةً مع كل بند من بنود الفاتورة
+      items: invoiceData.value.items.map(item => ({
+        ...item,
+        unit_id: item.unit_id || item.base_unit_id || null,
+      })),
     };
 
     // Only send installment plan if it's an installment sale AND there's actually a remaining balance

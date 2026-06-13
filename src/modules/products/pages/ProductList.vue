@@ -114,6 +114,15 @@
                 <span class="text-body-2">{{ formatProductType(item.product_type) }}</span>
               </template>
 
+              <!-- Base Unit Column -->
+              <template #item.base_unit_name="{ item }">
+                <v-chip v-if="item.base_unit" size="x-small" color="primary" variant="tonal" class="font-weight-bold">
+                  {{ item.base_unit.name }}
+                  <span class="ms-1 text-grey-darken-1">({{ item.base_unit.code }})</span>
+                </v-chip>
+                <span v-else class="text-caption text-grey-lighten-1">---</span>
+              </template>
+
               <!-- Min Price Column -->
               <template #item.min_price="{ item }">
                 <span class="text-caption text-grey-darken-2">{{ item.min_price > 0 ? formatCurrency(item.min_price) : '---' }}</span>
@@ -285,6 +294,7 @@
                             <th v-if="mdAndUp" class="text-center font-weight-bold text-caption px-2 py-1">الخصم</th>
                             <th class="text-center font-weight-bold text-caption px-2 py-1">المخزون</th>
                             <th v-if="mdAndUp" class="text-center font-weight-bold text-caption px-2 py-1">الحد الأدنى</th>
+                            <th v-if="mdAndUp" class="text-center font-weight-bold text-caption px-2 py-1">الوحدة</th>
                             <th v-if="mdAndUp" class="text-left font-weight-bold text-caption px-2 py-1">الباركود</th>
                           </tr>
                         </thead>
@@ -296,16 +306,23 @@
                             <td v-if="mdAndUp" class="text-center text-success font-weight-bold text-caption px-2 py-1">{{ variant.wholesale_price ? formatCurrency(variant.wholesale_price) : '---' }}</td>
                             <td v-if="mdAndUp" class="text-center text-caption text-error px-2 py-1">{{ variant.discount ? variant.discount : '---' }}</td>
                             <td class="text-center px-2 py-1">
-                              <v-chip
-                                size="x-small"
-                                variant="flat"
-                                :color="variant.quantity > 0 ? 'success' : 'error'"
-                                class="font-weight-bold px-1 py-0 h-auto"
-                              >
-                                {{ variant.quantity || 0 }}
-                              </v-chip>
+                              <div class="d-flex align-center justify-center gap-1">
+                                <v-chip
+                                  size="x-small"
+                                  variant="flat"
+                                  :color="variant.quantity > 0 ? 'success' : 'error'"
+                                  class="font-weight-bold px-1 py-0 h-auto"
+                                >
+                                  {{ variant.quantity || 0 }}
+                                </v-chip>
+                                <span v-if="item.base_unit" class="text-xxs text-grey">{{ item.base_unit.code }}</span>
+                              </div>
                             </td>
                             <td v-if="mdAndUp" class="text-center text-caption text-grey-darken-1 px-2 py-1">{{ variant.min_quantity || '---' }}</td>
+                            <td v-if="mdAndUp" class="text-center px-2 py-1">
+                              <v-chip v-if="item.base_unit" size="x-small" color="primary" variant="tonal">{{ item.base_unit.name }}</v-chip>
+                              <span v-else class="text-caption text-grey">---</span>
+                            </td>
                             <td v-if="mdAndUp" class="text-left text-caption code-font px-2 py-1">{{ variant.barcode || '---' }}</td>
                           </tr>
                         </tbody>
@@ -592,6 +609,7 @@ const headers = computed(() => {
 
   list.push(
     { title: 'المخزون', key: 'total_available_quantity', sortable: true, align: 'center', minWidth: '100px', showOnMobile: true },
+    { title: 'وحدة القياس', key: 'base_unit_name', sortable: false, align: 'center', minWidth: '100px' },
     { title: 'يتطلب مخزون', key: 'require_stock', sortable: true, align: 'center', minWidth: '120px', defaultHide: !isDigitalEnabled },
     { title: 'مميز', key: 'featured', sortable: true, align: 'center', minWidth: '90px', defaultHide: true },
     { title: 'عدد المبيعات', key: 'sales_count', sortable: true, align: 'center', minWidth: '120px', defaultHide: true },
@@ -742,5 +760,9 @@ const closeExportDialog = () => {
 .variants-table td {
   height: 32px !important;
   font-size: 0.75rem !important; /* text-caption */
+}
+
+.text-xxs {
+  font-size: 10px !important;
 }
 </style>

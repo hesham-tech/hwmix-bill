@@ -457,6 +457,7 @@
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useProductStore } from '../store/product.store';
+import { storeToRefs } from 'pinia';
 import AppInput from '@/components/common/AppInput.vue';
 import AppAutocomplete from '@/components/common/AppAutocomplete.vue';
 import AppTextarea from '@/components/common/AppTextarea.vue';
@@ -466,8 +467,6 @@ import VariantManager from './VariantManager.vue';
 import ProductMediaManager from './ProductMediaManager.vue';
 import { useUserStore } from '@/stores/user';
 import { toast } from 'vue3-toastify';
-// eslint-disable-next-line no-unused-vars
-import apiClient from '@/api/axios.config';
 
 const props = defineProps({
   productId: {
@@ -485,7 +484,8 @@ const emit = defineEmits(['success', 'cancel']);
 const router = useRouter();
 const productStore = useProductStore();
 const userStore = useUserStore();
-const { saveProduct, fetchProduct } = productStore;
+const { saveProduct, fetchProduct, fetchUnits } = productStore;
+const { units } = storeToRefs(productStore);
 
 const currentProductId = ref(props.productId);
 
@@ -498,31 +498,7 @@ const form = ref(null);
 const showDuplicateDialog = ref(false);
 const existingProduct = ref(null);
 
-// Units State
-const units = ref([]);
 
-const fetchUnits = async () => {
-  try {
-    const response = await apiClient.get('units');
-    if (response.data && response.data.status) {
-      units.value = response.data.data;
-    } else if (response.data) {
-      units.value = response.data;
-    }
-
-    // Default to 'pcs' for new products
-    if (!props.productId) {
-      const defaultUnit = units.value.find(u => u.code === 'pcs');
-      if (defaultUnit) {
-        if (!productData.value.base_unit_id) productData.value.base_unit_id = defaultUnit.id;
-        if (!productData.value.purchase_unit_id) productData.value.purchase_unit_id = defaultUnit.id;
-        if (!productData.value.display_unit_id) productData.value.display_unit_id = defaultUnit.id;
-      }
-    }
-  } catch (error) {
-    console.error('Failed to fetch units:', error);
-  }
-};
 
 // Watch for base unit changes to auto-configure precision
 watch(
@@ -809,8 +785,18 @@ onMounted(async () => {
   // Add keyboard shortcuts
   window.addEventListener('keydown', handleKeyboardShortcuts);
 
-  // جلب وحدات القياس
+  // جلب وحدات القياس من Store (مع caching)
   await fetchUnits();
+
+  // تعيين الوحدة الافتراضية (قطعة) للمنتجات الجديدة
+  if (!props.productId) {
+    const defaultUnit = units.value.find(u => u.code === 'pcs');
+    if (defaultUnit) {
+      if (!productData.value.base_unit_id) productData.value.base_unit_id = defaultUnit.id;
+      if (!productData.value.purchase_unit_id) productData.value.purchase_unit_id = defaultUnit.id;
+      if (!productData.value.display_unit_id) productData.value.display_unit_id = defaultUnit.id;
+    }
+  }
 
   if (isEdit.value) {
     await loadProductData(currentProductId.value);
