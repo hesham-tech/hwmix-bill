@@ -13,7 +13,7 @@
 
     <!-- Tabs Menu -->
     <v-card class="elevation-1 border mb-6 rounded-lg">
-      <v-tabs v-model="activeTab" bg-color="transparent" color="primary" grow>
+      <v-tabs v-model="activeTab" bg-color="transparent" color="primary" grow class="tour-units-tabs">
         <v-tab value="units" class="font-weight-bold">
           <v-icon icon="ri-grid-fill" class="me-2" />
           الوحدات الفردية
@@ -45,7 +45,7 @@
               style="max-width: 350px"
               class="rounded-lg"
             />
-            <AppButton prepend-icon="ri-add-line" color="primary" size="small" @click="openAddUnit">
+            <AppButton prepend-icon="ri-add-line" color="primary" size="small" @click="openAddUnit" class="tour-unit-add">
               وحدة جديدة
             </AppButton>
           </v-card-title>
@@ -58,7 +58,7 @@
             :loading="loadingUnits"
             loading-text="جاري تحميل وحدات القياس..."
             no-data-text="لا توجد وحدات قياس مضافة بعد."
-            class="modern-table"
+            class="modern-table tour-units-table"
           >
             <template #[`item.group`]="{ item }">
               <v-chip size="small" color="primary" variant="tonal">
@@ -103,7 +103,7 @@
               style="max-width: 350px"
               class="rounded-lg"
             />
-            <AppButton prepend-icon="ri-add-line" color="primary" size="small" @click="openAddGroup">
+            <AppButton prepend-icon="ri-add-line" color="primary" size="small" @click="openAddGroup" class="tour-group-add">
               مجموعة جديدة
             </AppButton>
           </v-card-title>
@@ -126,7 +126,7 @@
 
             <template #[`item.units`]="{ item }">
               <div class="d-flex flex-wrap gap-1 py-1">
-                <v-chip v-for="unit in item.units" :key="unit.id" size="x-small" variant="flat" color="grey-lighten-3">
+                <v-chip v-for="unit in item.units" :key="unit.id" size="x-small" variant="tonal" color="primary" class="font-weight-medium">
                   {{ unit.name }} ({{ unit.code }})
                 </v-chip>
                 <span v-if="!item.units?.length" class="text-caption text-grey">لا توجد وحدات</span>
@@ -157,7 +157,7 @@
               style="max-width: 350px"
               class="rounded-lg"
             />
-            <AppButton prepend-icon="ri-add-line" color="primary" size="small" @click="openAddConversion">
+            <AppButton prepend-icon="ri-add-line" color="primary" size="small" @click="openAddConversion" class="tour-conversion-add">
               قاعدة تحويل جديدة
             </AppButton>
           </v-card-title>

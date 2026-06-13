@@ -566,6 +566,7 @@ import notificationWorkflowsTour from '@/modules/guidance/content/tours/notifica
 import notificationTemplatesTour from '@/modules/guidance/content/tours/notification-templates.tour.js';
 import mailSettingsTour from '@/modules/guidance/content/tours/mail-settings.tour.js';
 import whatsappSettingsTour from '@/modules/guidance/content/tours/whatsapp-settings.tour.js';
+import unitsTour from '@/modules/guidance/content/tours/units.tour.js';
 
 // تعريف المكونات بشكل غير متزامن (Lazy loading) لمنع زيادة حجم الـ main bundle
 const GuidanceTour = defineAsyncComponent(() => import('@/modules/guidance/components/GuidanceTour.vue'));
@@ -645,6 +646,8 @@ watch(
         startTour(mailSettingsTour, 'tour.mail_settings');
       } else if (newRouteName === 'whatsapp-settings') {
         startTour(whatsappSettingsTour, 'tour.whatsapp_settings');
+      } else if (newRouteName === 'units') {
+        startTour(unitsTour, 'tour.units');
       }
     }, 1200);
   },
@@ -664,6 +667,7 @@ const activeTourKey = computed(() => {
   if (route.name === 'notification-templates') return 'tour.notification_templates';
   if (route.name === 'mail-settings') return 'tour.mail_settings';
   if (route.name === 'whatsapp-settings') return 'tour.whatsapp_settings';
+  if (route.name === 'units') return 'tour.units';
   return '';
 });
 
@@ -694,6 +698,8 @@ const handleRestartTour = () => {
       success = startTour(mailSettingsTour, 'tour.mail_settings', true);
     } else if (route.name === 'whatsapp-settings') {
       success = startTour(whatsappSettingsTour, 'tour.whatsapp_settings', true);
+    } else if (route.name === 'units') {
+      success = startTour(unitsTour, 'tour.units', true);
     } else {
       toast.error('عذراً، لا توجد جولة إرشادية لهذه الصفحة.');
       return;
