@@ -24,6 +24,7 @@
           <thead>
             <tr class="bg-neutral-lighten-5">
               <th class="text-right ps-4">الصنف</th>
+              <th class="text-center" style="width: 120px">الوحدة</th>
               <th class="text-center" style="width: 120px">الكمية</th>
               <th class="text-center" style="width: 140px">سعر الوحدة</th>
               <th class="text-center" style="width: 120px">الخصم</th>
@@ -50,6 +51,22 @@
                   </div>
                 </div>
               </td>
+              <td width="120" class="px-1 py-1 text-center">
+                <v-select
+                  v-if="item.allowed_units && item.allowed_units.length > 0"
+                  v-model="item.unit_id"
+                  :items="item.allowed_units"
+                  item-title="name"
+                  item-value="id"
+                  density="compact"
+                  variant="outlined"
+                  hide-details
+                  class="compact-select"
+                  @update:model-value="val => handleUnitChange(item, val)"
+                />
+                <span v-else-if="item.product_type === 'service'" class="text-xxs text-grey-darken-1">خدمة</span>
+                <span v-else class="text-xxs text-grey-darken-1">قطعة</span>
+              </td>
               <td width="100" class="px-1 py-1 text-center">
                 <div class="d-flex justify-center position-relative">
                   <AppInput
@@ -57,10 +74,11 @@
                     type="number"
                     density="compact"
                     hide-details
-                    min="1"
+                    min="0.0001"
                     required
                     class="compact-input centered-input"
                     :class="{ 'flash-error': isItemError(item) }"
+                    :step="item.allow_decimal_quantities ? Math.pow(0.1, item.quantity_precision || 2).toFixed(item.quantity_precision || 2) : 1"
                     @update:model-value="val => updateQuantity(item, val)"
                   />
                   <v-tooltip :model-value="isItemError(item)" location="top" activator="parent" content-class="bg-error text-white font-weight-bold">
@@ -162,24 +180,82 @@ const stockErrorItems = ref(new Set());
 
 const isItemError = item => stockErrorItems.value.has(item);
 
+const handleUnitChange = (item, unitId) => {
+  // 1. فحص ما إذا كان هناك سعر وحدة مخصص معرف لهذا المتغير والوحدة
+  const customPrice = item.unit_prices?.find(up => up.unit_id === unitId);
+  if (customPrice) {
+    if (props.invoiceType === 'purchase') {
+      item.unit_price = customPrice.cost || customPrice.price || item.purchase_price;
+    } else if (props.customerType === 'wholesale') {
+      item.unit_price = customPrice.price || item.wholesale_price;
+    } else {
+      item.unit_price = customPrice.price || item.retail_price;
+    }
+  } else {
+    // 2. وإلا نقوم بالحساب ديناميكياً بناءً على معامل التحويل للوحدة الأساسية
+    let factor = 1.0;
+    if (unitId === item.base_unit_id) {
+      factor = 1.0;
+    } else {
+      const vu = item.units?.find(u => u.unit_id === unitId);
+      if (vu) {
+        factor = parseFloat(vu.conversion_factor_to_base) || 1.0;
+      }
+    }
+
+    if (props.invoiceType === 'purchase') {
+      item.unit_price = item.purchase_price * factor;
+    } else if (props.customerType === 'wholesale') {
+      item.unit_price = item.wholesale_price * factor;
+    } else {
+      item.unit_price = item.retail_price * factor;
+    }
+  }
+
+  // تحديث دقة الكسور والسماح بالكسور بناءً على الوحدة المختارة
+  const selectedUnit = item.allowed_units?.find(u => u.id === unitId);
+  if (selectedUnit) {
+    item.allow_decimal_quantities = selectedUnit.decimal_places > 0;
+    item.quantity_precision = selectedUnit.decimal_places || 0;
+  }
+
+  emit('calculate', item);
+};
+
 const updateQuantity = (item, val) => {
   let newVal = parseFloat(val);
-  if (isNaN(newVal) || newVal < 0.01) newVal = 0.01;
+  if (isNaN(newVal) || newVal < 0.0001) newVal = 0.01;
 
-  // Only check max quantity if it's not a purchase invoice
+  // تطبيق منطق دقة الكسور العشرية
+  if (!item.allow_decimal_quantities) {
+    newVal = Math.round(newVal);
+  } else {
+    const precision = item.quantity_precision || 2;
+    newVal = parseFloat(newVal.toFixed(precision));
+  }
+
+  // التحقق من الحد الأقصى للمخزون (فقط لفواتير المبيعات)
   if (props.invoiceType !== 'purchase' && item.requires_stock && typeof item.max_quantity === 'number') {
-    if (newVal > item.max_quantity) {
-      const maxQty = item.max_quantity;
+    // معامل تحويل الكمية للوحدة الأساسية لمقارنتها بالحد الأقصى
+    let factor = 1.0;
+    const vu = item.units?.find(u => u.unit_id === item.unit_id);
+    if (vu) {
+      factor = parseFloat(vu.conversion_factor_to_base) || 1.0;
+    }
+    const maxQtyInUnit = item.max_quantity / factor;
 
-      // Trigger Visual Flash Effect & Tooltip
+    if (newVal > maxQtyInUnit) {
+      const maxQty = maxQtyInUnit;
+
+      // تأثير بصري
       stockErrorItems.value.add(item);
       setTimeout(() => {
         stockErrorItems.value.delete(item);
       }, 1000);
 
-      // Force Reset to Max (Snapback)
+      // إعادة تعيين القيمة للحد الأقصى
       if (item.quantity === maxQty) {
-        if (newVal !== maxQty) item.quantity = newVal; // Temporarily set to invalid
+        if (newVal !== maxQty) item.quantity = newVal;
         nextTick(() => {
           item.quantity = maxQty;
           emit('calculate', item);

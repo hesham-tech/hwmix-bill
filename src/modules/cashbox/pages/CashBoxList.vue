@@ -356,6 +356,7 @@ const { can } = usePermissions();
 const api = useApi('/api/cash-boxes');
 const typesApi = useApi('/api/cash-box-types');
 const { deleteCashBox } = useCashBoxesData();
+const showAllBoxes = ref(false);
 
 // API fetch function for useDataTable
 const fetchCashBoxesApi = async params => {
@@ -412,7 +413,7 @@ const loadingBranches = ref(false);
 const branchesApi = useApi('/api/branches');
 const formData = ref({ name: '', cash_box_type_id: null, branch_id: authStore.user?.branch_id || null, initial_balance: 0, is_active: 1, is_default: 0 });
 
-const showAllBoxes = ref(false);
+
 
 const canViewAllCompanyBoxes = computed(() => {
   return authStore.user?.is_super_admin || 

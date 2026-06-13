@@ -235,6 +235,93 @@
           </v-card>
         </v-expand-transition>
 
+        <!-- Measurement Units Card -->
+        <v-card border flat class="mb-2">
+          <div class="pa-2 mb-1 bg-grey-lighten-5 rounded-t-lg border-b d-flex align-center">
+            <v-icon icon="ri-scales-3-line" color="primary" size="14" class="me-2" />
+            <span class="text-xxs font-weight-bold">وحدات القياس والكسور</span>
+          </div>
+          <v-card-text class="pa-2">
+            <v-row>
+              <v-col cols="12" md="4">
+                <v-select
+                  v-model="productData.base_unit_id"
+                  :items="units"
+                  item-title="name"
+                  item-value="id"
+                  label="الوحدة الأساسية للمخزون *"
+                  required
+                  variant="outlined"
+                  density="compact"
+                  hide-details="auto"
+                >
+                  <template #prepend-inner>
+                    <v-icon icon="ri-focus-3-line" size="16" color="grey" />
+                  </template>
+                </v-select>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-select
+                  v-model="productData.purchase_unit_id"
+                  :items="units"
+                  item-title="name"
+                  item-value="id"
+                  label="وحدة الشراء الافتراضية"
+                  variant="outlined"
+                  density="compact"
+                  hide-details="auto"
+                >
+                  <template #prepend-inner>
+                    <v-icon icon="ri-shopping-cart-2-line" size="16" color="grey" />
+                  </template>
+                </v-select>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-select
+                  v-model="productData.display_unit_id"
+                  :items="units"
+                  item-title="name"
+                  item-value="id"
+                  label="وحدة العرض/البيع الافتراضية"
+                  variant="outlined"
+                  density="compact"
+                  hide-details="auto"
+                >
+                  <template #prepend-inner>
+                    <v-icon icon="ri-price-tag-line" size="16" color="grey" />
+                  </template>
+                </v-select>
+              </v-col>
+
+              <v-col cols="12" md="6" class="d-flex align-center">
+                <v-switch
+                  v-model="productData.allow_decimal_quantities"
+                  label="السماح بكميات عشرية (كسور)"
+                  color="primary"
+                  inset
+                  density="compact"
+                  hide-details
+                />
+              </v-col>
+
+              <v-col cols="12" md="6" v-if="productData.allow_decimal_quantities">
+                <v-select
+                  v-model.number="productData.quantity_precision"
+                  :items="[1, 2, 3, 4]"
+                  label="عدد الخانات العشرية للكمية"
+                  variant="outlined"
+                  density="compact"
+                  hide-details="auto"
+                >
+                  <template #prepend-inner>
+                    <v-icon icon="ri-calculator-line" size="16" color="grey" />
+                  </template>
+                </v-select>
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </v-card>
+
         <!-- Variant Manager -->
         <VariantManager :key="currentProductId || 'new'" v-model="productData.variants" :product-type="productData.product_type" />
       </v-col>
@@ -379,6 +466,9 @@ import VariantManager from './VariantManager.vue';
 import ProductMediaManager from './ProductMediaManager.vue';
 import { useUserStore } from '@/stores/user';
 import { toast } from 'vue3-toastify';
+// eslint-disable-next-line no-unused-vars
+import apiClient from '@/api/axios.config';
+
 const props = defineProps({
   productId: {
     type: [String, Number],
@@ -408,6 +498,51 @@ const form = ref(null);
 const showDuplicateDialog = ref(false);
 const existingProduct = ref(null);
 
+// Units State
+const units = ref([]);
+
+const fetchUnits = async () => {
+  try {
+    const response = await apiClient.get('units');
+    if (response.data && response.data.status) {
+      units.value = response.data.data;
+    } else if (response.data) {
+      units.value = response.data;
+    }
+
+    // Default to 'pcs' for new products
+    if (!props.productId) {
+      const defaultUnit = units.value.find(u => u.code === 'pcs');
+      if (defaultUnit) {
+        if (!productData.value.base_unit_id) productData.value.base_unit_id = defaultUnit.id;
+        if (!productData.value.purchase_unit_id) productData.value.purchase_unit_id = defaultUnit.id;
+        if (!productData.value.display_unit_id) productData.value.display_unit_id = defaultUnit.id;
+      }
+    }
+  } catch (error) {
+    console.error('Failed to fetch units:', error);
+  }
+};
+
+// Watch for base unit changes to auto-configure precision
+watch(
+  () => productData.value.base_unit_id,
+  newVal => {
+    if (newVal) {
+      const selectedUnit = units.value.find(u => u.id === newVal);
+      if (selectedUnit) {
+        if (selectedUnit.decimal_places > 0) {
+          productData.value.allow_decimal_quantities = true;
+          productData.value.quantity_precision = selectedUnit.decimal_places;
+        } else {
+          productData.value.allow_decimal_quantities = false;
+          productData.value.quantity_precision = 0;
+        }
+      }
+    }
+  }
+);
+
 // --- State Initialization ---
 const getInitialProductData = () => ({
   name: '',
@@ -430,6 +565,11 @@ const getInitialProductData = () => ({
   images: [],
   primary_image_id: null,
   variants: [],
+  base_unit_id: null,
+  purchase_unit_id: null,
+  display_unit_id: null,
+  allow_decimal_quantities: false,
+  quantity_precision: 0,
 });
 
 const productData = ref(getInitialProductData());
@@ -668,6 +808,9 @@ const handleKeyboardShortcuts = e => {
 onMounted(async () => {
   // Add keyboard shortcuts
   window.addEventListener('keydown', handleKeyboardShortcuts);
+
+  // جلب وحدات القياس
+  await fetchUnits();
 
   if (isEdit.value) {
     await loadProductData(currentProductId.value);

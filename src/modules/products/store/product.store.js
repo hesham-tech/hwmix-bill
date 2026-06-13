@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import productService from '@/api/services/product.service';
 import warehouseService from '@/api/services/warehouse.service';
+import apiClient from '@/api/axios.config';
 import { toast } from 'vue3-toastify';
 import { useGuidanceStore } from '@/modules/guidance/store/useGuidanceStore';
 
@@ -12,6 +13,7 @@ export const useProductStore = defineStore('product', () => {
   const loading = ref(false);
   const totalItems = ref(0);
   const defaultWarehouseId = ref(null);
+  const units = ref([]);
 
   // Pagination & Filters
   const page = ref(1);
@@ -134,12 +136,31 @@ export const useProductStore = defineStore('product', () => {
     };
   }
 
+  // جلب وحدات القياس المتاحة للنظام
+  async function fetchUnits() {
+    if (units.value.length > 0) return units.value;
+    try {
+      const response = await apiClient.get('units');
+      if (response.data && response.data.status) {
+        units.value = response.data.data;
+      } else if (Array.isArray(response.data)) {
+        units.value = response.data;
+      } else if (response.data && Array.isArray(response.data.data)) {
+        units.value = response.data.data;
+      }
+    } catch (error) {
+      console.error('Failed to fetch units:', error);
+    }
+    return units.value;
+  }
+
   return {
     products,
     currentProduct,
     loading,
     totalItems,
     defaultWarehouseId,
+    units,
     page,
     itemsPerPage,
     search,
@@ -152,5 +173,6 @@ export const useProductStore = defineStore('product', () => {
     deleteProduct,
     fetchDefaultWarehouse,
     resetFilters,
+    fetchUnits,
   };
 });

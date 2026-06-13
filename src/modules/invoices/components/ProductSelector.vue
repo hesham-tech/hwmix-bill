@@ -253,6 +253,19 @@ const addItemInstant = item => {
       .filter(Boolean)
       .join(' - ');
 
+    const allowedUnits = [];
+    if (variant.base_unit) allowedUnits.push(variant.base_unit);
+    if (variant.purchase_unit && !allowedUnits.some(u => u.id === variant.purchase_unit.id)) allowedUnits.push(variant.purchase_unit);
+    if (variant.display_unit && !allowedUnits.some(u => u.id === variant.display_unit.id)) allowedUnits.push(variant.display_unit);
+
+    if (variant.units && Array.isArray(variant.units)) {
+      variant.units.forEach(vu => {
+        if (vu.unit && !allowedUnits.some(u => u.id === vu.unit.id)) {
+          allowedUnits.push(vu.unit);
+        }
+      });
+    }
+
     finalItem = {
       product_id: variant.product_id,
       product_name: variant.product_name,
@@ -271,6 +284,13 @@ const addItemInstant = item => {
       primary_image_url: variant.primary_image_url,
       product_type: variant.product_type,
       requires_stock: variant.requires_stock,
+      base_unit_id: variant.base_unit_id,
+      unit_id: props.invoiceType === 'purchase' ? (variant.purchase_unit_id || variant.base_unit_id) : (variant.display_unit_id || variant.base_unit_id),
+      allowed_units: allowedUnits,
+      units: variant.units || [],
+      unit_prices: variant.unit_prices || [],
+      allow_decimal_quantities: !!variant.allow_decimal_quantities,
+      quantity_precision: variant.quantity_precision || 0,
     };
   }
 

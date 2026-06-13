@@ -68,15 +68,15 @@
           </template>
 
           <template #item.active_companies_count="{ item }">
-            <v-chip size="small" color="primary" variant="flat" class="font-weight-bold"> {{ item.active_companies_count ?? 0 }} شركة </v-chip>
+            <v-chip size="small" color="primary" variant="tonal" class="font-weight-bold"> {{ item.active_companies_count ?? 0 }} شركة </v-chip>
           </template>
 
           <template #item.active_users_count="{ item }">
-            <v-chip size="small" color="secondary" variant="flat" class="font-weight-bold"> {{ item.active_users_count ?? 0 }} مستخدم </v-chip>
+            <v-chip size="small" color="secondary" variant="tonal" class="font-weight-bold"> {{ item.active_users_count ?? 0 }} مستخدم </v-chip>
           </template>
 
           <template #item.is_active="{ item }">
-            <v-chip :color="item.is_active ? 'success' : 'error'" size="small" variant="flat" class="font-weight-bold">
+            <v-chip :color="item.is_active ? 'success' : 'error'" size="small" variant="tonal" class="font-weight-bold">
               {{ item.is_active ? 'نشط' : 'معطل' }}
             </v-chip>
           </template>
@@ -159,7 +159,7 @@
             <v-chip
               :color="getSubscriptionStatusColor(item.subscription_status)"
               size="small"
-              variant="flat"
+              variant="tonal"
               class="font-weight-bold text-capitalize"
             >
               {{ getSubscriptionStatusLabel(item.subscription_status) }}

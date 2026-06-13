@@ -540,21 +540,46 @@ const fetchInvoice = async () => {
       paid_amount: parseFloat(invoice.paid_amount || 0),
       cash_box_id: invoice.cash_box_id ? Number(invoice.cash_box_id) : null,
       notes: invoice.notes || '',
-      items: (invoice.items || []).map(item => ({
-        product_id: item.product_id,
-        variant_id: item.variant_id,
-        name: item.name,
-        quantity: parseFloat(item.quantity || 0),
-        max_quantity: parseFloat(item.quantity || 0),
-        requires_stock: item.requires_stock ?? true,
-        unit_price: parseFloat(item.unit_price || 0),
-        retail_price: parseFloat(item.retail_price || item.unit_price || 0),
-        wholesale_price: parseFloat(item.wholesale_price || 0),
-        profit_margin: parseFloat(item.profit_margin || 0),
-        discount: parseFloat(item.discount || 0),
-        total: parseFloat(item.total || 0),
-        primary_image_url: item.primary_image_url || item.variant?.primary_image_url || item.product?.primary_image_url,
-      })),
+      items: (invoice.items || []).map(item => {
+        const allowedUnits = [];
+        const variant = item.variant;
+        if (variant) {
+          if (variant.base_unit) allowedUnits.push(variant.base_unit);
+          if (variant.purchase_unit && !allowedUnits.some(u => u.id === variant.purchase_unit.id)) allowedUnits.push(variant.purchase_unit);
+          if (variant.display_unit && !allowedUnits.some(u => u.id === variant.display_unit.id)) allowedUnits.push(variant.display_unit);
+          
+          if (variant.units && Array.isArray(variant.units)) {
+            variant.units.forEach(vu => {
+              if (vu.unit && !allowedUnits.some(u => u.id === vu.unit.id)) {
+                allowedUnits.push(vu.unit);
+              }
+            });
+          }
+        }
+
+        return {
+          product_id: item.product_id,
+          variant_id: item.variant_id,
+          name: item.name,
+          quantity: parseFloat(item.quantity || 0),
+          max_quantity: parseFloat(item.quantity || 0) + (variant ? parseFloat(variant.quantity || 0) : 0),
+          requires_stock: item.requires_stock ?? true,
+          unit_price: parseFloat(item.unit_price || 0),
+          retail_price: parseFloat(item.retail_price || item.unit_price || 0),
+          wholesale_price: parseFloat(item.wholesale_price || 0),
+          profit_margin: parseFloat(item.profit_margin || 0),
+          discount: parseFloat(item.discount || 0),
+          total: parseFloat(item.total || 0),
+          primary_image_url: item.primary_image_url || item.variant?.primary_image_url || item.product?.primary_image_url,
+          unit_id: item.unit_id,
+          base_unit_id: variant?.base_unit_id || null,
+          allowed_units: allowedUnits,
+          units: variant?.units || [],
+          unit_prices: variant?.unit_prices || [],
+          allow_decimal_quantities: variant?.product?.allow_decimal_quantities || false,
+          quantity_precision: variant?.product?.quantity_precision || 0,
+        };
+      }),
       installment_plan: invoice.installment_plan ? {
         down_payment: parseFloat(invoice.installment_plan.down_payment || 0),
         number_of_installments: parseInt(invoice.installment_plan.number_of_installments || 1),
