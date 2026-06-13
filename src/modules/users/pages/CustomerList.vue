@@ -141,6 +141,13 @@
                   class="text-primary"
                   @click="$router.push(`/app/invoices/create?type=installment_sale&user_id=${item.id}`)"
                 />
+                <v-list-item
+                  v-if="can(PERMISSIONS.USERS_EDIT)"
+                  prepend-icon="ri-shield-user-line"
+                  title="إدارة الصلاحيات"
+                  class="text-purple"
+                  @click="openPermissions(item)"
+                />
                 <v-list-item v-if="can(PERMISSIONS.USERS_EDIT)" prepend-icon="ri-edit-line" title="تعديل البيانات" @click="handleEdit(item)" />
               </template>
             </AppDataTable>
@@ -212,6 +219,30 @@
         </template>
       </AppDialog>
 
+      <!-- Permission Management Dialog -->
+      <AppDialog v-model="isPermissionOpen" title="إدارة صلاحيات الوصول" variant="purple" max-width="900" hide-actions fluid :fullscreen="isMobile">
+        <template #header>
+          <div class="d-flex align-center gap-3 w-100 pa-5 text-white">
+            <v-avatar color="white" variant="tonal" size="48">
+              <v-icon icon="ri-shield-keyhole-line" color="white" />
+            </v-avatar>
+            <div class="flex-grow-1">
+              <span class="text-h6 font-weight-bold d-block">إدارة صلاحيات الوصول</span>
+              <span v-if="permissionUser" class="text-caption opacity-80">{{ permissionUser.full_name }} ({{ permissionUser.username }})</span>
+            </div>
+            <v-btn icon="ri-close-line" variant="text" color="white" @click="closePermissions" />
+          </div>
+        </template>
+
+        <v-divider class="border-opacity-10" />
+
+        <div class="pa-6 bg-grey-lighten-4 border-b">
+          <AppUserBalanceProfile v-if="permissionUser" :user="permissionUser" mode="horizontal" hide-balance :clickable="false" />
+        </div>
+
+        <UserPermissionManager v-if="permissionUser" :user="permissionUser" @save="closePermissions" @cancel="closePermissions" />
+      </AppDialog>
+
       <!-- Balance Operations Dialog -->
       <BalanceOperations v-model="isBalanceOpen" :user="balanceUser" :initial-type="balanceType" @success="onBalanceSuccess" />
     </v-container>
@@ -224,11 +255,13 @@
  * يعرض قائمة العملاء وحالاتهم وأرصدتهم، ويدعم عمليات الإيداع، السحب، التحويل، وإدارة الدفعات.
  */
 import { ref, computed, watch } from 'vue';
+import { useDisplay } from 'vuetify';
 import { usePermissions } from '@/composables/usePermissions';
 import { useDataTable } from '@/composables/useDataTable';
 import { userService } from '@/api';
 import { useUser } from '../composables/useUser';
 import UserForm from '../components/UserForm.vue';
+import UserPermissionManager from '../components/UserPermissionManager.vue';
 import BalanceOperations from '@/modules/financials/components/BalanceOperations.vue';
 import { AppDataTable, AppButton, AppDialog, AppConfirmDialog, AppUserBalanceProfile, AppBalanceDisplay } from '@/components';
 import { PERMISSIONS } from '@/config/permissions';
@@ -261,6 +294,10 @@ const {
   confirmMessage,
   handleConfirm: baseHandleConfirm,
   handleCancel,
+  isPermissionOpen,
+  permissionUser,
+  openPermissions,
+  closePermissions,
   isDeleteDialogOpen,
   userToDelete,
   deleteType,
@@ -272,6 +309,8 @@ const {
   handleEdit,
   handleCreate: baseHandleCreate,
 } = useUser();
+
+const { mobile: isMobile } = useDisplay();
 
 const handleConfirm = async () => {
   await baseHandleConfirm();
