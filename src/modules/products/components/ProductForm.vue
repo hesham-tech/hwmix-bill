@@ -104,8 +104,7 @@
                 <AppAutocomplete
                   v-model="productData.category_id"
                   :items="productData.category ? [productData.category] : []"
-                  :label="productData.is_active_in_store ? 'التصنيف *' : 'التصنيف'"
-                  :required="productData.is_active_in_store"
+                  label="التصنيف"
                   help-text="يساعد التصنيف في ترتيب المنتجات وتقسيم تقارير المبيعات بدقة."
                   api-endpoint="categories"
                   item-title="full_path"
@@ -143,8 +142,7 @@
                 <AppAutocomplete
                   v-model="productData.brand_id"
                   :items="productData.brand ? [productData.brand] : []"
-                  :label="productData.is_active_in_store ? 'العلامة التجارية *' : 'العلامة التجارية'"
-                  :required="productData.is_active_in_store"
+                  label="العلامة التجارية"
                   help-text="الماركة أو الشركة المصنعة للمنتج."
                   api-endpoint="brands"
                   item-title="name"
