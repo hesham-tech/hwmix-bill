@@ -313,6 +313,15 @@
       </div>
     </transition>
 
+    <!-- بنر التنبيه بوضع القراءة فقط عند اختيار "كل الفروع" -->
+    <transition name="expand">
+      <div v-if="branchStore.activeBranchId === 'all'" class="readonly-warning-bar border-b py-2 px-4 d-flex align-center justify-center text-caption font-weight-bold">
+        <v-icon icon="ri-information-fill" class="me-2 animate-pulse text-amber-500" size="18" />
+        <span class="text-warning-light">وضع عرض كل الفروع:</span>
+        <span class="text-amber-light ms-2">أنت الآن في وضع "عرض كل الفروع" (للقراءة والتقارير فقط). لإجراء أي عمليات (مثل فواتير أو مصروفات)، يرجى تبديل الفرع من شريط الفروع العلوي.</span>
+      </div>
+    </transition>
+
     <div class="sticky-breadcrumbs-container border-b bg-surface">
       <v-container fluid class="py-0 px-1">
         <v-breadcrumbs :items="breadcrumbs" class="pa-0 text-caption">
@@ -512,6 +521,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 import { useLocaleStore } from '@/stores/locale';
 import { useappState } from '@/stores/appState';
+import { useBranchStore } from '@/stores/branch';
 import { authService } from '@/api';
 import Sidebar from '@/components/layout/Sidebar.vue';
 import BranchSwitcher from '@/components/layout/BranchSwitcher.vue';
@@ -583,6 +593,7 @@ const isCompanyDeletedDialogOpen = computed(() => {
 });
 const localeStore = useLocaleStore();
 const appState = useappState();
+const branchStore = useBranchStore();
 const guidanceStore = useGuidanceStore();
 const { startTour } = useTour();
 const { showHint } = useHint();
@@ -1148,6 +1159,22 @@ watch(
   z-index: 10;
   position: relative;
   transition: all 0.3s ease;
+}
+
+/* Read Only Warning Bar Styles */
+.readonly-warning-bar {
+  background: #fffdf5;
+  border-bottom: 1px solid #fef3c7 !important;
+  color: #b45309 !important;
+  z-index: 10;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.v-theme--dark .readonly-warning-bar {
+  background: linear-gradient(90deg, rgba(245, 158, 11, 0.12), rgba(245, 158, 11, 0.03)) !important;
+  border-bottom: 1px solid rgba(245, 158, 11, 0.2) !important;
+  color: #fef08a !important;
 }
 
 .text-warning-light {
