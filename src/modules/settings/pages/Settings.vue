@@ -176,6 +176,16 @@ const settingCards = computed(() => {
     });
   }
 
+  if (canAny(PERMISSIONS.PRODUCTS_CREATE, PERMISSIONS.ADMIN_SUPER, PERMISSIONS.ADMIN_COMPANY)) {
+    cards.push({
+      title: 'وحدات القياس',
+      description: 'إدارة وحدات القياس، المجموعات، وقواعد التحويل',
+      icon: 'ri-scales-3-line',
+      color: 'teal',
+      to: '/app/units',
+    });
+  }
+
   return cards;
 });
 </script>

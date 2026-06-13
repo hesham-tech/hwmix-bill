@@ -20,6 +20,15 @@ export default [
     },
   },
   {
+    path: 'units',
+    name: 'units',
+    component: () => import('@/modules/settings/pages/UnitList.vue'),
+    meta: {
+      title: 'وحدات القياس',
+      permission: [PERMISSIONS.PRODUCTS_CREATE, PERMISSIONS.ADMIN_SUPER, PERMISSIONS.ADMIN_COMPANY],
+    },
+  },
+  {
     path: 'payment-methods',
     name: 'payment-methods',
     component: () => import('@/modules/settings/pages/PaymentMethodList.vue'),

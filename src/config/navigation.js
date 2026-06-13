@@ -156,6 +156,12 @@ export default [
         icon: 'ri-building-line',
         permission: [PERMISSIONS.WAREHOUSES_VIEW_ALL, PERMISSIONS.WAREHOUSES_VIEW_CHILDREN, PERMISSIONS.WAREHOUSES_VIEW_SELF],
       },
+      {
+        title: 'وحدات القياس',
+        to: '/app/units',
+        icon: 'ri-scales-3-line',
+        permission: [PERMISSIONS.PRODUCTS_CREATE, PERMISSIONS.ADMIN_SUPER, PERMISSIONS.ADMIN_COMPANY],
+      },
     ],
   },
   {
