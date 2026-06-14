@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <v-form ref="form" v-model="isValid" @submit.prevent="handleSubmit">
     <AppPageHeader :sticky-top="isDialog ? 0 : 79" sticky>
       <template #prepend>
@@ -16,64 +16,100 @@
       </template>
 
       <template #title>
-        <div class="d-flex align-center gap-2 flex-wrap">
-          <span class="text-subtitle-2 font-weight-bold">{{ isEdit ? 'تعديل المنتج' : 'إضافة منتج' }}</span>
-          <span v-if="productData.name" class="text-xxs text-grey-darken-1 line-clamp-1">{{ productData.name }}</span>
-          <v-chip v-if="isEdit" :color="productData.active ? 'success' : 'error'" size="x-small" variant="flat" class="px-1" density="compact">
-            {{ productData.active ? 'نشط' : 'مؤرشف' }}
-          </v-chip>
+        <div class="d-flex flex-column gap-0">
+          <div class="d-flex align-center gap-2 flex-wrap">
+            <span class="text-subtitle-2 font-weight-bold">{{ isEdit ? 'تعديل المنتج' : 'إضافة منتج' }}</span>
+            <span v-if="productData.name" class="text-xxs text-grey-darken-1 line-clamp-1">{{ productData.name }}</span>
+            <v-chip v-if="isEdit" :color="productData.active ? 'success' : 'error'" size="x-small" variant="flat" class="px-1" density="compact">
+              {{ productData.active ? 'نشط' : 'مؤرشف' }}
+            </v-chip>
+          </div>
+          <!-- Progress Indicator -->
+          <div class="d-none d-md-flex align-center gap-3 mt-1">
+            <div
+              v-for="(step, idx) in formProgressSteps"
+              :key="idx"
+              class="progress-step d-flex align-center gap-1"
+              :class="{ 'progress-step--done': step.done, 'progress-step--active': step.active }"
+            >
+              <div class="step-dot" :class="step.done ? 'bg-success' : step.active ? 'bg-primary' : 'bg-grey-lighten-2'">
+                <v-icon v-if="step.done" icon="ri-check-line" size="8" color="white" />
+                <span v-else class="step-num">{{ idx + 1 }}</span>
+              </div>
+              <span class="step-label text-xxs" :class="step.done ? 'text-success' : step.active ? 'text-primary font-weight-bold' : 'text-grey'">{{ step.label }}</span>
+              <v-icon v-if="idx < formProgressSteps.length - 1" icon="ri-arrow-left-s-line" size="12" color="grey-lighten-1" />
+            </div>
+          </div>
         </div>
       </template>
 
       <template #append>
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2 align-center">
+          <!-- Form Completion Badge -->
+          <v-chip
+            size="small"
+            :color="formCompletionPercent === 100 ? 'success' : 'warning'"
+            variant="tonal"
+            density="compact"
+            class="d-none d-sm-flex"
+          >
+            <v-icon :icon="formCompletionPercent === 100 ? 'ri-check-double-line' : 'ri-loader-4-line'" size="12" class="me-1" />
+            {{ formCompletionPercent }}% مكتمل
+          </v-chip>
           <AppButton variant="text" color="grey-darken-1" size="small" density="compact" @click="emit('cancel')"> إلغاء </AppButton>
           <AppButton color="primary" type="submit" :loading="loading" :disabled="!isValid || missingConversionsError" size="small" density="compact" class="px-4" prepend-icon="ri-save-3-line">
-            حفظ التغييرات
+            حفظ
           </AppButton>
         </div>
       </template>
     </AppPageHeader>
 
-    <v-row class="pa-2">
-      <!-- Main Form Content -->
-      <v-col cols="12" lg="8">
+    <v-row class="pa-2" no-gutters>
+      <!-- =================== RIGHT PANEL (35%): Product Metadata =================== -->
+      <v-col cols="12" lg="4" class="pe-lg-2">
+
         <!-- Information Card -->
         <v-card border flat class="mb-2 overflow-visible">
-          <div
-            class="pa-2 mb-1 bg-grey-lighten-5 rounded-t-lg border-b d-flex flex-column-reverse flex-md-row align-md-center justify-md-space-between gap-2"
-          >
-            <div class="d-flex align-center">
-              <v-icon icon="ri-information-line" color="primary" size="14" class="me-2" />
-              <span class="text-xxs font-weight-bold">المعلومات الأساسية</span>
+          <div class="pa-2 bg-grey-lighten-5 rounded-t-lg border-b d-flex flex-column gap-2">
+            <div class="d-flex align-center justify-space-between">
+              <div class="d-flex align-center gap-2">
+                <v-avatar color="blue-lighten-5" size="22" class="rounded-md">
+                  <v-icon icon="ri-information-line" color="blue-darken-1" size="12" />
+                </v-avatar>
+                <div>
+                  <div class="text-xxs font-weight-bold">المعلومات الأساسية</div>
+                  <div class="text-xxs text-grey">الاسم، التصنيف، النوع، والوصف</div>
+                </div>
+              </div>
+              <v-chip v-if="productData.name" size="x-small" color="success" variant="flat" density="compact" prepend-icon="ri-check-line" class="px-1">
+                مكتمل
+              </v-chip>
             </div>
 
-            <!-- Product Type Selection -->
-            <v-item-group v-model="productData.product_type" mandatory class="d-flex flex-wrap gap-2" @update:model-value="handleTypeChange">
-              <v-item v-for="type in productTypes" :key="type.value" :value="type.value">
-                <template #default="{ isSelected, toggle }">
-                  <v-tooltip :text="type.description" location="top" open-delay="300">
-                    <template #activator="{ props: tooltipProps }">
-                      <v-btn
-                        v-bind="tooltipProps"
-                        :variant="isSelected ? 'flat' : 'tonal'"
-                        :color="isSelected ? 'primary' : 'grey-lighten-3'"
-                        :class="['rounded-md', { 'text-primary': !isSelected }]"
-                        class="flex-grow-1 flex-md-grow-0"
-                        size="small"
-                        @click="toggle"
-                        :prepend-icon="type.icon"
-                      >
-                        {{ type.label }}
-                      </v-btn>
-                    </template>
-                  </v-tooltip>
-                </template>
-              </v-item>
-            </v-item-group>
+            <!-- Product Type Cards -->
+            <div>
+              <div class="text-xxs text-grey mb-1">نوع المنتج:</div>
+              <v-item-group v-model="productData.product_type" mandatory class="d-flex flex-wrap gap-2 w-100" @update:model-value="handleTypeChange">
+                <v-item v-for="type in productTypes" :key="type.value" :value="type.value">
+                  <template #default="{ isSelected, toggle }">
+                    <div
+                      class="product-type-card rounded-md pa-2 d-flex align-center gap-2 cursor-pointer flex-grow-1"
+                      :class="isSelected ? 'product-type-card--active' : 'product-type-card--inactive'"
+                      @click="toggle"
+                    >
+                      <v-icon :icon="type.icon" size="14" :color="isSelected ? 'primary' : 'grey'" />
+                      <div class="flex-grow-1">
+                        <div class="text-xxs font-weight-bold" :class="isSelected ? 'text-primary' : 'text-grey-darken-1'">{{ type.label }}</div>
+                      </div>
+                      <v-icon v-if="isSelected" icon="ri-checkbox-circle-fill" size="13" color="primary" />
+                    </div>
+                  </template>
+                </v-item>
+              </v-item-group>
+            </div>
           </div>
           <v-card-text class="pa-2">
-            <v-row>
+            <v-row dense>
               <v-col cols="12">
                 <AppAutocomplete
                   v-model="productData.name"
@@ -115,23 +151,15 @@
                     <v-list-item v-bind="props" :title="undefined">
                       <template #title>
                         <div class="d-flex align-center flex-wrap gap-1">
-                          <span class="font-weight-bold text-body-2 text-slate-800">{{ item.raw.name }}</span>
-                          <v-chip v-if="!item.raw.company_id" size="x-small" color="info" variant="flat" class="px-1" style="height: 16px; font-size: 9px">
-                            عالمي
-                          </v-chip>
+                          <span class="font-weight-bold text-body-2">{{ item.raw.name }}</span>
+                          <v-chip v-if="!item.raw.company_id" size="x-small" color="info" variant="flat" class="px-1" style="height: 16px; font-size: 9px">عالمي</v-chip>
                         </div>
                       </template>
                       <template #subtitle>
-                        <div class="d-flex align-center gap-1 text-caption text-slate-500 mt-1">
+                        <div class="d-flex align-center gap-1 text-caption">
                           <v-icon icon="ri-node-tree" size="12" class="text-primary" />
-                          <span v-if="item.raw.parent_path" class="text-truncate">
-                            ينتمي إلى: <strong class="text-slate-700">{{ item.raw.parent_path }}</strong>
-                          </span>
-                          <span v-else class="text-slate-400">قسم رئيسي</span>
-                        </div>
-                        <div v-if="item.raw.synonyms?.length" class="text-caption text-grey mt-0.5">
-                          <v-icon icon="ri-price-tag-3-line" size="10" class="me-1" />
-                          {{ item.raw.synonyms.join(', ') }}
+                          <span v-if="item.raw.parent_path">{{ item.raw.parent_path }}</span>
+                          <span v-else>قسم رئيسي</span>
                         </div>
                       </template>
                     </v-list-item>
@@ -148,85 +176,49 @@
                   item-title="name"
                   item-value="id"
                   can-create
-                >
-                  <template #item="{ props, item }">
-                    <v-list-item v-bind="props">
-                      <template #subtitle>
-                        <div v-if="item.raw.synonyms?.length" class="text-caption text-grey">
-                          <v-icon icon="ri-price-tag-3-line" size="12" class="me-1" />
-                          {{ item.raw.synonyms.join(', ') }}
-                        </div>
-                      </template>
-                    </v-list-item>
-                  </template>
-                </AppAutocomplete>
+                />
               </v-col>
               <v-col cols="12">
                 <AppTextarea
                   v-model="productData.desc"
                   :label="productData.is_active_in_store ? 'وصف موجز *' : 'وصف موجز'"
                   :required="productData.is_active_in_store"
-                  placeholder="اكتب وصفاً مختصراً للمنتج يظهر في قوائم البحث..."
-                  rows="3"
+                  placeholder="اكتب وصفاً مختصراً للمنتج..."
+                  rows="2"
                 />
               </v-col>
             </v-row>
           </v-card-text>
         </v-card>
 
-        <!-- Digital Product Details (Smart Fields) -->
+        <!-- Digital Product Details -->
         <v-expand-transition>
           <v-card v-if="productData.product_type === 'digital'" border flat class="mb-2">
-            <div class="pa-4 mb-2 bg-info-lighten-5 rounded-t-lg border-b d-flex align-center">
-              <v-icon icon="ri-download-cloud-2-line" color="info" class="me-2" />
-              <span class="text-subtitle-2 font-weight-bold">تفاصيل المنتج الرقمي والتسليم</span>
+            <div class="pa-2 bg-grey-lighten-5 rounded-t-lg border-b d-flex align-center gap-2">
+              <v-avatar color="blue-lighten-5" size="22" class="rounded-md">
+                <v-icon icon="ri-download-cloud-2-line" color="blue-darken-1" size="12" />
+              </v-avatar>
+              <div class="text-xxs font-weight-bold">تفاصيل المنتج الرقمي</div>
             </div>
             <v-card-text class="pa-2">
-              <v-row>
+              <v-row dense>
                 <v-col cols="12" md="6">
                   <v-switch v-model="productData.is_downloadable" label="قابل للتنزيل المباشر" color="primary" inset hide-details />
                 </v-col>
                 <v-col cols="12" md="6" v-if="productData.is_downloadable">
-                  <AppInput
-                    v-model="productData.download_url"
-                    label="رابط التنزيل"
-                    help-text="الرابط المباشر لتحميل الملف، سيتم تسليمه للعميل بعد الدفع."
-                    placeholder="https://example.com/files/..."
-                    prepend-inner-icon="ri-link"
-                  />
+                  <AppInput v-model="productData.download_url" label="رابط التنزيل" placeholder="https://..." prepend-inner-icon="ri-link" />
                 </v-col>
                 <v-col cols="12" md="6" v-if="productData.is_downloadable">
-                  <AppInput
-                    v-model.number="productData.download_limit"
-                    label="حد مرات التنزيل"
-                    help-text="أقصى عدد مسموح به لتحميل الملف من نفس الرابط."
-                    type="number"
-                    placeholder="اتركه فارغاً لعدد غير محدود"
-                  />
+                  <AppInput v-model.number="productData.download_limit" label="حد مرات التنزيل" type="number" placeholder="غير محدود" />
                 </v-col>
                 <v-col cols="12" md="6">
                   <AppInput v-model.number="productData.validity_days" label="مدة الصلاحية (بالأيام)" type="number" placeholder="مثال: 365" />
                 </v-col>
                 <v-col cols="12">
-                  <v-label class="mb-2 font-weight-bold">مفاتيح الترخيص / الأكواد (اختياري)</v-label>
-                  <v-combobox
-                    v-model="productData.license_keys"
-                    multiple
-                    chips
-                    closable-chips
-                    placeholder="اضغط Enter بعد كل مفتاح"
-                    variant="outlined"
-                    hint="سيتم تسليم مفتاح واحد عند كل عملية بيع"
-                    persistent-hint
-                  />
+                  <v-combobox v-model="productData.license_keys" multiple chips closable-chips placeholder="اضغط Enter بعد كل مفتاح" variant="outlined" hint="مفاتيح الترخيص" persistent-hint />
                 </v-col>
                 <v-col cols="12">
-                  <AppTextarea
-                    v-model="productData.delivery_instructions"
-                    label="تعليمات التسليم للمشتري"
-                    placeholder="تظهر للمشتري فوراً بعد الدفع (مثال: طريقة تشغيل الكود)"
-                    rows="3"
-                  />
+                  <AppTextarea v-model="productData.delivery_instructions" label="تعليمات التسليم" placeholder="تظهر للمشتري بعد الدفع" rows="2" />
                 </v-col>
               </v-row>
             </v-card-text>
@@ -235,13 +227,22 @@
 
         <!-- Measurement Units Card -->
         <v-card border flat class="mb-2">
-          <div class="pa-2 mb-1 bg-grey-lighten-5 rounded-t-lg border-b d-flex align-center">
-            <v-icon icon="ri-scales-3-line" color="primary" size="14" class="me-2" />
-            <span class="text-xxs font-weight-bold">وحدات القياس والكسور</span>
+          <div class="pa-2 bg-grey-lighten-5 rounded-t-lg border-b d-flex align-center justify-space-between">
+            <div class="d-flex align-center gap-2">
+              <v-avatar color="orange-lighten-5" size="22" class="rounded-md">
+                <v-icon icon="ri-scales-3-line" color="orange-darken-2" size="12" />
+              </v-avatar>
+              <div>
+                <div class="text-xxs font-weight-bold">وحدات القياس</div>
+                <div class="text-xxs text-grey">مجموعة القياس ووحدات الشراء والبيع</div>
+              </div>
+            </div>
+            <v-chip v-if="productData.base_unit_id && !missingConversionsError" size="x-small" color="success" variant="flat" density="compact" prepend-icon="ri-check-line" class="px-1">مكتمل</v-chip>
+            <v-chip v-else-if="missingConversionsError" size="x-small" color="error" variant="flat" density="compact" prepend-icon="ri-error-warning-line" class="px-1">يحتاج مراجعة</v-chip>
           </div>
           <v-card-text class="pa-2">
-            <v-row>
-              <v-col cols="12" md="6">
+            <v-row dense>
+              <v-col cols="12">
                 <v-select
                   v-model="selectedGroup"
                   :items="unitGroups"
@@ -265,253 +266,146 @@
                 </v-select>
               </v-col>
 
-              <v-col cols="12" md="6" class="d-flex align-center">
-                <v-switch
-                  v-model="productData.allow_decimal_quantities"
-                  color="primary"
-                  inset
-                  density="compact"
-                  hide-details
-                >
+              <v-col cols="12" class="d-flex align-center">
+                <v-switch v-model="productData.allow_decimal_quantities" color="primary" inset density="compact" hide-details>
                   <template #label>
                     <div class="d-flex align-center gap-1">
                       <span class="text-body-2">السماح بكميات عشرية (كسور)</span>
-                      <AppFieldHelp text="تفعيل هذا الخيار يسمح ببيع وجرد المنتجات بكسور الوحدات (مثل 1.5 كيلوجرام). إذا كان معطلاً، فسيقبل النظام الأرقام الصحيحة فقط." />
+                      <AppFieldHelp text="تفعيل هذا الخيار يسمح ببيع وجرد المنتجات بكسور الوحدات (مثل 1.5 كيلوجرام)." />
                     </div>
                   </template>
                 </v-switch>
               </v-col>
 
               <v-col cols="12" md="4">
-                <v-select
-                  v-model="productData.base_unit_id"
-                  :items="filteredUnits"
-                  item-title="name"
-                  item-value="id"
-                  required
-                  variant="outlined"
-                  density="compact"
-                  hide-details="auto"
-                  :disabled="!selectedGroup"
-                  :placeholder="!selectedGroup ? 'اختر مجموعة القياس أولاً' : ''"
-                >
+                <v-select v-model="productData.base_unit_id" :items="filteredUnits" item-title="name" item-value="id" required variant="outlined" density="compact" hide-details="auto" :disabled="!selectedGroup" :placeholder="!selectedGroup ? 'اختر مجموعة أولاً' : ''">
                   <template #label>
                     <div class="d-flex align-center gap-1">
-                      <span>الوحدة الأساسية للمخزون *</span>
-                      <AppFieldHelp text="الوحدة التي يتم تقييم وجرد المخازن بها في قاعدة البيانات. يُنصح دائماً باختيار أصغر وحدة قياس لتفادي ظهور كسور عشرية غير مرغوب فيها عند المبيعات." />
+                      <span>الوحدة الأساسية *</span>
+                      <AppFieldHelp text="الوحدة التي يتم تقييم وجرد المخازن بها في قاعدة البيانات. يُنصح دائماً باختيار أصغر وحدة قياس." />
                     </div>
                   </template>
-                  <template #prepend-inner>
-                    <v-icon icon="ri-focus-3-line" size="16" color="grey" />
-                  </template>
+                  <template #prepend-inner><v-icon icon="ri-focus-3-line" size="16" color="grey" /></template>
                 </v-select>
               </v-col>
               <v-col cols="12" md="4">
-                <v-select
-                  v-model="productData.purchase_unit_id"
-                  :items="filteredUnits"
-                  item-title="name"
-                  item-value="id"
-                  variant="outlined"
-                  density="compact"
-                  hide-details="auto"
-                  :disabled="!selectedGroup"
-                  :placeholder="!selectedGroup ? 'اختر مجموعة القياس أولاً' : ''"
-                >
+                <v-select v-model="productData.purchase_unit_id" :items="filteredUnits" item-title="name" item-value="id" variant="outlined" density="compact" hide-details="auto" :disabled="!selectedGroup" :placeholder="!selectedGroup ? 'اختر مجموعة أولاً' : ''">
                   <template #label>
                     <div class="d-flex align-center gap-1">
-                      <span>وحدة الشراء الافتراضية</span>
-                      <AppFieldHelp text="الوحدة الافتراضية التي تُستخدم تلقائياً عند إنشاء فواتير المشتريات وأوامر التوريد." />
+                      <span>وحدة الشراء</span>
+                      <AppFieldHelp text="الوحدة الافتراضية في فواتير المشتريات." />
                     </div>
                   </template>
-                  <template #prepend-inner>
-                    <v-icon icon="ri-shopping-cart-2-line" size="16" color="grey" />
-                  </template>
+                  <template #prepend-inner><v-icon icon="ri-shopping-cart-2-line" size="16" color="grey" /></template>
                 </v-select>
               </v-col>
               <v-col cols="12" md="4">
-                <v-select
-                  v-model="productData.display_unit_id"
-                  :items="filteredUnits"
-                  item-title="name"
-                  item-value="id"
-                  variant="outlined"
-                  density="compact"
-                  hide-details="auto"
-                  :disabled="!selectedGroup"
-                  :placeholder="!selectedGroup ? 'اختر مجموعة القياس أولاً' : ''"
-                >
+                <v-select v-model="productData.display_unit_id" :items="filteredUnits" item-title="name" item-value="id" variant="outlined" density="compact" hide-details="auto" :disabled="!selectedGroup" :placeholder="!selectedGroup ? 'اختر مجموعة أولاً' : ''">
                   <template #label>
                     <div class="d-flex align-center gap-1">
-                      <span>وحدة العرض/البيع الافتراضية</span>
-                      <AppFieldHelp text="الوحدة الافتراضية التي تظهر في فواتير المبيعات، ونقاط البيع، وعرض المتجر." />
+                      <span>وحدة البيع</span>
+                      <AppFieldHelp text="الوحدة الافتراضية في فواتير المبيعات ونقاط البيع." />
                     </div>
                   </template>
-                  <template #prepend-inner>
-                    <v-icon icon="ri-price-tag-line" size="16" color="grey" />
-                  </template>
+                  <template #prepend-inner><v-icon icon="ri-price-tag-line" size="16" color="grey" /></template>
                 </v-select>
               </v-col>
 
               <v-col cols="12" md="6" v-if="productData.allow_decimal_quantities">
-                <v-select
-                  v-model.number="productData.quantity_precision"
-                  :items="[1, 2, 3, 4]"
-                  variant="outlined"
-                  density="compact"
-                  hide-details="auto"
-                >
+                <v-select v-model.number="productData.quantity_precision" :items="[1, 2, 3, 4]" variant="outlined" density="compact" hide-details="auto">
                   <template #label>
                     <div class="d-flex align-center gap-1">
-                      <span>عدد الخانات العشرية للكمية</span>
-                      <AppFieldHelp text="تحديد دقة التقريب للكسور العشرية في الفواتير والجرد (مثلاً 2 خانة تعني قبول 1.55)." />
+                      <span>عدد الخانات العشرية</span>
+                      <AppFieldHelp text="دقة التقريب للكسور في الفواتير والجرد." />
                     </div>
                   </template>
-                  <template #prepend-inner>
-                    <v-icon icon="ri-calculator-line" size="16" color="grey" />
-                  </template>
+                  <template #prepend-inner><v-icon icon="ri-calculator-line" size="16" color="grey" /></template>
                 </v-select>
               </v-col>
             </v-row>
 
-            <!-- تنبيهات الأمان والتحذيرات الذكية الخاصة بوحدات القياس -->
+            <!-- UOM Alerts -->
             <v-expand-transition>
-              <div class="mt-2 px-1">
-                <v-alert
-                  v-if="missingConversionsError"
-                  type="error"
-                  variant="tonal"
-                  density="compact"
-                  icon="ri-error-warning-fill"
-                  class="text-caption font-weight-bold mb-2"
-                >
-                  خطأ: لا توجد قاعدة تحويل معرفة بين بعض الوحدات المختارة ({{ missingConversionsList }}) وبين الوحدة الأساسية. لا يمكن الحفظ قبل إضافة قواعد التحويل من إعدادات وحدات القياس.
+              <div class="mt-2">
+                <v-alert v-if="missingConversionsError" type="error" variant="tonal" density="compact" icon="ri-error-warning-fill" class="text-caption font-weight-bold mb-2">
+                  خطأ: لا توجد قاعدة تحويل بين ({{ missingConversionsList }}) والوحدة الأساسية. يجب إضافتها من إعدادات وحدات القياس.
                 </v-alert>
-
-                <v-alert
-                  v-if="hasSmallerUnitWarning && !missingConversionsError"
-                  type="warning"
-                  variant="tonal"
-                  density="compact"
-                  icon="ri-alert-fill"
-                  class="text-caption mb-2"
-                >
-                  <div class="font-weight-bold mb-1">
-                    تنبيه: لقد اخترت {{ smallerUnitsList }} أصغر حجماً من الوحدة الأساسية للمخزون ({{ getUnitName(productData.base_unit_id) }}).
-                  </div>
-                  <div class="mb-1">
-                    <strong>الخيار الصحيح المقترح:</strong> يُنصح بشدة بجعل الوحدة الأساسية للمخزون هي أصغر وحدة قياس يتم التعامل بها (مثال: سنتيمتر)، على أن تكون وحدات الشراء أو البيع هي الوحدات الأكبر (مثال: متر).
-                  </div>
-                  <div>
-                    <strong>لماذا؟</strong> لتجنب تخزين وقياس كميات المخزون بالكسور العشرية في قاعدة البيانات، مما يضمن دقة العمليات المحاسبية والمخزنية وسهولة الجرد دون تباين الأرقام.
-                  </div>
+                <v-alert v-if="hasSmallerUnitWarning && !missingConversionsError" type="warning" variant="tonal" density="compact" icon="ri-alert-fill" class="text-caption mb-2">
+                  <div class="font-weight-bold mb-1">تنبيه: {{ smallerUnitsList }} أصغر من الوحدة الأساسية ({{ getUnitName(productData.base_unit_id) }}).</div>
+                  <div class="mb-1"><strong>الصحيح:</strong> الوحدة الأساسية يجب أن تكون أصغر وحدة قياس (مثال: سنتيمتر لا متر).</div>
+                  <div><strong>لماذا؟</strong> لتجنب الكسور العشرية في المخزون وضمان دقة الجرد.</div>
                 </v-alert>
               </div>
             </v-expand-transition>
           </v-card-text>
         </v-card>
 
-        <!-- Variant Manager -->
-        <VariantManager
-          :key="currentProductId || 'new'"
-          v-model="productData.variants"
-          :product-type="productData.product_type"
-          :units="units"
-          :selected-group="selectedGroup"
-          :base-unit-id="productData.base_unit_id"
-        />
-      </v-col>
-
-      <!-- Sidebar Options -->
-      <v-col cols="12" lg="4">
-        <!-- Status Card -->
-        <v-expansion-panels class="mb-2">
-          <v-expansion-panel class="border rounded-md overflow-hidden elevation-0">
-            <v-expansion-panel-title class="pa-2 bg-grey-lighten-5 rounded-t-lg border-b min-height-28">
-              <div class="d-flex align-center">
-                <v-icon icon="ri-settings-4-line" color="grey-darken-1" size="14" class="me-2" />
-                <span class="text-xxs font-weight-bold">حالة العرض والخيارات</span>
-              </div>
-            </v-expansion-panel-title>
-            <v-expansion-panel-text class="pa-0">
-              <v-card-text class="pa-2">
-                <div class="d-flex flex-column gap-2">
-                  <div class="d-flex align-center justify-space-between pa-2 hover-bg">
-                    <div>
-                      <div class="text-body-2 font-weight-bold">
-                        متاح للبيع
-                        <AppFieldHelp text="تفعيل أو تعطيل بيع هذا المنتج بشكل كامل. إذا كان معطلاً، فلن تتمكن من بيعه أو عرضه." />
-                      </div>
-                      <div class="text-caption text-grey">تفعيل أو تعطيل ظهور المنتج</div>
-                    </div>
-                    <v-switch v-model="productData.active" color="primary" hide-details inset density="compact" />
-                  </div>
-
-                  <v-divider />
-
-                  <div class="d-flex align-center justify-space-between pa-2 hover-bg">
-                    <div>
-                      <div class="text-body-2 font-weight-bold">
-                        منتج مميز
-                        <AppFieldHelp text="المنتجات المميزة تظهر عادة في بداية القوائم أو في أقسام خاصة لزيادة مبيعاتها." />
-                      </div>
-                      <div class="text-caption text-grey">عرض في الصفحة الرئيسية</div>
-                    </div>
-                    <v-switch v-model="productData.featured" color="primary" hide-details inset density="compact" />
-                  </div>
-
-                  <v-divider />
-
-                  <div class="d-flex align-center justify-space-between pa-2 hover-bg">
-                    <div>
-                      <div class="text-body-2 font-weight-bold">
-                        قابل للإرجاع
-                        <AppFieldHelp text="حدد ما إذا كان مسموحاً للعميل إرجاع هذا المنتج بعد شرائه واسترداد مبلغه (ينطبق على سياسة الاسترجاع)." />
-                      </div>
-                      <div class="text-caption text-grey">السماح بإرجاع المنتج واسترداد قيمته</div>
-                    </div>
-                    <v-switch v-model="productData.returnable" color="primary" hide-details inset density="compact" />
-                  </div>
-
-                  <v-divider />
-
-                  <div class="d-flex align-center justify-space-between pa-2 hover-bg">
-                    <div>
-                      <div class="text-body-2 font-weight-bold">
-                        يظهر في المتجر
-                        <AppFieldHelp text="إذا كان مفوضاً، سيتمكن العملاء من رؤية هذا المنتج وطلبه عبر متجرك الإلكتروني." />
-                      </div>
-                      <div class="text-caption text-grey">عرض المنتج في المتجر الإلكتروني</div>
-                    </div>
-                    <v-switch v-model="productData.is_active_in_store" color="primary" hide-details inset density="compact" />
-                  </div>
-
-                  <v-divider />
-
-                  <div class="d-flex align-center justify-space-between pa-2 hover-bg">
-                    <div>
-                      <div class="text-body-2 font-weight-bold">
-                        يظهر في المبيعات / POS
-                        <AppFieldHelp text="يتحكم في إمكانية ظهور هذا المنتج للبائعين (الكاشير) في واجهة نقطة البيع السريعة." />
-                      </div>
-                      <div class="text-caption text-grey">عرض المنتج في فواتير البيع ونقاط البيع</div>
-                    </div>
-                    <v-switch v-model="productData.is_active_in_sales" color="primary" hide-details inset density="compact" />
-                  </div>
+        <!-- Settings Card -->
+        <v-card border flat class="mb-2">
+          <div class="pa-2 bg-grey-lighten-5 rounded-t-lg border-b d-flex align-center gap-2">
+            <v-avatar color="grey-lighten-3" size="22" class="rounded-md">
+              <v-icon icon="ri-settings-4-line" color="grey-darken-1" size="12" />
+            </v-avatar>
+            <div class="text-xxs font-weight-bold">حالة العرض والخيارات</div>
+          </div>
+          <v-card-text class="pa-1">
+            <div class="d-flex flex-column">
+              <div class="d-flex align-center justify-space-between px-2 py-1 hover-bg rounded">
+                <div>
+                  <div class="text-body-2 font-weight-bold">متاح للبيع <AppFieldHelp text="تفعيل أو تعطيل بيع هذا المنتج بشكل كامل." /></div>
+                  <div class="text-caption text-grey">تفعيل أو تعطيل ظهور المنتج</div>
                 </div>
-              </v-card-text>
-            </v-expansion-panel-text>
-          </v-expansion-panel>
-        </v-expansion-panels>
+                <v-switch v-model="productData.active" color="primary" hide-details inset density="compact" />
+              </div>
+              <v-divider />
+              <div class="d-flex align-center justify-space-between px-2 py-1 hover-bg rounded">
+                <div>
+                  <div class="text-body-2 font-weight-bold">منتج مميز <AppFieldHelp text="المنتجات المميزة تظهر في أقسام خاصة لزيادة مبيعاتها." /></div>
+                  <div class="text-caption text-grey">عرض في الصفحة الرئيسية</div>
+                </div>
+                <v-switch v-model="productData.featured" color="primary" hide-details inset density="compact" />
+              </div>
+              <v-divider />
+              <div class="d-flex align-center justify-space-between px-2 py-1 hover-bg rounded">
+                <div>
+                  <div class="text-body-2 font-weight-bold">قابل للإرجاع <AppFieldHelp text="حدد ما إذا كان مسموحاً إرجاع هذا المنتج واسترداد مبلغه." /></div>
+                  <div class="text-caption text-grey">السماح بإرجاع المنتج</div>
+                </div>
+                <v-switch v-model="productData.returnable" color="primary" hide-details inset density="compact" />
+              </div>
+              <v-divider />
+              <div class="d-flex align-center justify-space-between px-2 py-1 hover-bg rounded">
+                <div>
+                  <div class="text-body-2 font-weight-bold">يظهر في المتجر <AppFieldHelp text="يتمكن العملاء من رؤيته وطلبه عبر متجرك الإلكتروني." /></div>
+                  <div class="text-caption text-grey">عرض المنتج في المتجر الإلكتروني</div>
+                </div>
+                <v-switch v-model="productData.is_active_in_store" color="primary" hide-details inset density="compact" />
+              </div>
+              <v-divider />
+              <div class="d-flex align-center justify-space-between px-2 py-1 hover-bg rounded">
+                <div>
+                  <div class="text-body-2 font-weight-bold">يظهر في المبيعات / POS <AppFieldHelp text="يتحكم في إمكانية ظهور هذا المنتج للبائعين في نقطة البيع السريعة." /></div>
+                  <div class="text-caption text-grey">عرض في فواتير البيع ونقاط البيع</div>
+                </div>
+                <v-switch v-model="productData.is_active_in_sales" color="primary" hide-details inset density="compact" />
+              </div>
+            </div>
+          </v-card-text>
+        </v-card>
 
         <!-- Media Card -->
         <v-card border flat class="pb-2">
-          <div class="pa-2 bg-grey-lighten-5 rounded-t-lg border-b d-flex align-center">
-            <v-icon icon="ri-image-line" color="grey-darken-1" size="14" class="me-2" />
-            <span class="text-xxs font-weight-bold">
-              صور المنتج
-              <span v-if="productData.is_active_in_store" class="text-error font-weight-bold">*</span>
-            </span>
+          <div class="pa-2 bg-grey-lighten-5 rounded-t-lg border-b d-flex align-center gap-2">
+            <v-avatar color="teal-lighten-5" size="22" class="rounded-md">
+              <v-icon icon="ri-image-line" color="teal-darken-1" size="12" />
+            </v-avatar>
+            <div>
+              <div class="text-xxs font-weight-bold">
+                صور المنتج
+                <span v-if="productData.is_active_in_store" class="text-error">*</span>
+              </div>
+              <div class="text-xxs text-grey">الصورة الرئيسية وصور المعرض</div>
+            </div>
           </div>
           <v-card-text class="pa-2">
             <ProductMediaManager v-model="productData.images" v-model:primaryImageId="productData.primary_image_id" class="mt-1" />
@@ -520,6 +414,18 @@
             </div>
           </v-card-text>
         </v-card>
+      </v-col>
+
+      <!-- =================== LEFT PANEL (65%): Variant Manager =================== -->
+      <v-col cols="12" lg="8" class="ps-lg-2">
+        <VariantManager
+          :key="currentProductId || 'new'"
+          v-model="productData.variants"
+          :product-type="productData.product_type"
+          :units="units"
+          :selected-group="selectedGroup"
+          :base-unit-id="productData.base_unit_id"
+        />
       </v-col>
     </v-row>
 
@@ -708,6 +614,28 @@ const handleGroupChange = () => {
 const filteredUnits = computed(() => {
   if (!selectedGroup.value) return [];
   return units.value.filter(u => u.unit_group_id === selectedGroup.value);
+});
+
+// مؤشرات التقدم في تعبئة النموذج
+const formProgressSteps = computed(() => {
+  const hasBasicInfo = !!(productData.value.name);
+  const hasUOM = !!(productData.value.base_unit_id) && !missingConversionsError.value;
+  const hasVariants = productData.value.variants?.length > 0 && productData.value.variants[0]?.retail_price > 0;
+  const hasSettings = true; // الإعدادات دائماً بها قيم افتراضية
+
+  return [
+    { label: 'المعلومات', done: hasBasicInfo, active: !hasBasicInfo },
+    { label: 'وحدات القياس', done: hasUOM, active: hasBasicInfo && !hasUOM },
+    { label: 'المتغيرات', done: hasVariants, active: hasBasicInfo && hasUOM && !hasVariants },
+    { label: 'الإعدادات', done: hasSettings && hasVariants, active: hasBasicInfo && hasUOM && hasVariants },
+  ];
+});
+
+// نسبة اكتمال النموذج
+const formCompletionPercent = computed(() => {
+  const steps = formProgressSteps.value;
+  const done = steps.filter(s => s.done).length;
+  return Math.round((done / steps.length) * 100);
 });
 
 // فحص وجود أي وحدة شراء أو عرض/بيع أصغر من الوحدة الأساسية
@@ -1172,12 +1100,9 @@ onUnmounted(() => {
   font-size: 10px !important;
 }
 
-.gap-2 {
-  gap: 0.5rem;
-}
-.gap-3 {
-  gap: 0.75rem;
-}
+.gap-1 { gap: 0.25rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
 
 .hover-bg:hover {
   background-color: var(--v-theme-surface-variant);
@@ -1187,6 +1112,65 @@ onUnmounted(() => {
   min-height: 28px !important;
 }
 
+.cursor-pointer { cursor: pointer; }
+
+/* ===== Progress Stepper ===== */
+.progress-step {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s;
+}
+
+.step-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.step-num {
+  font-size: 8px;
+  color: rgba(0,0,0,0.4);
+  font-weight: bold;
+}
+
+.step-label {
+  font-size: 10px;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+/* ===== Product Type Cards ===== */
+.product-type-card {
+  border: 1.5px solid rgba(0, 0, 0, 0.08);
+  background: white;
+  transition: all 0.2s ease;
+  min-height: 48px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.product-type-card:hover {
+  border-color: rgba(var(--v-theme-primary), 0.4);
+  background: rgba(var(--v-theme-primary), 0.02);
+}
+
+.product-type-card--active {
+  border-color: rgb(var(--v-theme-primary)) !important;
+  background: rgba(var(--v-theme-primary), 0.05) !important;
+  box-shadow: 0 2px 8px rgba(var(--v-theme-primary), 0.15);
+}
+
+.product-type-card--inactive {
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+/* ===== Vuetify Overrides ===== */
 :deep(.v-expansion-panel-text__wrapper) {
   padding: 0 !important;
 }
@@ -1201,4 +1185,6 @@ onUnmounted(() => {
 :deep(.v-breadcrumbs-item--disabled) {
   opacity: 0.5;
 }
+
+.w-100 { width: 100% !important; }
 </style>
