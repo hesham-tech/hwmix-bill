@@ -102,6 +102,58 @@
                 </p>
               </v-card-text>
 
+              <v-divider class="border-opacity-25" />
+
+              <div class="px-4 py-3 bg-grey-lighten-5">
+                <div class="d-flex justify-space-between align-center mb-1 text-body-2">
+                  <span class="text-grey-darken-1 d-flex align-center">
+                    <v-icon icon="ri-archive-line" size="16" class="me-1" color="grey-darken-1" />
+                    إجمالي القطع:
+                  </span>
+                  <span class="font-weight-bold text-slate-800">{{ formatNumber(warehouse.total_items, 0) }}</span>
+                </div>
+                <div class="d-flex justify-space-between align-center mb-1 text-body-2">
+                  <span class="text-grey-darken-1 d-flex align-center">
+                    <v-icon icon="ri-price-tag-3-line" size="16" class="me-1" color="grey-darken-1" />
+                    عدد الأصناف:
+                  </span>
+                  <span class="font-weight-medium text-grey-darken-3">{{ formatNumber(warehouse.total_unique_items, 0) }} صنف</span>
+                </div>
+                <div class="d-flex justify-space-between align-center mb-1 text-body-2">
+                  <span class="text-grey-darken-1 d-flex align-center">
+                    <v-icon icon="ri-money-dollar-circle-line" size="16" class="me-1" color="success" />
+                    قيمة الجملة:
+                  </span>
+                  <span class="font-weight-bold text-success-darken-1">{{ formatCurrency(warehouse.total_wholesale_value) }}</span>
+                </div>
+                <div class="d-flex justify-space-between align-center mb-2 text-body-2">
+                  <span class="text-grey-darken-1 d-flex align-center">
+                    <v-icon icon="ri-shopping-cart-line" size="16" class="me-1" color="primary" />
+                    قيمة القطاعي:
+                  </span>
+                  <span class="font-weight-bold text-primary">{{ formatCurrency(warehouse.total_retail_value) }}</span>
+                </div>
+
+                <div class="d-flex gap-1 flex-wrap mt-2 pt-2 border-top border-dashed">
+                  <v-chip v-if="warehouse.expired_items_count > 0" color="error" size="x-small" variant="flat" class="font-weight-bold">
+                    <v-icon icon="ri-time-line" start size="10" />
+                    {{ warehouse.expired_items_count }} منتهي
+                  </v-chip>
+                  <v-chip v-if="warehouse.low_stock_items_count > 0" color="warning" size="x-small" variant="flat" class="font-weight-bold">
+                    <v-icon icon="ri-alert-line" start size="10" />
+                    {{ warehouse.low_stock_items_count }} ناقص
+                  </v-chip>
+                  <v-chip v-if="warehouse.expiring_soon_items_count > 0" color="info" size="x-small" variant="flat" class="font-weight-bold">
+                    <v-icon icon="ri-calendar-todo-line" start size="10" />
+                    {{ warehouse.expiring_soon_items_count }} قريباً
+                  </v-chip>
+                  <span v-if="warehouse.expired_items_count === 0 && warehouse.low_stock_items_count === 0 && warehouse.expiring_soon_items_count === 0" class="text-caption text-success font-weight-medium d-flex align-center">
+                    <v-icon icon="ri-checkbox-circle-fill" color="success" class="me-1" size="12" />
+                    حالة المخزون سليمة
+                  </span>
+                </div>
+              </div>
+
               <v-divider />
 
               <div class="d-flex align-center justify-space-between px-3 py-2">
@@ -117,6 +169,14 @@
                   جرد المخزون
                 </v-btn>
                 <div class="d-flex gap-2">
+                  <AppButton
+                    v-if="canAny(PERMISSIONS.STOCKS_VIEW_ALL, PERMISSIONS.STOCKS_VIEW_CHILDREN, PERMISSIONS.STOCKS_VIEW_SELF)"
+                    icon="ri-arrow-left-right-line"
+                    variant="text"
+                    color="primary"
+                    @click="handleOpenTransfer(warehouse)"
+                    title="تحويل مخزني"
+                  />
                   <AppButton
                     v-if="
                       !warehouse.is_default &&
@@ -174,6 +234,67 @@
         </div>
       </template>
 
+      <template #item.total_items="{ item }">
+        <span class="font-weight-bold">{{ formatNumber(item.total_items, 0) }}</span>
+      </template>
+
+      <template #item.total_unique_items="{ item }">
+        <v-chip color="grey-lighten-4" class="text-grey-darken-3 font-weight-medium" size="small">
+          {{ formatNumber(item.total_unique_items, 0) }} صنف
+        </v-chip>
+      </template>
+
+      <template #item.total_wholesale_value="{ item }">
+        <span class="font-weight-bold text-success-darken-1">{{ formatCurrency(item.total_wholesale_value) }}</span>
+      </template>
+
+      <template #item.total_retail_value="{ item }">
+        <span class="font-weight-bold text-primary">{{ formatCurrency(item.total_retail_value) }}</span>
+      </template>
+
+      <template #item.total_cost_value="{ item }">
+        <span class="font-weight-bold text-secondary">{{ formatCurrency(item.total_cost_value) }}</span>
+      </template>
+
+      <template #item.alerts="{ item }">
+        <div class="d-flex align-center justify-center gap-1">
+          <!-- المنتجات المنتهية -->
+          <v-tooltip v-if="item.expired_items_count > 0" text="منتجات منتهية الصلاحية">
+            <template #activator="{ props }">
+              <v-chip v-bind="props" color="error" size="small" variant="flat" class="font-weight-bold">
+                <v-icon icon="ri-time-line" start size="14" />
+                {{ item.expired_items_count }} منتهي
+              </v-chip>
+            </template>
+          </v-tooltip>
+
+          <!-- النواقص -->
+          <v-tooltip v-if="item.low_stock_items_count > 0" text="أصناف قاربت على النفاد أو نفدت">
+            <template #activator="{ props }">
+              <v-chip v-bind="props" color="warning" size="small" variant="flat" class="font-weight-bold">
+                <v-icon icon="ri-alert-line" start size="14" />
+                {{ item.low_stock_items_count }} ناقص
+              </v-chip>
+            </template>
+          </v-tooltip>
+
+          <!-- تنبيه قرب انتهاء الصلاحية -->
+          <v-tooltip v-if="item.expiring_soon_items_count > 0" text="منتجات ستنتهي خلال 30 يوم">
+            <template #activator="{ props }">
+              <v-chip v-bind="props" color="info" size="small" variant="flat" class="font-weight-bold">
+                <v-icon icon="ri-calendar-todo-line" start size="14" />
+                {{ item.expiring_soon_items_count }} قريباً
+              </v-chip>
+            </template>
+          </v-tooltip>
+
+          <span v-if="item.expired_items_count === 0 && item.low_stock_items_count === 0 && item.expiring_soon_items_count === 0" class="text-caption text-success font-weight-medium d-flex align-center">
+            <v-icon icon="ri-checkbox-circle-fill" color="success" class="me-1" size="14" />
+            سليم
+          </span>
+        </div>
+      </template>
+
       <template #item.status="{ item }">
         <v-chip :color="item.is_active ? 'success' : 'error'" size="small" variant="flat" class="font-weight-bold">
           {{ item.is_active ? 'نشط' : 'معطل' }}
@@ -187,6 +308,13 @@
           title="جرد المخزون"
           class="text-secondary"
           @click="handleViewStock(item)"
+        />
+        <v-list-item
+          v-if="canAny(PERMISSIONS.STOCKS_VIEW_ALL, PERMISSIONS.STOCKS_VIEW_CHILDREN, PERMISSIONS.STOCKS_VIEW_SELF)"
+          prepend-icon="ri-arrow-left-right-line"
+          title="تحويل مخزني"
+          class="text-primary"
+          @click="handleOpenTransfer(item)"
         />
         <v-list-item
           v-if="
@@ -234,6 +362,9 @@
 
     <!-- Stock Adjustment Dialog -->
     <StockAdjustmentDialog v-model="isAdjustmentOpen" :warehouse="selectedWarehouse" @success="loadWarehouses" />
+
+    <!-- Stock Transfer Dialog -->
+    <StockTransferDialog v-model="isTransferOpen" :warehouse="selectedWarehouse" @success="loadWarehouses" />
   </div>
 </template>
 
@@ -244,6 +375,7 @@ import { useWarehouseStore } from '../store/warehouse.store';
 import { useDialog, useConfirm } from '@/composables';
 import { usePermissions } from '@/composables/usePermissions';
 import { PERMISSIONS } from '@/config/permissions';
+import { formatCurrency, formatNumber } from '@/utils/formatters';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 import AppDialog from '@/components/common/AppDialog.vue';
 import AppButton from '@/components/common/AppButton.vue';
@@ -254,6 +386,7 @@ import EmptyState from '@/components/common/EmptyState.vue';
 import AppConfirmDialog from '@/components/common/AppConfirmDialog.vue';
 import WarehouseForm from '../components/WarehouseForm.vue';
 import StockAdjustmentDialog from '../components/StockAdjustmentDialog.vue';
+import StockTransferDialog from '../components/StockTransferDialog.vue';
 
 const store = useWarehouseStore();
 const { warehouses, loading, totalItems, page, itemsPerPage, search, sortBy } = storeToRefs(store);
@@ -267,11 +400,18 @@ const isSaving = ref(false);
 const viewMode = ref('grid');
 
 const isAdjustmentOpen = ref(false);
+const isTransferOpen = ref(false);
 const selectedWarehouse = ref(null);
 
 const headers = [
   { title: 'المخزن', key: 'name', sortable: true, mandatory: true },
   { title: 'الموقع', key: 'location', sortable: false },
+  { title: 'إجمالي القطع', key: 'total_items', align: 'center', sortable: true },
+  { title: 'الأصناف', key: 'total_unique_items', align: 'center', sortable: true },
+  { title: 'قيمة الجملة', key: 'total_wholesale_value', align: 'end', sortable: true },
+  { title: 'قيمة التجزئة', key: 'total_retail_value', align: 'end', sortable: true },
+  { title: 'إجمالي التكلفة', key: 'total_cost_value', align: 'end', sortable: true, defaultHide: true },
+  { title: 'التنبيهات', key: 'alerts', align: 'center', sortable: false },
   { title: 'المدير', key: 'manager', defaultHide: true },
   { title: 'السعة الاستيعابية', key: 'capacity', defaultHide: true },
   { title: 'الوصف', key: 'description', defaultHide: true },
@@ -338,6 +478,11 @@ const handleViewStock = warehouse => {
   isAdjustmentOpen.value = true;
 };
 
+const handleOpenTransfer = warehouse => {
+  selectedWarehouse.value = warehouse;
+  isTransferOpen.value = true;
+};
+
 const handleSetDefault = async warehouse => {
   confirm(`هل أنت متأكد من تعيين المخزن "${warehouse.name}" كمخزن افتراضي؟`, async () => {
     await store.setDefaultWarehouse(warehouse.id);
@@ -402,5 +547,25 @@ watch([page, itemsPerPage], () => {
 
 .hover-scale:hover {
   transform: scale(1.02);
+}
+
+.border-dashed {
+  border-top: 1px dashed rgba(0, 0, 0, 0.08) !important;
+}
+
+.gap-1 {
+  gap: 4px;
+}
+
+.text-success-darken-1 {
+  color: #2e7d32 !important;
+}
+
+.text-slate-800 {
+  color: #1e293b !important;
+}
+
+.border-top {
+  border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
 }
 </style>

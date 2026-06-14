@@ -68,8 +68,9 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useApi } from '@/composables/useApi';
+import { useUserStore } from '@/stores/user';
 import AppDialog from '@/components/common/AppDialog.vue';
 import AppInput from '@/components/common/AppInput.vue';
 import AppButton from '@/components/common/AppButton.vue';
@@ -93,11 +94,32 @@ const isOpen = computed({
   set: val => emit('update:modelValue', val),
 });
 
-const inventoryApi = useApi('/api/inventory');
+const invoiceApi = useApi('/api/invoices');
+const invoiceTypesApi = useApi('/api/invoice-types');
+const userStore = useUserStore();
+
 const loading = ref(false);
 const isFormValid = ref(false);
 const form = ref(null);
 const items = ref([]);
+const adjustmentTypeId = ref(null);
+
+const loadAdjustmentType = async () => {
+  try {
+    const res = await invoiceTypesApi.get();
+    const types = res.data || [];
+    const adjType = types.find(t => t.code === 'inventory_adjustment');
+    if (adjType) {
+      adjustmentTypeId.value = adjType.id;
+    }
+  } catch (error) {
+    console.error('Failed to load invoice types:', error);
+  }
+};
+
+onMounted(() => {
+  loadAdjustmentType();
+});
 
 const selectVariant = productItem => {
   // Only allow physical products for stock adjustment
@@ -124,17 +146,31 @@ const handleSubmit = async () => {
   const { valid } = await form.value.validate();
   if (!valid || items.value.length === 0) return;
 
+  if (!adjustmentTypeId.value) {
+    toast.error('لم يتم تحميل نوع الفاتورة الخاص بالتسوية المخزنية بعد.');
+    return;
+  }
+
   loading.value = true;
   try {
     const payload = {
+      invoice_type_id: adjustmentTypeId.value,
+      invoice_type_code: 'inventory_adjustment',
       warehouse_id: props.warehouse.id,
+      gross_amount: 0,
+      net_amount: 0,
+      user_id: userStore.currentUser?.id || 1,
       items: items.value.map(item => ({
+        product_id: item.product_id,
         variant_id: item.variant_id,
+        name: item.name,
         quantity: item.quantity,
+        unit_price: 0,
+        total: 0,
       })),
     };
 
-    await inventoryApi.create(payload);
+    await invoiceApi.create(payload);
     toast.success('تم تعديل المخزون بنجاح');
     emit('success');
     close();

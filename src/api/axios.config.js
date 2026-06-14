@@ -153,10 +153,12 @@ apiClient.interceptors.response.use(
         });
       } else {
         toast.error(serverMessage || 'ليس لديك صلاحية للوصول إلى هذا المورد.');
-        router.push({
-          path: '/app/forbidden',
-          query: { message: serverMessage },
-        });
+        if (error.config?.method?.toLowerCase() === 'get') {
+          router.push({
+            path: '/app/forbidden',
+            query: { message: serverMessage },
+          });
+        }
       }
       return Promise.reject(error);
     }
