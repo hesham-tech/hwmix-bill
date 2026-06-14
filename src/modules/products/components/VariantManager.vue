@@ -235,7 +235,7 @@
               <div class="stock-grid">
                 <div v-for="(stock, sIndex) in variant.stocks" :key="sIndex" class="stock-card border rounded-md pa-3 bg-grey-lighten-5 mb-3">
                   <v-row dense align="center">
-                    <v-col cols="12" md="7">
+                    <v-col cols="12" md="5">
                       <AppAutocomplete
                         v-model="stock.warehouse_id"
                         label="المستودع / الفرع"
@@ -248,7 +248,7 @@
                         hide-details
                       />
                     </v-col>
-                    <v-col cols="8" md="4">
+                    <v-col cols="6" md="3">
                         <AppInput
                           v-model.number="stock.quantity"
                           label="الكمية المتوفرة *"
@@ -265,7 +265,26 @@
                           persistent-hint
                         />
                     </v-col>
-                    <v-col cols="4" md="1" class="d-flex justify-end">
+                    <v-col cols="6" md="3">
+                      <v-select
+                        v-model="stock.unit_id"
+                        :items="filteredUnits"
+                        item-title="name"
+                        item-value="id"
+                        label="وحدة الجرد"
+                        variant="outlined"
+                        density="compact"
+                        bg-color="white"
+                        hide-details="auto"
+                        :disabled="!selectedGroup"
+                        :placeholder="!selectedGroup ? 'اختر مجموعة أولاً' : ''"
+                      >
+                        <template #prepend-inner>
+                          <v-icon icon="ri-scales-3-line" size="16" color="grey" />
+                        </template>
+                      </v-select>
+                    </v-col>
+                    <v-col cols="12" md="1" class="d-flex justify-end">
                       <v-btn
                         v-if="sIndex !== 0"
                         icon="ri-delete-bin-7-line"
@@ -412,7 +431,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 
 const stockRules = [
   v => (v !== null && v !== undefined && v !== '') || 'قيمة المخزون مطلوبة',
@@ -441,12 +460,47 @@ const props = defineProps({
     type: String,
     default: 'physical',
   },
+  units: {
+    type: Array,
+    default: () => [],
+  },
+  selectedGroup: {
+    type: Number,
+    default: null,
+  },
+  baseUnitId: {
+    type: [Number, String],
+    default: null,
+  },
 });
 
 const emit = defineEmits(['update:modelValue']);
 
 const productStore = useProductStore();
 const activePanel = ref([0]);
+
+// فلترة وحدات القياس بحسب مجموعة القياس المحددة للمنتج
+const filteredUnits = computed(() => {
+  if (!props.selectedGroup) return [];
+  return props.units.filter(u => u.unit_group_id === props.selectedGroup);
+});
+
+// تعيين وحدة المخزون الافتراضية للفروع عند اختيار الوحدة الأساسية
+watch(
+  () => props.baseUnitId,
+  (newVal) => {
+    if (newVal) {
+      props.modelValue.forEach(v => {
+        v.stocks?.forEach(s => {
+          if (!s.unit_id) {
+            s.unit_id = newVal;
+          }
+        });
+      });
+    }
+  },
+  { immediate: true }
+);
 
 const calculateTotalQty = variant => {
   return variant.stocks?.reduce((acc, s) => acc + (parseInt(s.quantity) || 0), 0) || 0;
@@ -522,7 +576,7 @@ const addVariant = async () => {
       retail_price: lastVariant.retail_price,
       sku: '',
       barcode: '',
-      stocks: lastVariant.stocks.map(s => ({ warehouse_id: s.warehouse_id, quantity: null })),
+      stocks: lastVariant.stocks.map(s => ({ warehouse_id: s.warehouse_id, quantity: null, unit_id: props.baseUnitId })),
       images: [],
       primary_image_id: null,
       attributes: lastVariant.attributes ? lastVariant.attributes.map(a => ({ ...a })) : [],
@@ -536,7 +590,7 @@ const addVariant = async () => {
       profit_margin: 0,
       sku: '',
       barcode: '',
-      stocks: [{ warehouse_id: warehouseId, quantity: null }],
+      stocks: [{ warehouse_id: warehouseId, quantity: null, unit_id: props.baseUnitId }],
       images: [],
       primary_image_id: null,
       attributes: [{ attribute_id: null, attribute_value_id: null }],
@@ -574,7 +628,7 @@ const removeVariant = index => {
 const addStock = async vIndex => {
   const newVariants = [...props.modelValue];
   const warehouseId = await productStore.fetchDefaultWarehouse();
-  newVariants[vIndex].stocks.push({ warehouse_id: warehouseId, quantity: null });
+  newVariants[vIndex].stocks.push({ warehouse_id: warehouseId, quantity: null, unit_id: props.baseUnitId });
   emit('update:modelValue', newVariants);
 };
 

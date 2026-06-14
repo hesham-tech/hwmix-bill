@@ -28,7 +28,7 @@
       <template #append>
         <div class="d-flex gap-2">
           <AppButton variant="text" color="grey-darken-1" size="small" density="compact" @click="emit('cancel')"> إلغاء </AppButton>
-          <AppButton color="primary" type="submit" :loading="loading" :disabled="!isValid" size="small" density="compact" class="px-4" prepend-icon="ri-save-3-line">
+          <AppButton color="primary" type="submit" :loading="loading" :disabled="!isValid || missingConversionsError" size="small" density="compact" class="px-4" prepend-icon="ri-save-3-line">
             حفظ التغييرات
           </AppButton>
         </div>
@@ -241,18 +241,66 @@
           </div>
           <v-card-text class="pa-2">
             <v-row>
-              <v-col cols="12" md="4">
+              <v-col cols="12" md="6">
                 <v-select
-                  v-model="productData.base_unit_id"
-                  :items="units"
+                  v-model="selectedGroup"
+                  :items="unitGroups"
                   item-title="name"
                   item-value="id"
-                  label="الوحدة الأساسية للمخزون *"
                   required
                   variant="outlined"
                   density="compact"
                   hide-details="auto"
+                  @update:model-value="handleGroupChange"
                 >
+                  <template #label>
+                    <div class="d-flex align-center gap-1">
+                      <span>مجموعة وحدات القياس *</span>
+                      <AppFieldHelp text="تُحدد نوع الوحدات المسموح بالاختيار منها لمنع تعارض الوحدات غير المتوافقة (مثل الوزن مع الطول)." />
+                    </div>
+                  </template>
+                  <template #prepend-inner>
+                    <v-icon icon="ri-stack-line" size="16" color="grey" />
+                  </template>
+                </v-select>
+              </v-col>
+
+              <v-col cols="12" md="6" class="d-flex align-center">
+                <v-switch
+                  v-model="productData.allow_decimal_quantities"
+                  color="primary"
+                  inset
+                  density="compact"
+                  hide-details
+                >
+                  <template #label>
+                    <div class="d-flex align-center gap-1">
+                      <span class="text-body-2">السماح بكميات عشرية (كسور)</span>
+                      <AppFieldHelp text="تفعيل هذا الخيار يسمح ببيع وجرد المنتجات بكسور الوحدات (مثل 1.5 كيلوجرام). إذا كان معطلاً، فسيقبل النظام الأرقام الصحيحة فقط." />
+                    </div>
+                  </template>
+                </v-switch>
+              </v-col>
+
+              <v-col cols="12" md="4">
+                <v-select
+                  v-model="productData.base_unit_id"
+                  :items="filteredUnits"
+                  item-title="name"
+                  item-value="id"
+                  required
+                  variant="outlined"
+                  density="compact"
+                  hide-details="auto"
+                  :disabled="!selectedGroup"
+                  :placeholder="!selectedGroup ? 'اختر مجموعة القياس أولاً' : ''"
+                >
+                  <template #label>
+                    <div class="d-flex align-center gap-1">
+                      <span>الوحدة الأساسية للمخزون *</span>
+                      <AppFieldHelp text="الوحدة التي يتم تقييم وجرد المخازن بها في قاعدة البيانات. يُنصح دائماً باختيار أصغر وحدة قياس لتفادي ظهور كسور عشرية غير مرغوب فيها عند المبيعات." />
+                    </div>
+                  </template>
                   <template #prepend-inner>
                     <v-icon icon="ri-focus-3-line" size="16" color="grey" />
                   </template>
@@ -261,14 +309,21 @@
               <v-col cols="12" md="4">
                 <v-select
                   v-model="productData.purchase_unit_id"
-                  :items="units"
+                  :items="filteredUnits"
                   item-title="name"
                   item-value="id"
-                  label="وحدة الشراء الافتراضية"
                   variant="outlined"
                   density="compact"
                   hide-details="auto"
+                  :disabled="!selectedGroup"
+                  :placeholder="!selectedGroup ? 'اختر مجموعة القياس أولاً' : ''"
                 >
+                  <template #label>
+                    <div class="d-flex align-center gap-1">
+                      <span>وحدة الشراء الافتراضية</span>
+                      <AppFieldHelp text="الوحدة الافتراضية التي تُستخدم تلقائياً عند إنشاء فواتير المشتريات وأوامر التوريد." />
+                    </div>
+                  </template>
                   <template #prepend-inner>
                     <v-icon icon="ri-shopping-cart-2-line" size="16" color="grey" />
                   </template>
@@ -277,51 +332,94 @@
               <v-col cols="12" md="4">
                 <v-select
                   v-model="productData.display_unit_id"
-                  :items="units"
+                  :items="filteredUnits"
                   item-title="name"
                   item-value="id"
-                  label="وحدة العرض/البيع الافتراضية"
                   variant="outlined"
                   density="compact"
                   hide-details="auto"
+                  :disabled="!selectedGroup"
+                  :placeholder="!selectedGroup ? 'اختر مجموعة القياس أولاً' : ''"
                 >
+                  <template #label>
+                    <div class="d-flex align-center gap-1">
+                      <span>وحدة العرض/البيع الافتراضية</span>
+                      <AppFieldHelp text="الوحدة الافتراضية التي تظهر في فواتير المبيعات، ونقاط البيع، وعرض المتجر." />
+                    </div>
+                  </template>
                   <template #prepend-inner>
                     <v-icon icon="ri-price-tag-line" size="16" color="grey" />
                   </template>
                 </v-select>
               </v-col>
 
-              <v-col cols="12" md="6" class="d-flex align-center">
-                <v-switch
-                  v-model="productData.allow_decimal_quantities"
-                  label="السماح بكميات عشرية (كسور)"
-                  color="primary"
-                  inset
-                  density="compact"
-                  hide-details
-                />
-              </v-col>
-
               <v-col cols="12" md="6" v-if="productData.allow_decimal_quantities">
                 <v-select
                   v-model.number="productData.quantity_precision"
                   :items="[1, 2, 3, 4]"
-                  label="عدد الخانات العشرية للكمية"
                   variant="outlined"
                   density="compact"
                   hide-details="auto"
                 >
+                  <template #label>
+                    <div class="d-flex align-center gap-1">
+                      <span>عدد الخانات العشرية للكمية</span>
+                      <AppFieldHelp text="تحديد دقة التقريب للكسور العشرية في الفواتير والجرد (مثلاً 2 خانة تعني قبول 1.55)." />
+                    </div>
+                  </template>
                   <template #prepend-inner>
                     <v-icon icon="ri-calculator-line" size="16" color="grey" />
                   </template>
                 </v-select>
               </v-col>
             </v-row>
+
+            <!-- تنبيهات الأمان والتحذيرات الذكية الخاصة بوحدات القياس -->
+            <v-expand-transition>
+              <div class="mt-2 px-1">
+                <v-alert
+                  v-if="missingConversionsError"
+                  type="error"
+                  variant="tonal"
+                  density="compact"
+                  icon="ri-error-warning-fill"
+                  class="text-caption font-weight-bold mb-2"
+                >
+                  خطأ: لا توجد قاعدة تحويل معرفة بين بعض الوحدات المختارة ({{ missingConversionsList }}) وبين الوحدة الأساسية. لا يمكن الحفظ قبل إضافة قواعد التحويل من إعدادات وحدات القياس.
+                </v-alert>
+
+                <v-alert
+                  v-if="hasSmallerUnitWarning && !missingConversionsError"
+                  type="warning"
+                  variant="tonal"
+                  density="compact"
+                  icon="ri-alert-fill"
+                  class="text-caption mb-2"
+                >
+                  <div class="font-weight-bold mb-1">
+                    تنبيه: لقد اخترت {{ smallerUnitsList }} أصغر حجماً من الوحدة الأساسية للمخزون ({{ getUnitName(productData.base_unit_id) }}).
+                  </div>
+                  <div class="mb-1">
+                    <strong>الخيار الصحيح المقترح:</strong> يُنصح بشدة بجعل الوحدة الأساسية للمخزون هي أصغر وحدة قياس يتم التعامل بها (مثال: سنتيمتر)، على أن تكون وحدات الشراء أو البيع هي الوحدات الأكبر (مثال: متر).
+                  </div>
+                  <div>
+                    <strong>لماذا؟</strong> لتجنب تخزين وقياس كميات المخزون بالكسور العشرية في قاعدة البيانات، مما يضمن دقة العمليات المحاسبية والمخزنية وسهولة الجرد دون تباين الأرقام.
+                  </div>
+                </v-alert>
+              </div>
+            </v-expand-transition>
           </v-card-text>
         </v-card>
 
         <!-- Variant Manager -->
-        <VariantManager :key="currentProductId || 'new'" v-model="productData.variants" :product-type="productData.product_type" />
+        <VariantManager
+          :key="currentProductId || 'new'"
+          v-model="productData.variants"
+          :product-type="productData.product_type"
+          :units="units"
+          :selected-group="selectedGroup"
+          :base-unit-id="productData.base_unit_id"
+        />
       </v-col>
 
       <!-- Sidebar Options -->
@@ -466,6 +564,8 @@ import ProductMediaManager from './ProductMediaManager.vue';
 import { useUserStore } from '@/stores/user';
 import { toast } from 'vue3-toastify';
 
+import apiClient from '@/api/axios.config';
+
 const props = defineProps({
   productId: {
     type: [String, Number],
@@ -492,30 +592,17 @@ const loading = ref(false);
 const isValid = ref(false);
 const form = ref(null);
 
+// حالات إدارة مجموعات وحدات القياس وقواعد التحويل
+const selectedGroup = ref(null);
+const unitGroups = ref([]);
+const conversions = ref([]);
+const loadingGroups = ref(false);
+
 // Duplicate detection state
 const showDuplicateDialog = ref(false);
 const existingProduct = ref(null);
 
 
-
-// Watch for base unit changes to auto-configure precision
-watch(
-  () => productData.value.base_unit_id,
-  newVal => {
-    if (newVal) {
-      const selectedUnit = units.value.find(u => u.id === newVal);
-      if (selectedUnit) {
-        if (selectedUnit.decimal_places > 0) {
-          productData.value.allow_decimal_quantities = true;
-          productData.value.quantity_precision = selectedUnit.decimal_places;
-        } else {
-          productData.value.allow_decimal_quantities = false;
-          productData.value.quantity_precision = 0;
-        }
-      }
-    }
-  }
-);
 
 // --- State Initialization ---
 const getInitialProductData = () => ({
@@ -560,13 +647,208 @@ if (!props.productId) {
       profit_margin: 0,
       sku: '',
       barcode: '',
-      stocks: [{ warehouse_id: null, quantity: null }],
+      stocks: [{ warehouse_id: null, quantity: null, unit_id: null }],
       attributes: [{ attribute_id: null, attribute_value_id: null }],
       images: [],
       primary_image_id: null,
     },
   ];
 }
+
+// Watch for base unit changes to auto-configure precision
+watch(
+  () => productData.value.base_unit_id,
+  newVal => {
+    if (newVal) {
+      const selectedUnit = units.value.find(u => u.id === newVal);
+      if (selectedUnit) {
+        if (selectedUnit.decimal_places > 0) {
+          productData.value.allow_decimal_quantities = true;
+          productData.value.quantity_precision = selectedUnit.decimal_places;
+        } else {
+          productData.value.allow_decimal_quantities = false;
+          productData.value.quantity_precision = 0;
+        }
+      }
+    }
+  }
+);
+
+// Watch base unit id to auto-deduce selected group
+watch(
+  [() => productData.value.base_unit_id, () => units.value],
+  ([newVal, valUnits]) => {
+    if (newVal && valUnits && valUnits.length > 0) {
+      const selectedUnit = valUnits.find(u => u.id === newVal);
+      if (selectedUnit && !selectedGroup.value) {
+        selectedGroup.value = selectedUnit.unit_group_id;
+      }
+    }
+  },
+  { immediate: true }
+);
+
+const handleGroupChange = () => {
+  productData.value.base_unit_id = null;
+  productData.value.purchase_unit_id = null;
+  productData.value.display_unit_id = null;
+  
+  // تفريغ سيلكت وحدة الجرد في كافة فروع المتغيرات لضمان إعادة الاختيار للمجموعة الجديدة
+  if (productData.value.variants) {
+    productData.value.variants.forEach(v => {
+      if (v.stocks) {
+        v.stocks.forEach(s => {
+          s.unit_id = null;
+        });
+      }
+    });
+  }
+};
+
+const filteredUnits = computed(() => {
+  if (!selectedGroup.value) return [];
+  return units.value.filter(u => u.unit_group_id === selectedGroup.value);
+});
+
+// فحص وجود أي وحدة شراء أو عرض/بيع أصغر من الوحدة الأساسية
+const hasSmallerUnitWarning = computed(() => {
+  const base = productData.value.base_unit_id;
+  if (!base) return false;
+  
+  const purchase = productData.value.purchase_unit_id;
+  const display = productData.value.display_unit_id;
+  
+  return isUnitSmallerThanBase(purchase) || isUnitSmallerThanBase(display);
+});
+
+// جلب أسماء الوحدات التي تم تحديدها بأصغر من الوحدة الأساسية
+const smallerUnitsList = computed(() => {
+  const list = [];
+  const purchase = productData.value.purchase_unit_id;
+  const display = productData.value.display_unit_id;
+  
+  if (isUnitSmallerThanBase(purchase)) list.push(`وحدة الشراء (${getUnitName(purchase)})`);
+  if (isUnitSmallerThanBase(display)) list.push(`وحدة البيع (${getUnitName(display)})`);
+  
+  return list.join(' و ');
+});
+
+// فحص تعطل قواعد التحويل للوحدات المحددة مقارنة بالوحدة الأساسية
+const missingConversionsError = computed(() => {
+  const base = productData.value.base_unit_id;
+  if (!base) return false;
+  
+  const purchase = productData.value.purchase_unit_id;
+  const display = productData.value.display_unit_id;
+  
+  if (purchase && !hasConversionRule(purchase, base)) return true;
+  if (display && !hasConversionRule(display, base)) return true;
+  
+  let missingInVariants = false;
+  if (productData.value.variants) {
+    productData.value.variants.forEach(v => {
+      if (v.stocks) {
+        v.stocks.forEach(s => {
+          if (s.unit_id && !hasConversionRule(s.unit_id, base)) {
+            missingInVariants = true;
+          }
+        });
+      }
+    });
+  }
+  
+  return missingInVariants;
+});
+
+// جلب أسماء الوحدات التي تفتقد لقواعد تحويل للوحدة الأساسية
+const missingConversionsList = computed(() => {
+  const list = new Set();
+  const base = productData.value.base_unit_id;
+  if (!base) return '';
+  
+  const purchase = productData.value.purchase_unit_id;
+  const display = productData.value.display_unit_id;
+  
+  if (purchase && !hasConversionRule(purchase, base)) list.add(getUnitName(purchase));
+  if (display && !hasConversionRule(display, base)) list.add(getUnitName(display));
+  
+  if (productData.value.variants) {
+    productData.value.variants.forEach(v => {
+      if (v.stocks) {
+        v.stocks.forEach(s => {
+          if (s.unit_id && !hasConversionRule(s.unit_id, base)) {
+            list.add(getUnitName(s.unit_id));
+          }
+        });
+      }
+    });
+  }
+  
+  return Array.from(list).join('، ');
+});
+
+const getConversionFactor = (fromUnitId, toUnitId) => {
+  if (!fromUnitId || !toUnitId || fromUnitId === toUnitId) return 1;
+  const direct = conversions.value.find(c => c.from_unit_id === fromUnitId && c.to_unit_id === toUnitId);
+  if (direct) return Number(direct.factor);
+  const reverse = conversions.value.find(c => c.from_unit_id === toUnitId && c.to_unit_id === fromUnitId);
+  if (reverse && Number(reverse.factor) !== 0) return 1 / Number(reverse.factor);
+  return 1;
+};
+
+// فحص وجود قاعدة تحويل معرفة بين وحدتين قياس
+const hasConversionRule = (fromUnitId, toUnitId) => {
+  if (!fromUnitId || !toUnitId || fromUnitId === toUnitId) return true;
+  const direct = conversions.value.some(c => c.from_unit_id === fromUnitId && c.to_unit_id === toUnitId);
+  const reverse = conversions.value.some(c => c.from_unit_id === toUnitId && c.to_unit_id === fromUnitId);
+  return direct || reverse;
+};
+
+// تحديد ما إذا كانت الوحدة أصغر في الحجم الفيزيائي من الوحدة الأساسية
+const isUnitSmallerThanBase = (unitId) => {
+  if (!unitId || !productData.value.base_unit_id || unitId === productData.value.base_unit_id) return false;
+  const factor = getConversionFactor(unitId, productData.value.base_unit_id);
+  return factor < 1;
+};
+
+// جلب اسم وحدة القياس بناءً على معرفها
+const getUnitName = (unitId) => {
+  const unit = units.value.find(u => u.id === unitId);
+  return unit ? unit.name : '';
+};
+
+const fetchUnitGroups = async () => {
+  loadingGroups.value = true;
+  try {
+    const response = await apiClient.get('unit-groups');
+    if (response.data && response.data.status) {
+      unitGroups.value = response.data.data;
+    } else if (Array.isArray(response.data)) {
+      unitGroups.value = response.data;
+    } else if (response.data && Array.isArray(response.data.data)) {
+      unitGroups.value = response.data.data;
+    }
+  } catch (error) {
+    console.error('Failed to fetch unit groups:', error);
+  } finally {
+    loadingGroups.value = false;
+  }
+};
+
+const fetchConversions = async () => {
+  try {
+    const response = await apiClient.get('unit-conversions');
+    if (response.data && response.data.status) {
+      conversions.value = response.data.data;
+    } else if (Array.isArray(response.data)) {
+      conversions.value = response.data;
+    } else if (response.data && Array.isArray(response.data.data)) {
+      conversions.value = response.data.data;
+    }
+  } catch (error) {
+    console.error('Failed to fetch unit conversions:', error);
+  }
+};
 
 // Sync internal ID if prop changes (for robustness)
 watch(
@@ -683,7 +965,10 @@ const loadProductData = async id => {
                   purchase_price: v.purchase_price || 0,
                   images: v.images || [],
                   primary_image_id: v.images?.find(img => img.is_primary)?.id || null,
-                  stocks: Array.from(stockMap.values()),
+                  stocks: Array.from(stockMap.values()).map(s => ({
+                    ...s,
+                    unit_id: s.unit_id || data.base_unit_id,
+                  })),
                 };
               })
               : [
@@ -766,6 +1051,11 @@ const resetForm = () => {
 const handleSubmit = async () => {
   if (!isValid.value) return;
 
+  if (missingConversionsError.value) {
+    toast.error(`لا يمكن الحفظ: الوحدات المحددة (${missingConversionsList.value}) تفتقد لقواعد تحويل للوحدة الأساسية.`);
+    return;
+  }
+
   if (productData.value.is_active_in_store) {
     if (!productData.value.images || productData.value.images.length === 0) {
       toast.error('يجب إضافة صورة واحدة على الأقل لعرض المنتج في المتجر.');
@@ -783,6 +1073,15 @@ const handleSubmit = async () => {
         ...v,
         image_ids: v.images?.map(img => img.id) || [],
         primary_image_id: v.primary_image_id,
+        stocks: v.stocks.map(s => {
+          const factor = getConversionFactor(s.unit_id, productData.value.base_unit_id);
+          return {
+            ...s,
+            quantity: s.quantity !== null && s.quantity !== undefined && s.quantity !== ''
+              ? Number(s.quantity) * factor
+              : null,
+          };
+        }),
       })),
     };
 
@@ -820,6 +1119,8 @@ onMounted(async () => {
 
   // جلب وحدات القياس من Store (مع caching)
   await fetchUnits();
+  await fetchUnitGroups();
+  await fetchConversions();
 
   // تعيين الوحدة الافتراضية (قطعة) للمنتجات الجديدة
   if (!props.productId) {
@@ -828,6 +1129,7 @@ onMounted(async () => {
       if (!productData.value.base_unit_id) productData.value.base_unit_id = defaultUnit.id;
       if (!productData.value.purchase_unit_id) productData.value.purchase_unit_id = defaultUnit.id;
       if (!productData.value.display_unit_id) productData.value.display_unit_id = defaultUnit.id;
+      selectedGroup.value = defaultUnit.unit_group_id;
     }
   }
 

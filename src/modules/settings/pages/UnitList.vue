@@ -35,16 +35,23 @@
       <v-window-item value="units">
         <v-card class="elevation-1 border rounded-lg">
           <v-card-title class="d-flex align-center justify-space-between pa-4">
-            <v-text-field
-              v-model="searchUnit"
-              placeholder="البحث عن وحدة..."
-              prepend-inner-icon="ri-search-line"
-              density="compact"
-              variant="outlined"
-              hide-details
-              style="max-width: 350px"
-              class="rounded-lg"
-            />
+            <div class="d-flex align-center gap-2 flex-grow-1">
+              <v-text-field
+                v-model="searchUnit"
+                placeholder="البحث عن وحدة..."
+                prepend-inner-icon="ri-search-line"
+                density="compact"
+                variant="outlined"
+                hide-details
+                style="max-width: 350px"
+                class="rounded-lg"
+              />
+              <AppFieldHelp
+                title="الوحدات الفردية"
+                text="هي وحدات القياس الفعلية المستخدمة في النظام (مثل: جرام، كيلوجرام، قطعة، كرتونة). يُرجى إسناد كل وحدة لمجموعتها وتحديد عدد الخانات العشرية لها."
+                size="20"
+              />
+            </div>
             <AppButton prepend-icon="ri-add-line" color="primary" size="small" @click="openAddUnit" class="tour-unit-add">
               وحدة جديدة
             </AppButton>
@@ -53,6 +60,8 @@
           <v-divider />
 
           <v-data-table
+            v-model:page="pageUnits"
+            v-model:items-per-page="itemsPerPage"
             :headers="unitHeaders"
             :items="filteredUnits"
             :loading="loadingUnits"
@@ -93,16 +102,23 @@
       <v-window-item value="groups">
         <v-card class="elevation-1 border rounded-lg">
           <v-card-title class="d-flex align-center justify-space-between pa-4">
-            <v-text-field
-              v-model="searchGroup"
-              placeholder="البحث عن مجموعة..."
-              prepend-inner-icon="ri-search-line"
-              density="compact"
-              variant="outlined"
-              hide-details
-              style="max-width: 350px"
-              class="rounded-lg"
-            />
+            <div class="d-flex align-center gap-2 flex-grow-1">
+              <v-text-field
+                v-model="searchGroup"
+                placeholder="البحث عن مجموعة..."
+                prepend-inner-icon="ri-search-line"
+                density="compact"
+                variant="outlined"
+                hide-details
+                style="max-width: 350px"
+                class="rounded-lg"
+              />
+              <AppFieldHelp
+                title="مجموعات القياس"
+                text="تُستخدم لتصنيف الوحدات المتشابهة في النوع الفيزيائي (مثل: الوزن، الطول، الحجم، العد). تمنع هذه المجموعات تداخل الوحدات أو التحويل الخاطئ بين أنواع مختلفة (مثل تحويل الوزن إلى طول)."
+                size="20"
+              />
+            </div>
             <AppButton prepend-icon="ri-add-line" color="primary" size="small" @click="openAddGroup" class="tour-group-add">
               مجموعة جديدة
             </AppButton>
@@ -111,6 +127,8 @@
           <v-divider />
 
           <v-data-table
+            v-model:page="pageGroups"
+            v-model:items-per-page="itemsPerPage"
             :headers="groupHeaders"
             :items="filteredGroups"
             :loading="loadingGroups"
@@ -147,16 +165,23 @@
       <v-window-item value="conversions">
         <v-card class="elevation-1 border rounded-lg">
           <v-card-title class="d-flex align-center justify-space-between pa-4">
-            <v-text-field
-              v-model="searchConversion"
-              placeholder="البحث عن قاعدة تحويل..."
-              prepend-inner-icon="ri-search-line"
-              density="compact"
-              variant="outlined"
-              hide-details
-              style="max-width: 350px"
-              class="rounded-lg"
-            />
+            <div class="d-flex align-center gap-2 flex-grow-1">
+              <v-text-field
+                v-model="searchConversion"
+                placeholder="البحث عن قاعدة تحويل..."
+                prepend-inner-icon="ri-search-line"
+                density="compact"
+                variant="outlined"
+                hide-details
+                style="max-width: 350px"
+                class="rounded-lg"
+              />
+              <AppFieldHelp
+                title="قواعد التحويل"
+                text="تحدد العلاقة الرياضية ونسب التحويل بين الوحدات التابعة لنفس المجموعة. مثال: 1 كيلوجرام = 1000 جرام، أو 1 كرتونة = 24 قطعة. يُستخدم هذا المعامل رياضياً لتحديث المخزون والأسعار آلياً عند البيع والشراء بوحدات مختلفة."
+                size="20"
+              />
+            </div>
             <AppButton prepend-icon="ri-add-line" color="primary" size="small" @click="openAddConversion" class="tour-conversion-add">
               قاعدة تحويل جديدة
             </AppButton>
@@ -165,6 +190,8 @@
           <v-divider />
 
           <v-data-table
+            v-model:page="pageConversions"
+            v-model:items-per-page="itemsPerPage"
             :headers="conversionHeaders"
             :items="filteredConversions"
             :loading="loadingConversions"
@@ -209,23 +236,46 @@
           <v-col cols="12">
             <v-select
               v-model="unitForm.unit_group_id"
-              label="مجموعة القياس *"
               :items="groups"
               item-title="name"
               item-value="id"
               variant="outlined"
               density="compact"
               :rules="[rules.required]"
+            >
+              <template #label>
+                <span>مجموعة القياس *</span>
+                <AppFieldHelp text="اختر تصنيف المجموعة الفيزيائي الصحيح لهذه الوحدة (مثل: مجموعة الوزن لوحدة الكيلوجرام والجرام)." />
+              </template>
+            </v-select>
+          </v-col>
+          <v-col cols="12" sm="6">
+            <AppInput
+              v-model="unitForm.name"
+              label="الاسم العربي *"
+              help-text="اسم الوحدة واضح للمستخدمين مثل: كرتونة، جرام، متر."
+              :rules="[rules.required]"
             />
           </v-col>
           <v-col cols="12" sm="6">
-            <AppInput v-model="unitForm.name" label="الاسم العربي *" :rules="[rules.required]" />
+            <AppInput
+              v-model="unitForm.code"
+              label="الرمز الرياضي / الكود *"
+              help-text="الرمز القياسي المستخدم دولياً أو برمجياً للتقارير والرموز الرياضية مثل: kg للـ كيلوجرام، pcs للـ قطعة، m للـ متر."
+              placeholder="مثال: kg, pcs"
+              :rules="[rules.required]"
+            />
           </v-col>
           <v-col cols="12" sm="6">
-            <AppInput v-model="unitForm.code" label="الرمز الرياضي / الكود *" placeholder="مثال: kg, pcs" :rules="[rules.required]" />
-          </v-col>
-          <v-col cols="12" sm="6">
-            <AppInput v-model.number="unitForm.decimal_places" type="number" label="الكسور العشرية المسموحة *" min="0" max="6" :rules="[rules.required, rules.integer]" />
+            <AppInput
+              v-model.number="unitForm.decimal_places"
+              type="number"
+              label="الكسور العشرية المسموحة *"
+              help-text="عدد الخانات العشرية المسموح بها بعد الفاصلة عند وزن أو عد المنتج. مثال: الكيلوجرام يقبل الكسور (1.500 كجم أي 3 خانات)، بينما القطعة لا تقبل الكسور والتجزئة (0 خانات)."
+              min="0"
+              max="6"
+              :rules="[rules.required, rules.integer]"
+            />
           </v-col>
           <v-col cols="12" sm="6" class="d-flex align-center">
             <v-checkbox v-model="unitForm.is_active" label="الوحدة نشطة ومتاحة للاستخدام" hide-details />
@@ -246,19 +296,29 @@
       <v-form ref="groupFormRef" @submit.prevent="saveGroup">
         <v-row>
           <v-col cols="12">
-            <AppInput v-model="groupForm.name" label="اسم المجموعة *" placeholder="مثال: وحدات الوزن" :rules="[rules.required]" />
+            <AppInput
+              v-model="groupForm.name"
+              label="اسم المجموعة *"
+              help-text="اسم تصنيف المجموعة العام مثل: وحدات الوزن، وحدات الطول."
+              placeholder="مثال: وحدات الوزن"
+              :rules="[rules.required]"
+            />
           </v-col>
           <v-col cols="12">
             <v-select
               v-model="groupForm.type"
-              label="نوع القياس الفعلي *"
               :items="groupTypes"
               item-title="label"
               item-value="value"
               variant="outlined"
               density="compact"
               :rules="[rules.required]"
-            />
+            >
+              <template #label>
+                <span>نوع القياس الفعلي *</span>
+                <AppFieldHelp text="النوع الفيزيائي الرياضي للمجموعة لتسهيل التقارير والتصنيفات في النظام (مثل: وزن، طول، حجم، عد)." />
+              </template>
+            </v-select>
           </v-col>
         </v-row>
       </v-form>
@@ -278,7 +338,6 @@
           <v-col cols="12">
             <v-select
               v-model="conversionForm.unit_group_id"
-              label="مجموعة القياس *"
               :items="groups"
               item-title="name"
               item-value="id"
@@ -286,12 +345,16 @@
               density="compact"
               :rules="[rules.required]"
               :disabled="editingConversion"
-            />
+            >
+              <template #label>
+                <span>مجموعة القياس *</span>
+                <AppFieldHelp text="اختر المجموعة التي تريد ربط وحداتها ببعضها." />
+              </template>
+            </v-select>
           </v-col>
           <v-col cols="12" sm="6">
             <v-select
               v-model="conversionForm.from_unit_id"
-              label="من الوحدة *"
               :items="availableUnitsInSelectedGroup"
               item-title="name"
               item-value="id"
@@ -299,12 +362,16 @@
               density="compact"
               :rules="[rules.required]"
               :disabled="editingConversion"
-            />
+            >
+              <template #label>
+                <span>من الوحدة *</span>
+                <AppFieldHelp text="الوحدة الكبرى أو المصدر المراد تحويلها (مثال: كيلوجرام أو كرتونة)." />
+              </template>
+            </v-select>
           </v-col>
           <v-col cols="12" sm="6">
             <v-select
               v-model="conversionForm.to_unit_id"
-              label="إلى الوحدة *"
               :items="availableUnitsInSelectedGroup"
               item-title="name"
               item-value="id"
@@ -312,7 +379,12 @@
               density="compact"
               :rules="[rules.required, rules.differentThanFrom]"
               :disabled="editingConversion"
-            />
+            >
+              <template #label>
+                <span>إلى الوحدة *</span>
+                <AppFieldHelp text="الوحدة الأصغر أو المستهدفة المراد التحويل إليها (مثال: جرام أو قطعة)." />
+              </template>
+            </v-select>
           </v-col>
           <v-col cols="12">
             <AppInput
@@ -320,6 +392,7 @@
               type="number"
               step="0.000001"
               label="معامل التحويل (الضربي) *"
+              help-text="النسبة الرياضية بين الوحدتين. الصيغة: 1 من (الوحدة الأولى) = معامل التحويل × (الوحدة الثانية). مثال: 1 كرتونة = 24 قطعة (أدخل 24)، أو 1 كيلوجرام = 1000 جرام (أدخل 1000)."
               placeholder="مثال: 1000 (لتحويل الكيلوجرام إلى جرام)"
               :rules="[rules.required, rules.positiveNumber]"
             />
@@ -359,6 +432,7 @@ import AppButton from '@/components/common/AppButton.vue';
 import AppInput from '@/components/common/AppInput.vue';
 import AppDialog from '@/components/common/AppDialog.vue';
 import AppSwitch from '@/components/common/AppSwitch.vue';
+import AppFieldHelp from '@/components/common/AppFieldHelp.vue';
 
 // APIs
 const apiUnits = useApi('units');
@@ -383,6 +457,23 @@ const togglingUnitId = ref(null);
 const searchUnit = ref('');
 const searchGroup = ref('');
 const searchConversion = ref('');
+
+// Pagination State
+const itemsPerPage = ref(10);
+const pageUnits = ref(1);
+const pageGroups = ref(1);
+const pageConversions = ref(1);
+
+// Reset pagination on search
+watch(searchUnit, () => {
+  pageUnits.value = 1;
+});
+watch(searchGroup, () => {
+  pageGroups.value = 1;
+});
+watch(searchConversion, () => {
+  pageConversions.value = 1;
+});
 
 // Dialogs State
 const showUnitDialog = ref(false);
@@ -442,7 +533,7 @@ const conversionHeaders = [
 ];
 
 const rules = {
-  required: v => !!v || 'هذا الحقل مطلوب',
+  required: v => (v !== null && v !== undefined && String(v).trim() !== '') || 'هذا الحقل مطلوب',
   integer: v => Number.isInteger(Number(v)) || 'يجب إدخال عدد صحيح',
   positiveNumber: v => Number(v) > 0 || 'يجب أن يكون الرقم أكبر من صفر',
   differentThanFrom: v => !v || v !== conversionForm.value.from_unit_id || 'يجب اختيار وحدة مختلفة عن وحدة المصدر',
