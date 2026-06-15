@@ -10,6 +10,8 @@
               v-model:search="search"
               v-model:page="page"
               v-model:items-per-page="itemsPerPage"
+              v-model:selected="selectedItems"
+              show-select
               :filters="advancedFilters"
               @update:filters="val => Object.assign(filters, val)"
               :headers="headers"
@@ -24,6 +26,23 @@
               @edit="editVariant"
               @delete="confirmDelete"
             >
+              <!-- Actions Slot -->
+              <template #actions>
+                <div class="d-flex gap-2">
+                  <AppButton
+                    v-if="selectedItems.length > 0 && (canAny(PERMISSIONS.PRODUCT_VARIANTS_DELETE_ALL, PERMISSIONS.PRODUCT_VARIANTS_DELETE_CHILDREN, PERMISSIONS.PRODUCT_VARIANTS_DELETE_SELF) || userStore.isAdmin)"
+                    color="error"
+                    variant="tonal"
+                    prepend-icon="ri-delete-bin-line"
+                    size="small"
+                    class="rounded-pill shadow-sm"
+                    style="height: 40px"
+                    @click="confirmBulkDelete"
+                  >
+                    <span>حذف المحدد ({{ selectedItems.length }})</span>
+                  </AppButton>
+                </div>
+              </template>
               <!-- Product / Variant Column -->
               <template #item.product_name="{ item }">
                 <div class="d-flex align-center gap-3 py-1">
@@ -187,8 +206,8 @@
 
       <AppConfirmDialog
         ref="confirmDialog"
-        title="حذف متغير المنتج"
-        message="هل أنت متأكد من حذف هذا المتغير؟ هذا الإجراء غير قابل للتراجع."
+        :title="confirmTitle"
+        :message="confirmMessage"
       />
     </v-container>
   </div>
@@ -206,8 +225,11 @@ import { useDataTable } from '@/composables/useDataTable';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
 import AppConfirmDialog from '@/components/common/AppConfirmDialog.vue';
+import AppButton from '@/components/common/AppButton.vue';
 import { formatCurrency } from '@/utils/formatters';
 import { useUserStore } from '@/stores/user';
+import { usePermissions } from '@/composables/usePermissions';
+import { PERMISSIONS } from '@/config/permissions';
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -332,7 +354,14 @@ const editVariant = item => {
 
 const confirmDialog = ref(null);
 
+const selectedItems = ref([]);
+const confirmTitle = ref('حذف متغير المنتج');
+const confirmMessage = ref('هل أنت متأكد من حذف هذا المتغير؟ هذا الإجراء غير قابل للتراجع.');
+const { canAny } = usePermissions();
+
 const confirmDelete = async item => {
+  confirmTitle.value = 'حذف متغير المنتج';
+  confirmMessage.value = 'هل أنت متأكد من حذف هذا المتغير؟ هذا الإجراء غير قابل للتراجع.';
   const confirmed = await confirmDialog.value.open();
   if (confirmed) {
     try {
@@ -340,6 +369,21 @@ const confirmDelete = async item => {
       refresh();
     } catch (error) {
       console.error('Delete variant error:', error);
+    }
+  }
+};
+
+const confirmBulkDelete = async () => {
+  confirmTitle.value = 'حذف متغيرات المنتجات المحددة';
+  confirmMessage.value = `هل أنت متأكد من حذف ${selectedItems.value.length} متغير منتج محدد؟ هذا الإجراء غير قابل للتراجع.`;
+  const confirmed = await confirmDialog.value.open();
+  if (confirmed) {
+    try {
+      await productVariantService.deleteMultiple(selectedItems.value, { showToast: true });
+      selectedItems.value = [];
+      refresh();
+    } catch (error) {
+      console.error('Bulk delete variants error:', error);
     }
   }
 };

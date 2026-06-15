@@ -252,6 +252,8 @@
           v-model:page="pageModel"
           v-model:sort-by="sortByModel"
           v-model:expanded="expandedModel"
+          v-model="selectedModel"
+          :show-select="showSelect"
           :headers="processedHeaders"
           :items="items"
           :loading="loading"
@@ -357,6 +359,8 @@
           v-model:page="pageModel"
           v-model:sort-by="sortByModel"
           v-model:expanded="expandedModel"
+          v-model="selectedModel"
+          :show-select="showSelect"
           :headers="processedHeaders"
           :items="items"
           :items-length="totalItems"
@@ -472,6 +476,8 @@
           :item-value="itemValue"
           v-model:sort-by="sortByModel"
           v-model:expanded="expandedModel"
+          v-model="selectedModel"
+          :show-select="showSelect"
           :headers="processedHeaders"
           :items="items"
           :loading="loading"
@@ -892,6 +898,8 @@ const props = defineProps({
   expanded: { type: Array, default: () => [] },
   emptyStateType: { type: String, default: null },
   emptyStateShowCta: { type: Boolean, default: true },
+  showSelect: { type: Boolean, default: false },
+  selected: { type: Array, default: () => [] },
 });
 
 const emit = defineEmits([
@@ -901,6 +909,7 @@ const emit = defineEmits([
   'update:search',
   'update:options',
   'update:expanded',
+  'update:selected',
   'view',
   'edit',
   'delete',
@@ -915,6 +924,11 @@ const route = useRoute();
 const { canAny } = usePermissions();
 const { height: windowHeight } = useWindowSize();
 const slots = useSlots();
+
+const selectedModel = computed({
+  get: () => props.selected,
+  set: (val) => emit('update:selected', val),
+});
 
 // --- Elements Measurement ---
 const tableRootRef = ref(null);
