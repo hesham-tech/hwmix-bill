@@ -66,7 +66,7 @@
         <v-row dense>
           <v-col v-for="warehouse in items" :key="warehouse.id" cols="12" sm="6" md="4" lg="3">
             <AppCard class="warehouse-card h-100" no-padding @contextmenu.prevent="handleContextMenu($event, { item: warehouse })">
-              <div class="warehouse-card-header d-flex align-center justify-center bg-primary-lighten-5 position-relative">
+              <div class="warehouse-card-header d-flex align-center justify-center bg-primary-lighten-5 position-relative cursor-pointer" @click="handleViewStockDetails(warehouse)">
                 <v-avatar color="primary" size="80" class="elevation-2">
                   <v-icon icon="ri-building-4-line" size="40" color="white" />
                 </v-avatar>
@@ -83,7 +83,7 @@
 
               <v-card-item>
                 <div class="d-flex align-center justify-space-between w-100">
-                  <v-card-title class="text-h6 font-weight-bold">{{ warehouse.name }}</v-card-title>
+                  <v-card-title class="text-h6 font-weight-bold cursor-pointer hover-primary" @click="handleViewStockDetails(warehouse)">{{ warehouse.name }}</v-card-title>
                   <v-tooltip v-if="warehouse.is_default" text="المستودع الافتراضي">
                     <template #activator="{ props }">
                       <v-icon v-bind="props" icon="ri-star-fill" color="warning" size="24" />
@@ -215,7 +215,7 @@
           </v-avatar>
           <div>
             <div class="d-flex align-center">
-              <div class="font-weight-bold text-body-1">{{ item.name }}</div>
+              <div class="font-weight-bold text-body-1 cursor-pointer hover-primary" @click="handleViewStockDetails(item)">{{ item.name }}</div>
               <v-tooltip v-if="item.is_default" text="المستودع الافتراضي">
                 <template #activator="{ props }">
                   <v-icon v-bind="props" icon="ri-star-fill" color="warning" size="16" class="ms-2" />
@@ -304,6 +304,13 @@
       <template #extra-actions="{ item }">
         <v-list-item
           v-if="canAny(PERMISSIONS.STOCKS_VIEW_ALL, PERMISSIONS.STOCKS_VIEW_CHILDREN, PERMISSIONS.STOCKS_VIEW_SELF)"
+          prepend-icon="ri-information-line"
+          title="تفاصيل المخزون"
+          class="text-primary"
+          @click="handleViewStockDetails(item)"
+        />
+        <v-list-item
+          v-if="canAny(PERMISSIONS.STOCKS_VIEW_ALL, PERMISSIONS.STOCKS_VIEW_CHILDREN, PERMISSIONS.STOCKS_VIEW_SELF)"
           prepend-icon="ri-eye-line"
           title="جرد المخزون"
           class="text-secondary"
@@ -365,6 +372,9 @@
 
     <!-- Stock Transfer Dialog -->
     <StockTransferDialog v-model="isTransferOpen" :warehouse="selectedWarehouse" @success="loadWarehouses" />
+
+    <!-- Warehouse Stock Details Dialog -->
+    <WarehouseStockDetailsDialog v-model="isDetailsOpen" :warehouse="selectedWarehouse" />
   </div>
 </template>
 
@@ -387,6 +397,7 @@ import AppConfirmDialog from '@/components/common/AppConfirmDialog.vue';
 import WarehouseForm from '../components/WarehouseForm.vue';
 import StockAdjustmentDialog from '../components/StockAdjustmentDialog.vue';
 import StockTransferDialog from '../components/StockTransferDialog.vue';
+import WarehouseStockDetailsDialog from '../components/WarehouseStockDetailsDialog.vue';
 
 const store = useWarehouseStore();
 const { warehouses, loading, totalItems, page, itemsPerPage, search, sortBy } = storeToRefs(store);
@@ -401,7 +412,13 @@ const viewMode = ref('grid');
 
 const isAdjustmentOpen = ref(false);
 const isTransferOpen = ref(false);
+const isDetailsOpen = ref(false);
 const selectedWarehouse = ref(null);
+
+const handleViewStockDetails = warehouse => {
+  selectedWarehouse.value = warehouse;
+  isDetailsOpen.value = true;
+};
 
 const headers = [
   { title: 'المخزن', key: 'name', sortable: true, mandatory: true },
@@ -567,5 +584,18 @@ watch([page, itemsPerPage], () => {
 
 .border-top {
   border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+.hover-primary {
+  transition: color 0.2s ease;
+}
+
+.hover-primary:hover {
+  color: rgba(var(--v-theme-primary), 1) !important;
+  text-decoration: underline;
+}
+
+.cursor-pointer {
+  cursor: pointer !important;
 }
 </style>
