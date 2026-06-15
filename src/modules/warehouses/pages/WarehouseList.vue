@@ -121,6 +121,13 @@
                 </div>
                 <div class="d-flex justify-space-between align-center mb-1 text-body-2">
                   <span class="text-grey-darken-1 d-flex align-center">
+                    <v-icon icon="ri-safe-line" size="16" class="me-1" color="secondary" />
+                    قيمة الشراء:
+                  </span>
+                  <span class="font-weight-bold text-secondary">{{ formatCurrency(warehouse.total_cost_value) }}</span>
+                </div>
+                <div class="d-flex justify-space-between align-center mb-1 text-body-2">
+                  <span class="text-grey-darken-1 d-flex align-center">
                     <v-icon icon="ri-money-dollar-circle-line" size="16" class="me-1" color="success" />
                     قيمة الجملة:
                   </span>
@@ -425,9 +432,9 @@ const headers = [
   { title: 'الموقع', key: 'location', sortable: false },
   { title: 'إجمالي القطع', key: 'total_items', align: 'center', sortable: true },
   { title: 'الأصناف', key: 'total_unique_items', align: 'center', sortable: true },
+  { title: 'قيمة الشراء', key: 'total_cost_value', align: 'end', sortable: true },
   { title: 'قيمة الجملة', key: 'total_wholesale_value', align: 'end', sortable: true },
-  { title: 'قيمة التجزئة', key: 'total_retail_value', align: 'end', sortable: true },
-  { title: 'إجمالي التكلفة', key: 'total_cost_value', align: 'end', sortable: true, defaultHide: true },
+  { title: 'قيمة القطاعي', key: 'total_retail_value', align: 'end', sortable: true },
   { title: 'التنبيهات', key: 'alerts', align: 'center', sortable: false },
   { title: 'المدير', key: 'manager', defaultHide: true },
   { title: 'السعة الاستيعابية', key: 'capacity', defaultHide: true },
