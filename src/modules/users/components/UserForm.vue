@@ -344,7 +344,7 @@ const form = ref({
   notes: '',
   images_ids: [],
   company_ids: props.modelValue?.companies?.map(c => c.id) || [],
-  branch_ids: props.modelValue?.branch_ids || [],
+  branch_ids: props.modelValue?.branch_ids || props.modelValue?.branches?.map(b => b.id) || [],
   ...props.modelValue,
 });
 
@@ -414,6 +414,10 @@ watch(
         ...form.value,
         ...cleanData,
       };
+
+      if (newVal.branches) {
+        form.value.branch_ids = newVal.branches.map(b => b.id);
+      }
 
       if (newVal.avatar_url) {
         imagePreview.value = newVal.avatar_url;

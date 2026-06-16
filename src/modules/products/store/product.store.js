@@ -104,6 +104,20 @@ export const useProductStore = defineStore('product', () => {
     }
   }
 
+  async function deleteMultipleProducts(ids) {
+    loading.value = true;
+    try {
+      const response = await productService.deleteMultiple(ids);
+      if (response.status) {
+        toast.success('تم حذف المنتجات المحددة بنجاح');
+        await fetchProducts();
+      }
+      return response;
+    } finally {
+      loading.value = false;
+    }
+  }
+
   async function fetchDefaultWarehouse() {
     if (defaultWarehouseId.value) return defaultWarehouseId.value;
     try {
@@ -171,6 +185,7 @@ export const useProductStore = defineStore('product', () => {
     fetchProduct,
     saveProduct,
     deleteProduct,
+    deleteMultipleProducts,
     fetchDefaultWarehouse,
     resetFilters,
     fetchUnits,

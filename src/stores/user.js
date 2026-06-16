@@ -179,10 +179,11 @@ export const useUserStore = defineStore('user', () => {
 
       // Backend sends { status: true, ... }
       if (response.data.status || response.data.success) {
-        // Clear branch configuration from localStorage to prevent cross-company branch desynchronization
+        // مسح الفرع النشط من المتصفح لمنع تعارض الفرع مع الشركة الجديدة
+        // يحتفظ كل جهاز بفرعه الخاص (localStorage)، لذا نحذف الفرع فقط
+        // وعند إعادة التحميل سيتم تعيين الفرع الافتراضي للشركة الجديدة تلقائياً
         localStorage.removeItem('active_branch_id');
         localStorage.removeItem('available_branches');
-        
         // Reload the current page to refresh all stores under the new company context
         window.location.reload();
       }

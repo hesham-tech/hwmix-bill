@@ -65,6 +65,13 @@ class ProductService extends BaseService {
   }
 
   /**
+   * Delete multiple products
+   */
+  async deleteMultiple(ids, options = {}) {
+    return this.post('delete', { ids }, options);
+  }
+
+  /**
    * Import products from Excel with mapping
    */
   async import(data, options = {}) {

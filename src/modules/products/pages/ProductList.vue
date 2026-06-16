@@ -11,6 +11,8 @@
               v-model:search="search"
               v-model:page="page"
               v-model:items-per-page="itemsPerPage"
+              v-model:selected="selectedItems"
+              show-select
               :filters="advancedFilters"
               @update:filters="val => Object.assign(filters, val)"
               :headers="headers"
@@ -43,6 +45,18 @@
               <!-- Actions Slot -->
               <template #actions>
                 <div class="d-flex gap-2">
+                  <AppButton
+                    v-if="selectedItems.length > 0 && (canAny(PERMISSIONS.PRODUCTS_DELETE_ALL, PERMISSIONS.PRODUCTS_DELETE_CHILDREN, PERMISSIONS.PRODUCTS_DELETE_SELF) || userStore.isAdmin)"
+                    color="error"
+                    variant="tonal"
+                    prepend-icon="ri-delete-bin-line"
+                    size="small"
+                    class="rounded-pill shadow-sm"
+                    style="height: 40px"
+                    @click="confirmBulkDelete"
+                  >
+                    <span>حذف المحدد ({{ selectedItems.length }})</span>
+                  </AppButton>
                   <AppButton
                     v-if="canAny(PERMISSIONS.PRODUCTS_EXPORT)"
                     color="grey-darken-1"
@@ -344,8 +358,8 @@
 
       <AppConfirmDialog
         ref="confirmDialog"
-        title="حذف المنتج"
-        message="هل أنت متأكد من حذف هذا المنتج؟ سيتم حذف كافة المتغيرات والمخزون المرتبط به."
+        :title="confirmTitle"
+        :message="confirmMessage"
       />
       <PrintStickerDialog ref="stickerDialog" />
       <ProductImportDialog ref="importDialog" @imported="refresh" />
@@ -655,11 +669,32 @@ const stickerDialog = ref(null);
 const importDialog = ref(null);
 const confirmDialog = ref(null);
 
+const selectedItems = ref([]);
+const confirmTitle = ref('حذف المنتج');
+const confirmMessage = ref('هل أنت متأكد من حذف هذا المنتج؟ سيتم حذف كافة المتغيرات والمخزون المرتبط به.');
+
 const confirmDelete = async item => {
+  confirmTitle.value = 'حذف المنتج';
+  confirmMessage.value = 'هل أنت متأكد من حذف هذا المنتج؟ سيتم حذف كافة المتغيرات والمخزون المرتبط به.';
   const confirmed = await confirmDialog.value.open();
   if (confirmed) {
     await productStore.deleteProduct(item.id);
     refresh();
+  }
+};
+
+const confirmBulkDelete = async () => {
+  confirmTitle.value = 'حذف المنتجات المحددة';
+  confirmMessage.value = `هل أنت متأكد من حذف ${selectedItems.value.length} منتج محدد؟ سيتم حذف كافة المتغيرات والمخزون المرتبط بها.`;
+  const confirmed = await confirmDialog.value.open();
+  if (confirmed) {
+    try {
+      await productStore.deleteMultipleProducts(selectedItems.value);
+      selectedItems.value = [];
+      refresh();
+    } catch (error) {
+      console.error('Bulk delete products error:', error);
+    }
   }
 };
 

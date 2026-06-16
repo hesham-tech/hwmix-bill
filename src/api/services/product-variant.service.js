@@ -7,6 +7,13 @@ class ProductVariantService extends BaseService {
   constructor() {
     super('product-variants');
   }
+
+  /**
+   * Delete multiple variants
+   */
+  async deleteMultiple(ids, options = {}) {
+    return this.post('delete', { ids }, options);
+  }
 }
 
 export default new ProductVariantService();
