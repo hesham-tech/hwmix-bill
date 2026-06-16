@@ -89,9 +89,31 @@
             </template>
 
             <template #[`item.actions`]="{ item }">
-              <div class="d-flex align-center justify-end">
-                <v-btn icon="ri-pencil-line" variant="text" color="primary" size="small" @click="openEditUnit(item)" />
-                <v-btn icon="ri-delete-bin-line" variant="text" color="error" size="small" @click="confirmDeleteUnit(item)" />
+              <div class="d-flex align-center justify-end gap-1">
+                <v-tooltip v-if="item.company_id === null" location="top" :text="isSuperAdmin ? 'سجل افتراضي للنظام — مرئي للسوبر أدمن فقط' : 'سجل افتراضي للنظام — لا يمكن تعديله أو حذفه'">
+                  <template #activator="{ props }">
+                    <v-chip v-bind="props" size="x-small" color="secondary" variant="tonal" class="me-1">
+                      <v-icon icon="ri-lock-line" size="12" class="me-1" />
+                      افتراضي
+                    </v-chip>
+                  </template>
+                </v-tooltip>
+                <v-btn
+                  icon="ri-pencil-line"
+                  variant="text"
+                  color="primary"
+                  size="small"
+                  :disabled="item.company_id === null && !isSuperAdmin"
+                  @click="openEditUnit(item)"
+                />
+                <v-btn
+                  icon="ri-delete-bin-line"
+                  variant="text"
+                  color="error"
+                  size="small"
+                  :disabled="item.company_id === null && !isSuperAdmin"
+                  @click="confirmDeleteUnit(item)"
+                />
               </div>
             </template>
           </v-data-table>
@@ -152,9 +174,31 @@
             </template>
 
             <template #[`item.actions`]="{ item }">
-              <div class="d-flex align-center justify-end">
-                <v-btn icon="ri-pencil-line" variant="text" color="primary" size="small" @click="openEditGroup(item)" />
-                <v-btn icon="ri-delete-bin-line" variant="text" color="error" size="small" @click="confirmDeleteGroup(item)" />
+              <div class="d-flex align-center justify-end gap-1">
+                <v-tooltip v-if="item.company_id === null" location="top" :text="isSuperAdmin ? 'سجل افتراضي للنظام — مرئي للسوبر أدمن فقط' : 'سجل افتراضي للنظام — لا يمكن تعديله أو حذفه'">
+                  <template #activator="{ props }">
+                    <v-chip v-bind="props" size="x-small" color="secondary" variant="tonal" class="me-1">
+                      <v-icon icon="ri-lock-line" size="12" class="me-1" />
+                      افتراضي
+                    </v-chip>
+                  </template>
+                </v-tooltip>
+                <v-btn
+                  icon="ri-pencil-line"
+                  variant="text"
+                  color="primary"
+                  size="small"
+                  :disabled="item.company_id === null && !isSuperAdmin"
+                  @click="openEditGroup(item)"
+                />
+                <v-btn
+                  icon="ri-delete-bin-line"
+                  variant="text"
+                  color="error"
+                  size="small"
+                  :disabled="item.company_id === null && !isSuperAdmin"
+                  @click="confirmDeleteGroup(item)"
+                />
               </div>
             </template>
           </v-data-table>
@@ -212,9 +256,31 @@
             </template>
 
             <template #[`item.actions`]="{ item }">
-              <div class="d-flex align-center justify-end">
-                <v-btn icon="ri-pencil-line" variant="text" color="primary" size="small" @click="openEditConversion(item)" />
-                <v-btn icon="ri-delete-bin-line" variant="text" color="error" size="small" @click="confirmDeleteConversion(item)" />
+              <div class="d-flex align-center justify-end gap-1">
+                <v-tooltip v-if="item.company_id === null" location="top" :text="isSuperAdmin ? 'سجل افتراضي للنظام — مرئي للسوبر أدمن فقط' : 'سجل افتراضي للنظام — لا يمكن تعديله أو حذفه'">
+                  <template #activator="{ props }">
+                    <v-chip v-bind="props" size="x-small" color="secondary" variant="tonal" class="me-1">
+                      <v-icon icon="ri-lock-line" size="12" class="me-1" />
+                      افتراضي
+                    </v-chip>
+                  </template>
+                </v-tooltip>
+                <v-btn
+                  icon="ri-pencil-line"
+                  variant="text"
+                  color="primary"
+                  size="small"
+                  :disabled="item.company_id === null && !isSuperAdmin"
+                  @click="openEditConversion(item)"
+                />
+                <v-btn
+                  icon="ri-delete-bin-line"
+                  variant="text"
+                  color="error"
+                  size="small"
+                  :disabled="item.company_id === null && !isSuperAdmin"
+                  @click="confirmDeleteConversion(item)"
+                />
               </div>
             </template>
           </v-data-table>
@@ -428,11 +494,16 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import { useApi } from '@/composables/useApi';
+import { useUserStore } from '@/stores/user';
+import { PERMISSIONS } from '@/config/permissions';
 import AppButton from '@/components/common/AppButton.vue';
 import AppInput from '@/components/common/AppInput.vue';
 import AppDialog from '@/components/common/AppDialog.vue';
 import AppSwitch from '@/components/common/AppSwitch.vue';
 import AppFieldHelp from '@/components/common/AppFieldHelp.vue';
+
+const userStore = useUserStore();
+const isSuperAdmin = computed(() => userStore.hasPermission(PERMISSIONS.ADMIN_SUPER));
 
 // APIs
 const apiUnits = useApi('units');

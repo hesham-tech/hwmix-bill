@@ -1,23 +1,6 @@
 <template>
   <v-container fluid class="pa-0 bg-transparent">
-    <!-- Error Alert for Mobile/Runtime Debugging -->
-    <v-alert
-      v-if="error"
-      type="error"
-      title="حدث خطأ أثناء تحميل نموذج المنتج"
-      closable
-      class="ma-2 text-xxs font-weight-bold"
-      @click:close="error = null"
-    >
-      <div class="text-caption font-family-monospace" style="white-space: pre-wrap; direction: ltr; text-align: left;">
-        <strong>Error:</strong> {{ error.message }}
-        <br />
-        <strong>Stack:</strong> {{ error.stack }}
-      </div>
-    </v-alert>
-
     <ProductForm
-      v-if="!error"
       :key="productId || 'new'"
       :product-id="productId"
       @success="handleSuccess"
@@ -29,18 +12,34 @@
 <script setup>
 import { ref, computed, onErrorCaptured } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { toast } from 'vue3-toastify';
 import ProductForm from '../components/ProductForm.vue';
+
+// صفحة نموذج المنتج لإضافة أو تعديل المنتجات مع معالجة الأخطاء بالتوستفاي.
 
 const router = useRouter();
 const route = useRoute();
-const error = ref(null);
 
 const productId = computed(() => route.params.id);
 
 onErrorCaptured((err) => {
-  error.value = err;
   console.error('Captured in ProductFormPage:', err);
-  return false; // Prevent propagating further
+  
+  // فحص أخطاء الاتصال بالخادم والتحقق
+  const response = err.response || err.config?.metadata?.error?.response;
+  if (response) {
+    if (response.status === 422) {
+      const message = response.data?.message || 'يرجى التحقق من صحة المدخلات والحقول.';
+      toast.error(message);
+    } else {
+      toast.error('حدث خطأ في السيرفر، يرجى إعادة تحميل الصفحة.');
+    }
+  } else {
+    // خطأ برمجي داخلي في الجافا سكريبت أو مشكلة تحميل
+    toast.error('هناك خطأ ما، يرجى إعادة تحميل الصفحة.');
+  }
+  
+  return false; // منع انتشار الخطأ في المتصفح وتأثيره على بقية العناصر
 });
 
 const handleSuccess = () => {
