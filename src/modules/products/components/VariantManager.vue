@@ -4,87 +4,79 @@
     <!-- ===== Variant Tabs Navigation (Top Level) ===== -->
     <div class="vm-shell border rounded-lg overflow-hidden">
 
-      <!-- Row 1: Variant Selector Tabs -->
-      <div class="vm-variant-tabs d-flex align-end overflow-x-auto">
-        <button
-          v-for="(variant, vIndex) in modelValue"
-          :key="vIndex"
-          class="vm-variant-tab"
-          :class="{ 'vm-variant-tab--active': activeVariantIndex === vIndex }"
-          @click="switchVariant(vIndex)"
-        >
-          <div class="d-flex align-center gap-2">
-            <!-- Variant Thumbnail or Dot -->
-            <v-avatar
-              v-if="getVariantThumbnail(variant)"
-              size="24"
-              class="rounded-md border flex-shrink-0"
-              style="border-color: rgba(0,0,0,0.1) !important;"
-            >
-              <v-img :src="getVariantThumbnail(variant)" cover crossorigin="anonymous" />
-            </v-avatar>
-            <div
-              v-else
-              class="v-dot flex-shrink-0"
-              :class="variant.sku ? 'bg-primary' : 'bg-grey-lighten-2'"
-            />
-
-            <!-- Title & Details -->
-            <div class="d-flex flex-column align-start">
-              <div class="d-flex align-center gap-1">
-                <span class="vm-tab-title">متغير #{{ vIndex + 1 }}</span>
-                <!-- Completion dot -->
-                <span v-if="variant.retail_price" class="vm-done-dot" />
-              </div>
-              
-              <!-- Sub-details with icons -->
-              <div
-                v-if="variant.retail_price || (productType === 'physical' && calculateTotalQty(variant) > 0) || hasAttributes(variant)"
-                class="d-flex align-center gap-2 mt-1 text-xxs"
-                style="opacity: 0.85;"
+      <!-- Row 1: Variant Selector Tabs (Segmented Control style) -->
+      <div class="vm-variant-tabs-row d-flex align-center justify-space-between pa-2 bg-grey-lighten-5 border-b">
+        <div class="vm-segmented-control d-flex align-center pa-1 bg-grey-lighten-4 rounded-lg">
+          <button
+            v-for="(variant, vIndex) in modelValue"
+            :key="vIndex"
+            class="vm-segment-btn"
+            :class="{ 'vm-segment-btn--active': activeVariantIndex === vIndex }"
+            @click="switchVariant(vIndex)"
+          >
+            <div class="d-flex align-center gap-2">
+              <!-- Variant Thumbnail or Dot -->
+              <v-avatar
+                v-if="getVariantThumbnail(variant)"
+                size="20"
+                class="rounded-md border flex-shrink-0"
+                style="border-color: rgba(0,0,0,0.1) !important;"
               >
-                <!-- Price -->
-                <div v-if="variant.retail_price" class="d-flex align-center gap-0.5 text-success" style="gap: 2px;">
-                  <v-icon icon="ri-money-dollar-circle-line" size="11" />
-                  <span class="font-weight-bold">{{ variant.retail_price }}</span>
+                <v-img :src="getVariantThumbnail(variant)" cover crossorigin="anonymous" />
+              </v-avatar>
+              <div
+                v-else
+                class="v-dot flex-shrink-0"
+                :class="variant.sku ? 'bg-primary' : 'bg-grey-lighten-2'"
+              />
+
+              <!-- Title & Details -->
+              <div class="d-flex flex-column align-start">
+                <div class="d-flex align-center gap-1">
+                  <span class="vm-tab-title">متغير #{{ vIndex + 1 }}</span>
+                  <!-- Completion dot -->
+                  <span v-if="variant.retail_price" class="vm-done-dot" />
                 </div>
-                <!-- Stock -->
-                <div v-if="productType === 'physical' && calculateTotalQty(variant) > 0" class="d-flex align-center gap-0.5 text-info" style="gap: 2px;">
-                  <v-icon icon="ri-archive-line" size="11" />
-                  <span class="font-weight-bold">{{ calculateTotalQty(variant) }}</span>
-                </div>
-                <!-- Attributes -->
-                <div v-if="hasAttributes(variant)" class="d-flex align-center gap-0.5 text-secondary" style="gap: 2px;">
-                  <v-icon icon="ri-price-tag-3-line" size="11" />
-                  <div class="d-flex align-center" style="gap: 2px; max-width: 100px; overflow: hidden; white-space: nowrap;">
-                    <template v-for="(attr, index) in getVariantAttributesList(variant)" :key="index">
-                      <span
-                        class="font-weight-bold"
-                        :style="attr.color ? { color: attr.color } : {}"
-                      >
-                        {{ attr.name }}
-                      </span>
-                      <span v-if="index < getVariantAttributesList(variant).length - 1" class="text-grey-darken-1" style="margin-inline-end: 2px;">,</span>
-                    </template>
+                
+                <!-- Sub-details with icons -->
+                <div
+                  v-if="variant.retail_price || (productType === 'physical' && calculateTotalQty(variant) > 0) || hasAttributes(variant)"
+                  class="d-flex align-center gap-2 mt-0.5 text-xxs"
+                  style="opacity: 0.85;"
+                >
+                  <!-- Price -->
+                  <div v-if="variant.retail_price" class="d-flex align-center gap-0.5 text-success" style="gap: 2px;">
+                    <v-icon icon="ri-money-dollar-circle-line" size="10" />
+                    <span class="font-weight-bold">{{ variant.retail_price }}</span>
+                  </div>
+                  <!-- Stock -->
+                  <div v-if="productType === 'physical' && calculateTotalQty(variant) > 0" class="d-flex align-center gap-0.5 text-info" style="gap: 2px;">
+                    <v-icon icon="ri-archive-line" size="10" />
+                    <span class="font-weight-bold">{{ calculateTotalQty(variant) }}</span>
+                  </div>
+                  <!-- Attributes -->
+                  <div v-if="hasAttributes(variant)" class="d-flex align-center gap-0.5 text-secondary" style="gap: 2px;">
+                    <v-icon icon="ri-price-tag-3-line" size="10" />
+                    <div class="d-flex align-center" style="gap: 1px; max-width: 80px; overflow: hidden; white-space: nowrap;">
+                      <template v-for="(attr, index) in getVariantAttributesList(variant)" :key="index">
+                        <span
+                          class="font-weight-bold"
+                          :style="attr.color ? { color: attr.color } : {}"
+                        >
+                          {{ attr.name }}
+                        </span>
+                        <span v-if="index < getVariantAttributesList(variant).length - 1" class="text-grey-darken-1" style="margin-inline-end: 1px;">,</span>
+                      </template>
+                    </div>
                   </div>
                 </div>
+                
+                <!-- SKU as fallback if nothing else is filled -->
+                <span v-else-if="variant.sku" class="vm-tab-sku">{{ variant.sku }}</span>
               </div>
-              
-              <!-- SKU as fallback if nothing else is filled -->
-              <span v-else-if="variant.sku" class="vm-tab-sku">{{ variant.sku }}</span>
             </div>
-          </div>
-          <!-- Per-variant actions (show on hover via CSS) -->
-          <div class="vm-tab-actions d-flex gap-0">
-            <v-btn
-              icon="ri-file-copy-line"
-              size="x-small"
-              variant="text"
-              color="grey-darken-1"
-              density="compact"
-              :title="'نسخ متغير #' + (vIndex + 1)"
-              @click.stop="duplicateVariant(vIndex)"
-            />
+            
+            <!-- Delete action on segment (visible on hover) -->
             <v-btn
               v-if="vIndex > 0"
               icon="ri-close-line"
@@ -92,35 +84,36 @@
               variant="text"
               color="error"
               density="compact"
+              class="ms-2 delete-segment-btn"
               :title="'حذف متغير #' + (vIndex + 1)"
               @click.stop="removeVariant(vIndex)"
             />
-          </div>
-        </button>
+          </button>
 
-        <!-- Add Variant Button -->
-        <button class="vm-add-tab" @click="addVariant">
-          <v-icon icon="ri-add-line" size="13" />
-          <span>إضافة</span>
-        </button>
+          <!-- Add Variant Button inside control -->
+          <button class="vm-segment-add-btn" @click="addVariant">
+            <v-icon icon="ri-add-line" size="12" />
+            <span>إضافة</span>
+          </button>
+        </div>
 
-        <v-spacer />
-
-        <!-- Total variants chip -->
-        <v-chip
-          v-if="modelValue.length > 0"
-          size="x-small"
-          color="primary"
-          variant="tonal"
-          density="compact"
-          class="me-2 flex-shrink-0"
-        >
-          {{ modelValue.length }} متغير
-        </v-chip>
+        <!-- Right Side Stats / Spacer -->
+        <div class="d-flex align-center gap-2">
+          <v-chip
+            v-if="modelValue.length > 0"
+            size="x-small"
+            color="primary"
+            variant="tonal"
+            density="compact"
+            class="flex-shrink-0"
+          >
+            {{ modelValue.length }} متغير
+          </v-chip>
+        </div>
       </div>
 
       <!-- Row 2: Sub-tabs + Quick Stats for active variant -->
-      <div v-if="modelValue.length > 0 && currentVariant" class="vm-sub-tabs d-flex align-end bg-white">
+      <div v-if="modelValue.length > 0 && currentVariant" class="vm-sub-tabs d-flex align-center border-b bg-white px-3 py-1">
         <button
           v-for="tab in getVariantTabs(productType)"
           :key="tab.key"
@@ -128,9 +121,9 @@
           :class="['vm-sub-tab--' + tab.key, { 'vm-sub-tab--active': activeSubTab === tab.key }]"
           @click="activeSubTab = tab.key"
         >
-          <v-icon :icon="tab.icon" size="12" class="me-1" />
+          <v-icon :icon="tab.icon" size="13" class="me-1" />
           <span>{{ tab.label }}</span>
-          <span v-if="getTabCompletion(currentVariant, tab.key)" class="sub-done-icon">✓</span>
+          <span v-if="getTabCompletion(currentVariant, tab.key)" class="sub-done-icon ms-1">✓</span>
           <v-badge
             v-else-if="tab.key === 'stock' && productType === 'physical' && calculateTotalQty(currentVariant) > 0"
             :content="calculateTotalQty(currentVariant)"
@@ -142,9 +135,9 @@
         </button>
 
         <!-- Quick stats on the left side -->
-        <div class="d-flex align-center gap-3 ms-auto me-3 flex-shrink-0">
+        <div class="d-flex align-center gap-3 ms-auto me-1 flex-shrink-0">
           <div v-if="productType === 'physical'" class="d-flex align-center gap-1">
-            <v-icon icon="ri-stack-line" size="11" color="grey" />
+            <v-icon icon="ri-stack-line" size="12" color="grey" />
             <span class="text-xxs text-grey">{{ calculateTotalQty(currentVariant) }}</span>
           </div>
           <template v-if="currentVariant.retail_price">
@@ -166,7 +159,7 @@
       <!-- ===== Tab Content Area ===== -->
       <div
         v-if="modelValue.length > 0 && currentVariant"
-        class="vm-content"
+        class="vm-content bg-white"
         :class="'vm-content--' + activeSubTab"
       >
 
@@ -1000,46 +993,82 @@ onMounted(() => fetchAttributes());
   background: white;
 }
 
-/* ===== Variant (Top Level) Tabs ===== */
-.vm-variant-tabs {
-  scrollbar-width: none;
-  min-height: 54px;
-  background-color: #f1f3f5 !important;
+/* ===== Segmented Control (Top Level Variant Selector) ===== */
+.vm-variant-tabs-row {
+  min-height: 58px;
+  background-color: #fafafa !important;
   border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
-  padding-inline-start: 8px;
 }
-.vm-variant-tabs::-webkit-scrollbar { display: none; }
 
-.vm-variant-tab {
+.vm-segmented-control {
+  background-color: #f1f3f5;
+  gap: 4px;
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.vm-segmented-control::-webkit-scrollbar { display: none; }
+
+.vm-segment-btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 16px;
-  border: 1px solid transparent !important;
-  border-bottom-color: rgba(0, 0, 0, 0.08) !important;
-  background: #e9ecef !important;
+  padding: 6px 14px;
+  border: none;
+  background: transparent;
+  color: #495057;
   cursor: pointer;
+  border-radius: 6px;
   white-space: nowrap;
   transition: all 0.2s ease-in-out;
-  min-height: 48px;
-  margin-bottom: -1px;
-  border-top-left-radius: 6px;
-  border-top-right-radius: 6px;
-  margin-inline-end: 4px;
-  z-index: 1;
+  min-height: 38px;
+  font-weight: 500;
+  position: relative;
 }
 
-.vm-variant-tab:first-child { border-left: 1px solid transparent !important; }
-
-.vm-variant-tab:hover {
-  background: #dee2e6 !important;
+.vm-segment-btn:hover {
+  background: rgba(0, 0, 0, 0.04);
+  color: #212529;
 }
 
-.vm-variant-tab--active {
+.vm-segment-btn--active {
   background: #ffffff !important;
-  border-color: rgba(0, 0, 0, 0.08) rgba(0, 0, 0, 0.08) transparent rgba(0, 0, 0, 0.08) !important;
-  border-bottom-color: #ffffff !important;
-  z-index: 2;
+  color: rgb(var(--v-theme-primary)) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  font-weight: 600;
+}
+
+.vm-segment-btn--active .vm-tab-title {
+  color: rgb(var(--v-theme-primary));
+}
+
+.vm-segment-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgb(var(--v-theme-primary));
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  min-height: 38px;
+  border-radius: 6px;
+}
+
+.vm-segment-add-btn:hover {
+  background: rgba(var(--v-theme-primary), 0.08);
+}
+
+.delete-segment-btn {
+  opacity: 0.5;
+  transition: opacity 0.15s, transform 0.15s;
+}
+.vm-segment-btn:hover .delete-segment-btn {
+  opacity: 1;
 }
 
 .vm-tab-title {
@@ -1048,11 +1077,6 @@ onMounted(() => fetchAttributes());
   color: rgba(0,0,0,0.7);
   display: block;
   line-height: 1.2;
-}
-
-.vm-variant-tab--active .vm-tab-title {
-  color: rgb(var(--v-theme-primary));
-  font-weight: 700;
 }
 
 .vm-tab-sku {
@@ -1071,137 +1095,85 @@ onMounted(() => fetchAttributes());
   flex-shrink: 0;
 }
 
-.vm-tab-actions {
-  opacity: 0;
-  transition: opacity 0.15s;
-}
-.vm-variant-tab:hover .vm-tab-actions {
-  opacity: 1;
-}
-
-.vm-add-tab {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 12px;
-  font-size: 11px;
-  font-weight: 600;
-  color: rgb(var(--v-theme-primary));
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.2s;
-  min-height: 40px;
-  align-self: center;
-}
-
-.vm-add-tab:hover {
-  background: rgba(var(--v-theme-primary), 0.06);
-  border-radius: 4px;
-}
-
-/* ===== Sub Tabs ===== */
+/* ===== Sub Tabs (Second Level) ===== */
 .vm-sub-tabs {
-  min-height: 44px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  background-color: #ffffff !important;
+  min-height: 42px;
+  background-color: #ffffff;
   border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
-  padding-inline-start: 12px;
-  padding-top: 4px;
 }
-.vm-sub-tabs::-webkit-scrollbar { display: none; }
 
 .vm-sub-tab {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
   padding: 8px 16px;
-  font-size: 11px;
-  font-weight: 600;
-  color: rgba(0,0,0,0.55);
-  border: 1px solid transparent !important;
-  border-bottom-color: rgba(0, 0, 0, 0.08) !important;
-  background: #f8f9fa !important;
+  font-size: 12px;
+  font-weight: 500;
+  color: #6c757d;
+  border: none;
+  background: transparent;
   cursor: pointer;
-  border-top-left-radius: 6px;
-  border-top-right-radius: 6px;
+  border-bottom: 2px solid transparent;
   white-space: nowrap;
   transition: all 0.2s ease;
-  min-height: 38px;
-  margin-bottom: -1px;
-  margin-inline-end: 4px;
-  z-index: 1;
+  min-height: 42px;
 }
 
 .vm-sub-tab:hover {
-  background: #e9ecef !important;
+  color: #212529;
+  background: rgba(0, 0, 0, 0.02);
 }
 
-/* Sub Tab Active Colors & Borders matching content color */
+/* Active Sub-Tabs Colors (Accents only, no block backgrounds) */
 .vm-sub-tab--prices.vm-sub-tab--active {
   color: #2e7d32 !important;
-  background-color: rgba(76, 175, 80, 0.06) !important;
-  border-color: rgba(76, 175, 80, 0.12) rgba(76, 175, 80, 0.12) transparent rgba(76, 175, 80, 0.12) !important;
-  border-bottom-color: rgba(76, 175, 80, 0.06) !important;
-  z-index: 2;
+  border-bottom-color: #2e7d32 !important;
+  font-weight: 600;
 }
 
 .vm-sub-tab--stock.vm-sub-tab--active {
   color: #1565c0 !important;
-  background-color: rgba(33, 150, 243, 0.06) !important;
-  border-color: rgba(33, 150, 243, 0.12) rgba(33, 150, 243, 0.12) transparent rgba(33, 150, 243, 0.12) !important;
-  border-bottom-color: rgba(33, 150, 243, 0.06) !important;
-  z-index: 2;
+  border-bottom-color: #1565c0 !important;
+  font-weight: 600;
 }
 
 .vm-sub-tab--attributes.vm-sub-tab--active {
   color: #6a1b9a !important;
-  background-color: rgba(156, 39, 176, 0.06) !important;
-  border-color: rgba(156, 39, 176, 0.12) rgba(156, 39, 176, 0.12) transparent rgba(156, 39, 176, 0.12) !important;
-  border-bottom-color: rgba(156, 39, 176, 0.06) !important;
-  z-index: 2;
+  border-bottom-color: #6a1b9a !important;
+  font-weight: 600;
 }
 
 .vm-sub-tab--images.vm-sub-tab--active {
   color: #00695c !important;
-  background-color: rgba(0, 150, 136, 0.06) !important;
-  border-color: rgba(0, 150, 136, 0.12) rgba(0, 150, 136, 0.12) transparent rgba(0, 150, 136, 0.12) !important;
-  border-bottom-color: rgba(0, 150, 136, 0.06) !important;
-  z-index: 2;
+  border-bottom-color: #00695c !important;
+  font-weight: 600;
 }
 
 .sub-done-icon {
-  font-size: 9px;
+  font-size: 10px;
   color: rgb(var(--v-theme-success));
   font-weight: bold;
 }
 
-/* ===== Content Area & Backgrounds ===== */
+/* ===== Content Area & Backgrounds (Pure White Canvas with thin color top border) ===== */
 .vm-content {
   min-height: 220px;
-  transition: background-color 0.25s ease, border-color 0.25s ease;
+  background-color: #ffffff !important; /* Pure white canvas */
 }
 
 .vm-content--prices {
-  background-color: rgba(76, 175, 80, 0.06) !important;
-  border-top: 1px solid rgba(76, 175, 80, 0.1);
+  border-top: 2px solid #2e7d32 !important; /* Green accent top border */
 }
 
 .vm-content--stock {
-  background-color: rgba(33, 150, 243, 0.06) !important;
-  border-top: 1px solid rgba(33, 150, 243, 0.1);
+  border-top: 2px solid #1565c0 !important; /* Blue accent top border */
 }
 
 .vm-content--attributes {
-  background-color: rgba(156, 39, 176, 0.06) !important;
-  border-top: 1px solid rgba(156, 39, 176, 0.1);
+  border-top: 2px solid #6a1b9a !important; /* Purple accent top border */
 }
 
 .vm-content--images {
-  background-color: rgba(0, 150, 136, 0.06) !important;
-  border-top: 1px solid rgba(0, 150, 136, 0.1);
+  border-top: 2px solid #00695c !important; /* Teal accent top border */
 }
 
 /* ===== Variant Dot ===== */
