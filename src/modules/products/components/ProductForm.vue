@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <v-form ref="form" v-model="isValid" @submit.prevent="handleSubmit">
     <AppPageHeader :sticky-top="isDialog ? 0 : 79" sticky>
       <template #prepend>
@@ -895,6 +895,7 @@ const loadProductData = async id => {
                   primary_image_id: v.images?.find(img => img.is_primary)?.id || null,
                   stocks: Array.from(stockMap.values()).map(s => ({
                     ...s,
+                    quantity: s.quantity !== null && s.quantity !== undefined ? parseFloat(s.quantity) : null,
                     unit_id: s.unit_id || data.base_unit_id,
                   })),
                 };

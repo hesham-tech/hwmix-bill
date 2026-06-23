@@ -1,82 +1,46 @@
 <template>
   <div class="variant-manager">
 
-    <!-- ===== Variant Tabs Navigation (Top Level) ===== -->
+    <!-- ===== Shell ===== -->
     <div class="vm-shell border rounded-lg overflow-hidden">
 
-      <!-- Row 1: Variant Selector Tabs (Segmented Control style) -->
-      <div class="vm-variant-tabs-row d-flex align-center justify-space-between pa-2 bg-grey-lighten-5 border-b">
-        <div class="vm-segmented-control d-flex align-center pa-1 bg-grey-lighten-4 rounded-lg">
+      <!-- ===== Header: Variant Tabs + Add Button ===== -->
+      <div class="vm-header d-flex align-center border-b bg-grey-lighten-5">
+
+        <!-- Tabs Scroller -->
+        <div class="vm-tabs-scroll d-flex align-center flex-1 overflow-x-auto pa-1" style="scrollbar-width:none;">
           <button
             v-for="(variant, vIndex) in modelValue"
             :key="vIndex"
-            class="vm-segment-btn"
-            :class="{ 'vm-segment-btn--active': activeVariantIndex === vIndex }"
+            type="button"
+            class="vm-tab-btn"
+            :class="{ 'vm-tab-btn--active': activeVariantIndex === vIndex }"
             @click="switchVariant(vIndex)"
           >
-            <div class="d-flex align-center gap-2">
-              <!-- Variant Thumbnail or Dot -->
-              <v-avatar
-                v-if="getVariantThumbnail(variant)"
-                size="20"
-                class="rounded-md border flex-shrink-0"
-                style="border-color: rgba(0,0,0,0.1) !important;"
-              >
-                <v-img :src="getVariantThumbnail(variant)" cover crossorigin="anonymous" />
-              </v-avatar>
-              <div
-                v-else
-                class="v-dot flex-shrink-0"
-                :class="variant.sku ? 'bg-primary' : 'bg-grey-lighten-2'"
-              />
+            <!-- Thumbnail or colored dot -->
+            <v-avatar v-if="getVariantThumbnail(variant)" size="22" class="rounded-md border flex-shrink-0" style="border-color:rgba(0,0,0,0.1)!important">
+              <v-img :src="getVariantThumbnail(variant)" cover crossorigin="anonymous" />
+            </v-avatar>
+            <span v-else class="vm-variant-dot flex-shrink-0" :class="variant.retail_price ? 'vm-variant-dot--done' : 'vm-variant-dot--empty'" />
 
-              <!-- Title & Details -->
-              <div class="d-flex flex-column align-start">
-                <div class="d-flex align-center gap-1">
-                  <span class="vm-tab-title">متغير #{{ vIndex + 1 }}</span>
-                  <!-- Completion dot -->
-                  <span v-if="variant.retail_price" class="vm-done-dot" />
-                </div>
-                
-                <!-- Sub-details with icons -->
-                <div
-                  v-if="variant.retail_price || (productType === 'physical' && calculateTotalQty(variant) > 0) || hasAttributes(variant)"
-                  class="d-flex align-center gap-2 mt-0.5 text-xxs"
-                  style="opacity: 0.85;"
-                >
-                  <!-- Price -->
-                  <div v-if="variant.retail_price" class="d-flex align-center gap-0.5 text-success" style="gap: 2px;">
-                    <v-icon icon="ri-money-dollar-circle-line" size="10" />
-                    <span class="font-weight-bold">{{ variant.retail_price }}</span>
-                  </div>
-                  <!-- Stock -->
-                  <div v-if="productType === 'physical' && calculateTotalQty(variant) > 0" class="d-flex align-center gap-0.5 text-info" style="gap: 2px;">
-                    <v-icon icon="ri-archive-line" size="10" />
-                    <span class="font-weight-bold">{{ calculateTotalQty(variant) }}</span>
-                  </div>
-                  <!-- Attributes -->
-                  <div v-if="hasAttributes(variant)" class="d-flex align-center gap-0.5 text-secondary" style="gap: 2px;">
-                    <v-icon icon="ri-price-tag-3-line" size="10" />
-                    <div class="d-flex align-center" style="gap: 1px; max-width: 80px; overflow: hidden; white-space: nowrap;">
-                      <template v-for="(attr, index) in getVariantAttributesList(variant)" :key="index">
-                        <span
-                          class="font-weight-bold"
-                          :style="attr.color ? { color: attr.color } : {}"
-                        >
-                          {{ attr.name }}
-                        </span>
-                        <span v-if="index < getVariantAttributesList(variant).length - 1" class="text-grey-darken-1" style="margin-inline-end: 1px;">,</span>
-                      </template>
-                    </div>
-                  </div>
-                </div>
-                
-                <!-- SKU as fallback if nothing else is filled -->
-                <span v-else-if="variant.sku" class="vm-tab-sku">{{ variant.sku }}</span>
+            <!-- Label area -->
+            <div class="vm-tab-info">
+              <div class="vm-tab-name">متغير {{ vIndex + 1 }}</div>
+              <!-- mini stats row -->
+              <div class="vm-tab-stats d-flex align-center" style="gap:6px;">
+                <span v-if="variant.retail_price" class="vm-stat vm-stat--price">
+                  <v-icon icon="ri-money-dollar-circle-line" size="9" />{{ variant.retail_price }}
+                </span>
+                <span v-if="productType === 'physical' && calculateTotalQty(variant) > 0" class="vm-stat vm-stat--stock">
+                  <v-icon icon="ri-archive-line" size="9" />{{ calculateTotalQty(variant) }}
+                </span>
+                <template v-for="attr in getVariantAttributesList(variant)" :key="attr.name">
+                  <span class="vm-stat vm-stat--attr" :style="attr.color ? { color: attr.color } : {}">{{ attr.name }}</span>
+                </template>
               </div>
             </div>
-            
-            <!-- Delete action on segment (visible on hover) -->
+
+            <!-- Delete btn (on hover) -->
             <v-btn
               v-if="vIndex > 0"
               icon="ri-close-line"
@@ -84,420 +48,255 @@
               variant="text"
               color="error"
               density="compact"
-              class="ms-2 delete-segment-btn"
+              class="vm-delete-btn ms-1"
               :title="'حذف متغير #' + (vIndex + 1)"
               @click.stop="removeVariant(vIndex)"
             />
           </button>
-
-          <!-- Add Variant Button inside control -->
-          <button class="vm-segment-add-btn" @click="addVariant">
-            <v-icon icon="ri-add-line" size="12" />
-            <span>إضافة</span>
-          </button>
         </div>
 
-        <!-- Right Side Stats / Spacer -->
-        <div class="d-flex align-center gap-2">
-          <v-chip
-            v-if="modelValue.length > 0"
-            size="x-small"
-            color="primary"
-            variant="tonal"
-            density="compact"
-            class="flex-shrink-0"
-          >
+        <!-- Add variant + count chip -->
+        <div class="d-flex align-center gap-2 pe-2 flex-shrink-0">
+          <v-chip v-if="modelValue.length > 0" size="x-small" color="primary" variant="tonal" density="compact">
             {{ modelValue.length }} متغير
           </v-chip>
-        </div>
-      </div>
-
-      <!-- Row 2: Sub-tabs + Quick Stats for active variant -->
-      <div v-if="modelValue.length > 0 && currentVariant" class="vm-sub-tabs d-flex align-center border-b bg-white px-3 py-1">
-        <button
-          v-for="tab in getVariantTabs(productType)"
-          :key="tab.key"
-          class="vm-sub-tab"
-          :class="['vm-sub-tab--' + tab.key, { 'vm-sub-tab--active': activeSubTab === tab.key }]"
-          @click="activeSubTab = tab.key"
-        >
-          <v-icon :icon="tab.icon" size="13" class="me-1" />
-          <span>{{ tab.label }}</span>
-          <span v-if="getTabCompletion(currentVariant, tab.key)" class="sub-done-icon ms-1">✓</span>
-          <v-badge
-            v-else-if="tab.key === 'stock' && productType === 'physical' && calculateTotalQty(currentVariant) > 0"
-            :content="calculateTotalQty(currentVariant)"
+          <v-btn
+            size="x-small"
+            variant="tonal"
             color="primary"
-            inline
-            size="x-small"
-            class="ms-1"
-          />
-        </button>
-
-        <!-- Quick stats on the left side -->
-        <div class="d-flex align-center gap-3 ms-auto me-1 flex-shrink-0">
-          <div v-if="productType === 'physical'" class="d-flex align-center gap-1">
-            <v-icon icon="ri-stack-line" size="12" color="grey" />
-            <span class="text-xxs text-grey">{{ calculateTotalQty(currentVariant) }}</span>
-          </div>
-          <template v-if="currentVariant.retail_price">
-            <span class="text-xxs font-weight-bold text-success">{{ currentVariant.retail_price }} ج.م</span>
-          </template>
-          <v-chip
-            v-if="currentVariant.purchase_price && currentVariant.retail_price"
-            size="x-small"
-            :color="getProfitColor(currentVariant, 'retail')"
-            variant="flat"
             density="compact"
-            class="text-xxs font-weight-bold"
+            prepend-icon="ri-add-line"
+            class="rounded-md"
+            @click="addVariant"
           >
-            {{ calculateProfitMargin(currentVariant, 'retail') }}%
-          </v-chip>
+            إضافة
+          </v-btn>
         </div>
       </div>
 
-      <!-- ===== Tab Content Area ===== -->
-      <div
-        v-if="modelValue.length > 0 && currentVariant"
-        class="vm-content bg-white"
-        :class="'vm-content--' + activeSubTab"
-      >
+      <!-- ===== Content: Flat variant body (no sub-tabs) ===== -->
+      <div v-if="modelValue.length > 0 && currentVariant" class="vm-body bg-white">
 
-        <!-- TAB: الأسعار -->
-        <div v-show="activeSubTab === 'prices'" class="pa-3">
-          <v-row dense>
-            <v-col cols="12" sm="3" v-if="can(PERMISSIONS.PRODUCTS_VIEW_PURCHASE_PRICE)">
-              <AppInput
-                v-model.number="currentVariant.purchase_price"
-                label="سعر الشراء"
-                type="number"
-                prefix="ج.م"
-                class="price-input"
-                hint="التكلفة الأساسية"
-                persistent-hint
-                @update:model-value="calculateProfitFromPrices(currentVariant)"
-              />
-            </v-col>
-            <v-col cols="12" sm="3" v-if="can(PERMISSIONS.PRODUCTS_VIEW_WHOLESALE_PRICE)">
-              <AppInput
-                v-model.number="currentVariant.wholesale_price"
-                label="سعر الجملة"
-                type="number"
-                prefix="ج.م"
-                class="price-input"
-              />
-            </v-col>
-            <v-col cols="12" sm="3">
-              <AppInput
-                v-model.number="currentVariant.retail_price"
-                label="سعر القطاعي *"
-                type="number"
-                required
-                prefix="ج.م"
-                class="price-input"
-                @update:model-value="calculateProfitFromPrices(currentVariant)"
-              />
-            </v-col>
-            <v-col cols="12" sm="3">
-              <AppInput
-                v-model.number="currentVariant.profit_margin"
-                label="هامش الربح %"
-                type="number"
-                prefix="%"
-                class="price-input"
-                hint="الربح من التكلفة"
-                persistent-hint
-                @update:model-value="calculatePriceFromProfit(currentVariant)"
-              />
-            </v-col>
-          </v-row>
-
-          <!-- Profit Indicators -->
-          <v-row
-            dense
-            class="mt-2"
-            v-if="can(PERMISSIONS.PRODUCTS_VIEW_PURCHASE_PRICE) && currentVariant.purchase_price && (currentVariant.wholesale_price || currentVariant.retail_price)"
-          >
-            <v-col cols="12" sm="6" v-if="currentVariant.wholesale_price && can(PERMISSIONS.PRODUCTS_VIEW_WHOLESALE_PRICE)">
-              <v-alert
-                :color="getProfitColor(currentVariant, 'wholesale')"
-                variant="tonal"
-                density="compact"
-                class="pa-2"
-                :icon="getProfitIcon(currentVariant, 'wholesale')"
-              >
-                <div class="d-flex align-center justify-space-between">
-                  <span class="text-xxs font-weight-bold">ربح الجملة</span>
-                  <v-chip size="x-small" :color="getProfitColor(currentVariant, 'wholesale')" variant="flat" density="compact">
-                    {{ calculateProfitMargin(currentVariant, 'wholesale') }}%
-                  </v-chip>
-                </div>
-                <div class="text-xxs mt-1 text-grey-darken-1">{{ calculateProfitAmount(currentVariant, 'wholesale') }} ج.م / وحدة</div>
-              </v-alert>
-            </v-col>
-            <v-col cols="12" sm="6" v-if="currentVariant.retail_price">
-              <v-alert
-                :color="getProfitColor(currentVariant, 'retail')"
-                variant="tonal"
-                density="compact"
-                class="pa-2"
-                :icon="getProfitIcon(currentVariant, 'retail')"
-              >
-                <div class="d-flex align-center justify-space-between">
-                  <span class="text-xxs font-weight-bold">ربح القطاعي</span>
-                  <v-chip size="x-small" :color="getProfitColor(currentVariant, 'retail')" variant="flat" density="compact">
-                    {{ calculateProfitMargin(currentVariant, 'retail') }}%
-                  </v-chip>
-                </div>
-                <div class="text-xxs mt-1 text-grey-darken-1">{{ calculateProfitAmount(currentVariant, 'retail') }} ج.م / وحدة</div>
-              </v-alert>
-            </v-col>
-          </v-row>
-
-          <!-- SKU & Barcode -->
-          <v-divider class="my-3" />
-          <v-row dense>
-            <v-col cols="12" sm="6">
-              <AppInput
-                v-model="currentVariant.sku"
-                label="SKU — كود الصنف"
-                placeholder="مثال: SHIRT-RED-XL"
-                prepend-inner-icon="ri-hashtag"
-              />
-            </v-col>
-            <v-col cols="12" sm="6">
-              <AppInput
-                v-model="currentVariant.barcode"
-                label="الباركود"
-                placeholder="اتركه فارغاً للتوليد التلقائي"
-                prepend-inner-icon="ri-barcode-line"
-              />
-            </v-col>
-          </v-row>
-        </div>
-
-        <!-- TAB: المخزون -->
-        <div v-show="activeSubTab === 'stock' && productType === 'physical'" class="pa-3">
-          <div class="d-flex align-center justify-space-between mb-3">
-            <div class="d-flex align-center gap-2">
-              <v-icon icon="ri-store-2-line" color="primary" size="14" />
-              <div>
-                <div class="text-xxs font-weight-bold">توزيع المخزون الافتتاحي</div>
-                <div class="text-xxs text-grey">وزّع الكميات على الفروع والمستودعات</div>
-              </div>
-            </div>
-            <div class="d-flex align-center gap-2">
-              <v-chip
-                v-if="calculateTotalQty(currentVariant) > 0"
-                size="small"
-                color="success"
-                variant="flat"
-                density="compact"
-                prepend-icon="ri-stack-line"
-              >
-                الإجمالي: {{ calculateTotalQty(currentVariant) }}
-              </v-chip>
-              <v-btn
-                size="x-small"
-                variant="tonal"
-                color="primary"
-                density="compact"
-                prepend-icon="ri-add-line"
-                class="rounded-md"
-                @click="addStock(activeVariantIndex)"
-              >
-                إضافة فرع
-              </v-btn>
-            </div>
+        <!-- ── Section: الأسعار ── -->
+        <div class="vm-section">
+          <div class="vm-section-label">
+            <v-icon icon="ri-price-tag-3-line" size="12" class="me-1" color="green-darken-2" />
+            الأسعار
           </div>
-
-          <div
-            v-for="(stock, sIndex) in currentVariant.stocks"
-            :key="sIndex"
-            class="stock-card border rounded-lg pa-3 mb-2"
-          >
-            <div class="d-flex align-center justify-space-between mb-2">
-              <div class="d-flex align-center gap-1">
-                <v-icon icon="ri-store-2-line" size="11" color="grey" />
-                <span class="text-xxs text-grey font-weight-bold">فرع / مستودع #{{ sIndex + 1 }}</span>
-              </div>
-              <v-btn
-                v-if="sIndex !== 0"
-                icon="ri-delete-bin-7-line"
-                size="x-small"
-                variant="text"
-                color="error"
-                density="compact"
-                :disabled="currentVariant.stocks?.length <= 1"
-                @click="removeStock(activeVariantIndex, sIndex)"
-              />
-            </div>
-            <v-row dense align="center">
-              <v-col cols="12" sm="5">
-                <AppAutocomplete
-                  v-model="stock.warehouse_id"
-                  label="المستودع / الفرع"
-                  api-endpoint="warehouses"
-                  item-title="name"
-                  item-value="id"
+          <div class="vm-section-content">
+            <v-row dense>
+              <v-col cols="6" sm="3" v-if="can(PERMISSIONS.PRODUCTS_VIEW_PURCHASE_PRICE)">
+                <AppInput
+                  v-model.number="currentVariant.purchase_price"
+                  label="سعر الشراء *"
+                  type="number"
+                  prefix="ج.م"
+                  class="price-input"
                   density="compact"
-                  variant="outlined"
-                  hide-details
-                  prepend-inner-icon="ri-store-2-line"
+                  hide-details="auto"
+                  :rules="purchasePriceRules"
+                  @update:model-value="calculateProfitFromPrices(currentVariant)"
                 />
               </v-col>
-              <v-col cols="6" sm="4">
+              <v-col cols="6" sm="3" v-if="can(PERMISSIONS.PRODUCTS_VIEW_WHOLESALE_PRICE)">
                 <AppInput
-                  v-model.number="stock.quantity"
-                  label="الكمية *"
+                  v-model.number="currentVariant.wholesale_price"
+                  label="سعر الجملة"
                   type="number"
+                  prefix="ج.م"
+                  class="price-input"
                   density="compact"
-                  variant="outlined"
                   hide-details="auto"
-                  placeholder="0"
-                  prepend-inner-icon="ri-stack-line"
-                  :rules="stockRules"
-                  :readonly="!can(PERMISSIONS.STOCKS_MANUAL_ADJUSTMENT) && !can(PERMISSIONS.ADMIN_SUPER) && !can(PERMISSIONS.ADMIN_COMPANY)"
                 />
               </v-col>
               <v-col cols="6" sm="3">
-                <v-select
-                  v-model="stock.unit_id"
-                  :items="filteredUnits"
-                  item-title="name"
-                  item-value="id"
-                  label="الوحدة"
-                  variant="outlined"
+                <AppInput
+                  v-model.number="currentVariant.retail_price"
+                  label="سعر القطاعي *"
+                  type="number"
+                  prefix="ج.م"
+                  class="price-input"
                   density="compact"
                   hide-details="auto"
-                  :disabled="!selectedGroup"
-                  :placeholder="!selectedGroup ? 'اختر مجموعة أولاً' : ''"
-                >
-                  <template #prepend-inner>
-                    <v-icon icon="ri-scales-3-line" size="14" color="grey" />
-                  </template>
-                </v-select>
+                  :rules="retailPriceRules"
+                  @update:model-value="calculateProfitFromPrices(currentVariant)"
+                />
+              </v-col>
+              <v-col cols="6" sm="3" v-if="can(PERMISSIONS.PRODUCTS_VIEW_PURCHASE_PRICE)">
+                <AppInput
+                  v-model.number="currentVariant.profit_margin"
+                  label="هامش الربح %"
+                  type="number"
+                  prefix="%"
+                  class="price-input"
+                  density="compact"
+                  hide-details="auto"
+                  @update:model-value="calculatePriceFromProfit(currentVariant)"
+                />
+              </v-col>
+            </v-row>
+
+            <!-- Profit Indicators -->
+            <v-row
+              dense
+              class="mt-2"
+              v-if="can(PERMISSIONS.PRODUCTS_VIEW_PURCHASE_PRICE) && currentVariant.purchase_price && (currentVariant.wholesale_price || currentVariant.retail_price)"
+            >
+              <v-col cols="6" v-if="currentVariant.wholesale_price && can(PERMISSIONS.PRODUCTS_VIEW_WHOLESALE_PRICE)">
+                <v-alert :color="getProfitColor(currentVariant, 'wholesale')" variant="tonal" density="compact" class="pa-2" :icon="getProfitIcon(currentVariant, 'wholesale')">
+                  <div class="d-flex align-center justify-space-between">
+                    <span class="text-xxs font-weight-bold">ربح الجملة</span>
+                    <v-chip size="x-small" :color="getProfitColor(currentVariant, 'wholesale')" variant="flat" density="compact">{{ calculateProfitMargin(currentVariant, 'wholesale') }}%</v-chip>
+                  </div>
+                  <div class="text-xxs mt-1 text-grey-darken-1">{{ calculateProfitAmount(currentVariant, 'wholesale') }} ج.م / وحدة</div>
+                </v-alert>
+              </v-col>
+              <v-col cols="6" v-if="currentVariant.retail_price">
+                <v-alert :color="getProfitColor(currentVariant, 'retail')" variant="tonal" density="compact" class="pa-2" :icon="getProfitIcon(currentVariant, 'retail')">
+                  <div class="d-flex align-center justify-space-between">
+                    <span class="text-xxs font-weight-bold">ربح القطاعي</span>
+                    <v-chip size="x-small" :color="getProfitColor(currentVariant, 'retail')" variant="flat" density="compact">{{ calculateProfitMargin(currentVariant, 'retail') }}%</v-chip>
+                  </div>
+                  <div class="text-xxs mt-1 text-grey-darken-1">{{ calculateProfitAmount(currentVariant, 'retail') }} ج.م / وحدة</div>
+                </v-alert>
+              </v-col>
+            </v-row>
+
+            <!-- SKU & Barcode -->
+            <v-row dense class="mt-2">
+              <v-col cols="12" sm="6">
+                <AppInput v-model="currentVariant.sku" label="SKU — كود الصنف" placeholder="مثال: SHIRT-RED-XL" prepend-inner-icon="ri-hashtag" density="compact" hide-details="auto" />
+              </v-col>
+              <v-col cols="12" sm="6">
+                <AppInput v-model="currentVariant.barcode" label="الباركود" placeholder="اتركه فارغاً للتوليد التلقائي" prepend-inner-icon="ri-barcode-line" density="compact" hide-details="auto" />
               </v-col>
             </v-row>
           </div>
+        </div>
 
-          <div v-if="!currentVariant.stocks?.length" class="text-center py-6 border-dashed rounded-lg">
-            <v-icon icon="ri-store-2-line" color="grey-lighten-2" size="28" />
-            <div class="text-xxs text-grey mt-1">لا يوجد مستودع محدد</div>
-            <v-btn size="x-small" variant="tonal" color="primary" class="mt-2 rounded-md" prepend-icon="ri-add-line" @click="addStock(activeVariantIndex)">
-              إضافة مستودع
+        <v-divider />
+
+        <!-- ── Section: المخزون (physical only) ── -->
+        <div v-if="productType === 'physical'" class="vm-section">
+          <div class="vm-section-label">
+            <v-icon icon="ri-store-2-line" size="12" class="me-1" color="blue-darken-2" />
+            المخزون
+            <v-chip v-if="calculateTotalQty(currentVariant) > 0" size="x-small" color="success" variant="flat" density="compact" class="ms-auto">
+              إجمالي: {{ calculateTotalQty(currentVariant) }}
+            </v-chip>
+            <v-btn size="x-small" variant="tonal" color="primary" density="compact" prepend-icon="ri-add-line" class="rounded-md ms-2" @click="addStock(activeVariantIndex)">
+              إضافة فرع
             </v-btn>
+          </div>
+          <div class="vm-section-content">
+            <!-- Stock rows -->
+            <div
+              v-for="(stock, sIndex) in currentVariant.stocks"
+              :key="sIndex"
+              class="stock-card border rounded-lg pa-2 mb-2"
+            >
+              <div class="d-flex align-center justify-space-between mb-2">
+                <span class="text-xxs text-grey font-weight-bold">
+                  <v-icon icon="ri-store-2-line" size="10" color="grey" class="me-1" />
+                  فرع / مستودع #{{ sIndex + 1 }}
+                </span>
+                <v-btn v-if="sIndex !== 0" icon="ri-delete-bin-7-line" size="x-small" variant="text" color="error" density="compact" :disabled="currentVariant.stocks?.length <= 1" @click="removeStock(activeVariantIndex, sIndex)" />
+              </div>
+              <v-row dense align="center">
+                <v-col cols="12" sm="5">
+                  <AppAutocomplete v-model="stock.warehouse_id" label="المستودع / الفرع" api-endpoint="warehouses" item-title="name" item-value="id" density="compact" variant="outlined" hide-details prepend-inner-icon="ri-store-2-line" />
+                </v-col>
+                <v-col cols="6" sm="4">
+                  <AppInput v-model.number="stock.quantity" label="الكمية *" type="number" density="compact" variant="outlined" hide-details="auto" placeholder="0" prepend-inner-icon="ri-stack-line" :rules="stockRules" :readonly="!can(PERMISSIONS.STOCKS_MANUAL_ADJUSTMENT) && !can(PERMISSIONS.ADMIN_SUPER) && !can(PERMISSIONS.ADMIN_COMPANY)" />
+                </v-col>
+                <v-col cols="6" sm="3">
+                  <v-select v-model="stock.unit_id" :items="filteredUnits" item-title="name" item-value="id" label="الوحدة" variant="outlined" density="compact" hide-details="auto" :disabled="!selectedGroup" :placeholder="!selectedGroup ? 'اختر مجموعة أولاً' : ''">
+                    <template #prepend-inner><v-icon icon="ri-scales-3-line" size="14" color="grey" /></template>
+                  </v-select>
+                </v-col>
+              </v-row>
+            </div>
+
+            <!-- Empty stock state -->
+            <div v-if="!currentVariant.stocks?.length" class="text-center py-5 border-dashed rounded-lg">
+              <v-icon icon="ri-store-2-line" color="grey-lighten-2" size="24" />
+              <div class="text-xxs text-grey mt-1">لا يوجد مستودع محدد</div>
+              <v-btn size="x-small" variant="tonal" color="primary" class="mt-2 rounded-md" prepend-icon="ri-add-line" @click="addStock(activeVariantIndex)">إضافة مستودع</v-btn>
+            </div>
           </div>
         </div>
 
-        <!-- TAB: الصفات -->
-        <div v-show="activeSubTab === 'attributes'" class="pa-3">
-          <div class="d-flex align-center justify-space-between mb-3">
-            <div>
-              <div class="text-xxs font-weight-bold">المواصفات والخصائص</div>
-              <div class="text-xxs text-grey">مثال: اللون، المقاس، المادة...</div>
-            </div>
-            <v-btn
-              size="x-small"
-              variant="tonal"
-              color="secondary"
-              density="compact"
-              prepend-icon="ri-add-line"
-              class="rounded-md"
-              @click="addAttribute(activeVariantIndex)"
-            >
+        <v-divider />
+
+        <!-- ── Section: الصفات ── -->
+        <div class="vm-section">
+          <div class="vm-section-label">
+            <v-icon icon="ri-equalizer-line" size="12" class="me-1" color="purple-darken-2" />
+            الصفات
+            <v-btn size="x-small" variant="tonal" color="secondary" density="compact" prepend-icon="ri-add-line" class="rounded-md ms-auto" @click="addAttribute(activeVariantIndex)">
               إضافة صفة
             </v-btn>
           </div>
-
-          <div v-if="!currentVariant.attributes?.length" class="text-center py-6 border-dashed rounded-lg">
-            <v-icon icon="ri-list-settings-line" color="grey-lighten-2" size="28" />
-            <div class="text-xxs text-grey mt-1">لا توجد مواصفات بعد</div>
-          </div>
-
-          <div v-else class="d-flex flex-wrap gap-2">
-            <div
-              v-for="(attr, aIndex) in currentVariant.attributes"
-              :key="aIndex"
-              class="attr-pill-group d-flex align-center border rounded-lg bg-white overflow-hidden"
-            >
-              <div class="attr-label-box bg-grey-lighten-5 px-2 py-2 border-e">
-                <AppAutocomplete
-                  v-model="attr.attribute_id"
-                  label="الصفة"
-                  :items="attributeList"
-                  item-title="name"
-                  item-value="id"
-                  density="compact"
-                  variant="plain"
-                  hide-details
-                  class="attr-input"
-                >
-                  <template #no-data>
-                    <v-list-item @click="openCreateAttributeDialog(activeVariantIndex, aIndex)">
-                      <template #prepend><v-icon color="primary" icon="ri-add-line" /></template>
-                      <v-list-item-title>إضافة خاصية جديدة...</v-list-item-title>
-                    </v-list-item>
-                  </template>
-                </AppAutocomplete>
+          <div class="vm-section-content">
+            <div v-if="!currentVariant.attributes?.length" class="text-center py-5 border-dashed rounded-lg">
+              <v-icon icon="ri-list-settings-line" color="grey-lighten-2" size="24" />
+              <div class="text-xxs text-grey mt-1">لا توجد مواصفات بعد</div>
+            </div>
+            <div v-else class="d-flex flex-wrap gap-2">
+              <div
+                v-for="(attr, aIndex) in currentVariant.attributes"
+                :key="aIndex"
+                class="attr-pill-group d-flex align-center border rounded-lg bg-white overflow-hidden"
+              >
+                <div class="attr-label-box bg-grey-lighten-5 px-2 py-2 border-e">
+                  <AppAutocomplete v-model="attr.attribute_id" label="الصفة" :items="attributeList" item-title="name" item-value="id" density="compact" variant="plain" hide-details class="attr-input">
+                    <template #no-data>
+                      <v-list-item @click="openCreateAttributeDialog(activeVariantIndex, aIndex)">
+                        <template #prepend><v-icon color="primary" icon="ri-add-line" /></template>
+                        <v-list-item-title>إضافة خاصية جديدة...</v-list-item-title>
+                      </v-list-item>
+                    </template>
+                  </AppAutocomplete>
+                </div>
+                <div class="attr-value-box px-2 py-2">
+                  <AppAutocomplete v-if="attr.attribute_id" v-model="attr.attribute_value_id" label="القيمة" :items="attributeValuesMap[attr.attribute_id] || []" item-title="name" item-value="id" density="compact" variant="plain" hide-details class="attr-input">
+                    <template #no-data>
+                      <v-list-item @click="openCreateValueDialog(attr.attribute_id, activeVariantIndex, aIndex)">
+                        <template #prepend><v-icon color="primary" icon="ri-add-line" /></template>
+                        <v-list-item-title>إضافة قيمة...</v-list-item-title>
+                      </v-list-item>
+                    </template>
+                    <template #selection="{ item }">
+                      <v-chip v-if="item?.raw?.color" size="small" :style="{ backgroundColor: item.raw.color, color: getContrastColor(item.raw.color) }">{{ item.raw.name }}</v-chip>
+                      <span v-else-if="item?.raw">{{ item.raw.name }}</span>
+                    </template>
+                    <template #item="{ props: ip, item }">
+                      <v-list-item v-if="item?.raw" v-bind="ip" :style="item.raw.color ? { backgroundColor: item.raw.color, color: getContrastColor(item.raw.color) } : {}" />
+                    </template>
+                  </AppAutocomplete>
+                  <div v-else class="text-xxs text-grey italic pa-1">اختر الصفة أولاً</div>
+                </div>
+                <v-btn icon="ri-close-line" size="x-small" variant="text" color="grey" class="mx-1" @click="removeAttribute(activeVariantIndex, aIndex)" />
               </div>
-              <div class="attr-value-box px-2 py-2">
-                <AppAutocomplete
-                  v-if="attr.attribute_id"
-                  v-model="attr.attribute_value_id"
-                  label="القيمة"
-                  :items="attributeValuesMap[attr.attribute_id] || []"
-                  item-title="name"
-                  item-value="id"
-                  density="compact"
-                  variant="plain"
-                  hide-details
-                  class="attr-input"
-                >
-                  <template #no-data>
-                    <v-list-item @click="openCreateValueDialog(attr.attribute_id, activeVariantIndex, aIndex)">
-                      <template #prepend><v-icon color="primary" icon="ri-add-line" /></template>
-                      <v-list-item-title>إضافة قيمة...</v-list-item-title>
-                    </v-list-item>
-                  </template>
-                  <template #selection="{ item }">
-                    <v-chip
-                      v-if="item?.raw?.color"
-                      size="small"
-                      :style="{ backgroundColor: item.raw.color, color: getContrastColor(item.raw.color) }"
-                    >{{ item.raw.name }}</v-chip>
-                    <span v-else-if="item?.raw">{{ item.raw.name }}</span>
-                  </template>
-                  <template #item="{ props: ip, item }">
-                    <v-list-item
-                      v-if="item?.raw"
-                      v-bind="ip"
-                      :style="item.raw.color ? { backgroundColor: item.raw.color, color: getContrastColor(item.raw.color) } : {}"
-                    />
-                  </template>
-                </AppAutocomplete>
-                <div v-else class="text-xxs text-grey italic pa-1">اختر الصفة أولاً</div>
-              </div>
-              <v-btn icon="ri-close-line" size="x-small" variant="text" color="grey" class="mx-1" @click="removeAttribute(activeVariantIndex, aIndex)" />
             </div>
           </div>
         </div>
 
-        <!-- TAB: الصور -->
-        <div v-show="activeSubTab === 'images'" class="pa-3">
-          <div class="d-flex align-center gap-2 mb-3">
-            <v-icon icon="ri-image-line" color="primary" size="14" />
-            <div>
-              <div class="text-xxs font-weight-bold">صور هذا المتغير</div>
-              <div class="text-xxs text-grey">صور خاصة بهذا اللون أو الحجم (اختياري)</div>
-            </div>
-          </div>
-          <ProductMediaManager
-            v-model="currentVariant.images"
-            v-model:primaryImageId="currentVariant.primary_image_id"
-          />
-        </div>
+        <v-divider />
 
+        <!-- ── Section: الصور ── -->
+        <div class="vm-section">
+          <div class="vm-section-label">
+            <v-icon icon="ri-image-line" size="12" class="me-1" color="teal-darken-2" />
+            الصور
+            <span v-if="currentVariant.images?.length" class="ms-auto">
+              <v-chip size="x-small" color="teal" variant="tonal" density="compact">{{ currentVariant.images.length }} صورة</v-chip>
+            </span>
+          </div>
+          <div class="vm-section-content">
+            <ProductMediaManager v-model="currentVariant.images" v-model:primaryImageId="currentVariant.primary_image_id" />
+          </div>
+        </div>
       </div>
 
       <!-- Empty State (no variants) -->
@@ -511,23 +310,15 @@
       </div>
     </div>
 
-    <!-- ===== Summary Table at Bottom ===== -->
+    <!-- ===== Summary Table ===== -->
     <div v-if="modelValue.length > 0" class="vm-summary-table mt-4 border rounded-lg overflow-hidden">
       <div class="summary-header d-flex align-center justify-space-between pa-2 bg-grey-lighten-5 border-b">
         <div class="d-flex align-center gap-2">
           <v-icon icon="ri-table-2" color="grey-darken-1" size="14" />
           <span class="text-xxs font-weight-bold text-grey-darken-1">جدول ملخص جميع المتغيرات</span>
         </div>
-        <v-btn
-          size="x-small"
-          variant="text"
-          color="grey"
-          :icon="summaryCollapsed ? 'ri-arrow-down-s-line' : 'ri-arrow-up-s-line'"
-          density="compact"
-          @click="summaryCollapsed = !summaryCollapsed"
-        />
+        <v-btn size="x-small" variant="text" color="grey" :icon="summaryCollapsed ? 'ri-arrow-down-s-line' : 'ri-arrow-up-s-line'" density="compact" @click="summaryCollapsed = !summaryCollapsed" />
       </div>
-
       <v-expand-transition>
         <div v-if="!summaryCollapsed" class="overflow-x-auto">
           <table class="summary-table w-100">
@@ -563,67 +354,30 @@
                 <td>
                   <div class="d-flex flex-wrap gap-1">
                     <template v-for="attr in variant.attributes" :key="attr.attribute_id">
-                      <v-chip
-                        v-if="attr.attribute_id && attr.attribute_value_id"
-                        size="x-small"
-                        variant="tonal"
-                        color="secondary"
-                        density="compact"
-                        class="text-xxs"
-                      >
+                      <v-chip v-if="attr.attribute_id && attr.attribute_value_id" size="x-small" variant="tonal" color="secondary" density="compact" class="text-xxs">
                         {{ getAttributeLabel(attr) }}
                       </v-chip>
                     </template>
                     <span v-if="!hasAttributes(variant)" class="text-grey text-xxs">—</span>
                   </div>
                 </td>
-                <td v-if="can(PERMISSIONS.PRODUCTS_VIEW_PURCHASE_PRICE)" class="text-end">
-                  {{ variant.purchase_price || '—' }}
-                </td>
-                <td v-if="can(PERMISSIONS.PRODUCTS_VIEW_WHOLESALE_PRICE)" class="text-end">
-                  {{ variant.wholesale_price || '—' }}
-                </td>
+                <td v-if="can(PERMISSIONS.PRODUCTS_VIEW_PURCHASE_PRICE)" class="text-end">{{ variant.purchase_price || '—' }}</td>
+                <td v-if="can(PERMISSIONS.PRODUCTS_VIEW_WHOLESALE_PRICE)" class="text-end">{{ variant.wholesale_price || '—' }}</td>
                 <td class="text-end font-weight-bold">{{ variant.retail_price || '—' }}</td>
                 <td class="text-center">
-                  <v-chip
-                    v-if="variant.purchase_price && variant.retail_price"
-                    size="x-small"
-                    :color="getProfitColor(variant, 'retail')"
-                    variant="flat"
-                    density="compact"
-                    class="font-weight-bold"
-                  >
+                  <v-chip v-if="variant.purchase_price && variant.retail_price" size="x-small" :color="getProfitColor(variant, 'retail')" variant="flat" density="compact" class="font-weight-bold">
                     {{ calculateProfitMargin(variant, 'retail') }}%
                   </v-chip>
                   <span v-else class="text-grey text-xxs">—</span>
                 </td>
-                <td v-if="productType === 'physical'" class="text-end font-weight-bold">
-                  {{ calculateTotalQty(variant) || '—' }}
-                </td>
+                <td v-if="productType === 'physical'" class="text-end font-weight-bold">{{ calculateTotalQty(variant) || '—' }}</td>
                 <td class="text-center">
                   <v-badge :content="variant.images?.length || 0" color="primary" inline size="x-small" />
                 </td>
                 <td class="text-center">
                   <div class="d-flex justify-center gap-1">
-                    <v-btn
-                      icon="ri-edit-line"
-                      size="x-small"
-                      variant="text"
-                      color="primary"
-                      density="compact"
-                      :title="'تعديل متغير #' + (vIdx + 1)"
-                      @click.stop="switchVariant(vIdx)"
-                    />
-                    <v-btn
-                      v-if="vIdx > 0"
-                      icon="ri-delete-bin-line"
-                      size="x-small"
-                      variant="text"
-                      color="error"
-                      density="compact"
-                      :title="'حذف متغير #' + (vIdx + 1)"
-                      @click.stop="removeVariant(vIdx)"
-                    />
+                    <v-btn icon="ri-edit-line" size="x-small" variant="text" color="primary" density="compact" :title="'تعديل متغير #' + (vIdx + 1)" @click.stop="switchVariant(vIdx)" />
+                    <v-btn v-if="vIdx > 0" icon="ri-delete-bin-line" size="x-small" variant="text" color="error" density="compact" :title="'حذف متغير #' + (vIdx + 1)" @click.stop="removeVariant(vIdx)" />
                   </div>
                 </td>
               </tr>
@@ -635,12 +389,7 @@
 
     <!-- Dialogs -->
     <AttributeFormDialog v-model="showAttrDialog" @saved="handleAttributeSaved" />
-    <AttributeValueFormDialog
-      v-if="selectedAttributeForValue"
-      v-model="showValueDialog"
-      :attribute="selectedAttributeForValue"
-      @saved="handleValueSaved"
-    />
+    <AttributeValueFormDialog v-if="selectedAttributeForValue" v-model="showValueDialog" :attribute="selectedAttributeForValue" @saved="handleValueSaved" />
   </div>
 </template>
 
@@ -649,7 +398,19 @@ import { ref, computed, watch, onMounted } from 'vue';
 
 const stockRules = [
   v => (v !== null && v !== undefined && v !== '') || 'قيمة المخزون مطلوبة',
-  v => /^\d+$/.test(v) || 'يجب إدخال أرقام فقط',
+  v => !isNaN(parseFloat(v)) && isFinite(v) && parseFloat(v) >= 0 || 'يجب إدخال رقم صحيح أو عشري',
+];
+
+// قواعد سعر الشراء (إجباري، > 0)
+const purchasePriceRules = [
+  v => (v !== null && v !== undefined && v !== '') || 'سعر الشراء مطلوب',
+  v => (parseFloat(v) > 0) || 'يجب أن يكون سعر الشراء أكبر من صفر',
+];
+
+// قواعد سعر القطاعي (إجباري، > 0)
+const retailPriceRules = [
+  v => (v !== null && v !== undefined && v !== '') || 'سعر القطاعي مطلوب',
+  v => (parseFloat(v) > 0) || 'يجب أن يكون سعر البيع أكبر من صفر',
 ];
 
 import AppInput from '@/components/common/AppInput.vue';
@@ -679,7 +440,6 @@ const productStore = useProductStore();
 
 // حالة النشاط
 const activeVariantIndex = ref(0);
-const activeSubTab = ref('prices');
 const summaryCollapsed = ref(false);
 
 // المتغير النشط حالياً
@@ -687,32 +447,6 @@ const currentVariant = computed(() => props.modelValue[activeVariantIndex.value]
 
 const switchVariant = (idx) => {
   activeVariantIndex.value = idx;
-  activeSubTab.value = 'prices';
-};
-
-// قائمة التابات بحسب نوع المنتج
-const getVariantTabs = (type) => {
-  const tabs = [
-    { key: 'prices', label: 'الأسعار', icon: 'ri-price-tag-3-line' },
-  ];
-  if (type === 'physical') {
-    tabs.push({ key: 'stock', label: 'المخزون', icon: 'ri-store-2-line' });
-  }
-  tabs.push(
-    { key: 'attributes', label: 'الصفات', icon: 'ri-equalizer-line' },
-    { key: 'images', label: 'الصور', icon: 'ri-image-line' },
-  );
-  return tabs;
-};
-
-// اكتمال كل تاب
-const getTabCompletion = (variant, key) => {
-  if (!variant) return false;
-  if (key === 'prices') return !!variant.retail_price;
-  if (key === 'stock') return calculateTotalQty(variant) > 0;
-  if (key === 'attributes') return hasAttributes(variant);
-  if (key === 'images') return (variant.images?.length || 0) > 0;
-  return false;
 };
 
 // فلترة وحدات القياس
@@ -743,32 +477,13 @@ watch(
     }
   }
 );
+
 // حسابات المخزون والصفات
 const calculateTotalQty = (variant) =>
-  variant?.stocks?.reduce((acc, s) => acc + (parseInt(s.quantity) || 0), 0) || 0;
+  variant?.stocks?.reduce((acc, s) => acc + (parseFloat(s.quantity) || 0), 0) || 0;
 
 const hasAttributes = (variant) =>
   variant?.attributes?.some(a => a.attribute_id && a.attribute_value_id) || false;
-
-const getVariantAttrLabel = (variant) => {
-  const found = variant.attributes?.find(a => a.attribute_id && a.attribute_value_id);
-  if (!found) return '';
-  const attr = attributeList.value.find(a => a.id === found.attribute_id);
-  const val = attr?.values?.find(v => v.id === found.attribute_value_id);
-  return val?.name || '';
-};
-
-const getVariantAllAttrsLabel = (variant) => {
-  if (!variant?.attributes) return '';
-  return variant.attributes
-    .map(attr => {
-      const attribute = attributeList.value.find(a => a.id === attr.attribute_id);
-      const value = attribute?.values?.find(v => v.id === attr.attribute_value_id);
-      return value ? value.name : '';
-    })
-    .filter(name => name)
-    .join(', ');
-};
 
 const getVariantAttributesList = (variant) => {
   if (!variant?.attributes) return [];
@@ -777,10 +492,7 @@ const getVariantAttributesList = (variant) => {
       const attribute = attributeList.value.find(a => a.id === attr.attribute_id);
       const value = attribute?.values?.find(v => v.id === attr.attribute_value_id);
       if (!value) return null;
-      return {
-        name: value.name,
-        color: value.color || null
-      };
+      return { name: value.name, color: value.color || null };
     })
     .filter(Boolean);
 };
@@ -796,6 +508,7 @@ const getAttributeLabel = (attr) => {
   const value = attribute?.values?.find(v => v.id === attr.attribute_value_id);
   return value ? value.name : '...';
 };
+
 // حسابات الربح
 const calculateProfitMargin = (variant, priceType = 'retail') => {
   const purchase = parseFloat(variant.purchase_price) || 0;
@@ -876,20 +589,6 @@ const addVariant = async () => {
 
   emit('update:modelValue', newVariants);
   activeVariantIndex.value = newVariants.length - 1;
-  activeSubTab.value = 'prices';
-};
-
-const duplicateVariant = (index) => {
-  const newVariants = [...props.modelValue];
-  const clone = {
-    ...JSON.parse(JSON.stringify(newVariants[index])),
-    id: undefined, sku: '', barcode: '',
-    stocks: newVariants[index].stocks.map(s => ({ ...s, quantity: null, id: undefined })),
-  };
-  newVariants.splice(index + 1, 0, clone);
-  emit('update:modelValue', newVariants);
-  activeVariantIndex.value = index + 1;
-  activeSubTab.value = 'prices';
 };
 
 const removeVariant = (index) => {
@@ -986,212 +685,123 @@ onMounted(() => fetchAttributes());
 </script>
 
 <style scoped>
-/* ===== Shell ===== */
 .variant-manager { font-size: 12px; }
 
-.vm-shell {
-  background: white;
-}
+/* ===== Shell ===== */
+.vm-shell { background: white; }
 
-/* ===== Segmented Control (Top Level Variant Selector) ===== */
-.vm-variant-tabs-row {
-  min-height: 58px;
+/* ===== Header ===== */
+.vm-header {
+  min-height: 52px;
   background-color: #fafafa !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+  border-bottom: 1px solid rgba(0,0,0,0.08) !important;
+  gap: 0;
 }
 
-.vm-segmented-control {
-  background-color: #f1f3f5;
-  gap: 4px;
-  max-width: 100%;
-  overflow-x: auto;
+.vm-tabs-scroll {
+  gap: 3px;
   scrollbar-width: none;
 }
-.vm-segmented-control::-webkit-scrollbar { display: none; }
+.vm-tabs-scroll::-webkit-scrollbar { display: none; }
 
-.vm-segment-btn {
+/* ===== Variant Tab Button ===== */
+.vm-tab-btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 14px;
+  padding: 6px 12px;
   border: none;
   background: transparent;
   color: #495057;
   cursor: pointer;
   border-radius: 6px;
   white-space: nowrap;
-  transition: all 0.2s ease-in-out;
-  min-height: 38px;
+  transition: all 0.18s ease;
+  min-height: 42px;
   font-weight: 500;
   position: relative;
 }
-
-.vm-segment-btn:hover {
-  background: rgba(0, 0, 0, 0.04);
+.vm-tab-btn:hover {
+  background: rgba(0,0,0,0.04);
   color: #212529;
 }
-
-.vm-segment-btn--active {
+.vm-tab-btn--active {
   background: #ffffff !important;
   color: rgb(var(--v-theme-primary)) !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
   font-weight: 600;
 }
-
-.vm-segment-btn--active .vm-tab-title {
+.vm-tab-btn--active .vm-tab-name {
   color: rgb(var(--v-theme-primary));
 }
-
-.vm-segment-add-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 12px;
-  font-size: 11px;
-  font-weight: 600;
-  color: rgb(var(--v-theme-primary));
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.2s;
-  min-height: 38px;
-  border-radius: 6px;
-}
-
-.vm-segment-add-btn:hover {
-  background: rgba(var(--v-theme-primary), 0.08);
-}
-
-.delete-segment-btn {
-  opacity: 0.5;
-  transition: opacity 0.15s, transform 0.15s;
-}
-.vm-segment-btn:hover .delete-segment-btn {
-  opacity: 1;
-}
-
-.vm-tab-title {
-  font-size: 12px;
-  font-weight: 600;
-  color: rgba(0,0,0,0.7);
-  display: block;
-  line-height: 1.2;
-}
-
-.vm-tab-sku {
-  font-size: 9px;
-  color: rgb(var(--v-theme-primary));
-  display: block;
-  line-height: 1.2;
-  opacity: 0.8;
-}
-
-.vm-done-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: rgb(var(--v-theme-success));
-  flex-shrink: 0;
-}
-
-/* ===== Sub Tabs (Second Level) ===== */
-.vm-sub-tabs {
-  min-height: 42px;
-  background-color: #ffffff;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
-}
-
-.vm-sub-tab {
-  display: inline-flex;
-  align-items: center;
-  padding: 8px 16px;
-  font-size: 12px;
-  font-weight: 500;
-  color: #6c757d;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  white-space: nowrap;
-  transition: all 0.2s ease;
-  min-height: 42px;
-}
-
-.vm-sub-tab:hover {
-  color: #212529;
-  background: rgba(0, 0, 0, 0.02);
-}
-
-/* Active Sub-Tabs Colors (Accents only, no block backgrounds) */
-.vm-sub-tab--prices.vm-sub-tab--active {
-  color: #2e7d32 !important;
-  border-bottom-color: #2e7d32 !important;
-  font-weight: 600;
-}
-
-.vm-sub-tab--stock.vm-sub-tab--active {
-  color: #1565c0 !important;
-  border-bottom-color: #1565c0 !important;
-  font-weight: 600;
-}
-
-.vm-sub-tab--attributes.vm-sub-tab--active {
-  color: #6a1b9a !important;
-  border-bottom-color: #6a1b9a !important;
-  font-weight: 600;
-}
-
-.vm-sub-tab--images.vm-sub-tab--active {
-  color: #00695c !important;
-  border-bottom-color: #00695c !important;
-  font-weight: 600;
-}
-
-.sub-done-icon {
-  font-size: 10px;
-  color: rgb(var(--v-theme-success));
-  font-weight: bold;
-}
-
-/* ===== Content Area & Backgrounds (Pure White Canvas with thin color top border) ===== */
-.vm-content {
-  min-height: 220px;
-  background-color: #ffffff !important; /* Pure white canvas */
-}
-
-.vm-content--prices {
-  border-top: 2px solid #2e7d32 !important; /* Green accent top border */
-}
-
-.vm-content--stock {
-  border-top: 2px solid #1565c0 !important; /* Blue accent top border */
-}
-
-.vm-content--attributes {
-  border-top: 2px solid #6a1b9a !important; /* Purple accent top border */
-}
-
-.vm-content--images {
-  border-top: 2px solid #00695c !important; /* Teal accent top border */
-}
+.vm-delete-btn { opacity: 0.4; transition: opacity 0.15s; }
+.vm-tab-btn:hover .vm-delete-btn { opacity: 1; }
 
 /* ===== Variant Dot ===== */
-.v-dot {
-  width: 7px;
-  height: 7px;
+.vm-variant-dot {
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   flex-shrink: 0;
+  transition: background 0.2s;
+}
+.vm-variant-dot--done  { background: rgb(var(--v-theme-success)); }
+.vm-variant-dot--empty { background: #ced4da; }
+
+/* ===== Tab Info ===== */
+.vm-tab-info { display: flex; flex-direction: column; align-items: flex-start; }
+.vm-tab-name { font-size: 12px; font-weight: 600; line-height: 1.2; }
+
+.vm-tab-stats {
+  font-size: 9px;
+  opacity: 0.8;
+  line-height: 1;
+  flex-wrap: nowrap;
+  overflow: hidden;
+  max-width: 120px;
+}
+
+.vm-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.vm-stat--price  { color: #2e7d32; }
+.vm-stat--stock  { color: #1565c0; }
+.vm-stat--attr   { color: #6a1b9a; }
+
+/* ===== Body ===== */
+.vm-body { border-radius: 0 0 8px 8px; }
+
+/* ===== Sections ===== */
+.vm-section { }
+
+.vm-section-label {
+  display: flex;
+  align-items: center;
+  padding: 8px 14px;
+  background: #f8f9fa;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(0,0,0,0.6);
+  letter-spacing: 0.3px;
+  gap: 4px;
+}
+
+.vm-section-content {
+  padding: 12px 14px;
 }
 
 /* ===== Stock Card ===== */
 .stock-card {
   transition: all 0.2s;
   background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0,0,0,0.08);
 }
 .stock-card:hover {
-  background: white !important;
   border-color: rgb(var(--v-theme-primary)) !important;
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
@@ -1202,21 +812,14 @@ onMounted(() => fetchAttributes());
   flex: 1 1 260px;
   transition: border-color 0.2s;
 }
-.attr-pill-group:hover {
-  border-color: rgb(var(--v-theme-primary)) !important;
-}
+.attr-pill-group:hover { border-color: rgb(var(--v-theme-primary)) !important; }
 .attr-input { min-width: 110px; }
 .attr-label-box { min-width: 120px; }
 .attr-value-box { min-width: 120px; }
 
 /* ===== Summary Table ===== */
 .vm-summary-table { background: white; }
-
-.summary-table {
-  border-collapse: collapse;
-  font-size: 11px;
-}
-
+.summary-table { border-collapse: collapse; font-size: 11px; }
 .summary-table th {
   padding: 8px 10px;
   background: #f9fafb;
@@ -1226,17 +829,12 @@ onMounted(() => fetchAttributes());
   color: rgba(0,0,0,0.5);
   white-space: nowrap;
 }
-
 .summary-table td {
   padding: 7px 10px;
   border-bottom: 1px solid rgba(0,0,0,0.04);
   vertical-align: middle;
 }
-
-.summary-row {
-  transition: background 0.12s;
-  cursor: pointer;
-}
+.summary-row { transition: background 0.12s; cursor: pointer; }
 .summary-row:hover { background: rgba(var(--v-theme-primary), 0.03); }
 .summary-row--active td { background: rgba(var(--v-theme-primary), 0.05); }
 
@@ -1244,6 +842,7 @@ onMounted(() => fetchAttributes());
 .vm-empty { border-radius: 0 0 8px 8px; }
 
 /* ===== Misc ===== */
+.v-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 .text-xxs { font-size: 10px !important; }
 .border-dashed { border: 1.5px dashed rgba(0,0,0,0.1); }
 .price-input :deep(input) { text-align: center; }
