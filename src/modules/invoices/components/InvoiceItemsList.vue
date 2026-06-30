@@ -53,7 +53,7 @@
               </td>
               <td width="120" class="px-1 py-1 text-center">
                 <v-select
-                  v-if="item.allowed_units && item.allowed_units.length > 0"
+                  v-if="item.allowed_units && item.allowed_units.length > 1"
                   v-model="item.unit_id"
                   :items="item.allowed_units"
                   item-title="name"
@@ -65,7 +65,9 @@
                   @update:model-value="val => handleUnitChange(item, val)"
                 />
                 <span v-else-if="item.product_type === 'service'" class="text-xxs text-grey-darken-1">خدمة</span>
-                <span v-else class="text-xxs text-grey-darken-1">قطعة</span>
+                <span v-else class="text-xxs text-grey-darken-1 font-weight-medium">
+                  {{ item.allowed_units?.[0]?.name || 'قطعة' }}
+                </span>
               </td>
               <td width="100" class="px-1 py-1 text-center">
                 <div class="d-flex justify-center position-relative">
