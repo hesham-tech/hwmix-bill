@@ -126,11 +126,9 @@ const headers = [
 const tableData = computed(() => [...comparisonData.value].reverse());
 
 const loadReport = async () => {
-  console.log('Loading Profit Report with filters:', filters.value);
   loading.value = true;
   try {
     const res = await api.get(filters.value, { showLoading: false });
-    console.log('API Response received:', res);
 
     if (res.status) {
       const data = res.data || {};
@@ -157,13 +155,11 @@ const loadReport = async () => {
           margin: revenue > 0 ? ((profit / revenue) * 100).toFixed(2) : '0.00',
         };
       });
-      console.log('Comparison data processed:', comparisonData.value);
     }
   } catch (error) {
     console.error('Error loading profit report:', error);
   } finally {
     loading.value = false;
-    console.log('Loading finished, loading state:', loading.value);
   }
 };
 

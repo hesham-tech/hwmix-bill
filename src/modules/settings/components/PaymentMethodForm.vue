@@ -172,7 +172,6 @@ watch(
         is_system: Boolean(newVal.is_system),
         image_id: newVal.image_id || null,
       };
-      console.log('Payment Method Loaded:', newVal.name, 'is_system:', newVal.is_system, 'cast:', formData.value.is_system);
       imagePreview.value = newVal.image_url || null;
     } else {
       resetForm();

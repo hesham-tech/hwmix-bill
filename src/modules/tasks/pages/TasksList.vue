@@ -190,7 +190,6 @@ const setupEchoListeners = () => {
   if (companyId) {
     import('@/plugins/echo').then(({ echo }) => {
       echo.private(`company.${companyId}`).listen('.task.updated', e => {
-        console.log('Task updated:', e);
         fetchTasks();
       });
     });

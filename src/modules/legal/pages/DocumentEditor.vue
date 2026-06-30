@@ -232,7 +232,7 @@ const loadActiveVersionForComparison = async () => {
       }
     }
   } catch (err) {
-    console.log('No active published version found for comparison.');
+    // No active published version found for comparison.
   }
 };
 

@@ -36,6 +36,15 @@ apiClient.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
+    // Strip redundant v1/ prefix from URL if present (since baseURL already includes /v1)
+    if (config.url) {
+      if (config.url.startsWith('v1/')) {
+        config.url = config.url.substring(3);
+      } else if (config.url.startsWith('/v1/')) {
+        config.url = config.url.substring(4);
+      }
+    }
+
     // Add Company & Branch IDs
     try {
       const { useUserStore } = await import('@/stores/user');
@@ -219,7 +228,6 @@ apiClient.interceptors.response.use(
       import('@/stores/appState').then(storeModule => {
         const appState = storeModule.useappState();
 
-        console.log('[AxiosInterceptor] Error detected, triggering capture UI');
         appState.isCapturing = true;
 
         import('@/modules/support/services/error-collector').then(module => {
@@ -248,7 +256,6 @@ apiClient.interceptors.response.use(
               },
             })
             .then(info => {
-              console.log('[AxiosInterceptor] Capture finished, showing ErrorDialog');
               appState.pendingReport = info;
               appState.isCapturing = false;
             })

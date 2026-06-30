@@ -1,4 +1,5 @@
 // Harmless comment to trigger deployment test
+import '@/utils/console-guard';
 import { createApp } from 'vue';
 import App from '@/App.vue';
 import { registerPlugins } from '@utils/helpers/plugins';
