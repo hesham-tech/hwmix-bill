@@ -462,8 +462,6 @@ export const PERMISSIONS = {
   REPORTS_CASH_FLOW: 'reports.cash_flow',
   REPORTS_TAX: 'reports.tax',
   REPORTS_EXPORT: 'reports.export',
-<<<<<<< Updated upstream
-=======
 
   // ==================== Invoice Types ====================
   INVOICE_TYPES_PAGE: 'invoice_types.page',
