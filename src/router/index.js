@@ -19,6 +19,7 @@ import warehouseRoutes from '@/modules/warehouses/routes';
 import settingRoutes from '@/modules/settings/routes';
 import taskRoutes from '@/modules/tasks/routes';
 import devRoutes from '@/modules/dev/routes';
+import smsGatewayRoutes from '@/modules/sms-gateway/routes';
 import errorRoutes from './errorRoutes';
 
 const router = createRouter({
@@ -66,6 +67,7 @@ const router = createRouter({
         ...settingRoutes,
         ...taskRoutes,
         ...devRoutes,
+        ...smsGatewayRoutes,
         ...errorRoutes,
       ],
     },

@@ -137,4 +137,11 @@ export const PERMISSIONS = {
 
   // Reports
   REPORTS_VIEW: 'reports.view',
+
+  // SMS Gateway & Messages
+  SMS_GATEWAY_VIEW: 'sms_gateway.view_all',
+  SMS_GATEWAY_CREATE: 'sms_gateway.create',
+  SMS_GATEWAY_DELETE: 'sms_gateway.delete_all',
+  SMS_MESSAGES_VIEW: 'sms_messages.view_all',
+  SMS_MESSAGES_CREATE: 'sms_messages.create',
 };

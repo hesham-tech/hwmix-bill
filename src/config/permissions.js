@@ -462,6 +462,104 @@ export const PERMISSIONS = {
   REPORTS_CASH_FLOW: 'reports.cash_flow',
   REPORTS_TAX: 'reports.tax',
   REPORTS_EXPORT: 'reports.export',
+<<<<<<< Updated upstream
+=======
+
+  // ==================== Invoice Types ====================
+  INVOICE_TYPES_PAGE: 'invoice_types.page',
+  INVOICE_TYPES_VIEW_ALL: 'invoice_types.view_all',
+  INVOICE_TYPES_VIEW_CHILDREN: 'invoice_types.view_children',
+  INVOICE_TYPES_VIEW_SELF: 'invoice_types.view_self',
+  INVOICE_TYPES_UPDATE_ALL: 'invoice_types.update_all',
+
+  // ==================== Plans ====================
+  PLANS_PAGE: 'plans.page',
+  PLANS_VIEW_ALL: 'plans.view_all',
+  PLANS_VIEW_CHILDREN: 'plans.view_children',
+  PLANS_VIEW_SELF: 'plans.view_self',
+  PLANS_CREATE: 'plans.create',
+  PLANS_UPDATE_ALL: 'plans.update_all',
+  PLANS_UPDATE_CHILDREN: 'plans.update_children',
+  PLANS_UPDATE_SELF: 'plans.update_self',
+  PLANS_DELETE_ALL: 'plans.delete_all',
+  PLANS_DELETE_CHILDREN: 'plans.delete_children',
+  PLANS_DELETE_SELF: 'plans.delete_self',
+
+  // ==================== Tasks ====================
+  TASKS_PAGE: 'tasks.page',
+  TASKS_VIEW_ALL: 'tasks.view_all',
+  TASKS_VIEW_CHILDREN: 'tasks.view_children',
+  TASKS_VIEW_SELF: 'tasks.view_self',
+  TASKS_CREATE: 'tasks.create',
+  TASKS_UPDATE_ALL: 'tasks.update_all',
+  TASKS_DELETE_ALL: 'tasks.delete_all',
+
+  // ==================== Error Reports ====================
+  ERROR_REPORTS_PAGE: 'error_reports.page',
+  ERROR_REPORTS_VIEW_ALL: 'error_reports.view_all',
+  ERROR_REPORTS_UPDATE_ALL: 'error_reports.update_all',
+
+  // ==================== Backups ====================
+  BACKUPS_PAGE: 'backups.page',
+  BACKUPS_CREATE: 'backups.create',
+  BACKUPS_VIEW_ALL: 'backups.view_all',
+
+  // ==================== Quotations ====================
+  QUOTATIONS_PAGE: 'quotations.page',
+  QUOTATIONS_VIEW_ALL: 'quotations.view_all',
+  QUOTATIONS_CREATE: 'quotations.create',
+
+  // ==================== Orders ====================
+  ORDERS_PAGE: 'orders.page',
+  ORDERS_VIEW_ALL: 'orders.view_all',
+  ORDERS_CREATE: 'orders.create',
+
+  // ==================== Balance ====================
+  BALANCE_DEPOSIT_ANY: 'balance.deposit_any',
+  BALANCE_WITHDRAW_ANY: 'balance.withdraw_any',
+  BALANCE_TRANSFER_ANY: 'balance.transfer_any',
+  BALANCE_DEPOSIT: 'balance.deposit',
+  BALANCE_WITHDRAW: 'balance.withdraw',
+  BALANCE_TRANSFER: 'balance.transfer',
+  
+  // ==================== Branches ====================
+  BRANCHES_PAGE: 'branches.page',
+  BRANCHES_VIEW_ALL: 'branches.view_all',
+  BRANCHES_CREATE: 'branches.create',
+  BRANCHES_UPDATE_ALL: 'branches.update_all',
+  BRANCHES_DELETE_ALL: 'branches.delete_all',
+
+  // ==================== Legal Documents ====================
+  LEGAL_DOCUMENTS_PAGE: 'legal_documents.page',
+  LEGAL_DOCUMENTS_VIEW_ALL: 'legal_documents.view_all',
+  LEGAL_DOCUMENTS_CREATE: 'legal_documents.create',
+  LEGAL_DOCUMENTS_UPDATE: 'legal_documents.update_all',
+  LEGAL_DOCUMENTS_DELETE: 'legal_documents.delete_all',
+
+  // ==================== SMS Gateway & Messages ====================
+  SMS_GATEWAY_PAGE: 'sms_gateway.page',
+  SMS_GATEWAY_VIEW_ALL: 'sms_gateway.view_all',
+  SMS_GATEWAY_VIEW_CHILDREN: 'sms_gateway.view_children',
+  SMS_GATEWAY_VIEW_SELF: 'sms_gateway.view_self',
+  SMS_GATEWAY_CREATE: 'sms_gateway.create',
+  SMS_GATEWAY_UPDATE_ALL: 'sms_gateway.update_all',
+  SMS_GATEWAY_UPDATE_CHILDREN: 'sms_gateway.update_children',
+  SMS_GATEWAY_UPDATE_SELF: 'sms_gateway.update_self',
+  SMS_GATEWAY_DELETE_ALL: 'sms_gateway.delete_all',
+  SMS_GATEWAY_DELETE_CHILDREN: 'sms_gateway.delete_children',
+  SMS_GATEWAY_DELETE_SELF: 'sms_gateway.delete_self',
+
+  SMS_MESSAGES_PAGE: 'sms_messages.page',
+  SMS_MESSAGES_VIEW_ALL: 'sms_messages.view_all',
+  SMS_MESSAGES_VIEW_CHILDREN: 'sms_messages.view_children',
+  SMS_MESSAGES_VIEW_SELF: 'sms_messages.view_self',
+  SMS_MESSAGES_CREATE: 'sms_messages.create',
+  SMS_MESSAGES_UPDATE_ALL: 'sms_messages.update_all',
+  SMS_MESSAGES_UPDATE_CHILDREN: 'sms_messages.update_children',
+  SMS_MESSAGES_UPDATE_SELF: 'sms_messages.update_self',
+  SMS_MESSAGES_DELETE_ALL: 'sms_messages.delete_all',
+  SMS_MESSAGES_DELETE_CHILDREN: 'sms_messages.delete_children',
+  SMS_MESSAGES_DELETE_SELF: 'sms_messages.delete_self',
 };
 
 /**
