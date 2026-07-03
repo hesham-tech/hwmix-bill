@@ -30,6 +30,8 @@
             <v-select
               v-model="filters.direction"
               :items="directionItems"
+              item-title="text"
+              item-value="value"
               label="اتجاه الرسالة"
               outlined
               dense
@@ -41,6 +43,8 @@
             <v-select
               v-model="filters.status"
               :items="statusItems"
+              item-title="text"
+              item-value="value"
               label="حالة التسليم"
               outlined
               dense
@@ -171,7 +175,7 @@
             <v-select
               v-model="form.sms_line_id"
               :items="lines"
-              item-text="displayName"
+              item-title="displayName"
               item-value="id"
               label="اختر الشريحة / الخط"
               outlined
