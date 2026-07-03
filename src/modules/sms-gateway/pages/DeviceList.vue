@@ -1,208 +1,183 @@
 <template>
-  <v-container fluid class="py-6">
-    <!-- رأس الصفحة -->
-    <v-row class="mb-6" align="center">
-      <v-col cols="12" sm="6">
-        <h1 class="text-h4 font-weight-bold primary--text">
-          <v-icon large left color="primary">mdi-cellphone-link</v-icon>
-          بوابات الهواتف الذكية (SMS Gateways)
-        </h1>
-        <p class="text-subtitle-1 grey--text text--darken-1 mt-1">
-          إدارة ومراقبة الهواتف الموثقة كبوابات رسائل في النظام.
-        </p>
-      </v-col>
-      <v-col cols="12" sm="6" class="text-sm-left">
-        <v-btn color="primary" class="px-6" large rounded @click="fetchDevices" :loading="loading">
-          <v-icon left>mdi-refresh</v-icon>
-          تحديث القائمة
-        </v-btn>
-      </v-col>
-    </v-row>
+  <div class="device-list-page">
+    <AppPageHeader title="بوابات الهواتف الذكية (SMS Gateways)" subtitle="إدارة ومراقبة الهواتف الموثقة كبوابات رسائل في النظام" icon="ri-smartphone-line" sticky>
+      <template #controls>
+        <v-col cols="12" md="8">
+          <AppInput
+            v-model="search"
+            placeholder="بحث سريع عن جهاز..."
+            prepend-inner-icon="ri-search-line"
+            clearable
+            hide-details
+            variant="solo-filled"
+            density="comfortable"
+            flat
+            class="rounded-md"
+          />
+        </v-col>
+        <v-col cols="12" md="4" class="text-end">
+          <AppButton
+            variant="tonal"
+            color="primary"
+            prepend-icon="ri-refresh-line"
+            class="rounded-md font-weight-bold"
+            :loading="loading"
+            @click="loadData"
+          >
+            تحديث القائمة
+          </AppButton>
+        </v-col>
+      </template>
+    </AppPageHeader>
 
-    <!-- بطاقة البيانات -->
-    <v-card class="elevation-2 rounded-lg">
-      <v-card-title class="py-4 px-6 grey lighten-4">
-        <v-text-field
-          v-model="search"
-          append-icon="mdi-magnify"
-          label="البحث عن جهاز..."
-          single-line
-          hide-details
-          outlined
-          dense
-          class="max-width-300"
-        ></v-text-field>
-      </v-card-title>
+    <v-container fluid class="pt-0">
+      <v-card rounded="md" class="border shadow-sm overflow-hidden mb-6">
+        <AppDataTable
+          :headers="headers"
+          :items="devices"
+          :loading="loading"
+          :search="search"
+          title="الأجهزة المتصلة"
+          icon="ri-cellphone-line"
+        >
+          <!-- تنسيق عمود الحالة -->
+          <template #item.status="{ item }">
+            <v-chip :color="item.status === 'active' ? 'success' : 'grey'" size="small" variant="flat" class="font-weight-bold px-3">
+              <v-icon :icon="item.status === 'active' ? 'ri-wifi-line' : 'ri-wifi-off-line'" size="14" class="me-1" />
+              {{ item.status === 'active' ? 'نشط (Online)' : 'غير متصل (Offline)' }}
+            </v-chip>
+          </template>
+          
+          <!-- تنسيق آخر ظهور -->
+          <template #item.last_seen_at="{ item }">
+            <span class="font-weight-medium text-caption text-grey">
+              {{ item.last_seen_at ? formatDate(item.last_seen_at) : 'لم يظهر بعد' }}
+            </span>
+          </template>
 
-      <v-data-table
-        :headers="headers"
-        :items="devices"
-        :search="search"
-        :loading="loading"
-        loading-text="جاري تحميل البوابات..."
-        no-data-text="لا يوجد أجهزة مسجلة حالياً."
-        class="elevation-0"
-      >
-        <!-- تنسيق عمود الحالة -->
-        <template #[`item.status`]="{ item }">
-          <v-chip :color="getStatusColor(item.status)" text-color="white" small class="font-weight-bold">
-            <v-icon left small>
-              {{ item.status === 'active' ? 'mdi-wifi' : 'mdi-wifi-off' }}
-            </v-icon>
-            {{ item.status === 'active' ? 'نشط (Online)' : 'غير متصل (Offline)' }}
-          </v-chip>
-        </template>
-
-        <!-- تنسيق عمود آخر ظهور -->
-        <template #[`item.last_seen_at`]="{ item }">
-          <span class="font-weight-medium">
-            {{ item.last_seen_at ? item.last_seen_at : 'لم يظهر بعد' }}
-          </span>
-        </template>
-
-        <!-- تنسيق عمود الإجراءات -->
-        <template #[`item.actions`]="{ item }">
-          <v-tooltip bottom>
-            <template #activator="{ on, attrs }">
-              <v-btn
-                icon
-                color="error"
-                v-bind="attrs"
-                v-on="on"
-                @click="confirmDecouple(item)"
-              >
-                <v-icon>mdi-link-off</v-icon>
-              </v-btn>
-            </template>
-            <span>إلغاء ربط وحذف الجهاز</span>
-          </v-tooltip>
-        </template>
-      </v-data-table>
-    </v-card>
+          <!-- إجراءات -->
+          <template #item.actions="{ item }">
+            <v-tooltip text="إلغاء ربط وحذف الجهاز" location="bottom">
+              <template #activator="{ props }">
+                <v-btn
+                  v-bind="props"
+                  icon
+                  variant="text"
+                  color="error"
+                  @click="confirmDecouple(item)"
+                >
+                  <v-icon icon="ri-link-unlink" />
+                </v-btn>
+              </template>
+            </v-tooltip>
+          </template>
+        </AppDataTable>
+      </v-card>
+    </v-container>
 
     <!-- حوار تأكيد الحذف وإلغاء الربط -->
     <v-dialog v-model="deleteDialog" max-width="500px" persistent>
-      <v-card class="rounded-lg">
-        <v-card-title class="text-h5 font-weight-bold error--text pt-6 px-6">
-          <v-icon color="error" class="mr-2">mdi-alert-circle</v-icon>
+      <v-card class="rounded-lg border">
+        <v-card-title class="text-h5 font-weight-bold text-error pt-6 px-6">
+          <v-icon icon="ri-alert-line" color="error" class="me-2" />
           تأكيد إلغاء ربط الجهاز؟
         </v-card-title>
         
-        <v-card-text class="px-6 pt-4 text-subtitle-1">
+        <v-card-text class="px-6 pt-4 text-body-1">
           هل أنت متأكد من رغبتك في إلغاء إقران الجهاز
-          <strong class="primary--text">"{{ selectedDevice?.device_name }}"</strong>؟
+          <strong class="text-primary">"{{ selectedDevice?.device_name }}"</strong>؟
           سيؤدي هذا إلى إيقاف كافة خطوط الاتصال التابعة له ومسح سجلاته نهائياً من السيرفر.
         </v-card-text>
 
         <v-card-actions class="px-6 pb-6 pt-2">
           <v-spacer></v-spacer>
-          <v-btn color="grey lighten-1" text large @click="deleteDialog = false">
+          <AppButton variant="text" color="grey" @click="deleteDialog = false">
             تراجع
-          </v-btn>
-          <v-btn color="error" depressed large class="px-6 rounded-lg" @click="decoupleDevice" :loading="decoupleLoading">
+          </AppButton>
+          <AppButton color="error" class="px-6" :loading="decoupleLoading" @click="decoupleDevice">
             تأكيد الإلغاء والحذف
-          </v-btn>
+          </AppButton>
         </v-card-actions>
       </v-card>
     </v-dialog>
-
-    <!-- شريط التنبيه اللحظي Snackbar -->
-    <v-snackbar v-model="snackbar.show" :color="snackbar.color" timeout="4000" bottom left>
-      {{ snackbar.text }}
-      <template #action="{ attrs }">
-        <v-btn text v-bind="attrs" @click="snackbar.show = false">إغلاق</v-btn>
-      </template>
-    </v-snackbar>
-  </v-container>
+  </div>
 </template>
 
-<script>
-import { apiClient } from '@/api';
+<script setup>
+/* تعليق عربي مختصر: صفحة عرض وإدارة بوابات الرسائل (الأجهزة) المرتبطة بالنظام */
 
-export default {
-  name: 'DeviceList',
-  data() {
-    return {
-      search: '',
-      loading: false,
-      decoupleLoading: false,
-      deleteDialog: false,
-      selectedDevice: null,
-      devices: [],
-      headers: [
-        { text: 'اسم الجهاز', value: 'device_name', align: 'start', class: 'subtitle-1 font-weight-bold' },
-        { text: 'الشركة المصنعة', value: 'brand' },
-        { text: 'الموديل', value: 'model' },
-        { text: 'إصدار أندرويد', value: 'android_version' },
-        { text: 'إصدار التطبيق', value: 'app_version' },
-        { text: 'حالة التواجد', value: 'status', sortable: false },
-        { text: 'آخر ظهور نشط', value: 'last_seen_at' },
-        { text: 'إجراءات', value: 'actions', sortable: false, align: 'center' },
-      ],
-      snackbar: {
-        show: false,
-        text: '',
-        color: 'success',
-      },
-    };
-  },
-  created() {
-    this.fetchDevices();
-  },
-  methods: {
-    async fetchDevices() {
-      this.loading = true;
-      try {
-        const response = await apiClient.get('v1/sms-gateway/devices');
-        if (response.data && response.data.status) {
-          this.devices = response.data.data;
-        } else {
-          this.showSnackbar('فشل جلب قائمة الأجهزة.', 'error');
-        }
-      } catch (error) {
-        console.error(error);
-        this.showSnackbar('حدث خطأ أثناء الاتصال بالسيرفر.', 'error');
-      } finally {
-        this.loading = false;
-      }
-    },
-    confirmDecouple(device) {
-      this.selectedDevice = device;
-      this.deleteDialog = true;
-    },
-    async decoupleDevice() {
-      if (!this.selectedDevice) return;
-      this.decoupleLoading = true;
-      try {
-        const response = await apiClient.delete(`v1/sms-gateway/devices/${this.selectedDevice.id}`);
-        if (response.data && response.data.status) {
-          this.showSnackbar('تم إلغاء ربط وحذف الجهاز بنجاح.', 'success');
-          this.deleteDialog = false;
-          this.fetchDevices();
-        } else {
-          this.showSnackbar('فشل إلغاء ربط الجهاز.', 'error');
-        }
-      } catch (error) {
-        console.error(error);
-        this.showSnackbar('حدث خطأ أثناء إلغاء الربط.', 'error');
-      } finally {
-        this.decoupleLoading = false;
-      }
-    },
-    getStatusColor(status) {
-      return status === 'active' ? 'success' : 'grey darken-1';
-    },
-    showSnackbar(text, color = 'success') {
-      this.snackbar.text = text;
-      this.snackbar.color = color;
-      this.snackbar.show = true;
-    },
-  },
+import { ref, onMounted } from 'vue';
+import { useApi } from '@/composables/useApi';
+import AppPageHeader from '@/components/common/AppPageHeader.vue';
+import AppDataTable from '@/components/common/AppDataTable.vue';
+import AppButton from '@/components/common/AppButton.vue';
+import AppInput from '@/components/common/AppInput.vue';
+
+const api = useApi('v1/sms-gateway/devices');
+
+// State
+const devices = ref([]);
+const loading = ref(false);
+const search = ref('');
+const decoupleLoading = ref(false);
+const deleteDialog = ref(false);
+const selectedDevice = ref(null);
+
+const headers = [
+  { title: 'اسم الجهاز', key: 'device_name', align: 'start' },
+  { title: 'الشركة المصنعة', key: 'brand' },
+  { title: 'الموديل', key: 'model' },
+  { title: 'إصدار أندرويد', key: 'android_version', align: 'center' },
+  { title: 'إصدار التطبيق', key: 'app_version', align: 'center' },
+  { title: 'حالة التواجد', key: 'status', align: 'center', sortable: false },
+  { title: 'آخر ظهور نشط', key: 'last_seen_at', align: 'center' },
+  { title: 'إجراءات', key: 'actions', sortable: false, align: 'center' },
+];
+
+const loadData = async () => {
+  loading.value = true;
+  try {
+    const response = await api.get({}, { showLoading: false });
+    devices.value = response.data || [];
+  } finally {
+    loading.value = false;
+  }
 };
+
+const confirmDecouple = (device) => {
+  selectedDevice.value = device;
+  deleteDialog.value = true;
+};
+
+const decoupleDevice = async () => {
+  if (!selectedDevice.value) return;
+  decoupleLoading.value = true;
+  try {
+    await api.remove(selectedDevice.value.id);
+    deleteDialog.value = false;
+    await loadData();
+  } finally {
+    decoupleLoading.value = false;
+  }
+};
+
+const formatDate = (dateString) => {
+  if (!dateString) return '-';
+  const date = new Date(dateString);
+  return date.toLocaleString('ar-EG', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
+
+onMounted(loadData);
 </script>
 
 <style scoped>
-.max-width-300 {
-  max-width: 300px;
+.device-list-page :deep(.v-container) {
+  max-width: 100% !important;
 }
 </style>

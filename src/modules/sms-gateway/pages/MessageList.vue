@@ -1,172 +1,185 @@
 <template>
-  <v-container fluid class="py-6">
-    <!-- رأس الصفحة -->
-    <v-row class="mb-6" align="center">
-      <v-col cols="12" sm="6">
-        <h1 class="text-h4 font-weight-bold primary--text">
-          <v-icon large left color="primary">mdi-message-text</v-icon>
-          سجل وحركات الرسائل SMS
-        </h1>
-        <p class="text-subtitle-1 grey--text text--darken-1 mt-1">
-          متابعة وتدقيق حركات تسليم الرسائل الصادرة والواردة وبث رسائل جديدة للعملاء.
-        </p>
-      </v-col>
-      <v-col cols="12" sm="6" class="text-sm-left">
-        <v-btn color="success" class="px-6 mr-2" large rounded @click="openSendDialog">
-          <v-icon left>mdi-send</v-icon>
-          إرسال رسالة جديدة
-        </v-btn>
-        <v-btn color="primary" icon large class="elevation-1" @click="fetchMessages">
-          <v-icon>mdi-refresh</v-icon>
-        </v-btn>
-      </v-col>
-    </v-row>
-
-    <!-- الفلاتر -->
-    <v-card class="mb-6 rounded-lg elevation-1">
-      <v-card-text class="py-4">
-        <v-row dense>
-          <v-col cols="12" sm="4" md="3">
-            <v-select
-              v-model="filters.direction"
-              :items="directionItems"
-              item-title="text"
-              item-value="value"
-              label="اتجاه الرسالة"
-              outlined
-              dense
-              hide-details
-              @update:model-value="onFilterChange"
-            ></v-select>
-          </v-col>
-          <v-col cols="12" sm="4" md="3">
-            <v-select
-              v-model="filters.status"
-              :items="statusItems"
-              item-title="text"
-              item-value="value"
-              label="حالة التسليم"
-              outlined
-              dense
-              hide-details
-              @update:model-value="onFilterChange"
-            ></v-select>
-          </v-col>
-        </v-row>
-      </v-card-text>
-    </v-card>
-
-    <!-- جدول البيانات والـ Pagination -->
-    <v-card class="elevation-2 rounded-lg">
-      <v-data-table
-        v-model:options="options"
-        :headers="headers"
-        :items="messages"
-        :server-items-length="totalMessages"
-        :loading="loading"
-        loading-text="جاري تحميل سجل الرسائل..."
-        no-data-text="لا يوجد حركات رسائل متطابقة."
-        class="elevation-0"
-        @update:options="fetchMessages"
-      >
-        <!-- نص الرسالة -->
-        <template #[`item.message_body`]="{ item }">
-          <div 
-            class="clickable-message text-truncate" 
-            style="max-width: 450px; cursor: pointer; text-align: start;"
-            @click="viewMessage(item)"
+  <div class="message-list-page">
+    <AppPageHeader title="سجل وحركات الرسائل SMS" subtitle="متابعة وتدقيق حركات تسليم الرسائل الصادرة والواردة وبث رسائل جديدة للعملاء" icon="ri-message-2-line" sticky>
+      <template #controls>
+        <v-col cols="12" md="4" class="d-flex gap-2 align-center justify-end">
+          <AppButton
+            variant="flat"
+            color="success"
+            prepend-icon="ri-send-plane-line"
+            class="rounded-md font-weight-bold"
+            @click="openSendDialog"
           >
-            {{ item.message_body }}
-          </div>
-        </template>
+            إرسال رسالة جديدة
+          </AppButton>
+          <AppButton
+            variant="tonal"
+            color="primary"
+            prepend-icon="ri-refresh-line"
+            class="rounded-md font-weight-bold"
+            :loading="loading"
+            @click="loadData"
+          >
+            تحديث
+          </AppButton>
+        </v-col>
+      </template>
+    </AppPageHeader>
 
-        <!-- اتجاه الرسالة -->
-        <template #[`item.direction`]="{ item }">
-          <v-chip :color="item.direction === 'incoming' ? 'indigo' : 'teal'" text-color="white" small class="font-weight-bold">
-            <v-icon left small>
-              {{ item.direction === 'incoming' ? 'mdi-call-received' : 'mdi-call-made' }}
-            </v-icon>
-            {{ item.direction === 'incoming' ? 'واردة' : 'صادرة' }}
-          </v-chip>
-        </template>
+    <v-container fluid class="pt-0">
+      <!-- الفلاتر -->
+      <v-card rounded="md" class="border shadow-sm mb-6">
+        <v-card-text class="py-4">
+          <v-row dense>
+            <v-col cols="12" sm="6" md="3">
+              <v-select
+                v-model="filters.direction"
+                :items="directionItems"
+                item-title="text"
+                item-value="value"
+                label="اتجاه الرسالة"
+                variant="outlined"
+                density="comfortable"
+                hide-details
+                @update:model-value="onFilterChange"
+              ></v-select>
+            </v-col>
+            <v-col cols="12" sm="6" md="3">
+              <v-select
+                v-model="filters.status"
+                :items="statusItems"
+                item-title="text"
+                item-value="value"
+                label="حالة التسليم"
+                variant="outlined"
+                density="comfortable"
+                hide-details
+                @update:model-value="onFilterChange"
+              ></v-select>
+            </v-col>
+          </v-row>
+        </v-card-text>
+      </v-card>
 
-        <!-- حالة الرسالة -->
-        <template #[`item.status`]="{ item }">
-          <v-chip :color="getStatusColor(item.status)" text-color="white" small class="font-weight-bold">
-            {{ getStatusText(item.status) }}
-          </v-chip>
-        </template>
+      <!-- جدول البيانات والـ Pagination -->
+      <v-card rounded="md" class="border shadow-sm overflow-hidden mb-6">
+        <AppDataTable
+          :headers="headers"
+          :items="messages"
+          :loading="loading"
+          :total-items="totalMessages"
+          v-model:items-per-page="itemsPerPage"
+          v-model:page="page"
+          title="سجل الرسائل المرسلة والمستقبلة"
+          icon="ri-list-check-2"
+          @update:options="handleOptionsUpdate"
+        >
+          <!-- نص الرسالة -->
+          <template #item.message_body="{ item }">
+            <div 
+              class="clickable-message text-truncate font-weight-medium" 
+              style="max-width: 450px; cursor: pointer; text-align: start;"
+              @click="viewMessage(item)"
+            >
+              {{ item.message_body }}
+            </div>
+          </template>
 
-        <!-- الخط المستخدم -->
-        <template #[`item.line`]="{ item }">
-          <span class="text-caption font-weight-medium">
-            {{ item.line ? item.line.carrier + ' (' + item.line.phone_number + ')' : 'غير متوفر' }}
-          </span>
-        </template>
+          <!-- اتجاه الرسالة -->
+          <template #item.direction="{ item }">
+            <v-chip :color="item.direction === 'incoming' ? 'indigo' : 'teal'" size="small" variant="flat" class="font-weight-bold px-3">
+              <v-icon :icon="item.direction === 'incoming' ? 'ri-download-line' : 'ri-upload-line'" size="14" class="me-1" />
+              {{ item.direction === 'incoming' ? 'واردة' : 'صادرة' }}
+            </v-chip>
+          </template>
 
-        <!-- تاريخ الإرسال -->
-        <template #[`item.created_at`]="{ item }">
-          <span class="font-weight-medium text-body-2">{{ item.created_at }}</span>
-        </template>
-      </v-data-table>
-    </v-card>
+          <!-- حالة الرسالة -->
+          <template #item.status="{ item }">
+            <v-chip :color="getStatusColor(item.status)" size="small" variant="flat" class="font-weight-bold px-3">
+              {{ getStatusText(item.status) }}
+            </v-chip>
+          </template>
+
+          <!-- الخط المستخدم -->
+          <template #item.line="{ item }">
+            <span class="text-caption font-weight-bold text-grey">
+              {{ item.line ? item.line.carrier + ' (' + (item.line.phone_number || 'غير محدد') + ')' : 'غير متوفر' }}
+            </span>
+          </template>
+
+          <!-- البوابة -->
+          <template #item.device.device_name="{ item }">
+            <span class="font-weight-medium">
+              {{ item.device?.device_name || 'غير معروف' }}
+            </span>
+          </template>
+
+          <!-- تاريخ الإرسال -->
+          <template #item.created_at="{ item }">
+            <span class="font-weight-medium text-caption text-grey">
+              {{ formatDate(item.created_at) }}
+            </span>
+          </template>
+        </AppDataTable>
+      </v-card>
+    </v-container>
 
     <!-- نافذة عرض تفاصيل الرسالة ومحتواها بالكامل -->
     <v-dialog v-model="viewDialog" max-width="500px">
-      <v-card class="rounded-lg">
-        <v-card-title class="text-h5 font-weight-bold primary--text pt-6 px-6 d-flex align-center">
-          <v-icon color="primary" class="mr-2">mdi-email-open-outline</v-icon>
+      <v-card class="rounded-lg border">
+        <v-card-title class="text-h5 font-weight-bold text-primary pt-6 px-6 d-flex align-center">
+          <v-icon icon="ri-mail-open-line" color="primary" class="me-2" />
           عرض تفاصيل الرسالة
           <v-spacer></v-spacer>
-          <v-btn icon @click="viewDialog = false">
-            <v-icon>mdi-close</v-icon>
+          <v-btn icon variant="text" @click="viewDialog = false">
+            <v-icon icon="ri-close-line" />
           </v-btn>
         </v-card-title>
         
         <v-card-text class="px-6 pt-4">
           <div class="mb-4">
-            <span class="font-weight-bold grey--text text--darken-2">الطرف الآخر: </span>
-            <span class="font-weight-bold">{{ selectedMessage?.phone_number }}</span>
+            <span class="font-weight-bold text-grey">الطرف الآخر: </span>
+            <span class="font-weight-bold text-primary">{{ selectedMessage?.phone_number }}</span>
             <v-chip 
               :color="selectedMessage?.direction === 'incoming' ? 'indigo' : 'teal'" 
-              text-color="white" 
-              x-small 
-              class="font-weight-bold ml-2"
+              size="small"
+              variant="flat"
+              class="font-weight-bold ms-2"
             >
               {{ selectedMessage?.direction === 'incoming' ? 'واردة' : 'صادرة' }}
             </v-chip>
           </div>
           
           <div class="mb-4">
-            <span class="font-weight-bold grey--text text--darken-2">الحالة والتاريخ: </span>
-            <v-chip :color="getStatusColor(selectedMessage?.status)" text-color="white" x-small class="font-weight-bold">
+            <span class="font-weight-bold text-grey">الحالة والتاريخ: </span>
+            <v-chip :color="getStatusColor(selectedMessage?.status)" size="small" variant="flat" class="font-weight-bold px-3">
               {{ getStatusText(selectedMessage?.status) }}
             </v-chip>
-            <span class="text-caption grey--text mr-2">{{ selectedMessage?.created_at }}</span>
+            <span class="text-caption text-grey ms-2">{{ formatDate(selectedMessage?.created_at) }}</span>
           </div>
 
           <v-divider class="mb-4"></v-divider>
 
           <div class="message-body-container">
-            <div class="message-body-label mb-2 font-weight-bold grey--text text--darken-2">محتوى الرسالة:</div>
+            <div class="message-body-label mb-2 font-weight-bold text-grey">محتوى الرسالة:</div>
             <div class="message-body-text">{{ selectedMessage?.message_body }}</div>
           </div>
         </v-card-text>
         
         <v-card-actions class="px-6 pb-6 pt-2">
           <v-spacer></v-spacer>
-          <v-btn color="primary" depressed class="px-6 rounded-lg" @click="viewDialog = false">
+          <AppButton variant="text" color="primary" class="px-6" @click="viewDialog = false">
             إغلاق
-          </v-btn>
+          </AppButton>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
     <!-- نافذة منبثقة لبث وإرسال رسالة جديدة -->
     <v-dialog v-model="sendDialog" max-width="600px" persistent>
-      <v-card class="rounded-lg">
-        <v-card-title class="text-h5 font-weight-bold primary--text pt-6 px-6">
-          <v-icon color="primary" class="mr-2">mdi-send</v-icon>
+      <v-card class="rounded-lg border">
+        <v-card-title class="text-h5 font-weight-bold text-primary pt-6 px-6">
+          <v-icon icon="ri-send-plane-line" color="primary" class="me-2" />
           إرسال رسالة SMS جديدة
         </v-card-title>
         
@@ -179,7 +192,7 @@
               item-title="displayName"
               item-value="id"
               label="اختر الشريحة / الخط"
-              outlined
+              variant="outlined"
               :rules="[v => !!v || 'يرجى اختيار خط الإرسال']"
               class="mb-4"
               :loading="loadingLines"
@@ -189,8 +202,8 @@
             <v-text-field
               v-model="form.phone_number"
               label="رقم هاتف المستلم (صيغة دولية أو محلية)"
-              outlined
-              placeholder="مثال: +966500000000"
+              variant="outlined"
+              placeholder="مثال: +2010XXXXXXXX"
               :rules="[v => !!v || 'يرجى إدخال رقم المستلم']"
               class="mb-4"
             ></v-text-field>
@@ -199,7 +212,7 @@
             <v-textarea
               v-model="form.message_body"
               label="نص رسالة الـ SMS"
-              outlined
+              variant="outlined"
               rows="4"
               counter
               :rules="[v => !!v || 'نص الرسالة مطلوب']"
@@ -210,210 +223,203 @@
 
         <v-card-actions class="px-6 pb-6 pt-2">
           <v-spacer></v-spacer>
-          <v-btn color="grey lighten-1" text large @click="sendDialog = false" :disabled="sending">
+          <AppButton variant="text" color="grey" @click="sendDialog = false" :disabled="sending">
             إلغاء
-          </v-btn>
-          <v-btn color="success" depressed large class="px-6 rounded-lg" @click="sendSms" :loading="sending" :disabled="!formValid">
+          </AppButton>
+          <AppButton color="success" class="px-6" :loading="sending" :disabled="!formValid" @click="sendSms">
             إرسال الرسالة
-          </v-btn>
+          </AppButton>
         </v-card-actions>
       </v-card>
     </v-dialog>
-
-    <!-- شريط التنبيه Snackbar -->
-    <v-snackbar v-model="snackbar.show" :color="snackbar.color" timeout="4000" bottom left>
-      {{ snackbar.text }}
-      <template #action="{ attrs }">
-        <v-btn text v-bind="attrs" @click="snackbar.show = false">إغلاق</v-btn>
-      </template>
-    </v-snackbar>
-  </v-container>
+  </div>
 </template>
 
-<script>
-import { apiClient } from '@/api';
+<script setup>
+/* تعليق عربي مختصر: صفحة عرض ومتابعة حركات إرسال واستقبال رسائل الـ SMS وبثها للعملاء */
 
-export default {
-  name: 'MessageList',
-  data() {
-    return {
-      loading: false,
-      sending: false,
-      sendDialog: false,
-      viewDialog: false,
-      selectedMessage: null,
-      formValid: false,
-      loadingLines: false,
-      messages: [],
-      lines: [],
-      totalMessages: 0,
-      options: {},
-      filters: {
-        direction: null,
-        status: null,
-      },
-      form: {
-        sms_line_id: null,
-        phone_number: '',
-        message_body: '',
-      },
-      directionItems: [
-        { text: 'الكل', value: null },
-        { text: 'واردة (Incoming)', value: 'incoming' },
-        { text: 'صادرة (Outgoing)', value: 'outgoing' },
-      ],
-      statusItems: [
-        { text: 'الكل', value: null },
-        { text: 'مجدولة (Queued)', value: 'queued' },
-        { text: 'قيد الإرسال (Sending)', value: 'sending' },
-        { text: 'تم الإرسال (Sent)', value: 'sent' },
-        { text: 'تم التسليم (Delivered)', value: 'delivered' },
-        { text: 'فشلت (Failed)', value: 'failed' },
-      ],
-      headers: [
-        { text: 'رقم المستلم / المرسل', value: 'phone_number', align: 'start', class: 'subtitle-1 font-weight-bold' },
-        { text: 'نص الرسالة', value: 'message_body', width: '40%' },
-        { text: 'الاتجاه', value: 'direction' },
-        { text: 'حالة التسليم', value: 'status', align: 'center' },
-        { text: 'الخط المستخدم', value: 'line' },
-        { text: 'البوابة', value: 'device.device_name' },
-        { text: 'التاريخ والوقت', value: 'created_at' },
-      ],
-      snackbar: {
-        show: false,
-        text: '',
-        color: 'success',
-      },
+import { ref, onMounted } from 'vue';
+import { useApi } from '@/composables/useApi';
+import { toast } from 'vue3-toastify';
+import AppPageHeader from '@/components/common/AppPageHeader.vue';
+import AppDataTable from '@/components/common/AppDataTable.vue';
+import AppButton from '@/components/common/AppButton.vue';
+import AppInput from '@/components/common/AppInput.vue';
+
+const api = useApi('v1/sms-gateway/messages');
+const linesApi = useApi('v1/sms-gateway/lines');
+
+// State
+const loading = ref(false);
+const sending = ref(false);
+const sendDialog = ref(false);
+const viewDialog = ref(false);
+const selectedMessage = ref(null);
+const formValid = ref(false);
+const loadingLines = ref(false);
+
+const messages = ref([]);
+const lines = ref([]);
+const totalMessages = ref(0);
+const page = ref(1);
+const itemsPerPage = ref(10);
+
+const filters = ref({
+  direction: null,
+  status: null,
+});
+
+const form = ref({
+  sms_line_id: null,
+  phone_number: '',
+  message_body: '',
+});
+
+const directionItems = [
+  { text: 'الكل', value: null },
+  { text: 'واردة (Incoming)', value: 'incoming' },
+  { text: 'صادرة (Outgoing)', value: 'outgoing' },
+];
+
+const statusItems = [
+  { text: 'الكل', value: null },
+  { text: 'مجدولة (Queued)', value: 'queued' },
+  { text: 'قيد الإرسال (Sending)', value: 'sending' },
+  { text: 'تم الإرسال (Sent)', value: 'sent' },
+  { text: 'تم التسليم (Delivered)', value: 'delivered' },
+  { text: 'فشلت (Failed)', value: 'failed' },
+];
+
+const headers = [
+  { title: 'رقم المستلم / المرسل', key: 'phone_number', align: 'start' },
+  { title: 'نص الرسالة', key: 'message_body', width: '40%' },
+  { title: 'الاتجاه', key: 'direction', align: 'center' },
+  { title: 'حالة التسليم', key: 'status', align: 'center' },
+  { title: 'الخط المستخدم', key: 'line' },
+  { title: 'البوابة', key: 'device.device_name' },
+  { title: 'التاريخ والوقت', key: 'created_at' },
+];
+
+const sendForm = ref(null);
+
+const loadData = async () => {
+  loading.value = true;
+  try {
+    const params = {
+      page: page.value,
+      per_page: itemsPerPage.value,
+      direction: filters.value.direction,
+      status: filters.value.status,
     };
-  },
-  watch: {
-    options: {
-      handler() {
-        this.fetchMessages();
-      },
-      deep: true,
-    },
-  },
-  methods: {
-    async fetchMessages(newOptions = null) {
-      if (newOptions && typeof newOptions === 'object' && 'page' in newOptions) {
-        this.options = newOptions;
-      }
-      this.loading = true;
-      const { page, itemsPerPage } = this.options;
-      
-      try {
-        const response = await apiClient.get('v1/sms-gateway/messages', {
-          params: {
-            page: page || 1,
-            per_page: itemsPerPage || 20,
-            direction: this.filters.direction,
-            status: this.filters.status,
-          },
-        });
-        
-        if (response.data && response.data.status) {
-          const payload = response.data.data;
-          this.messages = payload.items;
-          this.totalMessages = payload.meta.total;
-        } else {
-          this.showSnackbar('فشل جلب سجل الرسائل.', 'error');
-        }
-      } catch (error) {
-        console.error(error);
-        this.showSnackbar('حدث خطأ أثناء تحميل الرسائل.', 'error');
-      } finally {
-        this.loading = false;
-      }
-    },
-    async fetchActiveLines() {
-      this.loadingLines = true;
-      try {
-        const response = await apiClient.get('v1/sms-gateway/lines');
-        if (response.data && response.data.status) {
-          this.lines = response.data.data.map(line => ({
-            id: line.id,
-            displayName: `${line.carrier} (${line.phone_number || 'غير مكتشف'}) - البوابة: ${line.device?.device_name}`,
-          }));
-        }
-      } catch (error) {
-        console.error(error);
-      } finally {
-        this.loadingLines = false;
-      }
-    },
-    onFilterChange() {
-      this.options.page = 1;
-      this.fetchMessages();
-    },
-    openSendDialog() {
-      this.form = {
-        sms_line_id: null,
-        phone_number: '',
-        message_body: '',
-      };
-      this.sendDialog = true;
-      this.fetchActiveLines();
-    },
-    async sendSms() {
-      if (!this.$refs.sendForm.validate()) return;
-      this.sending = true;
-      try {
-        const response = await apiClient.post('v1/sms-gateway/messages/send', this.form);
-        if (response.data && response.data.status) {
-          this.showSnackbar('تم جدولة إرسال الرسالة بنجاح وبثها للهاتف.', 'success');
-          this.sendDialog = false;
-          this.fetchMessages();
-        } else {
-          this.showSnackbar('فشل بث وجدولة الرسالة.', 'error');
-        }
-      } catch (error) {
-        console.error(error);
-        this.showSnackbar('حدث خطأ أثناء الاتصال بالخادم.', 'error');
-      } finally {
-        this.sending = false;
-      }
-    },
-    getStatusColor(status) {
-      switch (status) {
-        case 'delivered': return 'success';
-        case 'sent': return 'primary';
-        case 'queued': return 'warning';
-        case 'sending': return 'info';
-        case 'failed': return 'error';
-        default: return 'grey';
-      }
-    },
-    getStatusText(status) {
-      switch (status) {
-        case 'delivered': return 'تم التسليم';
-        case 'sent': return 'تم الإرسال للشبكة';
-        case 'queued': return 'في الانتظار (Queued)';
-        case 'sending': return 'جاري الإرسال';
-        case 'failed': return 'فشل الإرسال';
-        default: return status;
-      }
-    },
-    showSnackbar(text, color = 'success') {
-      this.snackbar.text = text;
-      this.snackbar.color = color;
-      this.snackbar.show = true;
-    },
-    viewMessage(item) {
-      this.selectedMessage = item;
-      this.viewDialog = true;
-    },
-  },
+    const response = await api.get(params, { showLoading: false });
+    if (response && response.status) {
+      messages.value = response.data?.items || [];
+      totalMessages.value = response.data?.meta?.total || 0;
+    }
+  } finally {
+    loading.value = false;
+  }
 };
+
+const handleOptionsUpdate = (options) => {
+  page.value = options.page;
+  itemsPerPage.value = options.itemsPerPage;
+  loadData();
+};
+
+const fetchActiveLines = async () => {
+  loadingLines.value = true;
+  try {
+    const response = await linesApi.get({}, { showLoading: false });
+    if (response && response.status) {
+      lines.value = (response.data || []).map(line => ({
+        id: line.id,
+        displayName: `${line.carrier} (${line.phone_number || 'غير مكتشف'}) - البوابة: ${line.device?.device_name}`,
+      }));
+    }
+  } finally {
+    loadingLines.value = false;
+  }
+};
+
+const onFilterChange = () => {
+  page.value = 1;
+  loadData();
+};
+
+const openSendDialog = () => {
+  form.value = {
+    sms_line_id: null,
+    phone_number: '',
+    message_body: '',
+  };
+  sendDialog.value = true;
+  fetchActiveLines();
+};
+
+const sendSms = async () => {
+  sending.value = true;
+  try {
+    const response = await api.request('POST', 'send', form.value);
+    if (response && response.status) {
+      toast.success('تم جدولة إرسال الرسالة بنجاح وبثها للهاتف.');
+      sendDialog.value = false;
+      await loadData();
+    }
+  } finally {
+    sending.value = false;
+  }
+};
+
+const getStatusColor = (status) => {
+  switch (status) {
+    case 'delivered': return 'success';
+    case 'sent': return 'primary';
+    case 'queued': return 'warning';
+    case 'sending': return 'info';
+    case 'failed': return 'error';
+    default: return 'grey';
+  }
+};
+
+const getStatusText = (status) => {
+  switch (status) {
+    case 'delivered': return 'تم التسليم';
+    case 'sent': return 'تم الإرسال للشبكة';
+    case 'queued': return 'في الانتظار (Queued)';
+    case 'sending': return 'جاري الإرسال';
+    case 'failed': return 'فشل الإرسال';
+    default: return status || '';
+  }
+};
+
+const viewMessage = (item) => {
+  selectedMessage.value = item;
+  viewDialog.value = true;
+};
+
+const formatDate = (dateString) => {
+  if (!dateString) return '-';
+  const date = new Date(dateString);
+  return date.toLocaleString('ar-EG', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
+
+onMounted(loadData);
 </script>
 
 <style scoped>
-.max-width-300 {
-  max-width: 300px;
+.message-list-page :deep(.v-container) {
+  max-width: 100% !important;
 }
 .clickable-message:hover {
   text-decoration: underline;
-  color: #1976d2 !important; /* fallback standard blue color for hover highlight */
+  color: rgb(var(--v-theme-primary)) !important;
 }
 .message-body-text {
   white-space: pre-wrap;
