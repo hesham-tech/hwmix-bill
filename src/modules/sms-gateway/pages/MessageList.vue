@@ -64,6 +64,17 @@
         no-data-text="لا يوجد حركات رسائل متطابقة."
         class="elevation-0"
       >
+        <!-- نص الرسالة -->
+        <template #[`item.message_body`]="{ item }">
+          <div 
+            class="clickable-message text-truncate" 
+            style="max-width: 450px; cursor: pointer; text-align: start;"
+            @click="viewMessage(item)"
+          >
+            {{ item.message_body }}
+          </div>
+        </template>
+
         <!-- اتجاه الرسالة -->
         <template #[`item.direction`]="{ item }">
           <v-chip :color="item.direction === 'incoming' ? 'indigo' : 'teal'" text-color="white" small class="font-weight-bold">
@@ -94,6 +105,57 @@
         </template>
       </v-data-table>
     </v-card>
+
+    <!-- نافذة عرض تفاصيل الرسالة ومحتواها بالكامل -->
+    <v-dialog v-model="viewDialog" max-width="500px">
+      <v-card class="rounded-lg">
+        <v-card-title class="text-h5 font-weight-bold primary--text pt-6 px-6 d-flex align-center">
+          <v-icon color="primary" class="mr-2">mdi-email-open-outline</v-icon>
+          عرض تفاصيل الرسالة
+          <v-spacer></v-spacer>
+          <v-btn icon @click="viewDialog = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
+        
+        <v-card-text class="px-6 pt-4">
+          <div class="mb-4">
+            <span class="font-weight-bold grey--text text--darken-2">الطرف الآخر: </span>
+            <span class="font-weight-bold">{{ selectedMessage?.phone_number }}</span>
+            <v-chip 
+              :color="selectedMessage?.direction === 'incoming' ? 'indigo' : 'teal'" 
+              text-color="white" 
+              x-small 
+              class="font-weight-bold ml-2"
+            >
+              {{ selectedMessage?.direction === 'incoming' ? 'واردة' : 'صادرة' }}
+            </v-chip>
+          </div>
+          
+          <div class="mb-4">
+            <span class="font-weight-bold grey--text text--darken-2">الحالة والتاريخ: </span>
+            <v-chip :color="getStatusColor(selectedMessage?.status)" text-color="white" x-small class="font-weight-bold">
+              {{ getStatusText(selectedMessage?.status) }}
+            </v-chip>
+            <span class="text-caption grey--text mr-2">{{ selectedMessage?.created_at }}</span>
+          </div>
+
+          <v-divider class="mb-4"></v-divider>
+
+          <div class="message-body-container">
+            <div class="message-body-label mb-2 font-weight-bold grey--text text--darken-2">محتوى الرسالة:</div>
+            <div class="message-body-text">{{ selectedMessage?.message_body }}</div>
+          </div>
+        </v-card-text>
+        
+        <v-card-actions class="px-6 pb-6 pt-2">
+          <v-spacer></v-spacer>
+          <v-btn color="primary" depressed class="px-6 rounded-lg" @click="viewDialog = false">
+            إغلاق
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
     <!-- نافذة منبثقة لبث وإرسال رسالة جديدة -->
     <v-dialog v-model="sendDialog" max-width="600px" persistent>
@@ -173,6 +235,8 @@ export default {
       loading: false,
       sending: false,
       sendDialog: false,
+      viewDialog: false,
+      selectedMessage: null,
       formValid: false,
       loadingLines: false,
       messages: [],
@@ -327,6 +391,10 @@ export default {
       this.snackbar.color = color;
       this.snackbar.show = true;
     },
+    viewMessage(item) {
+      this.selectedMessage = item;
+      this.viewDialog = true;
+    },
   },
 };
 </script>
@@ -334,5 +402,21 @@ export default {
 <style scoped>
 .max-width-300 {
   max-width: 300px;
+}
+.clickable-message:hover {
+  text-decoration: underline;
+  color: #1976d2 !important; /* fallback standard blue color for hover highlight */
+}
+.message-body-text {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  unicode-bidi: plaintext;
+  text-align: start;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  background-color: #f5f5f5;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
 }
 </style>

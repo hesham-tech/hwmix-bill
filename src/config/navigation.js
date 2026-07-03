@@ -281,6 +281,33 @@ export default [
     ],
   },
 
+  // ==================== SMS Gateway ====================
+  {
+    title: 'بوابة الـ SMS',
+    icon: 'ri-chat-sms-line',
+    permission: [PERMISSIONS.SMS_GATEWAY_VIEW_ALL, PERMISSIONS.SMS_GATEWAY_VIEW_SELF],
+    children: [
+      {
+        title: 'الأجهزة المتصلة',
+        to: '/app/sms-gateway/devices',
+        icon: 'ri-device-line',
+        permission: [PERMISSIONS.SMS_GATEWAY_VIEW_ALL, PERMISSIONS.SMS_GATEWAY_VIEW_SELF],
+      },
+      {
+        title: 'خطوط الاتصال (SIM)',
+        to: '/app/sms-gateway/lines',
+        icon: 'ri-sim-card-line',
+        permission: [PERMISSIONS.SMS_GATEWAY_VIEW_ALL, PERMISSIONS.SMS_GATEWAY_VIEW_SELF],
+      },
+      {
+        title: 'سجل الرسائل SMS',
+        to: '/app/sms-gateway/messages',
+        icon: 'ri-message-3-line',
+        permission: [PERMISSIONS.SMS_MESSAGES_VIEW_ALL, PERMISSIONS.SMS_MESSAGES_VIEW_SELF],
+      },
+    ],
+  },
+
   // ==================== Settings ====================
   {
     title: 'الإعدادات',
