@@ -36,7 +36,7 @@
               outlined
               dense
               hide-details
-              @change="onFilterChange"
+              @update:model-value="onFilterChange"
             ></v-select>
           </v-col>
           <v-col cols="12" sm="4" md="3">
@@ -49,7 +49,7 @@
               outlined
               dense
               hide-details
-              @change="onFilterChange"
+              @update:model-value="onFilterChange"
             ></v-select>
           </v-col>
         </v-row>
@@ -59,14 +59,15 @@
     <!-- جدول البيانات والـ Pagination -->
     <v-card class="elevation-2 rounded-lg">
       <v-data-table
+        v-model:options="options"
         :headers="headers"
         :items="messages"
-        :options.sync="options"
         :server-items-length="totalMessages"
         :loading="loading"
         loading-text="جاري تحميل سجل الرسائل..."
         no-data-text="لا يوجد حركات رسائل متطابقة."
         class="elevation-0"
+        @update:options="fetchMessages"
       >
         <!-- نص الرسالة -->
         <template #[`item.message_body`]="{ item }">
@@ -294,7 +295,10 @@ export default {
     },
   },
   methods: {
-    async fetchMessages() {
+    async fetchMessages(newOptions = null) {
+      if (newOptions && typeof newOptions === 'object' && 'page' in newOptions) {
+        this.options = newOptions;
+      }
       this.loading = true;
       const { page, itemsPerPage } = this.options;
       
