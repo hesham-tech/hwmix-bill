@@ -1,6 +1,6 @@
 <template>
   <div class="device-list-page">
-    <AppPageHeader title="بوابات الهواتف الذكية (SMS Gateways)" subtitle="إدارة ومراقبة الهواتف الموثقة كبوابات رسائل في النظام" icon="ri-smartphone-line" sticky>
+    <AppPageHeader title="أجهزة الهواتف الذكية (SMS Devices)" subtitle="إدارة ومراقبة الهواتف الموثقة كأجهزة رسائل في النظام" icon="ri-smartphone-line" sticky>
       <template #controls>
         <v-col cols="12" md="8">
           <AppInput
@@ -104,7 +104,7 @@
 </template>
 
 <script setup>
-/* تعليق عربي مختصر: صفحة عرض وإدارة بوابات الرسائل (الأجهزة) المرتبطة بالنظام */
+/* تعليق عربي مختصر: صفحة عرض وإدارة أجهزة الرسائل المرتبطة بالنظام */
 
 import { ref, onMounted } from 'vue';
 import { useApi } from '@/composables/useApi';

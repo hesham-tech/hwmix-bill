@@ -303,7 +303,7 @@ const headers = [
   { title: 'الاتجاه', key: 'direction', align: 'center' },
   { title: 'حالة التسليم', key: 'status', align: 'center' },
   { title: 'الخط المستخدم', key: 'line' },
-  { title: 'البوابة', key: 'device.device_name' },
+  { title: 'الجهاز', key: 'device.device_name' },
   { title: 'التاريخ والوقت', key: 'created_at' },
 ];
 

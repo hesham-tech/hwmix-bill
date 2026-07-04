@@ -1,6 +1,6 @@
 <template>
   <div class="line-list-page">
-    <AppPageHeader title="خطوط الاتصال والشرائح المتاحة" subtitle="عرض ومراقبة قوة الإشارة وحالة التشغيل لشرائح الاتصال بالبوابات" icon="ri-sim-card-line" sticky>
+    <AppPageHeader title="خطوط الاتصال والشرائح المتاحة" subtitle="عرض ومراقبة قوة الإشارة وحالة التشغيل لشرائح الاتصال بالأجهزة" icon="ri-sim-card-line" sticky>
       <template #controls>
         <v-col cols="12" md="8">
           <AppInput
@@ -120,7 +120,7 @@ const headers = [
   { title: 'رقم الهاتف المكتشف', key: 'phone_number' },
   { title: 'قوة الإشارة (Signal)', key: 'signal_strength', align: 'center' },
   { title: 'نوع الشبكة', key: 'network_type', align: 'center' },
-  { title: 'البوابة المرتبطة', key: 'device' },
+  { title: 'الجهاز المرتبط', key: 'device' },
   { title: 'حالة الخط', key: 'status', align: 'center' },
 ];
 
