@@ -1,15 +1,14 @@
 <template>
   <div class="message-list-page">
-    <AppPageHeader title="سجل وحركات الرسائل SMS" subtitle="متابعة وتدقيق حركات تسليم الرسائل الصادرة والواردة وبث رسائل جديدة للعملاء" icon="ri-message-2-line" sticky>
+    <AppPageHeader
+      title="سجل وحركات الرسائل SMS"
+      subtitle="متابعة وتدقيق حركات تسليم الرسائل الصادرة والواردة وبث رسائل جديدة للعملاء"
+      icon="ri-message-2-line"
+      sticky
+    >
       <template #controls>
         <v-col cols="12" md="4" class="d-flex gap-2 align-center justify-end">
-          <AppButton
-            variant="flat"
-            color="success"
-            prepend-icon="ri-send-plane-line"
-            class="rounded-md font-weight-bold"
-            @click="openSendDialog"
-          >
+          <AppButton variant="flat" color="success" prepend-icon="ri-send-plane-line" class="rounded-md font-weight-bold" @click="openSendDialog">
             إرسال رسالة جديدة
           </AppButton>
           <AppButton
@@ -76,9 +75,9 @@
         >
           <!-- نص الرسالة -->
           <template #item.message_body="{ item }">
-            <div 
-              class="clickable-message text-truncate font-weight-medium" 
-              style="max-width: 450px; cursor: pointer; text-align: start;"
+            <div
+              class="clickable-message text-truncate font-weight-medium"
+              style="max-width: 450px; cursor: pointer; text-align: start"
               @click="viewMessage(item)"
             >
               {{ item.message_body }}
@@ -141,13 +140,12 @@
             <v-icon icon="ri-close-line" />
           </v-btn>
         </v-card-title>
-        
+
         <v-card-text class="px-6 pt-4">
           <div class="mb-4">
             <span class="font-weight-bold text-grey">الطرف الآخر: </span>
             <span class="font-weight-bold text-primary">{{ selectedMessage?.phone_number }}</span>
             <v-chip
-              :color="selectedMessage?.direction === 'incoming' ? 'blue-lighten-4' : 'green-lighten-4'"
               size="small"
               variant="flat"
               class="font-weight-bold ms-2"
@@ -156,7 +154,7 @@
               {{ selectedMessage?.direction === 'incoming' ? 'واردة' : 'صادرة' }}
             </v-chip>
           </div>
-          
+
           <div class="mb-4">
             <span class="font-weight-bold text-grey">الحالة والتاريخ: </span>
             <v-chip :color="getStatusColor(selectedMessage?.status)" size="small" variant="flat" class="font-weight-bold px-3">
@@ -172,12 +170,10 @@
             <div class="message-body-text">{{ selectedMessage?.message_body }}</div>
           </div>
         </v-card-text>
-        
+
         <v-card-actions class="px-6 pb-6 pt-2">
           <v-spacer></v-spacer>
-          <AppButton variant="text" color="primary" class="px-6" @click="viewDialog = false">
-            إغلاق
-          </AppButton>
+          <AppButton variant="text" color="primary" class="px-6" @click="viewDialog = false"> إغلاق </AppButton>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -189,7 +185,7 @@
           <v-icon icon="ri-send-plane-line" color="primary" class="me-2" />
           إرسال رسالة SMS جديدة
         </v-card-title>
-        
+
         <v-card-text class="px-6 pt-4">
           <v-form ref="sendForm" v-model="formValid">
             <!-- اختيار شريحة الاتصال -->
@@ -230,12 +226,8 @@
 
         <v-card-actions class="px-6 pb-6 pt-2">
           <v-spacer></v-spacer>
-          <AppButton variant="text" color="grey" @click="sendDialog = false" :disabled="sending">
-            إلغاء
-          </AppButton>
-          <AppButton color="success" class="px-6" :loading="sending" :disabled="!formValid" @click="sendSms">
-            إرسال الرسالة
-          </AppButton>
+          <AppButton variant="text" color="grey" @click="sendDialog = false" :disabled="sending"> إلغاء </AppButton>
+          <AppButton color="success" class="px-6" :loading="sending" :disabled="!formValid" @click="sendSms"> إرسال الرسالة </AppButton>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -298,12 +290,12 @@ const statusItems = [
 ];
 
 const headers = [
+  { title: 'الجهاز', key: 'device.device_name' },
   { title: 'رقم المستلم / المرسل', key: 'phone_number', align: 'start' },
   { title: 'نص الرسالة', key: 'message_body', width: '40%' },
   { title: 'الاتجاه', key: 'direction', align: 'center' },
   { title: 'حالة التسليم', key: 'status', align: 'center' },
   { title: 'الخط المستخدم', key: 'line' },
-  { title: 'الجهاز', key: 'device.device_name' },
   { title: 'التاريخ والوقت', key: 'created_at' },
 ];
 
@@ -328,7 +320,7 @@ const loadData = async () => {
   }
 };
 
-const handleOptionsUpdate = (options) => {
+const handleOptionsUpdate = options => {
   page.value = options.page;
   itemsPerPage.value = options.itemsPerPage;
   loadData();
@@ -378,34 +370,46 @@ const sendSms = async () => {
   }
 };
 
-const getStatusColor = (status) => {
+const getStatusColor = status => {
   switch (status) {
-    case 'delivered': return 'success';
-    case 'sent': return 'primary';
-    case 'queued': return 'warning';
-    case 'sending': return 'info';
-    case 'failed': return 'error';
-    default: return 'grey';
+    case 'delivered':
+      return 'success';
+    case 'sent':
+      return 'primary';
+    case 'queued':
+      return 'warning';
+    case 'sending':
+      return 'info';
+    case 'failed':
+      return 'error';
+    default:
+      return 'grey';
   }
 };
 
-const getStatusText = (status) => {
+const getStatusText = status => {
   switch (status) {
-    case 'delivered': return 'تم التسليم';
-    case 'sent': return 'تم الإرسال للشبكة';
-    case 'queued': return 'في الانتظار (Queued)';
-    case 'sending': return 'جاري الإرسال';
-    case 'failed': return 'فشل الإرسال';
-    default: return status || '';
+    case 'delivered':
+      return 'تم التسليم';
+    case 'sent':
+      return 'تم الإرسال للشبكة';
+    case 'queued':
+      return 'في الانتظار (Queued)';
+    case 'sending':
+      return 'جاري الإرسال';
+    case 'failed':
+      return 'فشل الإرسال';
+    default:
+      return status || '';
   }
 };
 
-const viewMessage = (item) => {
+const viewMessage = item => {
   selectedMessage.value = item;
   viewDialog.value = true;
 };
 
-const formatDate = (dateString) => {
+const formatDate = dateString => {
   if (!dateString) return '-';
   const date = new Date(dateString);
   return date.toLocaleString('ar-EG', {
@@ -413,7 +417,7 @@ const formatDate = (dateString) => {
     month: 'short',
     day: 'numeric',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   });
 };
 
