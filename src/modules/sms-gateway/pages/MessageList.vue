@@ -148,6 +148,7 @@
             <v-chip
               size="small"
               variant="flat"
+              color="white"
               class="font-weight-bold ms-2"
               :style="selectedMessage?.direction === 'incoming' ? 'color: #1565C0;' : 'color: #2E7D32;'"
             >
