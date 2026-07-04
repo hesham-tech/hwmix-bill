@@ -49,11 +49,25 @@
 
           <!-- قوة الإشارة -->
           <template #item.signal_strength="{ item }">
-            <div class="d-flex align-center gap-2">
-              <v-icon :icon="getSignalIcon(item.signal_strength)" :color="getSignalColor(item.signal_strength)" size="18" />
-              <span class="text-caption font-weight-bold">
-                {{ item.signal_strength !== null ? item.signal_strength + ' dBm' : 'غير متوفر' }}
-              </span>
+            <div class="d-flex align-center gap-1">
+              <template v-if="item.signal_strength !== null && item.signal_strength !== undefined">
+                <div class="signal-bars">
+                  <span
+                    v-for="bar in 4"
+                    :key="bar"
+                    class="signal-bar"
+                    :class="{ active: bar <= getSignalBars(item.signal_strength) }"
+                    :style="{ height: (bar * 4 + 4) + 'px', backgroundColor: bar <= getSignalBars(item.signal_strength) ? getSignalColor(item.signal_strength) : '#ddd' }"
+                  />
+                </div>
+                <span class="text-caption font-weight-medium ms-1" :style="{ color: getSignalColor(item.signal_strength) }">
+                  {{ item.signal_strength }} dBm
+                </span>
+              </template>
+              <template v-else>
+                <v-icon icon="ri-signal-wifi-off-line" color="grey" size="16" />
+                <span class="text-caption text-grey ms-1">غير متوفر</span>
+              </template>
             </div>
           </template>
 
@@ -120,19 +134,34 @@ const loadData = async () => {
   }
 };
 
-const getSignalIcon = (strength) => {
-  if (strength === null) return 'ri-signal-tower-line';
+const getSignalBars = (strength) => {
+  if (strength === null || strength === undefined) return 0;
   const dbm = Math.abs(strength);
-  if (dbm <= 70) return 'ri-signal-tower-fill';
-  return 'ri-signal-tower-line';
+  if (dbm <= 70) return 4;
+  if (dbm <= 85) return 3;
+  if (dbm <= 95) return 2;
+  if (dbm <= 105) return 1;
+  return 0;
 };
 
 const getSignalColor = (strength) => {
-  if (strength === null) return 'grey';
+  if (strength === null || strength === undefined) return '#9E9E9E';
   const dbm = Math.abs(strength);
-  if (dbm <= 70) return 'success';
-  if (dbm <= 85) return 'warning';
-  return 'error';
+  if (dbm <= 70) return '#4CAF50';
+  if (dbm <= 85) return '#8BC34A';
+  if (dbm <= 95) return '#FF9800';
+  if (dbm <= 105) return '#FF5722';
+  return '#F44336';
+};
+
+const getSignalIcon = (strength) => {
+  if (strength === null || strength === undefined) return 'ri-signal-wifi-off-line';
+  const bars = getSignalBars(strength);
+  if (bars >= 4) return 'ri-signal-wifi-fill';
+  if (bars >= 3) return 'ri-signal-wifi-3-fill';
+  if (bars >= 2) return 'ri-signal-wifi-2-fill';
+  if (bars >= 1) return 'ri-signal-wifi-1-fill';
+  return 'ri-signal-wifi-error-fill';
 };
 
 onMounted(loadData);
@@ -141,5 +170,17 @@ onMounted(loadData);
 <style scoped>
 .line-list-page :deep(.v-container) {
   max-width: 100% !important;
+}
+.signal-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 20px;
+}
+.signal-bar {
+  width: 5px;
+  border-radius: 2px;
+  background-color: #ddd;
+  display: inline-block;
 }
 </style>

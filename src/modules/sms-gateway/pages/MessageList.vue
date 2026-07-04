@@ -87,7 +87,13 @@
 
           <!-- اتجاه الرسالة -->
           <template #item.direction="{ item }">
-            <v-chip :color="item.direction === 'incoming' ? 'indigo' : 'teal'" size="small" variant="flat" class="font-weight-bold px-3">
+            <v-chip
+              :color="item.direction === 'incoming' ? 'blue-lighten-4' : 'green-lighten-4'"
+              size="small"
+              variant="flat"
+              class="font-weight-bold px-3"
+              :style="item.direction === 'incoming' ? 'color: #1565C0;' : 'color: #2E7D32;'"
+            >
               <v-icon :icon="item.direction === 'incoming' ? 'ri-download-line' : 'ri-upload-line'" size="14" class="me-1" />
               {{ item.direction === 'incoming' ? 'واردة' : 'صادرة' }}
             </v-chip>
@@ -140,11 +146,12 @@
           <div class="mb-4">
             <span class="font-weight-bold text-grey">الطرف الآخر: </span>
             <span class="font-weight-bold text-primary">{{ selectedMessage?.phone_number }}</span>
-            <v-chip 
-              :color="selectedMessage?.direction === 'incoming' ? 'indigo' : 'teal'" 
+            <v-chip
+              :color="selectedMessage?.direction === 'incoming' ? 'blue-lighten-4' : 'green-lighten-4'"
               size="small"
               variant="flat"
               class="font-weight-bold ms-2"
+              :style="selectedMessage?.direction === 'incoming' ? 'color: #1565C0;' : 'color: #2E7D32;'"
             >
               {{ selectedMessage?.direction === 'incoming' ? 'واردة' : 'صادرة' }}
             </v-chip>
