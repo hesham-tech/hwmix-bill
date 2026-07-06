@@ -40,12 +40,44 @@
           title="الأجهزة المتصلة"
           icon="ri-cellphone-line"
         >
+          <!-- تنسيق عمود بيانات الجهاز والعتاد المدمج -->
+          <template #item.device_info="{ item }">
+            <div class="text-start py-2">
+              <div class="font-weight-bold text-primary text-subtitle-2 d-flex align-center">
+                <v-icon icon="ri-smartphone-line" size="18" class="me-2 text-primary" />
+                {{ item.device_name }}
+              </div>
+              <div class="text-caption text-grey-darken-1 ps-6 mt-1">
+                <span class="font-weight-semibold text-grey-darken-3">{{ item.brand }}</span>
+                <span class="mx-1 text-grey-lighten-1">•</span>
+                <span>{{ item.model }}</span>
+                <span v-if="item.hardware_name && item.hardware_name !== item.model" class="ms-2 text-grey">
+                  ({{ item.hardware_name }})
+                </span>
+              </div>
+            </div>
+          </template>
+
+          <!-- تنسيق عمود الإصدارات المدمج -->
+          <template #item.version_info="{ item }">
+            <div class="py-1">
+              <div class="text-body-2 font-weight-medium">تطبيق: {{ item.app_version }}</div>
+              <div class="text-caption text-grey">أندرويد: {{ item.android_version }}</div>
+            </div>
+          </template>
+
           <!-- تنسيق عمود الحالة -->
           <template #item.status="{ item }">
-            <v-chip :color="item.status === 'active' ? 'success' : 'grey'" size="small" variant="flat" class="font-weight-bold px-3">
-              <v-icon :icon="item.status === 'active' ? 'ri-wifi-line' : 'ri-wifi-off-line'" size="14" class="me-1" />
-              {{ item.status === 'active' ? 'نشط (Online)' : 'غير متصل (Offline)' }}
-            </v-chip>
+            <div class="d-flex align-center justify-center font-weight-bold">
+              <span 
+                :class="item.status === 'active' ? 'bg-success' : 'bg-error'" 
+                class="rounded-circle d-inline-block me-2" 
+                style="width: 8px; height: 8px;"
+              ></span>
+              <span :class="item.status === 'active' ? 'text-success' : 'text-error'">
+                {{ item.status === 'active' ? 'متصل' : 'غير متصل' }}
+              </span>
+            </div>
           </template>
           
           <!-- تنسيق آخر ظهور -->
@@ -124,11 +156,8 @@ const deleteDialog = ref(false);
 const selectedDevice = ref(null);
 
 const headers = [
-  { title: 'اسم الجهاز', key: 'device_name', align: 'start' },
-  { title: 'الشركة المصنعة', key: 'brand' },
-  { title: 'الموديل', key: 'model' },
-  { title: 'إصدار أندرويد', key: 'android_version', align: 'center' },
-  { title: 'إصدار التطبيق', key: 'app_version', align: 'center' },
+  { title: 'بيانات الجهاز والعتاد', key: 'device_info', align: 'start' },
+  { title: 'إصدار النظام والتطبيق', key: 'version_info', align: 'center' },
   { title: 'حالة التواجد', key: 'status', align: 'center', sortable: false },
   { title: 'آخر ظهور نشط', key: 'last_seen_at', align: 'center' },
   { title: 'إجراءات', key: 'actions', sortable: false, align: 'center' },
