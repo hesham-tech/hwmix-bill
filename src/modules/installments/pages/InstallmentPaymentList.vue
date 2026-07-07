@@ -194,7 +194,6 @@ const handleViewDetails = async payment => {
 };
 
 const handleAddPayment = () => {
-  console.log('Add payment');
   // TODO: Open payment form dialog
 };
 

@@ -70,21 +70,6 @@ onMounted(() => {
   // Component ready
 });
 
-watch(
-  () => appState.isCapturing,
-  newVal => {
-    console.log('Global Capture State Change:', newVal);
-    if (newVal) {
-      setTimeout(() => {
-        const el = document.getElementById('global-capture-overlay');
-        console.log('Overlay element in DOM:', !!el);
-        if (el) {
-          console.log('Overlay styles - zIndex:', window.getComputedStyle(el).zIndex, 'display:', window.getComputedStyle(el).display);
-        }
-      }, 100);
-    }
-  }
-);
 </script>
 
 <style>

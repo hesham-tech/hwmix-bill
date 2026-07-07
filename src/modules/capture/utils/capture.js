@@ -10,12 +10,9 @@ export const captureElement = async (element, options = {}) => {
     pixelRatio = 2, // 2 is usually enough for clarity without massive file size
   } = options;
 
-  console.log('[CaptureUtility] Starting high-fidelity capture with html2canvas...');
-
   try {
     // Ensure all fonts are loaded before capture
     if (document.fonts) {
-      console.log('[CaptureUtility] Waiting for fonts...');
       await document.fonts.ready;
     }
 
@@ -56,7 +53,6 @@ export const captureElement = async (element, options = {}) => {
       throw new Error('Captured image is empty or too small');
     }
 
-    console.log('[CaptureUtility] Capture successful. Blob size:', (blob.size / 1024).toFixed(1), 'KB');
     return blob;
   } catch (error) {
     console.error('[CaptureUtility] High-fidelity capture failed:', error);

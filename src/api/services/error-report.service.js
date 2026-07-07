@@ -35,7 +35,6 @@ class ErrorReportService {
    */
   async submit(reportData) {
     try {
-      console.log('[ErrorReportService] Preparing FormData for report...', reportData.message);
       const fd = new FormData();
       Object.keys(reportData).forEach(key => {
         if (key === 'payload') {
@@ -50,20 +49,15 @@ class ErrorReportService {
       // Priority: manual screenshot > auto screenshot
       const imageToUpload = reportData.screenshot || reportData.autoScreenshot;
       if (imageToUpload) {
-        console.log('[ErrorReportService] Attaching screenshot to FormData');
         const file = Array.isArray(imageToUpload) ? imageToUpload[0] : imageToUpload;
         if (file instanceof File || file instanceof Blob) {
           fd.append('screenshot', file);
         } else {
           console.warn('[ErrorReportService] Image to upload is not a File or Blob:', typeof file);
         }
-      } else {
-        console.log('[ErrorReportService] No screenshot found in report data');
       }
 
-      console.log('[ErrorReportService] Posting to:', this.resource);
       const response = await this.client.post(this.resource, fd);
-      console.log('[ErrorReportService] Response received:', response.status);
       return response.data;
     } catch (error) {
       console.error('[ErrorReportService] Failed to submit error report:', error);

@@ -1,35 +1,76 @@
-# vue
+# HWNix Bill Frontend (واجهة نظام إدارة الفواتير والاشتراكات)
 
-This template should help get you started developing with Vue 3 in Vite.
+واجهة أمامية متكاملة وقوية مبنية باستخدام تقنيات الويب الحديثة لإدارة الشركات، الفروع، الفواتير، المخزون، والعمليات المالية.
 
-## Recommended IDE Setup
+---
 
-[VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=johnsoncodehk.volar) (and disable Vetur).
+## 🚀 التقنيات المستخدمة (Tech Stack)
 
-## Type Support for `.vue` Imports in TS
+- **Framework**: Vue 3 (Composition API)
+- **Build Tool**: Vite
+- **UI Library**: Vuetify 3
+- **State Management**: Pinia
+- **HTTP Client**: Axios (مع إدارة مركزية للتوكن والصلاحيات وسياق الفروع والشركات)
 
-Since TypeScript cannot handle type information for `.vue` imports, they are shimmed to be a generic Vue component type by default. In most cases this is fine if you don't really care about component prop types outside of templates.
+---
 
-However, if you wish to get actual prop types in `.vue` imports (for example to get props validation when using manual `h(...)` calls), you can run `Volar: Switch TS Plugin on/off` from VS Code command palette.
+## 🛠️ التشغيل المحلي (Local Setup)
 
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
-## Project Setup
-
-```sh
+### 1. تثبيت الاعتمادات (Install Dependencies)
+```bash
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+### 2. إعداد متغيرات البيئة (Environment Variables)
+قم بإنشاء ملف `.env` في المسار الرئيسي للواجهة بالمتغيرات التالية:
+```env
+VITE_API_URL=http://127.0.0.1:8000
+VITE_APP_NAME="HWNix Bill"
+```
 
-```sh
+### 3. تشغيل خادم التطوير (Run Development Server)
+```bash
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
-
-```sh
+### 4. البناء للإنتاج (Build for Production)
+```bash
 npm run build
 ```
+
+---
+
+## 📐 هيكلية طبقة الاتصال (API Architecture & Unification)
+
+تم توحيد خدمات الاتصال بقاعدة البيانات والواجهة الخلفية:
+- **axios.config.js** (`src/api/axios.config.js`): هو مركز إرسال الطلبات، حيث يتولى تلقائياً:
+  - حقن توثيق Sanctum (`Bearer Token`).
+  - حقن الهيدرز الأمنية وسياق الشركة النشطة (`X-Company-Id`) والفرع النشط (`X-Branch-Id`).
+  - معالجة وإزالة بادئة `v1/` من الروابط تلقائياً لتوحيد الخدمات القديمة والجديدة.
+  - إرفاق مفتاح تكرار الطلبات (`X-Idempotency-Key`) للمعاملات الحساسة لمنع معالجة الحركات المالية المكررة.
+- **BaseService** (`src/api/base.service.js`): كلاس أب لجميع كلاسات الخدمات يدير معالجة الاستجابة الموحدة والأخطاء المعربة.
+- **api.js** (`src/services/api.js`): دوال مساعدة (Helper functions) لـ: `getAll`, `getOne`, `saveItem`, `deleteOne`, `updateItem`, `deleteAll`, `deleteItem`, `archiveItem`, `restoreItem`.
+
+---
+
+## 🗂️ هيكل المشروع (Project Structure)
+
+```
+src/
+├── api/
+│   ├── axios.config.js     # ⭐ مركز الاتصال الموحد
+│   ├── base.service.js     # الكلاس الأب لجميع الخدمات
+│   ├── index.js            # نقطة تصدير الـ Services
+│   └── services/           # 28+ خدمة موحدة (invoice, product, user...)
+├── modules/                # وحدات الميزات (features)
+├── stores/                 # Pinia stores (auth, user, branch...)
+├── router/                 # Vue Router
+├── utils/                  # Utilities (translateErrors, logger...)
+└── services/
+    └── api.js              # Helper functions (getAll, saveItem...)
+```
+
+---
+
+*آخر تحديث: يونيو 2026 — المرحلة 6-7 مكتملة*
+

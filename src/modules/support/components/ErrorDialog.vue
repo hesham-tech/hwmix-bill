@@ -213,13 +213,6 @@ const submitReport = async () => {
       screenshot: screenshot.value, // Attach manually uploaded screenshot
     };
 
-    console.log('[ErrorDialog] Submitting report with payload:', {
-      message: payload.message,
-      hasAutoScreenshot: !!payload.autoScreenshot,
-      hasManualScreenshot: !!payload.screenshot,
-      type: payload.type,
-    });
-
     // Use the optimized submit method
     const result = await errorReportService.submit(payload);
 

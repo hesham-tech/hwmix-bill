@@ -8,13 +8,10 @@ export const collectErrorInfo = async (error = null, context = {}) => {
 
   // Capture screen only if explicitly requested in context
   if (context.captureScreenshot === true) {
-    console.log('[ErrorCollector] Starting screenshot capture...');
     try {
       const { captureElement } = await import('@/modules/capture/utils/capture');
 
-      // Use callbacks from context instead of direct store access
       if (context.onCaptureStart) {
-        console.log('[ErrorCollector] Triggering onCaptureStart callback');
         context.onCaptureStart();
       }
 
@@ -22,12 +19,8 @@ export const collectErrorInfo = async (error = null, context = {}) => {
       const fab = document.querySelector('.global-fab-feedback');
       if (fab) fab.style.visibility = 'hidden';
 
-      console.log('[ErrorCollector] Waiting for UI stabilization (200ms)...');
-      // Reduced delay to improve perceived speed
       await new Promise(resolve => setTimeout(resolve, 200));
 
-      // Capture using central utility
-      console.log('[ErrorCollector] Calling captureElement...');
       const blob = await captureElement(document.body, {
         format: 'blob',
         backgroundColor: '#f8f9fa',
@@ -35,13 +28,10 @@ export const collectErrorInfo = async (error = null, context = {}) => {
         pixelRatio: 2,
       });
 
-      console.log('[ErrorCollector] Capture successful, blob size:', blob.size);
-
       const fabElement = document.querySelector('.global-fab-feedback');
       if (fabElement) fabElement.style.visibility = 'visible';
 
       if (context.onCaptureEnd) {
-        console.log('[ErrorCollector] Triggering onCaptureEnd callback');
         context.onCaptureEnd();
       }
 
@@ -61,7 +51,7 @@ export const collectErrorInfo = async (error = null, context = {}) => {
     type: context.type || 'error',
     severity: context.severity || 'medium',
     isConnectivityError: !!context.isConnectivityError,
-    autoScreenshot: screenCapture || context.screenshot || null, // Priority to auto capture
+    autoScreenshot: screenCapture || context.screenshot || null,
     payload: {
       timestamp: new Date().toISOString(),
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -71,12 +61,11 @@ export const collectErrorInfo = async (error = null, context = {}) => {
         width: window.innerWidth,
         height: window.innerHeight,
       },
-      request: context.request || null, // Capture Method, Params, Payload
+      request: context.request ? sanitizeRequestData(context.request) : null,
       ...context.extraData,
     },
   };
 
-  // Try to get Pinia state if available (be careful with sensitive data)
   try {
     const { useUserStore } = await import('@/stores/user');
     const { useBranchStore } = await import('@/stores/branch');
@@ -99,6 +88,28 @@ export const collectErrorInfo = async (error = null, context = {}) => {
 
   return info;
 };
+
+function sanitizeRequestData(requestObj) {
+  if (!requestObj || typeof requestObj !== 'object') return requestObj;
+  try {
+    const clone = JSON.parse(JSON.stringify(requestObj));
+    const sensitiveKeys = ['password', 'password_confirmation', 'token', 'authorization', 'secret', 'credit_card', 'pin'];
+    
+    const redact = obj => {
+      for (const key in obj) {
+        if (sensitiveKeys.some(k => key.toLowerCase().includes(k))) {
+          obj[key] = '[REDACTED]';
+        } else if (typeof obj[key] === 'object' && obj[key] !== null) {
+          redact(obj[key]);
+        }
+      }
+    };
+    redact(clone);
+    return clone;
+  } catch (e) {
+    return '[Unparseable Request Data]';
+  }
+}
 
 function getBrowserInfo() {
   const ua = navigator.userAgent;

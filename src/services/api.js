@@ -1,57 +1,12 @@
-import axios from 'axios';
 import { serialize } from 'object-to-formdata';
 import { useUserStore } from '@/stores/user';
-import { toast } from 'vue3-toastify';
-import 'vue3-toastify/dist/index.css';
-import router from '@/router';
 import translateErrors from '@/utils/translateErrors';
-
-const apiClient = axios.create({
-  baseURL: process.env.NODE_ENV === 'production' ? 'https://bill-api.hwnix.com/api/' : 'http://127.0.0.1:8000/api/',
-  headers: {
-    'Cache-Control': 'no-cache',
-    Pragma: 'no-cache',
-    Expires: '0',
-    'If-None-Match': '',
-  },
-});
+import apiClient from '@/api/axios.config';
 
 const options = {
   allowEmptyArrays: true,
   indices: true,
 };
-
-apiClient.interceptors.request.use(config => {
-  const token = sessionStorage.getItem('token') || localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  if (config.data instanceof FormData) {
-    delete config.headers['Content-Type'];
-  } else {
-    config.headers['Content-Type'] = 'application/json';
-  }
-  return config;
-});
-
-apiClient.interceptors.response.use(
-  response => response,
-  error => {
-    if (error?.response?.status === 401 || error?.response?.data?.message === 'Unauthenticated.') {
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('user');
-      console.log('Redirecting to login...');
-      router.push({ name: 'login', query: { sessionExpired: '1' } });
-
-      // return Promise.reject(error);
-    }
-    if (error?.response?.status === 403 || error?.response?.data?.message === 'Forbidden' || error?.response?.data?.message === 'Unauthorized') {
-      toast.error('ليس لديك صلاحية للوصول إلى هذا المورد.');
-      return Promise.reject(error);
-    }
-    return Promise.reject(error);
-  }
-);
 
 export default apiClient;
 
@@ -97,22 +52,18 @@ const handleSuccess = (response, log, userStore, loading, type, showToast) => {
 // تم تعديل الدالة لتقبل showToast
 const handleError = (error, log, userStore, loading, type, showToast) => {
   if (error?.response?.status === 401) return;
-  log ? console.log(`${type}: ❌`, error.response || error) : '';
-  loading ? (userStore.loadingApi = false) : '';
-  console.log(`${type}: ❌`, error);
+  if (log) console.log(`${type}: ❌`, error.response || error);
+  if (loading) userStore.loadingApi = false;
 
   let errorMessage = 'حدث خطأ غير متوقع';
 
   if (error.response && error.response.data) {
-    if (error.response.data.errors.length) {
-      console.log('if (error.response.data.errors.length)');
+    if (error.response.data.errors?.length) {
       errorMessage = translateErrors(error.response.data.errors);
     } else if (error.response.data.message) {
-      console.log('else if (error.response.data.message)', errorMessage);
       errorMessage = error.response.data.message;
     }
-  } else if (error.response.message) {
-    console.log('else if error.response.message');
+  } else if (error.response?.message) {
     errorMessage = error.response.message;
   }
   if (showToast) {
@@ -141,8 +92,9 @@ export const getOne = async (apiEndpoint, id, options = {}) => {
   const userStore = useUserStore();
   try {
     loading ? (userStore.loadingApi = true) : '';
-    const response = await apiClient.get(`${apiEndpoint}/${id}?basic=${basic}`);
-    loading ? (userStore.loadingApi = true) : ''; // ملاحظة: هذا السطر مكرر، قد تحتاج لمراجعته
+    const params = full ? { full: 1 } : {};
+    const response = await apiClient.get(`${apiEndpoint}/${id}`, { params });
+    loading ? (userStore.loadingApi = false) : '';
     return handleSuccess(response, log, userStore, loading, apiEndpoint, showToast);
   } catch (error) {
     return handleError(error, log, userStore, loading, apiEndpoint, showToast);
@@ -150,7 +102,6 @@ export const getOne = async (apiEndpoint, id, options = {}) => {
 };
 
 export const saveItem = async (apiEndpoint, data, id = false, loading = true, showToast = true, log = false) => {
-  console.log('saveItem called with:', { apiEndpoint, data, id });
   const userStore = useUserStore();
   loading ? (userStore.loadingApi = true) : '';
   // const formData = serialize(data, options);
@@ -159,7 +110,6 @@ export const saveItem = async (apiEndpoint, data, id = false, loading = true, sh
     let response;
     // تحقق هل فيه صورة
     const shouldUseFormData = apiEndpoint === 'image';
-    console.log('shouldUseFormData', shouldUseFormData);
 
     // لو فيه صورة، نحول البيانات لـ FormData
     let finalData = shouldUseFormData ? serialize(data) : data;
@@ -275,9 +225,9 @@ export const deleteItem = async (resource, id, showToast = true) => {
   userStore.loadingApi = true;
   try {
     const response = await apiClient.delete(`${resource}/${id}`);
-    return handleSuccess(response, false, userStore, true, apiEndpoint, showToast);
+    return handleSuccess(response, false, userStore, true, resource, showToast);
   } catch (error) {
-    return handleError(error, false, userStore, true, apiEndpoint, showToast);
+    return handleError(error, false, userStore, true, resource, showToast);
   }
 };
 
@@ -286,9 +236,9 @@ export const archiveItem = async (resource, id, showToast = true) => {
   userStore.loadingApi = true;
   try {
     const response = await apiClient.post(`${resource}/${id}/archive`);
-    return handleSuccess(response, false, userStore, true, apiEndpoint, showToast);
+    return handleSuccess(response, false, userStore, true, resource, showToast);
   } catch (error) {
-    return handleError(error, false, userStore, true, apiEndpoint, showToast);
+    return handleError(error, false, userStore, true, resource, showToast);
   }
 };
 
@@ -297,9 +247,9 @@ export const restoreItem = async (resource, id, showToast = true) => {
   userStore.loadingApi = true;
   try {
     const response = await apiClient.post(`${resource}/${id}/restore`);
-    return handleSuccess(response, false, userStore, true, apiEndpoint, showToast);
+    return handleSuccess(response, false, userStore, true, resource, showToast);
   } catch (error) {
-    return handleError(error, false, userStore, true, apiEndpoint, showToast);
+    return handleError(error, false, userStore, true, resource, showToast);
   }
 };
 export async function getLocalPermissions(remotePermissions) {
@@ -344,7 +294,6 @@ export async function getLocalPermissions(remotePermissions) {
     console.error('Invalid remotePermissions data:', remotePermissions);
     return [];
   }
-  console.log('permissionsApi:', permissionsApi);
 
   let permissionsLocal = permissionGroups(permissionsApi);
   return permissionsLocal

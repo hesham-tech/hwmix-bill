@@ -4,7 +4,6 @@ import 'vue3-toastify/dist/index.css';
 export const useNotifications = () => {
   const requestPermission = async () => {
     if (!('Notification' in window)) {
-      console.log('This browser does not support desktop notification');
       return;
     }
 
@@ -57,7 +56,6 @@ export const useNotifications = () => {
     window.Echo.private(`company.${user.active_company_id}`).listen('.task.updated', e => {
       // To avoid duplicate notifications if user is already notified via user channel
       // We could check if e.task is assigned to this user
-      console.log('Company task update:', e);
     });
   };
 

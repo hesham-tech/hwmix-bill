@@ -180,8 +180,6 @@ const prepareReceiptProps = details => {
   // محاولة جلب بيانات الشركة
   const company = userStore.currentCompany || record?.plan?.invoice?.company || record?.invoice?.company || record?.company;
 
-  console.log('[InstallmentList] Preparing receipt with:', { record, customer, company });
-
   return {
     paymentData: record,
     customerName: customer?.name || customer?.full_name || 'عميل غير معروف',
