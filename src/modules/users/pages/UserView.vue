@@ -38,17 +38,30 @@
             <AppUserBalanceProfile :user="user" mode="vertical" :avatar-size="160" class="position-relative" style="z-index: 2" />
 
             <div class="d-flex justify-center gap-1 flex-wrap mt-4 mb-2 position-relative" style="z-index: 2">
+              <!-- علاقات الطرف التجارية -->
               <v-chip
-                v-for="role in user.roles"
-                :key="role.id"
-                :color="getRoleColor(role.name)"
+                v-for="rel in user.relation_types"
+                :key="rel"
+                :color="rel === 'customer' ? 'primary' : (rel === 'supplier' ? 'success' : (rel === 'employee' ? 'info' : 'warning'))"
                 size="small"
                 variant="flat"
                 class="font-weight-bold text-white elevation-1"
               >
-                {{ role.label || role.name }}
+                {{ rel === 'customer' ? 'عميل' : (rel === 'supplier' ? 'مورد' : (rel === 'employee' ? 'موظف' : 'شريك')) }}
               </v-chip>
-              <v-chip v-if="!user.roles?.length" size="small" variant="flat" color="rgba(255,255,255,0.2)" class="text-white"> عميل </v-chip>
+              
+              <!-- الأدوار الأمنية -->
+              <v-chip
+                v-for="role in user.roles"
+                :key="role"
+                :color="getRoleColor(role)"
+                size="small"
+                variant="tonal"
+                class="font-weight-bold"
+              >
+                {{ role }}
+              </v-chip>
+              <v-chip v-if="!user.relation_types?.length && !user.roles?.length" size="small" variant="flat" color="rgba(255,255,255,0.2)" class="text-white"> عميل </v-chip>
             </div>
           </div>
 
@@ -83,6 +96,7 @@
         <v-card class="rounded-md border border-grey-lighten-4 h-100 overflow-hidden elevation-sm">
           <v-tabs v-model="activeTab" bg-color="white" color="primary" density="comfortable" align-tabs="start" class="border-b">
             <v-tab value="details" prepend-icon="ri-information-line" class="px-6">المعلومات الإضافية</v-tab>
+            <v-tab value="statement" prepend-icon="ri-file-paper-2-line" class="px-6">كشف الحساب</v-tab>
             <v-tab value="invoices" prepend-icon="ri-file-list-3-line" class="px-6">الفواتير</v-tab>
             <v-tab value="cashboxes" prepend-icon="ri-safe-2-line" class="px-6">الخزائن</v-tab>
             <v-tab value="transactions" prepend-icon="ri-exchange-funds-line" class="px-6">المعاملات المالية</v-tab>
@@ -130,6 +144,10 @@
                   {{ user.notes || 'لا توجد ملاحظات إضافية مسجلة لهذا المستخدم.' }}
                 </div>
               </div>
+            </v-window-item>
+
+            <v-window-item value="statement">
+              <StakeholderStatement v-if="activeTab === 'statement'" :user-id="user.id" />
             </v-window-item>
 
             <v-window-item value="invoices">
@@ -207,6 +225,7 @@ import CashBoxList from '@/modules/cashbox/pages/CashBoxList.vue';
 import ActivityLogList from '@/modules/settings/pages/ActivityLogList.vue';
 import TransactionsList from '@/modules/financials/pages/TransactionsList.vue';
 import PaymentList from '@/modules/payments/pages/PaymentList.vue';
+import StakeholderStatement from '../components/StakeholderStatement.vue';
 
 const route = useRoute();
 const router = useRouter();

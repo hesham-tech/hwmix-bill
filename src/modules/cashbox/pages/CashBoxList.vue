@@ -246,22 +246,66 @@
               class="mb-4"
             />
           </v-col>
-          <v-col cols="12">
+          <!-- طريقة الوصول والعهدة -->
+          <v-col cols="12" v-if="!props.userId">
+            <v-select
+              v-model="formData.access_type"
+              :items="[
+                { title: 'خزنة شخصية لموظف (عهدة)', value: 'user_owned' },
+                { title: 'خزنة مشتركة للفرع', value: 'branch_shared' },
+                { title: 'خزنة عامة للشركة بالكامل', value: 'company_shared' }
+              ]"
+              label="طريقة الوصول والعهدة *"
+              variant="outlined"
+              density="comfortable"
+              prepend-inner-icon="ri-shield-user-line"
+              required
+              :rules="[rules.required]"
+              hide-details
+              class="mb-4"
+              :disabled="isEdit"
+            />
+          </v-col>
+
+          <!-- اختيار الموظف (فقط في حال خزنة شخصية) -->
+          <v-col cols="12" v-slot:default v-if="formData.access_type === 'user_owned' && !props.userId">
+            <v-select
+              v-model="formData.user_id"
+              :items="staffList"
+              :loading="loadingStaff"
+              item-title="nickname"
+              item-value="id"
+              label="الموظف المسؤول عن العهدة *"
+              variant="outlined"
+              density="comfortable"
+              prepend-inner-icon="ri-user-line"
+              required
+              :rules="[rules.required]"
+              hide-details
+              class="mb-4"
+              :disabled="isEdit"
+            />
+          </v-col>
+
+          <!-- الفرع (فقط في حال خزنة شخصية أو مشتركة للفرع) -->
+          <v-col cols="12" v-if="formData.access_type !== 'company_shared'">
             <v-select
               v-model="formData.branch_id"
-              :items="[{ id: null, name: 'خزينة عامة للشركة (حساب بنكي / رئيسي)' }, ...branches]"
+              :items="branches"
               :loading="loadingBranches"
               item-title="name"
               item-value="id"
-              label="الفرع المرتبط بالخزينة"
+              label="الفرع المرتبط بالخزينة *"
               variant="outlined"
               density="comfortable"
               prepend-inner-icon="ri-git-branch-line"
               :disabled="isEdit"
+              required
+              :rules="[rules.required]"
               hide-details
               class="mb-4"
               persistent-hint
-              :hint="isEdit ? 'لا يمكن تعديل الفرع بعد إنشاء الخزينة حمايةً للقيود التاريخية' : 'اترك هذا الحقل فارغاً لإنشاء خزينة عامة للشركة'"
+              :hint="isEdit ? 'لا يمكن تعديل الفرع بعد إنشاء الخزينة حمايةً للقيود التاريخية' : ''"
             />
           </v-col>
           <v-col cols="12">
@@ -342,9 +386,9 @@ import AppCard from '@/components/common/AppCard.vue';
 import AppInfiniteScroll from '@/components/common/AppInfiniteScroll.vue';
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import EmptyState from '@/components/common/EmptyState.vue';
-import { formatCurrency } from '@/utils/formatters';
 import { PERMISSIONS } from '@/config/permissions';
 import { useAuthStore } from '@/stores/auth';
+import { userService } from '@/api';
 
 const props = defineProps({
   userId: { type: [Number, String], default: null },
@@ -411,7 +455,32 @@ const loadingTypes = ref(false);
 const branches = ref([]);
 const loadingBranches = ref(false);
 const branchesApi = useApi('/api/branches');
-const formData = ref({ name: '', cash_box_type_id: null, branch_id: authStore.user?.branch_id || null, initial_balance: 0, is_active: 1, is_default: 0 });
+
+const staffList = ref([]);
+const loadingStaff = ref(false);
+
+const loadStaff = async () => {
+  loadingStaff.value = true;
+  try {
+    const response = await userService.getStaff({ per_page: 100 });
+    staffList.value = response.data;
+  } catch (error) {
+    console.error('Failed to load staff list:', error);
+  } finally {
+    loadingStaff.value = false;
+  }
+};
+
+const formData = ref({
+  name: '',
+  cash_box_type_id: null,
+  branch_id: authStore.user?.branch_id || null,
+  initial_balance: 0,
+  is_active: 1,
+  is_default: 0,
+  access_type: props.userId ? 'user_owned' : 'branch_shared',
+  user_id: props.userId || null
+});
 
 
 
@@ -497,7 +566,9 @@ const handleCreate = () => {
     branch_id: defaultBranchId, 
     initial_balance: 0, 
     is_active: 1,
-    is_default: 0 
+    is_default: 0,
+    access_type: props.userId ? 'user_owned' : 'branch_shared',
+    user_id: props.userId || null
   };
   showDialog.value = true;
   
@@ -509,18 +580,22 @@ const handleCreate = () => {
     });
   }
   if (!branches.value.length) loadBranches();
+  if (formData.value.access_type === 'user_owned' && !staffList.value.length) loadStaff();
 };
 
 const handleEdit = item => {
   selectedItem.value = item;
+  const accessType = item.user_id ? 'user_owned' : (item.branch_id ? 'branch_shared' : 'company_shared');
   formData.value = { 
     ...item,
+    access_type: accessType,
     is_active: item.is_active ? 1 : 0,
     is_default: item.is_default ? 1 : 0
   };
   showDialog.value = true;
   if (!cashBoxTypes.value.length) loadTypes();
   if (!branches.value.length) loadBranches();
+  if (accessType === 'user_owned' && !staffList.value.length) loadStaff();
 };
 
 const handleDelete = item => {
@@ -534,10 +609,20 @@ const handleSave = async () => {
 
   saving.value = true;
   try {
+    const payload = { ...formData.value };
+    if (payload.access_type === 'branch_shared') {
+      payload.user_id = null;
+    } else if (payload.access_type === 'company_shared') {
+      payload.user_id = null;
+      payload.branch_id = null;
+    }
+    // حذف الحقل المساعدaccess_type قبل الإرسال
+    delete payload.access_type;
+
     if (isEdit.value) {
-      await api.update(selectedItem.value.id, formData.value, { successMessage: 'تم التحديث بنجاح' });
+      await api.update(selectedItem.value.id, payload, { successMessage: 'تم التحديث بنجاح' });
     } else {
-      await api.create(formData.value, { successMessage: 'تم الإضافة بنجاح' });
+      await api.create(payload, { successMessage: 'تم الإضافة بنجاح' });
     }
     showDialog.value = false;
     fetchData();

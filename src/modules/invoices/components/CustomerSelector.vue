@@ -72,12 +72,11 @@
               {{ item.raw.email }}
             </span>
             <AppBalanceDisplay 
-              v-if="item.raw.balance !== undefined"
-              :amount="item.raw.balance" 
+              :amount="relationType === 'customer' ? (item.raw.receivable_balance ?? item.raw.balance) : (relationType === 'supplier' ? item.raw.payable_balance : item.raw.cashbox_balance)" 
               perspective="admin"
               hide-label
               value-class="text-xxs font-weight-bold"
-              custom-class="px-2 py-0-5 rounded-pill border border-opacity-25 bg-neutral-lighten-5"
+              :custom-class="`px-2 py-0-5 rounded-pill border border-opacity-25 ${relationType === 'customer' ? 'bg-red-lighten-5 text-error border-error' : (relationType === 'supplier' ? 'bg-green-lighten-5 text-success border-success' : 'bg-blue-lighten-5 text-primary border-primary')}`"
             />
           </div>
         </template>
@@ -108,6 +107,10 @@ const props = defineProps({
   returnObject: {
     type: Boolean,
     default: true,
+  },
+  relationType: {
+    type: String,
+    default: 'customer',
   },
 });
 
@@ -141,7 +144,10 @@ const handleSearch = query => {
 const loadCustomers = async (search = '') => {
   loading.value = true;
   try {
-    const params = search ? { search } : {};
+    const params = {
+      relation_type: props.relationType,
+      ...(search ? { search } : {})
+    };
     const response = await customerApi.get(params, { showLoading: false, showError: false });
     customers.value = response.data || [];
   } catch (error) {

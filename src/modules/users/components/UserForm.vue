@@ -114,7 +114,49 @@
           <AppInput v-model="form.username" label="اسم المستخدم (Username)" help-text="الاسم الفريد الذي سيستخدمه الموظف لتسجيل الدخول للنظام (يفضل أن يكون بالإنجليزية وبدون مسافات)." :rules="[]" prepend-inner-icon="ri-at-line" autocomplete="off" />
         </v-col>
 
-        <v-col cols="12" md="6">
+        <!-- العلاقات التجارية (Business Relations) -->
+        <v-col cols="12" class="mt-4">
+          <div class="d-flex align-center gap-2 mb-2 text-primary font-weight-bold">
+            <v-icon icon="ri-user-settings-line" />
+            <span>العلاقات التجارية والمحاسبية *</span>
+            <AppFieldHelp text="تحديد صفة أو صفات الطرف محاسبياً في النظام لتحديد هيكلية حساباته." />
+          </div>
+          <v-divider class="mb-4" />
+          
+          <div class="d-flex flex-wrap gap-4 mb-2">
+            <v-checkbox
+              v-model="form.relation_types"
+              label="عميل"
+              value="customer"
+              density="compact"
+              hide-details
+            />
+            <v-checkbox
+              v-model="form.relation_types"
+              label="مورد"
+              value="supplier"
+              density="compact"
+              hide-details
+            />
+            <v-checkbox
+              v-model="form.relation_types"
+              label="موظف / مسؤول"
+              value="employee"
+              density="compact"
+              hide-details
+            />
+            <v-checkbox
+              v-model="form.relation_types"
+              label="شريك"
+              value="partner"
+              density="compact"
+              hide-details
+            />
+          </div>
+        </v-col>
+
+        <!-- حقول نوع العميل والأرصدة الافتتاحية بناء على العلاقات المحددة -->
+        <v-col v-if="form.relation_types && form.relation_types.includes('customer')" cols="12" md="6">
           <v-select
             v-model="form.customer_type"
             :items="[
@@ -125,6 +167,37 @@
             prepend-inner-icon="ri-user-settings-line"
             variant="outlined"
             density="comfortable"
+          />
+        </v-col>
+
+        <!-- الأرصدة الابتدائية -->
+        <v-col v-if="form.relation_types && form.relation_types.includes('customer')" cols="12" md="6">
+          <AppInput
+            v-model.number="form.starting_balances.receivable"
+            label="الرصيد الابتدائي كعميل (ذمة مدينة) *"
+            help-text="الديون المستحقة على العميل لصالحنا عند بدء استخدام النظام."
+            type="number"
+            prepend-inner-icon="ri-money-dollar-circle-line"
+          />
+        </v-col>
+
+        <v-col v-if="form.relation_types && form.relation_types.includes('supplier')" cols="12" md="6">
+          <AppInput
+            v-model.number="form.starting_balances.payable"
+            label="الرصيد الابتدائي كمورد (ذمة دائنة) *"
+            help-text="الديون المستحقة للمورد علينا عند بدء استخدام النظام."
+            type="number"
+            prepend-inner-icon="ri-money-dollar-circle-line"
+          />
+        </v-col>
+
+        <v-col v-if="form.relation_types && form.relation_types.includes('employee')" cols="12" md="6">
+          <AppInput
+            v-model.number="form.balance"
+            label="الرصيد النقدي الابتدائي بعهدة الخزنة *"
+            help-text="مبلغ النقدية الفعلي الموجود في عهدة الموظف حالياً."
+            type="number"
+            prepend-inner-icon="ri-wallet-line"
           />
         </v-col>
 
@@ -325,6 +398,8 @@ const resetForm = () => {
     address: '',
     notes: '',
     images_ids: [],
+    relation_types: [],
+    starting_balances: { receivable: 0, payable: 0 },
   };
   imagePreview.value = null;
   lookupResult.value = null;
@@ -343,6 +418,8 @@ const form = ref({
   address: '',
   notes: '',
   images_ids: [],
+  relation_types: props.modelValue?.relation_types || [],
+  starting_balances: props.modelValue?.starting_balances || { receivable: 0, payable: 0 },
   company_ids: props.modelValue?.companies?.map(c => c.id) || [],
   branch_ids: props.modelValue?.branch_ids || props.modelValue?.branches?.map(b => b.id) || [],
   ...props.modelValue,
@@ -411,6 +488,8 @@ watch(
       const { roles, permissions, direct_permissions, ...cleanData } = newVal;
 
       form.value = {
+        relation_types: newVal.relation_types || [],
+        starting_balances: newVal.starting_balances || { receivable: 0, payable: 0 },
         ...form.value,
         ...cleanData,
       };

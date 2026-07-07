@@ -12,6 +12,12 @@ export default [
     meta: { title: 'نظام الإدارة HWNix', public: true },
   },
   {
+    path: '/service-unavailable',
+    name: 'service-unavailable',
+    component: () => import('@/pages/ServiceUnavailable.vue'),
+    meta: { title: 'الخدمة غير متوفرة', public: true },
+  },
+  {
     path: '/legal/:key',
     name: 'public-legal-document',
     component: () => import('@/modules/legal/pages/PublicDocumentView.vue'),

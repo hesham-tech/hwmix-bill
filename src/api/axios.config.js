@@ -99,6 +99,16 @@ apiClient.interceptors.response.use(
       return Promise.reject(error);
     }
 
+    // 503: Service Unavailable
+    if (error?.response?.status === 503) {
+      if (router.currentRoute.value?.name !== 'service-unavailable') {
+        router.push({ name: 'service-unavailable' }).catch(() => {
+          window.location.href = '/service-unavailable';
+        });
+      }
+      return Promise.reject(error);
+    }
+
     // 401: Unauthorized - Token expired
     if (error?.response?.status === 401 || error?.response?.data?.message === 'Unauthenticated.') {
       // Avoid spamming notifications

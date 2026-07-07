@@ -7,6 +7,7 @@
           :model-value="selectedCustomer"
           :label="isPurchase ? 'المورد *' : 'العميل *'"
           :tooltip="isPurchase ? 'إضافة مورد جديد' : 'إضافة عميل جديد'"
+          :relation-type="isPurchase ? 'supplier' : 'customer'"
           required
           density="compact"
           hide-details="auto"

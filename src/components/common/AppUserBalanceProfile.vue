@@ -20,8 +20,50 @@
             <AppPhone :phone="user.phone" />
           </div>
 
-          <div v-if="!hideBalance && (user?.active_branch_balance != null || user?.balance != null)" class="d-flex align-center mt-1 flex-wrap gap-1">
+          <div v-if="!hideBalance" class="d-flex align-center mt-1 flex-wrap gap-1">
+            <!-- رصيد العميل -->
             <AppBalanceDisplay
+              v-if="user?.relation_types?.includes('customer') || user?.receivable_balance"
+              :amount="user?.receivable_balance ?? user?.balance"
+              perspective="admin"
+              show-icon
+              icon-size="12"
+              value-class="text-xxs font-weight-black text-error"
+              label-class="text-xxs me-1"
+              custom-class="px-2 py-0-5 rounded-pill border border-opacity-25 bg-red-lighten-5"
+              style="border-style: dashed !important"
+              title="مديونية العميل (ذمة مدينة)"
+            />
+            <!-- رصيد المورد -->
+            <AppBalanceDisplay
+              v-if="user?.relation_types?.includes('supplier') || user?.payable_balance"
+              :amount="user?.payable_balance"
+              perspective="admin"
+              show-icon
+              icon-size="12"
+              value-class="text-xxs font-weight-black text-success"
+              label-class="text-xxs me-1"
+              custom-class="px-2 py-0-5 rounded-pill border border-opacity-25 bg-green-lighten-5"
+              style="border-style: dashed !important"
+              title="مستحقات المورد (ذمة دائنة)"
+            />
+            <!-- رصيد العهدة -->
+            <AppBalanceDisplay
+              v-slot:default
+              v-if="user?.relation_types?.includes('employee') || user?.cashbox_balance"
+              :amount="user?.cashbox_balance ?? user?.active_branch_balance"
+              perspective="admin"
+              show-icon
+              icon-size="12"
+              value-class="text-xxs font-weight-black text-info"
+              label-class="text-xxs me-1"
+              custom-class="px-2 py-0-5 rounded-pill border border-opacity-25 bg-blue-lighten-5"
+              style="border-style: dashed !important"
+              title="العهدة النقدية"
+            />
+            <!-- توافقية خلفية احتياطية -->
+            <AppBalanceDisplay
+              v-if="!user?.relation_types && (user?.active_branch_balance != null || user?.balance != null)"
               :amount="user?.active_branch_balance ?? user?.balance"
               perspective="admin"
               show-icon
@@ -32,6 +74,7 @@
               style="border-style: dashed !important"
             />
             <v-chip
+              v-slot:default
               v-if="user?.total_branches_balance != null && user.total_branches_balance !== (user.active_branch_balance ?? user.balance)"
               size="x-small"
               variant="tonal"
@@ -74,32 +117,83 @@
           <AppPhone :phone="user.phone" class="justify-center" />
         </div>
 
-        <v-card
-          v-if="!hideBalance && (user?.active_branch_balance != null || user?.balance != null)"
-          variant="flat"
-          class="rounded-xl px-8 py-4 border-dashed mx-auto shadow-sm bg-white"
-          style="border: 1px dashed; max-width: 300px; border-color: rgba(var(--v-theme-primary), 0.2)"
-        >
-          <div class="text-xxs font-weight-bold opacity-70 text-primary mb-1">{{ balanceTitle }}</div>
-
-          <AppBalanceDisplay
-            :amount="user?.active_branch_balance ?? user?.balance"
-            :perspective="perspective"
-            show-icon
-            icon-size="24"
-            value-class="text-h4 font-weight-black"
-            label-class="text-subtitle-1 font-weight-bold"
-            custom-class="d-flex flex-column align-center"
-          />
-
-          <!-- إجمالي الفروع للمستخدمين متعددي الفروع -->
-          <div 
-            v-if="user?.total_branches_balance != null && user.total_branches_balance !== (user.active_branch_balance ?? user.balance)" 
-            class="text-xxs font-weight-medium text-grey-darken-1 mt-2 text-center"
+        <div v-if="!hideBalance" class="d-flex flex-column gap-3 align-center w-100" style="max-width: 320px;">
+          <!-- بطاقة رصيد العميل -->
+          <v-card
+            v-if="user?.relation_types?.includes('customer') || user?.receivable_balance"
+            variant="flat"
+            class="rounded-xl px-6 py-3 border-dashed w-100 shadow-sm bg-red-lighten-5 border-error border-opacity-25"
+            style="border: 1px dashed;"
           >
-            إجمالي كافة الفروع: <span class="font-weight-black text-slate-800">{{ formatCurrency(user.total_branches_balance) }}</span>
-          </div>
-        </v-card>
+            <div class="text-xxs font-weight-bold opacity-70 text-error mb-1">مديونية العميل (ذمة مدينة)</div>
+            <AppBalanceDisplay
+              :amount="user?.receivable_balance ?? user?.balance"
+              :perspective="perspective"
+              show-icon
+              icon-size="20"
+              value-class="text-h5 font-weight-black text-error"
+              label-class="text-subtitle-2 font-weight-bold"
+              custom-class="d-flex align-center justify-space-between"
+            />
+          </v-card>
+
+          <!-- بطاقة رصيد المورد -->
+          <v-card
+            v-if="user?.relation_types?.includes('supplier') || user?.payable_balance"
+            variant="flat"
+            class="rounded-xl px-6 py-3 border-dashed w-100 shadow-sm bg-green-lighten-5 border-success border-opacity-25"
+            style="border: 1px dashed;"
+          >
+            <div class="text-xxs font-weight-bold opacity-70 text-success mb-1">مستحقات المورد (ذمة دائنة)</div>
+            <AppBalanceDisplay
+              :amount="user?.payable_balance"
+              :perspective="perspective"
+              show-icon
+              icon-size="20"
+              value-class="text-h5 font-weight-black text-success"
+              label-class="text-subtitle-2 font-weight-bold"
+              custom-class="d-flex align-center justify-space-between"
+            />
+          </v-card>
+
+          <!-- بطاقة رصيد العهدة -->
+          <v-card
+            v-if="user?.relation_types?.includes('employee') || user?.cashbox_balance"
+            variant="flat"
+            class="rounded-xl px-6 py-3 border-dashed w-100 shadow-sm bg-blue-lighten-5 border-primary border-opacity-25"
+            style="border: 1px dashed;"
+          >
+            <div class="text-xxs font-weight-bold opacity-70 text-primary mb-1">العهدة النقدية بالصندوق</div>
+            <AppBalanceDisplay
+              :amount="user?.cashbox_balance ?? user?.active_branch_balance"
+              :perspective="perspective"
+              show-icon
+              icon-size="20"
+              value-class="text-h5 font-weight-black text-primary"
+              label-class="text-subtitle-2 font-weight-bold"
+              custom-class="d-flex align-center justify-space-between"
+            />
+          </v-card>
+
+          <!-- بطاقة احتياطية للتوافقية -->
+          <v-card
+            v-if="!user?.relation_types && (user?.active_branch_balance != null || user?.balance != null)"
+            variant="flat"
+            class="rounded-xl px-6 py-3 border-dashed w-100 shadow-sm bg-white"
+            style="border: 1px dashed; border-color: rgba(var(--v-theme-primary), 0.2)"
+          >
+            <div class="text-xxs font-weight-bold opacity-70 text-primary mb-1">{{ balanceTitle }}</div>
+            <AppBalanceDisplay
+              :amount="user?.active_branch_balance ?? user?.balance"
+              :perspective="perspective"
+              show-icon
+              icon-size="20"
+              value-class="text-h5 font-weight-black"
+              label-class="text-subtitle-2 font-weight-bold"
+              custom-class="d-flex align-center justify-space-between"
+            />
+          </v-card>
+        </div>
       </div>
     </template>
   </div>
