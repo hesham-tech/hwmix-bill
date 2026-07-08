@@ -12,7 +12,7 @@
 <script setup>
 import { ref, computed, onErrorCaptured } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 import ProductForm from '../components/ProductForm.vue';
 
 // صفحة نموذج المنتج لإضافة أو تعديل المنتجات مع معالجة الأخطاء بالتوستفاي.
@@ -30,13 +30,13 @@ onErrorCaptured((err) => {
   if (response) {
     if (response.status === 422) {
       const message = response.data?.message || 'يرجى التحقق من صحة المدخلات والحقول.';
-      toast.error(message);
+      notificationManager.error(message);
     } else {
-      toast.error('حدث خطأ في السيرفر، يرجى إعادة تحميل الصفحة.');
+      notificationManager.error('حدث خطأ في السيرفر، يرجى إعادة تحميل الصفحة.');
     }
   } else {
     // خطأ برمجي داخلي في الجافا سكريبت أو مشكلة تحميل
-    toast.error('هناك خطأ ما، يرجى إعادة تحميل الصفحة.');
+    notificationManager.error('هناك خطأ ما، يرجى إعادة تحميل الصفحة.');
   }
   
   return false; // منع انتشار الخطأ في المتصفح وتأثيره على بقية العناصر

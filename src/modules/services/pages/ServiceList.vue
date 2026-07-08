@@ -92,7 +92,7 @@ import AppButton from '@/components/common/AppButton.vue';
 import AppDialog from '@/components/common/AppDialog.vue';
 import AppInput from '@/components/common/AppInput.vue';
 import AppConfirmDialog from '@/components/common/AppConfirmDialog.vue';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 
 const services = ref([]);
 const loading = ref(false);
@@ -159,10 +159,10 @@ const handleSave = async () => {
   try {
     if (editMode.value) {
       await serviceApiService.update(form.value.id, form.value);
-      toast.success('تم تحديث الخدمة بنجاح');
+      notificationManager.success('تم تحديث الخدمة بنجاح');
     } else {
       await serviceApiService.create(form.value);
-      toast.success('تم إضافة الخدمة بنجاح');
+      notificationManager.success('تم إضافة الخدمة بنجاح');
     }
     showDialog.value = false;
     loadData();
@@ -179,7 +179,7 @@ const handleDelete = async item => {
 
   try {
     await serviceApiService.delete(item.id);
-    toast.success('تم حذف الخدمة بنجاح');
+    notificationManager.success('تم حذف الخدمة بنجاح');
     loadData();
   } catch (error) {
     // Error handled by intercepter

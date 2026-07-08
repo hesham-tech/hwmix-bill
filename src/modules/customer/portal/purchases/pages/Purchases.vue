@@ -104,7 +104,7 @@ import { useDataTable } from '@/composables/useDataTable';
 import { useApi } from '@/composables/useApi';
 import { formatCurrency } from '@/utils/formatters';
 import PortalPurchaseCard from '../../components/PortalPurchaseCard.vue';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 
 const router = useRouter();
 const invoiceApi = useApi('/api/invoices');

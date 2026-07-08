@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { installmentService, installmentDetailService } from '@/api';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 
 export const useInstallmentStore = defineStore('installment', () => {
   // State
@@ -67,7 +67,7 @@ export const useInstallmentStore = defineStore('installment', () => {
     loading.value = true;
     try {
       const response = await installmentService.createPlan(data);
-      toast.success('تم إنشاء خطة التقسيط بنجاح');
+      notificationManager.success('تم إنشاء خطة التقسيط بنجاح');
       await fetchPlans();
       return response.data[0];
     } catch (error) {
@@ -82,7 +82,7 @@ export const useInstallmentStore = defineStore('installment', () => {
     loading.value = true;
     try {
       const response = await installmentService.updatePlan(id, data);
-      toast.success('تم تحديث خطة التقسيط بنجاح');
+      notificationManager.success('تم تحديث خطة التقسيط بنجاح');
       await fetchPlans();
       return response.data[0];
     } catch (error) {
@@ -97,7 +97,7 @@ export const useInstallmentStore = defineStore('installment', () => {
     loading.value = true;
     try {
       await installmentService.delete(id);
-      toast.success('تم حذف خطة التقسيط بنجاح');
+      notificationManager.success('تم حذف خطة التقسيط بنجاح');
       await fetchPlans();
     } catch (error) {
       console.error('Error deleting plan:', error);
@@ -127,7 +127,7 @@ export const useInstallmentStore = defineStore('installment', () => {
     loading.value = true;
     try {
       const response = await installmentService.createPayment(data);
-      toast.success('تم تسجيل دفعة التقسيط بنجاح');
+      notificationManager.success('تم تسجيل دفعة التقسيط بنجاح');
       return response.data[0];
     } catch (error) {
       console.error('Error creating payment:', error);
@@ -156,7 +156,7 @@ export const useInstallmentStore = defineStore('installment', () => {
     loading.value = true;
     try {
       const response = await installmentDetailService.createDetail(data);
-      toast.success('تم إضافة تفاصيل الدفعة بنجاح');
+      notificationManager.success('تم إضافة تفاصيل الدفعة بنجاح');
       return response.data[0];
     } catch (error) {
       console.error('Error creating payment detail:', error);
@@ -172,7 +172,7 @@ export const useInstallmentStore = defineStore('installment', () => {
     try {
       // Use workaround: delete old + create new
       await installmentDetailService.replaceDetail(id, data);
-      toast.success('تم تحديث تفاصيل الدفعة بنجاح');
+      notificationManager.success('تم تحديث تفاصيل الدفعة بنجاح');
     } catch (error) {
       console.error('Error updating payment detail:', error);
       throw error;

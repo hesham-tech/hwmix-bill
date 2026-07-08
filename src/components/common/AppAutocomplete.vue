@@ -299,7 +299,7 @@ const handleCreate = async () => {
     // Show message if it's a similarity match or existing found
     if (response.data?.message && response.status === 200) {
       const { toast } = await import('vue3-toastify');
-      toast.info(response.data.message);
+      notificationManager.info(response.data.message);
     }
 
     if (!newItem) throw new Error('Failed to retrieve new item data');

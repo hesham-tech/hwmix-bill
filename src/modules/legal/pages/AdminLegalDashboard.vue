@@ -315,7 +315,7 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { getAll, saveItem, deleteOne } from '@/services/api';
 import apiClient from '@/services/api';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 import { formatDateTime } from '@/utils/formatters';
 
 const router = useRouter();
@@ -396,7 +396,7 @@ const openCreateDialog = () => {
 
 const submitCreateDoc = async () => {
   if (!newDocForm.value.key) {
-    toast.error('الرجاء إدخال المفتاح التعريفي للمستند.');
+    notificationManager.error('الرجاء إدخال المفتاح التعريفي للمستند.');
     return;
   }
   
@@ -450,7 +450,7 @@ const confirmPublishVersion = async (version) => {
     try {
       const response = await apiClient.post(`v1/legal/admin/versions/${version.id}/publish`);
       if (response.data && response.data.status) {
-        toast.success('تم نشر الإصدار بنجاح بنجاح وأرشفة الإصدارات السابقة.');
+        notificationManager.success('تم نشر الإصدار بنجاح بنجاح وأرشفة الإصدارات السابقة.');
         loadDocuments();
       }
     } catch (err) {

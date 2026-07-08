@@ -48,7 +48,7 @@ import AppInput from '@/components/common/AppInput.vue';
 import AppButton from '@/components/common/AppButton.vue';
 import { useExpenseCategories } from '../composables/useExpenseCategories';
 import { expenseCategoryService } from '@/api';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 
 const props = defineProps({
   modelValue: Boolean,
@@ -88,7 +88,7 @@ const handleDelete = async id => {
   try {
     const res = await expenseCategoryService.delete(id);
     if (res.success) {
-      toast.success('تم حذف التصنيف');
+      notificationManager.success('تم حذف التصنيف');
       await fetchCategories();
       emit('changed');
     }

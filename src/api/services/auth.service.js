@@ -1,5 +1,5 @@
 import apiClient from '../axios.config';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 import { useUserStore } from '@/stores/user';
 import router from '@/router';
 
@@ -33,7 +33,7 @@ class AuthService {
       await userStore.fetchUser();
 
       if (showToast) {
-        toast.success(response.data.message || 'تم تسجيل الدخول بنجاح');
+        notificationManager.success(response.data.message || 'تم تسجيل الدخول بنجاح');
       }
 
       return data;
@@ -56,7 +56,7 @@ class AuthService {
       const response = await apiClient.post('register', userData);
 
       if (showToast) {
-        toast.success(response.data.message || 'تم التسجيل بنجاح');
+        notificationManager.success(response.data.message || 'تم التسجيل بنجاح');
       }
 
       if (loading) userStore.loadingApi = false;
@@ -92,7 +92,7 @@ class AuthService {
       const response = await apiClient.post('forgot-password', data);
 
       if (showToast) {
-        toast.success(response.data.message || 'تم إرسال كود التحقق بنجاح');
+        notificationManager.success(response.data.message || 'تم إرسال كود التحقق بنجاح');
       }
 
       if (loading) userStore.loadingApi = false;
@@ -138,7 +138,7 @@ class AuthService {
       const response = await apiClient.post('reset-password', data);
 
       if (showToast) {
-        toast.success(response.data.message || 'تم إعادة تعيين كلمة المرور بنجاح');
+        notificationManager.success(response.data.message || 'تم إعادة تعيين كلمة المرور بنجاح');
       }
 
       if (loading) userStore.loadingApi = false;

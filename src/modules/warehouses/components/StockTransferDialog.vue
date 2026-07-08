@@ -105,7 +105,7 @@ import AppButton from '@/components/common/AppButton.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
 import EmptyState from '@/components/common/EmptyState.vue';
 import ProductSelector from '@/modules/invoices/components/ProductSelector.vue';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 
 const props = defineProps({
   modelValue: Boolean,
@@ -185,13 +185,13 @@ watch(isOpen, (newVal) => {
 const selectVariant = productItem => {
   // Only allow physical products for stock transfer
   if (productItem.product_type !== 'physical' || !productItem.requires_stock) {
-    toast.warning('يمكن تحويل المنتجات الفيزيائية فقط');
+    notificationManager.warning('يمكن تحويل المنتجات الفيزيائية فقط');
     return;
   }
 
   // Ensure item has stock in the source warehouse
   if (!productItem.quantity || productItem.quantity <= 0) {
-    toast.warning('هذا المنتج لا يحتوي على مخزون كافٍ في مستودع المنشأ للتحويل');
+    notificationManager.warning('هذا المنتج لا يحتوي على مخزون كافٍ في مستودع المنشأ للتحويل');
     return;
   }
 
@@ -203,7 +203,7 @@ const selectVariant = productItem => {
       transfer_quantity: 1,
     });
   } else {
-    toast.info('تمت إضافة المنتج بالفعل لقائمة التحويل');
+    notificationManager.info('تمت إضافة المنتج بالفعل لقائمة التحويل');
   }
 };
 
@@ -216,7 +216,7 @@ const handleSubmit = async () => {
   if (!valid || items.value.length === 0) return;
 
   if (!transferTypeId.value) {
-    toast.error('لم يتم تحميل نوع المستند الخاص بالتحويل المخزني بعد.');
+    notificationManager.error('لم يتم تحميل نوع المستند الخاص بالتحويل المخزني بعد.');
     return;
   }
 
@@ -241,7 +241,7 @@ const handleSubmit = async () => {
     };
 
     await invoiceApi.create(payload);
-    toast.success('تمت عملية التحويل المخزني بنجاح');
+    notificationManager.success('تمت عملية التحويل المخزني بنجاح');
     emit('success');
     close();
   } catch (error) {

@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 
 /**
  * useServiceApi Composable

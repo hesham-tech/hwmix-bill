@@ -86,7 +86,7 @@ import AppButton from '@/components/common/AppButton.vue';
 import AppInput from '@/components/common/AppInput.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
 import productService from '@/api/services/product.service';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 
 const show = ref(false);
 const loading = ref(false);
@@ -119,7 +119,7 @@ const open = async productId => {
       selectedVariantId.value = variants.value[0].id;
     }
   } catch (err) {
-    toast.error('فشل تحميل بيانات المنتج');
+    notificationManager.error('فشل تحميل بيانات المنتج');
     show.value = false;
   } finally {
     loading.value = false;
@@ -158,11 +158,11 @@ const handlePrint = async () => {
       additionalCss: `@page { size: 40mm 25mm; margin: 0; }`,
     });
 
-    toast.success('تم إرسال الطلب للطابعة');
+    notificationManager.success('تم إرسال الطلب للطابعة');
     show.value = false;
   } catch (err) {
     console.error(err);
-    toast.error('فشل عملية الطباعة');
+    notificationManager.error('فشل عملية الطباعة');
   } finally {
     printing.value = false;
   }

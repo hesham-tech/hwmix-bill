@@ -411,7 +411,7 @@ import { useRouter } from 'vue-router';
 import { useApi } from '@/composables/useApi';
 import { useUserStore } from '@/stores/user';
 import { useTour } from '@/modules/guidance/composables/useTour';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 
 const router = useRouter();
 const workflowsApi = useApi('/api/notification-workflows');
@@ -657,7 +657,7 @@ const loadData = async () => {
       selectEvent(eventsList[0].type);
     }
   } catch (e) {
-    toast.error('حدث خطأ أثناء تحميل البيانات.');
+    notificationManager.error('حدث خطأ أثناء تحميل البيانات.');
   } finally {
     loading.value = false;
   }
@@ -725,12 +725,12 @@ const removeStep = index => {
 const saveWorkflow = async () => {
   const invalidStep = editorData.value.steps.find(s => !s.template_id);
   if (invalidStep) {
-    toast.error('يرجى تحديد قالب رسالة لجميع الخطوات.');
+    notificationManager.error('يرجى تحديد قالب رسالة لجميع الخطوات.');
     return;
   }
   const emptyChannel = editorData.value.steps.find(s => !s.channel || s.channel.length === 0);
   if (emptyChannel) {
-    toast.error('يرجى تحديد قناة إرسال لجميع الخطوات.');
+    notificationManager.error('يرجى تحديد قناة إرسال لجميع الخطوات.');
     return;
   }
   saving.value = true;
@@ -761,7 +761,7 @@ const saveWorkflow = async () => {
       response = await workflowsApi.create(payload, { showLoading: false });
     }
     if (response.data) {
-      toast.success('تم حفظ قاعدة الأتمتة بنجاح.');
+      notificationManager.success('تم حفظ قاعدة الأتمتة بنجاح.');
       await loadData();
     }
   } catch (e) {
@@ -776,7 +776,7 @@ const runWorkflowNow = async () => {
   runningNow.value = true;
   try {
     const response = await workflowsApi.request('POST', `${editorData.value.id}/run`, null, { showLoading: false });
-    if (response.status) toast.success(response.message || 'تم تشغيل الفحص اليدوي بنجاح.');
+    if (response.status) notificationManager.success(response.message || 'تم تشغيل الفحص اليدوي بنجاح.');
   } catch (e) {
     console.error('Run workflow now failed', e);
   } finally {

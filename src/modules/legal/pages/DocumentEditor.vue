@@ -168,7 +168,7 @@ import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { getOne, saveItem, getAll } from '@/services/api';
 import apiClient from '@/services/api';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 
 const route = useRoute();
 const useRouterInstance = useRouter();
@@ -257,13 +257,13 @@ const loadDraftData = async () => {
     }
   } catch (err) {
     console.error('Failed to load draft version:', err);
-    toast.error('لم نتمكن من تحميل بيانات المسودة.');
+    notificationManager.error('لم نتمكن من تحميل بيانات المسودة.');
   }
 };
 
 const saveDraft = async () => {
   if (!form.value.version || !form.value.title || !form.value.content) {
-    toast.error('الرجاء إدخال رقم الإصدار والعنوان ومحتوى الشروط أولاً.');
+    notificationManager.error('الرجاء إدخال رقم الإصدار والعنوان ومحتوى الشروط أولاً.');
     return;
   }
 

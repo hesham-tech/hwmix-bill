@@ -537,7 +537,7 @@ import InstallmentCalc from '@/components/tools/InstallmentCalc.vue';
 import PercentageTool from '@/components/tools/PercentageTool.vue';
 import LegalAcceptanceModal from '@/modules/legal/components/LegalAcceptanceModal.vue';
 import CompanySwitchDialog from '@/components/common/CompanySwitchDialog.vue';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 import { useDisplay, useTheme } from 'vuetify';
 import { formatCurrency } from '@/utils/formatters';
 import { clearAppCache } from '@/utils/maintenance';
@@ -683,7 +683,7 @@ const activeTourKey = computed(() => {
 });
 
 const handleRestartTour = () => {
-  toast.info('جاري بدء الجولة...', { autoClose: 1500 });
+  notificationManager.info('جاري بدء الجولة...', { autoClose: 1500 });
   
   setTimeout(() => {
     let success = false;
@@ -712,12 +712,12 @@ const handleRestartTour = () => {
     } else if (route.name === 'units') {
       success = startTour(unitsTour, 'tour.units', true);
     } else {
-      toast.error('عذراً، لا توجد جولة إرشادية لهذه الصفحة.');
+      notificationManager.error('عذراً، لا توجد جولة إرشادية لهذه الصفحة.');
       return;
     }
     
     if (!success) {
-      toast.error('حدث خطأ أثناء تحميل الجولة. يرجى تنشيط الصفحة.');
+      notificationManager.error('حدث خطأ أثناء تحميل الجولة. يرجى تنشيط الصفحة.');
     }
   }, 350); // delay to let drawer close cleanly
 };
@@ -863,7 +863,7 @@ const handleManualReport = async (type = 'feedback') => {
 
 const toggleLanguage = () => {
   localeStore.toggleLocale();
-  toast.success(localeStore.locale === 'ar' ? 'تم التبديل للعربية' : 'Switched to English');
+  notificationManager.success(localeStore.locale === 'ar' ? 'تم التبديل للعربية' : 'Switched to English');
 };
 
 const isUpdatingPrint = ref(false);
@@ -886,9 +886,9 @@ const handlePrintFormatChange = async format => {
   try {
     isUpdatingPrint.value = true;
     await userStore.updatePrintFormat(format);
-    toast.success(`تم التغيير إلى ${getPrintFormatLabel(format)}`);
+    notificationManager.success(`تم التغيير إلى ${getPrintFormatLabel(format)}`);
   } catch (error) {
-    toast.error('فشل تحديث إعدادات الطباعة');
+    notificationManager.error('فشل تحديث إعدادات الطباعة');
   } finally {
     isUpdatingPrint.value = false;
   }
@@ -901,7 +901,7 @@ const handleLogout = async () => {
   try {
     await authService.logout({ showToast: true });
   } catch (error) {
-    toast.error('فشل تسجيل الخروج');
+    notificationManager.error('فشل تسجيل الخروج');
   }
 };
 
@@ -921,7 +921,7 @@ const openHelpDrawer = () => {
 };
 
 const handleClearCache = async () => {
-  toast.info('جاري تحديث بيانات النظام...', { autoClose: 2000 });
+  notificationManager.info('جاري تحديث بيانات النظام...', { autoClose: 2000 });
   await clearAppCache();
 };
 

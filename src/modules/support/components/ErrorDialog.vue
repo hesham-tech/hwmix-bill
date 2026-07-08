@@ -141,7 +141,7 @@
 import { ref, computed, watch } from 'vue';
 import { useappState } from '@/stores/appState';
 import errorReportService from '@/api/services/error-report.service';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 
 const appState = useappState();
 const loading = ref(false);
@@ -217,14 +217,14 @@ const submitReport = async () => {
     const result = await errorReportService.submit(payload);
 
     if (result) {
-      toast.success(isManualReport.value ? 'نشكرك على تواصلك! تم استلام بلاغك بنجاح.' : 'شكرًا لك! تم إرسال التقرير بنجاح.');
+      notificationManager.success(isManualReport.value ? 'نشكرك على تواصلك! تم استلام بلاغك بنجاح.' : 'شكرًا لك! تم إرسال التقرير بنجاح.');
       close();
     } else {
-      toast.error('عذراً، حدث خطأ أثناء إرسال التقرير. يرجى المحاولة مرة أخرى.');
+      notificationManager.error('عذراً، حدث خطأ أثناء إرسال التقرير. يرجى المحاولة مرة أخرى.');
     }
   } catch (error) {
     console.error('[ErrorDialog] Submit report error:', error);
-    toast.error('فشل إرسال التقرير: ' + (error.response?.data?.message || error.message || 'خطأ غير معروف'));
+    notificationManager.error('فشل إرسال التقرير: ' + (error.response?.data?.message || error.message || 'خطأ غير معروف'));
   } finally {
     loading.value = false;
   }

@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { captureElement, downloadImage, copyImageToClipboard, shareImage } from '../utils/capture';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 import { useappState } from '@/stores/appState';
 
 const appState = useappState();
@@ -94,7 +94,7 @@ const handleCapture = async () => {
     showPreview.value = true;
   } catch (error) {
     console.error('AppShareView Capture Failed:', error);
-    toast.error('حدث خطأ أثناء معالجة الصورة');
+    notificationManager.error('حدث خطأ أثناء معالجة الصورة');
   } finally {
     appState.isCapturing = false;
     isCapturing.value = false;
@@ -105,21 +105,21 @@ const handleDownload = () => {
   if (!capturedImageUrl.value) return;
   const fileName = `${props.fileName}-${Date.now()}.png`;
   downloadImage(capturedImageUrl.value, fileName);
-  toast.success('تم تحميل الصورة');
+  notificationManager.success('تم تحميل الصورة');
 };
 
 const handleCopy = async () => {
   if (!capturedBlob.value) return;
   const success = await copyImageToClipboard(capturedBlob.value);
-  if (success) toast.success('تم النسخ للحافظة');
-  else toast.error('فشل النسخ، يرجى التحميل');
+  if (success) notificationManager.success('تم النسخ للحافظة');
+  else notificationManager.error('فشل النسخ، يرجى التحميل');
 };
 
 const handleShare = async () => {
   if (!capturedBlob.value) return;
   const fileName = `${props.fileName}-${Date.now()}.png`;
   const success = await shareImage(capturedBlob.value, fileName);
-  if (success) toast.success('تمت المشاركة');
+  if (success) notificationManager.success('تمت المشاركة');
 };
 
 const closePreview = () => {

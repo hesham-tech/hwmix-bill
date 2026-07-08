@@ -85,7 +85,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import apiClient from '@/services/api';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 
 const visible = ref(false);
 const pendingVersions = ref([]);
@@ -140,7 +140,7 @@ const acceptCurrentVersion = async () => {
     });
 
     if (response.data && response.data.status) {
-      toast.success(`تم تسجيل موافقتك على: ${currentVersion.value.title}`);
+      notificationManager.success(`تم تسجيل موافقتك على: ${currentVersion.value.title}`);
       
       // Move to next document or complete
       if (isLastStep.value) {
@@ -153,7 +153,7 @@ const acceptCurrentVersion = async () => {
     }
   } catch (err) {
     console.error('Failed to accept legal version:', err);
-    toast.error('لم نتمكن من حفظ موافقتك، يرجى المحاولة مرة أخرى.');
+    notificationManager.error('لم نتمكن من حفظ موافقتك، يرجى المحاولة مرة أخرى.');
   } finally {
     submitting.value = false;
   }

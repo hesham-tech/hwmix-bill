@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { paymentService } from '@/api';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 
 export const usePaymentStore = defineStore('payment', () => {
   // State
@@ -71,7 +71,7 @@ export const usePaymentStore = defineStore('payment', () => {
     loading.value = true;
     try {
       const response = await paymentService.save(data);
-      toast.success('تم تسجيل الدفعة بنجاح');
+      notificationManager.success('تم تسجيل الدفعة بنجاح');
       await fetchPayments();
       return response.data[0];
     } catch (error) {
@@ -86,7 +86,7 @@ export const usePaymentStore = defineStore('payment', () => {
     loading.value = true;
     try {
       const response = await paymentService.save(data, id);
-      toast.success('تم تحديث الدفعة بنجاح');
+      notificationManager.success('تم تحديث الدفعة بنجاح');
       await fetchPayments();
       return response.data[0];
     } catch (error) {
@@ -101,7 +101,7 @@ export const usePaymentStore = defineStore('payment', () => {
     loading.value = true;
     try {
       await paymentService.delete(id);
-      toast.success('تم حذف الدفعة بنجاح');
+      notificationManager.success('تم حذف الدفعة بنجاح');
       await fetchPayments();
     } catch (error) {
       console.error('Error deleting payment:', error);

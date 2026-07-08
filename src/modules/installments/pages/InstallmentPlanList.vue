@@ -399,11 +399,11 @@ const deletePlan = async () => {
     deleteDialog.value = false;
     planToDelete.value = null;
     import('vue3-toastify').then(({ toast }) => {
-      toast.success('تم حذف الخطة والفاتورة بنجاح');
+      notificationManager.success('تم حذف الخطة والفاتورة بنجاح');
     });
   } catch (error) {
     import('vue3-toastify').then(({ toast }) => {
-      toast.error('فشل حذف الخطة: ' + (error.response?.data?.message || error.message));
+      notificationManager.error('فشل حذف الخطة: ' + (error.response?.data?.message || error.message));
     });
   } finally {
     deleting.value = false;

@@ -315,7 +315,7 @@ import { useApi } from '@/composables/useApi';
 import { useUserStore } from '@/stores/user';
 import { useTour } from '@/modules/guidance/composables/useTour';
 import AppInput from '@/components/common/AppInput.vue';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 
 const router = useRouter();
 const templatesApi = useApi('/api/notification-templates');
@@ -460,7 +460,7 @@ const loadTemplates = async () => {
     const response = await templatesApi.get(null, { showLoading: false, showError: false });
     templates.value = response.data || [];
   } catch (e) {
-    toast.error('حدث خطأ أثناء تحميل قوالب الرسائل');
+    notificationManager.error('حدث خطأ أثناء تحميل قوالب الرسائل');
   } finally {
     loading.value = false;
   }
@@ -519,7 +519,7 @@ const saveTemplate = async () => {
   if (!formRef.value) return;
   const { valid } = await formRef.value.validate();
   if (!valid) {
-    toast.error('يرجى التحقق من المدخلات.');
+    notificationManager.error('يرجى التحقق من المدخلات.');
     return;
   }
   saving.value = true;
@@ -532,7 +532,7 @@ const saveTemplate = async () => {
       response = await templatesApi.create(formData.value, { showLoading: false });
     }
     if (response.data) {
-      toast.success(isEdit.value ? 'تم تحديث القالب بنجاح' : 'تم إنشاء القالب بنجاح');
+      notificationManager.success(isEdit.value ? 'تم تحديث القالب بنجاح' : 'تم إنشاء القالب بنجاح');
       await loadTemplates();
       if (isEdit.value && response.data) {
         selectedTemplate.value = response.data;
@@ -557,12 +557,12 @@ const deleteTemplate = async () => {
   try {
     const response = await templatesApi.remove(templateToDelete.value.id, { showLoading: false });
     if (response.status) {
-      toast.success('تم حذف القالب بنجاح');
+      notificationManager.success('تم حذف القالب بنجاح');
       showDeleteDialog.value = false;
       if (selectedTemplate.value?.id === templateToDelete.value.id) closeEditor();
       await loadTemplates();
     } else {
-      toast.error(response.message || 'فشل حذف القالب');
+      notificationManager.error(response.message || 'فشل حذف القالب');
     }
   } catch (e) {
     console.error(e);

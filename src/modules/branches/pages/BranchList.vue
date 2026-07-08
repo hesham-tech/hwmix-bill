@@ -211,7 +211,7 @@ import { useApi } from '@/composables/useApi';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 import { useUserStore } from '@/stores/user';
 import { PERMISSIONS } from '@/config/permissions';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 
 const userStore = useUserStore();
 const api = useApi('/api/branches');
@@ -283,7 +283,7 @@ const handleEdit = (item) => {
 
 const handleDelete = (item) => {
   if (item.is_default) {
-    toast.warning('لا يمكن حذف الفرع الافتراضي للشركة');
+    notificationManager.warning('لا يمكن حذف الفرع الافتراضي للشركة');
     return;
   }
   selectedItem.value = item;

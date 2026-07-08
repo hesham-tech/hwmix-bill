@@ -108,7 +108,7 @@ import AppInput from '@/components/common/AppInput.vue';
 import AppAutocomplete from '@/components/common/AppAutocomplete.vue';
 import AppTextarea from '@/components/common/AppTextarea.vue';
 import AppButton from '@/components/common/AppButton.vue';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 
 const props = defineProps({
   initialData: {
@@ -191,10 +191,10 @@ const handleSubmit = async () => {
   try {
     if (isEditMode.value) {
       await subscriptionApiService.update(props.initialData.id, formData);
-      toast.success('تم تحديث الاشتراك بنجاح');
+      notificationManager.success('تم تحديث الاشتراك بنجاح');
     } else {
       await subscriptionApiService.create(formData);
-      toast.success('تم إنشاء الاشتراك بنجاح');
+      notificationManager.success('تم إنشاء الاشتراك بنجاح');
     }
     emit('success');
   } catch (error) {

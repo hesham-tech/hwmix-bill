@@ -273,7 +273,7 @@
 import { ref, onMounted, reactive, computed } from 'vue';
 import { useUserStore } from '@/stores/user';
 import { useApi } from '@/composables/useApi';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 import AppCard from '@/components/common/AppCard.vue';
 import AppInput from '@/components/common/AppInput.vue';
 import AppButton from '@/components/common/AppButton.vue';
@@ -302,15 +302,15 @@ const guidanceEnabled = computed({
 });
 
 const handleGuidanceToggle = (val) => {
-  toast.success(val ? 'تم تفعيل جولات المساعدة والإرشاد بنجاح' : 'تم تعطيل جولات المساعدة والإرشاد');
+  notificationManager.success(val ? 'تم تفعيل جولات المساعدة والإرشاد بنجاح' : 'تم تعطيل جولات المساعدة والإرشاد');
 };
 
 const handleResetGuidance = async () => {
   try {
     await resetProgress();
-    toast.success('تم إعادة ضبط جولات المساعدة والتهيئة بنجاح');
+    notificationManager.success('تم إعادة ضبط جولات المساعدة والتهيئة بنجاح');
   } catch (error) {
-    toast.error('حدث خطأ أثناء إعادة ضبط جولات المساعدة');
+    notificationManager.error('حدث خطأ أثناء إعادة ضبط جولات المساعدة');
   }
 };
 const showPassword = ref(false);
@@ -373,7 +373,7 @@ const rules = {
 const handleImageSelect = image => {
   formData.avatar_url = image.url;
   formData.images_ids = [image.id];
-  toast.success('تم اختيار الصورة بنجاح');
+  notificationManager.success('تم اختيار الصورة بنجاح');
 };
 
 const handleCurrentCrop = () => {
@@ -424,7 +424,7 @@ const handleSave = async () => {
 
     // Refresh user data in store
     await userStore.fetchUser();
-    toast.success('تم حفظ التغييرات بنجاح');
+    notificationManager.success('تم حفظ التغييرات بنجاح');
   } catch (error) {
     if (error.response?.data?.errors) {
       errors.value = error.response.data.errors;
@@ -460,11 +460,11 @@ const handleUpdatePassword = async () => {
       password: passwordForm.password,
       password_confirmation: passwordForm.password_confirmation,
     }, { showSuccess: false });
-    toast.success('تم تحديث كلمة المرور بنجاح');
+    notificationManager.success('تم تحديث كلمة المرور بنجاح');
     closePasswordDialog();
   } catch (error) {
     if (error.response?.data?.errors) {
-      toast.error(Object.values(error.response.data.errors)[0][0]);
+      notificationManager.error(Object.values(error.response.data.errors)[0][0]);
     }
   } finally {
     passwordSaving.value = false;

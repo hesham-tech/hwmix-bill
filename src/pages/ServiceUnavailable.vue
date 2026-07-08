@@ -64,7 +64,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import apiClient from '@/api/axios.config';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 
 const router = useRouter();
 const isChecking = ref(false);
@@ -76,12 +76,12 @@ const retryConnection = async () => {
   try {
     // حاول التحقق من الاتصال باستدعاء نقطة التحقق bootstrap
     await apiClient.get('bootstrap');
-    toast.success('تم استعادة الاتصال بالنظام بنجاح!');
+    notificationManager.success('تم استعادة الاتصال بالنظام بنجاح!');
     // إعادة التوجيه للوحة التحكم الرئيسية
     router.push('/app');
   } catch (error) {
     // في حال استمرار الفشل
-    toast.error('الخدمة لا تزال غير متوفرة حالياً. يرجى المحاولة بعد قليل.');
+    notificationManager.error('الخدمة لا تزال غير متوفرة حالياً. يرجى المحاولة بعد قليل.');
   } finally {
     isChecking.value = false;
   }

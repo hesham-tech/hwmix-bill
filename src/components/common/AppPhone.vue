@@ -56,7 +56,7 @@
 import { computed } from 'vue';
 import { useDisplay } from 'vuetify';
 import { copyToClipboard } from '@/utils/helpers';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 
 const props = defineProps({
   phone: { type: String, default: '' },
@@ -71,7 +71,7 @@ const handleCopy = async () => {
   if (!props.phone) return;
   const success = await copyToClipboard(props.phone);
   if (success) {
-    toast.success('تم نسخ الرقم إلى الحافظة');
+    notificationManager.success('تم نسخ الرقم إلى الحافظة');
   }
 };
 </script>

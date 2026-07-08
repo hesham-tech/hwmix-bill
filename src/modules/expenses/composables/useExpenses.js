@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 import { expenseService } from '@/api';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 
 export function useExpenses() {
   const expenses = ref([]);
@@ -39,7 +39,7 @@ export function useExpenses() {
     try {
       const response = await expenseService.create(data);
       if (response.success) {
-        toast.success('تم تسجيل المصروف بنجاح');
+        notificationManager.success('تم تسجيل المصروف بنجاح');
       }
       return response;
     } catch (error) {
@@ -54,7 +54,7 @@ export function useExpenses() {
     try {
       const response = await expenseService.update(id, data);
       if (response.success) {
-        toast.success('تم تحديث المصروف بنجاح');
+        notificationManager.success('تم تحديث المصروف بنجاح');
       }
       return response;
     } catch (error) {
@@ -69,7 +69,7 @@ export function useExpenses() {
     try {
       const response = await expenseService.delete(id);
       if (response.success) {
-        toast.success('تم حذف المصروف بنجاح');
+        notificationManager.success('تم حذف المصروف بنجاح');
       }
       return response;
     } catch (error) {

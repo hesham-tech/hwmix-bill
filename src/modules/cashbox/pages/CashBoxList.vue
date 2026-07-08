@@ -72,35 +72,45 @@
                     <v-avatar size="80" rounded="md" class="elevation-1 bg-white">
                       <v-icon :icon="item.branch_id ? 'ri-safe-2-line' : 'ri-wallet-2-line'" size="40" :color="item.branch_id ? 'warning' : 'primary'" />
                     </v-avatar>
-
-                    <v-chip
-                      :color="item.is_active ? 'success' : 'error'"
-                      size="x-small"
-                      class="position-absolute top-2 right-2 font-weight-bold"
-                      variant="flat"
-                    >
-                      {{ item.is_active ? 'نشط' : 'معطل' }}
-                    </v-chip>
-
-                    <v-chip
-                      v-if="item.is_default"
-                      color="warning"
-                      size="x-small"
-                      class="position-absolute bottom-2 right-2 font-weight-bold"
-                      variant="flat"
-                    >
-                      <v-icon icon="ri-star-fill" size="10" class="me-1" />
-                      افتراضية
-                    </v-chip>
                   </div>
 
                   <v-card-item>
                     <v-card-title class="text-h6 font-weight-bold">{{ item.name }}</v-card-title>
                     <v-card-subtitle class="d-flex align-center mt-1 flex-wrap gap-1">
-                      <v-chip v-if="item.type || item.cash_type" size="x-small" variant="flat" color="primary-lighten-5" class="text-primary font-weight-bold">
+                      <!-- حالة النشاط -->
+                      <v-chip
+                        :color="item.is_active ? 'success' : 'error'"
+                        size="x-small"
+                        class="font-weight-bold"
+                        variant="tonal"
+                      >
+                        {{ item.is_active ? 'نشط' : 'معطل' }}
+                      </v-chip>
+
+                      <!-- افتراضية -->
+                      <v-chip
+                        v-if="item.is_default"
+                        color="warning"
+                        size="x-small"
+                        class="font-weight-bold"
+                        variant="tonal"
+                      >
+                        <v-icon icon="ri-star-fill" size="10" class="me-1" />
+                        افتراضية
+                      </v-chip>
+
+                      <!-- نوع الخزنة -->
+                      <v-chip 
+                        v-if="item.type || item.cash_type" 
+                        size="x-small" 
+                        variant="tonal" 
+                        color="primary" 
+                        class="font-weight-bold"
+                      >
                         {{ item.type?.name || item.cash_type }}
                       </v-chip>
 
+                      <!-- الفرع -->
                       <v-chip
                         size="x-small"
                         variant="tonal"
@@ -109,6 +119,18 @@
                       >
                         <v-icon :icon="item.branch_id ? 'ri-git-branch-line' : 'ri-wallet-2-line'" size="10" class="me-1" />
                         {{ item.branch_name || 'خزينة عامة للشركة' }}
+                      </v-chip>
+
+                      <!-- المسؤول عن العهدة -->
+                      <v-chip
+                        v-if="item.user_nickname || item.user_name"
+                        size="x-small"
+                        variant="tonal"
+                        color="warning"
+                        class="font-weight-bold"
+                      >
+                        <v-icon icon="ri-user-shared-line" size="10" class="me-1" />
+                        العهدة: {{ item.user_nickname || item.user_name }}
                       </v-chip>
                     </v-card-subtitle>
                   </v-card-item>
@@ -172,7 +194,7 @@
               <div class="d-flex align-center">
                 <v-icon :icon="item.branch_id ? 'ri-safe-2-line' : 'ri-wallet-2-line'" size="small" :color="item.branch_id ? 'warning' : 'primary'" class="me-2" />
                 <span class="font-weight-bold">{{ item.name }}</span>
-                <v-chip v-if="item.is_default" size="x-small" color="warning" class="ms-2 font-weight-bold" variant="flat">
+                <v-chip v-if="item.is_default" size="x-small" color="warning" class="ms-2 font-weight-bold" variant="tonal">
                   <v-icon icon="ri-star-fill" size="10" class="me-1" />
                   افتراضية
                 </v-chip>
@@ -180,7 +202,7 @@
             </template>
 
             <template #item.type="{ item }">
-              <v-chip v-if="item.type || item.cash_type" size="small" variant="flat" color="primary-lighten-5" class="text-primary font-weight-bold">
+              <v-chip v-if="item.type || item.cash_type" size="small" variant="tonal" color="primary" class="font-weight-bold">
                 {{ item.type?.name || item.cash_type }}
               </v-chip>
               <span v-else class="text-grey-lighten-1 text-caption">غير محدد</span>
@@ -198,6 +220,29 @@
               </v-chip>
             </template>
 
+            <template #item.user_nickname="{ item }">
+              <v-chip
+                v-if="item.user_nickname || item.user_name"
+                size="small"
+                variant="tonal"
+                color="warning"
+                class="font-weight-bold"
+              >
+                <v-icon icon="ri-user-shared-line" size="12" class="me-1" />
+                {{ item.user_nickname || item.user_name }}
+              </v-chip>
+              <v-chip
+                v-else
+                size="small"
+                variant="tonal"
+                color="grey"
+                class="font-weight-bold"
+              >
+                <v-icon icon="ri-group-line" size="12" class="me-1" />
+                مشتركة / عامة
+              </v-chip>
+            </template>
+
             <template #item.balance="{ item }">
               <div class="text-end font-weight-bold" :class="item.balance >= 0 ? 'text-success' : 'text-error'">
                 {{ formatCurrency(item.balance) }}
@@ -205,7 +250,7 @@
             </template>
 
             <template #item.is_active="{ item }">
-              <v-chip :color="item.is_active ? 'success' : 'error'" size="small" variant="flat" class="font-weight-bold px-3">
+              <v-chip :color="item.is_active ? 'success' : 'error'" size="small" variant="tonal" class="font-weight-bold px-3">
                 {{ item.is_active ? 'نشط' : 'غير نشط' }}
               </v-chip>
             </template>
@@ -389,6 +434,7 @@ import EmptyState from '@/components/common/EmptyState.vue';
 import { PERMISSIONS } from '@/config/permissions';
 import { useAuthStore } from '@/stores/auth';
 import { userService } from '@/api';
+import { formatCurrency } from '@/utils/formatters';
 
 const props = defineProps({
   userId: { type: [Number, String], default: null },
@@ -503,6 +549,7 @@ const headers = computed(() => {
     { title: 'الاسم', key: 'name', sortable: true },
     { title: 'النوع', key: 'type', sortable: true },
     { title: 'الفرع / النطاق', key: 'branch_name', sortable: true },
+    { title: 'المسؤول / طريقة العهدة', key: 'user_nickname', sortable: true },
     { title: 'الرصيد', key: 'balance', align: 'end', sortable: true },
     { title: 'الحالة', key: 'is_active', align: 'center', sortable: true },
   ];

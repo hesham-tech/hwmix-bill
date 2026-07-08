@@ -71,7 +71,7 @@ import { printService } from '@/modules/print/core/PrintService';
 import AppButton from '@/components/common/AppButton.vue';
 import AppInput from '@/components/common/AppInput.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 
 const show = ref(false);
 const printing = ref(false);
@@ -129,11 +129,11 @@ const handlePrint = async () => {
       }
     );
 
-    toast.success('تم إرسال الطلب للطابعة');
+    notificationManager.success('تم إرسال الطلب للطابعة');
     show.value = false;
   } catch (err) {
     console.error(err);
-    toast.error('فشل عملية الطباعة');
+    notificationManager.error('فشل عملية الطباعة');
   } finally {
     printing.value = false;
   }

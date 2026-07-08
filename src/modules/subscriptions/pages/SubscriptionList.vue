@@ -129,7 +129,7 @@ import { subscriptionApiService } from '@/api';
 import { formatDate, formatCurrency } from '@/utils/formatters';
 import { AppDataTable, AppButton, AppConfirmDialog, AppDialog, AppPageHeader, AppAvatar, AppPhone, AppUserBalanceProfile } from '@/components';
 import RenewSubscriptionDialog from '../components/RenewSubscriptionDialog.vue';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 
 const subscriptions = ref([]);
 const loading = ref(false);
@@ -238,7 +238,7 @@ const handleDelete = async item => {
 
   try {
     await subscriptionApiService.delete(item.id);
-    toast.success('تم إلغاء الاشتراك بنجاح');
+    notificationManager.success('تم إلغاء الاشتراك بنجاح');
     loadData();
   } catch (error) {
     // Error handled by intercepter

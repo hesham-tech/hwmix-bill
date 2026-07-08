@@ -468,7 +468,7 @@ import AppFieldHelp from '@/components/common/AppFieldHelp.vue';
 import VariantManager from './VariantManager.vue';
 import ProductMediaManager from './ProductMediaManager.vue';
 import { useUserStore } from '@/stores/user';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 
 import apiClient from '@/api/axios.config';
 
@@ -981,13 +981,13 @@ const handleSubmit = async () => {
   if (!isValid.value) return;
 
   if (missingConversionsError.value) {
-    toast.error(`لا يمكن الحفظ: الوحدات المحددة (${missingConversionsList.value}) تفتقد لقواعد تحويل للوحدة الأساسية.`);
+    notificationManager.error(`لا يمكن الحفظ: الوحدات المحددة (${missingConversionsList.value}) تفتقد لقواعد تحويل للوحدة الأساسية.`);
     return;
   }
 
   if (productData.value.is_active_in_store) {
     if (!productData.value.images || productData.value.images.length === 0) {
-      toast.error('يجب إضافة صورة واحدة على الأقل لعرض المنتج في المتجر.');
+      notificationManager.error('يجب إضافة صورة واحدة على الأقل لعرض المنتج في المتجر.');
       return;
     }
   }

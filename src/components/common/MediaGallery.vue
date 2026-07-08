@@ -122,7 +122,7 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
 import { useApi } from '@/composables/useApi';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 import AppConfirmDialog from './AppConfirmDialog.vue';
 import AppImageCropper from './AppImageCropper.vue';
 
@@ -331,11 +331,11 @@ const confirmSelection = async () => {
         emit('select', props.multiple ? createdImages : createdImages[0]);
         close();
       } else {
-        toast.error('لم نتمكن من تهيئة الصورة المحددة.');
+        notificationManager.error('لم نتمكن من تهيئة الصورة المحددة.');
       }
     } catch (error) {
       console.error('Failed to register images:', error);
-      toast.error('فشل في تعيين الصور من المعرض');
+      notificationManager.error('فشل في تعيين الصور من المعرض');
     } finally {
       loading.value = false;
     }

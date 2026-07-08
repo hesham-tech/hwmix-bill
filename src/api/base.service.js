@@ -1,7 +1,6 @@
 import apiClient from './axios.config';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 import { useUserStore } from '@/stores/user';
-import translateErrors from '@/utils/translateErrors';
 
 /**
  * Base Service Class
@@ -22,7 +21,7 @@ class BaseService {
     userStore.loadingApi = false;
 
     if (showToast && resData.message) {
-      toast.success(resData.message);
+      notificationManager.success(resData.message, { code: 'SUCCESS' });
     }
 
     // Normalize response
@@ -64,17 +63,22 @@ class BaseService {
     const userStore = useUserStore();
     userStore.loadingApi = false;
 
-    // Ignore 401 & 422 errors (handled in interceptor)
-    if (error?.response?.status === 401 || error?.response?.status === 422) {
+    // Ignore 401, 403 & 422 errors (handled in interceptor)
+    if (error?.response?.status === 401 || error?.response?.status === 403 || error?.response?.status === 422) {
       throw error;
     }
 
     let errorMessage = 'حدث خطأ غير متوقع';
 
     if (error.response?.data) {
-      const apiErrors = error.response.data.errors;
-      if (apiErrors && (Array.isArray(apiErrors) ? apiErrors.length : Object.keys(apiErrors).length)) {
-        errorMessage = translateErrors(apiErrors);
+      const errors = error.response.data.errors;
+      if (errors && typeof errors === 'object') {
+        const firstKey = Object.keys(errors)[0];
+        if (firstKey && Array.isArray(errors[firstKey]) && errors[firstKey][0]) {
+          errorMessage = errors[firstKey][0];
+        } else {
+          errorMessage = error.response.data.message || 'خطأ في البيانات';
+        }
       } else if (error.response.data.message) {
         errorMessage = error.response.data.message;
       }
@@ -83,7 +87,15 @@ class BaseService {
     }
 
     if (showToast) {
-      toast.error(errorMessage, { autoClose: 7000 });
+      const status = error.response?.status;
+      const domain = (status === 400 || status === 409) ? 'business' : 'system';
+      const severity = status >= 500 ? 'high' : 'medium';
+      notificationManager.error(errorMessage, {
+        domain,
+        severity,
+        code: error.response?.data?.error_code || 'SERVICE_ERROR',
+        duration: 7000
+      });
     }
 
     throw error;

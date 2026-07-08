@@ -60,7 +60,7 @@ export const useAuthStore = defineStore('auth', () => {
     // 6. Show toast once
     if (showToast) {
       const { toast } = await import('vue3-toastify');
-      toast.success('تم تسجيل الخروج بنجاح');
+      notificationManager.success('تم تسجيل الخروج بنجاح');
     }
 
     // 7. Redirect to the determined path

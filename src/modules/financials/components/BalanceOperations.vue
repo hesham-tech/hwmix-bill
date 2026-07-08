@@ -98,7 +98,7 @@ import AppBalanceDisplay from '@/components/common/AppBalanceDisplay.vue';
 import AppActionHelp from '@/components/common/AppActionHelp.vue';
 import { transactionService, userService } from '@/api';
 import { formatCurrency } from '@/utils/formatters';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 import { usePermissions } from '@/composables/usePermissions';
 import { PERMISSIONS } from '@/config/permissions';
 import { useAuthStore } from '@/stores/auth';
@@ -246,12 +246,12 @@ const handleSubmit = async () => {
       });
     }
 
-    toast.success('تمت العملية بنجاح');
+    notificationManager.success('تمت العملية بنجاح');
     emit('success', response.data);
     close();
   } catch (error) {
     console.error('Operation failed:', error);
-    toast.error(error.message || 'فشلت العملية');
+    notificationManager.error(error.message || 'فشلت العملية');
   } finally {
     loading.value = false;
   }

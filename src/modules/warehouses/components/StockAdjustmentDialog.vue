@@ -77,7 +77,7 @@ import AppButton from '@/components/common/AppButton.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
 import EmptyState from '@/components/common/EmptyState.vue';
 import ProductSelector from '@/modules/invoices/components/ProductSelector.vue';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 
 const props = defineProps({
   modelValue: Boolean,
@@ -124,7 +124,7 @@ onMounted(() => {
 const selectVariant = productItem => {
   // Only allow physical products for stock adjustment
   if (productItem.product_type !== 'physical' || !productItem.requires_stock) {
-    toast.warning('يمكن تعديل مخزون المنتجات الفيزيائية فقط');
+    notificationManager.warning('يمكن تعديل مخزون المنتجات الفيزيائية فقط');
     return;
   }
 
@@ -147,7 +147,7 @@ const handleSubmit = async () => {
   if (!valid || items.value.length === 0) return;
 
   if (!adjustmentTypeId.value) {
-    toast.error('لم يتم تحميل نوع الفاتورة الخاص بالتسوية المخزنية بعد.');
+    notificationManager.error('لم يتم تحميل نوع الفاتورة الخاص بالتسوية المخزنية بعد.');
     return;
   }
 
@@ -171,7 +171,7 @@ const handleSubmit = async () => {
     };
 
     await invoiceApi.create(payload);
-    toast.success('تم تعديل المخزون بنجاح');
+    notificationManager.success('تم تعديل المخزون بنجاح');
     emit('success');
     close();
   } catch (error) {

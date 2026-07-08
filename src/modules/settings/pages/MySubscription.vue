@@ -379,7 +379,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useApi } from '@/composables/useApi';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 import PricingCalculatorWidget from '@/modules/settings/components/PricingCalculatorWidget.vue';
 
 const router = useRouter();
@@ -501,7 +501,7 @@ const handleToggleAutoRenew = async val => {
   savingAutoRenew.value = true;
   try {
     const response = await subApi.request('patch', 'toggle-auto-renew', { auto_renew: val });
-    toast.success(response.message || 'تم تحديث التجديد التلقائي بنجاح');
+    notificationManager.success(response.message || 'تم تحديث التجديد التلقائي بنجاح');
   } catch (error) {
     // تراجع عن التبديل في حال فشل الطلب
     if (subscriptionData.value) {
@@ -552,14 +552,14 @@ const handleUpgrade = async checkoutData => {
     });
 
     if (response.data?.requires_payment && response.data?.payment_url) {
-      toast.info('جاري توجيهك لبوابة الدفع الإلكتروني لإتمام عملية الاشتراك...');
+      notificationManager.info('جاري توجيهك لبوابة الدفع الإلكتروني لإتمام عملية الاشتراك...');
       setTimeout(() => {
         window.location.href = response.data.payment_url;
       }, 1000);
       return;
     }
 
-    toast.success(response.message || 'تم ترقية وتغيير باقة الاشتراك بنجاح');
+    notificationManager.success(response.message || 'تم ترقية وتغيير باقة الاشتراك بنجاح');
     subscriptionData.value = response.data || null;
     showConfirmDialog.value = false;
     showUpgradeDialog.value = false;
@@ -575,9 +575,9 @@ onMounted(async () => {
 
   if (route.query.payment_status) {
     if (route.query.payment_status === 'success') {
-      toast.success('تمت عملية الدفع بنجاح! وتفعيل اشتراكك بالباقة الجديدة.');
+      notificationManager.success('تمت عملية الدفع بنجاح! وتفعيل اشتراكك بالباقة الجديدة.');
     } else if (route.query.payment_status === 'cancel') {
-      toast.warning('تم إلغاء عملية الدفع ولم يتم تغيير الباقة.');
+      notificationManager.warning('تم إلغاء عملية الدفع ولم يتم تغيير الباقة.');
     }
     router.replace({ query: {} });
   } else if (route.query.upgrade_plan_id) {

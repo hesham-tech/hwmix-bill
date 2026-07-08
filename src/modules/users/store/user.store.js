@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { userService, roleService, permissionService } from '@/api';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 
 export const useUserStore = defineStore('userManagement', () => {
   // State
@@ -105,7 +105,7 @@ export const useUserStore = defineStore('userManagement', () => {
     loading.value = true;
     try {
       const response = await userService.save(data);
-      toast.success('تم إنشاء المستخدم بنجاح');
+      notificationManager.success('تم إنشاء المستخدم بنجاح');
       await fetchUsers();
       await fetchStats();
       return response.data[0];
@@ -121,7 +121,7 @@ export const useUserStore = defineStore('userManagement', () => {
     loading.value = true;
     try {
       const response = await userService.update(id, data);
-      toast.success('تم تحديث المستخدم بنجاح');
+      notificationManager.success('تم تحديث المستخدم بنجاح');
       await fetchUsers();
       await fetchStats();
       return response.data[0];
@@ -137,7 +137,7 @@ export const useUserStore = defineStore('userManagement', () => {
     loading.value = true;
     try {
       await userService.delete(id, { params: { delete_type: deleteType } });
-      toast.success(deleteType === 'global' ? 'تم حذف المستخدم نهائياً بنجاح' : 'تم فك ارتباط المستخدم بنجاح');
+      notificationManager.success(deleteType === 'global' ? 'تم حذف المستخدم نهائياً بنجاح' : 'تم فك ارتباط المستخدم بنجاح');
       await fetchUsers();
       await fetchStats();
     } catch (error) {
@@ -152,7 +152,7 @@ export const useUserStore = defineStore('userManagement', () => {
     loading.value = true;
     try {
       await userService.assignRole(userId, roles);
-      toast.success('تم تعيين الدور بنجاح');
+      notificationManager.success('تم تعيين الدور بنجاح');
       await fetchUser(userId);
     } catch (error) {
       console.error('Error assigning role:', error);
@@ -201,7 +201,7 @@ export const useUserStore = defineStore('userManagement', () => {
   const createRole = async data => {
     const response = await roleService.create(data);
     if (response) {
-      toast.success('تم إنشاء الدور بنجاح');
+      notificationManager.success('تم إنشاء الدور بنجاح');
       await fetchRoles();
     }
     return response;
@@ -210,7 +210,7 @@ export const useUserStore = defineStore('userManagement', () => {
   const updateRole = async (id, data) => {
     const response = await roleService.update(id, data);
     if (response) {
-      toast.success('تم تحديث الدور بنجاح');
+      notificationManager.success('تم تحديث الدور بنجاح');
       await fetchRoles();
     }
     return response;
@@ -219,7 +219,7 @@ export const useUserStore = defineStore('userManagement', () => {
   const deleteRole = async id => {
     const response = await roleService.delete(id);
     if (response) {
-      toast.success('تم حذف الدور بنجاح');
+      notificationManager.success('تم حذف الدور بنجاح');
       await fetchRoles();
     }
     return response;

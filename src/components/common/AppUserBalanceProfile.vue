@@ -23,7 +23,7 @@
           <div v-if="!hideBalance" class="d-flex align-center mt-1 flex-wrap gap-1">
             <!-- رصيد العميل -->
             <AppBalanceDisplay
-              v-if="user?.relation_types?.includes('customer') || user?.receivable_balance"
+              v-if="user?.capabilities?.includes('track_receivable') || user?.receivable_balance"
               :amount="user?.receivable_balance ?? 0"
               perspective="admin"
               show-icon
@@ -36,7 +36,7 @@
             />
             <!-- رصيد المورد -->
             <AppBalanceDisplay
-              v-if="user?.relation_types?.includes('supplier') || user?.payable_balance"
+              v-if="user?.capabilities?.includes('track_payable') || user?.payable_balance"
               :amount="user?.payable_balance"
               perspective="admin"
               show-icon
@@ -49,7 +49,7 @@
             />
             <!-- رصيد العهدة -->
             <AppBalanceDisplay
-              v-if="user?.relation_types?.includes('employee')"
+              v-if="user?.capabilities?.includes('has_cash_custody')"
               :amount="user?.cashbox_balance ?? 0"
               perspective="admin"
               show-icon
@@ -96,7 +96,7 @@
         <div v-if="!hideBalance" class="d-flex flex-column gap-3 align-center w-100" style="max-width: 320px;">
           <!-- بطاقة رصيد العميل -->
           <v-card
-            v-if="user?.relation_types?.includes('customer') || user?.receivable_balance"
+            v-if="user?.capabilities?.includes('track_receivable') || user?.receivable_balance"
             variant="flat"
             class="rounded-xl px-6 py-3 border-dashed w-100 shadow-sm bg-red-lighten-5 border-error border-opacity-25"
             style="border: 1px dashed;"
@@ -115,7 +115,7 @@
 
           <!-- بطاقة رصيد المورد -->
           <v-card
-            v-if="user?.relation_types?.includes('supplier') || user?.payable_balance"
+            v-if="user?.capabilities?.includes('track_payable') || user?.payable_balance"
             variant="flat"
             class="rounded-xl px-6 py-3 border-dashed w-100 shadow-sm bg-green-lighten-5 border-success border-opacity-25"
             style="border: 1px dashed;"
@@ -134,7 +134,7 @@
 
           <!-- بطاقة رصيد العهدة -->
           <v-card
-            v-if="user?.relation_types?.includes('employee')"
+            v-if="user?.capabilities?.includes('has_cash_custody')"
             variant="flat"
             class="rounded-xl px-6 py-3 border-dashed w-100 shadow-sm bg-blue-lighten-5 border-primary border-opacity-25"
             style="border: 1px dashed;"

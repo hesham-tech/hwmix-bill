@@ -723,7 +723,7 @@ import AppCard from '@/components/common/AppCard.vue';
 import AppInput from '@/components/common/AppInput.vue';
 import AppButton from '@/components/common/AppButton.vue';
 import AppFieldHelp from '@/components/common/AppFieldHelp.vue';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 import { useAuthStore } from '@/stores/auth';
 import { PERMISSIONS } from '@/config/permissions';
 import { useGuidance } from '@/modules/guidance/composables/useGuidance';
@@ -905,10 +905,10 @@ const copyLogoUrl = () => {
   navigator.clipboard
     .writeText(url)
     .then(() => {
-      toast.success('تم نسخ رابط الشعار بنجاح');
+      notificationManager.success('تم نسخ رابط الشعار بنجاح');
     })
     .catch(() => {
-      toast.error('فشل نسخ الرابط');
+      notificationManager.error('فشل نسخ الرابط');
     });
 };
 
@@ -992,7 +992,7 @@ const loadCompanyData = async () => {
     }
   } catch (error) {
     console.error('Error loading company data:', error);
-    toast.error('فشل في تحميل بيانات الشركة');
+    notificationManager.error('فشل في تحميل بيانات الشركة');
   } finally {
     loading.value = false;
   }
@@ -1009,7 +1009,7 @@ const handleSave = async (options = {}) => {
   if (opts.validate === true && formRef.value) {
     const { valid } = await formRef.value.validate();
     if (!valid) {
-      toast.error('يرجى تصحيح الأخطاء في الحقول المطلوبة');
+      notificationManager.error('يرجى تصحيح الأخطاء في الحقول المطلوبة');
       return;
     }
   }
@@ -1034,7 +1034,7 @@ const handleSave = async (options = {}) => {
 
     await api.update(formData.value.id, payload, { showSuccess: false });
     originalData.value = JSON.parse(JSON.stringify(formData.value));
-    toast.success('تم حفظ التغييرات بنجاح');
+    notificationManager.success('تم حفظ التغييرات بنجاح');
 
     // وسم خطوة تهيئة بيانات الشركة كمنتهية في نظام التهيئة
     await markAsCompleted('onboarding.setup_company');

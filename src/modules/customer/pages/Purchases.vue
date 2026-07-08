@@ -49,7 +49,7 @@ import { useDataTable } from '@/composables/useDataTable';
 import { useApi } from '@/composables/useApi';
 import PurchasesDataTable from '../components/PurchasesDataTable.vue';
 import AppPageHeader from '@/components/common/AppPageHeader.vue';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 
 const router = useRouter();
 
@@ -84,10 +84,10 @@ const viewInvoice = invoice => {
 
 const printInvoice = async invoice => {
   try {
-    toast.info('جاري تجهيز الفاتورة للطباعة...');
+    notificationManager.info('جاري تجهيز الفاتورة للطباعة...');
     window.open(`/api/invoice/${invoice.id}/pdf`, '_blank');
   } catch (error) {
-    toast.error('فشل في طباعة الفاتورة');
+    notificationManager.error('فشل في طباعة الفاتورة');
   }
 };
 </script>

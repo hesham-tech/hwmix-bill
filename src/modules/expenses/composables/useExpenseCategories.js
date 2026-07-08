@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 import { expenseCategoryService } from '@/api';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 
 export function useExpenseCategories() {
   const categories = ref([]);
@@ -25,7 +25,7 @@ export function useExpenseCategories() {
     try {
       const response = await expenseCategoryService.create(data);
       if (response.success) {
-        toast.success('تم إضافة التصنيف بنجاح');
+        notificationManager.success('تم إضافة التصنيف بنجاح');
         await fetchCategories();
       }
       return response;

@@ -158,7 +158,7 @@ import { useRouter, useRoute } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 import { useAuthStore } from '@/stores/auth';
 import navigationMenu, { CUSTOMER_MENU } from '@/config/navigation';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 import { useDisplay } from 'vuetify';
 import AppButton from '@/components/common/AppButton.vue';
 import CompanySwitchDialog from '@/components/common/CompanySwitchDialog.vue';
@@ -253,7 +253,7 @@ const handleLogout = async () => {
   try {
     await authStore.logout({ showToast: true });
   } catch (error) {
-    toast.error('حدث خطأ أثناء تسجيل الخروج');
+    notificationManager.error('حدث خطأ أثناء تسجيل الخروج');
   }
 };
 </script>

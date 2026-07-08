@@ -152,7 +152,7 @@ import { ref, onMounted } from 'vue';
 import { usePermissions } from '@/composables/usePermissions';
 import { PERMISSIONS } from '@/config/permissions';
 import backupService from '@/api/services/backup.service';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 
 const { can } = usePermissions();
@@ -274,7 +274,7 @@ const confirmRestore = item => {
 
 const performRestore = async () => {
   if (!restoreToken.value) {
-    toast.error('يرجى إدخال رمز التأكيد');
+    notificationManager.error('يرجى إدخال رمز التأكيد');
     return;
   }
 
@@ -283,7 +283,7 @@ const performRestore = async () => {
     await backupService.restore(selectedBackup.value.id, restoreToken.value);
     restoreDialog.value = false;
     // Potentially reload page or notify user that system is refreshing
-    toast.info('تمت العملية، جاري إعادة تشغيل النظام...');
+    notificationManager.info('تمت العملية، جاري إعادة تشغيل النظام...');
     setTimeout(() => {
       window.location.reload();
     }, 2000);

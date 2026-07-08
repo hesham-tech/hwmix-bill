@@ -127,7 +127,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import apiClient from '@/services/api';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 import { formatDate as globalFormatDate, formatDateTime } from '@/utils/formatters';
 
 const route = useRoute();
@@ -176,7 +176,7 @@ const loadReport = async () => {
     }
   } catch (err) {
     console.error('Failed to load compliance report:', err);
-    toast.error('حدث خطأ في تحميل تقرير الامتثال.');
+    notificationManager.error('حدث خطأ في تحميل تقرير الامتثال.');
   } finally {
     loading.value = false;
   }

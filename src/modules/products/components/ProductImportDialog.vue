@@ -144,7 +144,7 @@
 
 import { ref } from 'vue';
 import { useApi } from '@/composables/useApi';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 
 const isOpen = ref(false);
 const step = ref('upload'); // upload, progress, result
@@ -186,7 +186,7 @@ const handleFileSelected = e => {
   if (file && (file.type === 'text/csv' || file.name.endsWith('.csv'))) {
     selectedFile.value = file;
   } else {
-    toast.error('يرجى اختيار ملف CSV صالح فقط.');
+    notificationManager.error('يرجى اختيار ملف CSV صالح فقط.');
   }
 };
 
@@ -196,7 +196,7 @@ const handleDrop = e => {
   if (file && (file.type === 'text/csv' || file.name.endsWith('.csv'))) {
     selectedFile.value = file;
   } else {
-    toast.error('يرجى اختيار ملف CSV صالح فقط.');
+    notificationManager.error('يرجى اختيار ملف CSV صالح فقط.');
   }
 };
 

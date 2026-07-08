@@ -160,7 +160,7 @@ import AppButton from '@/components/common/AppButton.vue';
 import AppInput from '@/components/common/AppInput.vue';
 import AppAutocomplete from '@/components/common/AppAutocomplete.vue';
 import { formatDate, formatCurrency } from '@/utils/formatters';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 
 const show = ref(false);
 const processing = ref(false);
@@ -286,7 +286,7 @@ const handleRenew = async () => {
   processing.value = true;
   try {
     const response = await subscriptionApiService.renew(subscription.value.id, paymentForm);
-    toast.success('تم تجديد الاشتراك بنجاح');
+    notificationManager.success('تم تجديد الاشتراك بنجاح');
     show.value = false;
     emit('success', response.data);
   } catch (error) {

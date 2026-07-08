@@ -1,6 +1,6 @@
 import { serialize } from 'object-to-formdata';
 import { useUserStore } from '@/stores/user';
-import translateErrors from '@/utils/translateErrors';
+import notificationManager from '@/services/notificationManager';
 import apiClient from '@/api/axios.config';
 
 const options = {
@@ -16,7 +16,7 @@ const handleSuccess = (response, log, userStore, loading, type, showToast) => {
 
   if (log) console.log(`${type}: ✅`, resData);
   if (loading) userStore.loadingApi = false;
-  if (showToast && resData.message) toast.success(resData.message);
+  if (showToast && resData.message) notificationManager.success(resData.message);
 
   // ✅ تجهيز النتيجة بشكل متوافق مع v-data-table-server
   let normalized = {
@@ -51,15 +51,24 @@ const handleSuccess = (response, log, userStore, loading, type, showToast) => {
 
 // تم تعديل الدالة لتقبل showToast
 const handleError = (error, log, userStore, loading, type, showToast) => {
-  if (error?.response?.status === 401) return;
+  if (error?.response?.status === 401 || error?.response?.status === 403 || error?.response?.status === 422) {
+    if (loading) userStore.loadingApi = false;
+    throw error;
+  }
   if (log) console.log(`${type}: ❌`, error.response || error);
   if (loading) userStore.loadingApi = false;
 
   let errorMessage = 'حدث خطأ غير متوقع';
 
   if (error.response && error.response.data) {
-    if (error.response.data.errors?.length) {
-      errorMessage = translateErrors(error.response.data.errors);
+    const errors = error.response.data.errors;
+    if (errors && typeof errors === 'object') {
+      const firstKey = Object.keys(errors)[0];
+      if (firstKey && Array.isArray(errors[firstKey]) && errors[firstKey][0]) {
+        errorMessage = errors[firstKey][0];
+      } else {
+        errorMessage = error.response.data.message || 'خطأ في البيانات';
+      }
     } else if (error.response.data.message) {
       errorMessage = error.response.data.message;
     }
@@ -67,8 +76,15 @@ const handleError = (error, log, userStore, loading, type, showToast) => {
     errorMessage = error.response.message;
   }
   if (showToast) {
-    // تحقق من showToast
-    toast.error(errorMessage, { autoClose: 7000 });
+    const status = error.response?.status;
+    const domain = (status === 400 || status === 409) ? 'business' : 'system';
+    const severity = status >= 500 ? 'high' : 'medium';
+    notificationManager.error(errorMessage, {
+      domain,
+      severity,
+      code: error.response?.data?.error_code || 'API_ERROR',
+      duration: 7000
+    });
   }
   throw error;
 };
@@ -189,7 +205,7 @@ export const login = async (apiEndpoint, data, loading = true, showToast = true,
     userStore.fetchUser();
     if (showToast) {
       // تحقق من showToast
-      toast.success(response.data.message);
+      notificationManager.success(response.data.message);
     }
     return response.data.data;
   } catch (error) {
@@ -211,7 +227,7 @@ export const logOut = async (apiEndpoint, loading = true, showToast = true, log 
     loading ? (userStore.loadingApi = false) : '';
     if (showToast) {
       // تحقق من showToast
-      toast.success(response.data.message);
+      notificationManager.success(response.data.message);
     }
     location.reload();
     return response.data;

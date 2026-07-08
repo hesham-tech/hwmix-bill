@@ -137,7 +137,7 @@ import AppDataTable from '@/components/common/AppDataTable.vue';
 import AppButton from '@/components/common/AppButton.vue';
 import AppDialog from '@/components/common/AppDialog.vue';
 import AppUserBalanceProfile from '@/components/common/AppUserBalanceProfile.vue';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 import { usePrint } from '@/modules/print/composables/usePrint';
 
 const props = defineProps({
@@ -315,7 +315,7 @@ const printInvoice = async invoice => {
     await print({ invoice });
   } catch (error) {
     console.error('[InvoiceList] Print error:', error);
-    toast.error('فشل في طباعة الفاتورة');
+    notificationManager.error('فشل في طباعة الفاتورة');
   }
 };
 
@@ -337,9 +337,9 @@ const deleteInvoice = async () => {
     removeItem(itemToDelete.value.id);
     deleteDialog.value = false;
     itemToDelete.value = null;
-    toast.success('تم حذف الفاتورة بنجاح');
+    notificationManager.success('تم حذف الفاتورة بنجاح');
   } catch (error) {
-    toast.error('فشل حذف الفاتورة');
+    notificationManager.error('فشل حذف الفاتورة');
   } finally {
     deleting.value = false;
   }

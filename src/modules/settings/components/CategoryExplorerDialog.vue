@@ -302,7 +302,7 @@ import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import EmptyState from '@/components/common/EmptyState.vue';
 import AppInfiniteScroll from '@/components/common/AppInfiniteScroll.vue';
 import MediaGallery from '@/components/common/MediaGallery.vue';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 import { useRouter, useRoute } from 'vue-router';
 
 const props = defineProps({
@@ -433,7 +433,7 @@ const handleViewProducts = category => {
     });
     emit('update:modelValue', false); // Close dialog
   } else {
-    toast.info('لا توجد منتجات في هذا القسم حالياً');
+    notificationManager.info('لا توجد منتجات في هذا القسم حالياً');
   }
 };
 

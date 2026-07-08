@@ -135,7 +135,7 @@ import { subscriptionApiService } from '@/api';
 import { formatDate, formatCurrency } from '@/utils/formatters';
 import AppAvatar from '@/components/common/AppAvatar.vue';
 import AppButton from '@/components/common/AppButton.vue';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 import RenewSubscriptionDialog from './RenewSubscriptionDialog.vue';
 
 const renewDialog = ref(null);
@@ -176,7 +176,7 @@ const handleToggleAutoRenew = async () => {
     await subscriptionApiService.update(subscription.value.id, {
       auto_renew: subscription.value.auto_renew,
     });
-    toast.success(`تم ${subscription.value.auto_renew ? 'تفعيل' : 'تعطيل'} التجديد التلقائي`);
+    notificationManager.success(`تم ${subscription.value.auto_renew ? 'تفعيل' : 'تعطيل'} التجديد التلقائي`);
   } catch (error) {
     // Revert on error
     subscription.value.auto_renew = !subscription.value.auto_renew;

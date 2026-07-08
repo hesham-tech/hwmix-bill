@@ -290,7 +290,7 @@ import { useApi } from '@/composables/useApi';
 import AppCard from '@/components/common/AppCard.vue';
 import AppInput from '@/components/common/AppInput.vue';
 import AppDataTable from '@/components/common/AppDataTable.vue';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 
 const router = useRouter();
 const gatewaysApi = useApi('/api/payment-gateways');
@@ -347,7 +347,7 @@ const loadPaymentGateways = async () => {
     const response = await gatewaysApi.get(null, { showLoading: false, showError: false });
     gateways.value = response.data || [];
   } catch (e) {
-    toast.error('حدث خطأ أثناء تحميل بوابات الدفع الإلكتروني');
+    notificationManager.error('حدث خطأ أثناء تحميل بوابات الدفع الإلكتروني');
   } finally {
     loading.value = false;
   }
@@ -430,7 +430,7 @@ const saveGateway = async () => {
   if (!formRef.value) return;
   const { valid } = await formRef.value.validate();
   if (!valid) {
-    toast.error('يرجى التحقق من المدخلات بشكل صحيح.');
+    notificationManager.error('يرجى التحقق من المدخلات بشكل صحيح.');
     return;
   }
 
@@ -462,7 +462,7 @@ const saveGateway = async () => {
     }
 
     if (response.data) {
-      toast.success(isEdit.value ? 'تم تحديث بوابة الدفع بنجاح' : 'تم إضافة بوابة الدفع بنجاح');
+      notificationManager.success(isEdit.value ? 'تم تحديث بوابة الدفع بنجاح' : 'تم إضافة بوابة الدفع بنجاح');
       showDialog.value = false;
       await loadPaymentGateways();
     }
@@ -484,7 +484,7 @@ const toggleGatewayActive = async gateway => {
       config: {}, // نرسل التكوين فارغ لكي لا نعدله ونبقي عليه مشفر بالخلفية
     };
     await gatewaysApi.update(gateway.id, payload, { showLoading: false });
-    toast.success(`تم ${gateway.is_active ? 'تنشيط' : 'تعطيل'} بوابة الدفع "${gateway.name}" بنجاح.`);
+    notificationManager.success(`تم ${gateway.is_active ? 'تنشيط' : 'تعطيل'} بوابة الدفع "${gateway.name}" بنجاح.`);
     await loadPaymentGateways();
   } catch (e) {
     gateway.is_active = !gateway.is_active;
@@ -496,7 +496,7 @@ const setGatewayDefault = async gateway => {
   try {
     const response = await gatewaysApi.request('PATCH', `${gateway.id}/set-default`, null, { showLoading: true });
     if (response.status) {
-      toast.success(`تم تعيين بوابة الدفع "${gateway.name}" كبوابة افتراضية للنظام.`);
+      notificationManager.success(`تم تعيين بوابة الدفع "${gateway.name}" كبوابة افتراضية للنظام.`);
       await loadPaymentGateways();
     }
   } catch (e) {
@@ -515,11 +515,11 @@ const deleteGateway = async () => {
   try {
     const response = await gatewaysApi.remove(gatewayToDelete.value.id, { showLoading: false });
     if (response.status) {
-      toast.success('تم حذف بوابة الدفع بنجاح');
+      notificationManager.success('تم حذف بوابة الدفع بنجاح');
       showDeleteDialog.value = false;
       await loadPaymentGateways();
     } else {
-      toast.error(response.message || 'فشل حذف بوابة الدفع');
+      notificationManager.error(response.message || 'فشل حذف بوابة الدفع');
     }
   } catch (e) {
     console.error(e);

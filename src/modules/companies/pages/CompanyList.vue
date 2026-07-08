@@ -267,7 +267,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useApi } from '@/composables/useApi';
 import { useUserStore } from '@/stores/user';
 import { PERMISSIONS } from '@/config/permissions';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 import { useDataTable } from '@/composables/useDataTable';
 import { AppDataTable, AppButton, AppDialog, AppConfirmDialog } from '@/components';
 import MediaGallery from '@/components/common/MediaGallery.vue';
@@ -350,7 +350,7 @@ watch(
       if (canCreate.value) {
         handleCreate();
       } else {
-        toast.error('ليس لديك صلاحية إضافة شركة جديدة');
+        notificationManager.error('ليس لديك صلاحية إضافة شركة جديدة');
       }
     }
   },

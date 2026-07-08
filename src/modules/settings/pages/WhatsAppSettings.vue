@@ -288,7 +288,7 @@ import { useApi } from '@/composables/useApi';
 import { useUserStore } from '@/stores/user';
 import AppCard from '@/components/common/AppCard.vue';
 import AppInput from '@/components/common/AppInput.vue';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 
 const router = useRouter();
 const whatsappApi = useApi('/api/whatsapp-settings');
@@ -338,7 +338,7 @@ const loadWhatsAppAccounts = async () => {
     const response = await whatsappApi.get(null, { showLoading: false, showError: false });
     whatsappAccounts.value = response.data || [];
   } catch (e) {
-    toast.error('حدث خطأ أثناء تحميل حسابات الواتساب');
+    notificationManager.error('حدث خطأ أثناء تحميل حسابات الواتساب');
   } finally {
     loading.value = false;
   }
@@ -380,7 +380,7 @@ const saveAccount = async () => {
   if (!formRef.value) return;
   const { valid } = await formRef.value.validate();
   if (!valid) {
-    toast.error('يرجى التحقق من المدخلات بشكل صحيح.');
+    notificationManager.error('يرجى التحقق من المدخلات بشكل صحيح.');
     return;
   }
 
@@ -394,7 +394,7 @@ const saveAccount = async () => {
     }
 
     if (response.data) {
-      toast.success(isEdit.value ? 'تم تحديث حساب الواتساب بنجاح' : 'تم إضافة حساب الواتساب بنجاح');
+      notificationManager.success(isEdit.value ? 'تم تحديث حساب الواتساب بنجاح' : 'تم إضافة حساب الواتساب بنجاح');
       showDialog.value = false;
       await loadWhatsAppAccounts();
     }
@@ -415,7 +415,7 @@ const toggleAccountActive = async account => {
       is_default: account.is_default,
     };
     await whatsappApi.update(account.id, payload, { showLoading: false });
-    toast.success(`تم ${account.is_active ? 'تنشيط' : 'تعطيل'} حساب الواتساب "${account.title}" بنجاح.`);
+    notificationManager.success(`تم ${account.is_active ? 'تنشيط' : 'تعطيل'} حساب الواتساب "${account.title}" بنجاح.`);
     await loadWhatsAppAccounts();
   } catch (e) {
     // التراجع في حال الفشل
@@ -428,7 +428,7 @@ const setAccountDefault = async account => {
   try {
     const response = await whatsappApi.request('POST', `${account.id}/set-default`, null, { showLoading: true });
     if (response.status) {
-      toast.success(`تم تعيين حساب الواتساب "${account.title}" كحساب افتراضي للنظام.`);
+      notificationManager.success(`تم تعيين حساب الواتساب "${account.title}" كحساب افتراضي للنظام.`);
       await loadWhatsAppAccounts();
     }
   } catch (e) {
@@ -452,7 +452,7 @@ const testWhatsAppConnection = async () => {
       { recipient: testRecipient.value },
       { showLoading: false }
     );
-    toast.success(response.message || 'تم إرسال رسالة الاختبار بنجاح، يرجى التحقق من جوال المستلم.');
+    notificationManager.success(response.message || 'تم إرسال رسالة الاختبار بنجاح، يرجى التحقق من جوال المستلم.');
     showTestDialog.value = false;
   } catch (e) {
     console.error('Test whatsapp connection failed', e);
@@ -472,11 +472,11 @@ const deleteAccount = async () => {
   try {
     const response = await whatsappApi.remove(accountToDelete.value.id, { showLoading: false });
     if (response.status) {
-      toast.success('تم حذف حساب الواتساب بنجاح');
+      notificationManager.success('تم حذف حساب الواتساب بنجاح');
       showDeleteDialog.value = false;
       await loadWhatsAppAccounts();
     } else {
-      toast.error(response.message || 'فشل حذف الحساب');
+      notificationManager.error(response.message || 'فشل حذف الحساب');
     }
   } catch (e) {
     console.error(e);

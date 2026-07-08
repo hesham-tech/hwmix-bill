@@ -1,5 +1,5 @@
-import { toast } from 'vue3-toastify';
-import 'vue3-toastify/dist/index.css';
+import notificationManager from '@/services/notificationManager';
+
 
 export const useNotifications = () => {
   const requestPermission = async () => {
@@ -10,14 +10,14 @@ export const useNotifications = () => {
     if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
       const permission = await Notification.requestPermission();
       if (permission === 'granted') {
-        toast.success('تم تفعيل إشعارات المتصفح بنجاح');
+        notificationManager.success('تم تفعيل إشعارات المتصفح بنجاح');
       }
     }
   };
 
   const notify = (title, options = {}) => {
     // 1. Show Toast
-    toast(title, {
+    notificationManager.notify(title, {
       type: options.type || 'info',
       position: 'top-right',
       autoClose: 5000,

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { invoiceService } from '@/api';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 import { useGuidanceStore } from '@/modules/guidance/store/useGuidanceStore';
 
 export const useInvoiceStore = defineStore('invoice', () => {
@@ -76,7 +76,7 @@ export const useInvoiceStore = defineStore('invoice', () => {
     loading.value = true;
     try {
       const response = await invoiceService.save(data);
-      toast.success('تم إنشاء الفاتورة بنجاح');
+      notificationManager.success('تم إنشاء الفاتورة بنجاح');
       
       // وسم خطوة إنشاء فاتورة في معالج التهيئة كمكتملة
       try {
@@ -100,7 +100,7 @@ export const useInvoiceStore = defineStore('invoice', () => {
     loading.value = true;
     try {
       const response = await invoiceService.save(data, id);
-      toast.success('تم تحديث الفاتورة بنجاح');
+      notificationManager.success('تم تحديث الفاتورة بنجاح');
       await fetchInvoices(); // Refresh list
       return response.data[0];
     } catch (error) {
@@ -115,7 +115,7 @@ export const useInvoiceStore = defineStore('invoice', () => {
     loading.value = true;
     try {
       await invoiceService.delete(id);
-      toast.success('تم حذف الفاتورة بنجاح');
+      notificationManager.success('تم حذف الفاتورة بنجاح');
       await fetchInvoices(); // Refresh list
     } catch (error) {
       console.error('Error deleting invoice:', error);
@@ -138,7 +138,7 @@ export const useInvoiceStore = defineStore('invoice', () => {
     loading.value = true;
     try {
       await invoiceService.sendEmail(id, emailData);
-      toast.success('تم إرسال الفاتورة عبر البريد بنجاح');
+      notificationManager.success('تم إرسال الفاتورة عبر البريد بنجاح');
     } catch (error) {
       console.error('Error sending email:', error);
       throw error;

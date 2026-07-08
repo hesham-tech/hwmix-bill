@@ -1,7 +1,21 @@
 import { ref } from 'vue';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 import apiClient from '@/api/axios.config';
-import translateErrors from '@/utils/translateErrors';
+
+function extractErrorMessage(err, fallback) {
+  if (err.response?.data?.errors && typeof err.response.data.errors === 'object') {
+    const errorObj = err.response.data.errors;
+    const firstKey = Object.keys(errorObj)[0];
+    if (firstKey && Array.isArray(errorObj[firstKey]) && errorObj[firstKey][0]) {
+      return errorObj[firstKey][0];
+    }
+    return err.response?.data?.message || 'خطأ في التحقق من البيانات';
+  }
+  if (err.response?.status === 404 && typeof err.response?.data?.message === 'string' && err.response.data.message.includes('No query results for model')) {
+    return 'العنصر المطلوب غير موجود أو تم حذفه.';
+  }
+  return err.response?.data?.message || err.message || fallback;
+}
 
 /**
  * Composable for making API calls with loading states and error handling
@@ -30,17 +44,17 @@ export function useApi(baseUrl) {
       const response = await apiClient.get(resource, { params });
       return response.data;
     } catch (err) {
-      if (err.response?.data?.errors) {
-        error.value = translateErrors(err.response.data.errors);
-      } else {
-        error.value = err.response?.data?.message || err.message || 'حدث خطأ في تحميل البيانات';
-        if (err.response?.status === 404 && typeof error.value === 'string' && error.value.includes('No query results for model')) {
-          error.value = 'العنصر المطلوب غير موجود أو تم حذفه.';
-        }
-      }
+      error.value = extractErrorMessage(err, 'حدث خطأ في تحميل البيانات');
 
       if (showError) {
-        toast.error(error.value);
+        const status = err.response?.status;
+        const domain = status === 422 ? 'validation' : (status === 400 || status === 409) ? 'business' : 'system';
+        const severity = status >= 500 ? 'high' : 'medium';
+        notificationManager.error(error.value, {
+          domain,
+          severity,
+          code: err.response?.data?.error_code || (status === 422 ? 'VALIDATION_FAILED' : 'API_ERROR')
+        });
       }
       throw err;
     } finally {
@@ -61,17 +75,17 @@ export function useApi(baseUrl) {
       const response = await apiClient.get(`${resource}/${id}`);
       return response.data;
     } catch (err) {
-      if (err.response?.data?.errors) {
-        error.value = translateErrors(err.response.data.errors);
-      } else {
-        error.value = err.response?.data?.message || err.message || 'حدث خطأ في تحميل البيانات';
-        if (err.response?.status === 404 && typeof error.value === 'string' && error.value.includes('No query results for model')) {
-          error.value = 'العنصر المطلوب غير موجود أو تم حذفه.';
-        }
-      }
+      error.value = extractErrorMessage(err, 'حدث خطأ في تحميل البيانات');
 
       if (showError) {
-        toast.error(error.value);
+        const status = err.response?.status;
+        const domain = status === 422 ? 'validation' : (status === 400 || status === 409) ? 'business' : 'system';
+        const severity = status >= 500 ? 'high' : 'medium';
+        notificationManager.error(error.value, {
+          domain,
+          severity,
+          code: err.response?.data?.error_code || (status === 422 ? 'VALIDATION_FAILED' : 'API_ERROR')
+        });
       }
       throw err;
     } finally {
@@ -91,21 +105,21 @@ export function useApi(baseUrl) {
     try {
       const response = await apiClient.post(resource, data);
       if (showSuccess) {
-        toast.success(response.data.message || successMessage);
+        notificationManager.success(response.data.message || successMessage, { code: 'SUCCESS' });
       }
       return response.data;
     } catch (err) {
-      if (err.response?.data?.errors) {
-        error.value = translateErrors(err.response.data.errors);
-      } else {
-        error.value = err.response?.data?.message || err.message || 'حدث خطأ في الحفظ';
-        if (err.response?.status === 404 && typeof error.value === 'string' && error.value.includes('No query results for model')) {
-          error.value = 'العنصر المطلوب غير موجود أو تم حذفه.';
-        }
-      }
+      error.value = extractErrorMessage(err, 'حدث خطأ في الحفظ');
 
       if (showError) {
-        toast.error(error.value);
+        const status = err.response?.status;
+        const domain = status === 422 ? 'validation' : (status === 400 || status === 409) ? 'business' : 'system';
+        const severity = status >= 500 ? 'high' : 'medium';
+        notificationManager.error(error.value, {
+          domain,
+          severity,
+          code: err.response?.data?.error_code || (status === 422 ? 'VALIDATION_FAILED' : 'API_ERROR')
+        });
       }
       throw err;
     } finally {
@@ -125,21 +139,21 @@ export function useApi(baseUrl) {
     try {
       const response = await apiClient.put(`${resource}/${id}`, data);
       if (showSuccess) {
-        toast.success(response.data.message || successMessage);
+        notificationManager.success(response.data.message || successMessage, { code: 'SUCCESS' });
       }
       return response.data;
     } catch (err) {
-      if (err.response?.data?.errors) {
-        error.value = translateErrors(err.response.data.errors);
-      } else {
-        error.value = err.response?.data?.message || err.message || 'حدث خطأ في التحديث';
-        if (err.response?.status === 404 && typeof error.value === 'string' && error.value.includes('No query results for model')) {
-          error.value = 'العنصر المطلوب غير موجود أو تم حذفه.';
-        }
-      }
+      error.value = extractErrorMessage(err, 'حدث خطأ في التحديث');
 
       if (showError) {
-        toast.error(error.value);
+        const status = err.response?.status;
+        const domain = status === 422 ? 'validation' : (status === 400 || status === 409) ? 'business' : 'system';
+        const severity = status >= 500 ? 'high' : 'medium';
+        notificationManager.error(error.value, {
+          domain,
+          severity,
+          code: err.response?.data?.error_code || (status === 422 ? 'VALIDATION_FAILED' : 'API_ERROR')
+        });
       }
       throw err;
     } finally {
@@ -159,21 +173,21 @@ export function useApi(baseUrl) {
     try {
       const response = await apiClient.patch(id ? `${resource}/${id}` : resource, data);
       if (showSuccess) {
-        toast.success(response.data.message || successMessage);
+        notificationManager.success(response.data.message || successMessage, { code: 'SUCCESS' });
       }
       return response.data;
     } catch (err) {
-      if (err.response?.data?.errors) {
-        error.value = translateErrors(err.response.data.errors);
-      } else {
-        error.value = err.response?.data?.message || err.message || 'حدث خطأ في التحديث';
-        if (err.response?.status === 404 && typeof error.value === 'string' && error.value.includes('No query results for model')) {
-          error.value = 'العنصر المطلوب غير موجود أو تم حذفه.';
-        }
-      }
+      error.value = extractErrorMessage(err, 'حدث خطأ في التحديث');
 
       if (showError) {
-        toast.error(error.value);
+        const status = err.response?.status;
+        const domain = status === 422 ? 'validation' : (status === 400 || status === 409) ? 'business' : 'system';
+        const severity = status >= 500 ? 'high' : 'medium';
+        notificationManager.error(error.value, {
+          domain,
+          severity,
+          code: err.response?.data?.error_code || (status === 422 ? 'VALIDATION_FAILED' : 'API_ERROR')
+        });
       }
       throw err;
     } finally {
@@ -193,21 +207,21 @@ export function useApi(baseUrl) {
     try {
       const response = await apiClient.delete(`${resource}/${id}`);
       if (showSuccess) {
-        toast.success(response.data.message || successMessage);
+        notificationManager.success(response.data.message || successMessage, { code: 'SUCCESS' });
       }
       return response.data;
     } catch (err) {
-      if (err.response?.data?.errors) {
-        error.value = translateErrors(err.response.data.errors);
-      } else {
-        error.value = err.response?.data?.message || err.message || 'حدث خطأ في الحذف';
-        if (err.response?.status === 404 && typeof error.value === 'string' && error.value.includes('No query results for model')) {
-          error.value = 'العنصر المطلوب غير موجود أو تم حذفه.';
-        }
-      }
+      error.value = extractErrorMessage(err, 'حدث خطأ في الحذف');
 
       if (showError) {
-        toast.error(error.value);
+        const status = err.response?.status;
+        const domain = status === 422 ? 'validation' : (status === 400 || status === 409) ? 'business' : 'system';
+        const severity = status >= 500 ? 'high' : 'medium';
+        notificationManager.error(error.value, {
+          domain,
+          severity,
+          code: err.response?.data?.error_code || (status === 422 ? 'VALIDATION_FAILED' : 'API_ERROR')
+        });
       }
       throw err;
     } finally {
@@ -227,7 +241,7 @@ export function useApi(baseUrl) {
     try {
       const response = await apiClient.post(`${resource}/bulk-delete`, { ids });
       if (showSuccess) {
-        toast.success(successMessage);
+        notificationManager.success(successMessage, { code: 'SUCCESS' });
       }
       return response.data;
     } catch (err) {
@@ -236,7 +250,14 @@ export function useApi(baseUrl) {
         error.value = 'العنصر المطلوب غير موجود أو تم حذفه.';
       }
       if (showError) {
-        toast.error(error.value);
+        const status = err.response?.status;
+        const domain = status === 422 ? 'validation' : (status === 400 || status === 409) ? 'business' : 'system';
+        const severity = status >= 500 ? 'high' : 'medium';
+        notificationManager.error(error.value, {
+          domain,
+          severity,
+          code: err.response?.data?.error_code || (status === 422 ? 'VALIDATION_FAILED' : 'API_ERROR')
+        });
       }
       throw err;
     } finally {
@@ -269,7 +290,14 @@ export function useApi(baseUrl) {
         error.value = 'العنصر المطلوب غير موجود أو تم حذفه.';
       }
       if (showError) {
-        toast.error(error.value);
+        const status = err.response?.status;
+        const domain = status === 422 ? 'validation' : (status === 400 || status === 409) ? 'business' : 'system';
+        const severity = status >= 500 ? 'high' : 'medium';
+        notificationManager.error(error.value, {
+          domain,
+          severity,
+          code: err.response?.data?.error_code || (status === 422 ? 'VALIDATION_FAILED' : 'API_ERROR')
+        });
       }
       throw err;
     } finally {

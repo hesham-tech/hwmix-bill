@@ -317,7 +317,7 @@ import { useApi } from '@/composables/useApi';
 import { useUserStore } from '@/stores/user';
 import AppCard from '@/components/common/AppCard.vue';
 import AppInput from '@/components/common/AppInput.vue';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 
 const router = useRouter();
 const mailApi = useApi('/api/mail-settings');
@@ -371,7 +371,7 @@ const loadMailAccounts = async () => {
     const response = await mailApi.get(null, { showLoading: false, showError: false });
     mailAccounts.value = response.data || [];
   } catch (e) {
-    toast.error('حدث خطأ أثناء تحميل حسابات البريد الإلكتروني');
+    notificationManager.error('حدث خطأ أثناء تحميل حسابات البريد الإلكتروني');
   } finally {
     loading.value = false;
   }
@@ -427,7 +427,7 @@ const saveAccount = async () => {
   if (!formRef.value) return;
   const { valid } = await formRef.value.validate();
   if (!valid) {
-    toast.error('يرجى التحقق من المدخلات بشكل صحيح.');
+    notificationManager.error('يرجى التحقق من المدخلات بشكل صحيح.');
     return;
   }
 
@@ -441,7 +441,7 @@ const saveAccount = async () => {
     }
 
     if (response.data) {
-      toast.success(isEdit.value ? 'تم تحديث حساب البريد بنجاح' : 'تم إضافة حساب البريد بنجاح');
+      notificationManager.success(isEdit.value ? 'تم تحديث حساب البريد بنجاح' : 'تم إضافة حساب البريد بنجاح');
       showDialog.value = false;
       await loadMailAccounts();
     }
@@ -466,7 +466,7 @@ const toggleAccountActive = async account => {
       is_default: account.is_default,
     };
     await mailApi.update(account.id, payload, { showLoading: false });
-    toast.success(`تم ${account.is_active ? 'تنشيط' : 'تعطيل'} حساب البريد "${account.title}" بنجاح.`);
+    notificationManager.success(`تم ${account.is_active ? 'تنشيط' : 'تعطيل'} حساب البريد "${account.title}" بنجاح.`);
     await loadMailAccounts();
   } catch (e) {
     // التراجع في حال الفشل
@@ -479,7 +479,7 @@ const setAccountDefault = async account => {
   try {
     const response = await mailApi.request('POST', `${account.id}/set-default`, null, { showLoading: true });
     if (response.status) {
-      toast.success(`تم تعيين حساب البريد "${account.title}" كحساب افتراضي للنظام.`);
+      notificationManager.success(`تم تعيين حساب البريد "${account.title}" كحساب افتراضي للنظام.`);
       await loadMailAccounts();
     }
   } catch (e) {
@@ -498,7 +498,7 @@ const testMailConnection = async () => {
   testingMail.value = true;
   try {
     const response = await mailApi.request('POST', `${activeAccountForTest.value.id}/test`, { recipient: testEmail.value }, { showLoading: false });
-    toast.success(response.message || 'تم إرسال بريد الاختبار بنجاح، يرجى التحقق من صندوق الوارد.');
+    notificationManager.success(response.message || 'تم إرسال بريد الاختبار بنجاح، يرجى التحقق من صندوق الوارد.');
     showTestDialog.value = false;
   } catch (e) {
     console.error('Test mail connection failed', e);
@@ -518,11 +518,11 @@ const deleteAccount = async () => {
   try {
     const response = await mailApi.remove(accountToDelete.value.id, { showLoading: false });
     if (response.status) {
-      toast.success('تم حذف حساب البريد الإلكتروني بنجاح');
+      notificationManager.success('تم حذف حساب البريد الإلكتروني بنجاح');
       showDeleteDialog.value = false;
       await loadMailAccounts();
     } else {
-      toast.error(response.message || 'فشل حذف الحساب');
+      notificationManager.error(response.message || 'فشل حذف الحساب');
     }
   } catch (e) {
     console.error(e);

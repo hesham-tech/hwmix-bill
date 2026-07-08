@@ -607,7 +607,7 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useApi } from '@/composables/useApi';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 import { usePermissions } from '@/composables/usePermissions';
 import { PERMISSIONS } from '@/config/permissions';
 import AppDataTable from '@/components/common/AppDataTable.vue';

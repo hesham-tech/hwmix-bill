@@ -400,7 +400,7 @@ import FinancialCustomerCard from '@/components/common/FinancialCustomerCard.vue
 import InstallmentPlanSummaryCard from '@/modules/installments/components/InstallmentPlanSummaryCard.vue';
 import InstallmentsTable from '@/modules/installments/components/InstallmentsTable.vue';
 import PrintInvoiceItemsStickersDialog from '../components/PrintInvoiceItemsStickersDialog.vue';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import { PERMISSIONS } from '@/config/permissions';
 import { AppPrintShare } from '@/components';

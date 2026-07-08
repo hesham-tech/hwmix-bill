@@ -100,7 +100,7 @@
 import { ref } from 'vue';
 import { useBranchStore } from '@/stores/branch';
 import { useUserStore } from '@/stores/user';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 
 const props = defineProps({
   showOnMobile: {
@@ -122,7 +122,7 @@ const handleBranchSwitch = async (branchId) => {
     // التغيير محلياً أولاً
     branchStore.setActiveBranch(branchId);
     
-    toast.success(`تم التبديل إلى فرع: ${branchStore.activeBranch?.name}`);
+    notificationManager.success(`تم التبديل إلى فرع: ${branchStore.activeBranch?.name}`);
     
     // إعادة تحميل الصفحة لضمان إعادة تهيئة جميع المتاجر والبيانات بناءً على الفرع الجديد
     // هذا هو الحل الأكثر أماناً لعزل البيانات بالكامل
@@ -131,7 +131,7 @@ const handleBranchSwitch = async (branchId) => {
     }, 500);
     
   } catch (error) {
-    toast.error('فشل في تبديل الفرع');
+    notificationManager.error('فشل في تبديل الفرع');
     console.error(error);
   } finally {
     isSwitching.value = false;

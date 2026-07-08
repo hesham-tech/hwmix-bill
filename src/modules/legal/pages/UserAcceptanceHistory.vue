@@ -124,7 +124,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { getAll } from '@/services/api';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 import { useAuthStore } from '@/stores/auth';
 import { useUserStore } from '@/stores/user';
 import { formatDateTime } from '@/utils/formatters';
@@ -158,7 +158,7 @@ const loadHistory = async () => {
     }
   } catch (err) {
     console.error('Failed to load history:', err);
-    toast.error('حدث خطأ في تحميل سجل الشروط.');
+    notificationManager.error('حدث خطأ في تحميل سجل الشروط.');
   } finally {
     loading.value = false;
   }

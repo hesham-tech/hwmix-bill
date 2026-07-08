@@ -149,7 +149,7 @@ import { useAuthStore } from '@/stores/auth';
 import { useRouter } from 'vue-router';
 import { useDisplay } from 'vuetify';
 import AppDialog from '@/components/common/AppDialog.vue';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 
 const props = defineProps({
   modelValue: {
@@ -197,10 +197,10 @@ const handleSwitch = async company => {
   try {
     loadingId.value = company.id === null ? 'all' : company.id;
     await userStore.switchCompany(company.id);
-    toast.success(`تم الانتقال إلى ${company.name} بنجاح`);
+    notificationManager.success(`تم الانتقال إلى ${company.name} بنجاح`);
     emit('update:modelValue', false);
   } catch (error) {
-    toast.error('فشل في تبديل الشركة، يرجى المحاولة مرة أخرى');
+    notificationManager.error('فشل في تبديل الشركة، يرجى المحاولة مرة أخرى');
   } finally {
     loadingId.value = null;
   }
@@ -213,7 +213,7 @@ const handleLogout = async () => {
     router.push('/login');
     emit('update:modelValue', false);
   } catch (error) {
-    toast.error('فشل في تسجيل الخروج، يرجى المحاولة مرة أخرى');
+    notificationManager.error('فشل في تسجيل الخروج، يرجى المحاولة مرة أخرى');
   } finally {
     loggingOut.value = false;
   }

@@ -205,7 +205,7 @@ import { useDisplay } from 'vuetify';
 import { useUIPreferencesStore } from '@/stores/uiPreferences';
 import { useDashboardData } from '../composables/useDashboardData';
 import { useAnalytics } from '../composables/useAnalytics';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 import AppButton from '@/components/common/AppButton.vue';
 import ShareView from '@/modules/capture/components/ShareView.vue';
 import StatsCards from '../components/StatsCards.vue';
@@ -478,12 +478,12 @@ const savePreferencesToStore = async (silent = false) => {
     // immediate=true: يرسل للسيرفر فوراً بدون debounce لضمان عدم فقدان التخصيص
     await uiPrefsStore.savePreference('dashboard.admin', { columns }, true);
     if (!silent) {
-      toast.success('تم حفظ التخصيص بنجاح');
+      notificationManager.success('تم حفظ التخصيص بنجاح');
       isCustomizing.value = false;
     }
   } catch (error) {
     console.error('Failed to save admin dashboard preferences:', error);
-    if (!silent) toast.error('حدث خطأ أثناء حفظ التعديلات');
+    if (!silent) notificationManager.error('حدث خطأ أثناء حفظ التعديلات');
   } finally {
     if (!silent) saving.value = false;
   }
@@ -497,11 +497,11 @@ const resetToDefaults = async () => {
     await uiPrefsStore.resetPreference('dashboard.admin');
     localStats.value = JSON.parse(JSON.stringify(defaultStats));
     localSections.value = JSON.parse(JSON.stringify(defaultSections));
-    toast.success('تم تعيين لوحة التحكم للوضع الافتراضي');
+    notificationManager.success('تم تعيين لوحة التحكم للوضع الافتراضي');
     isCustomizing.value = false;
   } catch (error) {
     console.error('Failed to reset dashboard preferences:', error);
-    toast.error('حدث خطأ أثناء إعادة الضبط');
+    notificationManager.error('حدث خطأ أثناء إعادة الضبط');
   } finally {
     saving.value = false;
   }

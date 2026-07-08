@@ -351,7 +351,7 @@ import { useUserStore } from '@/stores/user';
 import { useUIPreferencesStore } from '@/stores/uiPreferences';
 import { useDashboardData } from '@/modules/reports/composables/useDashboardData';
 import { formatCurrency, formatDate } from '@/utils/formatters';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 import AppBalanceDisplay from '@/components/common/AppBalanceDisplay.vue';
 import PortalPurchaseCard from '../../components/PortalPurchaseCard.vue';
 import PortalInstallmentTimeline from '../../components/PortalInstallmentTimeline.vue';
@@ -509,12 +509,12 @@ const savePreferencesToStore = async (silent = false) => {
 
     await uiPrefsStore.savePreference('dashboard.client', { columns });
     if (!silent) {
-      toast.success('تم حفظ التخصيص بنجاح');
+      notificationManager.success('تم حفظ التخصيص بنجاح');
       isCustomizing.value = false;
     }
   } catch (error) {
     console.error('Failed to save dashboard preferences:', error);
-    if (!silent) toast.error('حدث خطأ أثناء حفظ التعديلات');
+    if (!silent) notificationManager.error('حدث خطأ أثناء حفظ التعديلات');
   } finally {
     if (!silent) saving.value = false;
   }
@@ -530,11 +530,11 @@ const resetToDefaults = async () => {
     await uiPrefsStore.resetPreference('dashboard.client');
     localStats.value = JSON.parse(JSON.stringify(defaultStats));
     localSections.value = JSON.parse(JSON.stringify(defaultSections));
-    toast.success('تم تعيين لوحة التحكم للوضع الافتراضي');
+    notificationManager.success('تم تعيين لوحة التحكم للوضع الافتراضي');
     isCustomizing.value = false;
   } catch (error) {
     console.error('Failed to reset dashboard preferences:', error);
-    toast.error('حدث خطأ أثناء إعادة الضبط');
+    notificationManager.error('حدث خطأ أثناء إعادة الضبط');
   } finally {
     saving.value = false;
   }

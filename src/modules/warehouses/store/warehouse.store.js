@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { warehouseService } from '@/api';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 
 export const useWarehouseStore = defineStore('warehouse', () => {
   // State
@@ -70,7 +70,7 @@ export const useWarehouseStore = defineStore('warehouse', () => {
         status: data.is_active ? 'active' : 'inactive',
       };
       const response = await warehouseService.save(payload);
-      toast.success('تم إنشاء المخزن بنجاح');
+      notificationManager.success('تم إنشاء المخزن بنجاح');
       await fetchWarehouses();
       return response.data[0];
     } catch (error) {
@@ -89,7 +89,7 @@ export const useWarehouseStore = defineStore('warehouse', () => {
         status: data.is_active ? 'active' : 'inactive',
       };
       const response = await warehouseService.save(payload, id);
-      toast.success('تم تحديث المخزن بنجاح');
+      notificationManager.success('تم تحديث المخزن بنجاح');
       await fetchWarehouses();
       return response.data[0];
     } catch (error) {
@@ -104,7 +104,7 @@ export const useWarehouseStore = defineStore('warehouse', () => {
     loading.value = true;
     try {
       await warehouseService.delete(id);
-      toast.success('تم حذف المخزن بنجاح');
+      notificationManager.success('تم حذف المخزن بنجاح');
       await fetchWarehouses();
     } catch (error) {
       console.error('Error deleting warehouse:', error);
@@ -118,7 +118,7 @@ export const useWarehouseStore = defineStore('warehouse', () => {
     loading.value = true;
     try {
       await warehouseService.setDefault(id);
-      toast.success('تم تعيين المخزن كافتراضي');
+      notificationManager.success('تم تعيين المخزن كافتراضي');
       await fetchWarehouses();
     } catch (error) {
       console.error('Error setting default warehouse:', error);

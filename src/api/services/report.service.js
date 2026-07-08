@@ -135,7 +135,7 @@ class ReportService extends BaseService {
       link.remove();
 
       if (showToast) {
-        toast.success('تم تصدير التقرير بنجاح');
+        notificationManager.success('تم تصدير التقرير بنجاح');
       }
 
       return response.data;

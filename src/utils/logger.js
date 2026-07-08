@@ -1,4 +1,4 @@
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 import axios from 'axios';
 
 /**

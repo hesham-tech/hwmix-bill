@@ -3,7 +3,7 @@ import { ref, computed } from 'vue';
 import productService from '@/api/services/product.service';
 import warehouseService from '@/api/services/warehouse.service';
 import apiClient from '@/api/axios.config';
-import { toast } from 'vue3-toastify';
+import notificationManager from '@/services/notificationManager';
 import { useGuidanceStore } from '@/modules/guidance/store/useGuidanceStore';
 
 export const useProductStore = defineStore('product', () => {
@@ -70,7 +70,7 @@ export const useProductStore = defineStore('product', () => {
     try {
       const response = await productService.save(data, id);
       if (response.status) {
-        toast.success(id ? 'تم تحديث المنتج بنجاح' : 'تم إنشاء المنتج بنجاح');
+        notificationManager.success(id ? 'تم تحديث المنتج بنجاح' : 'تم إنشاء المنتج بنجاح');
         
         // وسم خطوة إضافة منتج في معالج التهيئة كمكتملة
         if (!id) {
@@ -95,7 +95,7 @@ export const useProductStore = defineStore('product', () => {
     try {
       const response = await productService.delete(id);
       if (response.status) {
-        toast.success('تم حذف المنتج بنجاح');
+        notificationManager.success('تم حذف المنتج بنجاح');
         await fetchProducts();
       }
       return response;
@@ -109,7 +109,7 @@ export const useProductStore = defineStore('product', () => {
     try {
       const response = await productService.deleteMultiple(ids);
       if (response.status) {
-        toast.success('تم حذف المنتجات المحددة بنجاح');
+        notificationManager.success('تم حذف المنتجات المحددة بنجاح');
         await fetchProducts();
       }
       return response;

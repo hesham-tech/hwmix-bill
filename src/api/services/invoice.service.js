@@ -40,7 +40,7 @@ class InvoiceService extends BaseService {
       link.remove();
 
       if (showToast) {
-        toast.success('تم تحميل الفاتورة بنجاح');
+        notificationManager.success('تم تحميل الفاتورة بنجاح');
       }
 
       return response.data;

@@ -1,9 +1,6 @@
 import axios from 'axios';
-import { toast } from 'vue3-toastify';
-import 'vue3-toastify/dist/index.css';
+import notificationManager from '@/services/notificationManager';
 import router from '@/router';
-
-import translateErrors from '@/utils/translateErrors';
 
 // Preventing multiple 401 notices
 let last401Time = 0;
@@ -126,9 +123,9 @@ apiClient.interceptors.response.use(
         last401Time = now;
         const message = error?.response?.data?.message;
         if (message && message !== 'Unauthenticated.') {
-          toast.error(message);
+          notificationManager.error(message, { code: 'UNAUTHENTICATED', domain: 'system', severity: 'high' });
         } else {
-          toast.warning('جلستك انتهت. من فضلك سجل دخول مرة أخرى.');
+          notificationManager.warning('جلستك انتهت. من فضلك سجل دخول مرة أخرى.', { code: 'SESSION_EXPIRED', domain: 'system', severity: 'high' });
         }
       }
 
@@ -171,7 +168,7 @@ apiClient.interceptors.response.use(
           appState.openSaasLimit(resource, serverMessage);
         });
       } else {
-        toast.error(serverMessage || 'ليس لديك صلاحية للوصول إلى هذا المورد.');
+        notificationManager.error(serverMessage || 'ليس لديك صلاحية للوصول إلى هذا المورد.', { code: 'FORBIDDEN', domain: 'security', severity: 'high' });
         if (error.config?.method?.toLowerCase() === 'get') {
           router.push({
             path: '/app/forbidden',
@@ -184,24 +181,12 @@ apiClient.interceptors.response.use(
 
     // 422: Validation Error
     if (error?.response?.status === 422) {
-      const responseData = error.response.data;
-      const errors = responseData.errors;
-      const serverMessage = responseData.message;
-
-      // Only pass errors object if it has actual validation errors
-      const hasValidationErrors = errors && typeof errors === 'object' && Object.keys(errors).length > 0;
-      const message = translateErrors(hasValidationErrors ? errors : serverMessage);
-
-      if (message) {
-        toast.error(message, { autoClose: 5000 });
-      }
-
       return Promise.reject(error);
     }
 
     // 429: Too Many Requests
     if (error?.response?.status === 429) {
-      toast.error('لقد تجاوزت حد الطلبات المسموح به. من فضلك انتظر قليلاً.', { autoClose: 10000 });
+      notificationManager.error('لقد تجاوزت حد الطلبات المسموح به. من فضلك انتظر قليلاً.', { code: 'TOO_MANY_REQUESTS', domain: 'system', duration: 10000 });
       return Promise.reject(error);
     }
 
@@ -278,7 +263,7 @@ apiClient.interceptors.response.use(
     } else {
       // Fallback for any other error status code not explicitly handled
       const fallbackMessage = error?.response?.data?.message || error?.message || 'حدث خطأ غير متوقع.';
-      toast.error(fallbackMessage);
+      notificationManager.error(fallbackMessage, { code: 'UNEXPECTED_ERROR', domain: 'system' });
     }
 
     return Promise.reject(error);
