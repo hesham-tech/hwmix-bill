@@ -308,7 +308,6 @@
               :rules="[rules.required]"
               hide-details
               class="mb-4"
-              :disabled="isEdit"
             />
           </v-col>
 
@@ -328,7 +327,6 @@
               :rules="[rules.required]"
               hide-details
               class="mb-4"
-              :disabled="isEdit"
             />
           </v-col>
 
@@ -712,6 +710,12 @@ onMounted(() => {
 watch(viewMode, () => {
   page.value = 1;
   fetchData();
+});
+
+watch(() => formData.value.access_type, (newVal) => {
+  if (newVal === 'user_owned' && !staffList.value.length) {
+    loadStaff();
+  }
 });
 
 const togglingId = ref(null);
