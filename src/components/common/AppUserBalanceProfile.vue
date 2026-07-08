@@ -49,7 +49,7 @@
             />
             <!-- رصيد العهدة -->
             <AppBalanceDisplay
-              v-if="user?.relation_types?.includes('employee') || user?.cashbox_balance"
+              v-if="user?.relation_types?.includes('employee')"
               :amount="user?.cashbox_balance ?? 0"
               perspective="admin"
               show-icon
@@ -134,7 +134,7 @@
 
           <!-- بطاقة رصيد العهدة -->
           <v-card
-            v-if="user?.relation_types?.includes('employee') || user?.cashbox_balance"
+            v-if="user?.relation_types?.includes('employee')"
             variant="flat"
             class="rounded-xl px-6 py-3 border-dashed w-100 shadow-sm bg-blue-lighten-5 border-primary border-opacity-25"
             style="border: 1px dashed;"
