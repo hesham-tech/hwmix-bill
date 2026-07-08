@@ -359,7 +359,7 @@ const loadCashBoxes = async () => {
   loadingCashBoxes.value = true;
   try {
     // جلب الصناديق الخاصة بالمستخدم الحالي فقط (الباك إند يقوم بالفلترة تلقائياً)
-    const response = await cashBoxesApi.get({ per_page: 100 }, { showLoading: false, showError: false });
+    const response = await cashBoxesApi.get({ per_page: 100, is_active: 1 }, { showLoading: false, showError: false });
     cashBoxes.value = Array.isArray(response.data) ? response.data : response.data?.data || [];
 
     // تعيين الصندوق الافتراضي إذا وجد

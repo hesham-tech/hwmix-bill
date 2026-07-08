@@ -228,7 +228,7 @@ const showAdvanced = ref(false);
 
 const loadCashBoxes = async () => {
   try {
-    const response = await cashBoxesApi.get({ per_page: 100 }, { showLoading: false });
+    const response = await cashBoxesApi.get({ per_page: 100, is_active: 1 }, { showLoading: false });
     cashBoxes.value = response.data || [];
   } catch (error) {
     console.error('Error loading cashboxes:', error);

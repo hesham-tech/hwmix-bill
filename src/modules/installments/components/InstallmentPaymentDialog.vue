@@ -165,7 +165,7 @@ const loadData = async () => {
   try {
     const [methodsRes, boxesRes] = await Promise.all([
       paymentMethodsApi.get({ active: true, per_page: -1 }, { showLoading: false }),
-      cashBoxesApi.get({ per_page: -1 }, { showLoading: false }),
+      cashBoxesApi.get({ per_page: -1, is_active: 1 }, { showLoading: false }),
     ]);
 
     paymentMethods.value = methodsRes.data;

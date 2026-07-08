@@ -10,6 +10,7 @@
     prepend-inner-icon="ri-wallet-line"
     :error-messages="errorMessages"
     :required="required"
+    :rules="rules"
     clearable
   >
     <template #item="{ props, item }">

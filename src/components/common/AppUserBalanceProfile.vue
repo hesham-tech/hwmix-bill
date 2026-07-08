@@ -49,9 +49,8 @@
             />
             <!-- رصيد العهدة -->
             <AppBalanceDisplay
-              v-slot:default
               v-if="user?.relation_types?.includes('employee') || user?.cashbox_balance"
-              :amount="user?.cashbox_balance ?? user?.active_branch_balance"
+              :amount="user?.cashbox_balance ?? 0"
               perspective="admin"
               show-icon
               icon-size="12"
@@ -62,6 +61,7 @@
               title="العهدة النقدية"
             />
 
+          </div>
         </div>
       </div>
     </template>
@@ -141,7 +141,7 @@
           >
             <div class="text-xxs font-weight-bold opacity-70 text-primary mb-1">العهدة النقدية بالصندوق</div>
             <AppBalanceDisplay
-              :amount="user?.cashbox_balance ?? user?.active_branch_balance"
+              :amount="user?.cashbox_balance ?? 0"
               :perspective="perspective"
               show-icon
               icon-size="20"
@@ -159,9 +159,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { formatCurrency } from '@/utils/formatters';
 import AppAvatar from './AppAvatar.vue';
 import AppPhone from './AppPhone.vue';
 import AppBalanceDisplay from './AppBalanceDisplay.vue';
@@ -202,11 +200,6 @@ const props = defineProps({
 
 const router = useRouter();
 const emit = defineEmits(['click']);
-
-const balanceTitle = computed(() => {
-  if (props.perspective === 'customer') return 'رصيدك الحالي';
-  return 'رصيد العميل';
-});
 
 const handleClick = () => {
   if (props.clickable && props.user?.id) {

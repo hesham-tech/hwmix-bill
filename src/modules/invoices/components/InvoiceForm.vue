@@ -209,7 +209,11 @@ const financials = computed(() => {
     net_amount = taxable_amount + total_tax;
   }
 
-  const raw_previous_balance = parseFloat(selectedCustomerObj.value?.balance || 0);
+  const raw_previous_balance = parseFloat(
+    currentContext.value === 'purchase'
+      ? selectedCustomerObj.value?.payable_balance ?? 0
+      : selectedCustomerObj.value?.receivable_balance ?? 0
+  );
   const effective_previous_balance = invoiceData.value.include_previous_balance ? raw_previous_balance : 0;
 
   const total_balance = net_amount - effective_previous_balance;

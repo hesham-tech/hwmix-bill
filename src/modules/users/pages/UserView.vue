@@ -242,7 +242,6 @@ const activeTab = ref('details');
 const showEmployeeTabs = computed(() => {
   if (!user.value) return false;
   const relations = user.value.relation_types || [];
-  if (relations.length === 0) return true; // كخيار تلقائي للمشرفين
   return relations.includes('employee');
 });
 
@@ -273,7 +272,7 @@ const onDelete = () => {
 
 const onDeletionConfirm = async () => {
   await handleConfirm(); // Deletion logic from composable
-  router.push('/users'); // Redirect to list after deletion
+  router.push('/app/users'); // Redirect to list after deletion
 };
 
 const getRoleColor = roleName => {
