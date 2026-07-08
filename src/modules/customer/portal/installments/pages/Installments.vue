@@ -18,12 +18,12 @@
         <!-- Unified Account Balance -->
         <div
           class="stat-card px-6 py-4 rounded-xl flex-grow-1 min-w-280 shadow-sm transition-all"
-          :class="userStore.currentUser?.balance > 0 ? 'bg-error-lighten-5 border-error' : 'bg-primary-lighten-5 border-primary'"
+          :class="(userStore.currentUser?.receivable_balance ?? 0) > 0 ? 'bg-error-lighten-5 border-error' : 'bg-primary-lighten-5 border-primary'"
           style="border: 1px dashed"
         >
           <div class="d-flex align-center gap-2 mb-1">
             <AppBalanceDisplay
-              :amount="userStore.currentUser?.balance || 0"
+              :amount="userStore.currentUser?.receivable_balance ?? 0"
               perspective="customer"
               show-icon
               hide-label

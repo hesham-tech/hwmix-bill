@@ -98,8 +98,8 @@
             <v-tab value="details" prepend-icon="ri-information-line" class="px-6">المعلومات الإضافية</v-tab>
             <v-tab value="statement" prepend-icon="ri-file-paper-2-line" class="px-6">كشف الحساب</v-tab>
             <v-tab value="invoices" prepend-icon="ri-file-list-3-line" class="px-6">الفواتير</v-tab>
-            <v-tab value="cashboxes" prepend-icon="ri-safe-2-line" class="px-6">الخزائن</v-tab>
-            <v-tab value="transactions" prepend-icon="ri-exchange-funds-line" class="px-6">المعاملات المالية</v-tab>
+            <v-tab v-if="showEmployeeTabs" value="cashboxes" prepend-icon="ri-safe-2-line" class="px-6">الخزائن</v-tab>
+            <v-tab v-if="showEmployeeTabs" value="transactions" prepend-icon="ri-exchange-funds-line" class="px-6">المعاملات المالية</v-tab>
             <v-tab value="payments" prepend-icon="ri-bank-card-2-line" class="px-6">المدفوعات</v-tab>
             <v-tab value="activity" prepend-icon="ri-history-line" class="px-6">النشاطات</v-tab>
           </v-tabs>
@@ -154,11 +154,11 @@
               <InvoiceList v-if="activeTab === 'invoices'" :user-id="user.id" hide-header />
             </v-window-item>
 
-            <v-window-item value="cashboxes">
+            <v-window-item v-if="showEmployeeTabs" value="cashboxes">
               <CashBoxList v-if="activeTab === 'cashboxes'" :user-id="user.id" hide-header />
             </v-window-item>
 
-            <v-window-item value="transactions">
+            <v-window-item v-if="showEmployeeTabs" value="transactions">
               <TransactionsList v-if="activeTab === 'transactions'" :user-id="user.id" hide-header />
             </v-window-item>
 
@@ -212,7 +212,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useUser } from '../composables/useUser';
 import { usePermissions } from '@/composables/usePermissions';
@@ -238,6 +238,13 @@ const { formData, isOpen, close, showConfirm, confirmMessage, handleConfirm, han
 const user = ref(null);
 const loading = ref(true);
 const activeTab = ref('details');
+
+const showEmployeeTabs = computed(() => {
+  if (!user.value) return false;
+  const relations = user.value.relation_types || [];
+  if (relations.length === 0) return true; // كخيار تلقائي للمشرفين
+  return relations.includes('employee');
+});
 
 const fetchUserData = async () => {
   loading.value = true;

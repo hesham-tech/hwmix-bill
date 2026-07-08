@@ -74,7 +74,7 @@ const loadCashBoxes = async () => {
 
   loading.value = true;
   try {
-    const response = await getCashBoxes({ current_user: 1, per_page: 100 });
+    const response = await getCashBoxes({ current_user: 1, is_active: 1, per_page: 100 });
     localCashBoxes.value = response.data || [];
 
     // Auto-select default cash box if exists and none selected

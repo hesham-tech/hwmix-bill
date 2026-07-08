@@ -475,7 +475,7 @@ const saveInvoice = async () => {
 
 const loadLookups = async () => {
   try {
-    const [typesRes, whRes, cbRes] = await Promise.all([getInvoiceTypes(), getWarehouses(), getCashBoxes()]);
+    const [typesRes, whRes, cbRes] = await Promise.all([getInvoiceTypes(), getWarehouses(), getCashBoxes({ is_active: 1, per_page: 100 })]);
     invoiceTypes.value = typesRes.data || [];
     warehouses.value = whRes.data || [];
     cashBoxes.value = cbRes.data || [];

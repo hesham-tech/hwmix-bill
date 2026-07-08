@@ -24,7 +24,7 @@
             <!-- رصيد العميل -->
             <AppBalanceDisplay
               v-if="user?.relation_types?.includes('customer') || user?.receivable_balance"
-              :amount="user?.receivable_balance ?? user?.balance"
+              :amount="user?.receivable_balance ?? 0"
               perspective="admin"
               show-icon
               icon-size="12"
@@ -61,31 +61,7 @@
               style="border-style: dashed !important"
               title="العهدة النقدية"
             />
-            <!-- توافقية خلفية احتياطية -->
-            <AppBalanceDisplay
-              v-if="!user?.relation_types && (user?.active_branch_balance != null || user?.balance != null)"
-              :amount="user?.active_branch_balance ?? user?.balance"
-              perspective="admin"
-              show-icon
-              icon-size="12"
-              value-class="text-xxs font-weight-black"
-              label-class="text-xxs me-1"
-              custom-class="px-2 py-0-5 rounded-pill border border-opacity-25 bg-neutral-lighten-5"
-              style="border-style: dashed !important"
-            />
-            <v-chip
-              v-slot:default
-              v-if="user?.total_branches_balance != null && user.total_branches_balance !== (user.active_branch_balance ?? user.balance)"
-              size="x-small"
-              variant="tonal"
-              color="info"
-              class="px-1 text-xxs font-weight-bold"
-              style="font-size: 0.65rem !important; height: 16px; min-width: auto;"
-              title="إجمالي الأرصدة في كافة فروع المستخدم"
-            >
-              الكل: {{ formatCurrency(user.total_branches_balance) }}
-            </v-chip>
-          </div>
+
         </div>
       </div>
     </template>
@@ -127,7 +103,7 @@
           >
             <div class="text-xxs font-weight-bold opacity-70 text-error mb-1">مديونية العميل (ذمة مدينة)</div>
             <AppBalanceDisplay
-              :amount="user?.receivable_balance ?? user?.balance"
+              :amount="user?.receivable_balance ?? 0"
               :perspective="perspective"
               show-icon
               icon-size="20"
@@ -175,27 +151,10 @@
             />
           </v-card>
 
-          <!-- بطاقة احتياطية للتوافقية -->
-          <v-card
-            v-if="!user?.relation_types && (user?.active_branch_balance != null || user?.balance != null)"
-            variant="flat"
-            class="rounded-xl px-6 py-3 border-dashed w-100 shadow-sm bg-white"
-            style="border: 1px dashed; border-color: rgba(var(--v-theme-primary), 0.2)"
-          >
-            <div class="text-xxs font-weight-bold opacity-70 text-primary mb-1">{{ balanceTitle }}</div>
-            <AppBalanceDisplay
-              :amount="user?.active_branch_balance ?? user?.balance"
-              :perspective="perspective"
-              show-icon
-              icon-size="20"
-              value-class="text-h5 font-weight-black"
-              label-class="text-subtitle-2 font-weight-bold"
-              custom-class="d-flex align-center justify-space-between"
-            />
-          </v-card>
         </div>
       </div>
     </template>
+
   </div>
 </template>
 

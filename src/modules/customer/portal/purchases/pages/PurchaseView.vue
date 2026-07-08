@@ -12,11 +12,11 @@
         <!-- Global Account Balance Info -->
         <v-card
           variant="tonal"
-          :color="userStore.currentUser?.balance > 0 ? 'error' : 'success'"
+          :color="(userStore.currentUser?.receivable_balance ?? 0) > 0 ? 'error' : 'success'"
           class="pa-2 px-4 rounded-xl d-flex align-center gap-2"
         >
           <AppBalanceDisplay
-            :amount="userStore.currentUser?.balance || 0"
+            :amount="userStore.currentUser?.receivable_balance ?? 0"
             perspective="customer"
             show-icon
             hide-label

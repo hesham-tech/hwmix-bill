@@ -72,7 +72,7 @@
               {{ item.raw.email }}
             </span>
             <AppBalanceDisplay 
-              :amount="relationType === 'customer' ? (item.raw.receivable_balance ?? item.raw.balance) : (relationType === 'supplier' ? item.raw.payable_balance : item.raw.cashbox_balance)" 
+              :amount="relationType === 'customer' ? (item.raw.receivable_balance ?? 0) : (relationType === 'supplier' ? item.raw.payable_balance : item.raw.cashbox_balance)" 
               perspective="admin"
               hide-label
               value-class="text-xxs font-weight-bold"

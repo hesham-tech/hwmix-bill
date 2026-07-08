@@ -37,7 +37,7 @@
               <div class="text-center">
                 <div class="text-caption text-grey">الرصيد الحالي</div>
                 <AppBalanceDisplay 
-                  :amount="userStore.currentUser?.balance || 0" 
+                  :amount="userStore.currentUser?.receivable_balance ?? 0" 
                   perspective="admin"
                   value-class="text-body-1 font-weight-bold"
                 />
