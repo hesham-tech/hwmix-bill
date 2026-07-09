@@ -5,6 +5,7 @@
     icon="ri-equalizer-line"
     max-width="600"
     :loading="loading"
+    action-key="stock_adjustment"
     @confirm="handleSubmit"
     @close="close"
   >

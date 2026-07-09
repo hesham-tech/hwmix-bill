@@ -6,6 +6,7 @@
     max-width="500"
     :loading="loading"
     confirm-text="بدء عملية التسوية"
+    action-key="cashbox_reconciliation"
     @confirm="handleSubmit"
     @close="close"
   >

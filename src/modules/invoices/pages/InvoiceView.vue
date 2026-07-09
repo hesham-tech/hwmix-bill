@@ -274,17 +274,19 @@
 
               <v-divider v-if="can('invoices.update_all')" class="no-print" />
 
-              <v-select
-                v-if="can('invoices.update_all')"
-                v-model="selectedStatus"
-                :items="statusOptions"
-                label="تغيير الحالة"
-                variant="outlined"
-                density="comfortable"
-                class="no-print mt-2"
-                hide-details
-                @update:model-value="updateStatus"
-              />
+              <div v-if="can('invoices.update_all')" class="d-flex align-center mt-2 gap-2">
+                <v-select
+                  v-model="selectedStatus"
+                  :items="statusOptions"
+                  label="تغيير الحالة"
+                  variant="outlined"
+                  density="comfortable"
+                  class="no-print flex-grow-1"
+                  hide-details
+                  @update:model-value="updateStatus"
+                />
+                <AppActionHelp action-key="invoice_reversal" size="small" class="no-print" />
+              </div>
             </div>
           </AppCard>
 
@@ -404,6 +406,7 @@ import notificationManager from '@/services/notificationManager';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import { PERMISSIONS } from '@/config/permissions';
 import { AppPrintShare } from '@/components';
+import AppActionHelp from '@/components/common/AppActionHelp.vue';
 
 const router = useRouter();
 const route = useRoute();

@@ -33,13 +33,16 @@
       </v-card-text>
 
       <!-- Dialog Actions -->
-      <v-card-actions v-if="showActions" class="dialog-actions pa-5 bg-grey-lighten-5 border-t">
-        <v-spacer />
+      <v-card-actions v-if="showActions" class="dialog-actions pa-5 bg-grey-lighten-5 border-t d-flex align-center">
+        <!-- Reusable Operation Impact Helper -->
+        <AppActionHelp v-if="actionKey" :action-key="actionKey" size="small" class="me-2" />
+        <v-spacer v-if="!$slots.actions || actionKey" />
 
-        <div v-if="$slots.actions" class="w-100 d-flex justify-end gap-3">
+        <div v-if="$slots.actions" class="d-flex justify-end gap-3 align-center flex-grow-1">
           <slot name="actions" />
         </div>
         <template v-else-if="!hideActions">
+          <v-spacer v-if="!actionKey" />
           <v-btn v-if="showCancel" variant="tonal" color="grey-darken-1" class="px-6 font-weight-bold rounded-md" @click="handleCancel">
             {{ cancelText }}
           </v-btn>
@@ -62,10 +65,16 @@
 </template>
 
 <script setup>
+import AppActionHelp from './AppActionHelp.vue';
+
 const props = defineProps({
   modelValue: {
     type: Boolean,
     default: false,
+  },
+  actionKey: {
+    type: String,
+    default: '',
   },
   title: {
     type: String,

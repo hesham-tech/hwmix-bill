@@ -196,6 +196,7 @@
 
           <template #actions>
             <div class="d-flex w-100 align-center gap-3">
+              <AppActionHelp action-key="installment_payment" size="small" />
               <AppButton variant="text" color="secondary" @click="handleCancel"> تراجع </AppButton>
               <v-spacer />
               <AppButton color="primary" type="submit" :loading="saving" prepend-icon="ri-save-line" class="px-8"> تأكيد وتسجيل الدفعة </AppButton>
@@ -215,6 +216,7 @@ import AppButton from '@/components/common/AppButton.vue';
 import AppCard from '@/components/common/AppCard.vue';
 import AppInput from '@/components/common/AppInput.vue';
 import AppAutocomplete from '@/components/common/AppAutocomplete.vue';
+import AppActionHelp from '@/components/common/AppActionHelp.vue';
 import { formatCurrency } from '@/utils/formatters';
 
 const router = useRouter();

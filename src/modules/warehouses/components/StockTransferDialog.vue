@@ -5,6 +5,7 @@
     icon="ri-arrow-left-right-line"
     max-width="650"
     :loading="loading"
+    action-key="stock_transfer"
     @confirm="handleSubmit"
     @close="close"
   >

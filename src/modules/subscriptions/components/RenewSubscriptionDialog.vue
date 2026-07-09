@@ -136,7 +136,8 @@
 
       <v-divider />
 
-      <v-card-actions class="pa-4 bg-grey-lighten-5">
+      <v-card-actions class="pa-4 bg-grey-lighten-5 d-flex align-center">
+        <AppActionHelp action-key="renew_subscription" size="small" class="me-2" />
         <v-spacer />
         <AppButton variant="text" @click="show = false">إلغاء</AppButton>
         <AppButton
@@ -158,6 +159,7 @@ import { ref, reactive, computed, watch } from 'vue';
 import { subscriptionApiService, apiClient } from '@/api';
 import AppButton from '@/components/common/AppButton.vue';
 import AppInput from '@/components/common/AppInput.vue';
+import AppActionHelp from '@/components/common/AppActionHelp.vue';
 import AppAutocomplete from '@/components/common/AppAutocomplete.vue';
 import { formatDate, formatCurrency } from '@/utils/formatters';
 import notificationManager from '@/services/notificationManager';
