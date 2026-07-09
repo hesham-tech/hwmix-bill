@@ -19,4 +19,13 @@ export default [
       permission: [PERMISSIONS.TRANSACTIONS_VIEW_ALL, PERMISSIONS.TRANSACTIONS_VIEW_CHILDREN, PERMISSIONS.TRANSACTIONS_VIEW_SELF],
     },
   },
+  {
+    path: 'reconciliations',
+    name: 'reconciliations',
+    component: () => import('@/modules/cashbox/pages/ReconciliationList.vue'),
+    meta: {
+      title: 'تسويات المطابقة',
+      permission: [PERMISSIONS.ADMIN_SUPER, PERMISSIONS.ADMIN_COMPANY],
+    },
+  },
 ];

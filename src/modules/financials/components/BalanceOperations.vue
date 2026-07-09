@@ -110,6 +110,10 @@ const props = defineProps({
     type: String,
     default: 'deposit',
   },
+  cashBoxId: {
+    type: [Number, String],
+    default: null,
+  },
 });
 
 const emit = defineEmits(['update:modelValue', 'success']);
@@ -228,9 +232,10 @@ const handleSubmit = async () => {
   try {
     let response;
     const commonPayload = {
-      user_id: props.user.id,
+      user_id: props.user?.id || authStore.user?.id,
       amount: form.amount,
       description: form.description,
+      cash_box_id: props.cashBoxId || null,
     };
 
     if (operationType.value === 'deposit') {
@@ -239,9 +244,10 @@ const handleSubmit = async () => {
       response = await transactionService.withdraw(commonPayload);
     } else if (operationType.value === 'transfer') {
       response = await transactionService.transfer({
-        from_user_id: props.user.id,
+        from_user_id: props.user?.id || authStore.user?.id,
         target_user_id: form.target_user_id,
         amount: form.amount,
+        from_cash_box_id: props.cashBoxId || null,
         description: form.description,
       });
     }

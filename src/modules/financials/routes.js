@@ -10,4 +10,13 @@ export default [
       permission: PERMISSIONS.TRANSACTIONS_VIEW_ALL,
     },
   },
+  {
+    path: 'owner-funds',
+    name: 'owner-funds',
+    component: () => import('./pages/OwnerFundsList.vue'),
+    meta: {
+      title: 'رأس المال والشركاء',
+      permission: [PERMISSIONS.ADMIN_SUPER, PERMISSIONS.ADMIN_COMPANY],
+    },
+  },
 ];

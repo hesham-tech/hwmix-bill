@@ -51,6 +51,43 @@
     </AppPageHeader>
 
     <v-container fluid class="pt-0">
+      <!-- ملخص السيولة النقدية -->
+      <v-row class="mb-6" v-if="!props.userId">
+        <v-col cols="12" md="4">
+          <v-card variant="flat" class="border rounded-lg bg-grey-lighten-4 pa-4 d-flex align-center">
+            <v-avatar color="primary-lighten-5" size="48" class="me-4 rounded-lg">
+              <v-icon icon="ri-money-dollar-circle-line" size="24" color="primary" />
+            </v-avatar>
+            <div>
+              <div class="text-caption text-grey">إجمالي النقدية السائلة</div>
+              <div class="text-h6 font-weight-bold text-slate-800">{{ formatCurrency(summary.total_cash) }}</div>
+            </div>
+          </v-card>
+        </v-col>
+        <v-col cols="12" md="4">
+          <v-card variant="flat" class="border rounded-lg bg-grey-lighten-4 pa-4 d-flex align-center">
+            <v-avatar color="info-lighten-5" size="48" class="me-4 rounded-lg">
+              <v-icon icon="ri-bank-line" size="24" color="info" />
+            </v-avatar>
+            <div>
+              <div class="text-caption text-grey">إجمالي الحسابات البنكية</div>
+              <div class="text-h6 font-weight-bold text-slate-800">{{ formatCurrency(summary.total_bank) }}</div>
+            </div>
+          </v-card>
+        </v-col>
+        <v-col cols="12" md="4">
+          <v-card variant="flat" class="border rounded-lg bg-grey-lighten-4 pa-4 d-flex align-center">
+            <v-avatar color="warning-lighten-5" size="48" class="me-4 rounded-lg">
+              <v-icon icon="ri-wallet-3-line" size="24" color="warning" />
+            </v-avatar>
+            <div>
+              <div class="text-caption text-grey">إجمالي المحافظ الإلكترونية</div>
+              <div class="text-h6 font-weight-bold text-slate-800">{{ formatCurrency(summary.total_wallets) }}</div>
+            </div>
+          </v-card>
+        </v-col>
+      </v-row>
+
       <LoadingSpinner v-if="loading" />
 
       <template v-else>
@@ -144,10 +181,29 @@
                     </div>
                   </v-card-text>
 
-                  <template
-                    v-if="can(PERMISSIONS.CASH_BOXES_UPDATE_ALL, { resource: item }) || can(PERMISSIONS.CASH_BOXES_DELETE_ALL, { resource: item })"
-                    #actions
-                  >
+                  <template #actions>
+                    <!-- العمليات المباشرة -->
+                    <v-menu location="bottom end" transition="slide-y-transition" v-if="item.is_active">
+                      <template #activator="{ props }">
+                        <AppButton
+                          v-bind="props"
+                          variant="tonal"
+                          color="primary"
+                          size="small"
+                          prepend-icon="ri-hand-coin-line"
+                        >
+                          العمليات
+                        </AppButton>
+                      </template>
+                      <v-list density="compact" class="py-1">
+                        <v-list-item prepend-icon="ri-qr-code-line" title="إيداع نقدي" @click="triggerOperation(item, 'deposit')" />
+                        <v-list-item prepend-icon="ri-hand-coin-line" title="سحب نقدي" @click="triggerOperation(item, 'withdraw')" />
+                        <v-list-item prepend-icon="ri-swap-box-line" title="تحويل أموال" @click="triggerOperation(item, 'transfer')" />
+                        <v-list-item prepend-icon="ri-scales-line" title="مطابقة وتسوية" @click="triggerReconciliation(item)" />
+                        <v-list-item prepend-icon="ri-history-line" title="سجل الحركات" @click="viewTransactions(item)" />
+                        <v-list-item v-if="!item.user_id" prepend-icon="ri-group-line" title="صلاحيات الوصول" @click="manageUsers(item)" />
+                      </v-list>
+                    </v-menu>
                     <v-spacer />
                     <AppButton
                       v-if="can(PERMISSIONS.CASH_BOXES_UPDATE_ALL, { resource: item })"
@@ -254,10 +310,70 @@
                 {{ item.is_active ? 'نشط' : 'غير نشط' }}
               </v-chip>
             </template>
+
+            <template #item.actions="{ item }">
+              <div class="d-flex align-center justify-end">
+                <v-menu location="bottom end" transition="slide-y-transition" v-if="item.is_active">
+                  <template #activator="{ props }">
+                    <AppButton
+                      v-bind="props"
+                      variant="tonal"
+                      color="primary"
+                      size="small"
+                      icon="ri-more-2-fill"
+                      class="me-1"
+                    />
+                  </template>
+                  <v-list density="compact" class="py-1">
+                    <v-list-item prepend-icon="ri-qr-code-line" title="إيداع نقدي" @click="triggerOperation(item, 'deposit')" />
+                    <v-list-item prepend-icon="ri-hand-coin-line" title="سحب نقدي" @click="triggerOperation(item, 'withdraw')" />
+                    <v-list-item prepend-icon="ri-swap-box-line" title="تحويل أموال" @click="triggerOperation(item, 'transfer')" />
+                    <v-list-item prepend-icon="ri-scales-line" title="مطابقة وتسوية" @click="triggerReconciliation(item)" />
+                    <v-list-item prepend-icon="ri-history-line" title="سجل الحركات" @click="viewTransactions(item)" />
+                    <v-list-item v-if="!item.user_id" prepend-icon="ri-group-line" title="صلاحيات الوصول" @click="manageUsers(item)" />
+                  </v-list>
+                </v-menu>
+                <AppButton
+                  v-if="can(PERMISSIONS.CASH_BOXES_UPDATE_ALL)"
+                  icon="ri-edit-line"
+                  variant="text"
+                  color="primary"
+                  @click="handleEdit(item)"
+                />
+                <AppButton
+                  v-if="can(PERMISSIONS.CASH_BOXES_DELETE_ALL)"
+                  icon="ri-delete-bin-line"
+                  variant="text"
+                  color="error"
+                  @click="handleDelete(item)"
+                />
+              </div>
+            </template>
           </AppDataTable>
         </template>
       </template>
     </v-container>
+
+    <!-- Dialogs for direct operations -->
+    <BalanceOperations
+      v-model="isBalanceOpen"
+      :user="balanceUser"
+      :cash-box-id="selectedCashBox?.id"
+      :initial-type="balanceType"
+      @success="fetchData(); loadSummary();"
+    />
+
+    <CashBoxUsersDialog
+      v-model="isUsersOpen"
+      :cash-box="selectedCashBox"
+      @success="fetchData"
+    />
+
+    <ReconciliationDialog
+      v-model="isReconciliationOpen"
+      :cash-box="selectedCashBox"
+      @success="fetchData"
+    />
 
     <!-- Form Dialog -->
     <!-- Form Dialog -->
@@ -317,7 +433,7 @@
               v-model="formData.user_id"
               :items="staffList"
               :loading="loadingStaff"
-              item-title="nickname"
+              :item-title="item => item.nickname ? `${item.full_name} (${item.nickname})` : item.full_name || item.name"
               item-value="id"
               label="الموظف المسؤول عن العهدة *"
               variant="outlined"
@@ -415,6 +531,7 @@
 <script setup>
 // عرض وإدارة قائمة صناديق النقد وتصفية الأرصدة وإدارة الصلاحيات
 import { ref, onMounted, computed, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import { useCashBoxesData } from '../composables/useCashBoxesData';
 import { useDataTable } from '@/composables/useDataTable';
 import { useApi } from '@/composables/useApi';
@@ -429,6 +546,9 @@ import AppCard from '@/components/common/AppCard.vue';
 import AppInfiniteScroll from '@/components/common/AppInfiniteScroll.vue';
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import EmptyState from '@/components/common/EmptyState.vue';
+import BalanceOperations from '@/modules/financials/components/BalanceOperations.vue';
+import CashBoxUsersDialog from '../components/CashBoxUsersDialog.vue';
+import ReconciliationDialog from '../components/ReconciliationDialog.vue';
 import { PERMISSIONS } from '@/config/permissions';
 import { useAuthStore } from '@/stores/auth';
 import { userService } from '@/api';
@@ -439,12 +559,29 @@ const props = defineProps({
   hideHeader: { type: Boolean, default: false }
 });
 
+const router = useRouter();
 const authStore = useAuthStore();
 const { can } = usePermissions();
 const api = useApi('/api/cash-boxes');
 const typesApi = useApi('/api/cash-box-types');
 const { deleteCashBox } = useCashBoxesData();
 const showAllBoxes = ref(false);
+
+// ملخص السيولة
+const summary = ref({ total_cash: 0, total_bank: 0, total_wallets: 0, total_all: 0 });
+const loadingSummary = ref(false);
+const loadSummary = async () => {
+  if (props.userId) return;
+  loadingSummary.value = true;
+  try {
+    const response = await api.request('get', '/summary', null, { showLoading: false, showError: false });
+    summary.value = response.data || { total_cash: 0, total_bank: 0, total_wallets: 0, total_all: 0 };
+  } catch (error) {
+    console.error('Failed to load cashboxes summary:', error);
+  } finally {
+    loadingSummary.value = false;
+  }
+};
 
 // API fetch function for useDataTable
 const fetchCashBoxesApi = async params => {
@@ -492,6 +629,46 @@ const showDialog = ref(false);
 const showDeleteDialog = ref(false);
 const selectedItem = ref(null);
 const saving = ref(false);
+
+// متغيرات العمليات المباشرة
+const isBalanceOpen = ref(false);
+const balanceUser = ref(null);
+const balanceType = ref('deposit');
+const selectedCashBox = ref(null);
+
+const isUsersOpen = ref(false);
+const isReconciliationOpen = ref(false);
+
+const canManageUsers = computed(() => {
+  return can(PERMISSIONS.ADMIN_SUPER) || can(PERMISSIONS.ADMIN_COMPANY) || can(PERMISSIONS.CASH_BOXES_UPDATE_ALL);
+});
+
+const triggerOperation = (item, type) => {
+  selectedCashBox.value = item;
+  balanceType.value = type;
+  
+  if (item.user_id) {
+    balanceUser.value = { id: item.user_id, nickname: item.user_nickname, name: item.user_name };
+  } else {
+    balanceUser.value = { id: authStore.user?.id, nickname: authStore.user?.nickname, name: authStore.user?.name };
+  }
+  
+  isBalanceOpen.value = true;
+};
+
+const triggerReconciliation = item => {
+  selectedCashBox.value = item;
+  isReconciliationOpen.value = true;
+};
+
+const manageUsers = item => {
+  selectedCashBox.value = item;
+  isUsersOpen.value = true;
+};
+
+const viewTransactions = item => {
+  router.push({ name: 'transactions', query: { cashbox_id: item.id } });
+};
 const deleting = ref(false);
 const formRef = ref(null);
 const cashBoxTypes = ref([]);
@@ -506,7 +683,7 @@ const loadingStaff = ref(false);
 const loadStaff = async () => {
   loadingStaff.value = true;
   try {
-    const response = await userService.getStaff({ per_page: 100 });
+    const response = await userService.getStaff({ per_page: 100, include_self: 1 });
     staffList.value = response.data;
   } catch (error) {
     console.error('Failed to load staff list:', error);
@@ -704,7 +881,7 @@ const onTableOptionsUpdate = options => {
 };
 
 onMounted(() => {
-  // Initial load is handled by useDataTable
+  loadSummary();
 });
 
 watch(viewMode, () => {
