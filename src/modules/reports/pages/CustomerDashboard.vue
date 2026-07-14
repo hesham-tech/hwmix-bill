@@ -59,7 +59,7 @@
 
     <!-- Content Sections with Tabs -->
     <v-card rounded="md" class="border">
-      <v-tabs v-model="activeTab" color="primary" align-tabs="start" class="border-bottom">
+      <v-tabs v-model="activeTab" color="primary" align-tabs="start" class="border-bottom" show-arrows>
         <v-tab v-if="recentInvoices.length > 0" value="invoices" class="text-body-1 font-weight-bold">
           <v-icon start icon="ri-bill-line" />
           فواتيري
@@ -74,7 +74,7 @@
         </v-tab>
       </v-tabs>
 
-      <v-window v-model="activeTab" class="pa-4">
+      <v-window v-model="activeTab" class="pa-4" :touch="false">
         <!-- Invoices Tab -->
         <v-window-item v-if="recentInvoices.length > 0" value="invoices">
           <AppDataTable :headers="invoiceHeaders" :items="recentInvoices" :loading="loading" hide-footer @view="showInvoiceDetails">

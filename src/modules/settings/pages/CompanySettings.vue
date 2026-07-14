@@ -48,7 +48,7 @@
       <!-- Content Column -->
       <v-col cols="12" md="9">
         <v-form ref="formRef">
-          <v-window v-model="activeTab" class="bg-transparent overflow-visible">
+          <v-window v-model="activeTab" class="bg-transparent overflow-visible" :touch="false">
             <!-- TAB 1: BASIC IDENTITY -->
             <v-window-item value="basic">
               <v-row>
@@ -668,6 +668,39 @@
                           </template>
                         </AppInput>
                       </v-col>
+
+                      <v-col cols="12" md="6">
+                        <AppInput
+                          v-model.number="formData.settings.installment_interest_rate"
+                          label="نسبة الفائدة الافتراضية للتقسيط (%)"
+                          placeholder="أدخل نسبة الفائدة (مثال: 30)"
+                          prepend-inner-icon="ri-percent-line"
+                          type="number"
+                          min="0"
+                          max="100"
+                          density="comfortable"
+                        >
+                          <template v-if="isFieldChanged('settings.installment_interest_rate')" #append-inner>
+                            <v-btn
+                              icon="ri-check-line"
+                              variant="text"
+                              color="success"
+                              size="x-small"
+                              density="comfortable"
+                              class="me-1"
+                              @click.stop="handleSave"
+                            />
+                            <v-btn
+                              icon="ri-close-line"
+                              variant="text"
+                              color="error"
+                              size="x-small"
+                              density="comfortable"
+                              @click.stop="revertField('settings.installment_interest_rate')"
+                            />
+                          </template>
+                        </AppInput>
+                      </v-col>
                     </v-row>
                   </AppCard>
                 </v-col>
@@ -840,6 +873,7 @@ const formData = ref({
     activity_log_retention_unit: 'years',
     date_format: 'dddd D / M / YYYY',
     date_separator: '',
+    installment_interest_rate: 30,
   },
   print_settings: {
     print_format: 'thermal',
@@ -980,6 +1014,7 @@ const loadCompanyData = async () => {
           activity_log_retention_unit: 'years',
           date_format: 'dddd D / M / YYYY',
           date_separator: '',
+          installment_interest_rate: 30,
           ...(data.settings || {}),
         },
         print_settings: data.print_settings || {

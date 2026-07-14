@@ -79,7 +79,7 @@
       <!-- Document Content Workspace -->
       <v-col cols="12" md="8">
         <v-card class="border rounded-xl bg-white elevation-1">
-          <v-tabs v-model="activeTab" bg-color="transparent" color="primary" class="border-b no-print" grow>
+          <v-tabs v-model="activeTab" bg-color="transparent" color="primary" class="border-b no-print" grow show-arrows>
             <v-tab value="edit" class="font-weight-bold">
               <v-icon icon="ri-markdown-line" class="me-2" />
               صياغة المحتوى
@@ -94,7 +94,7 @@
             </v-tab>
           </v-tabs>
 
-          <v-window v-model="activeTab">
+          <v-window v-model="activeTab" :touch="false">
             <!-- Edit Pane -->
             <v-window-item value="edit" class="pa-6">
               <div class="mb-4 d-flex justify-space-between align-center text-subtitle-2 text-grey-darken-1">

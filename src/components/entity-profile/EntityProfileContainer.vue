@@ -71,7 +71,7 @@
       <v-col cols="12" md="8">
         <v-card class="rounded-md border border-grey-lighten-4 h-100 overflow-hidden elevation-sm">
           <!-- Dynamic Tabs -->
-          <v-tabs v-model="activeTab" bg-color="white" color="primary" density="comfortable" align-tabs="start" class="border-b">
+          <v-tabs v-model="activeTab" bg-color="white" color="primary" density="comfortable" align-tabs="start" class="border-b" show-arrows>
             <v-tab
               v-for="group in activeGroups"
               :key="group.key"
@@ -84,7 +84,7 @@
           </v-tabs>
 
           <!-- Dynamic Windows -->
-          <v-window v-model="activeTab" class="pa-4">
+          <v-window v-model="activeTab" class="pa-4" :touch="false">
             <v-window-item
               v-for="group in activeGroups"
               :key="group.key"

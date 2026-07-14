@@ -4,7 +4,11 @@ import { useUserStore } from '@/stores/user';
 
 export function useInstallments(initialData = {}) {
   const userStore = useUserStore();
-  const defaultRate = userStore.currentCompany?.settings?.installment_interest_rate ?? 30;
+  const rawRate = computed(() => userStore.currentCompany?.settings?.installment_interest_rate);
+  const defaultRate = computed(() => {
+    const val = rawRate.value;
+    return (val !== undefined && val !== null && !isNaN(parseFloat(val))) ? parseFloat(val) : 30;
+  });
 
   const totalAmount = ref(initialData.totalAmount || 0);
   const frequency = ref(initialData.frequency || 'monthly');
@@ -12,12 +16,18 @@ export function useInstallments(initialData = {}) {
   const plan = ref({
     down_payment: initialData.plan?.down_payment || 0,
     number_of_installments: initialData.plan?.number_of_installments || 12,
-    interest_rate: initialData.plan?.interest_rate ?? defaultRate,
+    interest_rate: initialData.plan?.interest_rate ?? defaultRate.value,
     installment_amount: 0,
     round_step: initialData.plan?.round_step || 5,
     start_date: initialData.plan?.start_date || new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString().split('T')[0],
     ...initialData.plan,
   });
+
+  watch(defaultRate, (newVal) => {
+    if (initialData.plan?.interest_rate === undefined) {
+      plan.value.interest_rate = newVal;
+    }
+  }, { immediate: true });
 
   const schedule = ref([]);
 

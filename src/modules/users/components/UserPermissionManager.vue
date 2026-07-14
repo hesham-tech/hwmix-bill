@@ -53,7 +53,7 @@
           </v-select>
         </div>
 
-        <v-window v-model="tab" class="content-window">
+        <v-window v-model="tab" class="content-window" :touch="false">
           <!-- Roles Segment -->
           <v-window-item value="roles" class="h-100">
             <div class="d-flex flex-column h-100">

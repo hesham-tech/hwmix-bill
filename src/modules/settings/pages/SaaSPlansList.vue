@@ -14,7 +14,7 @@
     </div>
 
     <!-- Navigation Tabs -->
-    <v-tabs v-model="activeTab" color="primary" align-tabs="start" class="border-b mb-6 tour-saas-tabs">
+    <v-tabs v-model="activeTab" color="primary" align-tabs="start" class="border-b mb-6 tour-saas-tabs" show-arrows>
       <v-tab :value="0">
         <v-icon icon="ri-vip-crown-line" class="me-2" />
         الباقات والأسعار
@@ -25,7 +25,7 @@
       </v-tab>
     </v-tabs>
 
-    <v-window v-model="activeTab">
+    <v-window v-model="activeTab" :touch="false">
       <!-- Tab 1: Plans and Prices -->
       <v-window-item :value="0">
         <AppDataTable
