@@ -564,6 +564,7 @@
             density="comfortable"
             placeholder="اختر الباقة لتغيير اشتراك الشركة إليها"
             class="mt-2"
+            @update:model-value="onPlanChange"
           >
             <template #item="{ props, item }">
               <v-list-item
@@ -572,15 +573,43 @@
               />
             </template>
           </v-select>
-        </v-card-text>
 
-        <v-card-actions class="pa-4 bg-grey-lighten-4">
-          <v-spacer />
-          <v-btn variant="text" class="rounded-pill font-weight-bold" @click="showChangePlanDialog = false">إلغاء</v-btn>
-          <v-btn color="primary" class="rounded-pill px-6 font-weight-bold" :loading="changingPlan" @click="confirmChangePlan"
-            >تغيير الباقة وتحديث الاشتراك</v-btn
-          >
-        </v-card-actions>
+          <v-row class="mt-1">
+            <v-col cols="6">
+              <v-text-field
+                v-model.number="changePlanDuration"
+                label="مدة التجديد *"
+                type="number"
+                min="1"
+                variant="outlined"
+                density="comfortable"
+                hide-details
+              />
+            </v-col>
+            <v-col cols="6">
+              <v-select
+                v-model="changePlanDurationUnit"
+                label="وحدة المدة *"
+                :items="[
+                  { title: 'أيام', value: 'days' },
+                  { title: 'أشهر', value: 'months' },
+                  { title: 'سنوات', value: 'years' }
+                ]"
+                variant="outlined"
+                density="comfortable"
+                hide-details
+              />
+            </v-col>
+          </v-row>
+        </v-card-text>
+ 
+         <v-card-actions class="pa-4 bg-grey-lighten-4">
+           <v-spacer />
+           <v-btn variant="text" class="rounded-pill font-weight-bold" @click="showChangePlanDialog = false">إلغاء</v-btn>
+           <v-btn color="primary" class="rounded-pill px-6 font-weight-bold" :loading="changingPlan" @click="confirmChangePlan"
+             >تغيير الباقة وتحديث الاشتراك</v-btn
+           >
+         </v-card-actions>
       </v-card>
     </v-dialog>
 
@@ -635,6 +664,8 @@ const loadingCompanies = ref(false);
 const showChangePlanDialog = ref(false);
 const selectedCompany = ref(null);
 const selectedPlanId = ref(null);
+const changePlanDuration = ref(1);
+const changePlanDurationUnit = ref('months');
 const changingPlan = ref(false);
 const searchCompany = ref('');
 
@@ -927,9 +958,23 @@ const confirmDelete = async () => {
 };
 
 // عمليات تغيير باقة شركة
+const onPlanChange = (planId) => {
+  const plan = plans.value.find(p => p.id === planId);
+  if (plan) {
+    changePlanDuration.value = plan.duration || 1;
+    changePlanDurationUnit.value = plan.duration_unit || 'months';
+  }
+};
+
 const handleOpenChangePlan = company => {
   selectedCompany.value = company;
   selectedPlanId.value = company.plan_id;
+
+  // تهيئة المدة والوحدة بناءً على الباقة الحالية إذا وُجدت
+  const plan = plans.value.find(p => p.id === company.plan_id);
+  changePlanDuration.value = plan ? plan.duration : 1;
+  changePlanDurationUnit.value = plan ? plan.duration_unit : 'months';
+
   showChangePlanDialog.value = true;
 };
 
@@ -941,6 +986,8 @@ const confirmChangePlan = async () => {
       {
         company_id: selectedCompany.value.company_id,
         plan_id: selectedPlanId.value,
+        duration: changePlanDuration.value,
+        duration_unit: changePlanDurationUnit.value,
       },
       { successMessage: 'تم تغيير باقة الشركة بنجاح' }
     );

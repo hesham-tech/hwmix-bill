@@ -1,46 +1,46 @@
 <template>
-  <div class="user-view-page pa-4 pa-md-8">
-    <!-- Header -->
-    <div class="d-flex align-center justify-space-between mb-8 flex-wrap gap-4">
-      <div class="d-flex align-center gap-4">
-        <AppButton icon="ri-arrow-right-line" variant="text" @click="$router.back()" />
-        <div>
-          <h1 class="text-h4 font-weight-bold mb-1">تفاصيل المستخدم</h1>
-          <p class="text-subtitle-2 text-grey">عرض البيانات الكاملة للمستخدم والنشاطات</p>
-        </div>
-      </div>
-      <div class="d-flex gap-3">
-        <AppButton v-if="can(PERMISSIONS.USERS_DELETE_ALL)" color="error" variant="tonal" prepend-icon="ri-delete-bin-line" @click="onDelete">
+  <div class="user-view-page">
+    <EntityProfileContainer
+      :entity-id="route.params.id"
+      entity-type="user"
+      :fetch-action="loadUser"
+    >
+      <!-- Title & Subtitle Slots -->
+      <template #title>تفاصيل المستخدم</template>
+      <template #subtitle>عرض البيانات الكاملة للمستخدم والنشاطات</template>
+
+      <!-- Header Actions Slot -->
+      <template #header-actions="{ entity }">
+        <AppButton
+          v-if="can(PERMISSIONS.USERS_DELETE_ALL)"
+          color="error"
+          variant="tonal"
+          prepend-icon="ri-delete-bin-line"
+          @click="onDelete(entity)"
+        >
           حذف المستخدم
         </AppButton>
-        <AppButton v-if="can(PERMISSIONS.USERS_UPDATE_ALL)" color="primary" prepend-icon="ri-edit-line" @click="onEdit"> تعديل البيانات </AppButton>
-      </div>
-    </div>
+        <AppButton
+          v-if="can(PERMISSIONS.USERS_UPDATE_ALL)"
+          color="primary"
+          prepend-icon="ri-edit-line"
+          @click="onEdit(entity)"
+        >
+          تعديل البيانات
+        </AppButton>
+      </template>
 
-    <!-- Loading State -->
-    <v-row v-if="loading">
-      <v-col cols="12" md="4">
-        <v-skeleton-loader type="card" height="500" class="rounded-md" />
-      </v-col>
-      <v-col cols="12" md="8">
-        <v-skeleton-loader type="article, table" height="500" class="rounded-md" />
-      </v-col>
-    </v-row>
-
-    <!-- Content -->
-    <v-row v-else-if="user">
-      <!-- Sidebar Info Card -->
-      <v-col cols="12" md="4">
-        <v-card class="user-sidebar-card rounded-md overflow-hidden border-0 elevation-sm h-100">
+      <!-- Sidebar Card Slot -->
+      <template #sidebar="{ entity }">
+        <v-card v-if="entity" class="user-sidebar-card rounded-md overflow-hidden border-0 elevation-sm h-100">
           <!-- Gradient Header -->
-          <!-- Hero Component -->
           <div class="user-card-header pa-8 pb-4 text-center position-relative overflow-hidden">
-            <AppUserBalanceProfile :user="user" mode="vertical" :avatar-size="160" class="position-relative" style="z-index: 2" />
+            <AppUserBalanceProfile :user="entity" mode="vertical" :avatar-size="160" class="position-relative" style="z-index: 2" />
 
             <div class="d-flex justify-center gap-1 flex-wrap mt-4 mb-2 position-relative" style="z-index: 2">
               <!-- علاقات الطرف التجارية -->
               <v-chip
-                v-for="rel in user.relation_types"
+                v-for="rel in entity.relation_types"
                 :key="rel"
                 :color="rel === 'customer' ? 'primary' : (rel === 'supplier' ? 'success' : (rel === 'employee' ? 'info' : 'warning'))"
                 size="small"
@@ -52,7 +52,7 @@
               
               <!-- الأدوار الأمنية -->
               <v-chip
-                v-for="role in user.roles"
+                v-for="role in entity.roles"
                 :key="role"
                 :color="getRoleColor(role)"
                 size="small"
@@ -61,15 +61,15 @@
               >
                 {{ role }}
               </v-chip>
-              <v-chip v-if="!user.relation_types?.length && !user.roles?.length" size="small" variant="flat" color="rgba(255,255,255,0.2)" class="text-white"> عميل </v-chip>
+              <v-chip v-if="!entity.relation_types?.length && !entity.roles?.length" size="small" variant="flat" color="rgba(255,255,255,0.2)" class="text-white"> عميل </v-chip>
             </div>
           </div>
 
           <!-- Basic Info List -->
           <v-list class="pa-4 bg-transparent">
-            <v-list-item prepend-icon="ri-mail-line" class="rounded-md mb-2" :title="user.email || 'لا يوجد بريد'" subtitle="البريد الإلكتروني" />
-            <v-list-item prepend-icon="ri-at-line" class="rounded-md mb-2" :title="user.username" subtitle="اسم المستخدم" />
-            <v-list-item prepend-icon="ri-calendar-line" class="rounded-md mb-2" :title="formatDate(user.created_at)" subtitle="تاريخ الانضمام" />
+            <v-list-item prepend-icon="ri-mail-line" class="rounded-md mb-2" :title="entity.email || 'لا يوجد بريد'" subtitle="البريد الإلكتروني" />
+            <v-list-item prepend-icon="ri-at-line" class="rounded-md mb-2" :title="entity.username" subtitle="اسم المستخدم" />
+            <v-list-item prepend-icon="ri-calendar-line" class="rounded-md mb-2" :title="formatDate(entity.created_at)" subtitle="تاريخ الانضمام" />
           </v-list>
 
           <v-divider class="mx-6 opacity-20" />
@@ -78,108 +78,24 @@
             <div class="stats-grid">
               <div class="stat-item text-center pa-3 rounded-md border border-dashed">
                 <div class="text-caption text-grey">نوع العميل</div>
-                <div class="text-body-2 font-weight-bold mt-1" :class="user.customer_type === 'wholesale' ? 'text-purple' : 'text-info'">
-                  {{ user.customer_type === 'wholesale' ? 'جملة' : 'قطاعي' }}
+                <div class="text-body-2 font-weight-bold mt-1" :class="entity.customer_type === 'wholesale' ? 'text-purple' : 'text-info'">
+                  {{ entity.customer_type === 'wholesale' ? 'جملة' : 'قطاعي' }}
                 </div>
               </div>
               <div class="stat-item text-center pa-3 rounded-md border border-dashed">
                 <div class="text-caption text-grey">المبيعات</div>
-                <div class="text-body-2 font-weight-bold mt-1">{{ user.sales_count || 0 }}</div>
+                <div class="text-body-2 font-weight-bold mt-1">{{ entity.sales_count || 0 }}</div>
               </div>
             </div>
           </div>
         </v-card>
-      </v-col>
+      </template>
 
-      <!-- Main Content Tabs -->
-      <v-col cols="12" md="8">
-        <v-card class="rounded-md border border-grey-lighten-4 h-100 overflow-hidden elevation-sm">
-          <v-tabs v-model="activeTab" bg-color="white" color="primary" density="comfortable" align-tabs="start" class="border-b">
-            <v-tab value="details" prepend-icon="ri-information-line" class="px-6">المعلومات الإضافية</v-tab>
-            <v-tab value="statement" prepend-icon="ri-file-paper-2-line" class="px-6">كشف الحساب</v-tab>
-            <v-tab value="invoices" prepend-icon="ri-file-list-3-line" class="px-6">الفواتير</v-tab>
-            <v-tab v-if="showEmployeeTabs" value="cashboxes" prepend-icon="ri-safe-2-line" class="px-6">الخزائن</v-tab>
-            <v-tab v-if="showEmployeeTabs" value="transactions" prepend-icon="ri-exchange-funds-line" class="px-6">المعاملات المالية</v-tab>
-            <v-tab value="payments" prepend-icon="ri-bank-card-2-line" class="px-6">المدفوعات</v-tab>
-            <v-tab value="activity" prepend-icon="ri-history-line" class="px-6">النشاطات</v-tab>
-          </v-tabs>
-
-          <v-window v-model="activeTab" class="pa-2">
-            <v-window-item value="details">
-              <div class="mb-10">
-                <h3 class="text-h6 font-weight-bold mb-2 d-flex align-center gap-3">
-                  <v-avatar color="primary-lighten-5" rounded="md" size="32">
-                    <v-icon icon="ri-building-line" color="primary" size="20" />
-                  </v-avatar>
-                  الشركات المرتبطة
-                </h3>
-                <v-row>
-                  <v-col v-for="company in user.companies" :key="company.id" cols="12" sm="6" lg="4">
-                    <v-card variant="outlined" class="rounded-md border-grey-lighten-3 pa-1 hover-card">
-                      <v-list-item :prepend-avatar="company.logo || '/default-company.png'">
-                        <v-list-item-title class="font-weight-bold text-body-1">{{ company.name }}</v-list-item-title>
-                        <v-list-item-subtitle class="text-caption mt-1">
-                          <v-chip size="x-small" label color="success" class="font-weight-bold">نشط</v-chip>
-                        </v-list-item-subtitle>
-                      </v-list-item>
-                    </v-card>
-                  </v-col>
-                  <v-col v-if="!user.companies?.length" cols="12">
-                    <div class="text-center py-8 bg-grey-lighten-5 rounded-md border-dashed">
-                      <v-icon icon="ri-building-2-line" color="grey-lighten-2" size="48" class="mb-2" />
-                      <p class="text-grey text-body-2">لا توجد شركات مرتبطة حالياً</p>
-                    </div>
-                  </v-col>
-                </v-row>
-              </div>
-
-              <div>
-                <h3 class="text-h6 font-weight-bold mb-4 d-flex align-center gap-3">
-                  <v-avatar color="primary-lighten-5" rounded="md" size="32">
-                    <v-icon icon="ri-sticky-note-line" color="primary" size="20" />
-                  </v-avatar>
-                  ملاحظات إضافية
-                </h3>
-                <div class="bg-grey-lighten-5 pa-2 rounded-md border border-dashed text-body-1 text-grey-darken-1 min-height-100">
-                  {{ user.notes || 'لا توجد ملاحظات إضافية مسجلة لهذا المستخدم.' }}
-                </div>
-              </div>
-            </v-window-item>
-
-            <v-window-item value="statement">
-              <StakeholderStatement v-if="activeTab === 'statement'" :user-id="user.id" />
-            </v-window-item>
-
-            <v-window-item value="invoices">
-              <InvoiceList v-if="activeTab === 'invoices'" :user-id="user.id" hide-header />
-            </v-window-item>
-
-            <v-window-item v-if="showEmployeeTabs" value="cashboxes">
-              <CashBoxList v-if="activeTab === 'cashboxes'" :user-id="user.id" hide-header />
-            </v-window-item>
-
-            <v-window-item v-if="showEmployeeTabs" value="transactions">
-              <TransactionsList v-if="activeTab === 'transactions'" :user-id="user.id" hide-header />
-            </v-window-item>
-
-            <v-window-item value="payments">
-              <PaymentList v-if="activeTab === 'payments'" :user-id="user.id" hide-header />
-            </v-window-item>
-
-            <v-window-item value="activity">
-              <ActivityLogList v-if="activeTab === 'activity'" :user-id="user.id" hide-header />
-            </v-window-item>
-          </v-window>
-        </v-card>
-      </v-col>
-    </v-row>
-
-    <!-- Not Found -->
-    <div v-else class="text-center py-16">
-      <v-icon icon="ri-user-search-line" size="64" color="grey-lighten-2" />
-      <h3 class="text-h5 text-grey mt-4">المستخدم غير موجود</h3>
-      <AppButton variant="text" color="primary" class="mt-4" @click="$router.push('/app/users')">العودة لقائمة المستخدمين</AppButton>
-    </div>
+      <!-- Empty Actions Slot -->
+      <template #empty-actions>
+        <AppButton variant="text" color="primary" class="mt-4" @click="$router.push('/app/users')">العودة لقائمة المستخدمين</AppButton>
+      </template>
+    </EntityProfileContainer>
 
     <!-- User Form Dialog -->
     <AppDialog
@@ -212,91 +128,57 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+// ملف عرض تفاصيل المستخدم كغلاف مبسط يستدعي حاوية الكيانات الموحدة
+import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useUser } from '../composables/useUser';
 import { usePermissions } from '@/composables/usePermissions';
-import { formatCurrency, formatDate } from '@/utils/formatters';
+import { formatDate } from '@/utils/formatters';
 import { PERMISSIONS } from '@/config/permissions';
 import UserForm from '../components/UserForm.vue';
-import { AppDialog, AppConfirmDialog, AppAvatar, AppButton, AppPhone, AppUserBalanceProfile } from '@/components';
-import InvoiceList from '@/modules/invoices/pages/InvoiceList.vue';
-import CashBoxList from '@/modules/cashbox/pages/CashBoxList.vue';
-import ActivityLogList from '@/modules/settings/pages/ActivityLogList.vue';
-import TransactionsList from '@/modules/financials/pages/TransactionsList.vue';
-import PaymentList from '@/modules/payments/pages/PaymentList.vue';
-import StakeholderStatement from '../components/StakeholderStatement.vue';
+import { AppDialog, AppConfirmDialog, AppButton, AppUserBalanceProfile } from '@/components';
+import EntityProfileContainer from '@/components/entity-profile/EntityProfileContainer.vue';
 
 const route = useRoute();
 const router = useRouter();
 const { can } = usePermissions();
 const userFormRef = ref(null);
 
-// Use shared logic from composable
 const { formData, isOpen, close, showConfirm, confirmMessage, handleConfirm, handleCancel, loadUser, saveUser, handleDelete, handleEdit } = useUser();
 
-const user = ref(null);
-const loading = ref(true);
-const activeTab = ref('details');
-
-const showEmployeeTabs = computed(() => {
-  if (!user.value) return false;
-  const relations = user.value.relation_types || [];
-  return relations.includes('employee');
-});
-
-const fetchUserData = async () => {
-  loading.value = true;
-  try {
-    user.value = await loadUser(route.params.id);
-  } catch (error) {
-    console.error('Failed to fetch user:', error);
-  } finally {
-    loading.value = false;
-  }
-};
-
-const onEdit = () => {
-  handleEdit(user.value);
+const onEdit = (user) => {
+  handleEdit(user);
 };
 
 const onSave = async data => {
   await saveUser(data);
   close();
-  await fetchUserData(); // Refresh data after update
+  window.location.reload();
 };
 
-const onDelete = () => {
-  handleDelete(user.value);
+const onDelete = (user) => {
+  handleDelete(user);
 };
 
 const onDeletionConfirm = async () => {
-  await handleConfirm(); // Deletion logic from composable
-  router.push('/app/users'); // Redirect to list after deletion
+  await handleConfirm();
+  router.push('/app/users');
 };
 
 const getRoleColor = roleName => {
   const colors = {
-    'admin.super': '#EE4B2B', // Vivid Red
-    'admin.company': '#1A73E8', // Google Blue
-    manager: '#00BFA5', // Teal
-    sales: '#4CAF50', // Green
-    stock: '#FB8C00', // Orange
-    accountant: '#8E24AA', // Purple
+    'admin.super': '#EE4B2B',
+    'admin.company': '#1A73E8',
+    manager: '#00BFA5',
+    sales: '#4CAF50',
+    stock: '#FB8C00',
+    accountant: '#8E24AA',
   };
   return colors[roleName] || '#78909C';
 };
-
-onMounted(fetchUserData);
 </script>
 
 <style scoped>
-.user-view-page {
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-/* User Sidebar Card Styling */
 .user-sidebar-card {
   background-color: white;
   transition: all 0.3s ease;
@@ -307,28 +189,9 @@ onMounted(fetchUserData);
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-/* Stats Grid */
 .stats-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-/* Hover Effects */
-.hover-card {
-  transition: all 0.2s ease;
-}
-.hover-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  border-color: rgb(var(--v-theme-primary), 0.3) !important;
-}
-
-.min-height-100 {
-  min-height: 100px;
-}
-
-.gap-3 {
   gap: 12px;
 }
 </style>
