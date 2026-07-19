@@ -87,11 +87,10 @@
           <!-- اتجاه الرسالة -->
           <template #item.direction="{ item }">
             <v-chip
-              :color="item.direction === 'incoming' ? 'blue-lighten-4' : 'green-lighten-4'"
               size="small"
               variant="flat"
               class="font-weight-bold px-3"
-              :style="item.direction === 'incoming' ? 'color: #1565C0;' : 'color: #2E7D32;'"
+              :style="item.direction === 'incoming' ? 'background-color: #E3F2FD !important; color: #1565C0 !important;' : 'background-color: #E8F5E9 !important; color: #2E7D32 !important;'"
             >
               <v-icon :icon="item.direction === 'incoming' ? 'ri-download-line' : 'ri-upload-line'" size="14" class="me-1" />
               {{ item.direction === 'incoming' ? 'واردة' : 'صادرة' }}
@@ -148,9 +147,8 @@
             <v-chip
               size="small"
               variant="flat"
-              color="white"
               class="font-weight-bold ms-2"
-              :style="selectedMessage?.direction === 'incoming' ? 'color: #1565C0;' : 'color: #2E7D32;'"
+              :style="selectedMessage?.direction === 'incoming' ? 'background-color: #E3F2FD !important; color: #1565C0 !important;' : 'background-color: #E8F5E9 !important; color: #2E7D32 !important;'"
             >
               {{ selectedMessage?.direction === 'incoming' ? 'واردة' : 'صادرة' }}
             </v-chip>
