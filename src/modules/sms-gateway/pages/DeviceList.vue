@@ -66,17 +66,31 @@
             </div>
           </template>
 
-          <!-- تنسيق عمود الحالة -->
-          <template #item.status="{ item }">
+          <!-- تنسيق عمود حالة التواجد (Online/Offline) -->
+          <template #item.online_status="{ item }">
             <div class="d-flex align-center justify-center font-weight-bold">
               <span 
-                :class="item.status === 'active' ? 'bg-success' : 'bg-error'" 
+                :class="item.is_online ? 'bg-success' : 'bg-error'" 
                 class="rounded-circle d-inline-block me-2" 
                 style="width: 8px; height: 8px;"
               ></span>
-              <span :class="item.status === 'active' ? 'text-success' : 'text-error'">
-                {{ item.status === 'active' ? 'متصل' : 'غير متصل' }}
+              <span :class="item.is_online ? 'text-success' : 'text-error'">
+                {{ item.is_online ? 'متصل' : 'غير متصل' }}
               </span>
+            </div>
+          </template>
+
+          <!-- تنسيق عمود حالة الجهاز (Active/Paused) -->
+          <template #item.status="{ item }">
+            <div class="d-flex align-center justify-center">
+              <v-chip
+                :color="item.status === 'active' ? 'primary' : 'warning'"
+                size="small"
+                variant="flat"
+                class="font-weight-bold px-3"
+              >
+                {{ item.status === 'active' ? 'نشط' : 'معطل' }}
+              </v-chip>
             </div>
           </template>
           
@@ -158,7 +172,8 @@ const selectedDevice = ref(null);
 const headers = [
   { title: 'بيانات الجهاز والعتاد', key: 'device_info', align: 'start' },
   { title: 'إصدار النظام والتطبيق', key: 'version_info', align: 'center' },
-  { title: 'حالة التواجد', key: 'status', align: 'center', sortable: false },
+  { title: 'حالة التواجد', key: 'online_status', align: 'center', sortable: false },
+  { title: 'حالة الجهاز', key: 'status', align: 'center', sortable: false },
   { title: 'آخر ظهور نشط', key: 'last_seen_at', align: 'center' },
   { title: 'إجراءات', key: 'actions', sortable: false, align: 'center' },
 ];
