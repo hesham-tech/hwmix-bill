@@ -327,7 +327,13 @@ export default [
     ],
     children: [
       {
-        title: 'الخطوط والأجهزة',
+        title: 'إدارة الأجهزة',
+        to: '/app/hwnix-cash/devices',
+        icon: 'ri-cellphone-line',
+        permission: [PERMISSIONS.HWNIX_CASH_VIEW_ALL, PERMISSIONS.HWNIX_CASH_VIEW_SELF],
+      },
+      {
+        title: 'الخطوط',
         to: '/app/hwnix-cash/lines',
         icon: 'ri-sim-card-line',
         permission: [PERMISSIONS.HWNIX_CASH_VIEW_ALL, PERMISSIONS.HWNIX_CASH_VIEW_SELF],

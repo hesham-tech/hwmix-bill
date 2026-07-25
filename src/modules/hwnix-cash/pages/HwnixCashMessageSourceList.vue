@@ -23,6 +23,15 @@
     >
       <template #actions>
         <AppButton
+          variant="tonal"
+          color="primary"
+          prepend-icon="ri-refresh-line"
+          :loading="store.loading"
+          @click="store.fetchSources()"
+        >
+          تحديث البيانات
+        </AppButton>
+        <AppButton
           v-if="can(PERMISSIONS.HWNIX_CASH_MESSAGE_SOURCES_CREATE)"
           prepend-icon="ri-add-line"
           color="primary"

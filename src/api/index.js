@@ -32,6 +32,7 @@ export { default as subscriptionApiService } from './services/subscription.servi
 export { default as transactionService } from './services/transaction.service';
 
 // ==================== HwnixCash Module ====================
+export { default as hwnixCashDeviceService } from './services/hwnix-cash-device.service';
 export { default as hwnixCashLineService } from './services/hwnix-cash-line.service';
 export { default as hwnixCashMessageService } from './services/hwnix-cash-message.service';
 export { default as hwnixCashWalletTransactionService } from './services/hwnix-cash-wallet-transaction.service';

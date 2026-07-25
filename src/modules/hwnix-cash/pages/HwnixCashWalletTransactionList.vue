@@ -24,12 +24,21 @@
       <!-- الإجراءات الرأسية -->
       <template #actions>
         <AppButton
+          variant="tonal"
+          color="primary"
+          prepend-icon="ri-refresh-line"
+          :loading="store.loading"
+          @click="store.fetchTransactions()"
+        >
+          تحديث البيانات
+        </AppButton>
+        <AppButton
           v-if="can(PERMISSIONS.HWNIX_CASH_WALLET_TRANSACTIONS_CREATE)"
           prepend-icon="ri-add-line"
           color="primary"
           @click="createDialog = true"
         >
-          معاملة جديدة
+          تسجيل معاملة يدوية
         </AppButton>
       </template>
 

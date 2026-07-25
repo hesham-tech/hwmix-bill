@@ -19,6 +19,17 @@
       @update:items-per-page="store.itemsPerPage = $event; store.fetchMessages()"
       @update:filters="applyFilters"
     >
+      <template #actions>
+        <AppButton
+          variant="tonal"
+          color="primary"
+          prepend-icon="ri-refresh-line"
+          :loading="store.loading"
+          @click="store.fetchMessages()"
+        >
+          تحديث البيانات
+        </AppButton>
+      </template>
       <!-- المرسل -->
       <template #item.sender="{ item }">
         <div class="d-flex align-center gap-2">

@@ -32,10 +32,23 @@ const PROVIDER_MAP = {
 };
 
 const config = computed(() => {
+  const p = (props.provider || '').toLowerCase();
+  if (p.includes('vodafone') || p.includes('فودافون')) {
+    return { label: 'فودافون كاش', color: 'red-darken-1', icon: 'ri-smartphone-line' };
+  }
+  if (p.includes('orange') || p.includes('اورنج') || p.includes('أورنج')) {
+    return { label: 'أورنج كاش', color: 'orange-darken-2', icon: 'ri-smartphone-line' };
+  }
+  if (p.includes('etisalat') || p.includes('اتصالات')) {
+    return { label: 'اتصالات كاش', color: 'green-darken-2', icon: 'ri-smartphone-line' };
+  }
+  if (p.includes('we') || p.includes('وي')) {
+    return { label: 'وي كاش', color: 'purple-darken-1', icon: 'ri-smartphone-line' };
+  }
   return PROVIDER_MAP[props.provider] || {
-    label: props.provider || 'غير معروف',
-    color: 'grey',
-    icon: 'ri-question-line',
+    label: props.provider || 'عام',
+    color: 'primary',
+    icon: 'ri-sim-card-line',
   };
 });
 </script>

@@ -2,11 +2,27 @@ import { PERMISSIONS } from '@/config/permissions';
 
 export default [
   {
+    path: 'hwnix-cash/devices',
+    name: 'hwnix-cash-devices',
+    component: () => import('@/modules/hwnix-cash/pages/HwnixCashDeviceList.vue'),
+    meta: {
+      title: 'إدارة الأجهزة',
+      permission: [
+        PERMISSIONS.HWNIX_CASH_VIEW_ALL,
+        PERMISSIONS.HWNIX_CASH_VIEW_SELF,
+      ],
+      breadcrumbs: [
+        { title: 'كاش هونكس', disabled: true },
+        { title: 'الأجهزة', disabled: true },
+      ],
+    },
+  },
+  {
     path: 'hwnix-cash/lines',
     name: 'hwnix-cash-lines',
     component: () => import('@/modules/hwnix-cash/pages/HwnixCashLineList.vue'),
     meta: {
-      title: 'خطوط كاش هونكس',
+      title: 'الخطوط',
       permission: [
         PERMISSIONS.HWNIX_CASH_VIEW_ALL,
         PERMISSIONS.HWNIX_CASH_VIEW_SELF,

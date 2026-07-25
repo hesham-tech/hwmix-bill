@@ -12,13 +12,25 @@
       :items-per-page="store.itemsPerPage"
       :filters="advancedFilters"
       permission-module="hwnix_cash"
-      title="الخطوط والأجهزة"
-      subtitle="إدارة خطوط كاش هونكس وأجهزتها وحدود المحافظ"
+      title="الخطوط"
+      subtitle="إدارة خطوط كاش هونكس وحدود المحافظ الإلكترونية"
       icon="ri-sim-card-line"
       @update:page="store.page = $event; store.fetchLines()"
       @update:items-per-page="store.itemsPerPage = $event; store.fetchLines()"
       @update:filters="applyFilters"
     >
+      <template #actions>
+        <AppButton
+          variant="tonal"
+          color="primary"
+          prepend-icon="ri-refresh-line"
+          :loading="store.loading"
+          @click="store.fetchLines()"
+        >
+          تحديث البيانات
+        </AppButton>
+      </template>
+
       <!-- رقم الهاتف -->
       <template #item.phone_number="{ item }">
         <div class="d-flex align-center gap-2">
@@ -29,16 +41,15 @@
 
       <!-- الجهاز -->
       <template #item.device="{ item }">
-        <div v-if="item.device" class="d-flex flex-column">
-          <span class="text-body-2 font-weight-medium">{{ item.device.name || item.device.identifier }}</span>
-          <span class="text-caption text-grey">{{ item.device.identifier }}</span>
+        <div class="d-flex flex-column">
+          <span class="text-body-2 font-weight-medium">{{ item.device_name || item.device?.name || 'غير محدد' }}</span>
+          <span v-if="item.device_android_id" class="text-caption text-grey">{{ item.device_android_id }}</span>
         </div>
-        <span v-else class="text-grey text-caption">لا يوجد جهاز</span>
       </template>
 
       <!-- المزود -->
       <template #item.provider="{ item }">
-        <HwnixCashProviderChip :provider="item.provider" />
+        <HwnixCashProviderChip :provider="item.carrier || item.provider" />
       </template>
 
       <!-- حدود اليومي -->
@@ -80,12 +91,12 @@
       <!-- الحالة -->
       <template #item.is_active="{ item }">
         <v-chip
-          :color="item.is_active ? 'success' : 'error'"
+          :color="(item.is_active || item.status === 'active') ? 'success' : 'error'"
           size="small"
           variant="tonal"
           class="font-weight-bold"
         >
-          {{ item.is_active ? 'نشط' : 'معطل' }}
+          {{ (item.is_active || item.status === 'active') ? 'نشط' : 'معطل' }}
         </v-chip>
       </template>
 
