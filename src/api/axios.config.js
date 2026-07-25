@@ -10,8 +10,21 @@ const DEBOUNCE_TIME = 3000; // 3 seconds
  * Axios Instance Configuration
  * مركزي لكل API calls
  */
+const resolveBaseUrl = () => {
+  let url = (import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || '/api/v1').trim();
+  if (url.endsWith('/')) url = url.slice(0, -1);
+  if (!url.endsWith('/api/v1')) {
+    if (url.endsWith('/api')) {
+      url = `${url}/v1`;
+    } else {
+      url = `${url}/api/v1`;
+    }
+  }
+  return url;
+};
+
 const apiClient = axios.create({
-  baseURL: (import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api/v1` : import.meta.env.VITE_API_BASE_URL) || '/api/v1',
+  baseURL: resolveBaseUrl(),
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',
