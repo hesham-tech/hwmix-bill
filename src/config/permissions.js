@@ -553,6 +553,27 @@ export const PERMISSIONS = {
   LEGAL_DOCUMENTS_CREATE: 'legal_documents.create',
   LEGAL_DOCUMENTS_UPDATE: 'legal_documents.update_all',
   LEGAL_DOCUMENTS_DELETE: 'legal_documents.delete_all',
+
+  // ==================== HwnixCash ====================
+  HWNIX_CASH_PAGE: 'hwnix_cash.page',
+  HWNIX_CASH_VIEW_ALL: 'hwnix_cash.view_all',
+  HWNIX_CASH_VIEW_SELF: 'hwnix_cash.view_self',
+  HWNIX_CASH_CREATE: 'hwnix_cash.create',
+  HWNIX_CASH_EDIT_ALL: 'hwnix_cash.update_all',
+  HWNIX_CASH_DELETE_ALL: 'hwnix_cash.delete_all',
+
+  HWNIX_CASH_MESSAGES_VIEW_ALL: 'hwnix_cash_messages.view_all',
+  HWNIX_CASH_MESSAGES_VIEW_SELF: 'hwnix_cash_messages.view_self',
+
+  HWNIX_CASH_WALLET_TRANSACTIONS_VIEW_ALL: 'hwnix_cash_wallet_transactions.view_all',
+  HWNIX_CASH_WALLET_TRANSACTIONS_VIEW_SELF: 'hwnix_cash_wallet_transactions.view_self',
+  HWNIX_CASH_WALLET_TRANSACTIONS_CREATE: 'hwnix_cash_wallet_transactions.create',
+  HWNIX_CASH_WALLET_TRANSACTIONS_DELETE_ALL: 'hwnix_cash_wallet_transactions.delete_all',
+
+  HWNIX_CASH_MESSAGE_SOURCES_VIEW_ALL: 'hwnix_cash_message_sources.view_all',
+  HWNIX_CASH_MESSAGE_SOURCES_CREATE: 'hwnix_cash_message_sources.create',
+  HWNIX_CASH_MESSAGE_SOURCES_EDIT_ALL: 'hwnix_cash_message_sources.update_all',
+  HWNIX_CASH_MESSAGE_SOURCES_DELETE_ALL: 'hwnix_cash_message_sources.delete_all',
 };
 
 /**

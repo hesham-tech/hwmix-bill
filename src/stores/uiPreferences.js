@@ -71,12 +71,16 @@ export const useUIPreferencesStore = defineStore('uiPreferences', () => {
           const serverTime = serverPref.updated_at ? new Date(serverPref.updated_at).getTime() : 0;
           const localTime = cachedPref?.updated_at ? new Date(cachedPref.updated_at).getTime() : 0;
 
-          if (!cachedPref || serverTime > localTime) {
+          if (!cachedPref || serverTime >= localTime) {
+            const actualPrefData = serverPref.preferences !== undefined ? serverPref.preferences : serverPref;
+            if (actualPrefData && typeof actualPrefData === 'object' && serverPref.updated_at) {
+              actualPrefData.updated_at = serverPref.updated_at;
+            }
             preferences.value = {
               ...preferences.value,
-              [key]: serverPref
+              [key]: actualPrefData
             };
-            localStorage.setItem(cacheKey, JSON.stringify(serverPref));
+            localStorage.setItem(cacheKey, JSON.stringify(actualPrefData));
           }
           // إذا كانت النسخة المحلية أحدث (حُفظت حديثاً ولم تُزامَن بعد)، نتجاهل نسخة السيرفر
         }

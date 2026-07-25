@@ -64,6 +64,12 @@ window.addEventListener('unhandledrejection', e => {
 // هذا ضروري قبل الـ mount لأن المكونات تعتمد عليها
 registerPlugins(app);
 
+// تهيئة محرك لوحة التحكم ويدجت وباقات تشغيلية
+import { installDashboardEngine } from '@core/dashboard/registry/install';
+installDashboardEngine();
+
+
+
 // تسجيل الـ directives الضرورية للواجهة الأولية
 app.directive('draggable', draggable);
 

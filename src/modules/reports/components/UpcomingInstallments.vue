@@ -3,7 +3,7 @@
     :items="installments"
     :loading="loading"
     :show-plan="false"
-    title="الأقساط المستحقة قريباً"
+    title="الأقساط المستحقة للتحصيل"
     icon="ri-calendar-schedule-line"
     hide-pagination
     class="rounded-md overflow-hidden border"
@@ -29,24 +29,35 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
+// يعرض جدول الأقساط المالية المجدولة والمستحقة قريباً تفاعلياً عبر الـ Runtime المركزي.
+import { ref, computed, onMounted } from 'vue';
 import InstallmentsTable from '@/modules/installments/components/InstallmentsTable.vue';
 import InstallmentDetailsDialog from '@/modules/installments/components/InstallmentDetailsDialog.vue';
+import { useDashboardStore } from '@/@core/dashboard/store/dashboardStore';
 
 const props = defineProps({
-  installments: {
-    type: Array,
-    required: true,
+  instanceId: {
+    type: String,
+    required: true
   },
-  loading: {
-    type: Boolean,
-    default: false,
-  },
+  userConfig: {
+    type: Object,
+    default: () => ({})
+  }
 });
 
-const router = useRouter();
-const installmentsCount = computed(() => props.installments.length);
+const dashboardStore = useDashboardStore();
+
+const loading = computed(() => {
+  return dashboardStore.widgetLoadingStates[props.instanceId] !== false;
+});
+
+const installments = computed(() => {
+  const wData = dashboardStore.dashboardData[props.instanceId];
+  return Array.isArray(wData) ? wData : [];
+});
+
+const installmentsCount = computed(() => installments.value.length);
 
 const showDetailsDialog = ref(false);
 const selectedInstallment = ref(null);
@@ -55,4 +66,21 @@ const handleView = item => {
   selectedInstallment.value = item;
   showDetailsDialog.value = true;
 };
+
+const loadData = async () => {
+  await dashboardStore.fetchWidgetData(props.instanceId);
+};
+
+onMounted(() => {
+  loadData();
+});
+</script>
+
+<script>
+/**
+ * مكون عرض الأقساط المستحقة القادمة (ممتثل للـ Widget Contract)
+ */
+export default {
+  name: 'UpcomingInstallments'
+}
 </script>

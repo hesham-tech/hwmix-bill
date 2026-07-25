@@ -314,7 +314,46 @@ export default [
     ],
   },
 
-  // ==================== 7. التكاملات والربط (Integrations & Connections) ====================
+  // ==================== 7. كاش هونكس (HwnixCash) ====================
+  {
+    title: 'كاش هونكس',
+    icon: 'ri-smartphone-line',
+    permission: [
+      PERMISSIONS.HWNIX_CASH_VIEW_ALL,
+      PERMISSIONS.HWNIX_CASH_VIEW_SELF,
+      PERMISSIONS.HWNIX_CASH_MESSAGES_VIEW_ALL,
+      PERMISSIONS.HWNIX_CASH_WALLET_TRANSACTIONS_VIEW_ALL,
+      PERMISSIONS.HWNIX_CASH_MESSAGE_SOURCES_VIEW_ALL,
+    ],
+    children: [
+      {
+        title: 'الخطوط والأجهزة',
+        to: '/app/hwnix-cash/lines',
+        icon: 'ri-sim-card-line',
+        permission: [PERMISSIONS.HWNIX_CASH_VIEW_ALL, PERMISSIONS.HWNIX_CASH_VIEW_SELF],
+      },
+      {
+        title: 'سجل الرسائل',
+        to: '/app/hwnix-cash/messages',
+        icon: 'ri-message-3-line',
+        permission: [PERMISSIONS.HWNIX_CASH_MESSAGES_VIEW_ALL, PERMISSIONS.HWNIX_CASH_MESSAGES_VIEW_SELF],
+      },
+      {
+        title: 'معاملات المحافظ',
+        to: '/app/hwnix-cash/wallet-transactions',
+        icon: 'ri-exchange-dollar-line',
+        permission: [PERMISSIONS.HWNIX_CASH_WALLET_TRANSACTIONS_VIEW_ALL, PERMISSIONS.HWNIX_CASH_WALLET_TRANSACTIONS_VIEW_SELF],
+      },
+      {
+        title: 'مصادر الرسائل',
+        to: '/app/hwnix-cash/message-sources',
+        icon: 'ri-radar-line',
+        permission: [PERMISSIONS.HWNIX_CASH_MESSAGE_SOURCES_VIEW_ALL],
+      },
+    ],
+  },
+
+  // ==================== 8. التكاملات والربط (Integrations & Connections) ====================
   {
     title: 'التكاملات والربط',
     icon: 'ri-link-m',

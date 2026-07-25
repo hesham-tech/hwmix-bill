@@ -48,7 +48,7 @@
           <td class="text-center">
             <v-progress-linear :model-value="calculateMargin(item)" color="success" height="8" rounded class="mt-1">
               <template v-slot:default="{ value }">
-                <span class="text-mini font-weight-bold">{{ Math.round(value) }}%</span>
+                <span class="text-mini font-weight-bold text-grey-darken-3">{{ Math.round(value) }}%</span>
               </template>
             </v-progress-linear>
           </td>
@@ -72,37 +72,70 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+// يعرض جدول تحليل أداء المنتجات المتقدم تفاعلياً ويدعم الترتيب المباشر عبر الـ Runtime المركزي.
+import { ref, computed, onMounted } from 'vue';
 import { formatCurrency, getRelativeTime } from '@/utils/formatters';
+import { useDashboardStore } from '@/@core/dashboard/store/dashboardStore';
 
 const props = defineProps({
-  data: {
-    type: Array,
-    default: () => [],
+  instanceId: {
+    type: String,
+    required: true
   },
-  loading: {
-    type: Boolean,
-    default: false,
-  },
+  userConfig: {
+    type: Object,
+    default: () => ({})
+  }
 });
 
-const emit = defineEmits(['sort-change']);
 const sortBy = ref('total_sold_quantity');
+const dashboardStore = useDashboardStore();
 
-const onSortChange = val => {
-  emit('sort-change', val);
+const loading = computed(() => {
+  return dashboardStore.widgetLoadingStates[props.instanceId] !== false;
+});
+
+const data = computed(() => {
+  const wData = dashboardStore.dashboardData[props.instanceId];
+  return Array.isArray(wData) ? wData : [];
+});
+
+const loadData = async () => {
+  await dashboardStore.fetchWidgetData(props.instanceId, { sortBy: sortBy.value });
+};
+
+const onSortChange = (val) => {
+  sortBy.value = val;
+  loadData();
 };
 
 const calculateMargin = item => {
-  if (!item.total_revenue || item.total_revenue === 0) return 0;
-  return (item.total_profit / item.total_revenue) * 100;
+  const revenue = parseFloat(item.total_revenue || 0);
+  const profit = parseFloat(item.total_profit || 0);
+  if (!revenue || revenue === 0) return 0;
+  return (profit / revenue) * 100;
 };
+
+onMounted(() => {
+  // نقوم بطلب البيانات الأولية محلياً عند تفعيل المكون للتأكد من المزامنة
+  loadData();
+});
+</script>
+
+<script>
+/**
+ * مكون جدول أداء المنتجات المتقدم (ممتثل للـ Widget Contract)
+ */
+export default {
+  name: 'ProductIntelligenceTable'
+}
 </script>
 
 <style scoped>
+.analytics-toggle {
+  background: white;
+}
 .text-mini {
-  font-size: 10px;
-  color: #fff;
-  text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+  font-size: 8px;
 }
 </style>

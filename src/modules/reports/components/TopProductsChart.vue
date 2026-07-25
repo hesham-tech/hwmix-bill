@@ -23,23 +23,36 @@
 </template>
 
 <script setup>
+// يعرض الرسم البياني لأفضل المنتجات مبيعاً تفاعلياً من خلال قراءة متجر الـ Runtime المركزي.
 import { computed } from 'vue';
+import { useDashboardStore } from '@/@core/dashboard/store/dashboardStore';
 
 const props = defineProps({
-  data: {
-    type: Array,
-    default: () => [],
+  instanceId: {
+    type: String,
+    required: true
   },
-  loading: {
-    type: Boolean,
-    default: false,
-  },
+  userConfig: {
+    type: Object,
+    default: () => ({})
+  }
+});
+
+const dashboardStore = useDashboardStore();
+
+const loading = computed(() => {
+  return dashboardStore.widgetLoadingStates[props.instanceId] !== false;
+});
+
+const data = computed(() => {
+  const wData = dashboardStore.dashboardData[props.instanceId];
+  return Array.isArray(wData) ? wData : (wData?.top_products || wData?.topProducts || []);
 });
 
 const series = computed(() => [
   {
     name: 'الكمية',
-    data: props.data && props.data.length > 0 ? props.data.map(item => item.total_qty || 0) : [],
+    data: data.value && data.value.length > 0 ? data.value.map(item => item.total_qty || item.total_sold_quantity || 0) : [],
   },
 ]);
 
@@ -63,13 +76,14 @@ const chartOptions = computed(() => ({
     textAnchor: 'start',
     style: { colors: ['#fff'] },
     formatter: function (val, opt) {
-      return opt.w.globals.labels[opt.dataPointIndex] + ':  ' + val;
+      const label = opt.w.globals.labels[opt.dataPointIndex];
+      return (label ? label + ':  ' : '') + val;
     },
     offsetX: 0,
   },
   legend: { show: false },
   xaxis: {
-    categories: props.data && props.data.length > 0 ? props.data.map(item => item.name || '') : [],
+    categories: data.value && data.value.length > 0 ? data.value.map(item => item.name || item.product?.name || '') : [],
     labels: { show: false },
     axisBorder: { show: false },
     axisTicks: { show: false },
@@ -89,11 +103,24 @@ const chartOptions = computed(() => ({
 }));
 </script>
 
+<script>
+/**
+ * مكون رسم أفضل خمسة منتجات (ممتثل للـ Widget Contract)
+ */
+export default {
+  name: 'TopProductsChart'
+}
+</script>
+
 <style scoped>
 .chart-card {
   height: 100%;
 }
 .height-300 {
   height: 300px;
+}
+.chart-wrapper {
+  position: relative;
+  width: 100%;
 }
 </style>

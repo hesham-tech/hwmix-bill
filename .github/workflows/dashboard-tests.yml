@@ -1,0 +1,40 @@
+# سير عمل الدمج المستمر لتشغيل الاختبارات الآلية بنجاح ومنع تراجع المعمارية
+name: Dashboard Engine Continuous Integration
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-value: '20'
+        cache: 'npm'
+
+    - name: Install Dependencies
+      run: npm install --legacy-peer-deps
+
+    - name: Run ESLint
+      run: npm run lint
+
+    - name: Run Unit and Integration Tests
+      run: npm run test
+
+    - name: Run Coverage Report
+      run: npm run test:coverage
+
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+
+    - name: Run E2E Tests
+      run: npm run test:e2e

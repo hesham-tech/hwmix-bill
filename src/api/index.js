@@ -31,5 +31,11 @@ export { default as serviceApiService } from './services/service.service';
 export { default as subscriptionApiService } from './services/subscription.service';
 export { default as transactionService } from './services/transaction.service';
 
+// ==================== HwnixCash Module ====================
+export { default as hwnixCashLineService } from './services/hwnix-cash-line.service';
+export { default as hwnixCashMessageService } from './services/hwnix-cash-message.service';
+export { default as hwnixCashWalletTransactionService } from './services/hwnix-cash-wallet-transaction.service';
+export { default as hwnixCashMessageSourceService } from './services/hwnix-cash-message-source.service';
+
 // Export axios instance for custom calls
 export { default as apiClient } from './axios.config';

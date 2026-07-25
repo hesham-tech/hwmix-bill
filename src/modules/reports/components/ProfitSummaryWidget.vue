@@ -1,10 +1,10 @@
 <template>
-  <v-card class="rounded-md" border flat>
-    <v-card-text class="pa-2">
+  <v-card class="rounded-md h-100" border flat>
+    <v-card-text class="pa-4">
       <div class="d-flex align-center justify-space-between mb-4">
         <div>
-          <h3 class="text-h6 font-weight-bold">صافي الربح - هذا الشهر</h3>
-          <p class="text-caption text-grey">مقارنة بالشهر الماضي</p>
+          <h3 class="text-h6 font-weight-bold">صافي الربح والخسارة</h3>
+          <p class="text-caption text-grey">مقارنة بالفترة السابقة</p>
         </div>
         <v-avatar size="48" color="success-lighten-5">
           <v-icon icon="ri-money-dollar-circle-line" size="24" color="success" />
@@ -28,7 +28,7 @@
             >
               {{ Math.abs(profitData.change).toFixed(1) }}%
             </v-chip>
-            <span class="text-caption text-grey">مقارنة بالشهر الماضي</span>
+            <span class="text-caption text-grey">مقارنة بالفترة السابقة</span>
           </div>
         </div>
 
@@ -45,7 +45,7 @@
           </div>
         </div>
 
-        <v-btn block variant="tonal" color="primary" class="mt-4" prepend-icon="ri-line-chart-line" to="/reports/profit">
+        <v-btn block variant="tonal" color="primary" class="mt-4" prepend-icon="ri-line-chart-line" to="/app/reports/profit">
           عرض التقرير التفصيلي
         </v-btn>
       </div>
@@ -54,52 +54,51 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useApi } from '@/composables/useApi';
+// يعرض كارت ملخص الأرباح والخسائر المقارن تفاعلياً من الـ Runtime المركزي دون استدعاءات API مباشرة.
+import { computed, onMounted } from 'vue';
 import { formatCurrency } from '@/utils/formatters';
+import { useDashboardStore } from '@/@core/dashboard/store/dashboardStore';
 
-const loading = ref(true);
-const profitData = ref({
-  revenue: 0,
-  costs: 0,
-  netProfit: 0,
-  change: 0,
+const props = defineProps({
+  instanceId: {
+    type: String,
+    required: true
+  },
+  userConfig: {
+    type: Object,
+    default: () => ({})
+  }
 });
 
-const loadProfitData = async () => {
-  loading.value = true;
-  try {
-    const api = useApi('/api/reports/profit-loss');
+const dashboardStore = useDashboardStore();
 
-    // Current month
-    const currentMonth = new Date();
-    const dateFrom = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1).toISOString().split('T')[0];
-    const dateTo = new Date().toISOString().split('T')[0];
+const loading = computed(() => {
+  return dashboardStore.widgetLoadingStates[props.instanceId] !== false;
+});
 
-    const current = await api.get({ date_from: dateFrom, date_to: dateTo }, { showLoading: false });
+const profitData = computed(() => {
+  return dashboardStore.dashboardData[props.instanceId] || {
+    revenue: 0,
+    costs: 0,
+    netProfit: 0,
+    change: 0,
+  };
+});
 
-    // Last month
-    const lastMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1);
-    const lastMonthFrom = lastMonth.toISOString().split('T')[0];
-    const lastMonthTo = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 0).toISOString().split('T')[0];
-
-    const last = await api.get({ date_from: lastMonthFrom, date_to: lastMonthTo }, { showLoading: false });
-
-    const currentProfit = current.data?.summary?.net_profit || 0;
-    const lastProfit = last.data?.summary?.net_profit || 0;
-
-    profitData.value = {
-      revenue: current.data?.summary?.total_revenue || 0,
-      costs: current.data?.summary?.total_costs || 0,
-      netProfit: currentProfit,
-      change: lastProfit !== 0 ? ((currentProfit - lastProfit) / Math.abs(lastProfit)) * 100 : 0,
-    };
-  } catch (error) {
-    console.error('Error loading profit data:', error);
-  } finally {
-    loading.value = false;
-  }
+const loadData = async () => {
+  await dashboardStore.fetchWidgetData(props.instanceId);
 };
 
-onMounted(loadProfitData);
+onMounted(() => {
+  loadData();
+});
+</script>
+
+<script>
+/**
+ * مكون ملخص الأرباح والخسائر (ممتثل للـ Widget Contract)
+ */
+export default {
+  name: 'ProfitSummaryWidget'
+}
 </script>

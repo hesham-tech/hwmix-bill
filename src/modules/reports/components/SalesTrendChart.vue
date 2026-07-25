@@ -23,23 +23,36 @@
 </template>
 
 <script setup>
+// يعرض الرسم البياني لاتجاه المبيعات الأسبوعي تفاعلياً من الـ Runtime المركزي دون طلبات مستقلة.
 import { computed } from 'vue';
+import { useDashboardStore } from '@/@core/dashboard/store/dashboardStore';
 
 const props = defineProps({
-  data: {
-    type: Array,
-    default: () => [],
+  instanceId: {
+    type: String,
+    required: true
   },
-  loading: {
-    type: Boolean,
-    default: false,
-  },
+  userConfig: {
+    type: Object,
+    default: () => ({})
+  }
+});
+
+const dashboardStore = useDashboardStore();
+
+const loading = computed(() => {
+  return dashboardStore.widgetLoadingStates[props.instanceId] !== false;
+});
+
+const data = computed(() => {
+  const wData = dashboardStore.dashboardData[props.instanceId];
+  return wData?.sales_trend || wData?.salesTrend || [];
 });
 
 const series = computed(() => [
   {
     name: 'المبيعات',
-    data: props.data && props.data.length > 0 ? props.data.map(item => item.total_sales || item.total || 0) : [],
+    data: data.value && data.value.length > 0 ? data.value.map(item => item.total_sales || item.total || 0) : [],
   },
 ]);
 
@@ -69,7 +82,7 @@ const chartOptions = computed(() => ({
     },
   },
   xaxis: {
-    categories: props.data && props.data.length > 0 ? props.data.map(item => item.period || '') : [],
+    categories: data.value && data.value.length > 0 ? data.value.map(item => item.period || '') : [],
     labels: {
       style: { colors: '#64748b', fontSize: '12px' },
     },
@@ -96,15 +109,21 @@ const chartOptions = computed(() => ({
 }));
 </script>
 
-<style scoped>
-.chart-card {
-  height: 100%;
+<script>
+/**
+ * مكون اتجاه المبيعات (ممتثل للـ Widget Contract)
+ */
+export default {
+  name: 'SalesTrendChart'
 }
+</script>
+
+<style scoped>
 .height-300 {
   height: 300px;
 }
 .chart-wrapper {
-  margin-inline-start: -15px;
-  margin-inline-end: -10px;
+  position: relative;
+  width: 100%;
 }
 </style>

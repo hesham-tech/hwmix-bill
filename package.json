@@ -9,7 +9,12 @@
     "preview": "vite preview --port 5050",
     "lint": "eslint . -c .eslintrc.cjs --fix --ext .ts,.js,.cjs,.vue,.tsx,.jsx",
     "build:icons": "tsx src/plugins/iconify/build-icons.js",
-    "postinstall": "npm run build:icons"
+    "postinstall": "npm run build:icons",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:all": "node run-dashboard-tests.js"
   },
   "dependencies": {
     "@floating-ui/dom": "1.6.8",
@@ -21,6 +26,7 @@
     "axios": "^1.7.8",
     "chart.js": "^4.5.1",
     "dayjs": "^1.11.13",
+    "gridstack": "^12.6.0",
     "html2canvas": "^1.4.1",
     "jsbarcode": "^3.12.3",
     "jspdf": "^4.1.0",
@@ -52,8 +58,12 @@
     "@iconify/tools": "^4.0.0",
     "@iconify/utils": "^2.1.13",
     "@iconify/vue": "4.1.2",
+    "@pinia/testing": "^2.0.1",
+    "@playwright/test": "^1.61.1",
     "@vitejs/plugin-vue": "^5.0.2",
     "@vitejs/plugin-vue-jsx": "^4.0.0",
+    "@vitest/coverage-v8": "^4.1.10",
+    "@vue/test-utils": "^2.4.11",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-import-resolver-typescript": "^3.6.1",
     "eslint-plugin-case-police": "^0.6.1",
@@ -64,7 +74,9 @@
     "eslint-plugin-sonarjs": "^0.24.0",
     "eslint-plugin-unicorn": "^51.0.1",
     "eslint-plugin-vue": "^9.19.2",
+    "jsdom": "^29.1.1",
     "laravel-echo": "^2.3.0",
+    "msw": "^2.15.0",
     "postcss-html": "^1.5.0",
     "postcss-scss": "^4.0.9",
     "pusher-js": "^8.4.0",
@@ -76,7 +88,8 @@
     "vite-plugin-pwa": "^1.2.0",
     "vite-plugin-vue-layouts": "^0.11.0",
     "vite-plugin-vuetify": "2.0.3",
-    "vite-svg-loader": "^5.1.0"
+    "vite-svg-loader": "^5.1.0",
+    "vitest": "^4.1.10"
   },
   "resolutions": {}
 }

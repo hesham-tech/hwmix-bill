@@ -16,7 +16,7 @@
             <v-checkbox-btn v-model="task.isDone" density="compact" color="success" class="me-2" @click.stop="toggleTask(task)" />
           </template>
 
-          <v-list-item-title :class="{ 'text-decoration-line-through text-grey': task.status === 'completed' }" class="font-weight-bold">
+          <v-list-item-title :class="{ 'text-decoration-line-through text-grey': task.status === 'completed' }" class="font-weight-bold text-body-1">
             {{ task.title }}
           </v-list-item-title>
           <v-list-item-subtitle>
@@ -47,7 +47,7 @@
 
       <div v-else-if="!loading" class="text-center pa-4">
         <v-icon icon="ri-check-double-line" size="48" color="grey-lighten-3" class="mb-2" />
-        <p class="text-grey mb-0">لا يوجد مهام تتطلب انتباهك حالياً</p>
+        <p class="text-grey mb-0 text-caption">لا توجد مهام تتطلب انتباهك حالياً</p>
       </div>
 
       <div v-else class="pa-2">
@@ -58,31 +58,44 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+// يعرض قائمة مهام الفريق المعلقة ويقوم بتحديث حالتها عبر الـ Runtime المركزي.
+import { computed, onMounted } from 'vue';
+import { useDashboardStore } from '@/@core/dashboard/store/dashboardStore';
 import taskService from '@/api/services/task.service';
 import { useRouter } from 'vue-router';
 
-const router = useRouter();
-const tasks = ref([]);
-const loading = ref(true);
-
-const fetchDashboardTasks = async () => {
-  loading.value = true;
-  try {
-    const response = await taskService.getAll({ status: 'pending', per_page: 5 });
-    tasks.value = response.data || [];
-  } catch (e) {
-    console.error('Error fetching dashboard tasks', e);
-  } finally {
-    loading.value = false;
+const props = defineProps({
+  instanceId: {
+    type: String,
+    required: true
+  },
+  userConfig: {
+    type: Object,
+    default: () => ({})
   }
+});
+
+const router = useRouter();
+const dashboardStore = useDashboardStore();
+
+const loading = computed(() => {
+  return dashboardStore.widgetLoadingStates[props.instanceId] !== false;
+});
+
+const tasks = computed(() => {
+  const wData = dashboardStore.dashboardData[props.instanceId];
+  return Array.isArray(wData) ? wData : [];
+});
+
+const loadData = async () => {
+  await dashboardStore.fetchWidgetData(props.instanceId);
 };
 
 const toggleTask = async task => {
   const newStatus = task.status === 'completed' ? 'pending' : 'completed';
   try {
     await taskService.update(task.id, { status: newStatus });
-    fetchDashboardTasks();
+    loadData();
   } catch (e) {
     console.error('Failed to toggle task', e);
   }
@@ -101,6 +114,21 @@ const translatePriority = p => {
 };
 
 onMounted(() => {
-  fetchDashboardTasks();
+  loadData();
 });
 </script>
+
+<script>
+/**
+ * مكون المهام اليومية (ممتثل للـ Widget Contract)
+ */
+export default {
+  name: 'DashboardTasksWidget'
+}
+</script>
+
+<style scoped>
+.gap-3 {
+  gap: 12px;
+}
+</style>

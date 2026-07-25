@@ -3,7 +3,7 @@
     :headers="headers"
     :items="payments"
     :loading="loading"
-    title="الفواتير المستحقة قريباً"
+    title="المدفوعات والتحصيلات القادمة"
     icon="ri-calendar-todo-line"
     hide-footer
     class="rounded-md overflow-hidden border"
@@ -55,20 +55,35 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+// يعرض جدول الفواتير والمدفوعات المستحقة قريباً تفاعلياً من خلال قراءة متجر الـ Runtime المركزي.
+import { computed, onMounted } from 'vue';
 import { AppDataTable, AppUserBalanceProfile } from '@/components';
 import { formatCurrency, formatDate } from '@/utils/formatters';
+import { useDashboardStore } from '@/@core/dashboard/store/dashboardStore';
 
 const props = defineProps({
-  payments: {
-    type: Array,
-    required: true,
+  instanceId: {
+    type: String,
+    required: true
   },
-  loading: {
-    type: Boolean,
-    default: false,
-  },
+  userConfig: {
+    type: Object,
+    default: () => ({})
+  }
 });
+
+const dashboardStore = useDashboardStore();
+
+const loading = computed(() => {
+  return dashboardStore.widgetLoadingStates[props.instanceId] !== false;
+});
+
+const payments = computed(() => {
+  const wData = dashboardStore.dashboardData[props.instanceId];
+  return Array.isArray(wData) ? wData : [];
+});
+
+const upcomingCount = computed(() => payments.value.length);
 
 const headers = [
   { title: 'العميل', key: 'customer' },
@@ -76,8 +91,6 @@ const headers = [
   { title: 'المبلغ المتبقي', key: 'amount', align: 'end' },
   { title: 'الأولوية', key: 'urgency' },
 ];
-
-const upcomingCount = computed(() => props.payments.length);
 
 const getDaysLeft = dueDate => {
   if (!dueDate) return '-';
@@ -102,8 +115,8 @@ const getDaysLeftClass = dueDate => {
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
   if (diffDays < 0) return 'text-error font-weight-bold';
-  if (diffDays <= 1) return 'text-warning font-weight-bold';
-  return 'text-medium-emphasis';
+  if (diffDays <= 3) return 'text-warning font-weight-medium';
+  return 'text-grey';
 };
 
 const getUrgencyColor = dueDate => {
@@ -115,22 +128,46 @@ const getUrgencyColor = dueDate => {
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
   if (diffDays < 0) return 'error';
-  if (diffDays <= 1) return 'warning';
-  if (diffDays <= 3) return 'info';
+  if (diffDays <= 3) return 'warning';
   return 'success';
 };
 
 const getUrgencyLabel = dueDate => {
-  if (!dueDate) return '-';
+  if (!dueDate) return 'عادي';
 
   const today = new Date();
   const due = new Date(dueDate);
   const diffTime = due - today;
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-  if (diffDays < 0) return 'متأخر';
-  if (diffDays <= 1) return 'عاجل';
-  if (diffDays <= 3) return 'قريب';
+  if (diffDays < 0) return 'حرج';
+  if (diffDays <= 3) return 'عالي';
   return 'عادي';
 };
+
+const loadData = async () => {
+  await dashboardStore.fetchWidgetData(props.instanceId);
+};
+
+onMounted(() => {
+  loadData();
+});
 </script>
+
+<script>
+/**
+ * مكون عرض المدفوعات والتحصيلات القادمة (ممتثل للـ Widget Contract)
+ */
+export default {
+  name: 'UpcomingPayments'
+}
+</script>
+
+<style scoped>
+.gap-3 {
+  gap: 12px;
+}
+.text-xxs {
+  font-size: 0.65rem !important;
+}
+</style>

@@ -40,18 +40,32 @@
 </template>
 
 <script setup>
+// يعرض جدول أحدث فواتير المبيعات الصادرة بالنظام تفاعلياً عبر قراءة الـ Runtime المركزي.
+import { computed, onMounted } from 'vue';
 import { AppDataTable, AppUserBalanceProfile } from '@/components';
 import { formatCurrency } from '@/utils/formatters';
+import { useDashboardStore } from '@/@core/dashboard/store/dashboardStore';
 
-defineProps({
-  invoices: {
-    type: Array,
-    required: true,
+const props = defineProps({
+  instanceId: {
+    type: String,
+    required: true
   },
-  loading: {
-    type: Boolean,
-    default: false,
-  },
+  userConfig: {
+    type: Object,
+    default: () => ({})
+  }
+});
+
+const dashboardStore = useDashboardStore();
+
+const loading = computed(() => {
+  return dashboardStore.widgetLoadingStates[props.instanceId] !== false;
+});
+
+const invoices = computed(() => {
+  const wData = dashboardStore.dashboardData[props.instanceId];
+  return wData?.recent_invoices || wData?.recentInvoices || [];
 });
 
 const headers = [
@@ -80,4 +94,21 @@ const getStatusLabel = status => {
   };
   return labels[status] || status;
 };
+
+const loadData = async () => {
+  await dashboardStore.fetchWidgetData(props.instanceId);
+};
+
+onMounted(() => {
+  loadData();
+});
+</script>
+
+<script>
+/**
+ * مكون عرض الفواتير الأخيرة بالداشبورد (ممتثل للـ Widget Contract)
+ */
+export default {
+  name: 'RecentInvoices'
+}
 </script>

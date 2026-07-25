@@ -23,6 +23,7 @@ import taskRoutes from '@/modules/tasks/routes';
 import financialsRoutes from '@/modules/financials/routes';
 import legalRoutes from '@/modules/legal/routes';
 import devRoutes from '@/modules/dev/routes';
+import hwnixCashRoutes from '@/modules/hwnix-cash/routes';
 import errorRoutes from './errorRoutes';
 
 const router = createRouter({
@@ -72,6 +73,7 @@ const router = createRouter({
         ...financialsRoutes,
         ...legalRoutes,
         ...devRoutes,
+        ...hwnixCashRoutes,
         ...errorRoutes,
       ],
     },

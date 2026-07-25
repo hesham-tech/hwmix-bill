@@ -1,0 +1,95 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "HWNixDashboardLayoutSchema",
+  "description": "الدستور المعماري لتخطيط لوحات التحكم وأقسامها والمكونات التشغيلية الموزعة",
+  "type": "object",
+  "required": ["dashboardId", "companyId", "version", "sections"],
+  "properties": {
+    "dashboardId": {
+      "type": "string",
+      "description": "معرف لوحة التحكم الفريد المرتبط بالصلاحيات"
+    },
+    "companyId": {
+      "type": "string",
+      "description": "معرف الشركة النشط لضمان العزل التام للمستأجرين Multi-Tenant"
+    },
+    "version": {
+      "type": "string",
+      "description": "إصدار التخطيط المستخدم للمزامنة وتتبع التعديلات"
+    },
+    "sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "order", "containers"],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "order": {
+            "type": "integer"
+          },
+          "containers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "gridColumns", "widgetInstances"],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "gridColumns": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 12
+                },
+                "widgetInstances": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["id", "widgetId", "x", "y", "w", "h"],
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "widgetId": {
+                        "type": "string"
+                      },
+                      "x": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "y": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "w": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 12
+                      },
+                      "h": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "visible": {
+                        "type": "boolean",
+                        "default": true
+                      },
+                      "userConfig": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
