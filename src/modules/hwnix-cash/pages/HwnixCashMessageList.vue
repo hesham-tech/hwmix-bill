@@ -50,8 +50,12 @@
 
       <!-- نص الرسالة -->
       <template #item.body="{ item }">
-        <div class="message-body-cell font-weight-medium text-body-2 py-2" :title="item.message_body || item.body">
-          {{ item.message_body || item.body || '—' }}
+        <div
+          class="message-body-cell font-weight-medium text-body-2 py-2 cursor-pointer text-primary-hover"
+          title="انقر لعرض تفاصيل الرسالة والنص بالكامل"
+          @click="openDetailDialog(item)"
+        >
+          <span>{{ formatShortText(item.message_body || item.body, 7) }}</span>
         </div>
       </template>
 
@@ -61,7 +65,8 @@
           :color="(item.is_processed || item.status === 'received' || item.status === 'processed') ? 'success' : 'default'"
           size="small"
           variant="tonal"
-          class="font-weight-bold"
+          class="font-weight-bold cursor-pointer"
+          @click="openDetailDialog(item)"
         >
           {{ (item.is_processed || item.status === 'processed') ? 'معالجة' : 'مستلمة' }}
         </v-chip>
@@ -77,21 +82,149 @@
 
       <!-- الإجراءات السريعة -->
       <template #item.actions="{ item }">
-        <v-tooltip text="إضافة إلى مصادر الرسائل المعتمدة" location="top">
-          <template #activator="{ props }">
-            <v-btn
-              v-bind="props"
-              v-if="can(PERMISSIONS.HWNIX_CASH_MESSAGE_SOURCES_CREATE)"
-              icon="ri-radar-line"
-              size="small"
-              variant="text"
-              color="primary"
-              @click="openAddSourceDialog(item)"
-            />
-          </template>
-        </v-tooltip>
+        <div class="d-flex align-center justify-center gap-1">
+          <v-tooltip text="عرض تفاصيل الرسالة" location="top">
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+                icon="ri-eye-line"
+                size="small"
+                variant="text"
+                color="info"
+                @click="openDetailDialog(item)"
+              />
+            </template>
+          </v-tooltip>
+
+          <v-tooltip text="إضافة إلى مصادر الرسائل المعتمدة" location="top">
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+                v-if="can(PERMISSIONS.HWNIX_CASH_MESSAGE_SOURCES_CREATE)"
+                icon="ri-radar-line"
+                size="small"
+                variant="text"
+                color="primary"
+                @click="openAddSourceDialog(item)"
+              />
+            </template>
+          </v-tooltip>
+        </div>
       </template>
     </AppDataTable>
+
+    <!-- Dialog عرض تفاصيل الرسالة بالكامل -->
+    <v-dialog v-model="detailDialog" max-width="640">
+      <v-card rounded="xl" v-if="selectedMessage">
+        <v-card-title class="text-h6 pa-6 pb-3 d-flex align-center justify-space-between">
+          <div class="d-flex align-center gap-2">
+            <v-icon icon="ri-message-3-line" color="primary" />
+            <span>تفاصيل الرسالة القصيرة (SMS Details)</span>
+          </div>
+          <v-btn icon="ri-close-line" variant="text" size="small" @click="detailDialog = false" />
+        </v-card-title>
+        <v-divider />
+        <v-card-text class="pa-6">
+          <!-- نص الرسالة الكلي -->
+          <div class="mb-4">
+            <div class="d-flex align-center justify-space-between mb-2">
+              <span class="text-subtitle-2 font-weight-bold text-grey-darken-2">نص الرسالة بالكامل:</span>
+              <AppButton
+                size="x-small"
+                variant="tonal"
+                color="primary"
+                prepend-icon="ri-file-copy-line"
+                @click="copyMessageBody(selectedMessage.message_body || selectedMessage.body)"
+              >
+                نسخ النص
+              </AppButton>
+            </div>
+            <v-sheet
+              rounded="lg"
+              color="grey-lighten-4"
+              class="pa-4 text-body-1 font-weight-medium text-pre-wrap border"
+              style="line-height: 1.7; word-break: break-word;"
+            >
+              {{ selectedMessage.message_body || selectedMessage.body || 'لا يوجد نص محتوى' }}
+            </v-sheet>
+          </div>
+
+          <!-- شبكة التفاصيل والمواصفات -->
+          <v-row dense class="mt-2">
+            <v-col cols="12" sm="6">
+              <v-list-item density="compact" class="px-0">
+                <template #prepend><v-icon icon="ri-user-shared-line" color="primary" class="me-2" /></template>
+                <v-list-item-title class="text-caption text-grey">المرسل / جهة الاتصال</v-list-item-title>
+                <v-list-item-subtitle class="font-weight-bold text-body-2 text-high-emphasis">
+                  {{ selectedMessage.sender_name || selectedMessage.sender || selectedMessage.phone_number }}
+                </v-list-item-subtitle>
+              </v-list-item>
+            </v-col>
+
+            <v-col cols="12" sm="6">
+              <v-list-item density="compact" class="px-0">
+                <template #prepend><v-icon icon="ri-smartphone-line" color="primary" class="me-2" /></template>
+                <v-list-item-title class="text-caption text-grey">مزود المحفظة / المشغل</v-list-item-title>
+                <v-list-item-subtitle class="mt-1">
+                  <HwnixCashProviderChip :provider="selectedMessage.carrier || selectedMessage.provider || selectedMessage.phone_number" size="small" />
+                </v-list-item-subtitle>
+              </v-list-item>
+            </v-col>
+
+            <v-col cols="12" sm="6">
+              <v-list-item density="compact" class="px-0">
+                <template #prepend><v-icon icon="ri-time-line" color="primary" class="me-2" /></template>
+                <v-list-item-title class="text-caption text-grey">توقيت الاستلام والإرسال</v-list-item-title>
+                <v-list-item-subtitle class="font-weight-medium text-body-2">
+                  {{ formatDateTime(selectedMessage.sent_at || selectedMessage.created_at || selectedMessage.received_at) }}
+                </v-list-item-subtitle>
+              </v-list-item>
+            </v-col>
+
+            <v-col cols="12" sm="6">
+              <v-list-item density="compact" class="px-0">
+                <template #prepend><v-icon icon="ri-checkbox-circle-line" color="primary" class="me-2" /></template>
+                <v-list-item-title class="text-caption text-grey">حالة الرسالة والمعالجة</v-list-item-title>
+                <v-list-item-subtitle class="mt-1">
+                  <v-chip
+                    :color="(selectedMessage.is_processed || selectedMessage.status === 'received' || selectedMessage.status === 'processed') ? 'success' : 'default'"
+                    size="small"
+                    variant="tonal"
+                    class="font-weight-bold"
+                  >
+                    {{ (selectedMessage.is_processed || selectedMessage.status === 'processed') ? 'معالجة مالية' : 'رسالة مستلمة' }}
+                  </v-chip>
+                </v-list-item-subtitle>
+              </v-list-item>
+            </v-col>
+
+            <v-col cols="12" v-if="selectedMessage.message_ref">
+              <v-list-item density="compact" class="px-0">
+                <template #prepend><v-icon icon="ri-hashtag" color="primary" class="me-2" /></template>
+                <v-list-item-title class="text-caption text-grey">معرف الرسالة المرجعي (Message Ref)</v-list-item-title>
+                <v-list-item-subtitle class="font-mono text-caption text-grey-darken-2">
+                  {{ selectedMessage.message_ref }}
+                </v-list-item-subtitle>
+              </v-list-item>
+            </v-col>
+          </v-row>
+        </v-card-text>
+        <v-divider />
+        <v-card-actions class="pa-4 gap-2">
+          <AppButton
+            v-if="can(PERMISSIONS.HWNIX_CASH_MESSAGE_SOURCES_CREATE)"
+            variant="tonal"
+            color="primary"
+            prepend-icon="ri-radar-line"
+            @click="detailDialog = false; openAddSourceDialog(selectedMessage)"
+          >
+            إضافة لمصادر الرسائل
+          </AppButton>
+          <v-spacer />
+          <AppButton variant="text" @click="detailDialog = false">إغلاق</AppButton>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
     <!-- Dialog إضافة مصدر رسائل جديد بنقرة واحدة -->
     <v-dialog v-model="sourceDialog" max-width="480" persistent>
@@ -168,10 +301,15 @@ import { useUserStore } from '@/stores/user';
 import HwnixCashProviderChip from '../components/HwnixCashProviderChip.vue';
 import AppButton from '@/components/common/AppButton.vue';
 
+import notificationManager from '@/services/notificationManager';
+
 const store = useHwnixCashMessageStore();
 const sourceStore = useHwnixCashMessageSourceStore();
 const userStore = useUserStore();
 const can = permission => userStore.hasPermission(permission);
+
+const detailDialog = ref(false);
+const selectedMessage = ref(null);
 
 const sourceDialog = ref(false);
 const savingSource = ref(false);
@@ -181,6 +319,24 @@ const sourceForm = ref({
   description: '',
   is_active: true,
 });
+
+function openDetailDialog(message) {
+  selectedMessage.value = message;
+  detailDialog.value = true;
+}
+
+function copyMessageBody(text) {
+  if (!text) return;
+  navigator.clipboard.writeText(text);
+  notificationManager.showSuccess('تم نسخ نص الرسالة للحافظة بنجاح.');
+}
+
+function formatShortText(text, wordCount = 7) {
+  if (!text) return '—';
+  const words = text.trim().split(/\s+/);
+  if (words.length <= wordCount) return text;
+  return words.slice(0, wordCount).join(' ') + '...';
+}
 
 const headers = [
   { title: 'المرسل', key: 'sender', sortable: true },
