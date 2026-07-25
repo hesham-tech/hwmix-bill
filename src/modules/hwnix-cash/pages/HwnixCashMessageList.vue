@@ -33,39 +33,45 @@
       <!-- المرسل -->
       <template #item.sender="{ item }">
         <div class="d-flex align-center gap-2">
-          <v-icon icon="ri-user-line" size="14" class="text-grey" />
-          <span class="font-weight-medium font-mono">{{ item.sender }}</span>
+          <v-avatar color="primary" variant="tonal" size="28">
+            <v-icon icon="ri-user-shared-line" size="14" />
+          </v-avatar>
+          <div class="d-flex flex-column">
+            <span class="font-weight-bold text-body-2">{{ item.sender_name || item.sender || item.phone_number || 'مرسل عام' }}</span>
+            <span v-if="item.sender_name && item.phone_number" class="text-caption text-grey font-mono">{{ item.phone_number }}</span>
+          </div>
         </div>
       </template>
 
       <!-- المزود -->
       <template #item.provider="{ item }">
-        <HwnixCashProviderChip :provider="item.provider" size="x-small" />
+        <HwnixCashProviderChip :provider="item.carrier || item.provider || item.phone_number" size="small" />
       </template>
 
       <!-- نص الرسالة -->
       <template #item.body="{ item }">
-        <div class="message-body-cell" :title="item.body">
-          {{ truncate(item.body, 80) }}
+        <div class="message-body-cell font-weight-medium text-body-2 py-2" :title="item.message_body || item.body">
+          {{ item.message_body || item.body || '—' }}
         </div>
       </template>
 
       <!-- معالجة -->
       <template #item.is_processed="{ item }">
         <v-chip
-          :color="item.is_processed ? 'success' : 'default'"
-          size="x-small"
+          :color="(item.is_processed || item.status === 'received' || item.status === 'processed') ? 'success' : 'default'"
+          size="small"
           variant="tonal"
+          class="font-weight-bold"
         >
-          {{ item.is_processed ? 'معالجة' : 'لم تُعالج' }}
+          {{ (item.is_processed || item.status === 'processed') ? 'معالجة' : 'مستلمة' }}
         </v-chip>
       </template>
 
       <!-- وقت الاستلام -->
       <template #item.received_at="{ item }">
-        <div class="d-flex align-center gap-1 text-body-2 text-grey">
-          <v-icon icon="ri-time-line" size="12" />
-          {{ formatDateTime(item.received_at) }}
+        <div class="d-flex align-center gap-1 text-caption text-grey-darken-1">
+          <v-icon icon="ri-time-line" size="14" />
+          <span>{{ formatDateTime(item.sent_at || item.created_at || item.received_at) }}</span>
         </div>
       </template>
 
