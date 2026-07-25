@@ -161,6 +161,18 @@
                 density="compact"
               />
             </v-col>
+            <v-col cols="12" class="mt-2">
+              <v-btn
+                variant="tonal"
+                color="info"
+                size="small"
+                block
+                prepend-icon="ri-bank-line"
+                @click="applyDefaultCbeLimits"
+              >
+                استعادة حدود البنك المركزي المصري (60 ألف يومياً / 200 ألف شهرياً)
+              </v-btn>
+            </v-col>
           </v-row>
         </v-card-text>
         <v-divider />
@@ -194,14 +206,13 @@ const store = useHwnixCashLineStore();
 const userStore = useUserStore();
 const can = permission => userStore.hasPermission(permission);
 
-const editDialog = ref(false);
-const editingLine = ref(null);
-const editForm = ref({
-  daily_deposit_limit: 0,
-  daily_withdraw_limit: 0,
-  monthly_deposit_limit: 0,
-  monthly_withdraw_limit: 0,
-});
+// الحدود الافتراضية المعتمدة رسمياً من البنك المركزي المصري (CBE) للأفراد
+const DEFAULT_CBE_LIMITS = {
+  DAILY_DEPOSIT: 60000,
+  DAILY_WITHDRAW: 60000,
+  MONTHLY_DEPOSIT: 200000,
+  MONTHLY_WITHDRAW: 200000,
+};
 
 const headers = [
   { title: 'رقم الهاتف', key: 'phone_number', sortable: true },
@@ -236,13 +247,31 @@ const advancedFilters = [
   },
 ];
 
+const editDialog = ref(false);
+const editingLine = ref(null);
+const editForm = ref({
+  daily_deposit_limit: DEFAULT_CBE_LIMITS.DAILY_DEPOSIT,
+  daily_withdraw_limit: DEFAULT_CBE_LIMITS.DAILY_WITHDRAW,
+  monthly_deposit_limit: DEFAULT_CBE_LIMITS.MONTHLY_DEPOSIT,
+  monthly_withdraw_limit: DEFAULT_CBE_LIMITS.MONTHLY_WITHDRAW,
+});
+
+function applyDefaultCbeLimits() {
+  editForm.value = {
+    daily_deposit_limit: DEFAULT_CBE_LIMITS.DAILY_DEPOSIT,
+    daily_withdraw_limit: DEFAULT_CBE_LIMITS.DAILY_WITHDRAW,
+    monthly_deposit_limit: DEFAULT_CBE_LIMITS.MONTHLY_DEPOSIT,
+    monthly_withdraw_limit: DEFAULT_CBE_LIMITS.MONTHLY_WITHDRAW,
+  };
+}
+
 function openEditDialog(line) {
   editingLine.value = line;
   editForm.value = {
-    daily_deposit_limit: line.daily_deposit_limit ?? 0,
-    daily_withdraw_limit: line.daily_withdraw_limit ?? 0,
-    monthly_deposit_limit: line.monthly_deposit_limit ?? 0,
-    monthly_withdraw_limit: line.monthly_withdraw_limit ?? 0,
+    daily_deposit_limit: (line.daily_deposit_limit && line.daily_deposit_limit > 0) ? line.daily_deposit_limit : DEFAULT_CBE_LIMITS.DAILY_DEPOSIT,
+    daily_withdraw_limit: (line.daily_withdraw_limit && line.daily_withdraw_limit > 0) ? line.daily_withdraw_limit : DEFAULT_CBE_LIMITS.DAILY_WITHDRAW,
+    monthly_deposit_limit: (line.monthly_deposit_limit && line.monthly_deposit_limit > 0) ? line.monthly_deposit_limit : DEFAULT_CBE_LIMITS.MONTHLY_DEPOSIT,
+    monthly_withdraw_limit: (line.monthly_withdraw_limit && line.monthly_withdraw_limit > 0) ? line.monthly_withdraw_limit : DEFAULT_CBE_LIMITS.MONTHLY_WITHDRAW,
   };
   editDialog.value = true;
 }
