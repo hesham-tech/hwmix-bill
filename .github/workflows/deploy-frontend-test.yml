@@ -39,6 +39,7 @@ jobs:
       - name: Build project
         run: npm run build
         env:
+          VITE_API_BASE_URL: 'https://api-teste.hwnix.com/api/v1'
           VITE_API_URL: ${{ secrets.TEST_API_URL }}
 
       - name: Setup SSH Agent
