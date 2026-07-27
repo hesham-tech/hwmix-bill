@@ -179,12 +179,42 @@
                 />
               </v-col>
               <v-col cols="12">
+                <div class="d-flex align-center justify-space-between mb-1">
+                  <span class="text-caption font-weight-bold text-grey-darken-2">
+                    {{ productData.is_active_in_store ? 'وصف موجز *' : 'وصف موجز' }}
+                  </span>
+
+                  <!-- AI Description Generator Button -->
+                  <v-tooltip location="top">
+                    <template #activator="{ props }">
+                      <div v-bind="props" class="d-inline-block">
+                        <v-btn
+                          size="x-small"
+                          variant="tonal"
+                          color="primary"
+                          class="rounded-pill px-2 font-weight-bold shadow-sm"
+                          :disabled="!productData.name || !hasActiveAiAccounts || isGeneratingAiDesc"
+                          :loading="isGeneratingAiDesc"
+                          @click="generateAiDescription"
+                        >
+                          <v-icon start size="14" class="text-primary">ri-magic-line</v-icon>
+                          توليد بالذكاء الاصطناعي ✨
+                        </v-btn>
+                      </div>
+                    </template>
+                    <span>
+                      <template v-if="!hasActiveAiAccounts">يرجى إضافة ربط مفتاح API في منصة الذكاء الاصطناعي أولاً</template>
+                      <template v-else-if="!productData.name">يرجى كتابة اسم المنتج أولاً لتشغيل الذكاء الاصطناعي</template>
+                      <template v-else>انقر لتوليد وصف تسويقي احترافي للمنتج باستخدام الذكاء الاصطناعي</template>
+                    </span>
+                  </v-tooltip>
+                </div>
+
                 <AppTextarea
                   v-model="productData.desc"
-                  :label="productData.is_active_in_store ? 'وصف موجز *' : 'وصف موجز'"
-                  :required="productData.is_active_in_store"
                   placeholder="اكتب وصفاً مختصراً للمنتج..."
-                  rows="2"
+                  rows="4"
+                  auto-grow
                 />
               </v-col>
             </v-row>
@@ -469,8 +499,74 @@ import VariantManager from './VariantManager.vue';
 import ProductMediaManager from './ProductMediaManager.vue';
 import { useUserStore } from '@/stores/user';
 import notificationManager from '@/services/notificationManager';
-
 import apiClient from '@/api/axios.config';
+import { fetchAiAccounts } from '@/modules/ai-platform/services/aiPlatformService';
+
+const hasActiveAiAccounts = ref(false);
+const isGeneratingAiDesc = ref(false);
+
+const checkAiAccountsStatus = async () => {
+  try {
+    const res = await fetchAiAccounts();
+    const accounts = res.data?.data || res.data || [];
+    hasActiveAiAccounts.value = Array.isArray(accounts) && accounts.some(a => a.is_active);
+  } catch (e) {
+    hasActiveAiAccounts.value = false;
+  }
+};
+
+const generateAiDescription = async () => {
+  if (!productData.value.name || !hasActiveAiAccounts.value) return;
+
+  isGeneratingAiDesc.value = true;
+  try {
+    const details = [];
+
+    if (productData.value.category?.name) {
+      details.push(`التصنيف: ${productData.value.category.name}`);
+    }
+    if (productData.value.brand?.name) {
+      details.push(`الماركة: ${productData.value.brand.name}`);
+    }
+
+    if (Array.isArray(productData.value.variants) && productData.value.variants.length > 0) {
+      const attrs = [];
+      productData.value.variants.forEach(v => {
+        if (v.attribute_values && typeof v.attribute_values === 'object') {
+          Object.entries(v.attribute_values).forEach(([k, val]) => {
+            if (val) attrs.push(`${k}: ${val}`);
+          });
+        }
+      });
+      if (attrs.length > 0) {
+        details.push(`الخصائص المتوفرة: ${[...new Set(attrs)].join('، ')}`);
+      }
+    }
+
+    const featuresText = details.length > 0
+      ? details.join(' | ')
+      : 'لا توجد مواصفات أو بيانات تفصيلية ممررة سوى اسم المنتج فقط';
+
+    const res = await apiClient.post('/ai/capability/text.generate', {
+      prompt_key: 'product.description.generate',
+      variables: {
+        product_name: productData.value.name,
+        features: featuresText,
+      },
+    });
+
+    const text = res.data?.data?.result || res.data?.data || res.data?.message;
+    if (text && typeof text === 'string') {
+      productData.value.desc = text;
+      notificationManager.success('تم توليد وصف المنتج بالذكاء الاصطناعي بنجاح ✨');
+    }
+  } catch (error) {
+    console.error('Failed to generate AI description:', error);
+    notificationManager.error(error.response?.data?.message || 'حدث خطأ أثناء توليد الوصف بالذكاء الاصطناعي');
+  } finally {
+    isGeneratingAiDesc.value = false;
+  }
+};
 
 const props = defineProps({
   productId: {
@@ -1088,6 +1184,9 @@ onMounted(async () => {
       console.error('Failed to fetch default warehouse:', error);
     }
   }
+
+  // Check AI Platform connection status
+  checkAiAccountsStatus();
 });
 
 onUnmounted(() => {

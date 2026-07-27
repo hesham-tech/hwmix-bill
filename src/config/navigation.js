@@ -39,6 +39,49 @@ export default [
     to: '/app/activity-logs',
     permission: [PERMISSIONS.ACTIVITY_LOGS_VIEW_ALL, PERMISSIONS.ACTIVITY_LOGS_VIEW_CHILDREN, PERMISSIONS.ACTIVITY_LOGS_VIEW_SELF],
   },
+  {
+    title: 'منصة الذكاء الاصطناعي',
+    icon: 'ri-robot-line',
+    permission: null,
+    children: [
+      {
+        title: 'لوحة التحكم',
+        to: '/ai-platform',
+        icon: 'ri-dashboard-line',
+        permission: null,
+      },
+      {
+        title: 'الوكلاء الذكيون',
+        to: '/ai-platform/agents',
+        icon: 'ri-user-star-line',
+        permission: null,
+      },
+      {
+        title: 'قوالب Prompts',
+        to: '/ai-platform/prompts',
+        icon: 'ri-terminal-box-line',
+        permission: null,
+      },
+      {
+        title: 'تقرير الاستهلاك',
+        to: '/ai-platform/usage',
+        icon: 'ri-money-dollar-circle-line',
+        permission: null,
+      },
+      {
+        title: 'إدارة النماذج',
+        to: '/ai-platform/models',
+        icon: 'ri-robot-line',
+        permission: null,
+      },
+      {
+        title: 'مفاتيح وحسابات API',
+        to: '/ai-platform/accounts',
+        icon: 'ri-key-2-line',
+        permission: null,
+      },
+    ],
+  },
 
   // ==================== 2. المبيعات والعملاء (Sales & CRM) ====================
   {
@@ -236,7 +279,7 @@ export default [
       PERMISSIONS.TRANSACTIONS_VIEW_ALL,
       PERMISSIONS.FINANCIAL_LEDGER_VIEW_ALL,
       PERMISSIONS.FINANCIAL_LEDGER_VIEW_CHILDREN,
-      PERMISSIONS.FINANCIAL_LEDGER_VIEW_SELF
+      PERMISSIONS.FINANCIAL_LEDGER_VIEW_SELF,
     ],
     children: [
       {
@@ -474,42 +517,25 @@ export default [
   {
     title: 'إدارة الساس',
     icon: 'ri-vip-crown-line',
-    permission: [
-      PERMISSIONS.ADMIN_SUPER,
-      PERMISSIONS.COMPANIES_VIEW_ALL,
-      PERMISSIONS.SUBSCRIPTIONS_VIEW_ALL,
-      PERMISSIONS.PLANS_VIEW_ALL
-    ],
+    permission: [PERMISSIONS.ADMIN_SUPER, PERMISSIONS.COMPANIES_VIEW_ALL, PERMISSIONS.SUBSCRIPTIONS_VIEW_ALL, PERMISSIONS.PLANS_VIEW_ALL],
     children: [
       {
         title: 'قائمة الشركات',
         to: '/app/companies',
         icon: 'ri-building-4-line',
-        permission: [
-          PERMISSIONS.ADMIN_SUPER,
-          PERMISSIONS.COMPANIES_VIEW_ALL,
-          PERMISSIONS.COMPANIES_VIEW_CHILDREN,
-          PERMISSIONS.COMPANIES_VIEW_SELF,
-        ],
+        permission: [PERMISSIONS.ADMIN_SUPER, PERMISSIONS.COMPANIES_VIEW_ALL, PERMISSIONS.COMPANIES_VIEW_CHILDREN, PERMISSIONS.COMPANIES_VIEW_SELF],
       },
       {
         title: 'إضافة شركة جديدة',
         to: '/app/companies?action=create',
         icon: 'ri-add-box-line',
-        permission: [
-          PERMISSIONS.ADMIN_SUPER,
-          PERMISSIONS.COMPANIES_CREATE,
-        ],
+        permission: [PERMISSIONS.ADMIN_SUPER, PERMISSIONS.COMPANIES_CREATE],
       },
       {
         title: 'باقات SaaS',
         to: '/app/saas-plans',
         icon: 'ri-vip-crown-line',
-        permission: [
-          PERMISSIONS.ADMIN_SUPER,
-          PERMISSIONS.SUBSCRIPTIONS_VIEW_ALL,
-          PERMISSIONS.PLANS_VIEW_ALL
-        ],
+        permission: [PERMISSIONS.ADMIN_SUPER, PERMISSIONS.SUBSCRIPTIONS_VIEW_ALL, PERMISSIONS.PLANS_VIEW_ALL],
       },
       {
         title: 'النسخ الاحتياطي',
@@ -523,6 +549,22 @@ export default [
         icon: 'ri-bug-line',
         permission: PERMISSIONS.ADMIN_SUPER,
       },
+    ],
+  },
+
+  // ==================== 11. منصة الذكاء الاصطناعي (AI Platform) ====================
+  {
+    title: 'منصة الذكاء الاصطناعي',
+    icon: 'mdi-robot-outline',
+    permission: [PERMISSIONS.ADMIN_SUPER, PERMISSIONS.COMPANIES_VIEW_ALL, PERMISSIONS.SUBSCRIPTIONS_VIEW_ALL, PERMISSIONS.PLANS_VIEW_ALL],
+    to: { name: 'ai-platform-dashboard' },
+    children: [
+      { title: 'لوحة التحكم', to: { name: 'ai-platform-dashboard' } },
+      { title: 'الوكلاء الذكيون', to: { name: 'ai-platform-agents' } },
+      { title: 'قوالب Prompts', to: { name: 'ai-platform-prompts' } },
+      { title: 'تقرير الاستهلاك', to: { name: 'ai-platform-usage' } },
+      { title: 'إدارة النماذج', to: { name: 'ai-platform-models' } },
+      { title: 'مفاتيح وحسابات API', to: { name: 'ai-platform-accounts' } },
     ],
   },
 ];

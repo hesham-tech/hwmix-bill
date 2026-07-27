@@ -137,3 +137,12 @@ watch(
   }
 );
 </script>
+
+<style scoped>
+:deep(.v-field__input),
+:deep(textarea) {
+  white-space: pre-wrap !important;
+  line-height: 1.6 !important;
+  font-family: inherit !important;
+}
+</style>

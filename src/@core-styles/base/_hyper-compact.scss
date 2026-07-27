@@ -1,7 +1,8 @@
-/* Global Hyper Compact System - Applied to the entire project automatically */
+/* Global Hyper Compact System - Applied to single-line inputs automatically */
 
-/* Target all Vuetify fields globally */
-.v-field {
+/* Target all Vuetify fields globally EXCEPT textareas */
+.v-input:not(.v-textarea) .v-field,
+.v-field:not(.v-textarea .v-field) {
   --v-field-padding-top: 0px !important;
   --v-field-padding-bottom: 0px !important;
   height: 28px !important;
@@ -23,7 +24,7 @@
     line-height: 1 !important;
     display: flex !important;
     align-items: center !important;
-    text-align: center !important; /* Unified alignment */
+    text-align: center !important; /* Unified alignment for numbers/single lines */
     justify-content: center !important;
   }
 
@@ -102,10 +103,55 @@
   }
 }
 
+/* Dedicated styling for v-textarea (Preserving Multi-line & Natural Flow) */
+.v-textarea {
+  .v-field {
+    height: auto !important;
+    min-height: 80px !important;
+    max-height: none !important;
+    padding: 8px 12px !important;
+    border-radius: 8px !important;
+
+    .v-field__input,
+    .v-field__field,
+    textarea {
+      min-height: 60px !important;
+      max-height: none !important;
+      height: auto !important;
+      padding: 4px 0 !important;
+      line-height: 1.6 !important;
+      text-align: right !important;
+      justify-content: flex-start !important;
+      align-items: flex-start !important;
+      white-space: pre-wrap !important;
+      font-size: 13px !important;
+      color: rgba(var(--v-theme-on-surface), 0.9) !important;
+      opacity: 1 !important;
+      font-weight: 500 !important;
+    }
+
+    .v-label.v-field-label {
+      top: 14px !important;
+      transform: none !important;
+      font-size: 12px !important;
+      opacity: 0.8;
+    }
+
+    .v-label.v-field-label--floating {
+      top: 0px !important;
+      transform: translateY(-50%) scale(0.85) !important;
+      font-weight: bold;
+      opacity: 1;
+      background: rgb(var(--v-theme-surface)) !important;
+      padding: 0 4px !important;
+    }
+  }
+}
+
 /* Global Spacing for Compact Elements - Automatic Project-wide */
-.v-input.v-input--density-compact,
-.v-input.v-input--density-compact .v-input__control,
-.v-field--density-compact {
+.v-input.v-input--density-compact:not(.v-textarea),
+.v-input.v-input--density-compact:not(.v-textarea) .v-input__control,
+.v-field--density-compact:not(.v-textarea .v-field) {
   margin-bottom: 12px !important;
   
   &:last-child {

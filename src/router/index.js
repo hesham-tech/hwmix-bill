@@ -24,6 +24,7 @@ import financialsRoutes from '@/modules/financials/routes';
 import legalRoutes from '@/modules/legal/routes';
 import devRoutes from '@/modules/dev/routes';
 import hwnixCashRoutes from '@/modules/hwnix-cash/routes';
+import aiPlatformRoutes from '@/modules/ai-platform/routes';
 import errorRoutes from './errorRoutes';
 
 const router = createRouter({
@@ -74,6 +75,7 @@ const router = createRouter({
         ...legalRoutes,
         ...devRoutes,
         ...hwnixCashRoutes,
+        ...aiPlatformRoutes,
         ...errorRoutes,
       ],
     },

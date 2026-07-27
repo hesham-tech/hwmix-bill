@@ -240,13 +240,16 @@ const canAccess = permission => {
 const isItemActive = itemPath => {
   if (!itemPath) return false;
 
+  const pathStr = typeof itemPath === 'string' ? itemPath : (itemPath.path || '');
+  if (!pathStr) return false;
+
   // If path contains query params, do strict check
-  if (itemPath.includes('?')) {
-    return route.fullPath === itemPath;
+  if (pathStr.includes('?')) {
+    return route.fullPath === pathStr;
   }
 
   // Otherwise let Vuetify handle it (or basic path check)
-  return route.path === itemPath;
+  return route.path === pathStr;
 };
 
 const handleLogout = async () => {
