@@ -512,7 +512,7 @@ export default [
   // ==================== 11. منصة الذكاء الاصطناعي (AI Platform) ====================
   {
     title: 'منصة الذكاء الاصطناعي',
-    icon: 'ri-robot-line',
+    icon: 'ri-sparkling-2-line',
     permission: [PERMISSIONS.ADMIN_SUPER],
     children: [
       {
