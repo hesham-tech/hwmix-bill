@@ -39,49 +39,6 @@ export default [
     to: '/app/activity-logs',
     permission: [PERMISSIONS.ACTIVITY_LOGS_VIEW_ALL, PERMISSIONS.ACTIVITY_LOGS_VIEW_CHILDREN, PERMISSIONS.ACTIVITY_LOGS_VIEW_SELF],
   },
-  {
-    title: 'منصة الذكاء الاصطناعي',
-    icon: 'ri-robot-line',
-    permission: null,
-    children: [
-      {
-        title: 'لوحة التحكم',
-        to: '/ai-platform',
-        icon: 'ri-dashboard-line',
-        permission: null,
-      },
-      {
-        title: 'الوكلاء الذكيون',
-        to: '/ai-platform/agents',
-        icon: 'ri-user-star-line',
-        permission: null,
-      },
-      {
-        title: 'قوالب Prompts',
-        to: '/ai-platform/prompts',
-        icon: 'ri-terminal-box-line',
-        permission: null,
-      },
-      {
-        title: 'تقرير الاستهلاك',
-        to: '/ai-platform/usage',
-        icon: 'ri-money-dollar-circle-line',
-        permission: null,
-      },
-      {
-        title: 'إدارة النماذج',
-        to: '/ai-platform/models',
-        icon: 'ri-robot-line',
-        permission: null,
-      },
-      {
-        title: 'مفاتيح وحسابات API',
-        to: '/ai-platform/accounts',
-        icon: 'ri-key-2-line',
-        permission: null,
-      },
-    ],
-  },
 
   // ==================== 2. المبيعات والعملاء (Sales & CRM) ====================
   {
@@ -555,16 +512,45 @@ export default [
   // ==================== 11. منصة الذكاء الاصطناعي (AI Platform) ====================
   {
     title: 'منصة الذكاء الاصطناعي',
-    icon: 'mdi-robot-outline',
-    permission: [PERMISSIONS.ADMIN_SUPER, PERMISSIONS.COMPANIES_VIEW_ALL, PERMISSIONS.SUBSCRIPTIONS_VIEW_ALL, PERMISSIONS.PLANS_VIEW_ALL],
-    to: { name: 'ai-platform-dashboard' },
+    icon: 'ri-robot-line',
+    permission: [PERMISSIONS.ADMIN_SUPER],
     children: [
-      { title: 'لوحة التحكم', to: { name: 'ai-platform-dashboard' } },
-      { title: 'الوكلاء الذكيون', to: { name: 'ai-platform-agents' } },
-      { title: 'قوالب Prompts', to: { name: 'ai-platform-prompts' } },
-      { title: 'تقرير الاستهلاك', to: { name: 'ai-platform-usage' } },
-      { title: 'إدارة النماذج', to: { name: 'ai-platform-models' } },
-      { title: 'مفاتيح وحسابات API', to: { name: 'ai-platform-accounts' } },
+      {
+        title: 'لوحة التحكم',
+        to: '/ai-platform',
+        icon: 'ri-dashboard-line',
+        permission: null,
+      },
+      {
+        title: 'الوكلاء الذكيون',
+        to: '/ai-platform/agents',
+        icon: 'ri-user-star-line',
+        permission: null,
+      },
+      {
+        title: 'قوالب Prompts',
+        to: '/ai-platform/prompts',
+        icon: 'ri-terminal-box-line',
+        permission: null,
+      },
+      {
+        title: 'تقرير الاستهلاك',
+        to: '/ai-platform/usage',
+        icon: 'ri-money-dollar-circle-line',
+        permission: null,
+      },
+      {
+        title: 'إدارة النماذج',
+        to: '/ai-platform/models',
+        icon: 'ri-robot-line',
+        permission: null,
+      },
+      {
+        title: 'مفاتيح وحسابات API',
+        to: '/ai-platform/accounts',
+        icon: 'ri-key-2-line',
+        permission: null,
+      },
     ],
   },
 ];
