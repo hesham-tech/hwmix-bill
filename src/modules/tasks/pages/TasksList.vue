@@ -73,17 +73,17 @@
               <div class="d-flex align-center">
                 <div class="d-flex align-center flex-row-reverse ms-2">
                   <v-avatar
-                    v-for="(assign, index) in task.assignments.slice(0, 3)"
+                    v-for="(assign, index) in (task.assignments || []).slice(0, 3)"
                     :key="assign.id"
                     size="28"
-                    :color="assign.assignable.color || 'primary'"
+                    :color="assign.assignable?.color || 'primary'"
                     class="border border-white ms-n2"
                     :style="{ zIndex: 10 - index }"
                   >
-                    <span class="text-caption white--text">{{ assign.assignable.nickname?.[0] || assign.assignable.name?.[0] }}</span>
+                    <span class="text-caption white--text">{{ assign.assignable?.nickname?.[0] || assign.assignable?.name?.[0] || '?' }}</span>
                   </v-avatar>
-                  <v-avatar v-if="task.assignments.length > 3" size="28" color="grey-lighten-2" class="border border-white ms-n2" style="z-index: 0">
-                    <span class="text-caption">+{{ task.assignments.length - 3 }}</span>
+                  <v-avatar v-if="(task.assignments || []).length > 3" size="28" color="grey-lighten-2" class="border border-white ms-n2" style="z-index: 0">
+                    <span class="text-caption">+{{ (task.assignments || []).length - 3 }}</span>
                   </v-avatar>
                 </div>
               </div>
@@ -189,9 +189,11 @@ const setupEchoListeners = () => {
   const companyId = JSON.parse(localStorage.getItem('user'))?.active_company_id;
   if (companyId) {
     import('@/plugins/echo').then(({ echo }) => {
-      echo.private(`company.${companyId}`).listen('.task.updated', e => {
-        fetchTasks();
-      });
+      if (echo && typeof echo.private === 'function') {
+        echo.private(`company.${companyId}`).listen('.task.updated', e => {
+          fetchTasks();
+        });
+      }
     });
   }
 };

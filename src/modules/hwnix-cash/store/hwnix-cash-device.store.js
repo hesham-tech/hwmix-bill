@@ -50,7 +50,7 @@ export const useHwnixCashDeviceStore = defineStore('hwnix-cash-device', () => {
     loading.value = true;
     try {
       const response = await hwnixCashDeviceService.update(id, data);
-      notificationManager.showSuccess('تم تحديث بيانات الجهاز بنجاح.');
+      notificationManager.success('تم تحديث بيانات الجهاز بنجاح.');
       await fetchDevices();
       return response;
     } catch (error) {
@@ -65,7 +65,7 @@ export const useHwnixCashDeviceStore = defineStore('hwnix-cash-device', () => {
     loading.value = true;
     try {
       const response = await hwnixCashDeviceService.delete(id);
-      notificationManager.showSuccess('تم إلغاء ربط وإزالة الجهاز بنجاح.');
+      notificationManager.success('تم إلغاء ربط وإزالة الجهاز بنجاح.');
       await fetchDevices();
       return response;
     } catch (error) {

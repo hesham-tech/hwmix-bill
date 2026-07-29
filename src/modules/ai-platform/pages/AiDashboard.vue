@@ -489,6 +489,7 @@ const $fetchProviders = async () => {
     providers.value = [
       { id: 1, label: 'Google Gemini', type: 'llm', driver_class: 'Modules\\AiPlatform\\Drivers\\GeminiDriver' },
       { id: 2, label: 'OpenAI', type: 'llm', driver_class: 'Modules\\AiPlatform\\Drivers\\OpenAiDriver' },
+      { id: 3, label: 'Groq AI (Llama 3)', type: 'llm', driver_class: 'Modules\\AiPlatform\\Drivers\\GroqDriver' },
     ];
   }
 };

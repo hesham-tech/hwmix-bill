@@ -328,7 +328,7 @@ function openDetailDialog(message) {
 function copyMessageBody(text) {
   if (!text) return;
   navigator.clipboard.writeText(text);
-  notificationManager.showSuccess('تم نسخ نص الرسالة للحافظة بنجاح.');
+  notificationManager.success('تم نسخ نص الرسالة للحافظة بنجاح.');
 }
 
 function formatShortText(text, wordCount = 7) {

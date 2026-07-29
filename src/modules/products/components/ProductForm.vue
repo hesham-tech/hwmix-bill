@@ -522,24 +522,80 @@ const generateAiDescription = async () => {
   try {
     const details = [];
 
-    if (productData.value.category?.name) {
-      details.push(`التصنيف: ${productData.value.category.name}`);
+    // 1. التصنيف (Category)
+    let categoryName = productData.value.category?.name || productData.value.category?.full_path;
+    if (!categoryName && productData.value.category_id) {
+      try {
+        const catRes = await apiClient.get(`/categories/${productData.value.category_id}`);
+        categoryName = catRes.data?.data?.name || catRes.data?.name;
+      } catch (e) {
+        // ignore fallback
+      }
     }
-    if (productData.value.brand?.name) {
-      details.push(`الماركة: ${productData.value.brand.name}`);
+    if (categoryName) {
+      details.push(`التصنيف: ${categoryName}`);
     }
 
+    // 2. العلامة التجارية (Brand)
+    let brandName = productData.value.brand?.name;
+    if (!brandName && productData.value.brand_id) {
+      try {
+        const brandRes = await apiClient.get(`/brands/${productData.value.brand_id}`);
+        brandName = brandRes.data?.data?.name || brandRes.data?.name;
+      } catch (e) {
+        // ignore fallback
+      }
+    }
+    if (brandName) {
+      details.push(`الماركة: ${brandName}`);
+    }
+
+    // 3. الخصائص والألوان والمقاسات من المتغيرات (Variants & Attributes)
     if (Array.isArray(productData.value.variants) && productData.value.variants.length > 0) {
-      const attrs = [];
-      productData.value.variants.forEach(v => {
-        if (v.attribute_values && typeof v.attribute_values === 'object') {
-          Object.entries(v.attribute_values).forEach(([k, val]) => {
-            if (val) attrs.push(`${k}: ${val}`);
+      try {
+        const attrRes = await apiClient.get('/attributes', { params: { per_page: 100 } });
+        const attributeList = attrRes.data?.data || attrRes.data || [];
+        
+        const attrMap = {};
+        if (Array.isArray(attributeList)) {
+          attributeList.forEach(a => {
+            if (a.id) {
+              attrMap[a.id] = {
+                name: a.name,
+                valuesMap: (a.values || []).reduce((acc, val) => {
+                  if (val.id) acc[val.id] = val.name;
+                  return acc;
+                }, {})
+              };
+            }
           });
         }
-      });
-      if (attrs.length > 0) {
-        details.push(`الخصائص المتوفرة: ${[...new Set(attrs)].join('، ')}`);
+
+        const collectedAttrs = [];
+        productData.value.variants.forEach(v => {
+          if (Array.isArray(v.attributes)) {
+            v.attributes.forEach(attr => {
+              if (attr.attribute_id && attr.attribute_value_id) {
+                const attrInfo = attrMap[attr.attribute_id];
+                const valueName = attrInfo?.valuesMap?.[attr.attribute_value_id];
+                if (attrInfo?.name && valueName) {
+                  collectedAttrs.push(`${attrInfo.name}: ${valueName}`);
+                }
+              }
+            });
+          }
+          if (v.attribute_values && typeof v.attribute_values === 'object') {
+            Object.entries(v.attribute_values).forEach(([k, val]) => {
+              if (val) collectedAttrs.push(`${k}: ${val}`);
+            });
+          }
+        });
+
+        if (collectedAttrs.length > 0) {
+          details.push(`الخصائص المتوفرة: ${[...new Set(collectedAttrs)].join('، ')}`);
+        }
+      } catch (e) {
+        console.warn('Could not resolve variant attribute labels for AI:', e);
       }
     }
 
