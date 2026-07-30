@@ -164,6 +164,8 @@
                     label="سحب يومي"
                     :used="acc.daily_withdraw_used"
                     :limit="acc.daily_withdraw_limit || 60000"
+                    :alert-type="acc.daily_withdraw_alert_type || 'percentage'"
+                    :alert-value="acc.daily_withdraw_alert_value || 80"
                     icon="ri-cash-line"
                     color="error"
                   />
@@ -173,6 +175,8 @@
                     label="إيداع يومي"
                     :used="acc.daily_deposit_used"
                     :limit="acc.daily_deposit_limit || 60000"
+                    :alert-type="acc.daily_deposit_alert_type || 'percentage'"
+                    :alert-value="acc.daily_deposit_alert_value || 80"
                     icon="ri-add-circle-line"
                     color="success"
                   />
@@ -186,6 +190,8 @@
                     label="سحب شهري"
                     :used="acc.monthly_withdraw_used"
                     :limit="acc.monthly_withdraw_limit || 200000"
+                    :alert-type="acc.monthly_withdraw_alert_type || 'percentage'"
+                    :alert-value="acc.monthly_withdraw_alert_value || 80"
                     icon="ri-calendar-event-line"
                     color="warning"
                   />
@@ -195,6 +201,8 @@
                     label="إيداع شهري"
                     :used="acc.monthly_deposit_used"
                     :limit="acc.monthly_deposit_limit || 200000"
+                    :alert-type="acc.monthly_deposit_alert_type || 'percentage'"
+                    :alert-value="acc.monthly_deposit_alert_value || 80"
                     icon="ri-calendar-check-line"
                     color="info"
                   />
@@ -323,46 +331,175 @@
                 />
               </v-col>
 
-              <!-- الحدود المالية -->
-              <v-col cols="6">
-                <v-text-field
-                  v-model="accountForm.daily_deposit_limit"
-                  label="حد الإيداع اليومي (ج.م)"
-                  type="number"
-                  min="0"
-                  variant="outlined"
-                  density="compact"
-                />
-              </v-col>
-              <v-col cols="6">
-                <v-text-field
-                  v-model="accountForm.daily_withdraw_limit"
-                  label="حد السحب اليومي (ج.م)"
-                  type="number"
-                  min="0"
-                  variant="outlined"
-                  density="compact"
-                />
-              </v-col>
-              <v-col cols="6">
-                <v-text-field
-                  v-model="accountForm.monthly_deposit_limit"
-                  label="حد الإيداع الشهري (ج.م)"
-                  type="number"
-                  min="0"
-                  variant="outlined"
-                  density="compact"
-                />
-              </v-col>
-              <v-col cols="6">
-                <v-text-field
-                  v-model="accountForm.monthly_withdraw_limit"
-                  label="حد السحب الشهري (ج.م)"
-                  type="number"
-                  min="0"
-                  variant="outlined"
-                  density="compact"
-                />
+              <!-- الحدود المالية وإعدادات التنبيه المخصصة لكل حد -->
+              <v-col cols="12">
+                <div class="pa-3 rounded-lg border bg-grey-lighten-5 mb-2">
+                  <div class="text-caption font-weight-bold text-error mb-2">حد وإعداد تنبيه السحب اليومي:</div>
+                  <v-row dense>
+                    <v-col cols="12" sm="6">
+                      <v-text-field
+                        v-model="accountForm.daily_withdraw_limit"
+                        label="حد السحب اليومي (ج.م)"
+                        type="number"
+                        min="0"
+                        variant="outlined"
+                        density="compact"
+                      />
+                    </v-col>
+                    <v-col cols="12" sm="6">
+                      <div class="d-flex align-center gap-1">
+                        <v-btn-toggle
+                          v-model="accountForm.daily_withdraw_alert_type"
+                          mandatory
+                          density="compact"
+                          color="error"
+                          variant="outlined"
+                          style="height: 40px;"
+                        >
+                          <v-btn value="percentage" size="x-small">% نسبة</v-btn>
+                          <v-btn value="amount" size="x-small">ج.م مبلغ</v-btn>
+                        </v-btn-toggle>
+                        <v-text-field
+                          v-model="accountForm.daily_withdraw_alert_value"
+                          :label="accountForm.daily_withdraw_alert_type === 'percentage' ? 'تنبيه (%)' : 'تنبيه (ج.م)'"
+                          type="number"
+                          min="1"
+                          :max="accountForm.daily_withdraw_alert_type === 'percentage' ? 100 : (accountForm.daily_withdraw_limit || 60000)"
+                          :rules="[validateAlertValue(accountForm.daily_withdraw_alert_type, accountForm.daily_withdraw_limit)]"
+                          variant="outlined"
+                          density="compact"
+                          class="flex-grow-1"
+                        />
+                      </div>
+                    </v-col>
+                  </v-row>
+                </div>
+
+                <div class="pa-3 rounded-lg border bg-grey-lighten-5 mb-2">
+                  <div class="text-caption font-weight-bold text-success mb-2">حد وإعداد تنبيه الإيداع اليومي:</div>
+                  <v-row dense>
+                    <v-col cols="12" sm="6">
+                      <v-text-field
+                        v-model="accountForm.daily_deposit_limit"
+                        label="حد الإيداع اليومي (ج.م)"
+                        type="number"
+                        min="0"
+                        variant="outlined"
+                        density="compact"
+                      />
+                    </v-col>
+                    <v-col cols="12" sm="6">
+                      <div class="d-flex align-center gap-1">
+                        <v-btn-toggle
+                          v-model="accountForm.daily_deposit_alert_type"
+                          mandatory
+                          density="compact"
+                          color="success"
+                          variant="outlined"
+                          style="height: 40px;"
+                        >
+                          <v-btn value="percentage" size="x-small">% نسبة</v-btn>
+                          <v-btn value="amount" size="x-small">ج.م مبلغ</v-btn>
+                        </v-btn-toggle>
+                        <v-text-field
+                          v-model="accountForm.daily_deposit_alert_value"
+                          :label="accountForm.daily_deposit_alert_type === 'percentage' ? 'تنبيه (%)' : 'تنبيه (ج.م)'"
+                          type="number"
+                          min="1"
+                          :max="accountForm.daily_deposit_alert_type === 'percentage' ? 100 : (accountForm.daily_deposit_limit || 60000)"
+                          :rules="[validateAlertValue(accountForm.daily_deposit_alert_type, accountForm.daily_deposit_limit)]"
+                          variant="outlined"
+                          density="compact"
+                          class="flex-grow-1"
+                        />
+                      </div>
+                    </v-col>
+                  </v-row>
+                </div>
+
+                <div class="pa-3 rounded-lg border bg-grey-lighten-5 mb-2">
+                  <div class="text-caption font-weight-bold text-warning mb-2">حد وإعداد تنبيه السحب الشهري:</div>
+                  <v-row dense>
+                    <v-col cols="12" sm="6">
+                      <v-text-field
+                        v-model="accountForm.monthly_withdraw_limit"
+                        label="حد السحب الشهري (ج.م)"
+                        type="number"
+                        min="0"
+                        variant="outlined"
+                        density="compact"
+                      />
+                    </v-col>
+                    <v-col cols="12" sm="6">
+                      <div class="d-flex align-center gap-1">
+                        <v-btn-toggle
+                          v-model="accountForm.monthly_withdraw_alert_type"
+                          mandatory
+                          density="compact"
+                          color="warning"
+                          variant="outlined"
+                          style="height: 40px;"
+                        >
+                          <v-btn value="percentage" size="x-small">% نسبة</v-btn>
+                          <v-btn value="amount" size="x-small">ج.م مبلغ</v-btn>
+                        </v-btn-toggle>
+                        <v-text-field
+                          v-model="accountForm.monthly_withdraw_alert_value"
+                          :label="accountForm.monthly_withdraw_alert_type === 'percentage' ? 'تنبيه (%)' : 'تنبيه (ج.م)'"
+                          type="number"
+                          min="1"
+                          :max="accountForm.monthly_withdraw_alert_type === 'percentage' ? 100 : (accountForm.monthly_withdraw_limit || 200000)"
+                          :rules="[validateAlertValue(accountForm.monthly_withdraw_alert_type, accountForm.monthly_withdraw_limit)]"
+                          variant="outlined"
+                          density="compact"
+                          class="flex-grow-1"
+                        />
+                      </div>
+                    </v-col>
+                  </v-row>
+                </div>
+
+                <div class="pa-3 rounded-lg border bg-grey-lighten-5">
+                  <div class="text-caption font-weight-bold text-info mb-2">حد وإعداد تنبيه الإيداع الشهري:</div>
+                  <v-row dense>
+                    <v-col cols="12" sm="6">
+                      <v-text-field
+                        v-model="accountForm.monthly_deposit_limit"
+                        label="حد الإيداع الشهري (ج.م)"
+                        type="number"
+                        min="0"
+                        variant="outlined"
+                        density="compact"
+                      />
+                    </v-col>
+                    <v-col cols="12" sm="6">
+                      <div class="d-flex align-center gap-1">
+                        <v-btn-toggle
+                          v-model="accountForm.monthly_deposit_alert_type"
+                          mandatory
+                          density="compact"
+                          color="info"
+                          variant="outlined"
+                          style="height: 40px;"
+                        >
+                          <v-btn value="percentage" size="x-small">% نسبة</v-btn>
+                          <v-btn value="amount" size="x-small">ج.م مبلغ</v-btn>
+                        </v-btn-toggle>
+                        <v-text-field
+                          v-model="accountForm.monthly_deposit_alert_value"
+                          :label="accountForm.monthly_deposit_alert_type === 'percentage' ? 'تنبيه (%)' : 'تنبيه (ج.م)'"
+                          type="number"
+                          min="1"
+                          :max="accountForm.monthly_deposit_alert_type === 'percentage' ? 100 : (accountForm.monthly_deposit_limit || 200000)"
+                          :rules="[validateAlertValue(accountForm.monthly_deposit_alert_type, accountForm.monthly_deposit_limit)]"
+                          variant="outlined"
+                          density="compact"
+                          class="flex-grow-1"
+                        />
+                      </div>
+                    </v-col>
+                  </v-row>
+                </div>
               </v-col>
 
               <v-col cols="12" class="mt-2">
@@ -582,7 +719,30 @@ const accountForm = ref({
   daily_withdraw_limit: DEFAULT_CBE_LIMITS.DAILY_WITHDRAW,
   monthly_deposit_limit: DEFAULT_CBE_LIMITS.MONTHLY_DEPOSIT,
   monthly_withdraw_limit: DEFAULT_CBE_LIMITS.MONTHLY_WITHDRAW,
+  daily_deposit_alert_type: 'percentage',
+  daily_deposit_alert_value: 80,
+  daily_withdraw_alert_type: 'percentage',
+  daily_withdraw_alert_value: 80,
+  monthly_deposit_alert_type: 'percentage',
+  monthly_deposit_alert_value: 80,
+  monthly_withdraw_alert_type: 'percentage',
+  monthly_withdraw_alert_value: 80,
 });
+
+function validateAlertValue(type, limit) {
+  return v => {
+    if (v === null || v === '' || v === undefined) return true;
+    const val = Number(v);
+    if (val < 1) return 'القيمة يجب أن تكون 1 على الأقل';
+    if (type === 'percentage') {
+      if (val > 100) return 'النسبة المئوية يجب أن تكون بين 1% و 100%';
+    } else if (type === 'amount') {
+      const lim = Number(limit || 0);
+      if (lim > 0 && val > lim) return `مبلغ التنبيه لا يمكن أن يتجاوز الحد الكلي (${lim} ج.م)`;
+    }
+    return true;
+  };
+}
 
 const reconcileDialog = ref(false);
 const reconcilingAccount = ref(null);
@@ -637,6 +797,14 @@ function openAddAccountDialog(lineId = null) {
     daily_withdraw_limit: DEFAULT_CBE_LIMITS.DAILY_WITHDRAW,
     monthly_deposit_limit: DEFAULT_CBE_LIMITS.MONTHLY_DEPOSIT,
     monthly_withdraw_limit: DEFAULT_CBE_LIMITS.MONTHLY_WITHDRAW,
+    daily_deposit_alert_type: 'percentage',
+    daily_deposit_alert_value: 80,
+    daily_withdraw_alert_type: 'percentage',
+    daily_withdraw_alert_value: 80,
+    monthly_deposit_alert_type: 'percentage',
+    monthly_deposit_alert_value: 80,
+    monthly_withdraw_alert_type: 'percentage',
+    monthly_withdraw_alert_value: 80,
   };
   accountStore.fetchDistinctSenders();
   accountFormDialog.value = true;
@@ -653,6 +821,14 @@ function openEditAccountDialog(account) {
     daily_withdraw_limit: account.daily_withdraw_limit || DEFAULT_CBE_LIMITS.DAILY_WITHDRAW,
     monthly_deposit_limit: account.monthly_deposit_limit || DEFAULT_CBE_LIMITS.MONTHLY_DEPOSIT,
     monthly_withdraw_limit: account.monthly_withdraw_limit || DEFAULT_CBE_LIMITS.MONTHLY_WITHDRAW,
+    daily_deposit_alert_type: account.daily_deposit_alert_type || 'percentage',
+    daily_deposit_alert_value: account.daily_deposit_alert_value || 80,
+    daily_withdraw_alert_type: account.daily_withdraw_alert_type || 'percentage',
+    daily_withdraw_alert_value: account.daily_withdraw_alert_value || 80,
+    monthly_deposit_alert_type: account.monthly_deposit_alert_type || 'percentage',
+    monthly_deposit_alert_value: account.monthly_deposit_alert_value || 80,
+    monthly_withdraw_alert_type: account.monthly_withdraw_alert_type || 'percentage',
+    monthly_withdraw_alert_value: account.monthly_withdraw_alert_value || 80,
   };
   accountFormDialog.value = true;
 }

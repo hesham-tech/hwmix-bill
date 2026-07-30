@@ -20,7 +20,7 @@
         </v-chip>
       </div>
     </div>
-    <v-tooltip :text="`المتبقي المتاح: ${format(remaining)} ج.م`" location="top">
+    <v-tooltip :text="tooltipText" location="top">
       <template #activator="{ props: tooltipProps }">
         <div v-bind="tooltipProps">
           <v-progress-linear
@@ -34,6 +34,10 @@
         </div>
       </template>
     </v-tooltip>
+    <div v-if="alertTriggered && !limitExceeded" class="text-caption text-warning font-weight-bold mt-1 d-flex align-center gap-1" style="font-size: 10px;">
+      <v-icon icon="ri-error-warning-line" size="10" color="warning" />
+      <span>بلغ حد التنبيه ({{ alertType === 'percentage' ? alertValue + '%' : format(alertValue) + ' ج.م' }})</span>
+    </div>
   </div>
 </template>
 
@@ -44,6 +48,8 @@ const props = defineProps({
   label: { type: String, required: true },
   used: { type: Number, default: 0 },
   limit: { type: Number, default: 0 },
+  alertType: { type: String, default: 'percentage' },
+  alertValue: { type: Number, default: 80 },
   icon: { type: String, default: 'ri-dashboard-line' },
   color: { type: String, default: 'primary' },
 });
@@ -62,11 +68,27 @@ const limitExceeded = computed(() => {
   return props.limit > 0 && props.used >= props.limit;
 });
 
+const alertThresholdAmount = computed(() => {
+  if (!props.limit || props.limit <= 0) return 0;
+  if (props.alertType === 'amount') {
+    return props.alertValue || 0;
+  }
+  return ((props.alertValue || 80) / 100) * props.limit;
+});
+
+const alertTriggered = computed(() => {
+  return props.limit > 0 && alertThresholdAmount.value > 0 && props.used >= alertThresholdAmount.value;
+});
+
 const progressColor = computed(() => {
   if (limitExceeded.value) return 'error';
-  if (percent.value >= 85) return 'error';
-  if (percent.value >= 70) return 'warning';
+  if (alertTriggered.value) return 'warning';
   return props.color;
+});
+
+const tooltipText = computed(() => {
+  const alertDesc = props.alertType === 'percentage' ? `${props.alertValue}%` : `${format(props.alertValue)} ج.م`;
+  return `المتبقي المتاح: ${format(remaining.value)} ج.م | عتبة التنبيه: ${alertDesc}`;
 });
 
 function format(val) {
