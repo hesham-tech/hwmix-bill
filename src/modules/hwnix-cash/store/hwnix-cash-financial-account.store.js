@@ -78,10 +78,10 @@ export const useHwnixCashFinancialAccountStore = defineStore('hwnix-cash-financi
     }
   }
 
-  async function reconcileFinancialAccount(id) {
+  async function reconcileFinancialAccount(id, data = {}) {
     loading.value = true;
     try {
-      const response = await hwnixCashFinancialAccountService.reconcile(id);
+      const response = await hwnixCashFinancialAccountService.reconcile(id, data);
       notificationManager.success('تمت تسوية الرصيد الحسابي بالرصيد الفعلي بنجاح وتسجيل قيد التسوية');
       return response.data[0];
     } catch (error) {

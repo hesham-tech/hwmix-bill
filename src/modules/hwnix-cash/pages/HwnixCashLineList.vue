@@ -343,8 +343,36 @@
       </v-card>
     </v-dialog>
 
+    <!-- Context Menu النقر بزر الفأرة الأيمن للحساب المالي -->
+    <v-menu
+      v-model="contextMenuShow"
+      :target="[contextMenuX, contextMenuY]"
+      location="bottom start"
+    >
+      <v-list density="compact" rounded="lg" class="py-1 min-w-180">
+        <v-list-item
+          prepend-icon="ri-scales-3-line"
+          title="تسوية الرصيد الحسابي"
+          :disabled="!selectedAccountForContext?.has_balance_mismatch"
+          @click="openReconcileAccountDialog(selectedAccountForContext)"
+        />
+        <v-list-item
+          prepend-icon="ri-edit-line"
+          title="تعديل الحساب المالي"
+          @click="openEditAccountDialog(selectedAccountForContext)"
+        />
+        <v-divider />
+        <v-list-item
+          prepend-icon="ri-delete-bin-line"
+          title="حذف الحساب المالي"
+          color="error"
+          @click="deleteAccount(selectedAccountForContext)"
+        />
+      </v-list>
+    </v-menu>
+
     <!-- Dialog تسوية الرصيد الحسابي للحساب المالي -->
-    <v-dialog v-model="reconcileDialog" max-width="520" persistent>
+    <v-dialog v-model="reconcileDialog" max-width="540" persistent>
       <v-card rounded="xl">
         <v-card-title class="text-h6 pa-6 pb-4 d-flex align-center gap-2">
           <v-icon icon="ri-scales-3-line" color="info" />
@@ -353,19 +381,25 @@
         <v-divider />
         <v-card-text class="pa-6">
           <v-alert
-            type="info"
+            type="warning"
             variant="tonal"
             rounded="lg"
             class="mb-4 text-body-2"
-            icon="ri-information-line"
+            icon="ri-alert-line"
           >
-            تصل الرسائل المالية باستمرار وتحدث <strong>الرصيد الفعلي (Ground Truth)</strong> للحساب المالي تلقائياً. تتيح لك هذه الشاشة مساواة <strong>الرصيد الحسابي بالنظام</strong> بالرصيد الفعلي وتوليد قيد تسوية مالي.
+            سيتم إنشاء <strong>معاملة تسوية مستقلة</strong> لتعديل الرصيد الحسابي حتى يطابق الرصيد الفعلي. لن يتم حذف أو تعديل أي معاملة مالية سابقة.
           </v-alert>
 
           <div class="d-flex flex-column gap-3 mb-4 p-4 rounded-lg bg-grey-lighten-4">
             <div class="d-flex justify-space-between align-center">
               <span class="text-body-2 text-grey-darken-1">اسم الحساب:</span>
               <span class="font-weight-bold font-mono">{{ reconcilingAccount?.name }}</span>
+            </div>
+            <div class="d-flex justify-space-between align-center">
+              <span class="text-body-2 text-grey-darken-1">مصدر الرسائل المقترن:</span>
+              <v-chip size="x-small" color="primary" variant="outlined" class="font-weight-bold">
+                {{ reconcilingAccount?.sender_identifier || reconcilingAccount?.message_source?.sender_identifier }}
+              </v-chip>
             </div>
             <div class="d-flex justify-space-between align-center">
               <span class="text-body-2 text-grey-darken-1">الرصيد الفعلي المستلم (Ground Truth):</span>
@@ -381,7 +415,7 @@
             </div>
             <v-divider />
             <div class="d-flex justify-space-between align-center">
-              <span class="text-body-2 font-weight-medium">الفارق المالي حالياً:</span>
+              <span class="text-body-2 font-weight-medium">فرق التسوية المطلوب:</span>
               <v-chip
                 :color="reconcilingAccount?.has_balance_mismatch ? 'warning' : 'success'"
                 size="small"
@@ -392,6 +426,38 @@
               </v-chip>
             </div>
           </div>
+
+          <!-- حقل سبب التسوية الإجباري مع اقتراحات سريعة -->
+          <div class="mt-4">
+            <div class="text-caption font-weight-medium mb-1 text-grey-darken-2">
+              اقتراحات سريعة لسبب التسوية:
+            </div>
+            <div class="d-flex flex-wrap gap-1 mb-3">
+              <v-chip
+                v-for="preset in RECONCILE_REASON_PRESETS"
+                :key="preset"
+                size="x-small"
+                variant="tonal"
+                color="info"
+                class="cursor-pointer"
+                @click="reconcileReason = preset"
+              >
+                {{ preset }}
+              </v-chip>
+            </div>
+
+            <v-textarea
+              v-model="reconcileReason"
+              label="سبب التسوية (إجباري) *"
+              placeholder="اكتب سبب إجراء تسوية الرصيد بالتفصيل للمراجعة والتدقيق المحاسبي..."
+              variant="outlined"
+              rows="2"
+              auto-grow
+              required
+              density="compact"
+              prepend-inner-icon="ri-file-text-line"
+            />
+          </div>
         </v-card-text>
         <v-divider />
         <v-card-actions class="pa-4 gap-2">
@@ -400,10 +466,11 @@
           <AppButton
             color="info"
             :loading="accountStore.loading"
+            :disabled="!reconcileReason || !reconcilingAccount?.has_balance_mismatch"
             prepend-icon="ri-check-double-line"
             @click="saveAccountReconciliation"
           >
-            مساواة وتأكيد إجراء التسوية
+            تنفيذ التسوية
           </AppButton>
         </v-card-actions>
       </v-card>
@@ -465,6 +532,27 @@ const accountForm = ref({
 
 const reconcileDialog = ref(false);
 const reconcilingAccount = ref(null);
+const reconcileReason = ref('');
+
+const RECONCILE_REASON_PRESETS = [
+  'تسوية بعد مراجعة كشف المحفظة',
+  'رصيد افتتاحي',
+  'تصحيح فرق بعد الجرد',
+  'تعديل بعد مراجعة البنك',
+];
+
+const contextMenuShow = ref(false);
+const contextMenuX = ref(0);
+const contextMenuY = ref(0);
+const selectedAccountForContext = ref(null);
+
+function openContextMenu(e, account) {
+  if (!account) return;
+  selectedAccountForContext.value = account;
+  contextMenuX.value = e.clientX;
+  contextMenuY.value = e.clientY;
+  contextMenuShow.value = true;
+}
 
 function formatCurrency(v) {
   return new Intl.NumberFormat('ar-EG', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v ?? 0);
@@ -488,6 +576,7 @@ function openAddAccountDialog(lineId = null) {
 }
 
 function openEditAccountDialog(account) {
+  if (!account) return;
   isEditingAccount.value = true;
   editingAccountId.value = account.id;
   accountForm.value = {
@@ -519,6 +608,7 @@ async function saveAccount() {
 }
 
 async function deleteAccount(account) {
+  if (!account) return;
   if (confirm(`هل أنت تأكد من رغبتك في حذف الحساب المالي "${account.name}"؟`)) {
     await accountStore.deleteFinancialAccount(account.id);
     store.fetchLines();
@@ -526,13 +616,17 @@ async function deleteAccount(account) {
 }
 
 function openReconcileAccountDialog(account) {
+  if (!account) return;
   reconcilingAccount.value = account;
+  reconcileReason.value = RECONCILE_REASON_PRESETS[0];
   reconcileDialog.value = true;
 }
 
 async function saveAccountReconciliation() {
-  if (!reconcilingAccount.value) return;
-  await accountStore.reconcileFinancialAccount(reconcilingAccount.value.id);
+  if (!reconcilingAccount.value || !reconcileReason.value) return;
+  await accountStore.reconcileFinancialAccount(reconcilingAccount.value.id, {
+    reason: reconcileReason.value,
+  });
   reconcileDialog.value = false;
   store.fetchLines();
 }
