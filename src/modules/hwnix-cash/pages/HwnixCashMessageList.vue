@@ -34,12 +34,23 @@
       <!-- الجهاز والخط -->
       <template #item.device_line="{ item }">
         <div class="d-flex flex-column">
+          <!-- اسم الهاتف المخصص المعين من قبل المستخدم -->
           <span class="font-weight-bold text-body-2 text-high-emphasis">
             {{ item.device?.name || item.device?.device_name || item.device_name || 'جهاز المستلم' }}
           </span>
-          <span class="text-caption text-primary font-weight-medium font-mono dir-ltr text-right">
-            {{ item.line?.phone_number || item.line_phone_number || (item.line?.slot_index !== undefined ? 'خط SIM ' + (item.line.slot_index + 1) : 'غير محدد') }}
-          </span>
+          <!-- رقم الخط والاسم الفعلي المكتشف للهاتف -->
+          <div class="d-flex align-center gap-1 text-caption">
+            <span class="text-primary font-weight-medium font-mono dir-ltr">
+              {{ item.line?.phone_number || item.line_phone_number || (item.line?.slot_index !== undefined ? 'خط SIM ' + (item.line.slot_index + 1) : 'غير محدد') }}
+            </span>
+            <span
+              v-if="item.device?.device_name && item.device?.name && item.device.name !== item.device.device_name"
+              class="text-grey text-caption"
+              :title="'الاسم الفعلي للهاتف: ' + item.device.device_name"
+            >
+              • {{ item.device.device_name }}
+            </span>
+          </div>
         </div>
       </template>
 
@@ -165,6 +176,12 @@
                 <v-list-item-title class="text-caption text-grey">الجهاز المستلم</v-list-item-title>
                 <v-list-item-subtitle class="font-weight-bold text-body-2 text-high-emphasis">
                   {{ selectedMessage.device?.name || selectedMessage.device?.device_name || selectedMessage.device_name || 'جهاز المستلم' }}
+                  <span
+                    v-if="selectedMessage.device?.device_name && selectedMessage.device?.name && selectedMessage.device.name !== selectedMessage.device.device_name"
+                    class="text-grey font-weight-normal text-caption ms-1"
+                  >
+                    ({{ selectedMessage.device.device_name }})
+                  </span>
                 </v-list-item-subtitle>
               </v-list-item>
             </v-col>
