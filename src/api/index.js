@@ -37,6 +37,7 @@ export { default as hwnixCashLineService } from './services/hwnix-cash-line.serv
 export { default as hwnixCashMessageService } from './services/hwnix-cash-message.service';
 export { default as hwnixCashWalletTransactionService } from './services/hwnix-cash-wallet-transaction.service';
 export { default as hwnixCashMessageSourceService } from './services/hwnix-cash-message-source.service';
+export { default as hwnixCashFinancialAccountService } from './services/hwnix-cash-financial-account.service';
 
 // Export axios instance for custom calls
 export { default as apiClient } from './axios.config';

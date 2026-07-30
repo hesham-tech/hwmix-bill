@@ -6,36 +6,49 @@
       v-model:search="store.search"
       :headers="headers"
       :items="store.lines"
-      :loading="store.loading"
+      :loading="store.loading || accountStore.loading"
       :total-items="store.totalItems"
       :page="store.page"
       :items-per-page="store.itemsPerPage"
       :filters="advancedFilters"
       permission-module="hwnix_cash"
-      title="الخطوط والمحافظ المالية"
-      subtitle="إدارة خطوط الاتصال والأرصدة وتسوية الرصيد الحسابي بالرصيد الفعلي"
+      title="الخطوط والحسابات المالية"
+      subtitle="إدارة خطوط الهاتف الفيزيائية والحسابات المالية المرتبطة بمصادر الرسائل"
       icon="ri-sim-card-line"
       @update:page="store.page = $event; store.fetchLines()"
       @update:items-per-page="store.itemsPerPage = $event; store.fetchLines()"
       @update:filters="applyFilters"
     >
       <template #actions>
-        <AppButton
-          variant="tonal"
-          color="primary"
-          prepend-icon="ri-refresh-line"
-          :loading="store.loading"
-          @click="store.fetchLines()"
-        >
-          تحديث البيانات
-        </AppButton>
+        <div class="d-flex align-center gap-2">
+          <!-- زر إضافة حساب مالي جديد -->
+          <AppButton
+            variant="elevation"
+            color="primary"
+            prepend-icon="ri-add-circle-line"
+            class="font-weight-bold"
+            @click="openAddAccountDialog()"
+          >
+            إضافة حساب مالي جديد
+          </AppButton>
+
+          <AppButton
+            variant="tonal"
+            color="secondary"
+            prepend-icon="ri-refresh-line"
+            :loading="store.loading"
+            @click="store.fetchLines()"
+          >
+            تحديث
+          </AppButton>
+        </div>
       </template>
 
-      <!-- رقم الهاتف -->
+      <!-- رقم الهاتف الشريحة -->
       <template #item.phone_number="{ item }">
         <div class="d-flex flex-column gap-1">
           <div class="d-flex align-center gap-2">
-            <v-icon icon="ri-sim-card-line" size="16" class="text-primary" />
+            <v-icon icon="ri-sim-card-line" size="18" class="text-primary" />
             <span class="font-weight-bold font-mono text-body-1">{{ item.phone_number || '—' }}</span>
           </div>
           <div v-if="item.note" class="text-caption text-grey">
@@ -59,77 +72,101 @@
               {{ [item.device_brand, item.device_model].filter(Boolean).join(' ') }}
             </span>
           </div>
-          <span v-if="item.device_android_id" class="text-caption font-mono text-grey mt-1">
-            ID: {{ item.device_android_id }}
-          </span>
         </div>
       </template>
 
-      <!-- المزود -->
-      <template #item.provider="{ item }">
-        <HwnixCashProviderChip :provider="item.carrier || item.provider" />
+      <!-- الحسابات المالية التابعة للخط -->
+      <template #item.financial_accounts="{ item }">
+        <div class="d-flex flex-column gap-2 py-2">
+          <div v-if="!item.financial_accounts || item.financial_accounts.length === 0" class="text-caption text-grey italic">
+            لا تقتصر الشريحة على حساب حالياً. انقر "إضافة حساب مالي".
+          </div>
+
+          <div
+            v-for="acc in item.financial_accounts"
+            :key="acc.id"
+            class="pa-2 rounded-lg border bg-grey-lighten-5 d-flex flex-column gap-1"
+          >
+            <!-- عنوان الحساب ومصدر الرسائل -->
+            <div class="d-flex align-center justify-space-between gap-2">
+              <div class="d-flex align-center gap-2">
+                <v-icon icon="ri-bank-card-line" size="16" color="primary" />
+                <span class="font-weight-bold text-body-2">{{ acc.name }}</span>
+                <v-chip size="x-small" variant="outlined" color="primary" class="font-weight-bold">
+                  {{ acc.sender_identifier }}
+                </v-chip>
+              </div>
+
+              <!-- أزرار التحكم بالحساب المالي -->
+              <div class="d-flex align-center gap-1">
+                <v-tooltip text="تسوية الرصيد" location="top">
+                  <template #activator="{ props }">
+                    <v-btn
+                      v-bind="props"
+                      icon="ri-scales-3-line"
+                      size="x-small"
+                      variant="tonal"
+                      color="info"
+                      @click="openReconcileAccountDialog(acc)"
+                    />
+                  </template>
+                </v-tooltip>
+
+                <v-tooltip text="تعديل الحدود" location="top">
+                  <template #activator="{ props }">
+                    <v-btn
+                      v-bind="props"
+                      icon="ri-edit-line"
+                      size="x-small"
+                      variant="text"
+                      color="primary"
+                      @click="openEditAccountDialog(acc)"
+                    />
+                  </template>
+                </v-tooltip>
+
+                <v-tooltip text="حذف الحساب" location="top">
+                  <template #activator="{ props }">
+                    <v-btn
+                      v-bind="props"
+                      icon="ri-delete-bin-line"
+                      size="x-small"
+                      variant="text"
+                      color="error"
+                      @click="deleteAccount(acc)"
+                    />
+                  </template>
+                </v-tooltip>
+              </div>
+            </div>
+
+            <!-- الأرصدة التابعة للحساب المالي -->
+            <div class="d-flex align-center justify-space-between text-caption mt-1">
+              <span>الفعلي (SMS): <strong class="text-success">{{ formatCurrency(acc.actual_balance) }} ج.م</strong></span>
+              <span>الحسابي: <strong>{{ formatCurrency(acc.balance) }} ج.م</strong></span>
+              <v-chip v-if="acc.has_balance_mismatch" color="warning" size="x-small" variant="flat" class="font-weight-bold">
+                فارق: {{ formatCurrency(acc.balance_difference) }} ج.م
+              </v-chip>
+            </div>
+          </div>
+        </div>
       </template>
 
-      <!-- الأرصدة (الفعلي والحسابي) -->
-      <template #item.balances="{ item }">
+      <!-- الأرصدة الإجمالية للخط -->
+      <template #item.total_balances="{ item }">
         <div class="d-flex flex-column gap-1 py-1">
-          <!-- الرصيد الفعلي القاطع -->
           <div class="d-flex align-center justify-space-between gap-2">
-            <span class="text-caption text-grey">الفعلي (SMS):</span>
+            <span class="text-caption text-grey">إجمالي الفعلي:</span>
             <span class="font-weight-bold text-success text-body-2">
-              {{ formatCurrency(item.actual_balance) }} ج.م
+              {{ formatCurrency(item.total_actual_balance) }} ج.م
             </span>
           </div>
-          <!-- الرصيد الحسابي بالنظام -->
           <div class="d-flex align-center justify-space-between gap-2">
-            <span class="text-caption text-grey">الحسابي:</span>
+            <span class="text-caption text-grey">إجمالي الحسابي:</span>
             <span class="font-weight-bold text-body-2">
-              {{ formatCurrency(item.balance) }} ج.م
+              {{ formatCurrency(item.total_balance) }} ج.م
             </span>
           </div>
-          <!-- التنبيه في حال وجود فارق -->
-          <div v-if="item.has_balance_mismatch" class="mt-1">
-            <v-chip color="warning" size="x-small" variant="tonal" class="font-weight-bold">
-              <v-icon icon="ri-alert-line" size="12" class="me-1" />
-              فارق: {{ formatCurrency(item.balance_difference) }} ج.م
-            </v-chip>
-          </div>
-        </div>
-      </template>
-
-      <!-- حدود اليومي -->
-      <template #item.daily_limits="{ item }">
-        <div class="d-flex flex-column gap-1 py-1">
-          <HwnixCashLimitBar
-            label="إيداع يومي"
-            :used="item.daily_deposit_used ?? item.today_deposit_usage ?? 0"
-            :limit="Number(item.daily_deposit_limit)"
-            color="success"
-          />
-          <HwnixCashLimitBar
-            label="سحب يومي"
-            :used="item.daily_withdraw_used ?? item.today_withdraw_usage ?? 0"
-            :limit="Number(item.daily_withdraw_limit)"
-            color="warning"
-          />
-        </div>
-      </template>
-
-      <!-- حدود الشهري -->
-      <template #item.monthly_limits="{ item }">
-        <div class="d-flex flex-column gap-1 py-1">
-          <HwnixCashLimitBar
-            label="إيداع شهري"
-            :used="item.monthly_deposit_used ?? item.month_deposit_usage ?? 0"
-            :limit="Number(item.monthly_deposit_limit)"
-            color="success"
-          />
-          <HwnixCashLimitBar
-            label="سحب شهري"
-            :used="item.monthly_withdraw_used ?? item.month_withdraw_usage ?? 0"
-            :limit="Number(item.monthly_withdraw_limit)"
-            color="warning"
-          />
         </div>
       </template>
 
@@ -148,31 +185,15 @@
       <!-- الإجراءات -->
       <template #item.actions="{ item }">
         <div class="d-flex align-center gap-1 justify-center">
-          <!-- زر التسوية المالية -->
-          <v-tooltip text="تسوية الرصيد الحسابي بالرصيد الفعلي" location="top">
+          <v-tooltip text="إضافة حساب مالي على هذه الشريحة" location="top">
             <template #activator="{ props }">
               <v-btn
                 v-bind="props"
-                icon="ri-scales-3-line"
+                icon="ri-add-line"
                 size="small"
                 variant="tonal"
-                color="info"
-                @click="openReconcileDialog(item)"
-              />
-            </template>
-          </v-tooltip>
-
-          <!-- زر تعديل الحدود -->
-          <v-tooltip text="تعديل حدود المحفظة" location="top">
-            <template #activator="{ props }">
-              <v-btn
-                v-if="can(PERMISSIONS.HWNIX_CASH_EDIT_ALL)"
-                v-bind="props"
-                icon="ri-edit-line"
-                size="small"
-                variant="text"
                 color="primary"
-                @click="openEditDialog(item)"
+                @click="openAddAccountDialog(item.id)"
               />
             </template>
           </v-tooltip>
@@ -180,12 +201,154 @@
       </template>
     </AppDataTable>
 
-    <!-- Dialog تسوية الرصيد الحسابي بالرصيد الفعلي -->
+    <!-- Dialog إضافة حساب مالي جديد (Form واحدة بزر حفظ واحد) -->
+    <v-dialog v-model="accountFormDialog" max-width="580" persistent>
+      <v-card rounded="xl">
+        <v-card-title class="text-h6 pa-6 pb-4 d-flex align-center gap-2">
+          <v-icon icon="ri-bank-card-line" color="primary" />
+          {{ isEditingAccount ? 'تعديل الحساب المالي' : 'إضافة حساب مالي جديد (Single Form)' }}
+        </v-card-title>
+        <v-divider />
+        <v-card-text class="pa-6">
+          <v-form ref="accountFormRef" @submit.prevent="saveAccount">
+            <v-row dense>
+              <!-- اختيار الخط -->
+              <v-col cols="12" v-if="!isEditingAccount">
+                <v-select
+                  v-model="accountForm.line_id"
+                  :items="store.lines"
+                  item-title="phone_number"
+                  item-value="id"
+                  label="اختر خط الهاتف *"
+                  required
+                  variant="outlined"
+                  density="compact"
+                  prepend-inner-icon="ri-sim-card-line"
+                >
+                  <template #item="{ props, item }">
+                    <v-list-item v-bind="props" :title="item.raw.phone_number" :subtitle="item.raw.device_name || item.raw.carrier" />
+                  </template>
+                </v-select>
+              </v-col>
+
+              <!-- اسم الحساب -->
+              <v-col cols="12" md="6">
+                <v-text-field
+                  v-model="accountForm.name"
+                  label="اسم الحساب المالي *"
+                  placeholder="مثال: فودافون كاش كشك 1"
+                  required
+                  variant="outlined"
+                  density="compact"
+                  prepend-inner-icon="ri-bookmark-line"
+                />
+              </v-col>
+
+              <!-- رقم الحساب اختياري -->
+              <v-col cols="12" md="6">
+                <v-text-field
+                  v-model="accountForm.account_number"
+                  label="رقم الحساب / المحفظة (اختياري)"
+                  placeholder="مثال: 01012345678"
+                  variant="outlined"
+                  density="compact"
+                  prepend-inner-icon="ri-number-1"
+                />
+              </v-col>
+
+              <!-- اختيار مصدر الرسائل المكتشف (Select Only) -->
+              <v-col cols="12" v-if="!isEditingAccount">
+                <v-select
+                  v-model="accountForm.sender_identifier"
+                  :items="accountStore.distinctSenders"
+                  label="مصدر الرسائل (اختر من الرسائل المكتشفة بالنظام) *"
+                  required
+                  variant="outlined"
+                  density="compact"
+                  prepend-inner-icon="ri-mail-send-line"
+                  no-data-text="لم يتم اكتشاف رسائل سابقة بالنظام"
+                />
+              </v-col>
+
+              <!-- الحدود المالية -->
+              <v-col cols="6">
+                <v-text-field
+                  v-model="accountForm.daily_deposit_limit"
+                  label="حد الإيداع اليومي (ج.م)"
+                  type="number"
+                  min="0"
+                  variant="outlined"
+                  density="compact"
+                />
+              </v-col>
+              <v-col cols="6">
+                <v-text-field
+                  v-model="accountForm.daily_withdraw_limit"
+                  label="حد السحب اليومي (ج.م)"
+                  type="number"
+                  min="0"
+                  variant="outlined"
+                  density="compact"
+                />
+              </v-col>
+              <v-col cols="6">
+                <v-text-field
+                  v-model="accountForm.monthly_deposit_limit"
+                  label="حد الإيداع الشهري (ج.م)"
+                  type="number"
+                  min="0"
+                  variant="outlined"
+                  density="compact"
+                />
+              </v-col>
+              <v-col cols="6">
+                <v-text-field
+                  v-model="accountForm.monthly_withdraw_limit"
+                  label="حد السحب الشهري (ج.م)"
+                  type="number"
+                  min="0"
+                  variant="outlined"
+                  density="compact"
+                />
+              </v-col>
+
+              <v-col cols="12" class="mt-2">
+                <v-btn
+                  variant="tonal"
+                  color="info"
+                  size="small"
+                  block
+                  prepend-icon="ri-bank-line"
+                  @click="applyDefaultCbeLimits"
+                >
+                  استعادة حدود البنك المركزي المصري (60 ألف يومياً / 200 ألف شهرياً)
+                </v-btn>
+              </v-col>
+            </v-row>
+          </v-form>
+        </v-card-text>
+        <v-divider />
+        <v-card-actions class="pa-4 gap-2">
+          <v-spacer />
+          <AppButton variant="text" @click="accountFormDialog = false">إلغاء</AppButton>
+          <AppButton
+            color="primary"
+            :loading="accountStore.loading"
+            prepend-icon="ri-save-line"
+            @click="saveAccount"
+          >
+            حفظ الحساب المالي
+          </AppButton>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Dialog تسوية الرصيد الحسابي للحساب المالي -->
     <v-dialog v-model="reconcileDialog" max-width="520" persistent>
       <v-card rounded="xl">
         <v-card-title class="text-h6 pa-6 pb-4 d-flex align-center gap-2">
           <v-icon icon="ri-scales-3-line" color="info" />
-          تسوية الرصيد الحسابي بالرصيد الفعلي
+          تسوية رصيد الحساب المالي
         </v-card-title>
         <v-divider />
         <v-card-text class="pa-6">
@@ -196,75 +359,39 @@
             class="mb-4 text-body-2"
             icon="ri-information-line"
           >
-            تصل الرسائل المالية باستمرار وتحين <strong>الرصيد الفعلي</strong> القاطع تلقائياً. تتيح لك هذه الشاشة تسوية ومساواة <strong>الرصيد الحسابي بالنظام</strong> بالرصيد الفعلي وتسجيل قيد حركة تسوية رسمية.
+            تصل الرسائل المالية باستمرار وتحدث <strong>الرصيد الفعلي (Ground Truth)</strong> للحساب المالي تلقائياً. تتيح لك هذه الشاشة مساواة <strong>الرصيد الحسابي بالنظام</strong> بالرصيد الفعلي وتوليد قيد تسوية مالي.
           </v-alert>
 
           <div class="d-flex flex-column gap-3 mb-4 p-4 rounded-lg bg-grey-lighten-4">
             <div class="d-flex justify-space-between align-center">
-              <span class="text-body-2 text-grey-darken-1">رقم الخط:</span>
-              <span class="font-weight-bold font-mono">{{ reconcilingLine?.phone_number }}</span>
+              <span class="text-body-2 text-grey-darken-1">اسم الحساب:</span>
+              <span class="font-weight-bold font-mono">{{ reconcilingAccount?.name }}</span>
             </div>
             <div class="d-flex justify-space-between align-center">
               <span class="text-body-2 text-grey-darken-1">الرصيد الفعلي المستلم (Ground Truth):</span>
               <span class="font-weight-bold text-success text-body-1">
-                {{ formatCurrency(reconcilingLine?.actual_balance) }} ج.م
+                {{ formatCurrency(reconcilingAccount?.actual_balance) }} ج.م
               </span>
             </div>
             <div class="d-flex justify-space-between align-center">
               <span class="text-body-2 text-grey-darken-1">الرصيد الحسابي الحالي بالنظام:</span>
               <span class="font-weight-bold text-body-1">
-                {{ formatCurrency(reconcilingLine?.balance) }} ج.م
+                {{ formatCurrency(reconcilingAccount?.balance) }} ج.م
               </span>
             </div>
             <v-divider />
             <div class="d-flex justify-space-between align-center">
               <span class="text-body-2 font-weight-medium">الفارق المالي حالياً:</span>
               <v-chip
-                :color="reconcilingLine?.has_balance_mismatch ? 'warning' : 'success'"
+                :color="reconcilingAccount?.has_balance_mismatch ? 'warning' : 'success'"
                 size="small"
                 variant="flat"
                 class="font-weight-bold"
               >
-                {{ formatCurrency(reconcilingLine?.balance_difference) }} ج.م
+                {{ formatCurrency(reconcilingAccount?.balance_difference) }} ج.م
               </v-chip>
             </div>
           </div>
-
-          <!-- زر سريع لمساواة الفعلي بالمحاسبي بنقرة واحدة -->
-          <v-btn
-            color="success"
-            variant="tonal"
-            block
-            class="mb-4 font-weight-bold"
-            prepend-icon="ri-equalizer-line"
-            @click="syncBalanceToActual"
-          >
-            مساواة الرصيد الحسابي بالرصيد الفعلي ({{ formatCurrency(reconcilingLine?.actual_balance) }} ج.م)
-          </v-btn>
-
-          <v-form @submit.prevent="saveReconciliation">
-            <v-text-field
-              v-model="reconcileForm.target_balance"
-              label="الرصيد الحسابي الجديد المستهدف (ج.م)"
-              type="number"
-              step="0.01"
-              min="0"
-              required
-              prepend-inner-icon="ri-money-dollar-circle-line"
-              variant="outlined"
-              density="compact"
-              class="mb-3"
-            />
-
-            <v-textarea
-              v-model="reconcileForm.note"
-              label="ملاحظات سبب التسوية (اختياري)"
-              rows="2"
-              variant="outlined"
-              density="compact"
-              placeholder="مثال: تسوية الرصيد الحسابي بعد تشغيل شريحة الهواتف"
-            />
-          </v-form>
         </v-card-text>
         <v-divider />
         <v-card-actions class="pa-4 gap-2">
@@ -272,100 +399,11 @@
           <AppButton variant="text" @click="reconcileDialog = false">إلغاء</AppButton>
           <AppButton
             color="info"
-            :loading="store.loading"
+            :loading="accountStore.loading"
             prepend-icon="ri-check-double-line"
-            @click="saveReconciliation"
+            @click="saveAccountReconciliation"
           >
-            تأكيد إجراء التسوية
-          </AppButton>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <!-- Dialog تعديل الحدود -->
-    <v-dialog v-model="editDialog" max-width="520" persistent>
-      <v-card rounded="xl">
-        <v-card-title class="text-h6 pa-6 pb-4 d-flex align-center gap-2">
-          <v-icon icon="ri-sim-card-line" color="primary" />
-          تعديل حدود الخط
-        </v-card-title>
-        <v-divider />
-        <v-card-text class="pa-6">
-          <v-row dense>
-            <v-col cols="12" class="text-body-2 text-grey mb-2">
-              <v-icon icon="ri-information-line" size="14" class="me-1" />
-              رقم الهاتف: <strong>{{ editingLine?.phone_number }}</strong>
-            </v-col>
-
-            <v-col cols="6">
-              <v-text-field
-                v-model="editForm.daily_deposit_limit"
-                label="حد الإيداع اليومي"
-                type="number"
-                min="0"
-                prepend-inner-icon="ri-arrow-up-circle-line"
-                variant="outlined"
-                density="compact"
-              />
-            </v-col>
-            <v-col cols="6">
-              <v-text-field
-                v-model="editForm.daily_withdraw_limit"
-                label="حد السحب اليومي"
-                type="number"
-                min="0"
-                prepend-inner-icon="ri-arrow-down-circle-line"
-                variant="outlined"
-                density="compact"
-              />
-            </v-col>
-            <v-col cols="6">
-              <v-text-field
-                v-model="editForm.monthly_deposit_limit"
-                label="حد الإيداع الشهري"
-                type="number"
-                min="0"
-                prepend-inner-icon="ri-arrow-up-circle-2-line"
-                variant="outlined"
-                density="compact"
-              />
-            </v-col>
-            <v-col cols="6">
-              <v-text-field
-                v-model="editForm.monthly_withdraw_limit"
-                label="حد السحب الشهري"
-                type="number"
-                min="0"
-                prepend-inner-icon="ri-arrow-down-circle-2-line"
-                variant="outlined"
-                density="compact"
-              />
-            </v-col>
-            <v-col cols="12" class="mt-2">
-              <v-btn
-                variant="tonal"
-                color="info"
-                size="small"
-                block
-                prepend-icon="ri-bank-line"
-                @click="applyDefaultCbeLimits"
-              >
-                استعادة حدود البنك المركزي المصري (60 ألف يومياً / 200 ألف شهرياً)
-              </v-btn>
-            </v-col>
-          </v-row>
-        </v-card-text>
-        <v-divider />
-        <v-card-actions class="pa-4 gap-2">
-          <v-spacer />
-          <AppButton variant="text" @click="editDialog = false">إلغاء</AppButton>
-          <AppButton
-            color="primary"
-            :loading="store.loading"
-            prepend-icon="ri-save-line"
-            @click="saveLine"
-          >
-            حفظ التغييرات
+            مساواة وتأكيد إجراء التسوية
           </AppButton>
         </v-card-actions>
       </v-card>
@@ -376,17 +414,12 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useHwnixCashLineStore } from '../store/hwnix-cash-line.store';
-import { PERMISSIONS } from '@/config/permissions';
-import { useUserStore } from '@/stores/user';
-import HwnixCashProviderChip from '../components/HwnixCashProviderChip.vue';
-import HwnixCashLimitBar from '../components/HwnixCashLimitBar.vue';
+import { useHwnixCashFinancialAccountStore } from '../store/hwnix-cash-financial-account.store';
 import AppButton from '@/components/common/AppButton.vue';
 
 const store = useHwnixCashLineStore();
-const userStore = useUserStore();
-const can = permission => userStore.hasPermission(permission);
+const accountStore = useHwnixCashFinancialAccountStore();
 
-// الحدود الافتراضية المعتمدة رسمياً من البنك المركزي المصري (CBE) للأفراد
 const DEFAULT_CBE_LIMITS = {
   DAILY_DEPOSIT: 60000,
   DAILY_WITHDRAW: 60000,
@@ -395,28 +428,15 @@ const DEFAULT_CBE_LIMITS = {
 };
 
 const headers = [
-  { title: 'رقم الهاتف', key: 'phone_number', sortable: true },
+  { title: 'رقم الهاتف (الشريحة)', key: 'phone_number', sortable: true },
   { title: 'الهاتف والمرابطة', key: 'device', sortable: false },
-  { title: 'المزود', key: 'provider', sortable: true },
-  { title: 'الأرصدة (فعلي / حسابي)', key: 'balances', sortable: false },
-  { title: 'حدود اليومية', key: 'daily_limits', sortable: false },
-  { title: 'حدود الشهرية', key: 'monthly_limits', sortable: false },
+  { title: 'الحسابات المالية التابعة', key: 'financial_accounts', sortable: false },
+  { title: 'إجمالي أرصدة الخط', key: 'total_balances', sortable: false },
   { title: 'الحالة', key: 'is_active', sortable: true },
   { title: 'الإجراءات', key: 'actions', sortable: false, align: 'center' },
 ];
 
 const advancedFilters = [
-  {
-    key: 'provider',
-    label: 'المزود',
-    type: 'select',
-    items: [
-      { title: 'فودافون كاش', value: 'vodafone_cash' },
-      { title: 'اورنج كاش', value: 'orange_cash' },
-      { title: 'اتصالات كاش', value: 'etisalat_cash' },
-      { title: 'وي كاش', value: 'we_cash' },
-    ],
-  },
   {
     key: 'is_active',
     label: 'الحالة',
@@ -428,9 +448,15 @@ const advancedFilters = [
   },
 ];
 
-const editDialog = ref(false);
-const editingLine = ref(null);
-const editForm = ref({
+const accountFormDialog = ref(false);
+const isEditingAccount = ref(false);
+const editingAccountId = ref(null);
+
+const accountForm = ref({
+  line_id: null,
+  name: '',
+  account_number: '',
+  sender_identifier: '',
   daily_deposit_limit: DEFAULT_CBE_LIMITS.DAILY_DEPOSIT,
   daily_withdraw_limit: DEFAULT_CBE_LIMITS.DAILY_WITHDRAW,
   monthly_deposit_limit: DEFAULT_CBE_LIMITS.MONTHLY_DEPOSIT,
@@ -438,69 +464,87 @@ const editForm = ref({
 });
 
 const reconcileDialog = ref(false);
-const reconcilingLine = ref(null);
-const reconcileForm = ref({
-  target_balance: 0,
-  note: '',
-});
+const reconcilingAccount = ref(null);
 
 function formatCurrency(v) {
   return new Intl.NumberFormat('ar-EG', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v ?? 0);
 }
 
-function openReconcileDialog(line) {
-  reconcilingLine.value = line;
-  reconcileForm.value = {
-    target_balance: line.actual_balance ?? line.balance ?? 0,
-    note: '',
-  };
-  reconcileDialog.value = true;
-}
-
-function syncBalanceToActual() {
-  if (reconcilingLine.value) {
-    reconcileForm.value.target_balance = reconcilingLine.value.actual_balance ?? 0;
-  }
-}
-
-async function saveReconciliation() {
-  if (!reconcilingLine.value) return;
-  await store.reconcileLine(reconcilingLine.value.id, reconcileForm.value);
-  reconcileDialog.value = false;
-}
-
-function applyDefaultCbeLimits() {
-  editForm.value = {
+function openAddAccountDialog(lineId = null) {
+  isEditingAccount.value = false;
+  editingAccountId.value = null;
+  accountForm.value = {
+    line_id: lineId || store.lines[0]?.id || null,
+    name: '',
+    account_number: '',
+    sender_identifier: '',
     daily_deposit_limit: DEFAULT_CBE_LIMITS.DAILY_DEPOSIT,
     daily_withdraw_limit: DEFAULT_CBE_LIMITS.DAILY_WITHDRAW,
     monthly_deposit_limit: DEFAULT_CBE_LIMITS.MONTHLY_DEPOSIT,
     monthly_withdraw_limit: DEFAULT_CBE_LIMITS.MONTHLY_WITHDRAW,
   };
+  accountStore.fetchDistinctSenders();
+  accountFormDialog.value = true;
 }
 
-function openEditDialog(line) {
-  editingLine.value = line;
-  editForm.value = {
-    daily_deposit_limit: (line.daily_deposit_limit && line.daily_deposit_limit > 0) ? line.daily_deposit_limit : DEFAULT_CBE_LIMITS.DAILY_DEPOSIT,
-    daily_withdraw_limit: (line.daily_withdraw_limit && line.daily_withdraw_limit > 0) ? line.daily_withdraw_limit : DEFAULT_CBE_LIMITS.DAILY_WITHDRAW,
-    monthly_deposit_limit: (line.monthly_deposit_limit && line.monthly_deposit_limit > 0) ? line.monthly_deposit_limit : DEFAULT_CBE_LIMITS.MONTHLY_DEPOSIT,
-    monthly_withdraw_limit: (line.monthly_withdraw_limit && line.monthly_withdraw_limit > 0) ? line.monthly_withdraw_limit : DEFAULT_CBE_LIMITS.MONTHLY_WITHDRAW,
+function openEditAccountDialog(account) {
+  isEditingAccount.value = true;
+  editingAccountId.value = account.id;
+  accountForm.value = {
+    name: account.name,
+    account_number: account.account_number || '',
+    daily_deposit_limit: account.daily_deposit_limit || DEFAULT_CBE_LIMITS.DAILY_DEPOSIT,
+    daily_withdraw_limit: account.daily_withdraw_limit || DEFAULT_CBE_LIMITS.DAILY_WITHDRAW,
+    monthly_deposit_limit: account.monthly_deposit_limit || DEFAULT_CBE_LIMITS.MONTHLY_DEPOSIT,
+    monthly_withdraw_limit: account.monthly_withdraw_limit || DEFAULT_CBE_LIMITS.MONTHLY_WITHDRAW,
   };
-  editDialog.value = true;
+  accountFormDialog.value = true;
 }
 
-async function saveLine() {
-  await store.updateLine(editingLine.value.id, editForm.value);
-  editDialog.value = false;
+function applyDefaultCbeLimits() {
+  accountForm.value.daily_deposit_limit = DEFAULT_CBE_LIMITS.DAILY_DEPOSIT;
+  accountForm.value.daily_withdraw_limit = DEFAULT_CBE_LIMITS.DAILY_WITHDRAW;
+  accountForm.value.monthly_deposit_limit = DEFAULT_CBE_LIMITS.MONTHLY_DEPOSIT;
+  accountForm.value.monthly_withdraw_limit = DEFAULT_CBE_LIMITS.MONTHLY_WITHDRAW;
+}
+
+async function saveAccount() {
+  if (isEditingAccount.value) {
+    await accountStore.updateFinancialAccount(editingAccountId.value, accountForm.value);
+  } else {
+    await accountStore.createFinancialAccount(accountForm.value);
+  }
+  accountFormDialog.value = false;
+  store.fetchLines();
+}
+
+async function deleteAccount(account) {
+  if (confirm(`هل أنت تأكد من رغبتك في حذف الحساب المالي "${account.name}"؟`)) {
+    await accountStore.deleteFinancialAccount(account.id);
+    store.fetchLines();
+  }
+}
+
+function openReconcileAccountDialog(account) {
+  reconcilingAccount.value = account;
+  reconcileDialog.value = true;
+}
+
+async function saveAccountReconciliation() {
+  if (!reconcilingAccount.value) return;
+  await accountStore.reconcileFinancialAccount(reconcilingAccount.value.id);
+  reconcileDialog.value = false;
+  store.fetchLines();
 }
 
 function applyFilters(filters) {
-  store.providerFilter = filters.provider ?? null;
   store.statusFilter = filters.is_active ?? null;
   store.page = 1;
   store.fetchLines();
 }
 
-onMounted(() => store.fetchLines());
+onMounted(() => {
+  store.fetchLines();
+  accountStore.fetchDistinctSenders();
+});
 </script>
-

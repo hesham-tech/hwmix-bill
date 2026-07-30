@@ -52,18 +52,23 @@
         </div>
       </template>
 
-      <!-- الخط المالي والمرابطة -->
+      <!-- الحساب المالي والخط المرتبط -->
       <template #item.line="{ item }">
-        <div v-if="item.line" class="d-flex flex-column py-1">
-          <div class="d-flex align-center gap-1 font-weight-bold font-mono text-body-2">
-            <v-icon icon="ri-sim-card-line" size="14" color="primary" />
-            <span>{{ item.line.phone_number }}</span>
+        <div class="d-flex flex-column py-1">
+          <div v-if="item.financial_account" class="d-flex align-center gap-1 font-weight-bold text-body-2 text-primary">
+            <v-icon icon="ri-bank-card-line" size="14" color="primary" />
+            <span>{{ item.financial_account.name }}</span>
+            <v-chip size="x-small" variant="outlined" color="primary" class="font-weight-bold ms-1">
+              {{ item.financial_account.sender_identifier }}
+            </v-chip>
           </div>
-          <span class="text-caption text-grey">
-            {{ item.line.device_name || 'غير محدد' }}
-          </span>
+          <div v-if="item.line" class="d-flex align-center gap-1 text-caption text-grey mt-1">
+            <v-icon icon="ri-sim-card-line" size="12" color="grey" />
+            <span class="font-mono">{{ item.line.phone_number }}</span>
+            <span v-if="item.line.device_name">({{ item.line.device_name }})</span>
+          </div>
+          <span v-if="!item.financial_account && !item.line" class="text-caption text-grey">—</span>
         </div>
-        <span v-else class="text-caption text-grey">—</span>
       </template>
 
       <!-- نوع المعاملة -->
