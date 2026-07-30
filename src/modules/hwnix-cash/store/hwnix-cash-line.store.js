@@ -77,6 +77,21 @@ export const useHwnixCashLineStore = defineStore('hwnix-cash-line', () => {
     }
   }
 
+  async function reconcileLine(id, data) {
+    loading.value = true;
+    try {
+      const response = await hwnixCashLineService.reconcile(id, data);
+      notificationManager.success('تمت تسوية الرصيد الحسابي وتسجيل قيد التسوية المالية بنجاح');
+      await fetchLines();
+      return response.data[0];
+    } catch (error) {
+      console.error('Error reconciling line balance:', error);
+      throw error;
+    } finally {
+      loading.value = false;
+    }
+  }
+
   function resetFilters() {
     statusFilter.value = null;
     providerFilter.value = null;
@@ -91,6 +106,6 @@ export const useHwnixCashLineStore = defineStore('hwnix-cash-line', () => {
     // Computed
     params,
     // Actions
-    fetchLines, fetchLine, updateLine, resetFilters,
+    fetchLines, fetchLine, updateLine, reconcileLine, resetFilters,
   };
 });
