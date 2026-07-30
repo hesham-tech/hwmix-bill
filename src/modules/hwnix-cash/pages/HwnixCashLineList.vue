@@ -23,6 +23,15 @@
         <div class="d-flex align-center gap-2">
           <!-- زر إضافة حساب مالي جديد -->
           <AppButton
+            variant="tonal"
+            color="info"
+            prepend-icon="ri-wallet-3-line"
+            @click="router.push('/app/hwnix-cash/financial-accounts')"
+          >
+            إدارة الحسابات والمحافظ
+          </AppButton>
+
+          <AppButton
             variant="elevation"
             color="primary"
             prepend-icon="ri-add-circle-line"
@@ -670,11 +679,13 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useHwnixCashLineStore } from '../store/hwnix-cash-line.store';
 import { useHwnixCashFinancialAccountStore } from '../store/hwnix-cash-financial-account.store';
 import AppButton from '@/components/common/AppButton.vue';
 import HwnixCashLimitBar from '../components/HwnixCashLimitBar.vue';
 
+const router = useRouter();
 const store = useHwnixCashLineStore();
 const accountStore = useHwnixCashFinancialAccountStore();
 

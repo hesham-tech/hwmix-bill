@@ -339,6 +339,12 @@ export default [
         permission: [PERMISSIONS.HWNIX_CASH_VIEW_ALL, PERMISSIONS.HWNIX_CASH_VIEW_SELF],
       },
       {
+        title: 'الحسابات المالية والمحافظ',
+        to: '/app/hwnix-cash/financial-accounts',
+        icon: 'ri-wallet-3-line',
+        permission: [PERMISSIONS.HWNIX_CASH_VIEW_ALL, PERMISSIONS.HWNIX_CASH_VIEW_SELF],
+      },
+      {
         title: 'سجل الرسائل',
         to: '/app/hwnix-cash/messages',
         icon: 'ri-message-3-line',

@@ -34,6 +34,22 @@ export default [
     },
   },
   {
+    path: 'hwnix-cash/financial-accounts',
+    name: 'hwnix-cash-financial-accounts',
+    component: () => import('@/modules/hwnix-cash/pages/HwnixCashFinancialAccountList.vue'),
+    meta: {
+      title: 'الحسابات المالية والمحافظ',
+      permission: [
+        PERMISSIONS.HWNIX_CASH_VIEW_ALL,
+        PERMISSIONS.HWNIX_CASH_VIEW_SELF,
+      ],
+      breadcrumbs: [
+        { title: 'كاش هونكس', disabled: true },
+        { title: 'الحسابات المالية', disabled: true },
+      ],
+    },
+  },
+  {
     path: 'hwnix-cash/messages',
     name: 'hwnix-cash-messages',
     component: () => import('@/modules/hwnix-cash/pages/HwnixCashMessageList.vue'),

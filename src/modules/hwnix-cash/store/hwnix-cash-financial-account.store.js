@@ -9,6 +9,7 @@ import notificationManager from '@/services/notificationManager';
 export const useHwnixCashFinancialAccountStore = defineStore('hwnix-cash-financial-account', () => {
   const financialAccounts = ref([]);
   const distinctSenders = ref([]);
+  const limitAlerts = ref([]);
   const loading = ref(false);
 
   async function fetchFinancialAccounts(lineId = null) {
@@ -23,6 +24,17 @@ export const useHwnixCashFinancialAccountStore = defineStore('hwnix-cash-financi
       throw error;
     } finally {
       loading.value = false;
+    }
+  }
+
+  async function fetchLimitAlerts() {
+    try {
+      const response = await hwnixCashFinancialAccountService.getLimitAlerts({ showToast: false });
+      limitAlerts.value = response.data || [];
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching limit alerts:', error);
+      throw error;
     }
   }
 
@@ -95,8 +107,10 @@ export const useHwnixCashFinancialAccountStore = defineStore('hwnix-cash-financi
   return {
     financialAccounts,
     distinctSenders,
+    limitAlerts,
     loading,
     fetchFinancialAccounts,
+    fetchLimitAlerts,
     fetchDistinctSenders,
     createFinancialAccount,
     updateFinancialAccount,

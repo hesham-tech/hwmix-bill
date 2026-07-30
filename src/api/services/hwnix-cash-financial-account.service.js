@@ -12,6 +12,10 @@ class HwnixCashFinancialAccountService extends BaseService {
     return this.get('distinct-senders');
   }
 
+  getLimitAlerts() {
+    return this.get('limit-alerts');
+  }
+
   reconcile(id, data = {}) {
     return this.post(`${id}/reconcile`, data);
   }
