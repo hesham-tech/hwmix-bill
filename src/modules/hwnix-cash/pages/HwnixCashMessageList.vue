@@ -30,6 +30,19 @@
           تحديث البيانات
         </AppButton>
       </template>
+
+      <!-- الجهاز والخط -->
+      <template #item.device_line="{ item }">
+        <div class="d-flex flex-column">
+          <span class="font-weight-bold text-body-2 text-high-emphasis">
+            {{ item.device?.name || item.device?.device_name || item.device_name || 'جهاز المستلم' }}
+          </span>
+          <span class="text-caption text-primary font-weight-medium font-mono dir-ltr text-right">
+            {{ item.line?.phone_number || item.line_phone_number || (item.line?.slot_index !== undefined ? 'خط SIM ' + (item.line.slot_index + 1) : 'غير محدد') }}
+          </span>
+        </div>
+      </template>
+
       <!-- المرسل -->
       <template #item.sender="{ item }">
         <div class="d-flex align-center gap-2">
@@ -41,11 +54,6 @@
             <span v-if="item.sender_name && item.phone_number" class="text-caption text-grey font-mono">{{ item.phone_number }}</span>
           </div>
         </div>
-      </template>
-
-      <!-- المزود -->
-      <template #item.provider="{ item }">
-        <HwnixCashProviderChip :provider="item.carrier || item.provider || item.phone_number" size="small" />
       </template>
 
       <!-- نص الرسالة -->
@@ -153,20 +161,30 @@
           <v-row dense class="mt-2">
             <v-col cols="12" sm="6">
               <v-list-item density="compact" class="px-0">
-                <template #prepend><v-icon icon="ri-user-shared-line" color="primary" class="me-2" /></template>
-                <v-list-item-title class="text-caption text-grey">المرسل / جهة الاتصال</v-list-item-title>
+                <template #prepend><v-icon icon="ri-cellphone-line" color="primary" class="me-2" /></template>
+                <v-list-item-title class="text-caption text-grey">الجهاز المستلم</v-list-item-title>
                 <v-list-item-subtitle class="font-weight-bold text-body-2 text-high-emphasis">
-                  {{ selectedMessage.sender_name || selectedMessage.sender || selectedMessage.phone_number }}
+                  {{ selectedMessage.device?.name || selectedMessage.device?.device_name || selectedMessage.device_name || 'جهاز المستلم' }}
                 </v-list-item-subtitle>
               </v-list-item>
             </v-col>
 
             <v-col cols="12" sm="6">
               <v-list-item density="compact" class="px-0">
-                <template #prepend><v-icon icon="ri-smartphone-line" color="primary" class="me-2" /></template>
-                <v-list-item-title class="text-caption text-grey">مزود المحفظة / المشغل</v-list-item-title>
-                <v-list-item-subtitle class="mt-1">
-                  <HwnixCashProviderChip :provider="selectedMessage.carrier || selectedMessage.provider || selectedMessage.phone_number" size="small" />
+                <template #prepend><v-icon icon="ri-sim-card-line" color="primary" class="me-2" /></template>
+                <v-list-item-title class="text-caption text-grey">خط الاستلام (SIM)</v-list-item-title>
+                <v-list-item-subtitle class="font-weight-bold text-body-2 text-primary font-mono dir-ltr text-right">
+                  {{ selectedMessage.line?.phone_number || selectedMessage.line_phone_number || (selectedMessage.line?.slot_index !== undefined ? 'خط SIM ' + (selectedMessage.line.slot_index + 1) : 'غير محدد') }}
+                </v-list-item-subtitle>
+              </v-list-item>
+            </v-col>
+
+            <v-col cols="12" sm="6">
+              <v-list-item density="compact" class="px-0">
+                <template #prepend><v-icon icon="ri-user-shared-line" color="primary" class="me-2" /></template>
+                <v-list-item-title class="text-caption text-grey">المرسل / جهة الاتصال</v-list-item-title>
+                <v-list-item-subtitle class="font-weight-bold text-body-2 text-high-emphasis">
+                  {{ selectedMessage.sender_name || selectedMessage.sender || selectedMessage.phone_number }}
                 </v-list-item-subtitle>
               </v-list-item>
             </v-col>
@@ -298,7 +316,6 @@ import { useHwnixCashMessageStore } from '../store/hwnix-cash-message.store';
 import { useHwnixCashMessageSourceStore } from '../store/hwnix-cash-message-source.store';
 import { PERMISSIONS } from '@/config/permissions';
 import { useUserStore } from '@/stores/user';
-import HwnixCashProviderChip from '../components/HwnixCashProviderChip.vue';
 import AppButton from '@/components/common/AppButton.vue';
 
 import notificationManager from '@/services/notificationManager';
@@ -339,8 +356,8 @@ function formatShortText(text, wordCount = 7) {
 }
 
 const headers = [
+  { title: 'الجهاز والخط', key: 'device_line', sortable: false },
   { title: 'المرسل', key: 'sender', sortable: true },
-  { title: 'المزود', key: 'provider', sortable: true },
   { title: 'نص الرسالة', key: 'body', sortable: false },
   { title: 'معالجة', key: 'is_processed', sortable: true },
   { title: 'وقت الاستلام', key: 'received_at', sortable: true },
@@ -383,7 +400,6 @@ function openAddSourceDialog(message) {
   const sender = message.sender || '';
   let provider = message.provider || 'vodafone_cash';
 
-  // الذكاء الاصطناعي/الاستنتاج التلقائي لمزود الخدمة بناء على اسم المرسل
   const lowerSender = sender.toLowerCase();
   if (lowerSender.includes('vf') || lowerSender.includes('voda')) {
     provider = 'vodafone_cash';
@@ -416,11 +432,6 @@ async function saveSource() {
   } finally {
     savingSource.value = false;
   }
-}
-
-function truncate(text, length) {
-  if (!text) return '—';
-  return text.length > length ? text.substring(0, length) + '...' : text;
 }
 
 function formatDateTime(dt) {
