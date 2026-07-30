@@ -140,13 +140,66 @@
               </div>
             </div>
 
-            <!-- الأرصدة التابعة للحساب المالي -->
-            <div class="d-flex align-center justify-space-between text-caption mt-1">
-              <span>الفعلي (SMS): <strong class="text-success">{{ formatCurrency(acc.actual_balance) }} ج.م</strong></span>
-              <span>الحسابي: <strong>{{ formatCurrency(acc.balance) }} ج.م</strong></span>
-              <v-chip v-if="acc.has_balance_mismatch" color="warning" size="x-small" variant="flat" class="font-weight-bold">
-                فارق: {{ formatCurrency(acc.balance_difference) }} ج.م
-              </v-chip>
+            <!-- أشرطة التقدم والمستهلكات من الحدود المالية السحب والإيداع اليومي والشهري -->
+            <div class="mt-2 pt-2 border-t">
+              <div class="d-flex align-center justify-space-between text-caption font-weight-medium">
+                <span class="text-grey-darken-1 font-weight-bold">معدلات استهلاك الحدود:</span>
+                <v-btn
+                  size="x-small"
+                  variant="text"
+                  color="primary"
+                  density="compact"
+                  class="px-1 font-weight-bold"
+                  @click="expandedLimits[acc.id] = !expandedLimits[acc.id]"
+                >
+                  {{ expandedLimits[acc.id] ? 'طي الحدود الشهرية' : 'عرض الحدود الشهرية' }}
+                  <v-icon :icon="expandedLimits[acc.id] ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" size="14" class="ms-1" />
+                </v-btn>
+              </div>
+
+              <!-- الحدود اليومية دائمًا -->
+              <v-row dense class="mt-1">
+                <v-col cols="6">
+                  <HwnixCashLimitBar
+                    label="سحب يومي"
+                    :used="acc.daily_withdraw_used"
+                    :limit="acc.daily_withdraw_limit || 60000"
+                    icon="ri-cash-line"
+                    color="error"
+                  />
+                </v-col>
+                <v-col cols="6">
+                  <HwnixCashLimitBar
+                    label="إيداع يومي"
+                    :used="acc.daily_deposit_used"
+                    :limit="acc.daily_deposit_limit || 60000"
+                    icon="ri-add-circle-line"
+                    color="success"
+                  />
+                </v-col>
+              </v-row>
+
+              <!-- الحدود الشهرية عند التوسع -->
+              <v-row dense class="mt-2" v-if="expandedLimits[acc.id]">
+                <v-col cols="6">
+                  <HwnixCashLimitBar
+                    label="سحب شهري"
+                    :used="acc.monthly_withdraw_used"
+                    :limit="acc.monthly_withdraw_limit || 200000"
+                    icon="ri-calendar-event-line"
+                    color="warning"
+                  />
+                </v-col>
+                <v-col cols="6">
+                  <HwnixCashLimitBar
+                    label="إيداع شهري"
+                    :used="acc.monthly_deposit_used"
+                    :limit="acc.monthly_deposit_limit || 200000"
+                    icon="ri-calendar-check-line"
+                    color="info"
+                  />
+                </v-col>
+              </v-row>
             </div>
           </div>
         </div>
@@ -483,6 +536,7 @@ import { ref, onMounted } from 'vue';
 import { useHwnixCashLineStore } from '../store/hwnix-cash-line.store';
 import { useHwnixCashFinancialAccountStore } from '../store/hwnix-cash-financial-account.store';
 import AppButton from '@/components/common/AppButton.vue';
+import HwnixCashLimitBar from '../components/HwnixCashLimitBar.vue';
 
 const store = useHwnixCashLineStore();
 const accountStore = useHwnixCashFinancialAccountStore();
@@ -552,6 +606,19 @@ function openContextMenu(e, account) {
   contextMenuX.value = e.clientX;
   contextMenuY.value = e.clientY;
   contextMenuShow.value = true;
+}
+
+const expandedLimits = ref({});
+
+function calcPct(used, limit) {
+  if (!limit || limit <= 0) return 0;
+  return Math.min(100, Math.round(((used || 0) / limit) * 100 * 10) / 10);
+}
+
+function getLimitColor(pct) {
+  if (pct >= 90) return 'error';
+  if (pct >= 70) return 'warning';
+  return 'primary';
 }
 
 function formatCurrency(v) {

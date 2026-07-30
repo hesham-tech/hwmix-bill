@@ -45,10 +45,11 @@
       <!-- رقم المرجع -->
       <template #item.reference_number="{ item }">
         <div
-          class="text-primary font-weight-bold font-mono cursor-pointer hover-underline"
-          @click="viewTransaction(item)"
+          class="text-primary font-weight-bold font-mono cursor-pointer hover-underline d-flex align-center gap-1"
+          @click="openViewDialog(item)"
         >
-          {{ item.operation_number || item.reference_number || ('#' + item.id) }}
+          <v-icon icon="ri-hashtag" size="14" color="primary" />
+          <span>{{ item.operation_number || item.reference_number || ('#' + item.id) }}</span>
         </div>
       </template>
 
@@ -84,15 +85,20 @@
         </v-chip>
       </template>
 
-      <!-- المبلغ -->
+      <!-- المبلغ والرصيد المتبقي بعدها -->
       <template #item.amount="{ item }">
-        <div class="d-flex align-center gap-1">
-          <span
-            :class="['font-weight-bold', isDebit(item.operation_type || item.transaction_type) ? 'text-error' : 'text-success']"
-          >
-            {{ isDebit(item.operation_type || item.transaction_type) ? '-' : '+' }}{{ formatCurrency(item.amount) }}
-          </span>
-          <span class="text-caption text-grey">{{ item.currency || 'EGP' }}</span>
+        <div class="d-flex flex-column">
+          <div class="d-flex align-center gap-1">
+            <span
+              :class="['font-weight-bold', isDebit(item.operation_type || item.transaction_type) ? 'text-error' : 'text-success']"
+            >
+              {{ isDebit(item.operation_type || item.transaction_type) ? '-' : '+' }}{{ formatCurrency(item.amount) }}
+            </span>
+            <span class="text-caption text-grey">{{ item.currency || 'EGP' }}</span>
+          </div>
+          <div v-if="item.balance_after !== null && item.balance_after !== undefined" class="text-caption text-grey" style="font-size: 11px;">
+            الرصيد بعدها: <span class="font-weight-bold font-mono">{{ formatCurrency(item.balance_after) }} ج.م</span>
+          </div>
         </div>
       </template>
 
@@ -122,19 +128,142 @@
           {{ formatDate(item.operation_at || item.transaction_date || item.created_at) }}
         </div>
       </template>
+
+      <!-- الإجراءات -->
+      <template #item.actions="{ item }">
+        <div class="d-flex align-center gap-1 justify-center">
+          <v-tooltip text="معاينة تفاصيل المعاملة والسجل" location="top">
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+                icon="ri-eye-line"
+                size="small"
+                variant="tonal"
+                color="primary"
+                @click="openViewDialog(item)"
+              />
+            </template>
+          </v-tooltip>
+
+          <v-tooltip v-if="can(PERMISSIONS.HWNIX_CASH_WALLET_TRANSACTIONS_DELETE)" text="حذف المعاملة" location="top">
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+                icon="ri-delete-bin-line"
+                size="small"
+                variant="text"
+                color="error"
+                @click="confirmDelete(item)"
+              />
+            </template>
+          </v-tooltip>
+        </div>
+      </template>
     </AppDataTable>
+
+    <!-- Dialog معاينة تفاصيل المعاملة السجل المالي والحدود والرسالة الخام -->
+    <v-dialog v-model="viewDialog" max-width="680" scrollable>
+      <v-card rounded="xl" v-if="selectedTransaction">
+        <v-card-title class="text-h6 pa-6 pb-4 d-flex align-center justify-space-between">
+          <div class="d-flex align-center gap-2">
+            <v-icon icon="ri-file-list-3-line" color="primary" />
+            <span>تفاصيل المعاملة المالية #{{ selectedTransaction.id }}</span>
+          </div>
+          <v-btn icon="ri-close-line" variant="text" size="small" @click="viewDialog = false" />
+        </v-card-title>
+        <v-divider />
+        <v-card-text class="pa-6">
+          <!-- كارت ملخص المبلغ والرصيد المتبقي -->
+          <v-card variant="flat" color="grey-lighten-4" rounded="lg" class="pa-4 mb-4">
+            <div class="d-flex align-center justify-space-between">
+              <div>
+                <div class="text-caption text-grey-darken-1 mb-1">قيمة الحركة المالية:</div>
+                <div
+                  :class="['text-h4 font-weight-black font-mono', isDebit(selectedTransaction.operation_type) ? 'text-error' : 'text-success']"
+                >
+                  {{ isDebit(selectedTransaction.operation_type) ? '-' : '+' }}{{ formatCurrency(selectedTransaction.amount) }} {{ selectedTransaction.currency || 'EGP' }}
+                </div>
+              </div>
+              <div class="text-end">
+                <v-chip
+                  :color="getTypeColor(selectedTransaction.operation_type)"
+                  size="small"
+                  variant="flat"
+                  class="font-weight-bold mb-1"
+                >
+                  <v-icon :icon="getTypeIcon(selectedTransaction.operation_type)" size="14" class="me-1" />
+                  {{ getTypeLabel(selectedTransaction.operation_type) }}
+                </v-chip>
+                <div v-if="selectedTransaction.balance_after !== null" class="text-caption font-weight-bold mt-1">
+                  الرصيد بعدها: <span class="font-mono text-primary">{{ formatCurrency(selectedTransaction.balance_after) }} ج.م</span>
+                </div>
+              </div>
+            </div>
+          </v-card>
+
+          <!-- معلومات الحساب المالي والخط والمرابطة -->
+          <v-row dense class="mb-4">
+            <v-col cols="6">
+              <div class="pa-3 rounded-lg border bg-grey-lighten-5">
+                <div class="text-caption text-grey mb-1">الحساب المالي:</div>
+                <div class="font-weight-bold text-body-2 text-primary d-flex align-center gap-1">
+                  <v-icon icon="ri-bank-card-line" size="14" color="primary" />
+                  {{ selectedTransaction.financial_account?.name || 'غير محدد' }}
+                </div>
+              </div>
+            </v-col>
+            <v-col cols="6">
+              <div class="pa-3 rounded-lg border bg-grey-lighten-5">
+                <div class="text-caption text-grey mb-1">الخط وشريحة الهاتف:</div>
+                <div class="font-weight-bold text-body-2 font-mono d-flex align-center gap-1">
+                  <v-icon icon="ri-sim-card-line" size="14" color="info" />
+                  {{ selectedTransaction.line?.phone_number || 'غير محدد' }}
+                </div>
+              </div>
+            </v-col>
+          </v-row>
+
+          <!-- نص الرسالة الخام Raw SMS -->
+          <div v-if="selectedTransaction.raw_sms" class="mb-4">
+            <div class="d-flex align-center justify-space-between mb-2">
+              <span class="text-body-2 font-weight-bold text-grey-darken-2">نص الرسالة النصية الخام (Raw SMS):</span>
+              <v-btn
+                size="x-small"
+                variant="tonal"
+                color="primary"
+                prepend-icon="ri-file-copy-line"
+                @click="copyRawSms(selectedTransaction.raw_sms)"
+              >
+                نسخ النص
+              </v-btn>
+            </div>
+            <div class="pa-3 rounded-lg border bg-grey-lighten-5 font-mono text-body-2 dir-rtl">
+              {{ selectedTransaction.raw_sms }}
+            </div>
+          </div>
+        </v-card-text>
+        <v-divider />
+        <v-card-actions class="pa-4">
+          <v-spacer />
+          <AppButton color="primary" @click="viewDialog = false">إغلاق</AppButton>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
     <!-- Dialog تأكيد الحذف -->
     <v-dialog v-model="deleteDialog" max-width="400">
       <v-card rounded="xl">
-        <v-card-title class="text-h6 pa-6 pb-2">تأكيد الحذف</v-card-title>
+        <v-card-title class="text-h6 pa-6 pb-2 d-flex align-center gap-2">
+          <v-icon icon="ri-delete-bin-line" color="error" />
+          تأكيد حذف المعاملة
+        </v-card-title>
         <v-card-text class="px-6 pb-4 text-body-2 text-grey">
           هل أنت متأكد من حذف هذه المعاملة؟ لا يمكن التراجع عن هذا الإجراء.
         </v-card-text>
         <v-card-actions class="pa-4 gap-2">
           <v-spacer />
           <AppButton variant="text" @click="deleteDialog = false">إلغاء</AppButton>
-          <AppButton color="error" :loading="store.loading" @click="doDelete">حذف</AppButton>
+          <AppButton color="error" :loading="store.loading" @click="doDelete">حذف المعاملة</AppButton>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -151,6 +280,8 @@ import HwnixCashProviderChip from '../components/HwnixCashProviderChip.vue';
 import HwnixCashStatusChip from '../components/HwnixCashStatusChip.vue';
 import AppButton from '@/components/common/AppButton.vue';
 
+import notificationManager from '@/services/notificationManager';
+
 const store = useHwnixCashWalletTransactionStore();
 const router = useRouter();
 const userStore = useUserStore();
@@ -159,6 +290,19 @@ const can = permission => userStore.hasPermission(permission);
 const createDialog = ref(false);
 const deleteDialog = ref(false);
 const deletingId = ref(null);
+const viewDialog = ref(false);
+const selectedTransaction = ref(null);
+
+function openViewDialog(item) {
+  selectedTransaction.value = item;
+  viewDialog.value = true;
+}
+
+function copyRawSms(text) {
+  if (!text) return;
+  navigator.clipboard.writeText(text);
+  notificationManager.success('تم نسخ نص الرسالة النصية الخام إلى الحافظة');
+}
 
 const headers = [
   { title: 'المرجع / الرقم', key: 'reference_number', sortable: true },
