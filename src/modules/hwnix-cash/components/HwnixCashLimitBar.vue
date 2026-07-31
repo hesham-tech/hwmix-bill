@@ -98,6 +98,7 @@ function format(val) {
 
 <style scoped>
 .hwnix-cash-limit-bar {
-  min-width: 150px;
+  min-width: 0;
+  width: 100%;
 }
 </style>

@@ -122,55 +122,45 @@
         </div>
       </template>
 
-      <!-- الحدود الأربعة كاملة في الجدول -->
+      <!-- الحدود الأربعة — تخطيط عمودي compact -->
       <template #item.limits="{ item }">
-        <div class="py-2" style="min-width: 320px;">
-          <v-row dense>
-            <v-col cols="12" sm="6">
-              <HwnixCashLimitBar
-                label="سحب يومي"
-                :used="item.daily_withdraw_used"
-                :limit="item.daily_withdraw_limit || 60000"
-                :alert-type="item.daily_withdraw_alert_type || 'percentage'"
-                :alert-value="item.daily_withdraw_alert_value || 80"
-                icon="ri-cash-line"
-                color="error"
-              />
-            </v-col>
-            <v-col cols="12" sm="6">
-              <HwnixCashLimitBar
-                label="إيداع يومي"
-                :used="item.daily_deposit_used"
-                :limit="item.daily_deposit_limit || 60000"
-                :alert-type="item.daily_deposit_alert_type || 'percentage'"
-                :alert-value="item.daily_deposit_alert_value || 80"
-                icon="ri-add-circle-line"
-                color="success"
-              />
-            </v-col>
-            <v-col cols="12" sm="6">
-              <HwnixCashLimitBar
-                label="سحب شهري"
-                :used="item.monthly_withdraw_used"
-                :limit="item.monthly_withdraw_limit || 200000"
-                :alert-type="item.monthly_withdraw_alert_type || 'percentage'"
-                :alert-value="item.monthly_withdraw_alert_value || 80"
-                icon="ri-calendar-event-line"
-                color="warning"
-              />
-            </v-col>
-            <v-col cols="12" sm="6">
-              <HwnixCashLimitBar
-                label="إيداع شهري"
-                :used="item.monthly_deposit_used"
-                :limit="item.monthly_deposit_limit || 200000"
-                :alert-type="item.monthly_deposit_alert_type || 'percentage'"
-                :alert-value="item.monthly_deposit_alert_value || 80"
-                icon="ri-calendar-check-line"
-                color="info"
-              />
-            </v-col>
-          </v-row>
+        <div class="limits-cell py-1">
+          <HwnixCashLimitBar
+            label="سحب يومي"
+            :used="item.daily_withdraw_used"
+            :limit="item.daily_withdraw_limit || 60000"
+            :alert-type="item.daily_withdraw_alert_type || 'percentage'"
+            :alert-value="item.daily_withdraw_alert_value || 80"
+            icon="ri-cash-line"
+            color="error"
+          />
+          <HwnixCashLimitBar
+            label="إيداع يومي"
+            :used="item.daily_deposit_used"
+            :limit="item.daily_deposit_limit || 60000"
+            :alert-type="item.daily_deposit_alert_type || 'percentage'"
+            :alert-value="item.daily_deposit_alert_value || 80"
+            icon="ri-add-circle-line"
+            color="success"
+          />
+          <HwnixCashLimitBar
+            label="سحب شهري"
+            :used="item.monthly_withdraw_used"
+            :limit="item.monthly_withdraw_limit || 200000"
+            :alert-type="item.monthly_withdraw_alert_type || 'percentage'"
+            :alert-value="item.monthly_withdraw_alert_value || 80"
+            icon="ri-calendar-event-line"
+            color="warning"
+          />
+          <HwnixCashLimitBar
+            label="إيداع شهري"
+            :used="item.monthly_deposit_used"
+            :limit="item.monthly_deposit_limit || 200000"
+            :alert-type="item.monthly_deposit_alert_type || 'percentage'"
+            :alert-value="item.monthly_deposit_alert_value || 80"
+            icon="ri-calendar-check-line"
+            color="info"
+          />
         </div>
       </template>
 
@@ -918,7 +908,7 @@ const headers = [
   { title: 'اسم الحساب المالي والمصدر', key: 'name', sortable: true },
   { title: 'الشريحة والخط المرتبط', key: 'line', sortable: false },
   { title: 'الأرصدة والتسويات', key: 'balances', sortable: false },
-  { title: 'الحدود الأربعة ومعدل الاستهلاك', key: 'limits', sortable: false },
+  { title: 'الحدود ومعدل الاستهلاك', key: 'limits', sortable: false },
   { title: 'حالة التنبيه', key: 'alerts_status', sortable: false },
   { title: 'الإجراءات', key: 'actions', sortable: false, align: 'center' },
 ];
@@ -1180,3 +1170,13 @@ onMounted(() => {
   sourceStore.fetchSources();
 });
 </script>
+
+<style scoped>
+.limits-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 220px; /* العرض الأدنى المناسب للمحتوى الداخلي بدون التفاف سيء */
+  max-width: 100%;
+}
+</style>
