@@ -42,6 +42,24 @@
         >
           تحديث البيانات
         </AppButton>
+
+        <!-- زر إدارة مصادر الرسائل مع badge بعدد المصادر النشطة -->
+        <v-badge
+          :content="sourceStore.activeSources?.length || sourceStore.sources?.length || ''"
+          color="primary"
+          floating
+          :model-value="(sourceStore.activeSources?.length || sourceStore.sources?.length || 0) > 0"
+        >
+          <AppButton
+            variant="tonal"
+            color="secondary"
+            prepend-icon="ri-radar-line"
+            @click="openSourcesDialog"
+          >
+            إدارة مصادر الرسائل
+          </AppButton>
+        </v-badge>
+
         <AppButton
           prepend-icon="ri-add-line"
           color="primary"
@@ -104,9 +122,9 @@
         </div>
       </template>
 
-      <!-- أشرطة ومعدلات استهلاك الحدود الأربعة -->
+      <!-- الحدود الأربعة كاملة في الجدول -->
       <template #item.limits="{ item }">
-        <div class="py-2" style="min-width: 240px;">
+        <div class="py-2" style="min-width: 320px;">
           <v-row dense>
             <v-col cols="12" sm="6">
               <HwnixCashLimitBar
@@ -128,6 +146,28 @@
                 :alert-value="item.daily_deposit_alert_value || 80"
                 icon="ri-add-circle-line"
                 color="success"
+              />
+            </v-col>
+            <v-col cols="12" sm="6">
+              <HwnixCashLimitBar
+                label="سحب شهري"
+                :used="item.monthly_withdraw_used"
+                :limit="item.monthly_withdraw_limit || 200000"
+                :alert-type="item.monthly_withdraw_alert_type || 'percentage'"
+                :alert-value="item.monthly_withdraw_alert_value || 80"
+                icon="ri-calendar-event-line"
+                color="warning"
+              />
+            </v-col>
+            <v-col cols="12" sm="6">
+              <HwnixCashLimitBar
+                label="إيداع شهري"
+                :used="item.monthly_deposit_used"
+                :limit="item.monthly_deposit_limit || 200000"
+                :alert-type="item.monthly_deposit_alert_type || 'percentage'"
+                :alert-value="item.monthly_deposit_alert_value || 80"
+                icon="ri-calendar-check-line"
+                color="info"
               />
             </v-col>
           </v-row>
@@ -254,7 +294,7 @@
               </v-chip>
             </div>
 
-            <!-- أشرطة تقدم الحدود -->
+            <!-- أشرطة تقدم الحدود الأربعة -->
             <div class="d-flex flex-column gap-2 mb-3 flex-grow-1">
               <HwnixCashLimitBar
                 label="سحب يومي"
@@ -326,8 +366,10 @@
       </template>
     </AppDataTable>
 
-    <!-- Dialog إضافة / تعديل حساب مالي -->
-    <v-dialog v-model="accountFormDialog" max-width="650" persistent scrollable>
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- Dialog إضافة / تعديل حساب مالي — مع Validation محسّن          -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <v-dialog v-model="accountFormDialog" max-width="680" persistent scrollable>
       <v-card rounded="xl">
         <v-card-title class="text-h6 pa-6 pb-4 d-flex align-center gap-2">
           <v-icon icon="ri-bank-card-line" color="primary" />
@@ -335,20 +377,23 @@
         </v-card-title>
         <v-divider />
         <v-card-text class="pa-6">
-          <v-form ref="accountFormRef" @submit.prevent="saveAccount">
+          <v-form ref="accountFormRef" v-model="isFormValid" validate-on="blur" @submit.prevent="saveAccount">
             <v-row dense>
-              <!-- اختيار الخط -->
+              <!-- اختيار الخط — مطلوب عند الإضافة -->
               <v-col cols="12" v-if="!isEditingAccount">
                 <v-select
                   v-model="accountForm.line_id"
                   :items="lineStore.lines"
                   item-title="phone_number"
                   item-value="id"
-                  label="اختر خط الهاتف والشريحة *"
-                  required
+                  label="خط الهاتف والشريحة *"
                   variant="outlined"
                   density="compact"
                   prepend-inner-icon="ri-sim-card-line"
+                  :rules="[v => !!v || 'يجب اختيار خط الهاتف']"
+                  :hint="lineStore.lines.length === 0 ? 'لا توجد خطوط مضافة — أضف خطاً أولاً من صفحة الخطوط' : ''"
+                  persistent-hint
+                  no-data-text="لا توجد خطوط مسجلة"
                 >
                   <template #item="{ props, item }">
                     <v-list-item v-bind="props" :title="item.raw.phone_number" :subtitle="item.raw.device_name || item.raw.carrier" />
@@ -356,20 +401,26 @@
                 </v-select>
               </v-col>
 
-              <!-- اسم الحساب -->
+              <!-- اسم الحساب — مطلوب -->
               <v-col cols="12" md="6">
                 <v-text-field
                   v-model="accountForm.name"
                   label="اسم الحساب المالي *"
                   placeholder="مثال: فودافون كاش الفرع الرئيسي"
-                  required
                   variant="outlined"
                   density="compact"
                   prepend-inner-icon="ri-bookmark-line"
+                  :rules="[
+                    v => !!v || 'اسم الحساب مطلوب',
+                    v => (v && v.length >= 3) || 'الاسم يجب أن يكون 3 أحرف على الأقل',
+                    v => (v && v.length <= 100) || 'الاسم لا يتجاوز 100 حرف'
+                  ]"
+                  hint="اسم وصفي للحساب لتمييزه بسهولة"
+                  persistent-hint
                 />
               </v-col>
 
-              <!-- رقم الحساب -->
+              <!-- رقم الحساب — اختياري -->
               <v-col cols="12" md="6">
                 <v-text-field
                   v-model="accountForm.account_number"
@@ -378,187 +429,187 @@
                   variant="outlined"
                   density="compact"
                   prepend-inner-icon="ri-number-1"
+                  hint="رقم الهاتف المرتبط بالمحفظة أو رقم الحساب البنكي"
+                  persistent-hint
                 />
               </v-col>
 
-              <!-- مصدر الرسائل -->
+              <!-- مصدر الرسائل — مطلوب عند الإضافة -->
               <v-col cols="12" v-if="!isEditingAccount">
-                <v-select
+                <v-combobox
                   v-model="accountForm.sender_identifier"
                   :items="accountStore.distinctSenders"
-                  label="مصدر الرسائل (اختر من الرسائل المكتشفة بالنظام) *"
-                  required
+                  label="مصدر الرسائل (Sender ID) *"
                   variant="outlined"
                   density="compact"
                   prepend-inner-icon="ri-mail-send-line"
-                  no-data-text="لم يتم اكتشاف رسائل سابقة بالنظام"
+                  :rules="[v => !!v || 'مصدر الرسائل مطلوب']"
+                  hint="اختر من الرسائل المكتشفة أو اكتب المصدر يدوياً (مثال: VF-Cash)"
+                  persistent-hint
+                  no-data-text="لم يتم اكتشاف رسائل سابقة — يمكنك الكتابة يدوياً"
                 />
               </v-col>
 
-              <!-- إعدادات الحدود الأربعة والتنبيهات المخصصة -->
+              <!-- فاصل — الحدود المالية -->
               <v-col cols="12">
-                <div class="pa-3 rounded-lg border bg-grey-lighten-5 mb-2">
-                  <div class="text-caption font-weight-bold text-error mb-2">حد وإعداد تنبيه السحب اليومي:</div>
+                <div class="d-flex align-center gap-2 mb-3 mt-2">
+                  <v-icon icon="ri-shield-check-line" color="primary" size="18" />
+                  <span class="text-body-2 font-weight-bold text-primary">إعدادات الحدود المالية والتنبيهات</span>
+                  <v-divider class="flex-grow-1" />
+                  <AppButton
+                    size="x-small"
+                    variant="tonal"
+                    color="info"
+                    prepend-icon="ri-bank-line"
+                    @click="applyDefaultCbeLimits"
+                  >
+                    حدود البنك المركزي
+                  </AppButton>
+                </div>
+
+                <!-- حد السحب اليومي -->
+                <div class="pa-3 rounded-lg border mb-2" style="border-right: 4px solid rgb(var(--v-theme-error)) !important;">
+                  <div class="text-caption font-weight-bold text-error mb-2 d-flex align-center gap-1">
+                    <v-icon icon="ri-cash-line" size="14" />
+                    حد وتنبيه السحب اليومي
+                    <v-tooltip text="الحد الأقصى لمبلغ السحب في اليوم الواحد" location="top">
+                      <template #activator="{ props }">
+                        <v-icon v-bind="props" icon="ri-information-line" size="13" class="text-grey cursor-pointer ms-auto" />
+                      </template>
+                    </v-tooltip>
+                  </div>
                   <v-row dense>
                     <v-col cols="12" sm="6">
                       <v-text-field
-                        v-model="accountForm.daily_withdraw_limit"
-                        label="حد السحب اليومي (ج.م)"
+                        v-model.number="accountForm.daily_withdraw_limit"
+                        label="الحد الأقصى (ج.م)"
                         type="number"
-                        min="0"
+                        min="1"
                         variant="outlined"
                         density="compact"
+                        :rules="[v => (!v || v >= 1) || 'يجب أن يكون أكبر من 0']"
+                        hint="الافتراضي: 60,000 ج.م"
+                        persistent-hint
                       />
                     </v-col>
                     <v-col cols="12" sm="6">
                       <div class="d-flex align-center gap-1">
-                        <v-btn-toggle
-                          v-model="accountForm.daily_withdraw_alert_type"
-                          mandatory
-                          density="compact"
-                          color="error"
-                          variant="outlined"
-                          style="height: 40px;"
-                        >
+                        <v-btn-toggle v-model="accountForm.daily_withdraw_alert_type" mandatory density="compact" color="error" variant="outlined" style="height: 40px;">
                           <v-btn value="percentage" size="x-small">% نسبة</v-btn>
                           <v-btn value="amount" size="x-small">ج.م مبلغ</v-btn>
                         </v-btn-toggle>
                         <v-text-field
-                          v-model="accountForm.daily_withdraw_alert_value"
-                          :label="accountForm.daily_withdraw_alert_type === 'percentage' ? 'تنبيه (%)' : 'تنبيه (ج.م)'"
-                          type="number"
-                          min="1"
+                          v-model.number="accountForm.daily_withdraw_alert_value"
+                          :label="accountForm.daily_withdraw_alert_type === 'percentage' ? 'تنبيه عند (%)' : 'تنبيه عند (ج.م)'"
+                          type="number" min="1"
                           :max="accountForm.daily_withdraw_alert_type === 'percentage' ? 100 : (accountForm.daily_withdraw_limit || 60000)"
                           :rules="[validateAlertValue(accountForm.daily_withdraw_alert_type, accountForm.daily_withdraw_limit)]"
-                          variant="outlined"
-                          density="compact"
-                          class="flex-grow-1"
+                          variant="outlined" density="compact" class="flex-grow-1"
                         />
                       </div>
                     </v-col>
                   </v-row>
                 </div>
 
-                <div class="pa-3 rounded-lg border bg-grey-lighten-5 mb-2">
-                  <div class="text-caption font-weight-bold text-success mb-2">حد وإعداد تنبيه الإيداع اليومي:</div>
+                <!-- حد الإيداع اليومي -->
+                <div class="pa-3 rounded-lg border mb-2" style="border-right: 4px solid rgb(var(--v-theme-success)) !important;">
+                  <div class="text-caption font-weight-bold text-success mb-2 d-flex align-center gap-1">
+                    <v-icon icon="ri-add-circle-line" size="14" />
+                    حد وتنبيه الإيداع اليومي
+                  </div>
                   <v-row dense>
                     <v-col cols="12" sm="6">
                       <v-text-field
-                        v-model="accountForm.daily_deposit_limit"
-                        label="حد الإيداع اليومي (ج.م)"
-                        type="number"
-                        min="0"
-                        variant="outlined"
-                        density="compact"
+                        v-model.number="accountForm.daily_deposit_limit"
+                        label="الحد الأقصى (ج.م)"
+                        type="number" min="1" variant="outlined" density="compact"
+                        :rules="[v => (!v || v >= 1) || 'يجب أن يكون أكبر من 0']"
+                        hint="الافتراضي: 60,000 ج.م" persistent-hint
                       />
                     </v-col>
                     <v-col cols="12" sm="6">
                       <div class="d-flex align-center gap-1">
-                        <v-btn-toggle
-                          v-model="accountForm.daily_deposit_alert_type"
-                          mandatory
-                          density="compact"
-                          color="success"
-                          variant="outlined"
-                          style="height: 40px;"
-                        >
+                        <v-btn-toggle v-model="accountForm.daily_deposit_alert_type" mandatory density="compact" color="success" variant="outlined" style="height: 40px;">
                           <v-btn value="percentage" size="x-small">% نسبة</v-btn>
                           <v-btn value="amount" size="x-small">ج.م مبلغ</v-btn>
                         </v-btn-toggle>
                         <v-text-field
-                          v-model="accountForm.daily_deposit_alert_value"
-                          :label="accountForm.daily_deposit_alert_type === 'percentage' ? 'تنبيه (%)' : 'تنبيه (ج.م)'"
-                          type="number"
-                          min="1"
+                          v-model.number="accountForm.daily_deposit_alert_value"
+                          :label="accountForm.daily_deposit_alert_type === 'percentage' ? 'تنبيه عند (%)' : 'تنبيه عند (ج.م)'"
+                          type="number" min="1"
                           :max="accountForm.daily_deposit_alert_type === 'percentage' ? 100 : (accountForm.daily_deposit_limit || 60000)"
                           :rules="[validateAlertValue(accountForm.daily_deposit_alert_type, accountForm.daily_deposit_limit)]"
-                          variant="outlined"
-                          density="compact"
-                          class="flex-grow-1"
+                          variant="outlined" density="compact" class="flex-grow-1"
                         />
                       </div>
                     </v-col>
                   </v-row>
                 </div>
 
-                <div class="pa-3 rounded-lg border bg-grey-lighten-5 mb-2">
-                  <div class="text-caption font-weight-bold text-warning mb-2">حد وإعداد تنبيه السحب الشهري:</div>
+                <!-- حد السحب الشهري -->
+                <div class="pa-3 rounded-lg border mb-2" style="border-right: 4px solid rgb(var(--v-theme-warning)) !important;">
+                  <div class="text-caption font-weight-bold text-warning mb-2 d-flex align-center gap-1">
+                    <v-icon icon="ri-calendar-event-line" size="14" />
+                    حد وتنبيه السحب الشهري
+                  </div>
                   <v-row dense>
                     <v-col cols="12" sm="6">
                       <v-text-field
-                        v-model="accountForm.monthly_withdraw_limit"
-                        label="حد السحب الشهري (ج.م)"
-                        type="number"
-                        min="0"
-                        variant="outlined"
-                        density="compact"
+                        v-model.number="accountForm.monthly_withdraw_limit"
+                        label="الحد الأقصى (ج.م)"
+                        type="number" min="1" variant="outlined" density="compact"
+                        :rules="[v => (!v || v >= 1) || 'يجب أن يكون أكبر من 0']"
+                        hint="الافتراضي: 200,000 ج.م" persistent-hint
                       />
                     </v-col>
                     <v-col cols="12" sm="6">
                       <div class="d-flex align-center gap-1">
-                        <v-btn-toggle
-                          v-model="accountForm.monthly_withdraw_alert_type"
-                          mandatory
-                          density="compact"
-                          color="warning"
-                          variant="outlined"
-                          style="height: 40px;"
-                        >
+                        <v-btn-toggle v-model="accountForm.monthly_withdraw_alert_type" mandatory density="compact" color="warning" variant="outlined" style="height: 40px;">
                           <v-btn value="percentage" size="x-small">% نسبة</v-btn>
                           <v-btn value="amount" size="x-small">ج.م مبلغ</v-btn>
                         </v-btn-toggle>
                         <v-text-field
-                          v-model="accountForm.monthly_withdraw_alert_value"
-                          :label="accountForm.monthly_withdraw_alert_type === 'percentage' ? 'تنبيه (%)' : 'تنبيه (ج.م)'"
-                          type="number"
-                          min="1"
+                          v-model.number="accountForm.monthly_withdraw_alert_value"
+                          :label="accountForm.monthly_withdraw_alert_type === 'percentage' ? 'تنبيه عند (%)' : 'تنبيه عند (ج.م)'"
+                          type="number" min="1"
                           :max="accountForm.monthly_withdraw_alert_type === 'percentage' ? 100 : (accountForm.monthly_withdraw_limit || 200000)"
                           :rules="[validateAlertValue(accountForm.monthly_withdraw_alert_type, accountForm.monthly_withdraw_limit)]"
-                          variant="outlined"
-                          density="compact"
-                          class="flex-grow-1"
+                          variant="outlined" density="compact" class="flex-grow-1"
                         />
                       </div>
                     </v-col>
                   </v-row>
                 </div>
 
-                <div class="pa-3 rounded-lg border bg-grey-lighten-5">
-                  <div class="text-caption font-weight-bold text-info mb-2">حد وإعداد تنبيه الإيداع الشهري:</div>
+                <!-- حد الإيداع الشهري -->
+                <div class="pa-3 rounded-lg border" style="border-right: 4px solid rgb(var(--v-theme-info)) !important;">
+                  <div class="text-caption font-weight-bold text-info mb-2 d-flex align-center gap-1">
+                    <v-icon icon="ri-calendar-check-line" size="14" />
+                    حد وتنبيه الإيداع الشهري
+                  </div>
                   <v-row dense>
                     <v-col cols="12" sm="6">
                       <v-text-field
-                        v-model="accountForm.monthly_deposit_limit"
-                        label="حد الإيداع الشهري (ج.م)"
-                        type="number"
-                        min="0"
-                        variant="outlined"
-                        density="compact"
+                        v-model.number="accountForm.monthly_deposit_limit"
+                        label="الحد الأقصى (ج.م)"
+                        type="number" min="1" variant="outlined" density="compact"
+                        :rules="[v => (!v || v >= 1) || 'يجب أن يكون أكبر من 0']"
+                        hint="الافتراضي: 200,000 ج.م" persistent-hint
                       />
                     </v-col>
                     <v-col cols="12" sm="6">
                       <div class="d-flex align-center gap-1">
-                        <v-btn-toggle
-                          v-model="accountForm.monthly_deposit_alert_type"
-                          mandatory
-                          density="compact"
-                          color="info"
-                          variant="outlined"
-                          style="height: 40px;"
-                        >
+                        <v-btn-toggle v-model="accountForm.monthly_deposit_alert_type" mandatory density="compact" color="info" variant="outlined" style="height: 40px;">
                           <v-btn value="percentage" size="x-small">% نسبة</v-btn>
                           <v-btn value="amount" size="x-small">ج.م مبلغ</v-btn>
                         </v-btn-toggle>
                         <v-text-field
-                          v-model="accountForm.monthly_deposit_alert_value"
-                          :label="accountForm.monthly_deposit_alert_type === 'percentage' ? 'تنبيه (%)' : 'تنبيه (ج.م)'"
-                          type="number"
-                          min="1"
+                          v-model.number="accountForm.monthly_deposit_alert_value"
+                          :label="accountForm.monthly_deposit_alert_type === 'percentage' ? 'تنبيه عند (%)' : 'تنبيه عند (ج.م)'"
+                          type="number" min="1"
                           :max="accountForm.monthly_deposit_alert_type === 'percentage' ? 100 : (accountForm.monthly_deposit_limit || 200000)"
                           :rules="[validateAlertValue(accountForm.monthly_deposit_alert_type, accountForm.monthly_deposit_limit)]"
-                          variant="outlined"
-                          density="compact"
-                          class="flex-grow-1"
+                          variant="outlined" density="compact" class="flex-grow-1"
                         />
                       </div>
                     </v-col>
@@ -570,19 +621,24 @@
         </v-card-text>
         <v-divider />
         <v-card-actions class="pa-4 ga-2">
-          <AppButton variant="tonal" color="info" size="small" @click="applyDefaultCbeLimits">
-            حدود البنك المركزي
-          </AppButton>
           <v-spacer />
           <AppButton variant="text" @click="accountFormDialog = false">إلغاء</AppButton>
-          <AppButton color="primary" :loading="accountStore.loading" @click="saveAccount">
+          <AppButton
+            color="primary"
+            :loading="accountStore.loading"
+            :disabled="isFormValid === false"
+            prepend-icon="ri-save-line"
+            @click="saveAccount"
+          >
             {{ isEditingAccount ? 'حفظ التعديلات' : 'حفظ الحساب المالي' }}
           </AppButton>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
-    <!-- Dialog تسوية الرصيد الحسابي -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- Dialog تسوية الرصيد الحسابي                                   -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
     <v-dialog v-model="reconcileDialog" max-width="500">
       <v-card rounded="xl" v-if="reconcilingAccount">
         <v-card-title class="text-h6 pa-6 pb-2 d-flex align-center gap-2">
@@ -631,19 +687,224 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- Dialog إدارة مصادر الرسائل (مدمجة هنا بدلاً من صفحة مستقلة) -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <v-dialog v-model="sourcesDialog" max-width="900" scrollable>
+      <v-card rounded="xl">
+        <v-card-title class="pa-6 pb-4 d-flex align-center gap-2">
+          <v-avatar color="primary" variant="tonal" size="36" rounded="lg">
+            <v-icon icon="ri-radar-line" size="20" />
+          </v-avatar>
+          <div>
+            <div class="text-h6 font-weight-bold">إدارة مصادر الرسائل</div>
+            <div class="text-caption text-grey">المرسلون المعتمدون لتحليل الرسائل المالية</div>
+          </div>
+          <v-spacer />
+          <v-btn icon="ri-close-line" variant="text" @click="sourcesDialog = false" />
+        </v-card-title>
+        <v-divider />
+
+        <!-- شريط أدوات المصادر -->
+        <div class="px-6 pt-4 pb-2 d-flex align-center gap-2 flex-wrap">
+          <v-text-field
+            v-model="sourceSearch"
+            placeholder="بحث في المصادر..."
+            variant="outlined"
+            density="compact"
+            prepend-inner-icon="ri-search-line"
+            clearable
+            hide-details
+            style="max-width: 280px;"
+          />
+          <v-spacer />
+          <AppButton
+            variant="tonal"
+            color="primary"
+            prepend-icon="ri-refresh-line"
+            size="small"
+            :loading="sourceStore.loading"
+            @click="sourceStore.fetchSources()"
+          >
+            تحديث
+          </AppButton>
+          <AppButton
+            v-if="can(PERMISSIONS.HWNIX_CASH_MESSAGE_SOURCES_CREATE)"
+            prepend-icon="ri-add-line"
+            color="primary"
+            size="small"
+            @click="openSourceFormDialog(null)"
+          >
+            مصدر جديد
+          </AppButton>
+        </div>
+
+        <v-card-text class="pa-0">
+          <!-- جدول المصادر داخل الـ Dialog -->
+          <v-data-table
+            :headers="sourceHeaders"
+            :items="filteredSources"
+            :loading="sourceStore.loading"
+            :search="sourceSearch"
+            hover
+            class="elevation-0"
+            density="comfortable"
+            no-data-text="لا توجد مصادر مضافة بعد"
+            loading-text="جاري تحميل المصادر..."
+            items-per-page="10"
+            :items-per-page-options="[5, 10, 25]"
+          >
+            <!-- معرف المرسل -->
+            <template #item.sender_identifier="{ item }">
+              <div class="d-flex align-center gap-2">
+                <v-icon icon="ri-user-shared-line" size="16" class="text-primary" />
+                <span class="font-weight-bold font-mono">{{ item.sender_identifier }}</span>
+              </div>
+            </template>
+
+            <!-- مزود الخدمة -->
+            <template #item.provider="{ item }">
+              <HwnixCashProviderChip :provider="item.provider" size="small" />
+            </template>
+
+            <!-- الوصف -->
+            <template #item.description="{ item }">
+              <span class="text-body-2 text-grey-darken-1">{{ item.description || '—' }}</span>
+            </template>
+
+            <!-- الحالة -->
+            <template #item.is_active="{ item }">
+              <v-switch
+                :model-value="Boolean(item.is_active)"
+                color="success"
+                hide-details
+                density="compact"
+                :disabled="!can(PERMISSIONS.HWNIX_CASH_MESSAGE_SOURCES_EDIT_ALL)"
+                @update:model-value="toggleSourceStatus(item, $event)"
+              />
+            </template>
+
+            <!-- الإجراءات -->
+            <template #item.actions="{ item }">
+              <div class="d-flex align-center justify-center gap-1">
+                <v-btn icon="ri-edit-line" size="small" variant="text" color="primary" @click="openSourceFormDialog(item)" />
+                <v-btn icon="ri-delete-bin-line" size="small" variant="text" color="error" @click="confirmSourceDelete(item)" />
+              </div>
+            </template>
+          </v-data-table>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
+    <!-- Dialog إضافة/تعديل مصدر -->
+    <v-dialog v-model="sourceFormDialog" max-width="520" persistent>
+      <v-card rounded="xl">
+        <v-card-title class="text-h6 pa-6 pb-4 d-flex align-center gap-2">
+          <v-icon icon="ri-radar-line" color="primary" />
+          {{ isEditingSource ? 'تعديل مصدر رسائل' : 'إضافة مصدر رسائل جديد' }}
+        </v-card-title>
+        <v-divider />
+        <v-card-text class="pa-6">
+          <v-form ref="sourceFormRef" v-model="isSourceFormValid" @submit.prevent="saveSource">
+            <v-row dense>
+              <v-col cols="12">
+                <v-text-field
+                  v-model="sourceForm.sender_identifier"
+                  label="معرف / اسم المرسل *"
+                  hint="مثال: VF-Cash أو VF-CashMsg"
+                  persistent-hint
+                  variant="outlined"
+                  density="compact"
+                  :rules="[v => !!v || 'هذا الحقل مطلوب', v => (v && v.length >= 2) || 'يجب أن يكون حرفين على الأقل']"
+                />
+              </v-col>
+              <v-col cols="12" class="mt-2">
+                <v-select
+                  v-model="sourceForm.provider"
+                  label="مزود الخدمة *"
+                  :items="providerOptions"
+                  variant="outlined"
+                  density="compact"
+                  :rules="[v => !!v || 'يجب اختيار مزود الخدمة']"
+                />
+              </v-col>
+              <v-col cols="12" class="mt-2">
+                <v-textarea
+                  v-model="sourceForm.description"
+                  label="الوصف (اختياري)"
+                  rows="2"
+                  variant="outlined"
+                  density="compact"
+                />
+              </v-col>
+              <v-col cols="12" class="mt-1">
+                <v-checkbox
+                  v-model="sourceForm.is_active"
+                  label="تفعيل المصدر فوراً"
+                  color="primary"
+                  hide-details
+                  density="compact"
+                />
+              </v-col>
+            </v-row>
+          </v-form>
+        </v-card-text>
+        <v-divider />
+        <v-card-actions class="pa-4 gap-2">
+          <v-spacer />
+          <AppButton variant="text" @click="sourceFormDialog = false">إلغاء</AppButton>
+          <AppButton
+            color="primary"
+            :loading="sourceStore.loading"
+            :disabled="!isSourceFormValid"
+            prepend-icon="ri-save-line"
+            @click="saveSource"
+          >
+            {{ isEditingSource ? 'تحديث' : 'حفظ' }}
+          </AppButton>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Dialog تأكيد حذف المصدر -->
+    <v-dialog v-model="sourceDeleteDialog" max-width="420">
+      <v-card rounded="xl">
+        <v-card-title class="text-h6 pa-6 pb-2 d-flex align-center gap-2 text-error">
+          <v-icon icon="ri-error-warning-line" color="error" />
+          تأكيد الحذف
+        </v-card-title>
+        <v-card-text class="px-6 pb-4 text-body-2 text-grey">
+          هل أنت متأكد من حذف مصدر الرسائل <strong>{{ deletingSource?.sender_identifier }}</strong>؟
+        </v-card-text>
+        <v-card-actions class="pa-4 gap-2">
+          <v-spacer />
+          <AppButton variant="text" @click="sourceDeleteDialog = false">إلغاء</AppButton>
+          <AppButton color="error" :loading="sourceStore.loading" @click="doSourceDelete">حذف</AppButton>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+// صفحة الحسابات المالية والمحافظ مع دمج إدارة مصادر الرسائل
+import { ref, computed, onMounted } from 'vue';
 import { useHwnixCashFinancialAccountStore } from '../store/hwnix-cash-financial-account.store';
 import { useHwnixCashLineStore } from '../store/hwnix-cash-line.store';
+import { useHwnixCashMessageSourceStore } from '../store/hwnix-cash-message-source.store';
+import { useUserStore } from '@/stores/user';
+import { PERMISSIONS } from '@/config/permissions';
 import AppDataTable from '@/components/common/AppDataTable.vue';
 import AppButton from '@/components/common/AppButton.vue';
 import HwnixCashLimitBar from '../components/HwnixCashLimitBar.vue';
+import HwnixCashProviderChip from '../components/HwnixCashProviderChip.vue';
 
 const accountStore = useHwnixCashFinancialAccountStore();
 const lineStore = useHwnixCashLineStore();
+const sourceStore = useHwnixCashMessageSourceStore();
+const userStore = useUserStore();
+const can = permission => userStore.hasPermission(permission);
 
 const DEFAULT_CBE_LIMITS = {
   DAILY_DEPOSIT: 60000,
@@ -652,18 +913,30 @@ const DEFAULT_CBE_LIMITS = {
   MONTHLY_WITHDRAW: 200000,
 };
 
+// ─── Headers الجدول ───────────────────────────────────────────────────────────
 const headers = [
   { title: 'اسم الحساب المالي والمصدر', key: 'name', sortable: true },
   { title: 'الشريحة والخط المرتبط', key: 'line', sortable: false },
   { title: 'الأرصدة والتسويات', key: 'balances', sortable: false },
-  { title: 'الحدود ومعدل الاستهلاك', key: 'limits', sortable: false },
+  { title: 'الحدود الأربعة ومعدل الاستهلاك', key: 'limits', sortable: false },
   { title: 'حالة التنبيه', key: 'alerts_status', sortable: false },
   { title: 'الإجراءات', key: 'actions', sortable: false, align: 'center' },
 ];
 
+const sourceHeaders = [
+  { title: 'معرف المرسل', key: 'sender_identifier', sortable: true },
+  { title: 'مزود الخدمة', key: 'provider', sortable: true },
+  { title: 'الوصف', key: 'description', sortable: false },
+  { title: 'الحالة', key: 'is_active', sortable: true },
+  { title: 'الإجراءات', key: 'actions', sortable: false, align: 'center' },
+];
+
+// ─── Reactive state — الحسابات المالية ──────────────────────────────────────
 const accountFormDialog = ref(false);
 const isEditingAccount = ref(false);
 const editingAccountId = ref(null);
+const accountFormRef = ref(null);
+const isFormValid = ref(null);
 
 const accountForm = ref({
   line_id: null,
@@ -688,6 +961,41 @@ const reconcileDialog = ref(false);
 const reconcilingAccount = ref(null);
 const reconcileReason = ref('');
 
+// ─── Reactive state — مصادر الرسائل ─────────────────────────────────────────
+const sourcesDialog = ref(false);
+const sourceFormDialog = ref(false);
+const sourceDeleteDialog = ref(false);
+const sourceFormRef = ref(null);
+const isSourceFormValid = ref(null);
+const isEditingSource = ref(false);
+const editingSourceId = ref(null);
+const deletingSource = ref(null);
+const sourceSearch = ref('');
+
+const sourceForm = ref({
+  sender_identifier: '',
+  provider: 'vodafone_cash',
+  description: '',
+  is_active: true,
+});
+
+const providerOptions = [
+  { title: 'فودافون كاش', value: 'vodafone_cash' },
+  { title: 'اورنج كاش', value: 'orange_cash' },
+  { title: 'اتصالات كاش', value: 'etisalat_cash' },
+  { title: 'وي كاش', value: 'we_cash' },
+];
+
+const filteredSources = computed(() => {
+  if (!sourceSearch.value) return sourceStore.sources;
+  const q = sourceSearch.value.toLowerCase();
+  return sourceStore.sources.filter(s =>
+    s.sender_identifier?.toLowerCase().includes(q) ||
+    s.description?.toLowerCase().includes(q)
+  );
+});
+
+// ─── Validation ───────────────────────────────────────────────────────────────
 function validateAlertValue(type, limit) {
   return v => {
     if (v === null || v === '' || v === undefined) return true;
@@ -707,9 +1015,11 @@ function formatCurrency(v) {
   return new Intl.NumberFormat('ar-EG', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v ?? 0);
 }
 
+// ─── دوال الحسابات المالية ────────────────────────────────────────────────────
 function openAddAccountDialog() {
   isEditingAccount.value = false;
   editingAccountId.value = null;
+  isFormValid.value = null;
   accountForm.value = {
     line_id: lineStore.lines[0]?.id || null,
     name: '',
@@ -730,12 +1040,15 @@ function openAddAccountDialog() {
   };
   accountStore.fetchDistinctSenders();
   accountFormDialog.value = true;
+  // reset form validation
+  setTimeout(() => accountFormRef.value?.resetValidation?.(), 100);
 }
 
 function openEditAccountDialog(account) {
   if (!account) return;
   isEditingAccount.value = true;
   editingAccountId.value = account.id;
+  isFormValid.value = null;
   accountForm.value = {
     name: account.name,
     account_number: account.account_number || '',
@@ -753,6 +1066,7 @@ function openEditAccountDialog(account) {
     monthly_withdraw_alert_value: account.monthly_withdraw_alert_value || 80,
   };
   accountFormDialog.value = true;
+  setTimeout(() => accountFormRef.value?.resetValidation?.(), 100);
 }
 
 function applyDefaultCbeLimits() {
@@ -763,6 +1077,8 @@ function applyDefaultCbeLimits() {
 }
 
 async function saveAccount() {
+  const { valid } = await accountFormRef.value?.validate?.() ?? { valid: true };
+  if (!valid) return;
   if (isEditingAccount.value) {
     await accountStore.updateFinancialAccount(editingAccountId.value, accountForm.value);
   } else {
@@ -774,7 +1090,7 @@ async function saveAccount() {
 
 async function deleteAccount(account) {
   if (!account) return;
-  if (confirm(`هل أنت متاكد من رغبتك في حذف الحساب المالي "${account.name}"؟`)) {
+  if (confirm(`هل أنت متأكد من رغبتك في حذف الحساب المالي "${account.name}"؟`)) {
     await accountStore.deleteFinancialAccount(account.id);
     loadData();
   }
@@ -796,6 +1112,63 @@ async function saveAccountReconciliation() {
   loadData();
 }
 
+// ─── دوال مصادر الرسائل ──────────────────────────────────────────────────────
+function openSourcesDialog() {
+  sourcesDialog.value = true;
+  sourceStore.fetchSources();
+}
+
+function openSourceFormDialog(item) {
+  if (item) {
+    isEditingSource.value = true;
+    editingSourceId.value = item.id;
+    sourceForm.value = {
+      sender_identifier: item.sender_identifier,
+      provider: item.provider,
+      description: item.description || '',
+      is_active: Boolean(item.is_active),
+    };
+  } else {
+    isEditingSource.value = false;
+    editingSourceId.value = null;
+    sourceForm.value = {
+      sender_identifier: '',
+      provider: 'vodafone_cash',
+      description: '',
+      is_active: true,
+    };
+  }
+  isSourceFormValid.value = null;
+  sourceFormDialog.value = true;
+  setTimeout(() => sourceFormRef.value?.resetValidation?.(), 100);
+}
+
+async function saveSource() {
+  const { valid } = await sourceFormRef.value?.validate?.() ?? { valid: true };
+  if (!valid) return;
+  if (isEditingSource.value) {
+    await sourceStore.updateSource(editingSourceId.value, sourceForm.value);
+  } else {
+    await sourceStore.createSource(sourceForm.value);
+  }
+  sourceFormDialog.value = false;
+}
+
+async function toggleSourceStatus(item, val) {
+  await sourceStore.updateSource(item.id, { is_active: val });
+}
+
+function confirmSourceDelete(item) {
+  deletingSource.value = item;
+  sourceDeleteDialog.value = true;
+}
+
+async function doSourceDelete() {
+  await sourceStore.deleteSource(deletingSource.value.id);
+  sourceDeleteDialog.value = false;
+}
+
+// ─── تحميل البيانات ───────────────────────────────────────────────────────────
 function loadData() {
   accountStore.fetchFinancialAccounts();
   accountStore.fetchLimitAlerts();
@@ -804,5 +1177,6 @@ function loadData() {
 
 onMounted(() => {
   loadData();
+  sourceStore.fetchSources();
 });
 </script>

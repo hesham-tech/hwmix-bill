@@ -327,13 +327,7 @@ export default [
     ],
     children: [
       {
-        title: 'إدارة الأجهزة',
-        to: '/app/hwnix-cash/devices',
-        icon: 'ri-cellphone-line',
-        permission: [PERMISSIONS.HWNIX_CASH_VIEW_ALL, PERMISSIONS.HWNIX_CASH_VIEW_SELF],
-      },
-      {
-        title: 'الخطوط',
+        title: 'الخطوط والأجهزة',
         to: '/app/hwnix-cash/lines',
         icon: 'ri-sim-card-line',
         permission: [PERMISSIONS.HWNIX_CASH_VIEW_ALL, PERMISSIONS.HWNIX_CASH_VIEW_SELF],
@@ -355,12 +349,6 @@ export default [
         to: '/app/hwnix-cash/wallet-transactions',
         icon: 'ri-exchange-dollar-line',
         permission: [PERMISSIONS.HWNIX_CASH_WALLET_TRANSACTIONS_VIEW_ALL, PERMISSIONS.HWNIX_CASH_WALLET_TRANSACTIONS_VIEW_SELF],
-      },
-      {
-        title: 'مصادر الرسائل',
-        to: '/app/hwnix-cash/message-sources',
-        icon: 'ri-radar-line',
-        permission: [PERMISSIONS.HWNIX_CASH_MESSAGE_SOURCES_VIEW_ALL],
       },
     ],
   },

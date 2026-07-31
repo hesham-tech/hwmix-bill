@@ -20,7 +20,24 @@
       @update:filters="applyFilters"
     >
       <template #actions>
-        <div class="d-flex align-center gap-2">
+        <div class="d-flex align-center gap-2 flex-wrap">
+          <!-- زر إدارة الأجهزة مع badge بعدد الأجهزة المتصلة -->
+          <v-badge
+            :content="deviceStore.devices?.filter(d => d.is_active || d.status === 'active')?.length || ''"
+            color="success"
+            floating
+            :model-value="(deviceStore.devices?.filter(d => d.is_active || d.status === 'active')?.length || 0) > 0"
+          >
+            <AppButton
+              variant="tonal"
+              color="secondary"
+              prepend-icon="ri-cellphone-line"
+              @click="openDevicesDialog"
+            >
+              الأجهزة المتصلة
+            </AppButton>
+          </v-badge>
+
           <!-- زر إضافة حساب مالي جديد -->
           <AppButton
             variant="tonal"
@@ -674,20 +691,205 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- Dialog إدارة الأجهزة (مدمج هنا بدلاً من صفحة مستقلة)          -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <v-dialog v-model="devicesDialog" max-width="960" scrollable>
+      <v-card rounded="xl">
+        <v-card-title class="pa-6 pb-4 d-flex align-center gap-2">
+          <v-avatar color="primary" variant="tonal" size="36" rounded="lg">
+            <v-icon icon="ri-cellphone-line" size="20" />
+          </v-avatar>
+          <div>
+            <div class="text-h6 font-weight-bold">إدارة الأجهزة المتصلة</div>
+            <div class="text-caption text-grey">الهواتف والأجهزة المربوطة بنظام كاش هونكس</div>
+          </div>
+          <v-spacer />
+          <v-btn icon="ri-close-line" variant="text" @click="devicesDialog = false" />
+        </v-card-title>
+        <v-divider />
+
+        <!-- شريط أدوات الأجهزة -->
+        <div class="px-6 pt-4 pb-2 d-flex align-center gap-2 flex-wrap">
+          <v-text-field
+            v-model="deviceSearch"
+            placeholder="بحث في الأجهزة..."
+            variant="outlined"
+            density="compact"
+            prepend-inner-icon="ri-search-line"
+            clearable
+            hide-details
+            style="max-width: 280px;"
+          />
+          <v-spacer />
+          <v-chip
+            v-if="deviceStore.devices?.length"
+            color="success"
+            size="small"
+            variant="tonal"
+            class="font-weight-bold"
+          >
+            <v-icon icon="ri-checkbox-circle-line" size="14" class="me-1" />
+            {{ deviceStore.devices.filter(d => d.is_active || d.status === 'active').length }} متصل
+          </v-chip>
+          <AppButton
+            variant="tonal"
+            color="primary"
+            prepend-icon="ri-refresh-line"
+            size="small"
+            :loading="deviceStore.loading"
+            @click="deviceStore.fetchDevices()"
+          >
+            تحديث
+          </AppButton>
+        </div>
+
+        <v-card-text class="pa-0">
+          <v-data-table
+            :headers="deviceHeaders"
+            :items="filteredDevices"
+            :loading="deviceStore.loading"
+            hover
+            class="elevation-0"
+            density="comfortable"
+            no-data-text="لا توجد أجهزة مربوطة بعد"
+            loading-text="جاري تحميل الأجهزة..."
+            items-per-page="10"
+          >
+            <!-- اسم الجهاز والمعرف -->
+            <template #item.device_name="{ item }">
+              <div class="d-flex align-center gap-2">
+                <v-avatar color="primary" variant="tonal" size="32">
+                  <v-icon icon="ri-cellphone-line" size="18" />
+                </v-avatar>
+                <div class="d-flex flex-column">
+                  <span class="font-weight-bold text-body-2">{{ item.device_name || item.model || 'جهاز أندرويد' }}</span>
+                  <span class="text-caption text-grey font-mono">{{ item.android_id }}</span>
+                </div>
+              </div>
+            </template>
+
+            <!-- المواصفات والإصدار -->
+            <template #item.specs="{ item }">
+              <div class="d-flex flex-column">
+                <span class="text-caption font-weight-medium">{{ item.brand }} {{ item.model }}</span>
+                <span class="text-caption text-grey">أندرويد: {{ item.android_version || '—' }} | تطبيق: v{{ item.app_version || '1.0' }}</span>
+              </div>
+            </template>
+
+            <!-- آخر اتصال -->
+            <template #item.last_seen_at="{ item }">
+              <div class="d-flex align-center gap-1 text-caption text-grey-darken-1">
+                <v-icon icon="ri-time-line" size="14" />
+                <span>{{ item.last_seen_at || '—' }}</span>
+              </div>
+            </template>
+
+            <!-- الحالة -->
+            <template #item.is_active="{ item }">
+              <v-chip
+                :color="(item.is_active || item.status === 'active') ? 'success' : 'error'"
+                size="small"
+                variant="tonal"
+                class="font-weight-bold"
+              >
+                {{ (item.is_active || item.status === 'active') ? 'نشط / متصل' : 'معطل / مفصول' }}
+              </v-chip>
+            </template>
+
+            <!-- الإجراءات -->
+            <template #item.actions="{ item }">
+              <div class="d-flex align-center justify-center gap-1">
+                <v-btn icon="ri-edit-line" size="small" variant="text" color="primary"
+                  title="تعديل اسم الجهاز" @click="openDeviceEditDialog(item)" />
+                <v-btn icon="ri-delete-bin-line" size="small" variant="text" color="error"
+                  title="إلغاء ربط الجهاز" @click="confirmDeviceDelete(item)" />
+              </div>
+            </template>
+          </v-data-table>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
+    <!-- Dialog تعديل اسم الجهاز -->
+    <v-dialog v-model="deviceEditDialog" max-width="480" persistent>
+      <v-card rounded="xl">
+        <v-card-title class="text-h6 pa-6 pb-4 d-flex align-center gap-2">
+          <v-icon icon="ri-edit-line" color="primary" />
+          تعديل بيانات الجهاز
+        </v-card-title>
+        <v-divider />
+        <v-card-text class="pa-6">
+          <v-row dense>
+            <v-col cols="12">
+              <v-text-field
+                v-model="deviceEditForm.device_name"
+                label="اسم الجهاز التوضيحي"
+                placeholder="مثال: هاتف الفرع الرئيسي"
+                variant="outlined"
+                density="compact"
+                prepend-inner-icon="ri-smartphone-line"
+              />
+            </v-col>
+            <v-col cols="12">
+              <v-switch
+                v-model="deviceEditForm.is_active"
+                label="حالة تفعيل الجهاز"
+                color="success"
+                hide-details
+              />
+            </v-col>
+          </v-row>
+        </v-card-text>
+        <v-divider />
+        <v-card-actions class="pa-4 gap-2">
+          <v-spacer />
+          <AppButton variant="text" @click="deviceEditDialog = false">إلغاء</AppButton>
+          <AppButton color="primary" :loading="deviceStore.loading" prepend-icon="ri-save-line" @click="saveDeviceEdit">
+            حفظ التغييرات
+          </AppButton>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Dialog تأكيد إلغاء ربط الجهاز -->
+    <v-dialog v-model="deviceDeleteDialog" max-width="420">
+      <v-card rounded="xl">
+        <v-card-title class="text-h6 pa-6 pb-2 text-error d-flex align-center gap-2">
+          <v-icon icon="ri-error-warning-line" color="error" />
+          تأكيد إلغاء ربط الجهاز
+        </v-card-title>
+        <v-card-text class="pa-6 pt-2">
+          هل أنت متأكد من رغبتك في إلغاء ربط الجهاز <strong>{{ deletingDevice?.device_name || deletingDevice?.android_id }}</strong>؟ سيؤدي ذلك لقطع اتصال الهاتف بالنظام.
+        </v-card-text>
+        <v-divider />
+        <v-card-actions class="pa-4 gap-2">
+          <v-spacer />
+          <AppButton variant="text" @click="deviceDeleteDialog = false">تراجع</AppButton>
+          <AppButton color="error" :loading="deviceStore.loading" prepend-icon="ri-delete-bin-line" @click="executeDeviceDelete">
+            إلغاء الربط
+          </AppButton>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+// صفحة الخطوط والحسابات المالية مع دمج إدارة الأجهزة
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useHwnixCashLineStore } from '../store/hwnix-cash-line.store';
 import { useHwnixCashFinancialAccountStore } from '../store/hwnix-cash-financial-account.store';
+import { useHwnixCashDeviceStore } from '../store/hwnix-cash-device.store';
 import AppButton from '@/components/common/AppButton.vue';
 import HwnixCashLimitBar from '../components/HwnixCashLimitBar.vue';
 
 const router = useRouter();
 const store = useHwnixCashLineStore();
 const accountStore = useHwnixCashFinancialAccountStore();
+const deviceStore = useHwnixCashDeviceStore();
 
 const DEFAULT_CBE_LIMITS = {
   DAILY_DEPOSIT: 60000,
@@ -891,8 +1093,65 @@ function applyFilters(filters) {
   store.fetchLines();
 }
 
+// ─── دوال الأجهزة ─────────────────────────────────────────────────────────────
+const devicesDialog = ref(false);
+const deviceSearch = ref('');
+const deviceEditDialog = ref(false);
+const deviceDeleteDialog = ref(false);
+const editingDevice = ref(null);
+const deletingDevice = ref(null);
+const deviceEditForm = ref({ device_name: '', is_active: true });
+
+const deviceHeaders = [
+  { title: 'الجهاز ومعرفه', key: 'device_name', sortable: true },
+  { title: 'المواصفات والإصدار', key: 'specs', sortable: false },
+  { title: 'آخر اتصال', key: 'last_seen_at', sortable: true },
+  { title: 'الحالة', key: 'is_active', sortable: true },
+  { title: 'الإجراءات', key: 'actions', sortable: false, align: 'center' },
+];
+
+const filteredDevices = computed(() => {
+  if (!deviceSearch.value) return deviceStore.devices;
+  const q = deviceSearch.value.toLowerCase();
+  return deviceStore.devices.filter(d =>
+    d.device_name?.toLowerCase().includes(q) ||
+    d.android_id?.toLowerCase().includes(q) ||
+    d.model?.toLowerCase().includes(q)
+  );
+});
+
+function openDevicesDialog() {
+  devicesDialog.value = true;
+  deviceStore.fetchDevices();
+}
+
+function openDeviceEditDialog(device) {
+  editingDevice.value = device;
+  deviceEditForm.value = {
+    device_name: device.device_name || '',
+    is_active: device.is_active ?? (device.status === 'active'),
+  };
+  deviceEditDialog.value = true;
+}
+
+async function saveDeviceEdit() {
+  await deviceStore.updateDevice(editingDevice.value.id, deviceEditForm.value);
+  deviceEditDialog.value = false;
+}
+
+function confirmDeviceDelete(device) {
+  deletingDevice.value = device;
+  deviceDeleteDialog.value = true;
+}
+
+async function executeDeviceDelete() {
+  await deviceStore.deleteDevice(deletingDevice.value.id);
+  deviceDeleteDialog.value = false;
+}
+
 onMounted(() => {
   store.fetchLines();
   accountStore.fetchDistinctSenders();
+  deviceStore.fetchDevices();
 });
 </script>
