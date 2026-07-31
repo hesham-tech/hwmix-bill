@@ -12,7 +12,7 @@
       :items-per-page="store.itemsPerPage"
       :filters="advancedFilters"
       permission-module="hwnix_cash_wallet_transactions"
-      title="معاملات المحافظ"
+      title="معاملات الحسابات والمحافظ"
       subtitle="سجل جميع عمليات الإيداع والسحب والتحويل"
       icon="ri-exchange-dollar-line"
       @update:page="store.page = $event; store.fetchTransactions()"
@@ -306,7 +306,7 @@ function copyRawSms(text) {
 
 const headers = [
   { title: 'المرجع / الرقم', key: 'reference_number', sortable: true },
-  { title: 'الخط المالي والهاتف', key: 'line', sortable: false },
+  { title: 'الحساب او المحفظه', key: 'line', sortable: false },
   { title: 'نوع المعاملة', key: 'transaction_type', sortable: true },
   { title: 'المبلغ', key: 'amount', sortable: true },
   { title: 'الجهة / المستهدف', key: 'target', sortable: false },
