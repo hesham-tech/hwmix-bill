@@ -358,6 +358,9 @@ function getParsedBy(item) {
     return 'AI Parser v' + item.metadata.normalized_dto.executionMetadata.analyzer_version;
   }
   if (item.metadata?.normalized_dto) return 'AI Parser';
+  if (item.operation_type === 'reconciliation' || item.metadata?.reconciled_by) return 'SystemReconciliation';
+  if (item.source === 'system') return 'SystemAction';
+  if (item.source === 'manual') return 'ManualEntry';
   return '—';
 }
 
@@ -368,6 +371,8 @@ function getParserStage(item) {
   if (item.metadata?.normalized_dto?.executionMetadata?.ai_model || item.metadata?.normalized_dto) {
     return 'ai';
   }
+  if (item.source === 'system' || item.operation_type === 'reconciliation') return 'system';
+  if (item.source === 'manual') return 'manual';
   return '';
 }
 
