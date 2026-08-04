@@ -69,16 +69,16 @@
                   <span class="text-body-2 font-weight-bold">{{ formatCurrency(tx.balance_after) }}</span>
                 </template>
               </v-list-item>
-              <v-list-item v-if="tx.parsed_by || tx.parser_stage">
+              <v-list-item v-if="getParsedBy(tx) !== '—'">
                 <template #prepend><v-icon icon="ri-cpu-line" size="16" class="text-grey me-2" /></template>
                 <v-list-item-title class="text-caption text-grey">منفذ ومرحلة التحليل</v-list-item-title>
                 <template #append>
                   <div class="d-flex align-center gap-1">
-                    <v-chip v-if="tx.parsed_by" size="x-small" color="primary" variant="tonal" class="font-mono font-weight-bold">
-                      {{ tx.parsed_by }}
+                    <v-chip size="x-small" color="primary" variant="tonal" class="font-mono font-weight-bold">
+                      {{ getParsedBy(tx) }}
                     </v-chip>
-                    <v-chip v-if="tx.parser_stage" size="x-small" color="secondary" variant="outlined" class="font-mono">
-                      {{ tx.parser_stage }}
+                    <v-chip v-if="getParserStage(tx)" size="x-small" color="secondary" variant="outlined" class="font-mono">
+                      {{ getParserStage(tx) }}
                     </v-chip>
                   </div>
                 </template>
@@ -167,6 +167,30 @@ function formatDateTime(d) {
     year: 'numeric', month: 'short', day: 'numeric',
     hour: '2-digit', minute: '2-digit',
   });
+}
+
+function getParsedBy(item) {
+  if (!item) return '—';
+  if (item.parsed_by) return item.parsed_by;
+  if (item.metadata?.parsed_by) return item.metadata.parsed_by;
+  if (item.metadata?.normalized_dto?.executionMetadata?.ai_model) {
+    return item.metadata.normalized_dto.executionMetadata.ai_model;
+  }
+  if (item.metadata?.normalized_dto?.executionMetadata?.analyzer_version) {
+    return 'AI Parser v' + item.metadata.normalized_dto.executionMetadata.analyzer_version;
+  }
+  if (item.metadata?.normalized_dto) return 'AI Parser';
+  return '—';
+}
+
+function getParserStage(item) {
+  if (!item) return '';
+  if (item.parser_stage) return item.parser_stage;
+  if (item.metadata?.parser_stage) return item.metadata.parser_stage;
+  if (item.metadata?.normalized_dto?.executionMetadata?.ai_model || item.metadata?.normalized_dto) {
+    return 'ai';
+  }
+  return '';
 }
 
 onMounted(() => store.fetchTransaction(route.params.id));

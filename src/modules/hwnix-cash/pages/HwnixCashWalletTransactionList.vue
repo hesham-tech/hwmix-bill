@@ -111,18 +111,21 @@
         <span v-else class="text-caption text-grey">—</span>
       </template>
 
-      <!-- المزود ومنفذ التحليل -->
+      <!-- المزود -->
       <template #item.provider="{ item }">
-        <div class="d-flex flex-column gap-1">
-          <HwnixCashProviderChip :provider="item.provider" size="x-small" />
-          <div v-if="item.parsed_by" class="d-flex align-center gap-1">
-            <v-chip size="x-small" variant="tonal" color="info" class="font-mono text-caption" style="font-size: 10px; height: 18px;">
-              <v-icon icon="ri-cpu-line" size="10" class="me-1" />
-              {{ item.parsed_by }}
-              <span v-if="item.parser_stage" class="ms-1 opacity-70">({{ item.parser_stage }})</span>
-            </v-chip>
-          </div>
+        <HwnixCashProviderChip :provider="item.provider" size="x-small" />
+      </template>
+
+      <!-- منفذ التحليل -->
+      <template #item.parsed_by="{ item }">
+        <div v-if="getParsedBy(item) !== '—'" class="d-flex align-center gap-1">
+          <v-chip size="x-small" variant="tonal" color="info" class="font-mono text-caption" style="font-size: 11px; height: 20px;">
+            <v-icon icon="ri-cpu-line" size="11" class="me-1" />
+            {{ getParsedBy(item) }}
+            <span v-if="getParserStage(item)" class="ms-1 opacity-70">({{ getParserStage(item) }})</span>
+          </v-chip>
         </div>
+        <span v-else class="text-caption text-grey">—</span>
       </template>
 
       <!-- الحالة -->
@@ -233,18 +236,18 @@
           </v-row>
 
           <!-- بيانات تتبع المحلل والمرحلة -->
-          <v-card v-if="selectedTransaction.parsed_by || selectedTransaction.parser_stage" variant="flat" color="blue-lighten-5" rounded="lg" class="pa-3 mb-4">
+          <v-card v-if="getParsedBy(selectedTransaction) !== '—'" variant="flat" color="blue-lighten-5" rounded="lg" class="pa-3 mb-4">
             <div class="d-flex align-center justify-space-between flex-wrap gap-2">
               <div class="d-flex align-center gap-2">
                 <v-icon icon="ri-cpu-line" color="primary" size="18" />
                 <span class="text-caption font-weight-bold text-primary">منفذ ومرحلة التحليل (Parser Traceability):</span>
               </div>
               <div class="d-flex align-center gap-1">
-                <v-chip v-if="selectedTransaction.parsed_by" size="x-small" color="primary" variant="flat" class="font-mono font-weight-bold">
-                  {{ selectedTransaction.parsed_by }}
+                <v-chip size="x-small" color="primary" variant="flat" class="font-mono font-weight-bold">
+                  {{ getParsedBy(selectedTransaction) }}
                 </v-chip>
-                <v-chip v-if="selectedTransaction.parser_stage" size="x-small" color="primary" variant="outlined" class="font-mono">
-                  {{ selectedTransaction.parser_stage }}
+                <v-chip v-if="getParserStage(selectedTransaction)" size="x-small" color="primary" variant="outlined" class="font-mono">
+                  {{ getParserStage(selectedTransaction) }}
                 </v-chip>
               </div>
             </div>
@@ -338,10 +341,35 @@ const headers = [
   { title: 'المبلغ', key: 'amount', sortable: true },
   { title: 'الجهة / المستهدف', key: 'target', sortable: false },
   { title: 'المزود', key: 'provider', sortable: true },
+  { title: 'منفذ التحليل', key: 'parsed_by', sortable: false },
   { title: 'الحالة', key: 'status', sortable: true },
   { title: 'التاريخ', key: 'transaction_date', sortable: true },
   { title: 'الإجراءات', key: 'actions', sortable: false, align: 'center' },
 ];
+
+function getParsedBy(item) {
+  if (!item) return '—';
+  if (item.parsed_by) return item.parsed_by;
+  if (item.metadata?.parsed_by) return item.metadata.parsed_by;
+  if (item.metadata?.normalized_dto?.executionMetadata?.ai_model) {
+    return item.metadata.normalized_dto.executionMetadata.ai_model;
+  }
+  if (item.metadata?.normalized_dto?.executionMetadata?.analyzer_version) {
+    return 'AI Parser v' + item.metadata.normalized_dto.executionMetadata.analyzer_version;
+  }
+  if (item.metadata?.normalized_dto) return 'AI Parser';
+  return '—';
+}
+
+function getParserStage(item) {
+  if (!item) return '';
+  if (item.parser_stage) return item.parser_stage;
+  if (item.metadata?.parser_stage) return item.metadata.parser_stage;
+  if (item.metadata?.normalized_dto?.executionMetadata?.ai_model || item.metadata?.normalized_dto) {
+    return 'ai';
+  }
+  return '';
+}
 
 const advancedFilters = [
   {
