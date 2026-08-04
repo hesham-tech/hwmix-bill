@@ -26,10 +26,10 @@
           <v-progress-linear
             :model-value="percent"
             :color="progressColor"
-            height="7"
+            height="3"
             rounded
             bg-color="grey-lighten-3"
-            class="elevation-1"
+            class="custom-thin-progress"
           />
         </div>
       </template>
