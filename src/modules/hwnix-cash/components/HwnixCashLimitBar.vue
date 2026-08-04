@@ -1,12 +1,12 @@
 <template>
   <div class="hwnix-cash-limit-bar">
-    <div class="d-flex align-center justify-space-between text-caption mb-1">
-      <span class="text-grey-darken-1 font-weight-medium d-flex align-center gap-1">
-        <v-icon :icon="icon" size="12" :color="progressColor" />
+    <div class="d-flex align-center justify-space-between mb-1" style="font-size: 12.5px;">
+      <span class="text-grey-darken-2 font-weight-medium d-flex align-center gap-1">
+        <v-icon :icon="icon" size="14" :color="progressColor" />
         {{ label }}
       </span>
       <div class="d-flex align-center gap-1">
-        <span class="font-weight-bold font-mono" :class="limitExceeded ? 'text-error font-weight-black' : 'text-grey-darken-2'">
+        <span class="font-weight-bold font-mono" :class="limitExceeded ? 'text-error font-weight-black' : 'text-grey-darken-2'" style="font-size: 12px;">
           {{ format(used) }} / {{ format(limit) }} ج.م
         </span>
         <v-chip
@@ -14,7 +14,7 @@
           size="x-small"
           variant="flat"
           class="font-weight-bold ms-1"
-          style="font-size: 10px; height: 16px; padding: 0 4px;"
+          style="font-size: 11px; height: 18px; padding: 0 6px;"
         >
           {{ percent }}%
         </v-chip>
@@ -26,7 +26,7 @@
           <v-progress-linear
             :model-value="percent"
             :color="progressColor"
-            height="3"
+            height="5"
             rounded
             bg-color="grey-lighten-3"
             class="custom-thin-progress"
@@ -34,8 +34,8 @@
         </div>
       </template>
     </v-tooltip>
-    <div v-if="alertTriggered && !limitExceeded" class="text-caption text-warning font-weight-bold mt-1 d-flex align-center gap-1" style="font-size: 10px;">
-      <v-icon icon="ri-error-warning-line" size="10" color="warning" />
+    <div v-if="alertTriggered && !limitExceeded" class="text-warning font-weight-bold mt-1 d-flex align-center gap-1" style="font-size: 11px;">
+      <v-icon icon="ri-error-warning-line" size="12" color="warning" />
       <span>بلغ حد التنبيه ({{ alertType === 'percentage' ? alertValue + '%' : format(alertValue) + ' ج.م' }})</span>
     </div>
   </div>
