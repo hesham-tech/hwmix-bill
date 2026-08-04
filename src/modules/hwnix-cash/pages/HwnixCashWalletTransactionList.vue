@@ -111,9 +111,18 @@
         <span v-else class="text-caption text-grey">—</span>
       </template>
 
-      <!-- المزود -->
+      <!-- المزود ومنفذ التحليل -->
       <template #item.provider="{ item }">
-        <HwnixCashProviderChip :provider="item.provider" size="x-small" />
+        <div class="d-flex flex-column gap-1">
+          <HwnixCashProviderChip :provider="item.provider" size="x-small" />
+          <div v-if="item.parsed_by" class="d-flex align-center gap-1">
+            <v-chip size="x-small" variant="tonal" color="info" class="font-mono text-caption" style="font-size: 10px; height: 18px;">
+              <v-icon icon="ri-cpu-line" size="10" class="me-1" />
+              {{ item.parsed_by }}
+              <span v-if="item.parser_stage" class="ms-1 opacity-70">({{ item.parser_stage }})</span>
+            </v-chip>
+          </div>
+        </div>
       </template>
 
       <!-- الحالة -->
@@ -222,6 +231,24 @@
               </div>
             </v-col>
           </v-row>
+
+          <!-- بيانات تتبع المحلل والمرحلة -->
+          <v-card v-if="selectedTransaction.parsed_by || selectedTransaction.parser_stage" variant="flat" color="blue-lighten-5" rounded="lg" class="pa-3 mb-4">
+            <div class="d-flex align-center justify-space-between flex-wrap gap-2">
+              <div class="d-flex align-center gap-2">
+                <v-icon icon="ri-cpu-line" color="primary" size="18" />
+                <span class="text-caption font-weight-bold text-primary">منفذ ومرحلة التحليل (Parser Traceability):</span>
+              </div>
+              <div class="d-flex align-center gap-1">
+                <v-chip v-if="selectedTransaction.parsed_by" size="x-small" color="primary" variant="flat" class="font-mono font-weight-bold">
+                  {{ selectedTransaction.parsed_by }}
+                </v-chip>
+                <v-chip v-if="selectedTransaction.parser_stage" size="x-small" color="primary" variant="outlined" class="font-mono">
+                  {{ selectedTransaction.parser_stage }}
+                </v-chip>
+              </div>
+            </div>
+          </v-card>
 
           <!-- نص الرسالة الخام Raw SMS -->
           <div v-if="selectedTransaction.raw_sms" class="mb-4">

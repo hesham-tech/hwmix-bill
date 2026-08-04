@@ -569,6 +569,8 @@ export const PERMISSIONS = {
   HWNIX_CASH_WALLET_TRANSACTIONS_VIEW_SELF: 'hwnix_cash_wallet_transactions.view_self',
   HWNIX_CASH_WALLET_TRANSACTIONS_CREATE: 'hwnix_cash_wallet_transactions.create',
   HWNIX_CASH_WALLET_TRANSACTIONS_DELETE_ALL: 'hwnix_cash_wallet_transactions.delete_all',
+  HWNIX_CASH_WALLET_TRANSACTIONS_VIEW_PARSED_BY: 'hwnix_cash_wallet_transactions.view_parsed_by',
+  HWNIX_CASH_WALLET_TRANSACTIONS_VIEW_PARSER_STAGE: 'hwnix_cash_wallet_transactions.view_parser_stage',
 
   HWNIX_CASH_MESSAGE_SOURCES_VIEW_ALL: 'hwnix_cash_message_sources.view_all',
   HWNIX_CASH_MESSAGE_SOURCES_CREATE: 'hwnix_cash_message_sources.create',

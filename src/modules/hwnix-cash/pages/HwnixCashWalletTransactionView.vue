@@ -69,6 +69,20 @@
                   <span class="text-body-2 font-weight-bold">{{ formatCurrency(tx.balance_after) }}</span>
                 </template>
               </v-list-item>
+              <v-list-item v-if="tx.parsed_by || tx.parser_stage">
+                <template #prepend><v-icon icon="ri-cpu-line" size="16" class="text-grey me-2" /></template>
+                <v-list-item-title class="text-caption text-grey">منفذ ومرحلة التحليل</v-list-item-title>
+                <template #append>
+                  <div class="d-flex align-center gap-1">
+                    <v-chip v-if="tx.parsed_by" size="x-small" color="primary" variant="tonal" class="font-mono font-weight-bold">
+                      {{ tx.parsed_by }}
+                    </v-chip>
+                    <v-chip v-if="tx.parser_stage" size="x-small" color="secondary" variant="outlined" class="font-mono">
+                      {{ tx.parser_stage }}
+                    </v-chip>
+                  </div>
+                </template>
+              </v-list-item>
             </v-list>
           </v-card>
         </v-col>
