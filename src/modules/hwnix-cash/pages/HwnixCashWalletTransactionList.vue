@@ -407,6 +407,7 @@ const advancedFilters = [
   {
     key: 'provider',
     label: 'المزود',
+    title: 'المزود',
     type: 'select',
     items: [
       { title: 'فودافون كاش', value: 'vodafone_cash' },
@@ -415,8 +416,20 @@ const advancedFilters = [
       { title: 'وي كاش', value: 'we_cash' },
     ],
   },
-  { key: 'date_from', label: 'من تاريخ', type: 'date' },
-  { key: 'date_to', label: 'إلى تاريخ', type: 'date' },
+  {
+    key: 'parsed_by',
+    label: 'منفذ التحليل',
+    title: 'منفذ التحليل',
+    type: 'select',
+    items: [
+      { title: 'الأنماط (Rule-based)', value: 'rule_based' },
+      { title: 'الذكاء الاصطناعي (AI Engine)', value: 'ai' },
+      { title: 'تسوية النظام (System Reconciliation)', value: 'system' },
+      { title: 'إدخال يدوي (Manual Entry)', value: 'manual' },
+    ],
+  },
+  { key: 'date_from', label: 'من تاريخ', title: 'من تاريخ', type: 'date' },
+  { key: 'date_to', label: 'إلى تاريخ', title: 'إلى تاريخ', type: 'date' },
 ];
 
 const TYPE_MAP = {
@@ -477,6 +490,7 @@ function applyFilters(filters) {
   store.typeFilter = filters.transaction_type ?? null;
   store.statusFilter = filters.status ?? null;
   store.providerFilter = filters.provider ?? null;
+  store.parsedByFilter = filters.parsed_by ?? null;
   store.dateFrom = filters.date_from ?? null;
   store.dateTo = filters.date_to ?? null;
   store.page = 1;

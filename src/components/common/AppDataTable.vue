@@ -182,11 +182,14 @@
           <v-row dense>
             <slot name="filters">
               <v-col v-for="item in filterableItems" :key="item.key" cols="12" sm="6" md="4" lg="3">
+                <label v-if="item.label || item.title" class="text-caption text-grey-darken-2 font-weight-bold mb-1 d-block">
+                  {{ item.label || item.title }}
+                </label>
                 <!-- Select Type -->
                 <v-select
                   v-if="item.filterType === 'select' || item.type === 'select'"
                   v-model="filtersModel[item.key]"
-                  :label="item.title"
+                  :label="item.label || item.title"
                   :items="item.filterItems || item.items"
                   variant="outlined"
                   density="compact"
@@ -198,7 +201,7 @@
                 <AppInput
                   v-else-if="item.filterType === 'date' || item.type === 'date'"
                   v-model="filtersModel[item.key]"
-                  :label="item.title"
+                  :label="item.label || item.title"
                   type="date"
                   hide-details
                   density="compact"
@@ -208,7 +211,7 @@
                 <AppAutocomplete
                   v-else-if="item.filterType === 'autocomplete' || item.type === 'autocomplete'"
                   v-model="filtersModel[item.key]"
-                  :label="item.title"
+                  :label="item.label || item.title"
                   :api-endpoint="item.apiEndpoint"
                   :item-title="item.itemTitle || 'name'"
                   :item-value="item.itemValue || 'id'"
@@ -222,8 +225,8 @@
                 <AppInput
                   v-else
                   v-model="filtersModel[item.key]"
-                  :label="item.title"
-                  :placeholder="`ابحث بـ ${item.title}...`"
+                  :label="item.label || item.title"
+                  :placeholder="`ابحث بـ ${item.label || item.title}...`"
                   :type="item.inputType || 'text'"
                   hide-details
                   density="compact"

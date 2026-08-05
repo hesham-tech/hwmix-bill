@@ -22,6 +22,7 @@ export const useHwnixCashWalletTransactionStore = defineStore('hwnix-cash-wallet
   const typeFilter = ref(null);
   const statusFilter = ref(null);
   const providerFilter = ref(null);
+  const parsedByFilter = ref(null);
   const dateFrom = ref(null);
   const dateTo = ref(null);
 
@@ -34,6 +35,7 @@ export const useHwnixCashWalletTransactionStore = defineStore('hwnix-cash-wallet
     transaction_type: typeFilter.value,
     status: statusFilter.value,
     provider: providerFilter.value,
+    parsed_by: parsedByFilter.value,
     date_from: dateFrom.value,
     date_to: dateTo.value,
     sort_by: sortBy.value[0]?.key || 'transaction_date',
