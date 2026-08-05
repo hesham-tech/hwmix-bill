@@ -81,13 +81,13 @@
       <!-- معالجة -->
       <template #item.is_processed="{ item }">
         <v-chip
-          :color="(item.is_processed || item.status === 'received' || item.status === 'processed') ? 'success' : 'default'"
+          :color="getStatusColor(item.status, item.is_processed)"
           size="small"
           variant="tonal"
           class="font-weight-bold cursor-pointer"
           @click="openDetailDialog(item)"
         >
-          {{ (item.is_processed || item.status === 'processed') ? 'معالجة' : 'مستلمة' }}
+          {{ getStatusText(item.status, item.is_processed) }}
         </v-chip>
       </template>
 
@@ -144,6 +144,25 @@
         </v-card-title>
         <v-divider />
         <v-card-text class="pa-6">
+          <!-- تنبيه ملاحظات التفكيك والأخطاء إن وجدت (للسوبر أدمن ومن لديهم صلاحية) -->
+          <v-alert
+            v-if="canViewReviewAlerts && (selectedMessage.error_message || selectedMessage.status === 'needs_review' || selectedMessage.status === 'skipped')"
+            :type="selectedMessage.status === 'needs_review' ? 'warning' : (selectedMessage.status === 'skipped' ? 'info' : 'error')"
+            variant="tonal"
+            rounded="lg"
+            class="mb-4"
+            density="compact"
+          >
+            <template #title>
+              <span class="font-weight-bold text-body-2">
+                {{ selectedMessage.status === 'needs_review' ? '⚠️ رسالة تحتاج مراجعة بشرية' : 'ℹ️ ملاحظة نظام التفكيك' }}
+              </span>
+            </template>
+            <div class="text-body-2 font-weight-medium">
+              {{ selectedMessage.error_message || 'تتطلب هذه الرسالة مراجعة بشرية لعدم إمكانية الربط التلقائي أو استخراج البيانات المالية.' }}
+            </div>
+          </v-alert>
+
           <!-- نص الرسالة الكلي -->
           <div class="mb-4">
             <div class="d-flex align-center justify-space-between mb-2">
@@ -255,6 +274,16 @@
           >
             إضافة لمصادر الرسائل
           </AppButton>
+          <AppButton
+            v-if="canViewReviewAlerts && selectedMessage && (selectedMessage.status === 'needs_review' || selectedMessage.status === 'skipped')"
+            variant="tonal"
+            color="warning"
+            prepend-icon="ri-refresh-line"
+            :loading="reparsing"
+            @click="handleReparse(selectedMessage.id)"
+          >
+            إعادة تحليل الرسالة
+          </AppButton>
           <v-spacer />
           <AppButton variant="text" @click="detailDialog = false">إغلاق</AppButton>
         </v-card-actions>
@@ -328,7 +357,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useHwnixCashMessageStore } from '../store/hwnix-cash-message.store';
 import { useHwnixCashMessageSourceStore } from '../store/hwnix-cash-message-source.store';
 import { PERMISSIONS } from '@/config/permissions';
@@ -341,6 +370,12 @@ const store = useHwnixCashMessageStore();
 const sourceStore = useHwnixCashMessageSourceStore();
 const userStore = useUserStore();
 const can = permission => userStore.hasPermission(permission);
+
+const canViewReviewAlerts = computed(() => {
+  return userStore.isSuperAdmin ||
+         userStore.hasPermission('admin.super') ||
+         userStore.hasPermission(PERMISSIONS.HWNIX_CASH_MESSAGES_VIEW_ALL);
+});
 
 const detailDialog = ref(false);
 const selectedMessage = ref(null);
@@ -388,30 +423,85 @@ const providerOptions = [
   { title: 'وي كاش (we_cash)', value: 'we_cash' },
 ];
 
-const advancedFilters = [
-  {
-    key: 'provider',
-    label: 'المزود',
-    type: 'select',
-    items: [
-      { title: 'فودافون كاش', value: 'vodafone_cash' },
-      { title: 'اورنج كاش', value: 'orange_cash' },
-      { title: 'اتصالات كاش', value: 'etisalat_cash' },
-      { title: 'وي كاش', value: 'we_cash' },
-    ],
-  },
-  {
-    key: 'is_processed',
-    label: 'حالة المعالجة',
-    type: 'select',
-    items: [
-      { title: 'معالجة', value: '1' },
-      { title: 'لم تُعالج', value: '0' },
-    ],
-  },
-  { key: 'date_from', label: 'من تاريخ', type: 'date' },
-  { key: 'date_to', label: 'إلى تاريخ', type: 'date' },
-];
+function getStatusColor(status, isProcessed) {
+  if (status === 'needs_review') return 'warning';
+  if (status === 'processed' || isProcessed) return 'success';
+  if (status === 'skipped') return 'secondary';
+  if (status === 'failed' || status === 'error') return 'error';
+  return 'info';
+}
+
+function getStatusText(status, isProcessed) {
+  if (status === 'needs_review') return 'تحتاج مراجعة ⚠️';
+  if (status === 'processed' || isProcessed) return 'معالجة مالية ✅';
+  if (status === 'skipped') return 'تخطي ⛔';
+  if (status === 'failed' || status === 'error') return 'فشل ❌';
+  return 'رسالة مستلمة 📩';
+}
+
+const reparsing = ref(false);
+
+async function handleReparse(id) {
+  if (!id) return;
+  reparsing.value = true;
+  try {
+    await store.reparseMessage(id);
+    notificationManager.success('تمت إعادة تحليل الرسالة وتحديث البيانات المالية بنجاح.');
+    detailDialog.value = false;
+  } catch (error) {
+    notificationManager.error(error.message || 'حدث خطأ أثناء إعادة تحليل الرسالة.');
+  } finally {
+    reparsing.value = false;
+  }
+}
+
+const advancedFilters = computed(() => {
+  const filters = [
+    {
+      key: 'provider',
+      label: 'المزود',
+      type: 'select',
+      items: [
+        { title: 'فودافون كاش', value: 'vodafone_cash' },
+        { title: 'اورنج كاش', value: 'orange_cash' },
+        { title: 'اتصالات كاش', value: 'etisalat_cash' },
+        { title: 'وي كاش', value: 'we_cash' },
+      ],
+    },
+  ];
+
+  if (canViewReviewAlerts.value) {
+    filters.push({
+      key: 'status',
+      label: 'حالة الرسالة المعالجة',
+      type: 'select',
+      items: [
+        { title: 'جميع الحالات', value: null },
+        { title: 'تحتاج مراجعة بشرية ⚠️', value: 'needs_review' },
+        { title: 'معالجة مالية ✅', value: 'processed' },
+        { title: 'رسالة مستلمة 📩', value: 'received' },
+        { title: 'تخطي - غير معتمدة ⛔', value: 'skipped' },
+      ],
+    });
+  } else {
+    filters.push({
+      key: 'is_processed',
+      label: 'حالة المعالجة',
+      type: 'select',
+      items: [
+        { title: 'معالجة', value: '1' },
+        { title: 'لم تُعالج', value: '0' },
+      ],
+    });
+  }
+
+  filters.push(
+    { key: 'date_from', label: 'من تاريخ', type: 'date' },
+    { key: 'date_to', label: 'إلى تاريخ', type: 'date' }
+  );
+
+  return filters;
+});
 
 function openAddSourceDialog(message) {
   const sender = message.sender || '';
@@ -462,6 +552,7 @@ function formatDateTime(dt) {
 function applyFilters(filters) {
   store.providerFilter = filters.provider ?? null;
   store.isProcessedFilter = filters.is_processed ?? null;
+  store.statusFilter = filters.status ?? null;
   store.dateFrom = filters.date_from ?? null;
   store.dateTo = filters.date_to ?? null;
   store.page = 1;

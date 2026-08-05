@@ -7,6 +7,10 @@ class HwnixCashMessageService extends BaseService {
   constructor() {
     super('v1/hwnix-cash/messages');
   }
+
+  reparse(id) {
+    return this.post(`${id}/reparse`, {});
+  }
 }
 
 export default new HwnixCashMessageService();

@@ -21,6 +21,7 @@ export const useHwnixCashMessageStore = defineStore('hwnix-cash-message', () => 
   const dateFrom = ref(null);
   const dateTo = ref(null);
   const isProcessedFilter = ref(null);
+  const statusFilter = ref(null);
 
   // Computed
   const params = computed(() => ({
@@ -32,6 +33,7 @@ export const useHwnixCashMessageStore = defineStore('hwnix-cash-message', () => 
     date_from: dateFrom.value,
     date_to: dateTo.value,
     is_processed: isProcessedFilter.value,
+    status: statusFilter.value,
     sort_by: sortBy.value[0]?.key || 'received_at',
     order: sortBy.value[0]?.order || 'desc',
   }));
@@ -52,12 +54,24 @@ export const useHwnixCashMessageStore = defineStore('hwnix-cash-message', () => 
     }
   }
 
+  async function reparseMessage(id) {
+    try {
+      const response = await hwnixCashMessageService.reparse(id);
+      await fetchMessages();
+      return response;
+    } catch (error) {
+      console.error('Error reparsing message:', error);
+      throw error;
+    }
+  }
+
   function resetFilters() {
     lineFilter.value = null;
     providerFilter.value = null;
     dateFrom.value = null;
     dateTo.value = null;
     isProcessedFilter.value = null;
+    statusFilter.value = null;
     search.value = '';
     page.value = 1;
   }
@@ -66,10 +80,10 @@ export const useHwnixCashMessageStore = defineStore('hwnix-cash-message', () => 
     // State
     messages, loading, totalItems,
     page, itemsPerPage, search, sortBy,
-    lineFilter, providerFilter, dateFrom, dateTo, isProcessedFilter,
+    lineFilter, providerFilter, dateFrom, dateTo, isProcessedFilter, statusFilter,
     // Computed
     params,
     // Actions
-    fetchMessages, resetFilters,
+    fetchMessages, reparseMessage, resetFilters,
   };
 });
