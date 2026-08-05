@@ -149,6 +149,8 @@ const TYPE_MAP = {
   MERCHANT_PAYMENT: { label: 'دفع تجار', color: 'warning', icon: 'ri-store-line', debit: true },
   CARD_PURCHASE: { label: 'شراء بالكارت', color: 'orange', icon: 'ri-bank-card-line', debit: true },
   REFUND: { label: 'استرداد', color: 'teal', icon: 'ri-refund-line', debit: false },
+  RECHARGE: { label: 'شحن رصيد', color: 'orange', icon: 'ri-flashlight-line', debit: true },
+  recharge: { label: 'شحن رصيد', color: 'orange', icon: 'ri-flashlight-line', debit: true },
   REVERSAL: { label: 'عكس معاملة', color: 'purple', icon: 'ri-arrow-go-back-line', debit: false },
 };
 
