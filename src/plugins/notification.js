@@ -17,10 +17,10 @@ export const useNotifications = () => {
 
   const notify = (title, options = {}) => {
     // 1. Show Toast
-    notificationManager.notify(title, {
+    notificationManager.notify({
+      message: title,
       type: options.type || 'info',
-      position: 'top-right',
-      autoClose: 5000,
+      duration: 5000,
       onClick: options.onClick,
     });
 

@@ -232,45 +232,32 @@ apiClient.interceptors.response.use(
         });
       });
 
-      // Show interactive capture UI if needed (legacy behavior maintained)
-      import('@/stores/appState').then(storeModule => {
-        const appState = storeModule.useappState();
-
-        appState.isCapturing = true;
-
-        import('@/modules/support/services/error-collector').then(module => {
-          module
-            .collectErrorInfo(error, {
-              type: error?.response?.status === 400 ? 'bad_request' : isConnectivityError ? 'connectivity_error' : 'server_error',
-              isConnectivityError,
-              request: {
-                method: error?.config?.method?.toUpperCase(),
-                url: error?.config?.url,
-                params: error?.config?.params,
-                data: error?.config?.data,
-              },
-              extraData: {
-                status: error?.response?.status || 0,
-                code: error?.code,
-                serverMessage: error?.response?.data?.message,
-                serverResponse: error?.response?.data,
-              },
-              // Pass callbacks to sync with appState
-              onCaptureStart: () => {
-                appState.isCapturing = true;
-              },
-              onCaptureEnd: () => {
-                appState.isCapturing = false;
-              },
-            })
-            .then(info => {
-              appState.pendingReport = info;
-              appState.isCapturing = false;
-            })
-            .catch(err => {
-              console.error('[AxiosInterceptor] Capture flow error:', err);
-              appState.isCapturing = false;
-            });
+      // Silent logging to background without interactive screen capture
+      import('@/modules/support/services/error-collector').then(module => {
+        module.collectErrorInfo(error, {
+          type: error?.response?.status === 400 ? 'bad_request' : isConnectivityError ? 'connectivity_error' : 'server_error',
+          isConnectivityError,
+          captureScreenshot: false,
+          request: {
+            method: error?.config?.method?.toUpperCase(),
+            url: error?.config?.url,
+            params: error?.config?.params,
+            data: error?.config?.data,
+          },
+          extraData: {
+            status: error?.response?.status || 0,
+            code: error?.code,
+            serverMessage: error?.response?.data?.message,
+            serverResponse: error?.response?.data,
+          },
+        }).then(info => {
+          import('@/stores/appState').then(storeModule => {
+            const appState = storeModule.useappState();
+            appState.pendingReport = info;
+            appState.isCapturing = false;
+          });
+        }).catch(err => {
+          console.error('[AxiosInterceptor] Log error info failed:', err);
         });
       });
     } else {

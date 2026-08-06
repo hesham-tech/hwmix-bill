@@ -60,12 +60,14 @@ class NotificationManager {
     }
 
     // إعدادات العرض الخاصة بـ Toastify Adapter
+    const isRtl = typeof document !== 'undefined' && document.documentElement.dir === 'rtl';
     const toastOptions = {
       toastId: id,
       autoClose: notification.duration,
       type: notification.type,
-      position: 'top-right',
+      position: options.position || (isRtl ? 'top-right' : 'top-left'),
       theme: 'colored',
+      rtl: isRtl,
     };
 
     // الأخطاء الحرجة، العالية، أو الإشعارات المالية لا تغلق تلقائياً

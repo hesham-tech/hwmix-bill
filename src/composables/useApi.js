@@ -1,20 +1,10 @@
 import { ref } from 'vue';
 import notificationManager from '@/services/notificationManager';
 import apiClient from '@/api/axios.config';
+import { parseApiError } from '@/utils/errorParser';
 
 function extractErrorMessage(err, fallback) {
-  if (err.response?.data?.errors && typeof err.response.data.errors === 'object') {
-    const errorObj = err.response.data.errors;
-    const firstKey = Object.keys(errorObj)[0];
-    if (firstKey && Array.isArray(errorObj[firstKey]) && errorObj[firstKey][0]) {
-      return errorObj[firstKey][0];
-    }
-    return err.response?.data?.message || 'خطأ في التحقق من البيانات';
-  }
-  if (err.response?.status === 404 && typeof err.response?.data?.message === 'string' && err.response.data.message.includes('No query results for model')) {
-    return 'العنصر المطلوب غير موجود أو تم حذفه.';
-  }
-  return err.response?.data?.message || err.message || fallback;
+  return parseApiError(err, fallback);
 }
 
 /**
