@@ -1,6 +1,10 @@
 <template>
   <div class="user-form-container">
     <v-form ref="formRef" @submit.prevent="handleSubmit" class="user-form" autocomplete="off">
+      <!-- Chrome/Firefox Auto-fill Prevention Dummy Inputs -->
+      <input type="text" style="display: none" aria-hidden="true" autocomplete="off" />
+      <input type="password" style="display: none" aria-hidden="true" autocomplete="off" />
+
       <!-- Avatar Selection -->
       <div class="d-flex justify-center mb-4">
         <div class="avatar-selection-zone position-relative cursor-pointer" @click="showMediaGallery = true">
@@ -214,6 +218,9 @@
           <AppPasswordInput
             v-model="form.password"
             autocomplete="new-password"
+            :readonly="isEditMode && !isPasswordFocused"
+            @focus="isPasswordFocused = true"
+            @blur="isPasswordFocused = false"
             :label="isEditMode ? 'كلمة المرور الجديدة (اتركها فارغة للتخطي)' : 'كلمة المرور *'"
             :rules="isEditMode ? [] : [required, minLength(8)]"
             :required="!isEditMode"
@@ -340,6 +347,7 @@ const loadingCompanies = ref(false);
 const showMediaGallery = ref(false);
 const allCompanies = ref([]);
 const allBranches = computed(() => branchStore.branches);
+const isPasswordFocused = ref(false);
 const imagePreview = ref(props.modelValue?.avatar_url || null);
 
 // Lookup State
@@ -412,7 +420,7 @@ const form = ref({
   username: '',
   email: '',
   phone: '',
-  password: '12345678',
+  password: props.isEditMode ? '' : '12345678',
   customer_type: 'retail',
   is_active: true,
   address: '',
@@ -492,6 +500,7 @@ watch(
         starting_balances: newVal.starting_balances || { receivable: 0, payable: 0 },
         ...form.value,
         ...cleanData,
+        password: props.isEditMode ? '' : (form.value.password || ''),
       };
 
       if (newVal.branches) {
