@@ -327,6 +327,12 @@ export default [
     ],
     children: [
       {
+        title: 'لوحة التحكم',
+        to: '/app/hwnix-cash/dashboard',
+        icon: 'ri-dashboard-line',
+        permission: [PERMISSIONS.HWNIX_CASH_VIEW_ALL, PERMISSIONS.HWNIX_CASH_VIEW_SELF],
+      },
+      {
         title: 'الخطوط والأجهزة',
         to: '/app/hwnix-cash/lines',
         icon: 'ri-sim-card-line',

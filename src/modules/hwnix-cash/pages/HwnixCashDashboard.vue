@@ -1,53 +1,34 @@
 <template>
-  <div class="hwnix-cash-dashboard pa-4 pa-md-6">
-    <!-- Header Banner / Hero Section -->
-    <v-card class="mb-6 elevation-2 overflow-hidden rounded-xl" color="primary" variant="flat">
-      <div class="hero-background pa-6 pa-md-8 text-white">
-        <v-row align="center">
-          <v-col cols="12" md="8">
-            <div class="d-flex align-center gap-3 mb-3">
-              <v-avatar color="white" size="48" class="elevation-3">
-                <v-icon icon="ri-wallet-3-line" color="primary" size="28" />
-              </v-avatar>
-              <div>
-                <h1 class="text-h4 font-weight-bold mb-1 text-white">لوحة تحكم كاش هونكس</h1>
-                <p class="text-subtitle-1 text-white text-opacity-90 mb-0">
-                  المركز الرئيسي لإدارة المحافظ، الخطوط، الرسائل الواردة، ومعاملاتك علي كاش هونكس
-                </p>
-              </div>
-            </div>
-          </v-col>
-          <v-col cols="12" md="4" class="text-md-left">
-            <v-btn
-              color="white"
-              variant="elevated"
-              size="large"
-              rounded="lg"
-              class="text-primary font-weight-bold px-6 elevation-3"
-              prepend-icon="ri-android-line"
-              href="/downloads/app-release.apk"
-              target="_blank"
-            >
-              تنزيل تطبيق الأندرويد
-            </v-btn>
-          </v-col>
-        </v-row>
+  <div class="hwnix-cash-dashboard pa-3 pa-md-4">
+    <!-- Header Banner Section -->
+    <v-card class="mb-3 border rounded-xl pa-4" variant="flat">
+      <div class="d-flex align-center justify-space-between flex-wrap gap-3">
+        <div class="d-flex align-center gap-3">
+          <v-avatar color="primary-container" size="44" rounded="lg">
+            <v-icon icon="ri-wallet-3-line" color="primary" size="24" />
+          </v-avatar>
+          <div>
+            <h1 class="text-h5 font-weight-bold mb-0">لوحة تحكم كاش هونكس</h1>
+            <p class="text-caption text-grey-darken-1 mb-0">
+              المركز الرئيسي لإدارة المحافظ، الخطوط، الرسائل الواردة، ومعاملاتك على كاش هونكس
+            </p>
+          </div>
+        </div>
       </div>
     </v-card>
 
     <!-- App Role Notice Banner -->
-    <v-alert color="info" variant="tonal" rounded="xl" border="start" class="mb-6 elevation-1" icon="ri-information-line">
+    <v-alert color="info" variant="tonal" rounded="xl" border="start" class="mb-3 py-2 px-4" icon="ri-information-line">
       <div class="d-flex flex-column gap-1">
-        <span class="font-weight-bold text-subtitle-1">تنبيه هامة حول آلية إدارة النظام:</span>
-        <span class="text-body-2">
-          التطبيق مسؤول عن استقبال الرسائل وإرسالها إلى السيرفر، بينما تتم إدارة النظام بالكامل من خلال لوحة التحكم على الويب باستخدام نفس بيانات
-          تسجيل الدخول الخاصة بالتطبيق.
+        <span class="font-weight-bold text-subtitle-2">تنبيه حول آلية إدارة النظام:</span>
+        <span class="text-caption">
+          التطبيق مسؤول عن استقبال الرسائل وإرسالها إلى السيرفر، بينما تتم إدارة النظام بالكامل من خلال لوحة التحكم على الويب باستخدام نفس بيانات تسجيل الدخول الخاصة بالتطبيق.
         </span>
       </div>
     </v-alert>
 
     <!-- Quick Stats Overview Cards -->
-    <v-row class="mb-6">
+    <v-row class="mb-3">
       <v-col cols="12" sm="6" md="3">
         <v-card class="rounded-xl pa-4 elevation-1 border h-100">
           <div class="d-flex align-center justify-space-between">
