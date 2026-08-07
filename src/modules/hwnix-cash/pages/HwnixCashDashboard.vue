@@ -245,7 +245,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import httpClient from '@/api/httpClient';
+import apiClient from '@/api/axios.config';
 
 const loading = ref(true);
 const stats = ref({
@@ -258,7 +258,7 @@ const stats = ref({
 const fetchDashboardStats = async () => {
   loading.value = true;
   try {
-    const response = await httpClient.get('/hwnix-cash/dashboard/stats');
+    const response = await apiClient.get('/hwnix-cash/dashboard/stats');
     if (response.data && response.data.status) {
       stats.value = response.data.data;
     }
