@@ -293,6 +293,11 @@ const addItem = productItem => {
 };
 
 const handleQuickProductSave = product => {
+  // The product may be emitted as an array by BaseService.handleSuccess
+  if (Array.isArray(product) && product.length > 0) {
+    product = product[0];
+  }
+  
   // If product has variants, add the first one by default for quick add
   if (product && product.variants?.length > 0) {
     const variant = product.variants[0];
@@ -302,6 +307,8 @@ const handleQuickProductSave = product => {
       name: product.name,
       variant_id: variant.id,
       variant_name: variant.sku,
+      sku: variant.sku || product.sku,
+      barcode: variant.barcode || product.barcode,
       attributes_text: variant.attributes
         ?.map(attr => attr.attribute_value?.name || attr.value?.name)
         .filter(Boolean)
@@ -323,11 +330,16 @@ const handleQuickProductSave = product => {
     const item = {
       product_id: product.id,
       name: product.name,
+      sku: product.sku,
+      barcode: product.barcode,
       quantity: 1,
+      max_quantity: product.quantity || 0,
       purchase_price: product.purchase_price || 0,
       retail_price: product.retail_price || 0,
       wholesale_price: product.wholesale_price || 0,
       product_type: product.product_type,
+      primary_image_url: product.primary_image_url,
+      requires_stock: product.require_stock,
     };
     item.unit_price = getItemPrice(item);
     addItem(item);
@@ -570,6 +582,9 @@ const fetchInvoice = async () => {
           product_id: item.product_id,
           variant_id: item.variant_id,
           name: item.name,
+          sku: variant?.sku || item.product?.sku,
+          barcode: variant?.barcode || item.product?.barcode,
+          variant_name: variant?.sku,
           quantity: parseFloat(item.quantity || 0),
           max_quantity: parseFloat(item.quantity || 0) + (variant ? parseFloat(variant.quantity || 0) : 0),
           requires_stock: item.requires_stock ?? true,

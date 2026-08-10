@@ -45,8 +45,15 @@
                   />
                   <div class="line-height-1 overflow-hidden" style="max-width: 300px">
                     <div class="text-caption font-weight-bold text-truncate">{{ item.name }}</div>
-                    <div v-if="item.variant_name || item.attributes_text" class="text-xxs text-secondary text-truncate">
-                      {{ item.variant_name }} <span v-if="item.attributes_text">• {{ item.attributes_text }}</span>
+                    <div class="d-flex flex-column gap-0 mt-1">
+                      <div v-if="item.attributes_text" class="text-xxs text-secondary text-truncate">
+                        {{ item.attributes_text }}
+                      </div>
+                      <div class="d-flex align-center gap-2 text-xxs text-grey-darken-1 text-truncate">
+                        <span v-if="item.sku || item.variant_name" class="font-weight-medium text-uppercase">{{ item.sku || item.variant_name }}</span>
+                        <span v-if="(item.sku || item.variant_name) && item.barcode" class="text-grey-lighten-1">•</span>
+                        <span v-if="item.barcode">باركود: {{ item.barcode }}</span>
+                      </div>
                     </div>
                   </div>
                 </div>

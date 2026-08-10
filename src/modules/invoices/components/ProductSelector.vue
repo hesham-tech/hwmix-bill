@@ -272,6 +272,8 @@ const addItemInstant = item => {
       name: variant.product_name,
       variant_id: variant.originalId,
       variant_name: variant.sku,
+      sku: variant.sku,
+      barcode: variant.barcode,
       attributes_text: attributesText,
       quantity: 1,
       max_quantity: variant.quantity || 0,
