@@ -301,7 +301,8 @@
                       <v-table density="compact" class="variants-table">
                         <thead class="bg-grey-lighten-5">
                           <tr>
-                            <th class="text-start font-weight-bold text-caption px-2 py-1">المتغير (SKU / الباركود)</th>
+                            <th class="text-start font-weight-bold text-caption px-2 py-1">الباركود / SKU</th>
+                            <th class="text-start font-weight-bold text-caption px-2 py-1">المواصفات</th>
                             <th v-if="mdAndUp" class="text-center font-weight-bold text-caption px-2 py-1">التكلفة</th>
                             <th class="text-center font-weight-bold text-caption px-2 py-1">سعر البيع</th>
                             <th v-if="mdAndUp" class="text-center font-weight-bold text-caption px-2 py-1">سعر الجملة</th>
@@ -315,21 +316,25 @@
                           <tr v-for="variant in item.variants" :key="variant.id">
                             <td class="text-start px-2 py-2">
                               <div class="d-flex flex-column gap-1">
-                                <div class="font-weight-bold text-primary text-caption">{{ variant.sku || '---' }}</div>
-                                <div v-if="variant.barcode" class="text-grey text-xxs code-font"><v-icon icon="ri-barcode-line" size="10" class="me-1"/>{{ variant.barcode }}</div>
-                                <div v-if="variant.attributes && variant.attributes.length" class="d-flex flex-wrap gap-1 mt-1">
-                                  <v-chip
-                                    v-for="attr in variant.attributes"
-                                    :key="attr.id"
-                                    size="x-small"
-                                    variant="flat"
-                                    color="grey-lighten-4"
-                                    class="text-xxs border"
-                                  >
-                                    {{ attr.attribute?.name ? attr.attribute.name + ': ' : '' }}{{ attr.attribute_value?.name || attr.value?.name || '---' }}
-                                  </v-chip>
-                                </div>
+                                <div class="font-weight-bold text-primary text-body-2 code-font">{{ variant.barcode || '---' }}</div>
+                                <div v-if="variant.sku" class="text-grey text-caption code-font"><v-icon icon="ri-hashtag" size="12" class="me-1"/>{{ variant.sku }}</div>
                               </div>
+                            </td>
+                            <td class="text-start px-2 py-2">
+                              <div v-if="variant.attributes && variant.attributes.length" class="d-flex flex-wrap gap-2 align-center">
+                                <template v-for="(attr, i) in variant.attributes" :key="attr.id">
+                                  <div class="d-flex align-center gap-1 text-caption text-grey-darken-2">
+                                    <span class="font-weight-medium" v-if="attr.attribute?.name">{{ attr.attribute.name }}:</span>
+                                    <div v-if="attr.attribute_value?.color || attr.value?.color" 
+                                         class="rounded-circle border" 
+                                         :style="{ width: '12px', height: '12px', backgroundColor: attr.attribute_value?.color || attr.value?.color }">
+                                    </div>
+                                    <span>{{ attr.attribute_value?.name || attr.value?.name || '---' }}</span>
+                                  </div>
+                                  <v-divider v-if="i !== variant.attributes.length - 1" vertical class="mx-1" style="height: 12px; align-self: center;"></v-divider>
+                                </template>
+                              </div>
+                              <div v-else class="text-caption text-grey">---</div>
                             </td>
                             <td v-if="mdAndUp" class="text-center text-caption px-2 py-1">{{ variant.cost > 0 ? formatCurrency(variant.cost) : '---' }}</td>
                             <td class="text-center text-primary font-weight-bold text-caption px-2 py-1">{{ formatCurrency(variant.retail_price) }}</td>
