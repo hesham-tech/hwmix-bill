@@ -469,7 +469,7 @@
           </v-col>
           <v-col cols="12">
             <AppInput
-              v-model.number="formData.initial_balance"
+              v-model.number="formData.balance"
               label="الرصيد الافتتاحي"
               type="number"
               step="0.01"
@@ -696,7 +696,7 @@ const formData = ref({
   name: '',
   cash_box_type_id: null,
   branch_id: authStore.user?.branch_id || null,
-  initial_balance: 0,
+  balance: 0,
   is_active: 1,
   is_default: 0,
   access_type: props.userId ? 'user_owned' : 'branch_shared',
@@ -786,7 +786,7 @@ const handleCreate = () => {
     name: '', 
     cash_box_type_id: defaultCashBoxTypeId, 
     branch_id: defaultBranchId, 
-    initial_balance: 0, 
+    balance: 0, 
     is_active: 1,
     is_default: 0,
     access_type: props.userId ? 'user_owned' : 'branch_shared',
