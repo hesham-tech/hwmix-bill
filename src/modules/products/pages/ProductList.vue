@@ -301,7 +301,7 @@
                       <v-table density="compact" class="variants-table">
                         <thead class="bg-grey-lighten-5">
                           <tr>
-                            <th class="text-center font-weight-bold text-caption px-2 py-1">SKU</th>
+                            <th class="text-start font-weight-bold text-caption px-2 py-1">المتغير (SKU / الباركود)</th>
                             <th v-if="mdAndUp" class="text-center font-weight-bold text-caption px-2 py-1">التكلفة</th>
                             <th class="text-center font-weight-bold text-caption px-2 py-1">سعر البيع</th>
                             <th v-if="mdAndUp" class="text-center font-weight-bold text-caption px-2 py-1">سعر الجملة</th>
@@ -309,12 +309,28 @@
                             <th class="text-center font-weight-bold text-caption px-2 py-1">المخزون</th>
                             <th v-if="mdAndUp" class="text-center font-weight-bold text-caption px-2 py-1">الحد الأدنى</th>
                             <th v-if="mdAndUp" class="text-center font-weight-bold text-caption px-2 py-1">الوحدة</th>
-                            <th v-if="mdAndUp" class="text-left font-weight-bold text-caption px-2 py-1">الباركود</th>
                           </tr>
                         </thead>
                         <tbody>
                           <tr v-for="variant in item.variants" :key="variant.id">
-                            <td class="text-center text-caption text-grey-darken-1 px-2 py-1">{{ variant.sku || '---' }}</td>
+                            <td class="text-start px-2 py-2">
+                              <div class="d-flex flex-column gap-1">
+                                <div class="font-weight-bold text-primary text-caption">{{ variant.sku || '---' }}</div>
+                                <div v-if="variant.barcode" class="text-grey text-xxs code-font"><v-icon icon="ri-barcode-line" size="10" class="me-1"/>{{ variant.barcode }}</div>
+                                <div v-if="variant.attributes && variant.attributes.length" class="d-flex flex-wrap gap-1 mt-1">
+                                  <v-chip
+                                    v-for="attr in variant.attributes"
+                                    :key="attr.id"
+                                    size="x-small"
+                                    variant="flat"
+                                    color="grey-lighten-4"
+                                    class="text-xxs border"
+                                  >
+                                    {{ attr.attribute?.name ? attr.attribute.name + ': ' : '' }}{{ attr.attribute_value?.name || attr.value?.name || '---' }}
+                                  </v-chip>
+                                </div>
+                              </div>
+                            </td>
                             <td v-if="mdAndUp" class="text-center text-caption px-2 py-1">{{ variant.cost > 0 ? formatCurrency(variant.cost) : '---' }}</td>
                             <td class="text-center text-primary font-weight-bold text-caption px-2 py-1">{{ formatCurrency(variant.retail_price) }}</td>
                             <td v-if="mdAndUp" class="text-center text-success font-weight-bold text-caption px-2 py-1">{{ variant.wholesale_price ? formatCurrency(variant.wholesale_price) : '---' }}</td>
@@ -337,7 +353,6 @@
                               <v-chip v-if="item.base_unit" size="x-small" color="primary" variant="tonal">{{ item.base_unit.name }}</v-chip>
                               <span v-else class="text-caption text-grey">---</span>
                             </td>
-                            <td v-if="mdAndUp" class="text-left text-caption code-font px-2 py-1">{{ variant.barcode || '---' }}</td>
                           </tr>
                         </tbody>
                       </v-table>
