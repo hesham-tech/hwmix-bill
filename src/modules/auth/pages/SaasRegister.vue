@@ -244,6 +244,59 @@
       @agree="form.agree = true"
       @disagree="form.agree = false"
     />
+
+    <!-- Existing User Dialog -->
+    <v-dialog v-model="showExistingUserDialog" max-width="500" persistent>
+      <v-card class="bg-grey-darken-4 border border-white-10">
+        <v-card-title class="text-warning font-weight-bold d-flex align-center gap-2 pa-4">
+          <i class="ri-error-warning-fill"></i>
+          حساب مسجل مسبقاً
+        </v-card-title>
+        <v-card-text class="pa-4 pt-0">
+          <div v-if="!showSupportInfo">
+            <p class="mb-4 text-white">لديك حساب عميل على إحدى الشركات على النظام.</p>
+            <p class="mb-4 text-grey-lighten-1">لإنشاء شركتك الجديدة تحت نفس الحساب، يرجى إدخال كلمة المرور الحالية الخاصة بك.</p>
+            
+            <AppPasswordInput 
+              v-model="passwordConfirm" 
+              placeholder="كلمة المرور الحالية" 
+              prepend-inner-icon="ri-lock-password-line"
+              density="compact"
+            />
+          </div>
+          <div v-else>
+            <p class="mb-4 text-white">يرجى التواصل مع الدعم الفني لمساعدتك في استعادة حسابك وإكمال التسجيل.</p>
+            <div class="d-flex align-center gap-2 mb-2">
+              <i class="ri-whatsapp-line text-success text-h5"></i>
+              <span class="text-white text-ltr">+20 100 000 0000</span>
+            </div>
+            <div class="d-flex align-center gap-2">
+              <i class="ri-mail-line text-info text-h5"></i>
+              <span class="text-white">support@hwnix.com</span>
+            </div>
+          </div>
+        </v-card-text>
+        <v-card-actions class="pa-4 pt-0 d-flex justify-space-between flex-wrap gap-2">
+          <div v-if="!showSupportInfo">
+            <v-btn v-if="existingUserData.has_email" color="primary" variant="text" size="small" @click="goToForgotPassword">
+              نسيت كلمة السر؟
+            </v-btn>
+            <v-btn v-else color="info" variant="text" size="small" @click="showSupportInfo = true">
+              تواصل مع الدعم الفني
+            </v-btn>
+          </div>
+          <div v-else>
+            <v-btn color="info" variant="text" size="small" @click="showSupportInfo = false">
+              العودة
+            </v-btn>
+          </div>
+          <div>
+            <v-btn color="grey" variant="text" @click="showExistingUserDialog = false">إلغاء</v-btn>
+            <v-btn v-if="!showSupportInfo" color="warning" variant="flat" :loading="loading" @click="submitWithPasswordConfirm">إكمال التسجيل</v-btn>
+          </div>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -257,12 +310,18 @@ import AppInput from '@/components/common/AppInput.vue';
 import AppPasswordInput from '@/components/common/AppPasswordInput.vue';
 import AppButton from '@/components/common/AppButton.vue';
 import RegistrationLegalDialog from '@/modules/auth/components/RegistrationLegalDialog.vue';
+import notificationManager from '@/services/notificationManager';
 
 const router = useRouter();
 const route = useRoute();
 const formRef = ref(null);
 const loading = ref(false);
 const showLegalDialog = ref(false);
+const showExistingUserDialog = ref(false);
+const existingUserData = ref({});
+const passwordConfirm = ref('');
+const showSupportInfo = ref(false);
+
 const form = ref({
   company_name: '', company_phone: '', address: '',
   full_name: '', phone: '', email: '', password: '',
@@ -388,10 +447,29 @@ const handleRegister = async () => {
     });
     router.push('/saas/login?registered=1');
   } catch (error) {
-    // Handled by interceptor
+    if (error.response?.status === 409 && error.response?.data?.data?.user_exists) {
+      existingUserData.value = error.response.data.data;
+      passwordConfirm.value = form.value.password;
+      showSupportInfo.value = false;
+      showExistingUserDialog.value = true;
+    }
   } finally {
     loading.value = false;
   }
+};
+
+const submitWithPasswordConfirm = async () => {
+  if (!passwordConfirm.value) {
+    notificationManager.error('يرجى إدخال كلمة المرور الحالية');
+    return;
+  }
+  form.value.password = passwordConfirm.value;
+  showExistingUserDialog.value = false;
+  await handleRegister();
+};
+
+const goToForgotPassword = () => {
+  router.push('/forgot-password');
 };
 </script>
 

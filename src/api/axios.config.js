@@ -261,6 +261,14 @@ apiClient.interceptors.response.use(
         });
       });
     } else {
+      // 409: Conflict
+      if (error?.response?.status === 409) {
+        // Skip toast if it's the "user exists" scenario which is handled by UI dialogs
+        if (error?.response?.data?.data?.user_exists) {
+          return Promise.reject(error);
+        }
+      }
+
       // Fallback for any other error status code not explicitly handled
       const fallbackMessage = error?.response?.data?.message || error?.message || 'حدث خطأ غير متوقع.';
       notificationManager.error(fallbackMessage, { code: 'UNEXPECTED_ERROR', domain: 'system' });
