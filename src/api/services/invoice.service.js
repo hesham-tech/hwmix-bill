@@ -1,5 +1,6 @@
 import BaseService from '../base.service';
 import apiClient from '../axios.config';
+import notificationManager from '@/services/notificationManager';
 
 /**
  * Invoice Service

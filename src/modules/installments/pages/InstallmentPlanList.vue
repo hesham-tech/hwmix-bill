@@ -253,6 +253,7 @@ import { useApi } from '@/composables/useApi';
 import { useDataTable } from '@/composables/useDataTable';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import { AppPageHeader, AppDataTable, AppUserBalanceProfile } from '@/components';
+import notificationManager from '@/services/notificationManager';
 
 // --- Initialization ---
 const router = useRouter();
@@ -398,13 +399,9 @@ const deletePlan = async () => {
 
     deleteDialog.value = false;
     planToDelete.value = null;
-    import('vue3-toastify').then(({ toast }) => {
-      notificationManager.success('تم حذف الخطة والفاتورة بنجاح');
-    });
+    notificationManager.success('تم حذف الخطة والفاتورة بنجاح');
   } catch (error) {
-    import('vue3-toastify').then(({ toast }) => {
-      notificationManager.error('فشل حذف الخطة: ' + (error.response?.data?.message || error.message));
-    });
+    notificationManager.error('فشل حذف الخطة: ' + (error.response?.data?.message || error.message));
   } finally {
     deleting.value = false;
   }

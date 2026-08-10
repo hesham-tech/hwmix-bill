@@ -1,6 +1,7 @@
 import BaseService from '../base.service';
 import apiClient from '../axios.config';
 import { useUserStore } from '@/stores/user';
+import notificationManager from '@/services/notificationManager';
 
 /**
  * Report Service

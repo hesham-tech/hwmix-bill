@@ -82,7 +82,14 @@ const logger = {
       if (this.isDuplicate(errorData)) return;
 
       // 3. Exclude specific noise
-      const excludedMessages = ['ResizeObserver loop completed', 'Suspense is an experimental feature', 'Script error.'];
+      const excludedMessages = [
+        'ResizeObserver loop completed',
+        'Suspense is an experimental feature',
+        'Script error.',
+        'status code 401',
+        'Request failed with status code 401',
+        'Unauthenticated.',
+      ];
       if (excludedMessages.some(m => message.includes(m))) return;
 
       const payload = {

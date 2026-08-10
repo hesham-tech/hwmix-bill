@@ -28,15 +28,17 @@ onErrorCaptured((err) => {
   // فحص أخطاء الاتصال بالخادم والتحقق
   const response = err.response || err.config?.metadata?.error?.response;
   if (response) {
+    const serverMessage = response.data?.message;
     if (response.status === 422) {
-      const message = response.data?.message || 'يرجى التحقق من صحة المدخلات والحقول.';
+      const message = serverMessage || 'يرجى التحقق من صحة المدخلات والحقول.';
       notificationManager.error(message);
     } else {
-      notificationManager.error('حدث خطأ في السيرفر، يرجى إعادة تحميل الصفحة.');
+      const message = serverMessage || 'حدث خطأ في السيرفر، يرجى إعادة تحميل الصفحة.';
+      notificationManager.error(message);
     }
   } else {
     // خطأ برمجي داخلي في الجافا سكريبت أو مشكلة تحميل
-    notificationManager.error('هناك خطأ ما، يرجى إعادة تحميل الصفحة.');
+    notificationManager.error(err.message || 'هناك خطأ ما، يرجى إعادة تحميل الصفحة.');
   }
   
   return false; // منع انتشار الخطأ في المتصفح وتأثيره على بقية العناصر

@@ -101,6 +101,7 @@ import { ref, computed, watch, onMounted, nextTick } from 'vue';
 import apiClient from '@/api/axios.config';
 import { debounce, highlightText } from '@/utils/helpers';
 import AppFieldHelp from '@/components/common/AppFieldHelp.vue';
+import notificationManager from '@/services/notificationManager';
 
 const props = defineProps({
   modelValue: {
@@ -298,7 +299,6 @@ const handleCreate = async () => {
 
     // Show message if it's a similarity match or existing found
     if (response.data?.message && response.status === 200) {
-      const { toast } = await import('vue3-toastify');
       notificationManager.info(response.data.message);
     }
 

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { resolveBaseUrl } from '../axios.config';
 
 /**
  * Error Report Service
@@ -9,7 +10,7 @@ class ErrorReportService {
   constructor() {
     this.resource = 'error-reports';
     this.client = axios.create({
-      baseURL: (import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : import.meta.env.VITE_API_BASE_URL) || '/api',
+      baseURL: resolveBaseUrl(),
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
