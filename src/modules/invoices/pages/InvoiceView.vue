@@ -72,6 +72,7 @@
               <thead>
                 <tr>
                   <th class="text-right">المنتج</th>
+                  <th class="text-center">الباركود</th>
                   <th class="text-center">الكمية</th>
                   <th class="text-left">سعر الوحدة</th>
                   <th class="text-left">الخصم</th>
@@ -93,9 +94,17 @@
                       />
                       <div>
                         <div class="font-weight-bold">{{ item.name }}</div>
-                        <div v-if="item.product?.code" class="text-caption text-grey">كود: {{ item.product.code }}</div>
+                        <div v-if="item.variant?.attributes_text || item.attributes_text" class="text-caption text-primary font-weight-medium">
+                          {{ item.variant?.attributes_text || item.attributes_text }}
+                        </div>
+                        <div v-else-if="item.product?.code" class="text-caption text-grey">كود: {{ item.product.code }}</div>
                       </div>
                     </div>
+                  </td>
+                  <td class="text-center">
+                    <span dir="ltr" class="text-body-2 font-weight-medium text-grey-darken-2 font-mono">
+                      {{ item.barcode || item.variant?.barcode || item.product?.barcode || '---' }}
+                    </span>
                   </td>
                   <td class="text-center">
                     <v-chip size="small" variant="tonal" color="primary" class="font-weight-bold">{{ item.quantity }}</v-chip>
@@ -146,7 +155,15 @@
                     />
                     <div class="flex-grow-1">
                       <div class="font-weight-bold text-body-2 line-clamp-1">{{ item.name }}</div>
-                      <div class="text-caption text-grey">كود: {{ item.product?.code || '---' }}</div>
+                      <div v-if="item.variant?.attributes_text || item.attributes_text" class="text-caption text-primary font-weight-medium">
+                        {{ item.variant?.attributes_text || item.attributes_text }}
+                      </div>
+                      <div class="text-caption text-grey">
+                        <span v-if="item.barcode || item.variant?.barcode || item.product?.barcode" dir="ltr" class="font-mono">
+                          باركود: {{ item.barcode || item.variant?.barcode || item.product?.barcode }}
+                        </span>
+                        <span v-else-if="item.product?.code">كود: {{ item.product.code }}</span>
+                      </div>
                     </div>
                     <v-chip size="x-small" color="primary" variant="flat" class="font-weight-bold"> {{ item.quantity }} قطعة </v-chip>
                   </div>

@@ -147,6 +147,7 @@ const selectedCustomerObj = ref(null);
 const isQuickAddCustomerOpen = ref(false);
 const isQuickAddProductOpen = ref(false);
 const showProfit = ref(false);
+const isInitializing = ref(true);
 
 const invoiceData = ref({
   user_id: null,
@@ -351,7 +352,7 @@ const handleQuickProductSave = product => {
 watch(
   () => invoiceData.value.price_type,
   () => {
-    if (!invoiceData.value.items.length) return;
+    if (isInitializing.value || !invoiceData.value.items.length) return;
 
     invoiceData.value.items.forEach(item => {
       item.unit_price = getItemPrice(item);
@@ -364,7 +365,7 @@ watch(
 watch(
   () => selectedCustomerObj.value?.id,
   newId => {
-    if (newId) {
+    if (!isInitializing.value && newId) {
       invoiceData.value.price_type = selectedCustomerObj.value?.customer_type === 'wholesale' ? 'wholesale' : 'retail';
     }
   }
@@ -378,7 +379,7 @@ watch(
     invoiceData.value.include_previous_balance = !disabledContexts.includes(newContext);
 
     // If changing the invoice type manually after initialization
-    if (oldContext && oldContext !== newContext) {
+    if (!isInitializing.value && oldContext && oldContext !== newContext) {
       // 1. Reset user (supplier vs customer are different domains)
       selectedCustomerObj.value = null;
       invoiceData.value.user_id = null;
@@ -582,8 +583,9 @@ const fetchInvoice = async () => {
           product_id: item.product_id,
           variant_id: item.variant_id,
           name: item.name,
-          sku: variant?.sku || item.product?.sku,
-          barcode: variant?.barcode || item.product?.barcode,
+          sku: item.sku || variant?.sku || item.product?.sku,
+          barcode: item.barcode || variant?.barcode || item.product?.barcode,
+          attributes_text: item.attributes_text || variant?.attributes_text || '',
           variant_name: variant?.sku,
           quantity: parseFloat(item.quantity || 0),
           max_quantity: parseFloat(item.quantity || 0) + (variant ? parseFloat(variant.quantity || 0) : 0),
@@ -630,9 +632,13 @@ const fetchInvoice = async () => {
 // ... watch ...
 
 onMounted(async () => {
-  await loadLookups();
-  if (isEdit.value) {
-    await fetchInvoice();
+  try {
+    await loadLookups();
+    if (isEdit.value) {
+      await fetchInvoice();
+    }
+  } finally {
+    isInitializing.value = false;
   }
 });
 </script>
