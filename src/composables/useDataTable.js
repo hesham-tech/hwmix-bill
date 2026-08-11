@@ -68,11 +68,14 @@ export function useDataTable(fetchFunction, options = {}) {
   const totalPages = computed(() => lastPage.value);
 
   const sortByVuetify = computed({
-    get: () => [{ key: sortBy.value, order: sortOrder.value }],
+    get: () => (sortBy.value ? [{ key: sortBy.value, order: sortOrder.value || 'asc' }] : []),
     set: val => {
       if (val && val.length > 0) {
         sortBy.value = val[0].key;
         sortOrder.value = val[0].order || 'asc';
+      } else {
+        sortBy.value = initialSortBy;
+        sortOrder.value = initialSortOrder;
       }
     },
   });
@@ -334,8 +337,20 @@ export function useDataTable(fetchFunction, options = {}) {
         fetchData();
       }
     },
-    { deep: true }
-  );
+  // مراقبة الترتيب (sortBy & sortOrder)
+  watch([sortBy, sortOrder], ([newSortBy, newSortOrder]) => {
+    if (syncWithUrl) {
+      if (
+        String(newSortBy || '') !== String(route.query.sort_by || '') ||
+        String(newSortOrder || '') !== String(route.query.sort_order || '')
+      ) {
+        updateUrl({ sort_by: newSortBy, sort_order: newSortOrder, page: 1 });
+      }
+    } else {
+      currentPage.value = 1;
+      fetchData();
+    }
+  });
 
   if (syncWithUrl) {
     watch(

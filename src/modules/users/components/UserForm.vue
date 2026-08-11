@@ -393,7 +393,12 @@ const handleLookup = async field => {
   }
 };
 
+const getActiveCompanyId = () => globalUserStore.currentCompany?.id || (globalUserStore.companies && globalUserStore.companies[0]?.id);
+const getActiveBranchId = () => (branchStore.activeBranchId && branchStore.activeBranchId !== 'all' ? branchStore.activeBranchId : (branchStore.branches && branchStore.branches[0]?.id));
+
 const resetForm = () => {
+  const compId = getActiveCompanyId();
+  const branchId = getActiveBranchId();
   form.value = {
     full_name: '',
     nickname: '',
@@ -406,13 +411,18 @@ const resetForm = () => {
     address: '',
     notes: '',
     images_ids: [],
-    relation_types: [],
+    relation_types: ['customer'],
     starting_balances: { receivable: 0, payable: 0 },
+    company_ids: compId ? [compId] : [],
+    branch_ids: branchId ? [branchId] : [],
   };
   imagePreview.value = null;
   lookupResult.value = null;
   fieldValid.value = { phone: false, email: false };
 };
+
+const initialCompId = getActiveCompanyId();
+const initialBranchId = getActiveBranchId();
 
 const form = ref({
   full_name: '',
@@ -426,10 +436,18 @@ const form = ref({
   address: '',
   notes: '',
   images_ids: [],
-  relation_types: props.modelValue?.relation_types || [],
+  relation_types: (props.modelValue?.relation_types && props.modelValue.relation_types.length > 0) ? props.modelValue.relation_types : ['customer'],
   starting_balances: props.modelValue?.starting_balances || { receivable: 0, payable: 0 },
-  company_ids: props.modelValue?.companies?.map(c => c.id) || [],
-  branch_ids: props.modelValue?.branch_ids || props.modelValue?.branches?.map(b => b.id) || [],
+  company_ids: (props.modelValue?.company_ids && props.modelValue.company_ids.length > 0)
+    ? props.modelValue.company_ids
+    : (props.modelValue?.companies && props.modelValue.companies.length > 0)
+      ? props.modelValue.companies.map(c => c.id)
+      : (initialCompId ? [initialCompId] : []),
+  branch_ids: (props.modelValue?.branch_ids && props.modelValue.branch_ids.length > 0)
+    ? props.modelValue.branch_ids
+    : (props.modelValue?.branches && props.modelValue.branches.length > 0)
+      ? props.modelValue.branches.map(b => b.id)
+      : (initialBranchId ? [initialBranchId] : []),
   ...props.modelValue,
 });
 
