@@ -58,6 +58,19 @@
                     <span>حذف المحدد ({{ selectedItems.length }})</span>
                   </AppButton>
                   <AppButton
+                    color="grey-darken-1"
+                    variant="tonal"
+                    prepend-icon="ri-refresh-line"
+                    size="small"
+                    class="rounded-pill shadow-sm tour-product-refresh"
+                    style="height: 40px"
+                    :loading="loading"
+                    tooltip="إعادة تحميل البيانات"
+                    @click="fetchData()"
+                  >
+                    <span class="d-none d-sm-inline">تحديث</span>
+                  </AppButton>
+                  <AppButton
                     v-if="canAny(PERMISSIONS.PRODUCTS_EXPORT)"
                     color="grey-darken-1"
                     variant="tonal"

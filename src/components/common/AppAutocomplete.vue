@@ -327,7 +327,8 @@ const handleCreate = async () => {
     emit('created', newItem);
   } catch (error) {
     console.error('Error creating new item:', error);
-    // Error is already handled by axios interceptor toast
+    const msg = error?.response?.data?.message || error?.message || 'حدث خطأ أثناء إضافة العنصر الجديد';
+    notificationManager.error(msg);
   } finally {
     creating.value = false;
   }
