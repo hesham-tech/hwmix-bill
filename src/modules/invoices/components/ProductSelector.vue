@@ -50,15 +50,25 @@
           </template>
           <template #subtitle>
             <div class="d-flex flex-column gap-1">
-              <div class="d-flex align-center gap-2">
-                <span class="text-caption text-secondary">
-                  {{ item.raw.type === 'product' ? 'SKU:' : 'النوع:' }}
-                  <span v-html="highlightText(item.raw.display_subtitle || 'N/A', searchQuery)"></span>
-                </span>
-                <v-divider v-if="item.raw.type === 'product'" vertical class="mx-1" length="12" />
-                <span v-if="item.raw.type === 'product'" class="text-caption text-secondary">
-                  الباركود: <span v-html="highlightText(item.raw.barcode || 'N/A', searchQuery)"></span>
-                </span>
+              <div class="d-flex align-center gap-2 flex-wrap">
+                <template v-if="item.raw.type === 'product'">
+                  <span v-if="item.raw.attributes_text" class="text-caption text-primary font-weight-medium">
+                    <v-icon icon="ri-price-tag-3-line" size="12" class="me-1" />
+                    <span v-html="highlightText(item.raw.attributes_text, searchQuery)"></span>
+                  </span>
+                  <span v-else class="text-caption text-secondary">
+                    SKU: <span v-html="highlightText(item.raw.display_subtitle || 'N/A', searchQuery)"></span>
+                  </span>
+                  <v-divider vertical class="mx-1" length="12" />
+                  <span class="text-caption text-secondary">
+                    الباركود: <span v-html="highlightText(item.raw.barcode || 'N/A', searchQuery)"></span>
+                  </span>
+                </template>
+                <template v-else>
+                  <span class="text-caption text-secondary">
+                    النوع: <span v-html="highlightText(item.raw.display_subtitle || 'خدمة', searchQuery)"></span>
+                  </span>
+                </template>
               </div>
               <div class="d-flex justify-space-between align-center mt-1">
                 <v-chip
@@ -151,13 +161,20 @@ const combinedItems = computed(() => {
 
   // Map variants to common structure
   variants.value.forEach(v => {
+    const attrsFormatted = v.attributes_text || (v.attributes?.map(a => {
+      const name = a.attribute?.name;
+      const val = a.attribute_value?.name;
+      return (name && val) ? `${name}: ${val}` : (val || '');
+    }).filter(Boolean).join(' | ') || '');
+
     result.push({
       ...v,
       id: `v-${v.id}`,
       originalId: v.id,
       type: 'product',
       display_name: v.product_name,
-      display_subtitle: v.sku || 'N/A',
+      display_subtitle: attrsFormatted || v.sku || 'N/A',
+      attributes_text: attrsFormatted,
     });
   });
 
@@ -248,10 +265,14 @@ const addItemInstant = item => {
     };
   } else {
     const variant = item;
-    const attributesText = variant.attributes
-      ?.map(attr => attr.attribute_value?.name)
+    const attributesText = variant.attributes_text || variant.attributes
+      ?.map(attr => {
+        const name = attr.attribute?.name;
+        const val = attr.attribute_value?.name;
+        return (name && val) ? `${name}: ${val}` : (val || '');
+      })
       .filter(Boolean)
-      .join(' - ');
+      .join(' | ');
 
     const allowedUnits = [];
     if (variant.base_unit) allowedUnits.push(variant.base_unit);
