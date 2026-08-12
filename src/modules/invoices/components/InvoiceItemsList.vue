@@ -47,8 +47,9 @@
                   <div class="line-height-1 overflow-hidden" style="max-width: 300px">
                     <div class="text-caption font-weight-bold text-truncate">{{ item.name }}</div>
                     <div class="d-flex flex-column gap-0 mt-1">
-                      <div v-if="item.attributes_text" class="text-xxs text-secondary text-truncate">
-                        {{ item.attributes_text }}
+                      <div v-if="getItemAttributesText(item)" class="text-xxs text-primary font-weight-medium text-truncate">
+                        <v-icon icon="ri-price-tag-3-line" size="10" class="me-1" />
+                        {{ getItemAttributesText(item) }}
                       </div>
                       <div class="d-flex align-center gap-2 text-xxs text-grey-darken-1 text-truncate">
                         <span v-if="item.sku || item.variant_name" class="font-weight-medium text-uppercase">{{ item.sku || item.variant_name }}</span>
@@ -194,6 +195,25 @@ import { nextTick, ref } from 'vue';
 const stockErrorItems = ref(new Set());
 
 const isItemError = item => stockErrorItems.value.has(item);
+
+const getItemAttributesText = item => {
+  if (!item) return '';
+  if (item.attributes_text) return item.attributes_text;
+  if (item.variant?.attributes_text) return item.variant.attributes_text;
+
+  const attrs = item.attributes || item.variant?.attributes;
+  if (attrs && Array.isArray(attrs) && attrs.length > 0) {
+    return attrs
+      .map(a => {
+        const name = a.attribute?.name || a.name;
+        const val = a.attribute_value?.name || a.value?.name || a.val || a.value;
+        return name && val ? `${name}: ${val}` : (val || name || '');
+      })
+      .filter(Boolean)
+      .join(' - ');
+  }
+  return '';
+};
 
 const getSellingPriceForCurrentUnit = item => {
   if (!item) return 0;
