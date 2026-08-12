@@ -59,11 +59,27 @@
                       label="المبلغ المدفوع"
                       type="number"
                       density="compact"
-                      hide-details
+                      :hide-details="!errors.paid_amount"
+                      :error-messages="errors.paid_amount"
                       prefix="ج.م"
                       class="font-weight-black success-field"
                       @update:model-value="$emit('update:prop', { key: 'paid_amount', value: $event })"
-                    />
+                    >
+                      <template #append-inner>
+                        <v-tooltip text="دفع كامل المستحق" location="top">
+                          <template #activator="{ props: tooltipProps }">
+                            <v-btn
+                              v-bind="tooltipProps"
+                              icon="ri-check-double-line"
+                              size="x-small"
+                              variant="text"
+                              color="success"
+                              @click="$emit('update:prop', { key: 'paid_amount', value: financials.total_balance })"
+                            />
+                          </template>
+                        </v-tooltip>
+                      </template>
+                    </AppInput>
                   </v-col>
                   <v-col cols="6">
                     <AppInput

@@ -361,14 +361,22 @@ watch(
   }
 );
 
-// Watch for customer changes to update default price type
+// Watch for customer changes to update default price type and sync paid_amount for default cash customer
 watch(
   () => selectedCustomerObj.value?.id,
   newId => {
-    if (!isInitializing.value && newId) {
-      invoiceData.value.price_type = selectedCustomerObj.value?.customer_type === 'wholesale' ? 'wholesale' : 'retail';
+    if (newId) {
+      if (!isInitializing.value) {
+        invoiceData.value.price_type = selectedCustomerObj.value?.customer_type === 'wholesale' ? 'wholesale' : 'retail';
+      }
+      const isDefaultCash = selectedCustomerObj.value?.id === userStore.currentCompany?.default_cash_customer_id
+        || selectedCustomerObj.value?.is_default_cash_customer;
+      if (isDefaultCash && currentContext.value !== 'purchase') {
+        invoiceData.value.paid_amount = financials.value.total_balance;
+      }
     }
-  }
+  },
+  { immediate: true }
 );
 
 // Watch for context changes to update include_previous_balance and reset logic
@@ -395,10 +403,18 @@ watch(
   { immediate: true }
 );
 
-// Sync installment calculator total if it's open
+// Sync installment calculator total and auto-sync paid_amount for default cash customer
 watch(
   () => financials.value.total_balance,
-  newTotal => {
+  (newTotal, oldTotal) => {
+    const isDefaultCash = selectedCustomerObj.value?.id === userStore.currentCompany?.default_cash_customer_id
+      || selectedCustomerObj.value?.is_default_cash_customer;
+    if (isDefaultCash && currentContext.value !== 'purchase') {
+      if (invoiceData.value.paid_amount === 0 || invoiceData.value.paid_amount === oldTotal || isInitializing.value) {
+        invoiceData.value.paid_amount = newTotal;
+      }
+    }
+
     if (appState.installmentCalc.isOpen && appState.installmentCalc.mode === 'invoice') {
       appState.installmentCalc.initialTotal = newTotal;
     }
