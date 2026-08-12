@@ -24,6 +24,7 @@
           <thead>
             <tr class="bg-neutral-lighten-5">
               <th class="text-right ps-4">الصنف</th>
+              <th v-if="invoiceType === 'purchase'" class="text-center" style="width: 110px">سعر البيع</th>
               <th class="text-center" style="width: 120px">الوحدة</th>
               <th class="text-center" style="width: 120px">الكمية</th>
               <th class="text-center" style="width: 140px">سعر الوحدة</th>
@@ -57,6 +58,11 @@
                     </div>
                   </div>
                 </div>
+              </td>
+              <td v-if="invoiceType === 'purchase'" width="110" class="px-1 py-1 text-center">
+                <span class="text-caption font-weight-bold text-success">
+                  {{ formatCurrency(getSellingPriceForCurrentUnit(item)) }}
+                </span>
               </td>
               <td width="120" class="px-1 py-1 text-center">
                 <v-select
@@ -188,6 +194,28 @@ import { nextTick, ref } from 'vue';
 const stockErrorItems = ref(new Set());
 
 const isItemError = item => stockErrorItems.value.has(item);
+
+const getSellingPriceForCurrentUnit = item => {
+  if (!item) return 0;
+  if (item.product_type === 'service') return item.default_price || item.unit_price || 0;
+
+  const unitId = item.unit_id;
+  const customPrice = item.unit_prices?.find(up => up.unit_id === unitId);
+  if (customPrice && (customPrice.price || customPrice.retail_price)) {
+    return parseFloat(customPrice.price || customPrice.retail_price);
+  }
+
+  let factor = 1.0;
+  if (unitId && unitId !== item.base_unit_id) {
+    const vu = item.units?.find(u => u.unit_id === unitId);
+    if (vu) {
+      factor = parseFloat(vu.conversion_factor_to_base) || 1.0;
+    }
+  }
+
+  const baseRetailPrice = parseFloat(item.retail_price) || 0;
+  return baseRetailPrice * factor;
+};
 
 const handleUnitChange = (item, unitId) => {
   // 1. فحص ما إذا كان هناك سعر وحدة مخصص معرف لهذا المتغير والوحدة
