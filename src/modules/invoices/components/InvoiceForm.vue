@@ -672,9 +672,9 @@ const fetchReturnInvoice = async (returnFromId) => {
     const response = await invoiceApi.getById(returnFromId);
     const originalInvoice = response.data;
     
-    // Determine return type
-    const isSale = ['sale', 'sales'].includes(originalInvoice.invoice_type?.code);
-    const returnTypeCode = isSale ? 'return_sale' : 'return_purchase';
+    // Determine return type based on exact DB codes
+    const isSale = ['sale', 'sales', 'installment_sale'].includes(originalInvoice.invoice_type?.code);
+    const returnTypeCode = isSale ? 'sale_return' : 'purchase_return';
     const targetType = invoiceTypes.value.find(t => t.code === returnTypeCode);
     
     const data = {

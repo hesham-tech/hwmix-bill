@@ -703,7 +703,7 @@ const productData = ref(getInitialProductData());
 if (!props.productId) {
   // If in quick add mode, pre-fill with the searched name
   if (props.initialName) {
-    form.value.name = props.initialName;
+    productData.value.name = props.initialName;
   }
   productData.value.variants = [
     {
