@@ -92,6 +92,21 @@ export const useHwnixCashLineStore = defineStore('hwnix-cash-line', () => {
     }
   }
 
+  async function forceDeleteLine(deviceId, slotIndex) {
+    loading.value = true;
+    try {
+      const response = await hwnixCashLineService.forceDelete(deviceId, slotIndex);
+      notificationManager.success('تم حذف الخط وجميع بياناته نهائياً بنجاح');
+      await fetchLines();
+      return response;
+    } catch (error) {
+      console.error('Error force deleting line:', error);
+      throw error;
+    } finally {
+      loading.value = false;
+    }
+  }
+
   function resetFilters() {
     statusFilter.value = null;
     providerFilter.value = null;
@@ -106,6 +121,6 @@ export const useHwnixCashLineStore = defineStore('hwnix-cash-line', () => {
     // Computed
     params,
     // Actions
-    fetchLines, fetchLine, updateLine, reconcileLine, resetFilters,
+    fetchLines, fetchLine, updateLine, reconcileLine, forceDeleteLine, resetFilters,
   };
 });

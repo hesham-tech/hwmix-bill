@@ -284,6 +284,18 @@
               />
             </template>
           </v-tooltip>
+          <v-tooltip text="حذف الشريحة وكل ما يتعلق بها نهائياً" location="top">
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+                icon="ri-delete-bin-line"
+                size="small"
+                variant="text"
+                color="error"
+                @click="confirmDeleteLineItem(item)"
+              />
+            </template>
+          </v-tooltip>
         </div>
       </template>
     </AppDataTable>
@@ -692,6 +704,29 @@
       </v-card>
     </v-dialog>
 
+    <!-- Dialog تأكيد حذف الشريحة نهائيا -->
+    <v-dialog v-model="lineDeleteDialog" max-width="420">
+      <v-card rounded="xl">
+        <v-card-title class="text-h6 pa-6 pb-2 text-error d-flex align-center gap-2">
+          <v-icon icon="ri-error-warning-line" color="error" />
+          تأكيد حذف الخط نهائياً
+        </v-card-title>
+        <v-card-text class="pa-6 pt-2">
+          هل أنت متأكد من رغبتك في حذف الخط <strong>{{ deletingLine?.phone_number || 'هذا الخط' }}</strong> نهائياً؟
+          <br><br>
+          <strong class="text-error">تحذير خطير:</strong> سيؤدي هذا الإجراء إلى حذف جميع الحسابات المالية التابعة للخط، وجميع الرسائل والمعاملات المرتبطة به. إذا كان الهاتف غير مرتبط بخطوط أخرى فسيتم إزالة ربط الهاتف أيضاً. هذا الإجراء لا يمكن التراجع عنه!
+        </v-card-text>
+        <v-divider />
+        <v-card-actions class="pa-4 gap-2">
+          <v-spacer />
+          <AppButton variant="text" @click="lineDeleteDialog = false">إلغاء</AppButton>
+          <AppButton color="error" :loading="store.loading" prepend-icon="ri-delete-bin-line" @click="executeLineDelete">
+            نعم، احذف نهائياً
+          </AppButton>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <!-- ════════════════════════════════════════════════════════════════ -->
     <!-- Dialog إدارة الأجهزة (مدمج هنا بدلاً من صفحة مستقلة)          -->
     <!-- ════════════════════════════════════════════════════════════════ -->
@@ -1091,6 +1126,22 @@ function applyFilters(filters) {
   store.statusFilter = filters.is_active ?? null;
   store.page = 1;
   store.fetchLines();
+}
+
+// ─── دوال حذف الخط نهائيا ───────────────────────────────────────────────────
+const lineDeleteDialog = ref(false);
+const deletingLine = ref(null);
+
+function confirmDeleteLineItem(item) {
+  deletingLine.value = item;
+  lineDeleteDialog.value = true;
+}
+
+async function executeLineDelete() {
+  if (!deletingLine.value) return;
+  await store.forceDeleteLine(deletingLine.value.device_id, deletingLine.value.slot_index);
+  lineDeleteDialog.value = false;
+  deletingLine.value = null;
 }
 
 // ─── دوال الأجهزة ─────────────────────────────────────────────────────────────
