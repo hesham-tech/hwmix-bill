@@ -337,6 +337,9 @@ export function useDataTable(fetchFunction, options = {}) {
         fetchData();
       }
     },
+    { deep: true }
+  );
+
   // مراقبة الترتيب (sortBy & sortOrder)
   watch([sortBy, sortOrder], ([newSortBy, newSortOrder]) => {
     if (syncWithUrl) {

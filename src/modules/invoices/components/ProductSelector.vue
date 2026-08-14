@@ -1,29 +1,32 @@
 <template>
-  <div>
+  <div class="product-selector-wrapper">
     <!-- Variant autocomplete -->
     <AppAutocomplete
+      ref="autocompleteRef"
       v-model="selectedItem"
       :items="combinedItems"
       :loading="loading"
       :search="searchQuery"
       item-title="display_name"
       item-value="id"
-      label="ابحث عن الصنف أو الخدمة *"
-      placeholder="ابدأ البحث... (مثلاً: سامسونج)"
+      label="ابحث باسم الصنف أو الباركود..."
+      placeholder="اسم الصنف أو الباركود... (مثال: سامسونج)"
       prepend-inner-icon="ri-search-2-line"
       clearable
       return-object
       no-filter
       rounded="md"
       variant="outlined"
-      density="comfortable"
+      density="compact"
+      class="inline-product-autocomplete"
       @update:search="handleSearch"
+      @keydown.enter="handleEnterKey"
     >
       <!-- Custom item -->
       <template #item="{ props, item }">
         <v-list-item
           v-bind="props"
-          class="py-2 px-4 search-item-hover"
+          class="py-2 px-3 search-item-hover"
           :disabled="item.raw.type === 'product' && invoiceType !== 'purchase' && item.raw.requires_stock && item.raw.quantity <= 0"
           :style="
             item.raw.type === 'product' && invoiceType !== 'purchase' && item.raw.requires_stock && item.raw.quantity <= 0
@@ -35,22 +38,28 @@
             <AppAvatar
               :img-url="item.raw.type === 'product' ? item.raw.primary_image_url : null"
               :name="item.raw.display_name"
-              size="44"
+              size="38"
               rounded="md"
               :type="item.raw.type === 'product' ? 'product' : 'service'"
               border
+              class="me-2"
             />
           </template>
           <template #title>
-            <div
-              class="font-weight-bold text-truncate mb-1"
-              style="font-size: 0.95rem"
-              v-html="highlightText(item.raw.display_name, searchQuery)"
-            ></div>
+            <div class="d-flex align-center justify-space-between gap-2">
+              <div
+                class="font-weight-bold text-truncate"
+                style="font-size: 0.9rem"
+                v-html="highlightText(item.raw.display_name, searchQuery)"
+              ></div>
+              <div class="text-primary font-weight-black text-no-wrap" style="font-size: 0.95rem">
+                {{ formatCurrency(item.raw.type === 'product' ? getVariantPrice(item.raw) : item.raw.default_price) }}
+              </div>
+            </div>
           </template>
           <template #subtitle>
-            <div class="d-flex flex-column gap-1">
-              <div class="d-flex align-center gap-2 flex-wrap">
+            <div class="d-flex flex-column gap-1 mt-1">
+              <div class="d-flex align-center gap-2 flex-wrap text-caption text-secondary">
                 <template v-if="item.raw.type === 'product'">
                   <span v-if="item.raw.attributes_text" class="text-caption text-primary font-weight-medium">
                     <v-icon icon="ri-price-tag-3-line" size="12" class="me-1" />
@@ -60,14 +69,12 @@
                     SKU: <span v-html="highlightText(item.raw.display_subtitle || 'N/A', searchQuery)"></span>
                   </span>
                   <v-divider vertical class="mx-1" length="12" />
-                  <span class="text-caption text-secondary">
-                    الباركود: <span v-html="highlightText(item.raw.barcode || 'N/A', searchQuery)"></span>
+                  <span v-if="item.raw.barcode">
+                    الباركود: <span class="font-weight-bold text-grey-darken-2" v-html="highlightText(item.raw.barcode, searchQuery)"></span>
                   </span>
                 </template>
                 <template v-else>
-                  <span class="text-caption text-secondary">
-                    النوع: <span v-html="highlightText(item.raw.display_subtitle || 'خدمة', searchQuery)"></span>
-                  </span>
+                  <span>خدمة إضافية</span>
                 </template>
               </div>
               <div class="d-flex justify-space-between align-center mt-1">
@@ -77,48 +84,33 @@
                   :color="item.raw.quantity > 0 ? 'success' : 'error'"
                   variant="tonal"
                   class="font-weight-bold"
-                  :label="item.raw.requires_stock && item.raw.quantity <= 0"
                 >
-                  <v-icon v-if="item.raw.requires_stock && item.raw.quantity <= 0" start icon="ri-close-circle-line" size="12" />
-                  {{ item.raw.quantity > 0 ? 'متوفر: ' + item.raw.quantity : 'نفذ المخزون' }}
+                  <v-icon v-if="item.raw.requires_stock && item.raw.quantity <= 0" start icon="ri-close-circle-line" size="10" />
+                  {{ item.raw.quantity > 0 ? 'متوفر: ' + item.raw.quantity : (item.raw.requires_stock ? 'نفذ المخزون' : 'غير محدود') }}
                 </v-chip>
                 <v-chip v-else size="x-small" color="secondary" variant="tonal" class="font-weight-bold">
-                  <v-icon start icon="ri-customer-service-2-line" size="12" />
+                  <v-icon start icon="ri-customer-service-2-line" size="10" />
                   خدمة
                 </v-chip>
-                <div class="text-primary font-weight-bold" style="font-size: 1rem">
-                  {{ formatCurrency(item.raw.type === 'product' ? getVariantPrice(item.raw) : item.raw.default_price) }}
-                </div>
               </div>
             </div>
           </template>
         </v-list-item>
       </template>
 
-      <!-- Append Item for Quick Add -->
-      <template #append-item>
-        <v-divider />
-        <v-list-item class="py-3" @click="$emit('create-product')">
-          <template #prepend>
-            <v-avatar color="primary-lighten-5" size="32">
-              <v-icon icon="ri-add-line" color="primary" />
-            </v-avatar>
-          </template>
-          <v-list-item-title class="text-primary font-weight-bold">إضافة منتج غير موجود...</v-list-item-title>
-          <v-list-item-subtitle>سيفتح نافذة إضافة منتج سريع</v-list-item-subtitle>
-        </v-list-item>
-      </template>
+
 
       <!-- No data state -->
       <template #no-data>
-        <v-list-item class="py-3" @click="$emit('create-product')">
+        <v-list-item class="py-2" @click="$emit('create-product', searchQuery)">
           <template #prepend>
-            <v-avatar color="primary-lighten-5" size="32">
-              <v-icon icon="ri-add-line" color="primary" />
+            <v-avatar color="primary-lighten-5" size="28">
+              <v-icon icon="ri-add-line" color="primary" size="16" />
             </v-avatar>
           </template>
-          <v-list-item-title class="text-primary font-weight-bold">لا توجد نتائج. إضافة منتج جديد؟</v-list-item-title>
-          <v-list-item-subtitle>اضغط هنا لإنشاء "{{ searchQuery }}" كمنتج جديد</v-list-item-subtitle>
+          <v-list-item-title class="text-primary font-weight-bold text-caption">
+            لا توجد نتائج. إضافة "{{ searchQuery }}" كمنتج جديد؟
+          </v-list-item-title>
         </v-list-item>
       </template>
     </AppAutocomplete>
@@ -126,7 +118,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, nextTick } from 'vue';
 import { useApi } from '@/composables/useApi';
 import { highlightText } from '@/utils/helpers';
 import { formatCurrency } from '@/utils/formatters';
@@ -142,7 +134,10 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['add', 'create-product']);
+const emit = defineEmits(['add', 'select-item', 'create-product']);
+
+// Ref for autocomplete component
+const autocompleteRef = ref(null);
 
 // API
 const variantApi = useApi('/api/product-variants/search-by-product');
@@ -218,14 +213,12 @@ const handleSearch = query => {
 
   searchTimeout = setTimeout(() => {
     loadResults(query);
-  }, 400);
+  }, 300);
 };
 
 const loadResults = async (search = '') => {
   loading.value = true;
   try {
-    // has_stock: 0 means show everything (for purchases)
-    // has_stock: 1 means show only available (for sales)
     const params = {
       search,
       has_stock: props.invoiceType === 'purchase' ? 0 : 1,
@@ -239,6 +232,11 @@ const loadResults = async (search = '') => {
 
     variants.value = variantsRes.data || [];
     services.value = servicesRes.data || [];
+
+    // If exactly 1 match (e.g. barcode scan), auto-select it if user presses enter
+    if (search && combinedItems.value.length === 1 && searchQuery.value === search) {
+      // Keep ready for selection
+    }
   } catch (error) {
     console.error('Error loading search results:', error);
   } finally {
@@ -246,8 +244,19 @@ const loadResults = async (search = '') => {
   }
 };
 
-const addItemInstant = item => {
-  if (!item) return;
+const handleEnterKey = e => {
+  // If only 1 result matches the barcode/search and no item is selected yet
+  if (!selectedItem.value && combinedItems.value.length === 1) {
+    const singleMatch = combinedItems.value[0];
+    if (singleMatch.type === 'product' && props.invoiceType !== 'purchase' && singleMatch.requires_stock && singleMatch.quantity <= 0) {
+      return;
+    }
+    selectedItem.value = singleMatch;
+  }
+};
+
+const prepareFinalItem = item => {
+  if (!item) return null;
 
   let finalItem = {};
 
@@ -261,7 +270,7 @@ const addItemInstant = item => {
       total: item.default_price || 0,
       product_type: 'service',
       requires_stock: false,
-      primary_image_url: null, // Services might not have images in the current schema
+      primary_image_url: null,
     };
   } else {
     const variant = item;
@@ -302,7 +311,7 @@ const addItemInstant = item => {
       retail_price: variant.retail_price || variant.price || 0,
       wholesale_price: variant.wholesale_price || 0,
       purchase_price: variant.purchase_price || 0,
-      discount_percentage: 0,
+      discount: 0,
       total: getVariantPrice(variant),
       primary_image_url: variant.primary_image_url,
       product_type: variant.product_type,
@@ -316,34 +325,61 @@ const addItemInstant = item => {
       quantity_precision: variant.quantity_precision || 0,
     };
   }
-
-  emit('add', finalItem);
-
-  // Reset selection
-  setTimeout(() => {
-    selectedItem.value = null;
-    searchQuery.value = '';
-  }, 10);
+  return finalItem;
 };
 
-// Watch selection for instant add
+// Watch selection
 watch(selectedItem, item => {
   if (item) {
-    addItemInstant(item);
+    const finalItem = prepareFinalItem(item);
+    if (finalItem) {
+      emit('select-item', finalItem);
+      emit('add', finalItem);
+    }
+    nextTick(() => {
+      selectedItem.value = null;
+      searchQuery.value = '';
+    });
   }
 });
 
-// Load empty or default on mount
+const focus = () => {
+  nextTick(() => {
+    if (autocompleteRef.value?.$el) {
+      const inputEl = autocompleteRef.value.$el.querySelector('input');
+      if (inputEl) {
+        inputEl.focus();
+        inputEl.select?.();
+      }
+    }
+  });
+};
+
+const reset = () => {
+  selectedItem.value = null;
+  searchQuery.value = '';
+};
+
+defineExpose({
+  focus,
+  reset,
+});
+
 loadResults();
 </script>
 
 <style scoped>
 .search-item-hover {
-  transition: background-color 0.2s ease;
+  transition: background-color 0.15s ease;
   cursor: pointer;
 }
 
 .search-item-hover:hover {
-  background-color: rgba(var(--v-theme-primary), 0.05);
+  background-color: rgba(var(--v-theme-primary), 0.06);
+}
+
+.inline-product-autocomplete :deep(.v-field) {
+  border-radius: 6px;
+  background-color: rgb(var(--v-theme-surface));
 }
 </style>

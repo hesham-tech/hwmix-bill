@@ -20,6 +20,16 @@
       </div>
       <div class="d-flex gap-2 no-print flex-grow-1 flex-sm-grow-0 justify-end">
         <AppButton
+          v-if="['sale', 'sales', 'purchase', 'purchases'].includes(invoice?.invoice_type?.code) && invoice?.status !== 'draft'"
+          color="secondary"
+          :prepend-icon="!mobile ? 'ri-arrow-go-back-line' : false"
+          :icon="mobile ? 'ri-arrow-go-back-line' : false"
+          :size="mobile ? 'small' : 'default'"
+          @click="returnInvoice"
+        >
+          <span v-if="!mobile">إرجاع</span>
+        </AppButton>
+        <AppButton
           v-if="can('invoices.update_all')"
           color="primary"
           :prepend-icon="!mobile ? 'ri-edit-line' : false"
@@ -449,6 +459,9 @@ const statusOptions = [
 
 const goBack = () => router.push('/app/invoices');
 const editInvoice = () => router.push(`/app/invoices/${route.params.id}/edit`);
+const returnInvoice = () => {
+  router.push({ path: '/app/invoices/create', query: { return_from: route.params.id } });
+};
 
 const deleteInvoice = async () => {
   try {

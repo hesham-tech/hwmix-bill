@@ -1,6 +1,6 @@
 <template>
   <div class="invoice-form-container">
-    <!-- Sticky Header -->
+    <!-- ════ الهيدر الثابت ════ -->
     <InvoiceHeader
       :is-edit="isEdit"
       :financials="financials"
@@ -13,14 +13,14 @@
     />
 
     <v-form ref="form" v-model="isFormValid">
-      <!-- Section 1: Compact Header Info (Full Width) -->
+      <!-- ════ القسم 1: معلومات الفاتورة (صف مضغوط) ════ -->
       <InvoiceCustomerInfo
         v-model="invoiceData"
         :selected-customer="selectedCustomerObj"
         :invoice-types="invoiceTypes"
         :warehouses="warehouses"
         :errors="errors"
-        class="mb-3"
+        class="invoice-info-bar"
         @update:selected-customer="
           val => {
             selectedCustomerObj = val;
@@ -31,46 +31,45 @@
         @update:prop="({ key, value }) => (invoiceData[key] = value)"
       />
 
-      <!-- Section 2: Items Table (Full Width) -->
-      <InvoiceItemsList
-        v-model:tax-inclusive="invoiceData.tax_inclusive"
-        :items="invoiceData.items"
-        :warehouse-id="invoiceData.warehouse_id"
-        :invoice-type="currentContext"
-        :customer-type="selectedCustomerObj?.customer_type || 'retail'"
-        :show-installment-section="currentContext === 'installment_sale'"
-        class="mb-3"
-        @add="addItem"
-        @calculate="calculateItem"
-        @remove="removeItem"
-        @create-product="isQuickAddProductOpen = true"
-      >
-        <template #installment>
-          <div class="d-none d-sm-block pa-4">
-            <InstallmentPlanner
-              :net-amount="financials.total_balance"
-              v-model="invoiceData.installment_plan"
-              @update:down-payment="val => (invoiceData.paid_amount = val)"
-            />
-          </div>
-        </template>
-      </InvoiceItemsList>
+      <!-- ════ القسم 2: منطقة العمل الرئيسية (Workspace) ════ -->
+      <div class="invoice-workspace">
+        <InvoiceItemsList
+          v-model:tax-inclusive="invoiceData.tax_inclusive"
+          :items="invoiceData.items"
+          :warehouse-id="invoiceData.warehouse_id"
+          :invoice-type="currentContext"
+          :customer-type="selectedCustomerObj?.customer_type || 'retail'"
+          :show-installment-section="currentContext === 'installment_sale'"
+          @add="addItem"
+          @calculate="calculateItem"
+          @remove="removeItem"
+          @create-product="openQuickAddProduct"
+        >
+          <template #installment>
+            <div class="d-none d-sm-block pa-4">
+              <InstallmentPlanner
+                :net-amount="financials.total_balance"
+                v-model="invoiceData.installment_plan"
+                @update:down-payment="val => (invoiceData.paid_amount = val)"
+              />
+            </div>
+          </template>
+        </InvoiceItemsList>
+      </div>
 
-      <!-- Section 3: Summary & Financials (Full Width) -->
-      <v-row>
-        <v-col cols="12">
-          <InvoiceFinancials
-            v-model="invoiceData"
-            v-model:show-profit="showProfit"
-            :financials="financials"
-            :cash-boxes="cashBoxes"
-            :errors="errors"
-            :is-purchase="currentContext === 'purchase'"
-            :is-installment="currentContext === 'installment_sale'"
-            @update:prop="({ key, value }) => (invoiceData[key] = value)"
-          />
-        </v-col>
-      </v-row>
+      <!-- ════ القسم 3: الملخص المالي ════ -->
+      <div class="invoice-financial-area">
+        <InvoiceFinancials
+          v-model="invoiceData"
+          v-model:show-profit="showProfit"
+          :financials="financials"
+          :cash-boxes="cashBoxes"
+          :errors="errors"
+          :is-purchase="currentContext === 'purchase'"
+          :is-installment="currentContext === 'installment_sale'"
+          @update:prop="({ key, value }) => (invoiceData[key] = value)"
+        />
+      </div>
     </v-form>
 
     <!-- Quick Add Customer Dialog -->
@@ -88,13 +87,14 @@
       draggable
       no-padding
     >
-      <ProductForm v-if="isQuickAddProductOpen" is-dialog @success="handleQuickProductSave" @cancel="isQuickAddProductOpen = false" />
+      <ProductForm v-if="isQuickAddProductOpen" is-dialog :initial-name="quickAddProductName" @success="handleQuickProductSave" @cancel="isQuickAddProductOpen = false" />
     </AppDialog>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import { useApi } from '@/composables/useApi';
 
 // Global Components
@@ -130,6 +130,8 @@ const emit = defineEmits(['success', 'cancel']);
 const appState = useappState();
 const userManagementStore = useUserManagementStore();
 const userStore = useUserStore();
+const route = useRoute();
+
 const invoiceApi = useApi('/api/invoices');
 const { get: getInvoiceTypes } = useApi('/api/invoice-types');
 const { get: getWarehouses } = useApi('/api/warehouses');
@@ -146,6 +148,7 @@ const errors = ref({});
 const selectedCustomerObj = ref(null);
 const isQuickAddCustomerOpen = ref(false);
 const isQuickAddProductOpen = ref(false);
+const quickAddProductName = ref('');
 const showProfit = ref(false);
 const isInitializing = ref(true);
 
@@ -272,11 +275,20 @@ const getItemPrice = item => {
 };
 
 const addItem = productItem => {
-  const existing = invoiceData.value.items.find(i => i.product_id === productItem.product_id && i.variant_id === productItem.variant_id);
+  const existingIndex = invoiceData.value.items.findIndex(i =>
+    (productItem.variant_id && i.variant_id === productItem.variant_id) ||
+    (productItem.service_id && i.service_id === productItem.service_id)
+  );
 
-  if (existing) {
-    existing.quantity += productItem.quantity;
+  if (existingIndex > -1) {
+    const existing = invoiceData.value.items[existingIndex];
+    existing.quantity += (productItem.quantity || 1);
+    if (productItem.unit_price) existing.unit_price = productItem.unit_price;
+    if (productItem.discount) existing.discount = productItem.discount;
     calculateItem(existing);
+    // Unshift to top of items list so user sees newly updated item at top
+    invoiceData.value.items.splice(existingIndex, 1);
+    invoiceData.value.items.unshift(existing);
   } else {
     const newItem = {
       ...productItem,
@@ -285,12 +297,19 @@ const addItem = productItem => {
       max_quantity: productItem.max_quantity || 0,
     };
 
-    newItem.unit_price = getItemPrice(newItem);
+    if (!newItem.unit_price) {
+      newItem.unit_price = getItemPrice(newItem);
+    }
     newItem.quantity = productItem.quantity || 1;
 
     calculateItem(newItem);
-    invoiceData.value.items.push(newItem);
+    invoiceData.value.items.unshift(newItem);
   }
+};
+
+const openQuickAddProduct = (name = '') => {
+  quickAddProductName.value = name;
+  isQuickAddProductOpen.value = true;
 };
 
 const handleQuickProductSave = product => {
@@ -647,11 +666,86 @@ const fetchInvoice = async () => {
 
 // ... watch ...
 
+const fetchReturnInvoice = async (returnFromId) => {
+  loading.value = true;
+  try {
+    const response = await invoiceApi.getById(returnFromId);
+    const originalInvoice = response.data;
+    
+    // Determine return type
+    const isSale = ['sale', 'sales'].includes(originalInvoice.invoice_type?.code);
+    const returnTypeCode = isSale ? 'return_sale' : 'return_purchase';
+    const targetType = invoiceTypes.value.find(t => t.code === returnTypeCode);
+    
+    const data = {
+      user_id: originalInvoice.user_id,
+      invoice_type_id: targetType ? targetType.id : invoiceTypes.value[0]?.id,
+      warehouse_id: originalInvoice.warehouse_id ? Number(originalInvoice.warehouse_id) : null,
+      paid_amount: 0,
+      header_discount: 0,
+      items: (originalInvoice.items || []).map(item => {
+        const allowedUnits = [];
+        const variant = item.variant;
+        if (variant) {
+          if (variant.base_unit) allowedUnits.push(variant.base_unit);
+          if (variant.purchase_unit && !allowedUnits.some(u => u.id === variant.purchase_unit.id)) allowedUnits.push(variant.purchase_unit);
+          if (variant.display_unit && !allowedUnits.some(u => u.id === variant.display_unit.id)) allowedUnits.push(variant.display_unit);
+          if (variant.units && Array.isArray(variant.units)) {
+            variant.units.forEach(vu => {
+              if (vu.unit && !allowedUnits.some(u => u.id === vu.unit.id)) {
+                allowedUnits.push(vu.unit);
+              }
+            });
+          }
+        }
+        return {
+          product_id: item.product_id,
+          variant_id: item.variant_id,
+          name: item.name,
+          sku: item.sku || variant?.sku || item.product?.sku,
+          barcode: item.barcode || variant?.barcode || item.product?.barcode,
+          attributes_text: item.attributes_text || variant?.attributes_text || '',
+          variant_name: variant?.sku,
+          quantity: parseFloat(item.quantity || 0),
+          max_quantity: parseFloat(item.quantity || 0) + (variant ? parseFloat(variant.quantity || 0) : 0),
+          requires_stock: item.requires_stock ?? true,
+          unit_price: parseFloat(item.unit_price || 0),
+          retail_price: parseFloat(item.retail_price || item.unit_price || 0),
+          wholesale_price: parseFloat(item.wholesale_price || 0),
+          profit_margin: parseFloat(item.profit_margin || 0),
+          discount: parseFloat(item.discount || 0),
+          total: parseFloat(item.total || 0),
+          primary_image_url: item.primary_image_url || item.variant?.primary_image_url || item.product?.primary_image_url,
+          unit_id: item.unit_id,
+          base_unit_id: variant?.base_unit_id || null,
+          allowed_units: allowedUnits,
+          units: variant?.units || [],
+          unit_prices: variant?.unit_prices || [],
+          allow_decimal_quantities: variant?.product?.allow_decimal_quantities || false,
+          quantity_precision: variant?.product?.quantity_precision || 0,
+        };
+      })
+    };
+
+    invoiceData.value = { ...invoiceData.value, ...data };
+
+    if (originalInvoice.customer) {
+      selectedCustomerObj.value = originalInvoice.customer;
+    }
+  } catch (error) {
+    console.error('Error fetching return invoice:', error);
+  } finally {
+    loading.value = false;
+  }
+};
+
 onMounted(async () => {
   try {
     await loadLookups();
     if (isEdit.value) {
       await fetchInvoice();
+    } else if (route.query.return_from) {
+      await fetchReturnInvoice(route.query.return_from);
     }
   } finally {
     isInitializing.value = false;
@@ -660,7 +754,28 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* .invoice-form-container {
+.invoice-form-container {
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
-} */
+  background: rgb(var(--v-theme-background));
+}
+
+/* صف معلومات الفاتورة */
+.invoice-info-bar {
+  padding: 8px 16px 4px;
+  background: rgb(var(--v-theme-surface));
+  border-bottom: 1px solid rgba(var(--v-border-color), 0.12);
+}
+
+/* منطقة العمل الرئيسية — تأخذ أكبر مساحة ممكنة */
+.invoice-workspace {
+  padding: 10px 16px 6px;
+  flex: 1;
+}
+
+/* القسم المالي — مضغوط في أسفل الشاشة */
+.invoice-financial-area {
+  padding: 0 16px 16px;
+}
 </style>

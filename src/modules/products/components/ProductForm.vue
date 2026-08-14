@@ -633,6 +633,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  initialName: {
+    type: String,
+    default: '',
+  },
 });
 
 const emit = defineEmits(['success', 'cancel']);
@@ -697,6 +701,10 @@ const productData = ref(getInitialProductData());
 
 // Ensure we always have at least one variant when creating a product
 if (!props.productId) {
+  // If in quick add mode, pre-fill with the searched name
+  if (props.initialName) {
+    form.value.name = props.initialName;
+  }
   productData.value.variants = [
     {
       purchase_price: 0,

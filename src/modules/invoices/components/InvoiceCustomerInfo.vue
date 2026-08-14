@@ -1,5 +1,5 @@
 <template>
-  <div class="hyper-compact mt-4 mb-2">
+  <div class="hyper-compact">
     <v-row dense>
       <!-- Row: Responsive distribution -->
       <v-col cols="6" md="4" lg="2" class="pa-2">
