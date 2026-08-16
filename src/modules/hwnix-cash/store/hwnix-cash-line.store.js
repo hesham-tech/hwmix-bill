@@ -92,10 +92,10 @@ export const useHwnixCashLineStore = defineStore('hwnix-cash-line', () => {
     }
   }
 
-  async function forceDeleteLine(deviceId, slotIndex) {
+  async function forceDeleteLine(id) {
     loading.value = true;
     try {
-      const response = await hwnixCashLineService.forceDelete(deviceId, slotIndex);
+      const response = await hwnixCashLineService.forceDelete(id);
       notificationManager.success('تم حذف الخط وجميع بياناته نهائياً بنجاح');
       await fetchLines();
       return response;

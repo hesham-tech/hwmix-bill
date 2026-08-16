@@ -1139,7 +1139,7 @@ function confirmDeleteLineItem(item) {
 
 async function executeLineDelete() {
   if (!deletingLine.value) return;
-  await store.forceDeleteLine(deletingLine.value.device_id, deletingLine.value.slot_index);
+  await store.forceDeleteLine(deletingLine.value.id);
   lineDeleteDialog.value = false;
   deletingLine.value = null;
 }

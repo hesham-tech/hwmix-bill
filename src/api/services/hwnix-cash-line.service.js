@@ -12,8 +12,8 @@ class HwnixCashLineService extends BaseService {
     return this.post(`${id}/reconcile`, data);
   }
 
-  forceDelete(deviceId, slotIndex) {
-    return this.delete('delete', { params: { device_id: deviceId, slot_index: slotIndex } });
+  forceDelete(id) {
+    return this.delete(id);
   }
 }
 
