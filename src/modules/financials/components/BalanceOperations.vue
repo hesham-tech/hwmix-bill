@@ -56,7 +56,7 @@
             <v-autocomplete
               v-model="form.target_user_id"
               label="المستلم"
-              :items="users"
+              :items="usersList"
               item-title="full_name"
               item-value="id"
               placeholder="ابحث عن مستلم..."
