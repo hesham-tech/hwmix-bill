@@ -51,19 +51,19 @@
             />
           </v-col>
 
-          <!-- Target User for Transfer -->
+          <!-- Target CashBox for Transfer -->
           <v-col v-if="operationType === 'transfer'" cols="12">
             <v-autocomplete
-              v-model="form.target_user_id"
-              label="المستلم"
-              :items="usersList"
-              item-title="full_name"
+              v-model="form.to_cash_box_id"
+              label="الخزنة المستلمة"
+              :items="cashBoxesList"
+              item-title="name"
               item-value="id"
-              placeholder="ابحث عن مستلم..."
+              placeholder="ابحث عن خزنة..."
               variant="outlined"
               required
-              :rules="[v => !!v || 'المستلم مطلوب']"
-              :loading="loadingUsers"
+              :rules="[v => !!v || 'الخزنة المستلمة مطلوبة']"
+              :loading="loadingCashBoxes"
               :disabled="loading"
             />
           </v-col>
@@ -96,7 +96,8 @@ import { ref, reactive, computed, watch } from 'vue';
 import { AppDialog, AppButton, AppUserBalanceProfile } from '@/components';
 import AppBalanceDisplay from '@/components/common/AppBalanceDisplay.vue';
 import AppActionHelp from '@/components/common/AppActionHelp.vue';
-import { transactionService, userService } from '@/api';
+import { transactionService } from '@/api';
+import { useApi } from '@/composables/useApi';
 import { formatCurrency } from '@/utils/formatters';
 import notificationManager from '@/services/notificationManager';
 import { usePermissions } from '@/composables/usePermissions';
@@ -122,13 +123,15 @@ const { can, canAny } = usePermissions();
 const authStore = useAuthStore();
 const formRef = ref(null);
 const loading = ref(false);
-const loadingUsers = ref(false);
-const usersList = ref([]);
+const loadingCashBoxes = ref(false);
+const cashBoxesList = ref([]);
 const operationType = ref(props.initialType);
+const cashBoxesApi = useApi('/api/cash-boxes');
 
 const form = reactive({
   amount: null,
   target_user_id: null,
+  to_cash_box_id: null,
   description: '',
 });
 
@@ -165,7 +168,7 @@ const helpActionKey = computed(() => {
 const title = computed(() => {
   if (operationType.value === 'deposit') return 'إيداع رصيد';
   if (operationType.value === 'withdraw') return 'سحب رصيد';
-  return 'تحويل رصيد';
+  return 'تحويل رصيد لخزنة أخرى';
 });
 
 const icon = computed(() => {
@@ -198,15 +201,20 @@ watch(
 );
 
 watch(operationType, async val => {
-  if (val === 'transfer' && usersList.value.length === 0) {
-    loadingUsers.value = true;
+  if (val === 'transfer' && cashBoxesList.value.length === 0) {
+    loadingCashBoxes.value = true;
     try {
-      const response = await userService.getAll({ per_page: 100 });
-      usersList.value = response.data.filter(u => u.id !== props.user?.id);
+      const response = await cashBoxesApi.get({ per_page: 100 });
+      // Exclude current cashbox if known
+      if (props.cashBoxId) {
+        cashBoxesList.value = response.data.filter(cb => cb.id !== Number(props.cashBoxId));
+      } else {
+        cashBoxesList.value = response.data;
+      }
     } catch (error) {
-      console.error('Failed to fetch users:', error);
+      console.error('Failed to fetch cash boxes:', error);
     } finally {
-      loadingUsers.value = false;
+      loadingCashBoxes.value = false;
     }
   }
 });
@@ -219,6 +227,7 @@ const close = () => {
 const resetForm = () => {
   form.amount = null;
   form.target_user_id = null;
+  form.to_cash_box_id = null;
   form.description = '';
   if (formRef.value) formRef.value.resetValidation();
 };
@@ -244,16 +253,15 @@ const handleSubmit = async () => {
       response = await transactionService.withdraw(commonPayload);
     } else if (operationType.value === 'transfer') {
       response = await transactionService.transfer({
-        from_user_id: props.user?.id || authStore.user?.id,
-        target_user_id: form.target_user_id,
         amount: form.amount,
         from_cash_box_id: props.cashBoxId || null,
+        to_cash_box_id: form.to_cash_box_id,
         description: form.description,
       });
     }
 
     notificationManager.success('تمت العملية بنجاح');
-    emit('success', response.data);
+    emit('success', response?.data);
     close();
   } catch (error) {
     console.error('Operation failed:', error);
