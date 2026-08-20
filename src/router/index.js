@@ -25,6 +25,7 @@ import legalRoutes from '@/modules/legal/routes';
 import devRoutes from '@/modules/dev/routes';
 import hwnixCashRoutes from '@/modules/hwnix-cash/routes';
 import aiPlatformRoutes from '@/modules/ai-platform/routes';
+import custodiesRoutes from '@/modules/custodies/routes';
 import errorRoutes from './errorRoutes';
 
 const router = createRouter({
@@ -76,6 +77,7 @@ const router = createRouter({
         ...devRoutes,
         ...hwnixCashRoutes,
         ...aiPlatformRoutes,
+        ...custodiesRoutes,
         ...errorRoutes,
       ],
     },

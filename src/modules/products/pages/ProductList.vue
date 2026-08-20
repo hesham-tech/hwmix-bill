@@ -734,6 +734,7 @@ const confirmBulkDelete = async () => {
 // --- تصدير المنتجات بالخلفية ---
 
 const exportImportApi = useApi('/api/export-import');
+const exportLoading = ref(false);
 const exportDialogOpen = ref(false);
 const exportProgress = ref(0);
 const exportStatusText = ref('');
@@ -742,6 +743,7 @@ const exportJobId = ref(null);
 let exportPollingInterval = null;
 
 const handleExport = async () => {
+  exportLoading.value = true;
   exportDialogOpen.value = true;
   exportProgress.value = 10;
   exportStatusText.value = 'جاري جدولة عملية التصدير بالخلفية...';
@@ -752,10 +754,13 @@ const handleExport = async () => {
     if (res.data && res.data.id) {
       exportJobId.value = res.data.id;
       startExportPolling(res.data.id);
+    } else {
+      exportLoading.value = false;
     }
   } catch (error) {
     console.error('Export scheduling failed:', error);
     exportDialogOpen.value = false;
+    exportLoading.value = false;
   }
 };
 
@@ -772,6 +777,7 @@ const startExportPolling = (jobId) => {
         
         if (res.data.status === 'completed') {
           clearInterval(exportPollingInterval);
+          exportLoading.value = false;
           exportStatusText.value = 'اكتمل توليد الملف بنجاح!';
           exportDownloadUrl.value = res.data.download_url;
           
@@ -780,6 +786,7 @@ const startExportPolling = (jobId) => {
           }
         } else if (res.data.status === 'failed') {
           clearInterval(exportPollingInterval);
+          exportLoading.value = false;
           exportStatusText.value = 'فشلت عملية التصدير. يرجى المحاولة لاحقاً.';
         }
       }
@@ -800,6 +807,7 @@ const triggerFileDownload = (url) => {
 
 const closeExportDialog = () => {
   exportDialogOpen.value = false;
+  exportLoading.value = false;
   clearInterval(exportPollingInterval);
 };
 </script>

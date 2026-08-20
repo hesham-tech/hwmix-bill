@@ -251,6 +251,18 @@ export default [
         icon: 'ri-book-open-line',
         permission: [PERMISSIONS.FINANCIAL_LEDGER_VIEW_ALL, PERMISSIONS.FINANCIAL_LEDGER_VIEW_CHILDREN, PERMISSIONS.FINANCIAL_LEDGER_VIEW_SELF],
       },
+      {
+        title: 'أموال الشركاء',
+        to: '/app/partner-funds',
+        icon: 'ri-pie-chart-box-line',
+        permission: null,
+      },
+      {
+        title: 'العهد',
+        to: '/app/custodies',
+        icon: 'ri-wallet-3-line',
+        permission: null,
+      },
     ],
   },
 

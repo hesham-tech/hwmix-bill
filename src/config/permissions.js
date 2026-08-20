@@ -576,6 +576,14 @@ export const PERMISSIONS = {
   HWNIX_CASH_MESSAGE_SOURCES_CREATE: 'hwnix_cash_message_sources.create',
   HWNIX_CASH_MESSAGE_SOURCES_EDIT_ALL: 'hwnix_cash_message_sources.update_all',
   HWNIX_CASH_MESSAGE_SOURCES_DELETE_ALL: 'hwnix_cash_message_sources.delete_all',
+
+  // ==================== Custodies ====================
+  CUSTODIES_PAGE: 'custodies.page',
+  CUSTODIES_VIEW_ALL: 'custodies.view_all',
+  CUSTODIES_VIEW_SELF: 'custodies.view_self',
+  CUSTODIES_CREATE: 'custodies.create',
+  CUSTODIES_REFUND: 'custodies.refund',
+  CUSTODIES_REVERSE: 'custodies.reverse',
 };
 
 /**

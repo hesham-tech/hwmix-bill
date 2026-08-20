@@ -50,7 +50,7 @@
             <!-- رصيد العهدة -->
             <AppBalanceDisplay
               v-if="user?.capabilities?.includes('has_cash_custody')"
-              :amount="user?.cashbox_balance ?? 0"
+              :amount="user?.custody_balance ?? 0"
               perspective="admin"
               show-icon
               icon-size="12"
@@ -141,7 +141,7 @@
           >
             <div class="text-xxs font-weight-bold opacity-70 text-primary mb-1">العهدة النقدية بالصندوق</div>
             <AppBalanceDisplay
-              :amount="user?.cashbox_balance ?? 0"
+              :amount="user?.custody_balance ?? 0"
               :perspective="perspective"
               show-icon
               icon-size="20"
