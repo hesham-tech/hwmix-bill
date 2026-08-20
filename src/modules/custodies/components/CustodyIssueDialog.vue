@@ -1,7 +1,7 @@
 <template>
   <AppDialog
     v-model="internalValue"
-    title="صرف عهدة"
+    title="ØµØ±Ù Ø¹Ù‡Ø¯Ø©"
     width="500"
     :loading="loading"
     @cancel="close"
@@ -15,8 +15,8 @@
             :items="users"
             item-title="name"
             item-value="id"
-            label="الموظف / المستلم"
-            :rules="[v => !!v || 'مطلوب']"
+            label="Ø§Ù„Ù…ÙˆØ¸Ù / Ø§Ù„Ù…Ø³ØªÙ„Ù…"
+            :rules="[v => !!v || 'Ù…Ø·Ù„ÙˆØ¨']"
             variant="outlined"
             density="comfortable"
           ></v-select>
@@ -27,8 +27,8 @@
             :items="cashboxes"
             item-title="name"
             item-value="id"
-            label="صندوق الدفع"
-            :rules="[v => !!v || 'مطلوب']"
+            label="ØµÙ†Ø¯ÙˆÙ‚ Ø§Ù„Ø¯ÙØ¹"
+            :rules="[v => !!v || 'Ù…Ø·Ù„ÙˆØ¨']"
             variant="outlined"
             density="comfortable"
           ></v-select>
@@ -36,9 +36,9 @@
         <v-col cols="12">
           <v-text-field
             v-model="formData.amount"
-            label="المبلغ"
+            label="Ø§Ù„Ù…Ø¨Ù„Øº"
             type="number"
-            :rules="[v => !!v || 'مطلوب', v => v > 0 || 'يجب أن يكون أكبر من صفر']"
+            :rules="[v => !!v || 'Ù…Ø·Ù„ÙˆØ¨', v => v > 0 || 'ÙŠØ¬Ø¨ Ø£Ù† ÙŠÙƒÙˆÙ† Ø£ÙƒØ¨Ø± Ù…Ù† ØµÙØ±']"
             variant="outlined"
             density="comfortable"
           ></v-text-field>
@@ -46,9 +46,9 @@
         <v-col cols="12">
           <v-text-field
             v-model="formData.issue_date"
-            label="التاريخ"
+            label="Ø§Ù„ØªØ§Ø±ÙŠØ®"
             type="date"
-            :rules="[v => !!v || 'مطلوب']"
+            :rules="[v => !!v || 'Ù…Ø·Ù„ÙˆØ¨']"
             variant="outlined"
             density="comfortable"
           ></v-text-field>
@@ -56,7 +56,7 @@
         <v-col cols="12">
           <v-textarea
             v-model="formData.description"
-            label="الوصف"
+            label="Ø§Ù„ÙˆØµÙ"
             rows="2"
             variant="outlined"
             density="comfortable"
@@ -71,7 +71,8 @@
 import { ref, watch, onMounted } from 'vue';
 import { useCustodies } from '../composables/useCustodies';
 import AppDialog from '@/components/common/AppDialog.vue';
-import { userService, cashboxService } from '@/api';
+import { userService } from '@/api';
+import { useApi } from '@/composables/useApi';
 
 const props = defineProps({
   modelValue: { type: Boolean, default: false },
@@ -106,7 +107,7 @@ onMounted(async () => {
     const [uRes, cRes] = await Promise.all([
       userService.getAll({ per_page: 100 }),
       // Replace with your actual cashbox service call
-      import('@/api').then(m => m.default?.cashboxService?.getAll({ per_page: 100 }) || m.cashboxService?.getAll({ per_page: 100 }) || {data:[]})
+      useApi('/api/cash-boxes').get({ per_page: 100 })
     ]);
     if (uRes && uRes.data) users.value = uRes.data;
     if (cRes && cRes.data) cashboxes.value = cRes.data;

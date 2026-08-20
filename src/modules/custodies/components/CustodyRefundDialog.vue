@@ -1,7 +1,7 @@
 <template>
   <AppDialog
     v-model="internalValue"
-    title="رد عهدة"
+    title="Ø±Ø¯ Ø¹Ù‡Ø¯Ø©"
     width="500"
     :loading="loading"
     @cancel="close"
@@ -15,8 +15,8 @@
             :items="cashboxes"
             item-title="name"
             item-value="id"
-            label="صندوق الاستلام"
-            :rules="[v => !!v || 'مطلوب']"
+            label="ØµÙ†Ø¯ÙˆÙ‚ Ø§Ù„Ø§Ø³ØªÙ„Ø§Ù…"
+            :rules="[v => !!v || 'Ù…Ø·Ù„ÙˆØ¨']"
             variant="outlined"
             density="comfortable"
           ></v-select>
@@ -24,9 +24,9 @@
         <v-col cols="12">
           <v-text-field
             v-model="formData.amount"
-            label="المبلغ"
+            label="Ø§Ù„Ù…Ø¨Ù„Øº"
             type="number"
-            :rules="[v => !!v || 'مطلوب', v => v > 0 || 'يجب أن يكون أكبر من صفر']"
+            :rules="[v => !!v || 'Ù…Ø·Ù„ÙˆØ¨', v => v > 0 || 'ÙŠØ¬Ø¨ Ø£Ù† ÙŠÙƒÙˆÙ† Ø£ÙƒØ¨Ø± Ù…Ù† ØµÙØ±']"
             variant="outlined"
             density="comfortable"
           ></v-text-field>
@@ -34,9 +34,9 @@
         <v-col cols="12">
           <v-text-field
             v-model="formData.date"
-            label="التاريخ"
+            label="Ø§Ù„ØªØ§Ø±ÙŠØ®"
             type="date"
-            :rules="[v => !!v || 'مطلوب']"
+            :rules="[v => !!v || 'Ù…Ø·Ù„ÙˆØ¨']"
             variant="outlined"
             density="comfortable"
           ></v-text-field>
@@ -77,8 +77,8 @@ const formData = ref({
 
 onMounted(async () => {
   try {
-    const api = await import('@/api');
-    const cRes = await (api.default?.cashboxService || api.cashboxService).getAll({ per_page: 100 });
+    const { useApi } = await import('@/composables/useApi');
+    const cRes = await useApi('/api/cash-boxes').get({ per_page: 100 });
     if (cRes && cRes.data) cashboxes.value = cRes.data;
   } catch (err) {
     console.error(err);
