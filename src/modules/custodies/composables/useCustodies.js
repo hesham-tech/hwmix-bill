@@ -50,7 +50,7 @@ export function useCustodies() {
     try {
       const response = await custodyService.issue(data);
       if (response.success) {
-        notificationManager.success('Ã˜ÂªÃ™â€¦ Ã˜ÂµÃ˜Â±Ã™Â Ã˜Â§Ã™â€žÃ˜Â¹Ã™â€¡Ã˜Â¯Ã˜Â© Ã˜Â¨Ã™â€ Ã˜Â¬Ã˜Â§Ã˜Â­');
+        notificationManager.success('تمت العملية بنجاح');
       }
       return response;
     } catch (error) {
@@ -65,7 +65,7 @@ export function useCustodies() {
     try {
       const response = await custodyService.refund(id, data);
       if (response.success) {
-        notificationManager.success('Ã˜ÂªÃ™â€¦ Ã˜Â±Ã˜Â¯ Ã˜Â§Ã™â€žÃ˜Â¹Ã™â€¡Ã˜Â¯Ã˜Â© Ã˜Â¨Ã™â€ Ã˜Â¬Ã˜Â§Ã˜Â­');
+        notificationManager.success('تمت العملية بنجاح');
       }
       return response;
     } catch (error) {
@@ -80,7 +80,7 @@ export function useCustodies() {
     try {
       const response = await custodyService.reverse(id);
       if (response.success) {
-        notificationManager.success('Ã˜ÂªÃ™â€¦ Ã˜Â§Ã™â€žÃ˜ÂªÃ˜Â±Ã˜Â§Ã˜Â¬Ã˜Â¹ Ã˜Â¹Ã™â€  Ã˜Â§Ã™â€žÃ˜Â¹Ã™â€¡Ã˜Â¯Ã˜Â© Ã˜Â¨Ã™â€ Ã˜Â¬Ã˜Â§Ã˜Â­');
+        notificationManager.success('تمت العملية بنجاح');
       }
       return response;
     } catch (error) {

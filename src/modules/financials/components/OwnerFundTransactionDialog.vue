@@ -1,34 +1,34 @@
 <template>
   <AppDialog
     v-model="isOpen"
-    title="Ã˜ÂªÃ˜Â³Ã˜Â¬Ã™Å Ã™â€ž Ã˜Â­Ã˜Â±Ã™Æ’Ã˜Â© Ã˜Â£Ã™â€¦Ã™â€žÃ˜Â§Ã™Æ’ Ã˜Â´Ã˜Â±Ã™Å Ã™Æ’ / Ã™â€¦Ã˜Â§Ã™â€žÃ™Æ’"
+    title="تسجيل حركة أملاك شريك / مالك"
     icon="ri-hand-coin-line"
     max-width="550"
     :loading="loading"
-    confirm-text="Ã˜ÂªÃ˜Â³Ã˜Â¬Ã™Å Ã™â€ž Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â¹Ã˜Â§Ã™â€¦Ã™â€žÃ˜Â©"
+    confirm-text="تسجيل المعاملة"
     @confirm="handleSubmit"
     @close="close"
   >
     <v-form ref="formRef" @submit.prevent="handleSubmit">
       <v-container class="pa-0">
         <v-row dense>
-          <!-- Ã™â€ Ã™Ë†Ã˜Â¹ Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â¹Ã˜Â§Ã™â€¦Ã™â€žÃ˜Â© -->
+          <!-- نوع المعاملة -->
           <v-col cols="12">
             <v-select
               v-model="form.type"
               :items="transactionTypes"
               item-title="title"
               item-value="value"
-              label="Ã™â€ Ã™Ë†Ã˜Â¹ Ã˜Â§Ã™â€žÃ˜Â­Ã˜Â±Ã™Æ’Ã˜Â© Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â§Ã™â€žÃ™Å Ã˜Â© *"
+              label="نوع الحركة المالية *"
               variant="outlined"
               density="comfortable"
               required
-              :rules="[v => !!v || 'Ã™â€ Ã™Ë†Ã˜Â¹ Ã˜Â§Ã™â€žÃ˜Â­Ã˜Â±Ã™Æ’Ã˜Â© Ã™â€¦Ã˜Â·Ã™â€žÃ™Ë†Ã˜Â¨']"
+              :rules="[v => !!v || 'نوع الحركة مطلوب']"
               class="mb-2"
             />
           </v-col>
 
-          <!-- Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â§Ã™â€žÃ™Æ’ / Ã˜Â§Ã™â€žÃ˜Â´Ã˜Â±Ã™Å Ã™Æ’ -->
+          <!-- المالك / الشريك -->
           <v-col cols="12">
             <v-autocomplete
               v-model="form.user_id"
@@ -36,17 +36,17 @@
               :loading="loadingUsers"
               :item-title="item => item.nickname ? `${item.full_name} (${item.nickname})` : item.full_name || item.name"
               item-value="id"
-              label="Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â§Ã™â€žÃ™Æ’ Ã˜Â£Ã™Ë† Ã˜Â§Ã™â€žÃ˜Â´Ã˜Â±Ã™Å Ã™Æ’ Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â³Ã˜ÂªÃ™â€¡Ã˜Â¯Ã™Â *"
-              placeholder="Ã˜Â§Ã˜Â¨Ã˜Â­Ã˜Â« Ã˜Â¹Ã™â€  Ã˜Â§Ã˜Â³Ã™â€¦ Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â§Ã™â€žÃ™Æ’/Ã˜Â§Ã™â€žÃ˜Â´Ã˜Â±Ã™Å Ã™Æ’..."
+              label="المالك أو الشريك المستهدف *"
+              placeholder="ابحث عن اسم المالك/الشريك..."
               variant="outlined"
               density="comfortable"
               required
-              :rules="[v => !!v || 'Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â§Ã™â€žÃ™Æ’/Ã˜Â§Ã™â€žÃ˜Â´Ã˜Â±Ã™Å Ã™Æ’ Ã™â€¦Ã˜Â·Ã™â€žÃ™Ë†Ã˜Â¨']"
+              :rules="[v => !!v || 'المالك/الشريك مطلوب']"
               class="mb-2"
             />
           </v-col>
 
-          <!-- Ã˜Â§Ã™â€žÃ˜Â®Ã˜Â²Ã™Å Ã™â€ Ã˜Â© / Ã˜Â§Ã™â€žÃ˜Â­Ã˜Â³Ã˜Â§Ã˜Â¨ Ã˜Â§Ã™â€žÃ˜Â¨Ã™â€ Ã™Æ’Ã™Å  -->
+          <!-- الخزينة / الحساب البنكي -->
           <v-col cols="12">
             <v-select
               v-model="form.cashbox_id"
@@ -54,51 +54,51 @@
               :loading="loadingBoxes"
               item-title="name"
               item-value="id"
-              label="Ã˜Â§Ã™â€žÃ˜Â®Ã˜Â²Ã™Å Ã™â€ Ã˜Â© Ã˜Â£Ã™Ë† Ã˜Â§Ã™â€žÃ˜Â­Ã˜Â³Ã˜Â§Ã˜Â¨ Ã˜Â§Ã™â€žÃ˜Â¨Ã™â€ Ã™Æ’Ã™Å  Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â±Ã˜ÂªÃ˜Â¨Ã˜Â· *"
+              label="الخزينة أو الحساب البنكي المرتبط *"
               variant="outlined"
               density="comfortable"
               required
-              :rules="[v => !!v || 'Ã˜Â§Ã™â€žÃ˜Â®Ã˜Â²Ã™Å Ã™â€ Ã˜Â© Ã™â€¦Ã˜Â·Ã™â€žÃ™Ë†Ã˜Â¨Ã˜Â©']"
+              :rules="[v => !!v || 'الخزينة مطلوبة']"
               class="mb-2"
             />
           </v-col>
 
-          <!-- Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â¨Ã™â€žÃ˜Âº -->
+          <!-- المبلغ -->
           <v-col cols="12" md="6">
             <v-text-field
               v-model.number="form.amount"
-              label="Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â¨Ã™â€žÃ˜Âº Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â·Ã™â€žÃ™Ë†Ã˜Â¨ *"
+              label="المبلغ المطلوب *"
               type="number"
               step="0.01"
               variant="outlined"
               density="comfortable"
-              prefix="Ã‚Â£"
+              prefix="£"
               required
-              :rules="[v => !!v || 'Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â¨Ã™â€žÃ˜Âº Ã™â€¦Ã˜Â·Ã™â€žÃ™Ë†Ã˜Â¨', v => v > 0 || 'Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â¨Ã™â€žÃ˜Âº Ã™Å Ã˜Â¬Ã˜Â¨ Ã˜Â£Ã™â€  Ã™Å Ã™Æ’Ã™Ë†Ã™â€  Ã˜Â£Ã™Æ’Ã˜Â¨Ã˜Â± Ã™â€¦Ã™â€  Ã˜Â§Ã™â€žÃ˜ÂµÃ™ÂÃ˜Â±']"
+              :rules="[v => !!v || 'المبلغ مطلوب', v => v > 0 || 'المبلغ يجب أن يكون أكبر من الصفر']"
               class="mb-2"
             />
           </v-col>
 
-          <!-- Ã˜ÂªÃ˜Â§Ã˜Â±Ã™Å Ã˜Â® Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â¹Ã˜Â§Ã™â€¦Ã™â€žÃ˜Â© -->
+          <!-- تاريخ المعاملة -->
           <v-col cols="12" md="6">
             <v-text-field
               v-model="form.entry_date"
-              label="Ã˜Â§Ã™â€žÃ˜ÂªÃ˜Â§Ã˜Â±Ã™Å Ã˜Â® Ã˜Â§Ã™â€žÃ™ÂÃ˜Â¹Ã™â€žÃ™Å  Ã™â€žÃ™â€žÃ™â€¦Ã˜Â·Ã˜Â§Ã˜Â¨Ã™â€šÃ˜Â© *"
+              label="التاريخ الفعلي للمطابقة *"
               type="date"
               variant="outlined"
               density="comfortable"
               required
-              :rules="[v => !!v || 'Ã˜Â§Ã™â€žÃ˜ÂªÃ˜Â§Ã˜Â±Ã™Å Ã˜Â® Ã™â€¦Ã˜Â·Ã™â€žÃ™Ë†Ã˜Â¨']"
+              :rules="[v => !!v || 'التاريخ مطلوب']"
               class="mb-2"
             />
           </v-col>
 
-          <!-- Ã˜Â§Ã™â€žÃ™â€¦Ã™â€žÃ˜Â§Ã˜Â­Ã˜Â¸Ã˜Â§Ã˜Âª -->
+          <!-- الملاحظات -->
           <v-col cols="12">
             <v-textarea
               v-model="form.description"
-              label="Ã™â€¦Ã™â€žÃ˜Â§Ã˜Â­Ã˜Â¸Ã˜Â§Ã˜Âª Ã™Ë†Ã˜ÂªÃ™ÂÃ˜Â§Ã˜ÂµÃ™Å Ã™â€ž Ã˜Â§Ã™â€žÃ˜Â­Ã˜Â±Ã™Æ’Ã˜Â©"
-              placeholder="Ã˜Â§Ã™Æ’Ã˜ÂªÃ˜Â¨ Ã˜ÂªÃ™ÂÃ˜Â§Ã˜ÂµÃ™Å Ã™â€ž Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â¹Ã˜Â§Ã™â€¦Ã™â€žÃ˜Â© (Ã™â€¦Ã˜Â«Ã˜Â§Ã™â€ž: Ã˜Â²Ã™Å Ã˜Â§Ã˜Â¯Ã˜Â© Ã˜Â§Ã™â€žÃ˜Â­Ã˜ÂµÃ˜Â© Ã˜Â§Ã™â€žÃ™â€ Ã™â€šÃ˜Â¯Ã™Å Ã˜Â© Ã™ÂÃ™Å  Ã˜Â±Ã˜Â£Ã˜Â³ Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â§Ã™â€ž...)"
+              label="ملاحظات وتفاصيل الحركة"
+              placeholder="اكتب تفاصيل المعاملة (مثال: زيادة الحصة النقدية في رأس المال...)"
               rows="2"
               variant="outlined"
               density="comfortable"
@@ -135,14 +135,14 @@ const api = useApi('/api/owner-fund-transactions');
 const boxesApi = useApi('/api/cash-boxes');
 
 const transactionTypes = [
-  { title: 'Ã˜Â²Ã™Å Ã˜Â§Ã˜Â¯Ã˜Â© Ã˜Â±Ã˜Â£Ã˜Â³ Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â§Ã™â€ž (Capital Increase)', value: 'capital_increase' },
-  { title: 'Ã™â€¦Ã˜Â³Ã˜Â§Ã™â€¡Ã™â€¦Ã˜Â© Ã˜Â´Ã˜Â±Ã™Å Ã™Æ’ Ã˜Â¬Ã˜Â§Ã˜Â±Ã™Å  (Partner Contribution)', value: 'partner_contribution' },
-  { title: 'Ã™â€šÃ˜Â±Ã˜Â¶ Ã™â€¦Ã™â€  Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â§Ã™â€žÃ™Æ’ Ã™â€žÃ™â€žÃ˜Â´Ã˜Â±Ã™Æ’Ã˜Â© (Loan from Owner)', value: 'loan_from_owner' },
-  { title: 'Ã™â€šÃ˜Â±Ã˜Â¶ Ã™â€¦Ã™â€  Ã˜Â§Ã™â€žÃ˜Â´Ã˜Â±Ã™Æ’Ã˜Â© Ã™â€žÃ™â€žÃ™â€¦Ã˜Â§Ã™â€žÃ™Æ’ (Loan to Owner)', value: 'loan_to_owner' },
-  { title: 'Ã˜Â³Ã™â€žÃ™ÂÃ˜Â© Ã™â€¦Ã™â€  Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â§Ã™â€žÃ™Æ’ (Advance from Owner)', value: 'advance_from_owner' },
-  { title: 'Ã˜Â³Ã™â€žÃ™ÂÃ˜Â© Ã™â€žÃ™â€žÃ˜Â´Ã˜Â±Ã™Å Ã™Æ’ (Advance to Partner)', value: 'advance_to_partner' },
-  { title: 'Ã˜Â³Ã˜Â­Ã˜Â¨ Ã˜Â£Ã˜Â±Ã˜Â¨Ã˜Â§Ã˜Â­ (Drawings)', value: 'drawings' },
-  { title: 'Ã˜ÂªÃ™Ë†Ã˜Â²Ã™Å Ã˜Â¹ Ã˜Â£Ã˜Â±Ã˜Â¨Ã˜Â§Ã˜Â­ (Profit Distribution)', value: 'profit_distribution' },
+  { title: 'زيادة رأس المال (Capital Increase)', value: 'capital_increase' },
+  { title: 'مساهمة شريك جاري (Partner Contribution)', value: 'partner_contribution' },
+  { title: 'قرض من المالك للشركة (Loan from Owner)', value: 'loan_from_owner' },
+  { title: 'قرض من الشركة للمالك (Loan to Owner)', value: 'loan_to_owner' },
+  { title: 'سلفة من المالك (Advance from Owner)', value: 'advance_from_owner' },
+  { title: 'سلفة للشريك (Advance to Partner)', value: 'advance_to_partner' },
+  { title: 'سحب أرباح (Drawings)', value: 'drawings' },
+  { title: 'توزيع أرباح (Profit Distribution)', value: 'profit_distribution' },
 ];
 
 const form = reactive({
@@ -211,7 +211,7 @@ const handleSubmit = async () => {
   loading.value = true;
   try {
     const response = await api.create({ ...form });
-    notificationManager.success('Ã˜ÂªÃ™â€¦ Ã˜ÂªÃ˜Â³Ã˜Â¬Ã™Å Ã™â€ž Ã™â€¦Ã˜Â¹Ã˜Â§Ã™â€¦Ã™â€žÃ˜Â© Ã˜Â£Ã™â€¦Ã™Ë†Ã˜Â§Ã™â€ž Ã˜Â§Ã™â€žÃ™â€¦Ã™â€žÃ˜Â§Ã™Æ’/Ã˜Â§Ã™â€žÃ˜Â´Ã˜Â±Ã™Æ’Ã˜Â§Ã˜Â¡ Ã˜Â¨Ã™â€ Ã˜Â¬Ã˜Â§Ã˜Â­.');
+    notificationManager.success('تم تسجيل معاملة أموال الملاك/الشركاء بنجاح.');
     emit('success', response.data);
     close();
   } catch (error) {
