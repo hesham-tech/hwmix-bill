@@ -1,32 +1,32 @@
 import { PERMISSIONS } from './permissions';
 
 export default [
-  // ==================== 1. Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ© ÙˆØ§Ù„Ø¥Ø¯Ø§Ø±Ø© (Workspace) ====================
+  // ==================== 1. الرئيسية والإدارة (Workspace) ====================
   {
-    title: 'Ù„ÙˆØ­Ø© Ø§Ù„ØªØ­ÙƒÙ…',
+    title: 'لوحة التحكم',
     icon: 'ri-dashboard-line',
     to: '/app/admin/dashboard',
     permission: null,
   },
   {
-    title: 'Ø§Ù„Ù…Ù‡Ø§Ù… ÙˆØ§Ù„Ù…Ø´Ø§Ø±ÙŠØ¹',
+    title: 'المهام والمشاريع',
     icon: 'ri-list-settings-line',
     permission: PERMISSIONS.ADMIN_SUPER,
     children: [
       {
-        title: 'Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ù…Ù‡Ø§Ù…',
+        title: 'قائمة المهام',
         to: '/app/tasks',
         icon: 'ri-task-line',
         permission: PERMISSIONS.ADMIN_SUPER,
       },
       {
-        title: 'Ù…Ø¬Ù…ÙˆØ¹Ø§Øª Ø§Ù„Ø¹Ù…Ù„',
+        title: 'مجموعات العمل',
         to: '/app/task-groups',
         icon: 'ri-team-line',
         permission: PERMISSIONS.ADMIN_SUPER,
       },
       {
-        title: 'Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ø§Ø®ØªØ¨Ø§Ø±',
+        title: 'قائمة الاختبار',
         to: '/app/testing-checklist',
         icon: 'ri-list-check-3',
         permission: PERMISSIONS.ADMIN_SUPER,
@@ -34,38 +34,38 @@ export default [
     ],
   },
   {
-    title: 'Ø³Ø¬Ù„ Ø§Ù„Ø£Ù†Ø´Ø·Ø©',
+    title: 'سجل الأنشطة',
     icon: 'ri-history-line',
     to: '/app/activity-logs',
     permission: [PERMISSIONS.ACTIVITY_LOGS_VIEW_ALL, PERMISSIONS.ACTIVITY_LOGS_VIEW_CHILDREN, PERMISSIONS.ACTIVITY_LOGS_VIEW_SELF],
   },
 
-  // ==================== 2. Ø§Ù„Ù…Ø¨ÙŠØ¹Ø§Øª ÙˆØ§Ù„Ø¹Ù…Ù„Ø§Ø¡ (Sales & CRM) ====================
+  // ==================== 2. المبيعات والعملاء (Sales & CRM) ====================
   {
-    title: 'Ø§Ù„ÙÙˆØ§ØªÙŠØ± ÙˆØ§Ù„Ø¨ÙŠØ¹',
+    title: 'الفواتير والبيع',
     icon: 'ri-file-list-3-line',
     permission: PERMISSIONS.INVOICES_PAGE,
     children: [
       {
-        title: 'Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„ÙÙˆØ§ØªÙŠØ±',
+        title: 'قائمة الفواتير',
         to: '/app/invoices',
         icon: 'ri-file-list-line',
         permission: [PERMISSIONS.INVOICES_VIEW_ALL, PERMISSIONS.INVOICES_VIEW_CHILDREN, PERMISSIONS.INVOICES_VIEW_SELF],
       },
       {
-        title: 'ÙØ§ØªÙˆØ±Ø© Ø¨ÙŠØ¹',
+        title: 'فاتورة بيع',
         to: '/app/invoices/create?type=sale',
         icon: 'ri-file-add-line',
         permission: PERMISSIONS.INVOICES_CREATE,
       },
       {
-        title: 'ÙØ§ØªÙˆØ±Ø© ØªÙ‚Ø³ÙŠØ·',
+        title: 'فاتورة تقسيط',
         to: '/app/invoices/create?type=installment_sale',
         icon: 'ri-calendar-todo-line',
         permission: PERMISSIONS.INVOICES_CREATE,
       },
       {
-        title: 'ÙØ§ØªÙˆØ±Ø© Ø´Ø±Ø§Ø¡',
+        title: 'فاتورة شراء',
         to: '/app/invoices/create?type=purchase',
         icon: 'ri-shopping-cart-line',
         permission: PERMISSIONS.INVOICES_CREATE,
@@ -73,24 +73,24 @@ export default [
     ],
   },
   {
-    title: 'Ø§Ù„ØªÙ‚Ø³ÙŠØ· Ø§Ù„Ù…Ø§Ù„ÙŠ',
+    title: 'التقسيط المالي',
     icon: 'ri-calendar-schedule-line',
     permission: PERMISSIONS.PAYMENTS_PAGE,
     children: [
       {
-        title: 'Ø®Ø·Ø· Ø§Ù„ØªÙ‚Ø³ÙŠØ·',
+        title: 'خطط التقسيط',
         to: '/app/installment-plans',
         icon: 'ri-calendar-check-line',
         permission: [PERMISSIONS.INSTALLMENT_PLANS_VIEW_ALL, PERMISSIONS.INSTALLMENT_PLANS_VIEW_CHILDREN, PERMISSIONS.INSTALLMENT_PLANS_VIEW_SELF],
       },
       {
-        title: 'Ø§Ù„Ø£Ù‚Ø³Ø§Ø· Ø§Ù„Ù…Ø¬Ø¯ÙˆÙ„Ø©',
+        title: 'الأقساط المجدولة',
         to: '/app/installments',
         icon: 'ri-list-ordered',
         permission: [PERMISSIONS.INSTALLMENT_PLANS_VIEW_ALL, PERMISSIONS.INSTALLMENT_PLANS_VIEW_CHILDREN, PERMISSIONS.INSTALLMENT_PLANS_VIEW_SELF],
       },
       {
-        title: 'Ø¯ÙØ¹Ø§Øª Ø§Ù„Ø£Ù‚Ø³Ø§Ø·',
+        title: 'دفعات الأقساط',
         to: '/app/installment-payments',
         icon: 'ri-money-dollar-box-line',
         permission: [
@@ -102,62 +102,62 @@ export default [
     ],
   },
   {
-    title: 'Ø§Ù„Ø¹Ù…Ù„Ø§Ø¡ ÙˆØ§Ù„Ø¬Ù…Ù‡ÙˆØ±',
+    title: 'العملاء والجمهور',
     icon: 'ri-user-heart-line',
     to: '/app/customers',
     permission: [PERMISSIONS.USERS_VIEW_ALL],
   },
 
-  // ==================== 3. Ø§Ù„Ù…Ø®Ø§Ø²Ù† ÙˆØ§Ù„Ù…Ù†ØªØ¬Ø§Øª (Catalog & Stock) ====================
+  // ==================== 3. المخازن والمنتجات (Catalog & Stock) ====================
   {
-    title: 'Ø§Ù„Ù…Ù†ØªØ¬Ø§Øª ÙˆØ§Ù„Ù…Ø®Ø§Ø²Ù†',
+    title: 'المنتجات والمخازن',
     icon: 'ri-shopping-bag-3-line',
     permission: PERMISSIONS.PRODUCTS_PAGE,
     children: [
       {
-        title: 'Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ù…Ù†ØªØ¬Ø§Øª',
+        title: 'قائمة المنتجات',
         to: '/app/products',
         icon: 'ri-list-check',
         permission: [PERMISSIONS.PRODUCTS_VIEW_ALL, PERMISSIONS.PRODUCTS_VIEW_CHILDREN, PERMISSIONS.PRODUCTS_VIEW_SELF],
       },
       {
-        title: 'Ù…ØªØºÙŠØ±Ø§Øª Ø§Ù„Ù…Ù†ØªØ¬Ø§Øª',
+        title: 'متغيرات المنتجات',
         to: '/app/product-variants',
         icon: 'ri-bubble-chart-line',
         permission: [PERMISSIONS.PRODUCT_VARIANTS_VIEW_ALL, PERMISSIONS.PRODUCT_VARIANTS_VIEW_CHILDREN, PERMISSIONS.PRODUCT_VARIANTS_VIEW_SELF],
       },
       {
-        title: 'Ø¥Ø¶Ø§ÙØ© Ù…Ù†ØªØ¬ Ø¬Ø¯ÙŠØ¯',
+        title: 'إضافة منتج جديد',
         to: '/app/products/create',
         icon: 'ri-add-box-line',
         permission: PERMISSIONS.PRODUCTS_CREATE,
       },
       {
-        title: 'Ø§Ù„Ø£Ù‚Ø³Ø§Ù… ÙˆØ§Ù„ÙØ¦Ø§Øª',
+        title: 'الأقسام والفئات',
         to: '/app/categories',
         icon: 'ri-organization-chart',
         permission: [PERMISSIONS.CATEGORIES_VIEW_ALL, PERMISSIONS.CATEGORIES_VIEW_CHILDREN, PERMISSIONS.CATEGORIES_VIEW_SELF],
       },
       {
-        title: 'Ø§Ù„Ø¹Ù„Ø§Ù…Ø§Øª Ø§Ù„ØªØ¬Ø§Ø±ÙŠØ©',
+        title: 'العلامات التجارية',
         to: '/app/brands',
         icon: 'ri-price-tag-3-line',
         permission: [PERMISSIONS.BRANDS_VIEW_ALL, PERMISSIONS.BRANDS_VIEW_CHILDREN, PERMISSIONS.BRANDS_VIEW_SELF],
       },
       {
-        title: 'Ø®ØµØ§Ø¦Øµ Ø§Ù„Ù…Ù†ØªØ¬Ø§Øª',
+        title: 'خصائص المنتجات',
         to: '/app/attributes',
         icon: 'ri-list-settings-line',
         permission: [PERMISSIONS.ATTRIBUTES_VIEW_ALL, PERMISSIONS.ATTRIBUTES_VIEW_CHILDREN, PERMISSIONS.ATTRIBUTES_VIEW_SELF],
       },
       {
-        title: 'Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…Ø³ØªÙˆØ¯Ø¹Ø§Øª',
+        title: 'إدارة المستودعات',
         to: '/app/warehouses',
         icon: 'ri-building-line',
         permission: [PERMISSIONS.WAREHOUSES_VIEW_ALL, PERMISSIONS.WAREHOUSES_VIEW_CHILDREN, PERMISSIONS.WAREHOUSES_VIEW_SELF],
       },
       {
-        title: 'ÙˆØ­Ø¯Ø§Øª Ø§Ù„Ù‚ÙŠØ§Ø³',
+        title: 'وحدات القياس',
         to: '/app/units',
         icon: 'ri-scales-3-line',
         permission: [PERMISSIONS.PRODUCTS_CREATE, PERMISSIONS.ADMIN_SUPER, PERMISSIONS.ADMIN_COMPANY],
@@ -165,18 +165,18 @@ export default [
     ],
   },
   {
-    title: 'Ø§Ù„Ø®Ø¯Ù…Ø§Øª ÙˆØ§Ù„Ø§Ø´ØªØ±Ø§ÙƒØ§Øª',
+    title: 'الخدمات والاشتراكات',
     icon: 'ri-customer-service-2-line',
     permission: PERMISSIONS.PRODUCTS_PAGE,
     children: [
       {
-        title: 'Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ø®Ø¯Ù…Ø§Øª',
+        title: 'قائمة الخدمات',
         to: '/app/services',
         icon: 'ri-settings-5-line',
         permission: [PERMISSIONS.PRODUCTS_VIEW_ALL],
       },
       {
-        title: 'Ø§Ù„Ø§Ø´ØªØ±Ø§ÙƒØ§Øª Ø§Ù„Ø¬Ø§Ø±ÙŠØ©',
+        title: 'الاشتراكات الجارية',
         to: '/app/subscriptions',
         icon: 'ri-repeat-2-line',
         permission: [PERMISSIONS.PRODUCTS_VIEW_ALL],
@@ -184,20 +184,20 @@ export default [
     ],
   },
 
-  // ==================== 4. Ø§Ù„Ø®Ø²ÙŠÙ†Ø© ÙˆØ§Ù„Ù…Ø§Ù„ÙŠØ© (Treasury & Finance) ====================
+  // ==================== 4. الخزينة والمالية (Treasury & Finance) ====================
   {
-    title: 'Ø§Ù„Ø®Ø²Ø§Ø¦Ù† ÙˆØ§Ù„Ù†Ù‚Ø¯ÙŠØ©',
+    title: 'الخزائن والنقدية',
     icon: 'ri-safe-line',
     permission: PERMISSIONS.CASH_BOXES_PAGE,
     children: [
       {
-        title: 'Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ø®Ø²Ø§Ø¦Ù†',
+        title: 'قائمة الخزائن',
         to: '/app/cashboxes',
         icon: 'ri-inbox-line',
         permission: [PERMISSIONS.CASH_BOXES_VIEW_ALL, PERMISSIONS.CASH_BOXES_VIEW_CHILDREN, PERMISSIONS.CASH_BOXES_VIEW_SELF],
       },
       {
-        title: 'Ø§Ù„ØªØ­ÙˆÙŠÙ„Ø§Øª Ø§Ù„Ù†Ù‚Ø¯ÙŠØ©',
+        title: 'التحويلات النقدية',
         to: '/app/transactions',
         icon: 'ri-exchange-line',
         permission: [PERMISSIONS.TRANSACTIONS_VIEW_ALL, PERMISSIONS.TRANSACTIONS_VIEW_CHILDREN, PERMISSIONS.TRANSACTIONS_VIEW_SELF],
@@ -205,24 +205,24 @@ export default [
     ],
   },
   {
-    title: 'Ø§Ù„Ù…Ø¯ÙÙˆØ¹Ø§Øª ÙˆØ§Ù„Ù…ØµØ§Ø±ÙŠÙ',
+    title: 'المدفوعات والمصاريف',
     icon: 'ri-money-dollar-circle-line',
     permission: PERMISSIONS.PAYMENTS_PAGE,
     children: [
       {
-        title: 'Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ù…Ø¯ÙÙˆØ¹Ø§Øª',
+        title: 'قائمة المدفوعات',
         to: '/app/payments',
         icon: 'ri-list-check-2',
         permission: [PERMISSIONS.PAYMENTS_VIEW_ALL, PERMISSIONS.PAYMENTS_VIEW_CHILDREN, PERMISSIONS.PAYMENTS_VIEW_SELF],
       },
       {
-        title: 'Ø¥Ø¶Ø§ÙØ© Ø¯ÙØ¹Ø©',
+        title: 'إضافة دفعة',
         to: '/app/payments/create',
         icon: 'ri-add-circle-line',
         permission: PERMISSIONS.PAYMENTS_CREATE,
       },
       {
-        title: 'Ø§Ù„Ù…ØµØ§Ø±ÙŠÙ Ø§Ù„ØªØ´ØºÙŠÙ„ÙŠØ©',
+        title: 'المصاريف التشغيلية',
         to: '/app/expenses',
         icon: 'ri-money-dollar-box-line',
         permission: [PERMISSIONS.EXPENSES_VIEW_ALL, PERMISSIONS.EXPENSES_VIEW_CHILDREN, PERMISSIONS.EXPENSES_VIEW_SELF],
@@ -230,7 +230,7 @@ export default [
     ],
   },
   {
-    title: 'Ø§Ù„Ø­Ø³Ø§Ø¨Ø§Øª ÙˆØ§Ù„Ù…Ø§Ù„ÙŠØ©',
+    title: 'الحسابات والمالية',
     icon: 'ri-bank-card-2-line',
     permission: [
       PERMISSIONS.TRANSACTIONS_VIEW_ALL,
@@ -240,25 +240,25 @@ export default [
     ],
     children: [
       {
-        title: 'Ø³Ø¬Ù„ Ø§Ù„Ù…Ø¹Ø§Ù…Ù„Ø§Øª',
+        title: 'سجل المعاملات',
         to: '/app/financials',
         icon: 'ri-exchange-funds-line',
         permission: [PERMISSIONS.TRANSACTIONS_VIEW_ALL],
       },
       {
-        title: 'Ø¯ÙØªØ± Ø§Ù„Ø£Ø³ØªØ§Ø°',
+        title: 'دفتر الأستاذ',
         to: '/app/financial-ledger',
         icon: 'ri-book-open-line',
         permission: [PERMISSIONS.FINANCIAL_LEDGER_VIEW_ALL, PERMISSIONS.FINANCIAL_LEDGER_VIEW_CHILDREN, PERMISSIONS.FINANCIAL_LEDGER_VIEW_SELF],
       },
       {
-        title: 'Ø£Ù…ÙˆØ§Ù„ Ø§Ù„Ø´Ø±ÙƒØ§Ø¡',
+        title: 'أموال الشركاء',
         to: '/app/owner-funds',
         icon: 'ri-pie-chart-box-line',
         permission: 'owner_fund_transactions.page',
       },
       {
-        title: 'Ø§Ù„Ø¹Ù‡Ø¯',
+        title: 'العهد',
         to: '/app/custodies',
         icon: 'ri-wallet-3-line',
         permission: [PERMISSIONS.CUSTODIES_VIEW_ALL, PERMISSIONS.CUSTODIES_VIEW_SELF],
@@ -266,38 +266,38 @@ export default [
     ],
   },
 
-  // ==================== 5. Ø§Ù„ØªÙ‚Ø§Ø±ÙŠØ± ÙˆØ§Ù„ØªØ­Ù„ÙŠÙ„Ø§Øª (Reports & Analytics) ====================
+  // ==================== 5. التقارير والتحليلات (Reports & Analytics) ====================
   {
-    title: 'Ø§Ù„ØªÙ‚Ø§Ø±ÙŠØ± ÙˆØ§Ù„ØªØ­Ù„ÙŠÙ„Ø§Øª',
+    title: 'التقارير والتحليلات',
     icon: 'ri-line-chart-line',
     permission: PERMISSIONS.REPORTS_PAGE,
     children: [
       {
-        title: 'ØªÙ‚Ø±ÙŠØ± Ø§Ù„Ù…Ø¨ÙŠØ¹Ø§Øª',
+        title: 'تقرير المبيعات',
         to: '/app/reports/sales',
         icon: 'ri-bar-chart-box-line',
         permission: PERMISSIONS.REPORTS_SALES,
       },
       {
-        title: 'ØªÙ‚Ø±ÙŠØ± Ø§Ù„Ù…Ø®Ø²ÙˆÙ†',
+        title: 'تقرير المخزون',
         to: '/app/reports/stock',
         icon: 'ri-database-2-line',
         permission: PERMISSIONS.REPORTS_STOCK,
       },
       {
-        title: 'ØªÙ‚Ø±ÙŠØ± Ø§Ù„Ø£Ø±Ø¨Ø§Ø­ ÙˆØ§Ù„Ø®Ø³Ø§Ø¦Ø±',
+        title: 'تقرير الأرباح والخسائر',
         to: '/app/reports/profit',
         icon: 'ri-funds-line',
         permission: PERMISSIONS.REPORTS_PROFIT,
       },
       {
-        title: 'ØªÙ‚Ø±ÙŠØ± Ø§Ù„ØªØ¯ÙÙ‚ Ø§Ù„Ù†Ù‚Ø¯ÙŠ',
+        title: 'تقرير التدفق النقدي',
         to: '/app/reports/cash-flow',
         icon: 'ri-exchange-funds-line',
         permission: PERMISSIONS.REPORTS_CASH_FLOW,
       },
       {
-        title: 'ØªÙ‚Ø±ÙŠØ± Ø§Ù„Ø¶Ø±Ø§Ø¦Ø¨',
+        title: 'تقرير الضرائب',
         to: '/app/reports/tax',
         icon: 'ri-percent-line',
         permission: PERMISSIONS.REPORTS_TAX,
@@ -305,20 +305,20 @@ export default [
     ],
   },
 
-  // ==================== 6. Ø§Ù„Ù…ÙˆØ§Ø±Ø¯ Ø§Ù„Ø¨Ø´Ø±ÙŠØ© ÙˆØ§Ù„ÙˆØµÙˆÙ„ (HR & Permissions) ====================
+  // ==================== 6. الموارد البشرية والوصول (HR & Permissions) ====================
   {
-    title: 'Ø§Ù„Ù…ÙˆØ¸ÙÙˆÙ† ÙˆØ§Ù„ØµÙ„Ø§Ø­ÙŠØ§Øª',
+    title: 'الموظفون والصلاحيات',
     icon: 'ri-user-line',
     permission: PERMISSIONS.USERS_PAGE,
     children: [
       {
-        title: 'Ø§Ù„Ù…ÙˆØ¸ÙÙˆÙ†',
+        title: 'الموظفون',
         to: '/app/users',
         icon: 'ri-group-line',
         permission: [PERMISSIONS.USERS_VIEW_ALL, PERMISSIONS.USERS_VIEW_CHILDREN, PERMISSIONS.USERS_VIEW_SELF],
       },
       {
-        title: 'Ø§Ù„Ø£Ø¯ÙˆØ§Ø± ÙˆØ§Ù„ØµÙ„Ø§Ø­ÙŠØ§Øª',
+        title: 'الأدوار والصلاحيات',
         to: '/app/roles',
         icon: 'ri-shield-user-line',
         permission: [PERMISSIONS.ROLES_VIEW_ALL, PERMISSIONS.ROLES_VIEW_CHILDREN, PERMISSIONS.ROLES_VIEW_SELF],
@@ -326,9 +326,9 @@ export default [
     ],
   },
 
-  // ==================== 7. ÙƒØ§Ø´ Ù‡ÙˆÙ†ÙƒØ³ (HwnixCash) ====================
+  // ==================== 7. كاش هونكس (HwnixCash) ====================
   {
-    title: 'ÙƒØ§Ø´ Ù‡ÙˆÙ†ÙƒØ³',
+    title: 'كاش هونكس',
     icon: 'ri-smartphone-line',
     permission: [
       PERMISSIONS.HWNIX_CASH_VIEW_ALL,
@@ -339,31 +339,31 @@ export default [
     ],
     children: [
       {
-        title: 'Ù„ÙˆØ­Ø© Ø§Ù„ØªØ­ÙƒÙ…',
+        title: 'لوحة التحكم',
         to: '/app/hwnix-cash/dashboard',
         icon: 'ri-dashboard-line',
         permission: [PERMISSIONS.HWNIX_CASH_VIEW_ALL, PERMISSIONS.HWNIX_CASH_VIEW_SELF],
       },
       {
-        title: 'Ø§Ù„Ø®Ø·ÙˆØ· ÙˆØ§Ù„Ø£Ø¬Ù‡Ø²Ø©',
+        title: 'الخطوط والأجهزة',
         to: '/app/hwnix-cash/lines',
         icon: 'ri-sim-card-line',
         permission: [PERMISSIONS.HWNIX_CASH_VIEW_ALL, PERMISSIONS.HWNIX_CASH_VIEW_SELF],
       },
       {
-        title: 'Ø§Ù„Ø­Ø³Ø§Ø¨Ø§Øª Ø§Ù„Ù…Ø§Ù„ÙŠØ© ÙˆØ§Ù„Ù…Ø­Ø§ÙØ¸',
+        title: 'الحسابات المالية والمحافظ',
         to: '/app/hwnix-cash/financial-accounts',
         icon: 'ri-wallet-3-line',
         permission: [PERMISSIONS.HWNIX_CASH_VIEW_ALL, PERMISSIONS.HWNIX_CASH_VIEW_SELF],
       },
       {
-        title: 'Ø³Ø¬Ù„ Ø§Ù„Ø±Ø³Ø§Ø¦Ù„',
+        title: 'سجل الرسائل',
         to: '/app/hwnix-cash/messages',
         icon: 'ri-message-3-line',
         permission: [PERMISSIONS.HWNIX_CASH_MESSAGES_VIEW_ALL, PERMISSIONS.HWNIX_CASH_MESSAGES_VIEW_SELF],
       },
       {
-        title: 'Ù…Ø¹Ø§Ù…Ù„Ø§Øª Ø§Ù„Ù…Ø­Ø§ÙØ¸',
+        title: 'معاملات المحافظ',
         to: '/app/hwnix-cash/wallet-transactions',
         icon: 'ri-exchange-dollar-line',
         permission: [PERMISSIONS.HWNIX_CASH_WALLET_TRANSACTIONS_VIEW_ALL, PERMISSIONS.HWNIX_CASH_WALLET_TRANSACTIONS_VIEW_SELF],
@@ -371,38 +371,38 @@ export default [
     ],
   },
 
-  // ==================== 8. Ø§Ù„ØªÙƒØ§Ù…Ù„Ø§Øª ÙˆØ§Ù„Ø±Ø¨Ø· (Integrations & Connections) ====================
+  // ==================== 8. التكاملات والربط (Integrations & Connections) ====================
   {
-    title: 'Ø§Ù„ØªÙƒØ§Ù…Ù„Ø§Øª ÙˆØ§Ù„Ø±Ø¨Ø·',
+    title: 'التكاملات والربط',
     icon: 'ri-link-m',
     permission: PERMISSIONS.ADMIN_COMPANY,
     children: [
       {
-        title: 'Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Ø§Ù„Ø¨Ø±ÙŠØ¯',
+        title: 'إعدادات البريد',
         to: '/app/mail',
         icon: 'ri-mail-settings-line',
         permission: [PERMISSIONS.ADMIN_SUPER, PERMISSIONS.ADMIN_COMPANY],
       },
       {
-        title: 'Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Ø§Ù„ÙˆØ§ØªØ³Ø§Ø¨',
+        title: 'إعدادات الواتساب',
         to: '/app/whatsapp',
         icon: 'ri-whatsapp-line',
         permission: [PERMISSIONS.ADMIN_SUPER, PERMISSIONS.ADMIN_COMPANY],
       },
       {
-        title: 'Ù‚ÙˆØ§Ù„Ø¨ Ø§Ù„Ø±Ø³Ø§Ø¦Ù„ ÙˆØ§Ù„Ø¥Ø´Ø¹Ø§Ø±Ø§Øª',
+        title: 'قوالب الرسائل والإشعارات',
         to: '/app/notification-templates',
         icon: 'ri-file-text-line',
         permission: [PERMISSIONS.ADMIN_SUPER, PERMISSIONS.ADMIN_COMPANY],
       },
       {
-        title: 'Ø£ØªÙ…ØªØ© ÙˆØ¬Ø¯ÙˆÙ„Ø© Ø§Ù„Ø¥Ø´Ø¹Ø§Ø±Ø§Øª',
+        title: 'أتمتة وجدولة الإشعارات',
         to: '/app/notification-workflows',
         icon: 'ri-settings-line',
         permission: [PERMISSIONS.ADMIN_SUPER, PERMISSIONS.ADMIN_COMPANY],
       },
       {
-        title: 'Ø¨ÙˆØ§Ø¨Ø§Øª Ø§Ù„Ø¯ÙØ¹ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ',
+        title: 'بوابات الدفع الإلكتروني',
         to: '/app/payment-gateways',
         icon: 'ri-bank-card-line',
         permission: [PERMISSIONS.ADMIN_SUPER, PERMISSIONS.ADMIN_COMPANY],
@@ -410,32 +410,32 @@ export default [
     ],
   },
 
-  // ==================== 8. ØªÙ‡ÙŠØ¦Ø© Ø§Ù„Ø¹Ù…Ù„ÙŠØ§Øª ÙˆØ§Ù„ØªØ´ØºÙŠÙ„ (Configuration) ====================
+  // ==================== 8. تهيئة العمليات والتشغيل (Configuration) ====================
   {
-    title: 'ØªÙ‡ÙŠØ¦Ø© Ø§Ù„ØªØ´ØºÙŠÙ„',
+    title: 'تهيئة التشغيل',
     icon: 'ri-settings-5-line',
     permission: PERMISSIONS.ADMIN_COMPANY,
     children: [
       {
-        title: 'Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„ÙØ±ÙˆØ¹',
+        title: 'إدارة الفروع',
         to: '/app/branches',
         icon: 'ri-git-branch-line',
         permission: [PERMISSIONS.BRANCHES_VIEW_ALL],
       },
       {
-        title: 'Ø·Ø±Ù‚ Ø§Ù„Ø¯ÙØ¹',
+        title: 'طرق الدفع',
         to: '/app/payment-methods',
         icon: 'ri-bank-card-line',
         permission: [PERMISSIONS.PAYMENT_METHODS_VIEW_ALL, PERMISSIONS.PAYMENT_METHODS_VIEW_CHILDREN, PERMISSIONS.PAYMENT_METHODS_VIEW_SELF],
       },
       {
-        title: 'Ø£Ù†ÙˆØ§Ø¹ Ø§Ù„ÙÙˆØ§ØªÙŠØ±',
+        title: 'أنواع الفواتير',
         to: '/app/invoice-types',
         icon: 'ri-file-copy-line',
         permission: [PERMISSIONS.INVOICE_TYPES_VIEW_ALL, PERMISSIONS.INVOICE_TYPES_VIEW_CHILDREN, PERMISSIONS.INVOICE_TYPES_VIEW_SELF],
       },
       {
-        title: 'Ø£Ù†ÙˆØ§Ø¹ Ø§Ù„Ø®Ø²Ø§Ø¦Ù†',
+        title: 'أنواع الخزائن',
         to: '/app/cashbox-types',
         icon: 'ri-safe-2-line',
         permission: [PERMISSIONS.CASH_BOX_TYPES_VIEW_ALL, PERMISSIONS.CASH_BOX_TYPES_VIEW_CHILDREN, PERMISSIONS.CASH_BOX_TYPES_VIEW_SELF],
@@ -443,38 +443,38 @@ export default [
     ],
   },
 
-  // ==================== 9. Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Ø§Ù„Ù†Ø¸Ø§Ù… ÙˆØ§Ù„Ø­Ø³Ø§Ø¨ (System Settings) ====================
+  // ==================== 9. إعدادات النظام والحساب (System Settings) ====================
   {
-    title: 'Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Ø§Ù„Ù†Ø¸Ø§Ù…',
+    title: 'إعدادات النظام',
     icon: 'ri-settings-3-line',
     permission: PERMISSIONS.ADMIN_COMPANY,
     children: [
       {
-        title: 'Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Ø§Ù„Ø´Ø±ÙƒØ©',
+        title: 'إعدادات الشركة',
         to: '/app/company',
         icon: 'ri-building-2-line',
         permission: [PERMISSIONS.ADMIN_SUPER, PERMISSIONS.ADMIN_COMPANY],
       },
       {
-        title: 'Ø§Ø´ØªØ±Ø§ÙƒÙŠ Ø§Ù„Ø­Ø§Ù„ÙŠ',
+        title: 'اشتراكي الحالي',
         to: '/app/my-subscription',
         icon: 'ri-vip-crown-2-line',
         permission: [PERMISSIONS.ADMIN_SUPER, PERMISSIONS.ADMIN_COMPANY],
       },
       {
-        title: 'Ø§Ù„Ù…Ø³ØªÙ†Ø¯Ø§Øª Ø§Ù„Ù‚Ø§Ù†ÙˆÙ†ÙŠØ©',
+        title: 'المستندات القانونية',
         to: '/app/admin/legal-documents',
         icon: 'ri-file-shield-2-line',
         permission: [PERMISSIONS.LEGAL_DOCUMENTS_VIEW_ALL, PERMISSIONS.ADMIN_SUPER],
       },
       {
-        title: 'Ø³Ø¬Ù„ÙŠ Ø§Ù„Ù‚Ø§Ù†ÙˆÙ†ÙŠ',
+        title: 'سجلي القانوني',
         to: '/app/legal-history',
         icon: 'ri-history-line',
         permission: null,
       },
       {
-        title: 'Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ø£Ø¬Ù‡Ø²Ø©',
+        title: 'إدارة الأجهزة',
         to: '/app/sessions',
         icon: 'ri-device-line',
         permission: null,
@@ -482,38 +482,38 @@ export default [
     ],
   },
 
-  // ==================== 10. Ø¥Ø¯Ø§Ø±Ø© Ù…Ù†ØµØ© Ø§Ù„Ø³Ø§Ø³ (SaaS Admin Control) ====================
+  // ==================== 10. إدارة منصة الساس (SaaS Admin Control) ====================
   {
-    title: 'Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ø³Ø§Ø³',
+    title: 'إدارة الساس',
     icon: 'ri-vip-crown-line',
     permission: [PERMISSIONS.ADMIN_SUPER, PERMISSIONS.COMPANIES_VIEW_ALL, PERMISSIONS.SUBSCRIPTIONS_VIEW_ALL, PERMISSIONS.PLANS_VIEW_ALL],
     children: [
       {
-        title: 'Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ø´Ø±ÙƒØ§Øª',
+        title: 'قائمة الشركات',
         to: '/app/companies',
         icon: 'ri-building-4-line',
         permission: [PERMISSIONS.ADMIN_SUPER, PERMISSIONS.COMPANIES_VIEW_ALL, PERMISSIONS.COMPANIES_VIEW_CHILDREN, PERMISSIONS.COMPANIES_VIEW_SELF],
       },
       {
-        title: 'Ø¥Ø¶Ø§ÙØ© Ø´Ø±ÙƒØ© Ø¬Ø¯ÙŠØ¯Ø©',
+        title: 'إضافة شركة جديدة',
         to: '/app/companies?action=create',
         icon: 'ri-add-box-line',
         permission: [PERMISSIONS.ADMIN_SUPER, PERMISSIONS.COMPANIES_CREATE],
       },
       {
-        title: 'Ø¨Ø§Ù‚Ø§Øª SaaS',
+        title: 'باقات SaaS',
         to: '/app/saas-plans',
         icon: 'ri-vip-crown-line',
         permission: [PERMISSIONS.ADMIN_SUPER, PERMISSIONS.SUBSCRIPTIONS_VIEW_ALL, PERMISSIONS.PLANS_VIEW_ALL],
       },
       {
-        title: 'Ø§Ù„Ù†Ø³Ø® Ø§Ù„Ø§Ø­ØªÙŠØ§Ø·ÙŠ',
+        title: 'النسخ الاحتياطي',
         to: '/app/backups',
         icon: 'ri-database-2-line',
         permission: PERMISSIONS.ADMIN_SUPER,
       },
       {
-        title: 'ØªÙ‚Ø§Ø±ÙŠØ± Ø§Ù„Ø£Ø¹Ø·Ø§Ù„',
+        title: 'تقارير الأعطال',
         to: '/app/error-reports',
         icon: 'ri-bug-line',
         permission: PERMISSIONS.ADMIN_SUPER,
@@ -521,44 +521,44 @@ export default [
     ],
   },
 
-  // ==================== 11. Ù…Ù†ØµØ© Ø§Ù„Ø°ÙƒØ§Ø¡ Ø§Ù„Ø§ØµØ·Ù†Ø§Ø¹ÙŠ (AI Platform) ====================
+  // ==================== 11. منصة الذكاء الاصطناعي (AI Platform) ====================
   {
-    title: 'Ù…Ù†ØµØ© Ø§Ù„Ø°ÙƒØ§Ø¡ Ø§Ù„Ø§ØµØ·Ù†Ø§Ø¹ÙŠ',
+    title: 'منصة الذكاء الاصطناعي',
     icon: 'ri-sparkling-2-line',
     permission: [PERMISSIONS.ADMIN_SUPER],
     children: [
       {
-        title: 'Ù„ÙˆØ­Ø© Ø§Ù„ØªØ­ÙƒÙ…',
+        title: 'لوحة التحكم',
         to: '/ai-platform',
         icon: 'ri-dashboard-line',
         permission: null,
       },
       {
-        title: 'Ø§Ù„ÙˆÙƒÙ„Ø§Ø¡ Ø§Ù„Ø°ÙƒÙŠÙˆÙ†',
+        title: 'الوكلاء الذكيون',
         to: '/ai-platform/agents',
         icon: 'ri-user-star-line',
         permission: null,
       },
       {
-        title: 'Ù‚ÙˆØ§Ù„Ø¨ Prompts',
+        title: 'قوالب Prompts',
         to: '/ai-platform/prompts',
         icon: 'ri-terminal-box-line',
         permission: null,
       },
       {
-        title: 'ØªÙ‚Ø±ÙŠØ± Ø§Ù„Ø§Ø³ØªÙ‡Ù„Ø§Ùƒ',
+        title: 'تقرير الاستهلاك',
         to: '/ai-platform/usage',
         icon: 'ri-money-dollar-circle-line',
         permission: null,
       },
       {
-        title: 'Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù†Ù…Ø§Ø°Ø¬',
+        title: 'إدارة النماذج',
         to: '/ai-platform/models',
         icon: 'ri-robot-line',
         permission: null,
       },
       {
-        title: 'Ù…ÙØ§ØªÙŠØ­ ÙˆØ­Ø³Ø§Ø¨Ø§Øª API',
+        title: 'مفاتيح وحسابات API',
         to: '/ai-platform/accounts',
         icon: 'ri-key-2-line',
         permission: null,
@@ -569,33 +569,33 @@ export default [
 
 export const CUSTOMER_MENU = [
   {
-    title: 'Ù„ÙˆØ­Ø© Ø§Ù„ØªØ­ÙƒÙ…',
+    title: 'لوحة التحكم',
     icon: 'ri-dashboard-3-line',
     to: '/app/portal',
   },
   {
-    title: 'Ù…Ø´ØªØ±ÙŠØ§ØªÙŠ',
+    title: 'مشترياتي',
     icon: 'ri-bill-line',
     to: '/app/purchases',
   },
   {
-    title: 'Ø®Ø·Ø· Ø§Ù„ØªÙ‚Ø³ÙŠØ·',
+    title: 'خطط التقسيط',
     icon: 'ri-calendar-todo-line',
     to: '/app/customer-installments',
     requiresInstallments: true,
   },
   {
-    title: 'Ù…Ø¯ÙÙˆØ¹Ø§ØªÙŠ',
+    title: 'مدفوعاتي',
     icon: 'ri-money-dollar-circle-line',
     to: '/app/customer-payments',
   },
   {
-    title: 'Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ø£Ø¬Ù‡Ø²Ø©',
+    title: 'إدارة الأجهزة',
     icon: 'ri-device-line',
     to: '/app/sessions',
   },
   {
-    title: 'Ø³Ø¬Ù„ Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø§Øª Ø§Ù„Ù‚Ø§Ù†ÙˆÙ†ÙŠØ©',
+    title: 'سجل الموافقات القانونية',
     icon: 'ri-file-shield-2-line',
     to: '/app/legal-history',
   },

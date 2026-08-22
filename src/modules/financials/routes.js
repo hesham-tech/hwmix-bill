@@ -10,7 +10,7 @@ export default [
     name: 'financials-transactions',
     component: () => import('./pages/TransactionsList.vue'),
     meta: {
-      title: 'Ø³Ø¬Ù„ Ø§Ù„Ù…Ø¹Ø§Ù…Ù„Ø§Øª',
+      title: 'سجل المعاملات',
       permission: PERMISSIONS.TRANSACTIONS_VIEW_ALL,
     },
   },
@@ -19,7 +19,7 @@ export default [
     name: 'owner-funds',
     component: () => import('./pages/OwnerFundsList.vue'),
     meta: {
-      title: 'Ø±Ø£Ø³ Ø§Ù„Ù…Ø§Ù„ ÙˆØ§Ù„Ø´Ø±ÙƒØ§Ø¡',
+      title: 'رأس المال والشركاء',
       permission: 'owner_fund_transactions.page',
     },
   },
