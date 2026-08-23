@@ -537,7 +537,7 @@ const eventsList = [
     helpText: 'تهنئة العميل التلقائية في تاريخ ميلاده لزيادة الولاء.',
   },
   {
-    type: 'transaction.created',
+    type: 'financial_operation.created',
     label: 'معاملة مالية جديدة',
     description: 'فوري عند تسجيل معاملة بالخزائن',
     icon: 'ri-exchange-funds-line',
@@ -591,7 +591,7 @@ const immediateTypes = [
   'invoice.created',
   'payment.received',
   'subscription.expired',
-  'transaction.created',
+  'financial_operation.created',
   'task.updated',
   'task.created',
   'product.created',
@@ -1562,3 +1562,4 @@ onMounted(async () => {
   color: rgba(var(--v-theme-primary), 0.4);
 }
 </style>
+

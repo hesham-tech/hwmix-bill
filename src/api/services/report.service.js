@@ -169,4 +169,19 @@ class ReportService extends BaseService {
   }
 }
 
+
+  async getStakeholderStatement(params = {}, options = {}) {
+    const { showToast = false, loading = true } = options;
+    const userStore = useUserStore();
+
+    if (loading) userStore.loadingApi = true;
+
+    try {
+      const response = await apiClient.get('reports/stakeholder-statement', { params });
+      return this.handleSuccess(response, showToast);
+    } catch (error) {
+      return this.handleError(error, showToast);
+    }
+  }
+
 export default new ReportService();

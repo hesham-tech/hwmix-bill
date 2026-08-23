@@ -87,7 +87,7 @@
  */
 import { ref, computed, onMounted } from 'vue';
 import { useDataTable } from '@/composables/useDataTable';
-import { transactionService, userService } from '@/api';
+import { reportService, transactionService, userService } from '@/api';
 import { AppDataTable } from '@/components';
 import { formatCurrency, formatDateTime } from '@/utils/formatters';
 
@@ -120,7 +120,7 @@ const fetchTransactionsApi = async params => {
     ...params,
     user_id: props.userId,
   };
-  return await transactionService.getAll(finalParams, { showToast: false });
+  return await reportService.getStakeholderStatement(finalParams, { showToast: false });
 };
 
 const {
