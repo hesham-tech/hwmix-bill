@@ -57,6 +57,26 @@
             {{ item.notes || '---' }}
           </span>
         </template>
+        
+        <template #item.status="{ item }">
+          <v-chip size="small" :color="item.status === 'reversed' ? 'error' : 'success'" variant="tonal">
+            {{ item.status === 'reversed' ? 'معكوس' : 'مكتمل' }}
+          </v-chip>
+        </template>
+
+        <template #item.actions="{ item }">
+          <div class="d-flex ga-1">
+            <AppButton
+              v-if="item.status !== 'reversed'"
+              icon="ri-arrow-go-back-line"
+              variant="text"
+              size="small"
+              color="error"
+              title="عكس السداد"
+              @click.stop="handleReverse(item.id)"
+            />
+          </div>
+        </template>
       </AppDataTable>
     </div>
 
@@ -158,7 +178,7 @@ const props = defineProps({
 });
 
 const { can, canAny } = usePermissions();
-const { payments, loading, loadPayments, loadPaymentDetails } = useInstallment();
+const { payments, loading, loadPayments, loadPaymentDetails, reversePayment } = useInstallment();
 
 // State
 const search = ref('');
@@ -167,13 +187,27 @@ const selectedPayment = ref(null);
 const paymentDetails = ref([]);
 const loadingDetails = ref(false);
 
+const handleReverse = async (id) => {
+  if (!confirm('هل أنت متأكد من عكس هذه الدفعة واسترداد النقدية؟ (لا يمكن التراجع)')) return;
+  try {
+    const res = await reversePayment(id);
+    if (res?.success) loadPayments(props.planId);
+  } catch (error) {
+    if (error.response && [409, 422].includes(error.response.status)) {
+      loadPayments(props.planId);
+    }
+  }
+};
+
 const headers = [
   { title: 'العميل', key: 'customer', sortable: false },
   { title: 'المنتجات', key: 'products', sortable: false },
   { title: 'المبلغ', key: 'amount', sortable: true },
   { title: 'التاريخ', key: 'date', sortable: true },
+  { title: 'الحالة', key: 'status', sortable: false, align: 'center' },
   { title: 'الطريقة', key: 'method', sortable: false },
   { title: 'ملاحظات', key: 'notes', sortable: false },
+  { title: 'إجراءات', key: 'actions', sortable: false, align: 'center' },
 ];
 
 const getMethodLabel = method => {

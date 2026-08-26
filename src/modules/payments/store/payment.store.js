@@ -101,7 +101,7 @@ export const usePaymentStore = defineStore('payment', () => {
     loading.value = true;
     try {
       await paymentService.delete(id);
-      notificationManager.success('تم حذف الدفعة بنجاح');
+      notificationManager.success('تم عكس الدفعة بنجاح');
       await fetchPayments();
     } catch (error) {
       console.error('Error deleting payment:', error);

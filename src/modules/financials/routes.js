@@ -1,4 +1,4 @@
-import { PERMISSIONS } from '@/config/permissions';
+﻿import { PERMISSIONS } from '@/config/permissions';
 
 export default [
   {
@@ -19,8 +19,17 @@ export default [
     name: 'owner-funds',
     component: () => import('./pages/OwnerFundsList.vue'),
     meta: {
-      title: 'رأس المال والشركاء',
+      title: 'رأس المال والشركاء (قديم)',
       permission: 'owner_fund_transactions.page',
     },
   },
+  {
+    path: 'partner-operations',
+    name: 'partner-operations',
+    component: () => import('./pages/PartnerOperationList.vue'),
+    meta: {
+      title: 'عمليات الشركاء',
+      permission: 'partner_operations.view_all',
+    },
+  }
 ];

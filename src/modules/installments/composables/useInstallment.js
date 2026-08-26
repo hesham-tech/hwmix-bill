@@ -53,6 +53,10 @@ export function useInstallment() {
     return await store.createPayment(data);
   };
 
+  const reversePayment = async id => {
+    return await store.reversePayment(id);
+  };
+
   // Payment Details Actions
   const loadPaymentDetails = async paymentId => {
     return await store.fetchPaymentDetails(paymentId);
@@ -100,6 +104,7 @@ export function useInstallment() {
     // Payment Actions
     loadPayments,
     createPayment,
+    reversePayment,
 
     // Payment Details Actions
     loadPaymentDetails,

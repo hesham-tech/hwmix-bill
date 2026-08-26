@@ -166,9 +166,7 @@ class ReportService extends BaseService {
     } catch (error) {
       return this.handleError(error, showToast);
     }
-  }
-}
-
+  } 
 
   async getStakeholderStatement(params = {}, options = {}) {
     const { showToast = false, loading = true } = options;
@@ -184,4 +182,12 @@ class ReportService extends BaseService {
     }
   }
 
+}
+
 export default new ReportService();
+
+
+
+
+
+

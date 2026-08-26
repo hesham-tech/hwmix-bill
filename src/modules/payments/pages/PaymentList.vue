@@ -53,16 +53,27 @@
           <div class="font-weight-medium text-body-1">{{ formatDate(item.payment_date) }}</div>
         </template>
 
+        <template #item.status="{ item }">
+          <v-chip
+            :color="item.status === 'reversed' ? 'error' : 'success'"
+            size="small"
+            variant="flat"
+            class="font-weight-bold px-3"
+          >
+            {{ item.status === 'reversed' ? 'ملغاة' : 'مكتملة' }}
+          </v-chip>
+        </template>
+
         <template #item.actions="{ item }">
           <div class="d-flex justify-end gap-1">
             <AppButton icon="ri-printer-line" size="x-small" variant="text" color="primary" tooltip="طباعة إيصال" @click="handlePrint(item)" />
             <AppButton
-              v-if="can(PERMISSIONS.PAYMENTS_DELETE_ALL)"
-              icon="ri-delete-bin-line"
+              v-if="can(PERMISSIONS.PAYMENTS_DELETE_ALL) && item.status !== 'reversed'"
+              icon="ri-arrow-go-back-line"
               size="x-small"
               variant="text"
               color="error"
-              tooltip="حذف الدفعة"
+              tooltip="عكس الدفعة"
               @click="handleDelete(item)"
             />
           </div>
@@ -70,21 +81,20 @@
       </AppDataTable>
     </div>
 
-    <!-- Delete Dialog -->
-    <!-- Delete Confirmation Dialog -->
+    <!-- Reverse Confirmation Dialog -->
     <AppDialog
       v-model="showDeleteDialog"
-      title="تأكيد حذف الدفعة"
-      icon="ri-delete-bin-line"
+      title="تأكيد عكس الدفعة"
+      icon="ri-arrow-go-back-line"
       confirm-color="error"
-      confirm-text="حذف"
+      confirm-text="عكس الدفعة"
       :loading="deleting"
       @confirm="confirmDelete"
     >
-      هل أنت متأكد من حذف هذه الدفعة نهائياً؟
+      هل أنت متأكد من عكس هذه الدفعة ماليًا؟
       <div class="mt-2 text-error font-weight-medium">
         <v-icon icon="ri-error-warning-line" size="small" class="me-1" />
-        سيتم تعديل رصيد الفاتورة المرتبطة وخصم المبلغ من الخزينة.
+        لن يتم مسح السجل ولكن ستُعكس قيوده المحاسبية ورصيد الخزينة والذمم.
       </div>
     </AppDialog>
   </div>
@@ -148,6 +158,7 @@ const deleting = ref(false);
 const headers = [
   { title: 'الفاتورة والعميل', key: 'invoice', mandatory: true },
   { title: 'المبلغ', key: 'amount', align: 'end' },
+  { title: 'الحالة', key: 'status', align: 'center' },
   { title: 'طريقة الدفع', key: 'payment_method' },
   { title: 'طريقة (نصية)', key: 'method', defaultHide: true },
   { title: 'ملاحظات', key: 'notes', defaultHide: true },
@@ -171,7 +182,7 @@ const confirmDelete = async () => {
   deleting.value = true;
   try {
     await paymentApi.remove(selectedItem.value.id);
-    removeItem(selectedItem.value.id);
+    refresh(); // Refresh instead of removeItem to fetch updated status=reversed
     showDeleteDialog.value = false;
     selectedItem.value = null;
   } catch (error) {

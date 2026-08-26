@@ -24,7 +24,7 @@ export function usePaymentsData() {
   };
 
   const deletePayment = async id => {
-    return await api.remove(id, { successMessage: 'تم حذف الدفعة بنجاح' });
+    return await api.remove(id, { successMessage: 'تم عكس الدفعة بنجاح' });
   };
 
   return { payments, loading, total, fetchPayments, deletePayment };

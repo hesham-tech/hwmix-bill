@@ -90,7 +90,7 @@
           <v-icon icon="ri-filter-3-line" class="mr-1" size="18" /> تصفية النتائج:
         </span>
         
-        <v-btn-toggle v-model="selectedPeriod" mandatory selected-class="bg-primary text-white" density="compact" class="border rounded">
+        <v-btn-toggle v-model="selectedPeriod" mandatory selected-class="bg-primary text-white" density="compact" class="border rounded filters-toggle">
           <v-btn value="today" size="small">اليوم</v-btn>
           <v-btn value="week" size="small">الأسبوع</v-btn>
           <v-btn value="month" size="small">الشهر</v-btn>
@@ -361,5 +361,15 @@ export default {
 }
 .clickable {
   cursor: pointer;
+}
+
+/* إصلاح مشكلة التفاف فلاتر التواريخ في شاشات الجوال */
+.filters-toggle {
+  display: flex;
+  flex-wrap: wrap;
+  height: auto !important;
+}
+.filters-toggle .v-btn {
+  flex: 1 1 auto;
 }
 </style>

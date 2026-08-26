@@ -1,4 +1,4 @@
-﻿import { GridStack } from 'gridstack';
+import { GridStack } from 'gridstack';
 import 'gridstack/dist/gridstack.css';
 
 /**
@@ -16,6 +16,8 @@ export class GridStackAdapterWrapper {
       staticGrid: true,
       acceptWidgets: true,
       float: false,
+      disableOneColumnMode: false,
+      oneColumnModeDomSort: true,
       resizable: { handles: 'n,e,s,w,ne,nw,se,sw' },
       dragInOptions: { revert: 'invalid', scroll: false, appendTo: 'body', helper: 'clone' },
       ...options

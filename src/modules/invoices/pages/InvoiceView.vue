@@ -232,14 +232,25 @@
               <v-list-item
                 v-for="(payment, index) in invoice.payments"
                 :key="payment.id"
-                :class="{ 'border-bottom': index < invoice.payments.length - 1 }"
+                :class="{ 'border-bottom': index < invoice.payments.length - 1, 'opacity-60': payment.status === 'reversed' }"
               >
                 <template #prepend>
-                  <v-avatar color="success-lighten-5" size="40" class="me-3">
-                    <v-icon icon="ri-money-dollar-circle-line" color="success" />
+                  <v-avatar :color="payment.status === 'reversed' ? 'error-lighten-5' : 'success-lighten-5'" size="40" class="me-3">
+                    <v-icon :icon="payment.status === 'reversed' ? 'ri-arrow-go-back-line' : 'ri-money-dollar-circle-line'" :color="payment.status === 'reversed' ? 'error' : 'success'" />
                   </v-avatar>
                 </template>
-                <v-list-item-title class="font-weight-bold text-success">
+                <template #append>
+                  <v-chip
+                    v-if="payment.status === 'reversed'"
+                    color="error"
+                    size="x-small"
+                    variant="flat"
+                    class="font-weight-bold"
+                  >
+                    معكوسة/ملغاة
+                  </v-chip>
+                </template>
+                <v-list-item-title class="font-weight-bold" :class="payment.status === 'reversed' ? 'text-error text-decoration-line-through' : 'text-success'">
                   {{ formatCurrency(payment.amount) }}
                 </v-list-item-title>
                 <v-list-item-subtitle> {{ formatDate(payment.payment_date) }} - {{ payment.payment_method?.name }} </v-list-item-subtitle>

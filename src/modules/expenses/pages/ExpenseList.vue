@@ -91,10 +91,15 @@
           <AppUserBalanceProfile v-if="item.creator" :user="item.creator" mode="horizontal" hide-balance />
           <span v-else class="text-caption text-grey">---</span>
         </template>
+        <template #[`item.status`]="{ item }">
+          <v-chip size="small" :color="item.status === 'reversed' ? 'error' : 'success'" variant="tonal">
+            {{ item.status === 'reversed' ? 'معكوس' : 'مكتمل' }}
+          </v-chip>
+        </template>
         <template #[`item.actions`]="{ item }">
           <div class="d-flex ga-1">
-            <AppButton v-if="canUpdate(item)" icon="ri-edit-line" variant="text" size="small" color="info" @click="openEditDialog(item)" />
-            <AppButton v-if="canDelete(item)" icon="ri-delete-bin-line" variant="text" size="small" color="error" @click="handleDelete(item.id)" />
+            <AppButton v-if="canUpdate(item) && item.status !== 'reversed'" icon="ri-edit-line" variant="text" size="small" color="info" @click="openEditDialog(item)" />
+            <AppButton v-if="canDelete(item) && item.status !== 'reversed'" icon="ri-arrow-go-back-line" variant="text" size="small" color="error" title="عكس المصروف" @click="handleReverse(item.id)" />
           </div>
         </template>
       </AppDataTable>
@@ -159,6 +164,7 @@ const headers = [
   { title: 'الفئة', key: 'expense_category', sortable: false },
   { title: 'الوصف', key: 'notes', sortable: false },
   { title: 'المبلغ', key: 'amount', sortable: true, align: 'end', mandatory: true },
+  { title: 'الحالة', key: 'status', sortable: false, align: 'center' },
   { title: 'طريقة الدفع', key: 'payment_method', defaultHide: true },
   { title: 'المرجع', key: 'reference_number', sortable: false, defaultHide: true },
   { title: 'بواسطة', key: 'creator', sortable: false, defaultHide: true },
@@ -229,10 +235,18 @@ const handleSaved = async data => {
   }
 };
 
-const handleDelete = async id => {
-  if (!confirm('هل أنت متأكد من حذف هذا المصروف؟')) return;
-  const res = await deleteExpense(id);
-  if (res?.success) fetchData();
+const handleReverse = async id => {
+  if (!confirm('هل أنت متأكد من عكس هذا المصروف واسترداد النقدية؟ (لا يمكن التراجع)')) return;
+  try {
+    const res = await deleteExpense(id);
+    if (res?.success) fetchData();
+  } catch (error) {
+    if (error.response && [409, 422].includes(error.response.status)) {
+      // The error is already handled by axios interceptor or standard toast, 
+      // but we can ensure data is refreshed just in case.
+      fetchData();
+    }
+  }
 };
 
 onMounted(() => {

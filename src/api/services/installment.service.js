@@ -138,6 +138,23 @@ class InstallmentService extends BaseService {
   }
 
   /**
+   * Reverse an installment payment
+   */
+  async reversePayment(id, options = {}) {
+    const { showToast = true, loading = true } = options;
+    const userStore = useUserStore();
+
+    if (loading) userStore.loadingApi = true;
+
+    try {
+      const response = await apiClient.delete(`installment-payments/${id}`);
+      return this.handleSuccess(response, showToast);
+    } catch (error) {
+      return this.handleError(error, showToast);
+    }
+  }
+
+  /**
    * Calculate end date based on start date and installment count
    * Helper function
    */

@@ -127,10 +127,24 @@ export const useInstallmentStore = defineStore('installment', () => {
     loading.value = true;
     try {
       const response = await installmentService.createPayment(data);
-      notificationManager.success('تم تسجيل دفعة التقسيط بنجاح');
+      notificationManager.success('تم تسجيل عملية الدفع بنجاح');
       return response.data[0];
     } catch (error) {
       console.error('Error creating payment:', error);
+      throw error;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function reversePayment(id) {
+    loading.value = true;
+    try {
+      const response = await installmentService.reversePayment(id);
+      notificationManager.success('تم عكس الدفعة بنجاح واسترداد النقدية');
+      return response;
+    } catch (error) {
+      console.error('Error reversing payment:', error);
       throw error;
     } finally {
       loading.value = false;
@@ -216,6 +230,7 @@ export const useInstallmentStore = defineStore('installment', () => {
     // Actions - Payments
     fetchPayments,
     createPayment,
+    reversePayment,
 
     // Actions - Payment Details
     fetchPaymentDetails,

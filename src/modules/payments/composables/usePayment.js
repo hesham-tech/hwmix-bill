@@ -30,7 +30,7 @@ export function usePayment() {
   };
 
   const handleDelete = payment => {
-    confirm(`هل أنت متأكد من حذف الدفعة بمبلغ ${payment.amount}؟`, async () => {
+    confirm(`هل أنت متأكد من عكس الدفعة بمبلغ ${payment.amount} ماليًا؟`, async () => {
       await store.deletePayment(payment.id);
     });
   };
