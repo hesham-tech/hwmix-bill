@@ -3,11 +3,11 @@
     <!-- Skeleton Loading state -->
     <v-skeleton-loader v-if="loading" type="list-item-avatar, heading, subtitle" class="pa-2" />
     
-    <v-card-text v-else :class="['pa-4 h-100 d-flex flex-column justify-space-between', `bg-${cardConfig.color}-lighten-5`]">
+    <v-card-text v-else :class="['pa-3 pa-md-4 h-100 d-flex flex-column justify-space-between', `bg-${cardConfig.color}-lighten-5`]">
       <div class="d-flex align-center justify-space-between flex-wrap ga-2">
-        <div class="flex-grow-1 min-width-0">
-          <div :class="['text-caption font-weight-bold mb-1 truncate-text', `text-${cardConfig.color}`]">{{ cardConfig.title }}</div>
-          <div :class="['text-h5 font-weight-black line-height-1 truncate-text', `text-${cardConfig.color}`]">
+        <div class="flex-grow-1 min-width-0" style="word-break: break-word;">
+          <div :class="['text-caption font-weight-bold mb-1', `text-${cardConfig.color}`]">{{ cardConfig.title }}</div>
+          <div :class="['text-h6 text-sm-h5 font-weight-black line-height-1', `text-${cardConfig.color}`]" style="line-height: 1.2 !important;">
             {{ formattedValue }}
           </div>
         </div>
@@ -61,8 +61,8 @@ const cardConfig = computed(() => {
       title: 'إجمالي المبيعات',
       icon: 'ri-money-dollar-box-line',
       color: 'success',
-      subtitle: 'تراكمي للنظام',
-      badge: 'تراكمي'
+      subtitle: 'المبيعات السنوية (YTD)',
+      badge: 'هذا العام'
     },
     monthlySales: {
       title: 'مبيعات الشهر الحالي',
@@ -72,11 +72,11 @@ const cardConfig = computed(() => {
       badge: 'هذا الشهر'
     },
     pendingPayments: {
-      title: 'التحصيلات المعلقة',
+      title: 'مديونيات العملاء',
       icon: 'ri-hand-coin-line',
       color: 'error',
-      subtitle: 'مديونيات العملاء',
-      badge: 'معلق'
+      subtitle: 'إجمالي المستحقات غير المحصلة',
+      badge: 'ذمم مدينة'
     },
     unpaidInstallments: {
       title: 'الأقساط المستحقة',
@@ -104,14 +104,35 @@ const cardConfig = computed(() => {
       icon: 'ri-funds-line',
       color: 'success',
       subtitle: 'صافي المربح المالي لليوم',
-      badge: 'صافي'
+      badge: 'اليوم'
     },
     todayOrders: {
       title: 'عدد عمليات اليوم',
       icon: 'ri-shopping-cart-2-line',
       color: 'warning',
       subtitle: 'عدد الفواتير الصادرة اليوم',
-      badge: 'العمليات'
+      badge: 'عمليات'
+    },
+    totalCash: {
+      title: 'إجمالي النقدية',
+      icon: 'ri-safe-line',
+      color: 'info',
+      subtitle: 'الرصيد الفعلي في الخزائن',
+      badge: 'سيولة'
+    },
+    monthlyExpenses: {
+      title: 'مصروفات الشهر',
+      icon: 'ri-wallet-3-line',
+      color: 'error',
+      subtitle: 'إجمالي المصروفات الجارية',
+      badge: 'هذا الشهر'
+    },
+    monthlyProfit: {
+      title: 'أرباح الشهر',
+      icon: 'ri-line-chart-line',
+      color: 'success',
+      subtitle: 'صافي أرباح الشهر الجاري',
+      badge: 'هذا الشهر'
     }
   };
 
@@ -122,19 +143,24 @@ const formattedValue = computed(() => {
   const wData = dashboardStore.dashboardData[props.instanceId];
   if (!wData) return '0';
 
+  const actualData = wData.data && wData.success !== undefined ? wData.data : wData;
+  
   if (isAnalyticsIndicator.value) {
-    const s = wData || { today: { revenue: 0, profit: 0, orders_count: 0 } };
+    const s = actualData || { today: { revenue: 0, profit: 0, orders_count: 0 } };
     if (indicator.value === 'todayRevenue') return formatCurrency(s.today?.revenue || 0);
     if (indicator.value === 'todayProfit') return formatCurrency(s.today?.profit || 0);
     if (indicator.value === 'todayOrders') return `${s.today?.orders_count || 0} طلب`;
     return '0';
   } else {
-    const s = wData.kpi || wData.kpis || wData || { total_sales: 0, monthly_sales: 0, pending_payments: 0, unpaid_installments: 0, total_customers: 0 };
+    const s = actualData.kpis || actualData.kpi || actualData.data_kpis || actualData || { total_sales: 0, monthly_sales: 0, pending_payments: 0, unpaid_installments: 0, total_customers: 0, total_cash: 0, monthly_expenses: 0, monthly_profit: 0 };
     if (indicator.value === 'totalSales') return formatCurrency(s.total_sales || s.totalSales || 0);
     if (indicator.value === 'monthlySales') return formatCurrency(s.monthly_sales || s.monthlySales || 0);
     if (indicator.value === 'pendingPayments') return formatCurrency(s.pending_payments || s.pendingPayments || 0);
     if (indicator.value === 'unpaidInstallments') return formatCurrency(s.unpaid_installments || s.unpaidInstallments || 0);
     if (indicator.value === 'totalCustomers') return s.total_customers || s.totalCustomers || 0;
+    if (indicator.value === 'totalCash') return formatCurrency(s.total_cash || s.totalCash || 0);
+    if (indicator.value === 'monthlyExpenses') return formatCurrency(s.monthly_expenses || s.monthlyExpenses || 0);
+    if (indicator.value === 'monthlyProfit') return formatCurrency(s.monthly_profit || s.monthlyProfit || 0);
     return '0';
   }
 });

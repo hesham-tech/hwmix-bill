@@ -1,5 +1,5 @@
 <template>
-  <div class="dashboard-engine pa-4">
+  <div class="dashboard-engine pa-2 pa-md-4">
     <!-- Header with controls -->
     <div class="d-flex align-center justify-space-between mb-4 gap-2 flex-wrap">
       <div>
@@ -90,10 +90,10 @@
           <v-icon icon="ri-filter-3-line" class="mr-1" size="18" /> تصفية النتائج:
         </span>
         
-        <v-btn-toggle v-model="selectedPeriod" mandatory selected-class="bg-primary text-white" density="compact" class="border rounded filters-toggle">
-          <v-btn value="today" size="small">اليوم</v-btn>
-          <v-btn value="week" size="small">الأسبوع</v-btn>
-          <v-btn value="month" size="small">الشهر</v-btn>
+        <v-btn-toggle v-model="selectedPeriod" mandatory color="primary" variant="outlined" divided density="comfortable" class="rounded-lg">
+          <v-btn value="today" size="small" class="px-4">اليوم</v-btn>
+          <v-btn value="week" size="small" class="px-4">الأسبوع</v-btn>
+          <v-btn value="month" size="small" class="px-4">الشهر</v-btn>
         </v-btn-toggle>
       </div>
     </v-card>
@@ -361,15 +361,5 @@ export default {
 }
 .clickable {
   cursor: pointer;
-}
-
-/* إصلاح مشكلة التفاف فلاتر التواريخ في شاشات الجوال */
-.filters-toggle {
-  display: flex;
-  flex-wrap: wrap;
-  height: auto !important;
-}
-.filters-toggle .v-btn {
-  flex: 1 1 auto;
 }
 </style>

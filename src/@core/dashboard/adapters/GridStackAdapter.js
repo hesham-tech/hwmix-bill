@@ -18,7 +18,7 @@ export class GridStackAdapterWrapper {
       float: false,
       disableOneColumnMode: false,
       oneColumnModeDomSort: true,
-      resizable: { handles: 'n,e,s,w,ne,nw,se,sw' },
+      resizable: { handles: 's, se, e' },
       dragInOptions: { revert: 'invalid', scroll: false, appendTo: 'body', helper: 'clone' },
       ...options
     };

@@ -16,7 +16,7 @@
         :gs-max-h="inst.maxH || 12"
         :data-instance-id="inst.id"
       >
-        <div class="grid-stack-item-content pa-1">
+        <div class="grid-stack-item-content pa-0">
           <ErrorBoundary @error="handleWidgetError(inst.id, $event)">
             <div v-if="designMode" class="widget-design-overlay d-flex align-start justify-space-between pa-2">
               <div class="drag-handle-badge bg-white rounded shadow-sm px-2 py-1 border d-flex align-center">
@@ -356,5 +356,42 @@ export default {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* Force responsive layout on mobile to prevent squished cards and overlapping */
+@media (max-width: 768px) {
+  .grid-stack {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    height: auto !important;
+    padding-bottom: 24px;
+    margin: 0 -4px; /* offset the padding of items */
+  }
+  .grid-stack-item {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    transform: none !important;
+    height: auto !important;
+    min-height: 120px;
+    margin-bottom: 12px !important;
+    padding: 0 4px !important;
+  }
+  /* KPIs (small widgets) take 50% width on mobile regardless of desktop gs-w */
+  .grid-stack-item:has(.kpi-card-widget) {
+    width: 50% !important;
+    max-width: 50% !important;
+    flex: 0 0 50% !important;
+  }
+  /* Charts/Tables (large widgets) take 100% width on mobile */
+  .grid-stack-item:not(:has(.kpi-card-widget)) {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 0 0 100% !important;
+  }
+  .grid-stack-item-content {
+    position: relative !important;
+    height: 100% !important;
+  }
 }
 </style>

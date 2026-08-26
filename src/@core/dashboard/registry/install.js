@@ -25,12 +25,15 @@ export function installDashboardEngine() {
   const kpis = [
     { id: 'kpi_total_sales', indicator: 'totalSales', title: 'إجمالي المبيعات' },
     { id: 'kpi_monthly_sales', indicator: 'monthlySales', title: 'مبيعات الشهر' },
-    { id: 'kpi_pending_payments', indicator: 'pendingPayments', title: 'التحصيلات المعلقة' },
+    { id: 'kpi_pending_payments', indicator: 'pendingPayments', title: 'مديونيات العملاء' },
     { id: 'kpi_unpaid_installments', indicator: 'unpaidInstallments', title: 'الأقساط المستحقة' },
     { id: 'kpi_total_customers', indicator: 'totalCustomers', title: 'إجمالي العملاء' },
     { id: 'kpi_today_revenue', indicator: 'todayRevenue', title: 'إيرادات اليوم' },
     { id: 'kpi_today_profit', indicator: 'todayProfit', title: 'صافي أرباح اليوم' },
-    { id: 'kpi_today_orders', indicator: 'todayOrders', title: 'عدد عمليات اليوم' }
+    { id: 'kpi_today_orders', indicator: 'todayOrders', title: 'عدد عمليات اليوم' },
+    { id: 'kpi_total_cash', indicator: 'totalCash', title: 'إجمالي النقدية' },
+    { id: 'kpi_monthly_expenses', indicator: 'monthlyExpenses', title: 'مصروفات الشهر' },
+    { id: 'kpi_monthly_profit', indicator: 'monthlyProfit', title: 'أرباح الشهر' }
   ];
 
   kpis.forEach((kpi) => {
@@ -279,24 +282,28 @@ export function installDashboardEngine() {
     companyId: '',
     version: '2.0.0',
     widgetInstances: [
-      // الصف الأول - الكروت المالية الفورية
+      // الصف الأول - النقدية وحركة اليوم
       { id: 'inst_owner_1', widgetId: 'kpi_today_revenue', x: 0, y: 0, w: 3, h: 2, visible: true, userConfig: { indicator: 'todayRevenue' } },
       { id: 'inst_owner_2', widgetId: 'kpi_today_profit', x: 3, y: 0, w: 3, h: 2, visible: true, userConfig: { indicator: 'todayProfit' } },
-      { id: 'inst_owner_3', widgetId: 'kpi_today_orders', x: 6, y: 0, w: 3, h: 2, visible: true, userConfig: { indicator: 'todayOrders' } },
-      { id: 'inst_owner_4', widgetId: 'kpi_total_customers', x: 9, y: 0, w: 3, h: 2, visible: true, userConfig: { indicator: 'totalCustomers' } },
+      { id: 'inst_owner_3', widgetId: 'kpi_total_cash', x: 6, y: 0, w: 3, h: 2, visible: true, userConfig: { indicator: 'totalCash' } },
+      { id: 'inst_owner_4', widgetId: 'kpi_today_orders', x: 9, y: 0, w: 3, h: 2, visible: true, userConfig: { indicator: 'todayOrders' } },
       
-      // الصف الثاني - الكروت المالية التراكمية
-      { id: 'inst_owner_5', widgetId: 'kpi_total_sales', x: 0, y: 2, w: 3, h: 2, visible: true, userConfig: { indicator: 'totalSales' } },
-      { id: 'inst_owner_6', widgetId: 'kpi_monthly_sales', x: 3, y: 2, w: 3, h: 2, visible: true, userConfig: { indicator: 'monthlySales' } },
-      { id: 'inst_owner_7', widgetId: 'kpi_pending_payments', x: 6, y: 2, w: 3, h: 2, visible: true, userConfig: { indicator: 'pendingPayments' } },
-      { id: 'inst_owner_8', widgetId: 'kpi_unpaid_installments', x: 9, y: 2, w: 3, h: 2, visible: true, userConfig: { indicator: 'unpaidInstallments' } },
+      // الصف الثاني - أداء الشهر
+      { id: 'inst_owner_5', widgetId: 'kpi_monthly_sales', x: 0, y: 2, w: 3, h: 2, visible: true, userConfig: { indicator: 'monthlySales' } },
+      { id: 'inst_owner_6', widgetId: 'kpi_monthly_expenses', x: 3, y: 2, w: 3, h: 2, visible: true, userConfig: { indicator: 'monthlyExpenses' } },
+      { id: 'inst_owner_7', widgetId: 'kpi_monthly_profit', x: 6, y: 2, w: 3, h: 2, visible: true, userConfig: { indicator: 'monthlyProfit' } },
+      { id: 'inst_owner_8', widgetId: 'kpi_pending_payments', x: 9, y: 2, w: 3, h: 2, visible: true, userConfig: { indicator: 'pendingPayments' } },
+      
+      // الصف الثالث - تراكمي ومستحقات
+      { id: 'inst_owner_8b', widgetId: 'kpi_total_sales', x: 0, y: 4, w: 6, h: 2, visible: true, userConfig: { indicator: 'totalSales' } },
+      { id: 'inst_owner_8c', widgetId: 'kpi_unpaid_installments', x: 6, y: 4, w: 6, h: 2, visible: true, userConfig: { indicator: 'unpaidInstallments' } },
       
       // الصف الثالث والرابع - الرسوم البيانية والمهام
-      { id: 'inst_owner_9', widgetId: 'salesTrendChart', x: 0, y: 4, w: 8, h: 4, visible: true },
-      { id: 'inst_owner_10', widgetId: 'dashboardTasksWidget', x: 8, y: 4, w: 4, h: 4, visible: true },
+      { id: 'inst_owner_9', widgetId: 'salesTrendChart', x: 0, y: 6, w: 8, h: 4, visible: true },
+      { id: 'inst_owner_10', widgetId: 'dashboardTasksWidget', x: 8, y: 6, w: 4, h: 4, visible: true },
       
       // الصف الخامس - رسم المنتجات الأكثر مبيعاً
-      { id: 'inst_owner_11', widgetId: 'topProductsChart', x: 0, y: 8, w: 12, h: 4, visible: true }
+      { id: 'inst_owner_11', widgetId: 'topProductsChart', x: 0, y: 10, w: 12, h: 4, visible: true }
     ]
   });
 
