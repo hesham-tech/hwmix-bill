@@ -3,7 +3,7 @@
     v-model="selectedCustomer"
     :items="customers"
     :loading="loading"
-    :search="searchQuery"
+    
     item-title="nickname"
     item-value="id"
     :label="label"
