@@ -19,7 +19,7 @@
     :persistent-hint="persistentHint"
     :density="density"
     :variant="variant"
-    :no-filter="!!apiEndpoint || noFilter"
+    :no-filter="!!apiEndpoint || noFilter" :custom-filter="(!!apiEndpoint || noFilter) ? (() => true) : undefined"
     :hide-no-data="hideNoData"
     v-bind="$attrs"
     @update:model-value="handleChange"
