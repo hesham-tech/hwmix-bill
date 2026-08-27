@@ -72,7 +72,7 @@
               {{ item.raw.email }}
             </span>
             <AppBalanceDisplay 
-              :amount="relationType === 'customer' ? (item.raw.receivable_balance ?? 0) : (relationType === 'supplier' ? item.raw.payable_balance : item.raw.cashbox_balance)" 
+              :amount="relationType === 'customer' ? (item.raw.receivable_balance ?? 0) : (relationType === 'supplier' ? (item.raw.payable_balance ?? 0) : (item.raw.balance ?? item.raw.cashbox_balance ?? 0))" 
               perspective="admin"
               hide-label
               value-class="text-xxs font-weight-bold"
@@ -145,7 +145,7 @@ const loadCustomers = async (search = '') => {
   loading.value = true;
   try {
     const params = {
-      relation_type: props.relationType,
+      ...(props.relationType ? { relation_type: props.relationType } : {}),
       ...(search ? { search } : {})
     };
     const response = await customerApi.get(params, { showLoading: false, showError: false });
@@ -160,3 +160,5 @@ const loadCustomers = async (search = '') => {
 // Load on mount
 loadCustomers();
 </script>
+
+

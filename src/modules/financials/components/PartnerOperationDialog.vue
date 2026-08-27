@@ -38,8 +38,8 @@
             <v-col cols="12" md="6">
               <CustomerSelector
                 v-model="formData.partner_id"
-                label="????????"
-                role="partner"
+                label="المالك أو الشريك المستهدف *"
+                relation-type=""
                 :rules="[v => !!v || '???????? ????????']"
                 variant="outlined"
                 density="comfortable"

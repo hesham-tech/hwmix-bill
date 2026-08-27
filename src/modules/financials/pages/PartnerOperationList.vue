@@ -14,7 +14,8 @@
       <v-card-text>
         <v-row>
           <v-col cols="12" sm="4">
-            <CustomerSelector v-model="filters.partner_id" label="????????" role="partner" clearable hide-details />
+            <CustomerSelector v-model="filters.partner_id" label="المالك أو الشريك المستهدف"
+              relation-type="" clearable hide-details />
           </v-col>
           <v-col cols="12" sm="4">
             <v-select
