@@ -40,6 +40,7 @@
                 v-model="formData.partner_id"
                 label="المالك أو الشريك المستهدف *"
                 relation-type=""
+                include-self
                 :rules="[v => !!v || '???????? ????????']"
                 variant="outlined"
                 density="comfortable"

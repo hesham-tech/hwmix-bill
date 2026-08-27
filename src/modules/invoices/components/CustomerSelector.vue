@@ -112,6 +112,10 @@ const props = defineProps({
     type: String,
     default: 'customer',
   },
+  includeSelf: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(['update:modelValue', 'create']);
@@ -145,6 +149,7 @@ const loadCustomers = async (search = '') => {
   loading.value = true;
   try {
     const params = {
+      ...(props.includeSelf ? { include_self: 1 } : {}),
       ...(props.relationType ? { relation_type: props.relationType } : {}),
       ...(search ? { search } : {})
     };
