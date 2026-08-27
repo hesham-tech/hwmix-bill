@@ -12,7 +12,7 @@
     clearable
     :return-object="returnObject"
     @update:search="handleSearch"
-    no-filter
+    
     class="customer-selector"
   >
     <!-- Selection slot for the input field -->
@@ -136,7 +136,7 @@ const selectedCustomer = computed({
 
 // Search users (customers)
 let searchTimeout;
-const handleSearch = query => {
+const handleSearch = query => { const q = typeof query === "string" ? query : (query?.target?.value || ""); query = q;
   searchQuery.value = query;
   clearTimeout(searchTimeout);
   searchTimeout = setTimeout(() => {
