@@ -15,7 +15,7 @@
         <v-row>
           <v-col cols="12" sm="4">
             <CustomerSelector v-model="filters.partner_id" label="المالك أو الشريك المستهدف"
-              relation-type="" include-self clearable hide-details />
+              relation-type="all" :include-self="true" clearable hide-details />
           </v-col>
           <v-col cols="12" sm="4">
             <v-select

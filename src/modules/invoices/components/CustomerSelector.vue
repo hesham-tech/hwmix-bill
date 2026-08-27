@@ -150,7 +150,7 @@ const loadCustomers = async (search = '') => {
   try {
     const params = {
       ...(props.includeSelf ? { include_self: 1 } : {}),
-      ...(props.relationType ? { relation_type: props.relationType } : {}),
+      ...(props.relationType && props.relationType !== "all" ? { relation_type: props.relationType } : {}),
       ...(search ? { search } : {})
     };
     const response = await customerApi.get(params, { showLoading: false, showError: false });

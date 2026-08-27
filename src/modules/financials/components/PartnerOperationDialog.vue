@@ -39,8 +39,8 @@
               <CustomerSelector
                 v-model="formData.partner_id"
                 label="المالك أو الشريك المستهدف *"
-                relation-type=""
-                include-self
+                relation-type="all"
+                :include-self="true"
                 :rules="[v => !!v || '???????? ????????']"
                 variant="outlined"
                 density="comfortable"
