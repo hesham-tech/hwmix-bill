@@ -154,7 +154,7 @@ const loadCustomers = async (search = '') => {
       ...(search ? { search } : {})
     };
     const response = await customerApi.get(params, { showLoading: false, showError: false });
-    customers.value = response.data || [];
+    customers.value = Array.isArray(response.data) ? response.data : (response.data?.data || []);
   } catch (error) {
     console.error('Error loading users (customers):', error);
   } finally {
