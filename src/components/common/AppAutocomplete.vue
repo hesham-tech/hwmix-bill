@@ -8,7 +8,7 @@
     :rules="computedRules"
     :disabled="disabled"
     :loading="loading || internalLoading"
-    v-model:search="searchQuery" @update:search="(e) => emit("update:search", e)"
+    v-model:search="searchQuery" @update:search="$emit('update:search', $event)"
     :clearable="clearable"
     :multiple="multiple"
     :chips="chips"
