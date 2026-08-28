@@ -14,7 +14,7 @@
       <v-card-text>
         <v-row>
           <v-col cols="12" sm="4">
-            <CustomerSelector v-model="filters.partner_id" label="المالك أو الشريك المستهدف" :return-object="false"
+            <CustomerSelector v-model="filters.partner_id" label="المالك أو الشريك المستهدف"
               relation-type="all" :include-self="true" clearable hide-details />
           </v-col>
           <v-col cols="12" sm="4">

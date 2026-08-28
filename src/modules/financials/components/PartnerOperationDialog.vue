@@ -41,7 +41,6 @@
                 label="المالك أو الشريك المستهدف *"
                 relation-type="all"
                 :include-self="true"
-                :return-object="false"
                 :rules="[v => !!v || '???????? ????????']"
                 variant="outlined"
                 density="comfortable"
