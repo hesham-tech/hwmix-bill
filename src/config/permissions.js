@@ -539,6 +539,7 @@ export const PERMISSIONS = {
   BALANCE_DEPOSIT: 'balance.deposit',
   BALANCE_WITHDRAW: 'balance.withdraw',
   BALANCE_TRANSFER: 'balance.transfer',
+  CASHBOX_ADJUST_BALANCE: 'cashbox.adjust_balance',
   
   // ==================== Branches ====================
   BRANCHES_PAGE: 'branches.page',

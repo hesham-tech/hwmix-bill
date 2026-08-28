@@ -196,10 +196,10 @@
                         </AppButton>
                       </template>
                       <v-list density="compact" class="py-1">
-                        <v-list-item prepend-icon="ri-qr-code-line" title="إيداع نقدي" @click="triggerOperation(item, 'deposit')" />
-                        <v-list-item prepend-icon="ri-hand-coin-line" title="سحب نقدي" @click="triggerOperation(item, 'withdraw')" />
-                        <v-list-item prepend-icon="ri-swap-box-line" title="تحويل أموال" @click="triggerOperation(item, 'transfer')" />
-                        <v-list-item prepend-icon="ri-scales-line" title="مطابقة وتسوية" @click="triggerReconciliation(item)" />
+                        <v-list-item v-if="canDepositAny" prepend-icon="ri-qr-code-line" title="إيداع نقدي" @click="triggerOperation(item, 'deposit')" />
+                        <v-list-item v-if="canWithdrawAny" prepend-icon="ri-hand-coin-line" title="سحب نقدي" @click="triggerOperation(item, 'withdraw')" />
+                        <v-list-item v-if="canTransferAny" prepend-icon="ri-swap-box-line" title="تحويل أموال" @click="triggerOperation(item, 'transfer')" />
+                        <v-list-item v-if="canAdjustBalance" prepend-icon="ri-scales-line" title="مطابقة وتسوية" @click="triggerReconciliation(item)" />
                         <v-list-item prepend-icon="ri-history-line" title="سجل الحركات" @click="viewTransactions(item)" />
                         <v-list-item v-if="!item.user_id" prepend-icon="ri-group-line" title="صلاحيات الوصول" @click="manageUsers(item)" />
                       </v-list>
@@ -325,10 +325,10 @@
                     />
                   </template>
                   <v-list density="compact" class="py-1">
-                    <v-list-item prepend-icon="ri-qr-code-line" title="إيداع نقدي" @click="triggerOperation(item, 'deposit')" />
-                    <v-list-item prepend-icon="ri-hand-coin-line" title="سحب نقدي" @click="triggerOperation(item, 'withdraw')" />
-                    <v-list-item prepend-icon="ri-swap-box-line" title="تحويل أموال" @click="triggerOperation(item, 'transfer')" />
-                    <v-list-item prepend-icon="ri-scales-line" title="مطابقة وتسوية" @click="triggerReconciliation(item)" />
+                    <v-list-item v-if="canDepositAny" prepend-icon="ri-qr-code-line" title="إيداع نقدي" @click="triggerOperation(item, 'deposit')" />
+                    <v-list-item v-if="canWithdrawAny" prepend-icon="ri-hand-coin-line" title="سحب نقدي" @click="triggerOperation(item, 'withdraw')" />
+                    <v-list-item v-if="canTransferAny" prepend-icon="ri-swap-box-line" title="تحويل أموال" @click="triggerOperation(item, 'transfer')" />
+                    <v-list-item v-if="canAdjustBalance" prepend-icon="ri-scales-line" title="مطابقة وتسوية" @click="triggerReconciliation(item)" />
                     <v-list-item prepend-icon="ri-history-line" title="سجل الحركات" @click="viewTransactions(item)" />
                     <v-list-item v-if="!item.user_id" prepend-icon="ri-group-line" title="صلاحيات الوصول" @click="manageUsers(item)" />
                   </v-list>
@@ -566,6 +566,12 @@ const api = useApi('/api/cash-boxes');
 const typesApi = useApi('/api/cash-box-types');
 const { deleteCashBox } = useCashBoxesData();
 const showAllBoxes = ref(false);
+
+const canDepositAny = computed(() => can(PERMISSIONS.BALANCE_DEPOSIT_ANY) || can(PERMISSIONS.BALANCE_DEPOSIT) || can(PERMISSIONS.ADMIN_SUPER) || can(PERMISSIONS.ADMIN_COMPANY));
+const canWithdrawAny = computed(() => can(PERMISSIONS.BALANCE_WITHDRAW_ANY) || can(PERMISSIONS.BALANCE_WITHDRAW) || can(PERMISSIONS.ADMIN_SUPER) || can(PERMISSIONS.ADMIN_COMPANY));
+const canTransferAny = computed(() => can(PERMISSIONS.BALANCE_TRANSFER_ANY) || can(PERMISSIONS.BALANCE_TRANSFER) || can(PERMISSIONS.ADMIN_SUPER) || can(PERMISSIONS.ADMIN_COMPANY));
+const canAdjustBalance = computed(() => can(PERMISSIONS.CASHBOX_ADJUST_BALANCE) || can(PERMISSIONS.ADMIN_SUPER) || can(PERMISSIONS.ADMIN_COMPANY));
+const hasAnyDirectOperation = computed(() => canDepositAny.value || canWithdrawAny.value || canTransferAny.value || canAdjustBalance.value || can(PERMISSIONS.ADMIN_SUPER) || can(PERMISSIONS.ADMIN_COMPANY));
 
 // ملخص السيولة
 const summary = ref({ total_cash: 0, total_bank: 0, total_wallets: 0, total_all: 0 });
