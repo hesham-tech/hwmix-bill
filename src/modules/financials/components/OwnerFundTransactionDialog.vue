@@ -30,18 +30,15 @@
 
           <!-- المالك / الشريك -->
           <v-col cols="12">
-            <v-autocomplete
+            <CustomerSelector
               v-model="form.user_id"
-              :items="users"
-              :loading="loadingUsers"
-              :item-title="item => item.nickname ? `${item.full_name} (${item.nickname})` : item.full_name || item.name"
-              item-value="id"
               label="المالك أو الشريك المستهدف *"
-              placeholder="ابحث عن اسم المالك/الشريك..."
+              relation-type="all"
+              :include-self="true"
+              :return-object="false"
+              :rules="[v => !!v || 'المالك/الشريك مطلوب']"
               variant="outlined"
               density="comfortable"
-              required
-              :rules="[v => !!v || 'المالك/الشريك مطلوب']"
               class="mb-2"
             />
           </v-col>
@@ -115,6 +112,7 @@
 import { ref, reactive, watch, computed, onMounted } from 'vue';
 import { AppDialog } from '@/components';
 import { useApi } from '@/composables/useApi';
+import CustomerSelector from '@/modules/invoices/components/CustomerSelector.vue';
 import { userService } from '@/api';
 import notificationManager from '@/services/notificationManager';
 
