@@ -8,7 +8,7 @@
     :rules="computedRules"
     :disabled="disabled"
     :loading="loading || internalLoading"
-    :search="searchQuery"
+    :search="computedSearch"
     @update:search="onSearchUpdate"
     :clearable="clearable"
     :multiple="multiple"
@@ -33,12 +33,12 @@
       </slot>
     </template>
     <template v-if="$slots.noData || $slots['no-data'] || canCreate" #no-data>
-      <v-list-item v-if="searchQuery && canCreate" @click="handleCreate">
+      <v-list-item v-if="computedSearch && canCreate" @click="handleCreate">
         <template #prepend>
           <v-icon color="primary" icon="ri-add-line" />
         </template>
         <v-list-item-title>
-          إضافة "<strong>{{ searchQuery }}</strong
+          إضافة "<strong>{{ computedSearch }}</strong
           >"
         </v-list-item-title>
         <template #append>
@@ -53,7 +53,7 @@
       <v-list-item v-else v-bind="props" :title="undefined">
         <template #title>
           <div class="d-flex align-center">
-            <div v-html="highlightText(item.raw[itemTitle] || item.title, searchQuery)"></div>
+            <div v-html="highlightText(item.raw[itemTitle] || item.title, computedSearch)"></div>
             <v-chip v-if="!item.raw.company_id" size="x-small" color="info" variant="flat" class="ms-2 px-1" style="height: 16px; font-size: 10px">
               عالمي
             </v-chip>
@@ -118,6 +118,10 @@ const props = defineProps({
   modelValue: {
     type: [String, Number, Array, Object],
     default: null,
+  },
+  search: {
+    type: String,
+    default: undefined,
   },
   items: {
     type: Array,
@@ -228,7 +232,9 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'update:search', 'created', 'select']);
 
 const selectedValue = ref(props.modelValue);
-const searchQuery = ref('');
+const internalSearch = ref('');
+const computedSearch = computed(() => props.search !== undefined ? props.search : internalSearch.value);
+
 const internalLoading = ref(false);
 const creating = ref(false);
 const fetchedItems = ref([]);
@@ -291,13 +297,13 @@ const fetchItems = debounce(async query => {
 }, 500);
 
 const handleCreate = async () => {
-  if (!searchQuery.value || creating.value || !normalizedEndpoint.value) return;
+  if (!computedSearch.value || creating.value || !normalizedEndpoint.value) return;
 
   creating.value = true;
   try {
     // Extract base endpoint if there's a query param (e.g. for attribute values)
     const baseEndpoint = normalizedEndpoint.value.split('?')[0];
-    const payload = { [props.createField]: searchQuery.value };
+    const payload = { [props.createField]: computedSearch.value };
 
     // If it's something like attribute-values?attribute_id=X, we need that ID too
     if (normalizedEndpoint.value.includes('attribute_id=')) {
@@ -318,7 +324,7 @@ const handleCreate = async () => {
     const valueToSelect = newItem[props.itemValue];
 
     // Clear search first to stop filtering
-    // searchQuery.value = '';
+    // computedSearch.value = '';
 
     // Add to items
     fetchedItems.value.unshift(newItem);
@@ -358,7 +364,7 @@ const handleChange = value => {
 };
 
 const onSearchUpdate = (val) => {
-  searchQuery.value = val;
+  internalSearch.value = val;
   // Always emit to parent first
   emit('update:search', val);
   
@@ -373,7 +379,7 @@ watch(
   () => props.apiEndpoint,
   newVal => {
     if (newVal) {
-      fetchItems(searchQuery.value);
+      fetchItems(computedSearch.value);
     } else {
       fetchedItems.value = [];
     }
