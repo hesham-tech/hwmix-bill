@@ -21,7 +21,7 @@
     :variant="variant"
     :no-filter="!!apiEndpoint || noFilter" :custom-filter="(!!apiEndpoint || noFilter) ? (() => true) : undefined"
     :hide-no-data="hideNoData"
-    v-bind="$attrs"
+    v-bind="filteredAttrs"
     @update:model-value="handleChange"
   >
     <template v-if="helpText || $slots.label" #label>
@@ -97,11 +97,21 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, nextTick } from 'vue';
+import { ref, computed, watch, onMounted, nextTick, useAttrs } from 'vue';
 import apiClient from '@/api/axios.config';
 import { debounce, highlightText } from '@/utils/helpers';
 import AppFieldHelp from '@/components/common/AppFieldHelp.vue';
 import notificationManager from '@/services/notificationManager';
+
+// منع تمرير الـ attrs تلقائياً - نتحكم فيها يدوياً
+defineOptions({ inheritAttrs: false });
+
+// فلترة $attrs لاستثناء onUpdate:search لمنع التعارض مع v-model:search الداخلي
+const rawAttrs = useAttrs();
+const filteredAttrs = computed(() => {
+  const { 'onUpdate:search': _, ...rest } = rawAttrs;
+  return rest;
+});
 
 const props = defineProps({
   modelValue: {
