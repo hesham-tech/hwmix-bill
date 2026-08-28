@@ -1,6 +1,7 @@
 <template>
   <AppAutocomplete
     v-model="selectedCustomer"
+    :search="searchQuery"
     :items="customers"
     :loading="loading"
     
