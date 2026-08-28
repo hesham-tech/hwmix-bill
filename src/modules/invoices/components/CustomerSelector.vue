@@ -11,6 +11,7 @@
     prepend-inner-icon="ri-user-search-line"
     clearable
     :return-object="returnObject"
+    no-filter
     @update:search="handleSearch"
     
     class="customer-selector"

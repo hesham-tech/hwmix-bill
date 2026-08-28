@@ -8,7 +8,8 @@
     :rules="computedRules"
     :disabled="disabled"
     :loading="loading || internalLoading"
-    v-model:search="searchQuery"
+    :search="searchQuery"
+    @update:search="onSearchUpdate"
     :clearable="clearable"
     :multiple="multiple"
     :chips="chips"
@@ -356,15 +357,17 @@ const handleChange = value => {
   }
 };
 
-watch(searchQuery, val => {
-  // Always emit to parent first — parent (e.g. CustomerSelector) needs this to trigger its own search
+const onSearchUpdate = (val) => {
+  searchQuery.value = val;
+  // Always emit to parent first
   emit('update:search', val);
+  
   // If this component manages its own API fetching via apiEndpoint prop
   if (props.apiEndpoint) {
     if (val && val.length > 0 && val.length < props.minChars) return;
     fetchItems(val);
   }
-});
+};
 
 watch(
   () => props.apiEndpoint,
