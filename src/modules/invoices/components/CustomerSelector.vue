@@ -136,11 +136,12 @@ const selectedCustomer = computed({
 
 // Search users (customers)
 let searchTimeout;
-const handleSearch = query => { const q = typeof query === "string" ? query : (query?.target?.value || ""); query = q;
-  searchQuery.value = query;
+const handleSearch = (query) => {
+  const search = typeof query === 'string' ? query : '';
+  searchQuery.value = search;
   clearTimeout(searchTimeout);
   searchTimeout = setTimeout(() => {
-    loadCustomers(query);
+    loadCustomers(search);
   }, 300);
 };
 
