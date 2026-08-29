@@ -72,11 +72,18 @@ const cardConfig = computed(() => {
       badge: 'هذا الشهر'
     },
     pendingPayments: {
-      title: 'مديونيات العملاء',
+      title: 'مستحقات العملاء (لنا)',
       icon: 'ri-hand-coin-line',
-      color: 'error',
-      subtitle: 'إجمالي المستحقات غير المحصلة',
+      color: 'info',
+      subtitle: 'إجمالي المستحقات غير المحصلة من العملاء',
       badge: 'ذمم مدينة'
+    },
+    supplierDebts: {
+      title: 'مديونيات الموردين (علينا)',
+      icon: 'ri-bill-line',
+      color: 'error',
+      subtitle: 'إجمالي الالتزامات والفواتير غير المسددة',
+      badge: 'ذمم دائنة'
     },
     unpaidInstallments: {
       title: 'الأقساط المستحقة',
@@ -156,6 +163,7 @@ const formattedValue = computed(() => {
     if (indicator.value === 'totalSales') return formatCurrency(s.total_sales || s.totalSales || 0);
     if (indicator.value === 'monthlySales') return formatCurrency(s.monthly_sales || s.monthlySales || 0);
     if (indicator.value === 'pendingPayments') return formatCurrency(s.pending_payments || s.pendingPayments || 0);
+    if (indicator.value === 'supplierDebts') return formatCurrency(s.supplier_debts || s.supplierDebts || 0);
     if (indicator.value === 'unpaidInstallments') return formatCurrency(s.unpaid_installments || s.unpaidInstallments || 0);
     if (indicator.value === 'totalCustomers') return s.total_customers || s.totalCustomers || 0;
     if (indicator.value === 'totalCash') return formatCurrency(s.total_cash || s.totalCash || 0);

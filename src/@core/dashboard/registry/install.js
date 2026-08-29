@@ -25,7 +25,8 @@ export function installDashboardEngine() {
   const kpis = [
     { id: 'kpi_total_sales', indicator: 'totalSales', title: 'إجمالي المبيعات' },
     { id: 'kpi_monthly_sales', indicator: 'monthlySales', title: 'مبيعات الشهر' },
-    { id: 'kpi_pending_payments', indicator: 'pendingPayments', title: 'مديونيات العملاء' },
+    { id: 'kpi_pending_payments', indicator: 'pendingPayments', title: 'مستحقات العملاء (لنا)' },
+    { id: 'kpi_supplier_debts', indicator: 'supplierDebts', title: 'مديونيات الموردين (علينا)' },
     { id: 'kpi_unpaid_installments', indicator: 'unpaidInstallments', title: 'الأقساط المستحقة' },
     { id: 'kpi_total_customers', indicator: 'totalCustomers', title: 'إجمالي العملاء' },
     { id: 'kpi_today_revenue', indicator: 'todayRevenue', title: 'إيرادات اليوم' },
