@@ -46,6 +46,17 @@ const dashboardStore = useDashboardStore();
 
 const indicator = computed(() => props.userConfig.indicator || 'totalSales');
 
+const numericValue = computed(() => {
+  const wData = dashboardStore.dashboardData[props.instanceId];
+  if (!wData) return 0;
+  const actualData = wData.data && wData.success !== undefined ? wData.data : wData;
+  const s = actualData.kpis || actualData.kpi || actualData.data_kpis || actualData || {};
+  
+  if (indicator.value === 'pendingPayments') return s.pending_payments || s.pendingPayments || 0;
+  if (indicator.value === 'supplierDebts') return s.supplier_debts || s.supplierDebts || 0;
+  return 0;
+});
+
 const loading = computed(() => {
   return dashboardStore.widgetLoadingStates[props.instanceId] !== false;
 });
@@ -72,17 +83,17 @@ const cardConfig = computed(() => {
       badge: 'هذا الشهر'
     },
     pendingPayments: {
-      title: 'مستحقات العملاء (لنا)',
+      title: numericValue.value >= 0 ? 'مستحقات العملاء (لنا)' : 'التزامات للعملاء (علينا)',
       icon: 'ri-hand-coin-line',
-      color: 'info',
-      subtitle: 'إجمالي المستحقات غير المحصلة من العملاء',
+      color: numericValue.value >= 0 ? 'info' : 'error',
+      subtitle: numericValue.value >= 0 ? 'إجمالي المستحقات غير المحصلة من العملاء' : 'أرصدة دائنة للعملاء (دفعات مقدمة/مرتجعات)',
       badge: 'ذمم مدينة'
     },
     supplierDebts: {
-      title: 'مديونيات الموردين (علينا)',
+      title: numericValue.value >= 0 ? 'مديونيات الموردين (علينا)' : 'مستحقات عند الموردين (لنا)',
       icon: 'ri-bill-line',
-      color: 'error',
-      subtitle: 'إجمالي الالتزامات والفواتير غير المسددة',
+      color: numericValue.value >= 0 ? 'error' : 'info',
+      subtitle: numericValue.value >= 0 ? 'إجمالي الالتزامات والفواتير غير المسددة' : 'أرصدة مدينة للموردين (دفعات مقدمة/مرتجعات)',
       badge: 'ذمم دائنة'
     },
     unpaidInstallments: {
@@ -162,8 +173,8 @@ const formattedValue = computed(() => {
     const s = actualData.kpis || actualData.kpi || actualData.data_kpis || actualData || { total_sales: 0, monthly_sales: 0, pending_payments: 0, unpaid_installments: 0, total_customers: 0, total_cash: 0, monthly_expenses: 0, monthly_profit: 0 };
     if (indicator.value === 'totalSales') return formatCurrency(s.total_sales || s.totalSales || 0);
     if (indicator.value === 'monthlySales') return formatCurrency(s.monthly_sales || s.monthlySales || 0);
-    if (indicator.value === 'pendingPayments') return formatCurrency(s.pending_payments || s.pendingPayments || 0);
-    if (indicator.value === 'supplierDebts') return formatCurrency(s.supplier_debts || s.supplierDebts || 0);
+    if (indicator.value === 'pendingPayments') return formatCurrency(Math.abs(s.pending_payments || s.pendingPayments || 0));
+    if (indicator.value === 'supplierDebts') return formatCurrency(Math.abs(s.supplier_debts || s.supplierDebts || 0));
     if (indicator.value === 'unpaidInstallments') return formatCurrency(s.unpaid_installments || s.unpaidInstallments || 0);
     if (indicator.value === 'totalCustomers') return s.total_customers || s.totalCustomers || 0;
     if (indicator.value === 'totalCash') return formatCurrency(s.total_cash || s.totalCash || 0);
