@@ -15,9 +15,9 @@
           <v-icon :icon="cardConfig.icon" color="white" size="24" />
         </v-avatar>
       </div>
-      <div class="mt-3 pt-2 text-xxs text-grey border-t truncate-text d-flex align-center justify-space-between">
-        <span>{{ cardConfig.subtitle }}</span>
-        <v-chip v-if="cardConfig.badge" size="x-small" :color="cardConfig.color" variant="flat" class="font-weight-bold">
+      <div class="mt-3 pt-2 text-xxs text-grey border-t d-flex align-center justify-space-between" style="overflow: hidden; gap: 8px;">
+        <span class="text-truncate" :title="cardConfig.subtitle">{{ cardConfig.subtitle }}</span>
+        <v-chip v-if="cardConfig.badge" size="x-small" :color="cardConfig.color" variant="flat" class="font-weight-bold flex-shrink-0">
           {{ cardConfig.badge }}
         </v-chip>
       </div>

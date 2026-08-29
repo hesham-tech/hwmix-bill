@@ -296,8 +296,10 @@ export function installDashboardEngine() {
       { id: 'inst_owner_8', widgetId: 'kpi_pending_payments', x: 9, y: 2, w: 3, h: 2, visible: true, userConfig: { indicator: 'pendingPayments' } },
       
       // الصف الثالث - تراكمي ومستحقات
-      { id: 'inst_owner_8b', widgetId: 'kpi_total_sales', x: 0, y: 4, w: 6, h: 2, visible: true, userConfig: { indicator: 'totalSales' } },
-      { id: 'inst_owner_8c', widgetId: 'kpi_unpaid_installments', x: 6, y: 4, w: 6, h: 2, visible: true, userConfig: { indicator: 'unpaidInstallments' } },
+      { id: 'inst_owner_8b', widgetId: 'kpi_total_sales', x: 0, y: 4, w: 3, h: 2, visible: true, userConfig: { indicator: 'totalSales' } },
+      { id: 'inst_owner_8c', widgetId: 'kpi_unpaid_installments', x: 3, y: 4, w: 3, h: 2, visible: true, userConfig: { indicator: 'unpaidInstallments' } },
+      { id: 'inst_owner_8d', widgetId: 'kpi_supplier_debts', x: 6, y: 4, w: 3, h: 2, visible: true, userConfig: { indicator: 'supplierDebts' } },
+      { id: 'inst_owner_8e', widgetId: 'kpi_total_customers', x: 9, y: 4, w: 3, h: 2, visible: true, userConfig: { indicator: 'totalCustomers' } },
       
       // الصف الثالث والرابع - الرسوم البيانية والمهام
       { id: 'inst_owner_9', widgetId: 'salesTrendChart', x: 0, y: 6, w: 8, h: 4, visible: true },
