@@ -84,16 +84,16 @@
     </v-alert>
 
     <!-- Global shared filters for the dashboard event bus -->
-    <v-card v-if="showFilters" class="mb-3 rounded-lg border shadow-sm pa-1 px-3">
+    <v-card v-if="showFilters" class="mb-3 rounded-lg border shadow-sm px-3 py-1">
       <div class="d-flex gap-3 align-center flex-wrap">
         <span class="text-caption font-weight-bold text-grey-darken-1">
           <v-icon icon="ri-filter-3-line" class="mr-1" size="14" /> تصفية النتائج:
         </span>
         
-        <v-btn-toggle v-model="selectedPeriod" mandatory color="primary" variant="outlined" divided density="compact" class="rounded-lg" style="height: 28px;">
-          <v-btn value="today" class="px-4 text-caption" style="height: 28px;">اليوم</v-btn>
-          <v-btn value="week" class="px-4 text-caption" style="height: 28px;">الأسبوع</v-btn>
-          <v-btn value="month" class="px-4 text-caption" style="height: 28px;">الشهر</v-btn>
+        <v-btn-toggle v-model="selectedPeriod" mandatory color="primary" variant="outlined" divided density="compact" class="rounded-lg">
+          <v-btn value="today" class="px-6 text-caption">اليوم</v-btn>
+          <v-btn value="week" class="px-6 text-caption">الأسبوع</v-btn>
+          <v-btn value="month" class="px-6 text-caption">الشهر</v-btn>
         </v-btn-toggle>
       </div>
     </v-card>
