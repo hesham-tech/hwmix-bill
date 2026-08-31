@@ -39,4 +39,10 @@ export default [
     path: '/cookie-policy',
     redirect: '/legal/cookie-policy',
   },
+  {
+    path: '/magic-login',
+    name: 'magic-login',
+    component: () => import('@/pages/MagicLogin.vue'),
+    meta: { title: 'تسجيل الدخول السريع', public: true },
+  },
 ];
