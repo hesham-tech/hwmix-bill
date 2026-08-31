@@ -28,7 +28,7 @@
                 <template #item="{ props, item }">
                   <v-list-item
                     v-bind="props"
-                    :subtitle="`${item.raw.user?.full_name || 'عميل'} - المتبقي: ${formatCurrency(item.raw.remaining_amount)}`"
+                    :subtitle="`${item.raw.user?.full_name || (currentContext === 'receipt' ? 'عميل' : 'مورد')} - المتبقي: ${formatCurrency(item.raw.remaining_amount)}`"
                   >
                     <template #title>
                       <div class="font-weight-bold">{{ item.raw.invoice_number }}</div>
