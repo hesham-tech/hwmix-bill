@@ -42,7 +42,7 @@
         </template>
 
         <template #item.payment_method="{ item }">
-          <v-chip v-if="item.payment_method" size="small" variant="flat" color="primary-lighten-5" class="text-primary font-weight-bold px-3">
+          <v-chip v-if="item.payment_method" size="small" variant="tonal" color="primary" class="font-weight-bold px-3">
             <v-icon icon="ri-wallet-line" size="14" class="me-1" />
             {{ item.payment_method.name }}
           </v-chip>
@@ -97,6 +97,20 @@
         لن يتم مسح السجل ولكن ستُعكس قيوده المحاسبية ورصيد الخزينة والذمم.
       </div>
     </AppDialog>
+
+    <!-- Create Payment Dialog -->
+    <v-dialog v-model="showCreateDialog" max-width="800" scrollable>
+      <v-card>
+        <v-card-title class="d-flex align-center bg-primary text-white px-4 py-3">
+          <span class="text-h6 font-weight-bold">تسجيل معاملة تحصيل</span>
+          <v-spacer />
+          <v-btn icon="ri-close-line" variant="text" size="small" color="white" @click="showCreateDialog = false" />
+        </v-card-title>
+        <v-card-text class="pa-0 bg-background">
+          <PaymentCreate v-if="showCreateDialog" is-dialog @success="handleCreateSuccess" @cancel="showCreateDialog = false" />
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -108,6 +122,7 @@ import { useApi } from '@/composables/useApi';
 import { usePermissions } from '@/composables/usePermissions';
 import { PERMISSIONS } from '@/config/permissions';
 import { AppDataTable, AppButton, AppDialog, AppUserBalanceProfile } from '@/components';
+import PaymentCreate from './PaymentCreate.vue';
 import { usePrint } from '@/modules/print/composables/usePrint';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 
@@ -169,8 +184,15 @@ const headers = [
   { title: 'الإجراءات', key: 'actions', sortable: false, align: 'end', mandatory: true },
 ];
 
+const showCreateDialog = ref(false);
+
 const handleCreate = () => {
-  router.push('/payments/create');
+  showCreateDialog.value = true;
+};
+
+const handleCreateSuccess = () => {
+  showCreateDialog.value = false;
+  refresh();
 };
 
 const handleDelete = item => {

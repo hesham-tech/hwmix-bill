@@ -1,6 +1,6 @@
 <template>
   <div class="payment-create-page">
-    <div class="mb-2 px-6 pt-6 d-flex align-center">
+    <div v-if="!isDialog" class="mb-2 px-6 pt-6 d-flex align-center">
       <AppButton icon="ri-large-arrow-right-line" variant="text" color="secondary" class="me-3" @click="handleCancel" />
       <div>
         <h1 class="text-h4 font-weight-bold">تسجيل معاملة تحصيل</h1>
@@ -8,7 +8,7 @@
       </div>
     </div>
 
-    <div class="px-6 pb-6">
+    <div :class="isDialog ? 'px-1 pb-1 pt-3' : 'px-6 pb-6'">
       <v-form ref="formRef" @submit.prevent="handleSubmit">
         <AppCard title="تفاصيل العملية المالية" icon="ri-money-dollar-box-line" class="mb-2">
           <v-row dense>
@@ -219,6 +219,14 @@ import AppAutocomplete from '@/components/common/AppAutocomplete.vue';
 import AppActionHelp from '@/components/common/AppActionHelp.vue';
 import { formatCurrency } from '@/utils/formatters';
 
+const props = defineProps({
+  isDialog: {
+    type: Boolean,
+    default: false,
+  },
+});
+const emit = defineEmits(['success', 'cancel']);
+
 const router = useRouter();
 const route = useRoute(); // Added useRoute
 const invoicesApi = useApi('/api/invoices');
@@ -387,14 +395,16 @@ const handleSubmit = async () => {
   saving.value = true;
   try {
     await paymentsApi.create(payload, { successMessage: 'تم تسجيل الدفعة بنجاح' });
-    router.push('/payments');
+    if (props.isDialog) emit('success');
+    else router.push('/app/payments');
   } finally {
     saving.value = false;
   }
 };
 
 const handleCancel = () => {
-  router.push('/payments');
+  if (props.isDialog) emit('cancel');
+  else router.push('/app/payments');
 };
 
 const formatCurrencyLocal = amount => {

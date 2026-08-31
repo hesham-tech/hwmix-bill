@@ -175,7 +175,7 @@
     </v-avatar>
     <h2 class="text-h4 font-weight-bold mb-2">عذراً، لا تملك الصلاحية</h2>
     <p class="text-body-1 text-grey mb-2">ليس لديك إذن للوصول إلى حركات الخزينة. يرجى مراجعة المسؤول.</p>
-    <AppButton to="/dashboard" color="primary" variant="tonal" prepend-icon="ri-home-4-line"> العودة للرئيسية </AppButton>
+    <AppButton to="/app/dashboard" color="primary" variant="tonal" prepend-icon="ri-home-4-line"> العودة للرئيسية </AppButton>
   </div>
 </template>
 
