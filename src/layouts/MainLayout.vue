@@ -335,7 +335,7 @@
     <v-container fluid class="pa-6 position-relative">
       <router-view v-slot="{ Component, route }">
         <transition name="page" mode="out-in">
-          <div :key="route.fullPath" class="route-wrapper h-100 w-100">
+          <div :key="route.path" class="route-wrapper h-100 w-100">
             <component :is="Component" />
           </div>
         </transition>
