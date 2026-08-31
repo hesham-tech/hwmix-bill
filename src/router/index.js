@@ -101,4 +101,16 @@ router.beforeEach(defaultGuard);
 // Setup route prefetching for common pages
 setupRoutePrefetching(router);
 
+// Handle chunk load errors (due to new deployments)
+router.onError((error, to) => {
+  if (
+    error.message.includes('Failed to fetch dynamically imported module') ||
+    error.message.includes('Importing a module script failed') ||
+    error.name === 'ChunkLoadError'
+  ) {
+    console.warn('Chunk load error detected. Reloading page to fetch latest version...', error);
+    window.location.href = to.fullPath;
+  }
+});
+
 export default router;
