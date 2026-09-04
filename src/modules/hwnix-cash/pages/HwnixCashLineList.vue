@@ -356,12 +356,14 @@
               </v-col>
 
               <!-- اختيار مصدر الرسائل المكتشف (Select Only) -->
-              <v-col cols="12" v-if="!isEditingAccount">
+              <v-col cols="12">
                 <v-select
                   v-model="accountForm.sender_identifier"
                   :items="accountStore.distinctSenders"
-                  label="مصدر الرسائل (اختر من الرسائل المكتشفة بالنظام) *"
+                  label="مصدر الرسائل *"
+                  placeholder="اختر مصدر الرسائل"
                   required
+                  :rules="[v => !!v || 'مصدر الرسائل مطلوب']"
                   variant="outlined"
                   density="compact"
                   prepend-inner-icon="ri-mail-send-line"
@@ -1040,7 +1042,7 @@ function openAddAccountDialog(lineId = null) {
     line_id: lineId || store.lines[0]?.id || null,
     name: '',
     account_number: '',
-    sender_identifier: '',
+    sender_identifier: null,
     daily_deposit_limit: DEFAULT_CBE_LIMITS.DAILY_DEPOSIT,
     daily_withdraw_limit: DEFAULT_CBE_LIMITS.DAILY_WITHDRAW,
     monthly_deposit_limit: DEFAULT_CBE_LIMITS.MONTHLY_DEPOSIT,
@@ -1065,6 +1067,7 @@ function openEditAccountDialog(account) {
   accountForm.value = {
     name: account.name,
     account_number: account.account_number || '',
+    sender_identifier: account.sender_identifier || '',
     daily_deposit_limit: account.daily_deposit_limit || DEFAULT_CBE_LIMITS.DAILY_DEPOSIT,
     daily_withdraw_limit: account.daily_withdraw_limit || DEFAULT_CBE_LIMITS.DAILY_WITHDRAW,
     monthly_deposit_limit: account.monthly_deposit_limit || DEFAULT_CBE_LIMITS.MONTHLY_DEPOSIT,
@@ -1078,6 +1081,7 @@ function openEditAccountDialog(account) {
     monthly_withdraw_alert_type: account.monthly_withdraw_alert_type || 'percentage',
     monthly_withdraw_alert_value: account.monthly_withdraw_alert_value || 80,
   };
+  accountStore.fetchDistinctSenders();
   accountFormDialog.value = true;
 }
 
