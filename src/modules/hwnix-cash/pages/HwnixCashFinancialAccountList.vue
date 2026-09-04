@@ -425,7 +425,7 @@
               </v-col>
 
               <!-- مصدر الرسائل — مطلوب عند الإضافة -->
-              <v-col cols="12" v-if="!isEditingAccount">
+              <v-col cols="12">
                 <v-combobox
                   v-model="accountForm.sender_identifier"
                   :items="accountStore.distinctSenders"
