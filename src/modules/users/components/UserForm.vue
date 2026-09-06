@@ -240,31 +240,7 @@
           </v-card>
         </v-col>
 
-        <!-- Company Assignment (Admin/Manager) -->
-        <v-col v-if="canAssignCompanies" cols="12" class="mt-4">
-          <div class="d-flex align-center gap-2 mb-2 text-info font-weight-bold">
-            <v-icon icon="ri-community-line" />
-            <span>ربط الشركات</span>
-            <AppFieldHelp text="تحديد الشركات التي ينتمي إليها الحساب. يتيح للمستخدم الوصول لهذه الشركات فقط." />
-          </div>
-          <v-divider class="mb-4" />
 
-          <v-select
-            v-model="form.company_ids"
-            :items="allCompanies"
-            item-title="name"
-            item-value="id"
-            label="الشركات المرتبطة"
-            multiple
-            chips
-            closable-chips
-            variant="outlined"
-            prepend-inner-icon="ri-building-line"
-            :loading="loadingCompanies"
-            hint="يمكن للمسؤول ربط المستخدم بالشركات التي يديرها"
-            persistent-hint
-          />
-        </v-col>
 
         <!-- Branch Assignment -->
         <v-col cols="12" class="mt-4">

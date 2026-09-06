@@ -137,6 +137,15 @@
                   class="text-purple"
                   @click="openPermissions(item)"
                 />
+                
+                <!-- Company Access Actions -->
+                <v-list-item
+                  v-if="can(PERMISSIONS.USERS_EDIT)"
+                  prepend-icon="ri-community-line"
+                  title="إدارة وصول الشركات"
+                  class="text-info"
+                  @click="openCompanyAccess(item)"
+                />
                 <v-list-item v-if="can(PERMISSIONS.USERS_EDIT)" prepend-icon="ri-edit-line" title="تعديل البيانات" @click="handleEdit(item)" />
               </template>
 
@@ -177,6 +186,23 @@
             {{ isEditMode ? 'تحديث البيانات' : userFormRef?.form?.id ? 'ربط الحساب' : 'حفظ المستخدم' }}
           </AppButton>
         </template>
+      </AppDialog>
+
+      <!-- Company Access Dialog -->
+      <AppDialog v-model="isCompanyAccessOpen" title="إدارة وصول الشركات" variant="info" max-width="700" hide-actions fluid :fullscreen="isMobile">
+        <template #header>
+          <div class="d-flex align-center gap-3 w-100 pa-5 text-white bg-info">
+            <v-avatar color="white" variant="tonal" size="48">
+              <v-icon icon="ri-community-line" color="white" />
+            </v-avatar>
+            <div class="flex-grow-1">
+              <span class="text-h6 font-weight-bold d-block">إدارة وصول الشركات</span>
+              <span v-if="companyAccessUser" class="text-caption opacity-80">{{ companyAccessUser.full_name }} ({{ companyAccessUser.username }})</span>
+            </div>
+            <v-btn icon="ri-close-line" variant="text" color="white" @click="closeCompanyAccess" />
+          </div>
+        </template>
+        <UserCompanyManager v-if="companyAccessUser" :user="companyAccessUser" @save="closeCompanyAccess(); refresh()" @cancel="closeCompanyAccess" />
       </AppDialog>
 
       <!-- Permission Management Dialog -->
@@ -261,6 +287,7 @@ import { useDataTable } from '@/composables/useDataTable';
 import { userService } from '@/api';
 import { useUser } from '../composables/useUser';
 import UserForm from '../components/UserForm.vue';
+import UserCompanyManager from '../components/UserCompanyManager.vue';
 import UserPermissionManager from '../components/UserPermissionManager.vue';
 import BalanceOperations from '@/modules/financials/components/BalanceOperations.vue';
 import { AppDataTable, AppButton, AppDialog, AppConfirmDialog, AppUserBalanceProfile } from '@/components';
@@ -307,6 +334,10 @@ const {
   permissionUser,
   openPermissions,
   closePermissions,
+  isCompanyAccessOpen,
+  companyAccessUser,
+  openCompanyAccess,
+  closeCompanyAccess,
   isDeleteDialogOpen,
   userToDelete,
   deleteType,

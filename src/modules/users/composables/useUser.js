@@ -9,6 +9,7 @@ export function useUser() {
 
   const { isOpen, formData, isEditMode, open, close } = useDialog();
   const { isOpen: isPermissionOpen, formData: permissionUser, open: openPermissions, close: closePermissions } = useDialog();
+  const { isOpen: isCompanyAccessOpen, formData: companyAccessUser, open: openCompanyAccess, close: closeCompanyAccess } = useDialog();
   const { isOpen: isDeleteDialogOpen, formData: userToDelete, open: openDeleteDialog, close: closeDeleteDialog } = useDialog();
   const { showConfirm, confirmMessage, confirm, handleConfirm, handleCancel } = useConfirm();
 
@@ -104,6 +105,10 @@ export function useUser() {
     permissionUser,
     openPermissions,
     closePermissions,
+    isCompanyAccessOpen,
+    companyAccessUser,
+    openCompanyAccess,
+    closeCompanyAccess,
     isDeleteDialogOpen,
     userToDelete,
     deleteType,

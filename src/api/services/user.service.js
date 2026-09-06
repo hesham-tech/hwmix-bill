@@ -90,6 +90,18 @@ class UserService extends BaseService {
       return this.handleError(error, showToast);
     }
   }
+  /**
+   * Update user company access
+   */
+  async updateCompanyAccess(userId, data, options = {}) {
+    const { showToast = false } = options;
+    try {
+      const response = await apiClient.put(`users/${userId}/companies-access`, data);
+      return this.handleSuccess(response, showToast);
+    } catch (error) {
+      return this.handleError(error, showToast);
+    }
+  }
 }
 
 export default new UserService();
