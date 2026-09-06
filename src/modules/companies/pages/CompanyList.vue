@@ -11,7 +11,7 @@
       v-model:search="search"
       v-model:page="page"
       v-model:items-per-page="perPage"
-      v-model="selectedItems"
+      v-model:selected="selectedItems"
       show-select
       :filters="advancedFilters"
       @update:filters="val => Object.assign(filters, val)"
