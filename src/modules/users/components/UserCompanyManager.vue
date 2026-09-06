@@ -66,7 +66,8 @@ const fetchCompanies = async () => {
   try {
     loading.value = true;
     const response = await companyService.getAll({ limit: 1000 });
-    allCompanies.value = response.data?.data || [];
+    // BaseService normalizes this so response.data is usually the array directly.
+    allCompanies.value = Array.isArray(response.data) ? response.data : (response.data?.data || []);
     
     // Set initial selected companies based on user's current companies
     selectedCompanies.value = (props.user?.companies || []).map(c => c.id);

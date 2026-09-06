@@ -146,7 +146,7 @@
                   class="text-info"
                   @click="openCompanyAccess(item)"
                 />
-                <v-list-item v-if="can(PERMISSIONS.USERS_EDIT)" prepend-icon="ri-edit-line" title="تعديل البيانات" @click="handleEdit(item)" />
+
               </template>
 
               <template #empty>

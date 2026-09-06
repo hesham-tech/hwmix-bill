@@ -148,7 +148,14 @@
                   class="text-purple"
                   @click="openPermissions(item)"
                 />
-                <v-list-item v-if="can(PERMISSIONS.USERS_EDIT)" prepend-icon="ri-edit-line" title="تعديل البيانات" @click="handleEdit(item)" />
+                
+                <v-list-item
+                  v-if="can(PERMISSIONS.USERS_EDIT)"
+                  prepend-icon="ri-community-line"
+                  title="إدارة وصول الشركات"
+                  class="text-info"
+                  @click="openCompanyAccess(item)"
+                />
               </template>
             </AppDataTable>
           </v-card>
@@ -243,6 +250,23 @@
         <UserPermissionManager v-if="permissionUser" :user="permissionUser" @save="closePermissions" @cancel="closePermissions" />
       </AppDialog>
 
+      <!-- Company Access Dialog -->
+      <AppDialog v-model="isCompanyAccessOpen" title="إدارة وصول الشركات" variant="info" max-width="900" hide-actions fluid :fullscreen="isMobile">
+        <template #header>
+          <div class="d-flex align-center gap-3 w-100 pa-5 text-white">
+            <v-avatar color="white" variant="tonal" size="48">
+              <v-icon icon="ri-community-line" color="white" />
+            </v-avatar>
+            <div class="flex-grow-1">
+              <span class="text-h6 font-weight-bold d-block">إدارة وصول الشركات</span>
+              <span v-if="companyAccessUser" class="text-caption opacity-80">{{ companyAccessUser.full_name }} ({{ companyAccessUser.username }})</span>
+            </div>
+            <v-btn icon="ri-close-line" variant="text" color="white" @click="closeCompanyAccess" />
+          </div>
+        </template>
+        <UserCompanyManager v-if="companyAccessUser" :user="companyAccessUser" @save="closeCompanyAccess(); refresh()" @cancel="closeCompanyAccess" />
+      </AppDialog>
+
       <!-- Balance Operations Dialog -->
       <BalanceOperations v-model="isBalanceOpen" :user="balanceUser" :initial-type="balanceType" @success="onBalanceSuccess" />
     </v-container>
@@ -262,6 +286,7 @@ import { userService } from '@/api';
 import { useUser } from '../composables/useUser';
 import UserForm from '../components/UserForm.vue';
 import UserPermissionManager from '../components/UserPermissionManager.vue';
+import UserCompanyManager from '../components/UserCompanyManager.vue';
 import BalanceOperations from '@/modules/financials/components/BalanceOperations.vue';
 import { AppDataTable, AppButton, AppDialog, AppConfirmDialog, AppUserBalanceProfile, AppBalanceDisplay } from '@/components';
 import { PERMISSIONS } from '@/config/permissions';
@@ -298,6 +323,10 @@ const {
   permissionUser,
   openPermissions,
   closePermissions,
+  isCompanyAccessOpen,
+  companyAccessUser,
+  openCompanyAccess,
+  closeCompanyAccess,
   isDeleteDialogOpen,
   userToDelete,
   deleteType,
