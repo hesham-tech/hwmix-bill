@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="cashbox-page">
     <AppPageHeader v-if="!hideHeader" title="الخزائن" subtitle="إدارة الخزائن النقدية والأرصدة المتاحة للعمليات" icon="ri-safe-2-line" sticky>
       <template #append>
@@ -52,7 +52,7 @@
 
     <v-container fluid class="pt-0">
       <!-- ملخص السيولة النقدية -->
-      <v-row class="mb-6" v-if="!props.userId">
+      <v-row class="mb-6" v-if="!props.userId && (can(PERMISSIONS.CASH_BOXES_VIEW_BALANCE) || can(PERMISSIONS.ADMIN_COMPANY) || can(PERMISSIONS.ADMIN_SUPER))">
         <v-col cols="12" md="4">
           <v-card variant="flat" class="border rounded-lg bg-grey-lighten-4 pa-4 d-flex align-center">
             <v-avatar color="primary-lighten-5" size="48" class="me-4 rounded-lg">

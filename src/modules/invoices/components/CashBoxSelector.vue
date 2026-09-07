@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <AppAutocomplete
     v-model="internalValue"
     :items="displayItems"
@@ -16,7 +16,7 @@
     <template #item="{ props, item }">
       <v-list-item v-bind="props">
         <template #subtitle>
-          <span class="text-caption">الرصيد: {{ formatCurrency(item.raw.balance) }}</span>
+          <span class="text-caption" v-if="item.raw.balance !== undefined">الرصيد: {{ formatCurrency(item.raw.balance) }}</span>
         </template>
       </v-list-item>
     </template>

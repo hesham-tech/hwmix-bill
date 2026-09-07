@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="variant-manager">
 
     <!-- ===== Shell ===== -->
@@ -87,7 +87,7 @@
             <v-row dense>
               <v-col cols="6" sm="3" v-if="can(PERMISSIONS.PRODUCTS_VIEW_PURCHASE_PRICE)">
                 <AppInput
-                  v-model.number="currentVariant.purchase_price"
+                  v-model.number="currentVariant.purchase_price" :readonly="!can(PERMISSIONS.PRODUCTS_UPDATE_PRICES) && !can(PERMISSIONS.ADMIN_SUPER) && !can(PERMISSIONS.ADMIN_COMPANY)"
                   label="سعر الشراء *"
                   type="number"
                   prefix="ج.م"
@@ -100,7 +100,7 @@
               </v-col>
               <v-col cols="6" sm="3" v-if="can(PERMISSIONS.PRODUCTS_VIEW_WHOLESALE_PRICE)">
                 <AppInput
-                  v-model.number="currentVariant.wholesale_price"
+                  v-model.number="currentVariant.wholesale_price" :readonly="!can(PERMISSIONS.PRODUCTS_UPDATE_PRICES) && !can(PERMISSIONS.ADMIN_SUPER) && !can(PERMISSIONS.ADMIN_COMPANY)"
                   label="سعر الجملة"
                   type="number"
                   prefix="ج.م"
@@ -111,7 +111,7 @@
               </v-col>
               <v-col cols="6" sm="3">
                 <AppInput
-                  v-model.number="currentVariant.retail_price"
+                  v-model.number="currentVariant.retail_price" :readonly="!can(PERMISSIONS.PRODUCTS_UPDATE_PRICES) && !can(PERMISSIONS.ADMIN_SUPER) && !can(PERMISSIONS.ADMIN_COMPANY)"
                   label="سعر القطاعي *"
                   type="number"
                   prefix="ج.م"
@@ -124,7 +124,7 @@
               </v-col>
               <v-col cols="6" sm="3" v-if="can(PERMISSIONS.PRODUCTS_VIEW_PURCHASE_PRICE)">
                 <AppInput
-                  v-model.number="currentVariant.profit_margin"
+                  v-model.number="currentVariant.profit_margin" :readonly="!can(PERMISSIONS.PRODUCTS_UPDATE_PRICES) && !can(PERMISSIONS.ADMIN_SUPER) && !can(PERMISSIONS.ADMIN_COMPANY)"
                   label="هامش الربح %"
                   type="number"
                   prefix="%"

@@ -183,6 +183,7 @@ const handleLogin = async () => {
     }
   } catch (error) {
     // Handled by interceptor
+    import('@/services/notificationManager').then(m => m.default.error('Login error: ' + (error?.response?.data?.message || error.message || 'Unknown error')));
   } finally {
     loading.value = false;
   }
@@ -681,3 +682,4 @@ const handleLogin = async () => {
   }
 }
 </style>
+

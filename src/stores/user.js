@@ -13,8 +13,11 @@ export const useUserStore = defineStore('user', () => {
   const fetchUser = async () => {
     try {
       const response = await apiClient.get('bootstrap');
-      const bootstrapData = response.data.data;
-
+      const bootstrapData = response.data?.data || response.data;
+      if (!bootstrapData || !bootstrapData.user) {
+        import('@/services/notificationManager').then(m => m.default.error('Invalid Bootstrap Payload: ' + JSON.stringify(response.data)));
+        throw new Error('Invalid Bootstrap payload');
+      }
       currentUser.value = bootstrapData.user;
 
       // Extract permissions array from backend response
@@ -60,6 +63,7 @@ export const useUserStore = defineStore('user', () => {
       }
     } catch (error) {
       console.error('Failed to bootstrap application:', error);
+      throw error;
     }
   };
 
@@ -271,3 +275,7 @@ export const useUserStore = defineStore('user', () => {
     },
   };
 });
+
+
+
+

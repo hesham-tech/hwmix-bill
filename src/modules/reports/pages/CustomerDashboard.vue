@@ -170,19 +170,19 @@
             <v-card v-if="invoiceDialog.data.remaining_amount > 0" variant="outlined" class="pa-4 rounded-md border-dashed">
               <div class="d-flex align-center justify-space-between mb-3">
                 <span class="text-body-2">رصيدك المتاح:</span>
-                <span :class="['font-weight-bold', userStore.currentUser.balance >= 1 ? 'text-success' : 'text-error']">
-                  {{ formatCurrency(userStore.currentUser.balance) }}
+                <span :class="['font-weight-bold', userStore.currentUser?.balance >= 1 ? 'text-success' : 'text-error']">
+                  {{ formatCurrency(userStore.currentUser?.balance) }}
                 </span>
               </div>
               <AppButton
                 block
                 color="success"
-                :disabled="userStore.currentUser.balance < 1"
+                :disabled="userStore.currentUser?.balance < 1"
                 :loading="paying"
                 prepend-icon="ri-qr-code-fill"
                 @click="payFromBalance(invoiceDialog.data)"
               >
-                {{ userStore.currentUser.balance >= 1 ? 'سداد من الرصيد المتاح' : 'رصيدك لا يكفي للسداد' }}
+                {{ userStore.currentUser?.balance >= 1 ? 'سداد من الرصيد المتاح' : 'رصيدك لا يكفي للسداد' }}
               </AppButton>
               <div class="text-caption text-grey mt-2 text-center">سيتم خصم المبلغ المتبقي من محفظتك الإلكترونية</div>
             </v-card>
@@ -301,13 +301,13 @@ const payFromBalance = async invoice => {
     const paymentApi = useApi('/api/payments');
 
     await paymentApi.store({
-      user_id: userStore.currentUser.id,
+      user_id: userStore.currentUser?.id,
       invoice_id: invoice.id,
       cash_amount: 0,
       credit_amount: invoice.remaining_amount,
       payment_date: new Date().toISOString().slice(0, 19).replace('T', ' '),
       notes: `سداد آلي من رصيد الداشبورد للعميل`,
-      cash_box_id: userStore.currentUser.cash_box_default_id || 1, // استخدام خزينة افتراضية
+      cash_box_id: userStore.currentUser?.cash_box_default_id || 1, // استخدام خزينة افتراضية
     });
 
     invoiceDialog.value.show = false;
@@ -382,3 +382,4 @@ onMounted(() => {
   border: 1px solid rgba(var(--v-theme-primary), 0.08);
 }
 </style>
+

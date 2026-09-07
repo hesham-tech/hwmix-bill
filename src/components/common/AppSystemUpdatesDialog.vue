@@ -192,7 +192,7 @@ async function acknowledgeUpdate() {
     if (response.success) {
       // Update local stores state
       if (authStore.user) authStore.user.settings = updatedSettings;
-      if (userStore.currentUser) userStore.currentUser.settings = updatedSettings;
+      if (userStore.currentUser) userStore.currentUser?.settings = updatedSettings;
 
       // Persist user data back into local/session storage
       const remember = !!localStorage.getItem('token');
@@ -297,3 +297,4 @@ defineExpose({ show });
     0 2px 4px -2px rgba(0, 0, 0, 0.1) !important;
 }
 </style>
+

@@ -206,27 +206,35 @@
       </AppDialog>
 
       <!-- Permission Management Dialog -->
-      <AppDialog v-model="isPermissionOpen" title="إدارة صلاحيات الوصول" variant="purple" max-width="900" hide-actions fluid :fullscreen="isMobile">
+      <AppDialog
+        v-model="isPermissionOpen"
+        variant="purple"
+        max-width="950"
+        hide-actions
+        fluid
+        :fullscreen="isMobile"
+      >
         <template #header>
-          <div class="d-flex align-center gap-3 w-100 pa-5 text-white">
-            <v-avatar color="white" variant="tonal" size="48">
-              <v-icon icon="ri-shield-keyhole-line" color="white" />
+          <div class="d-flex align-center gap-3 w-100 pa-4 text-white">
+            <v-avatar color="white" variant="tonal" size="40" class="flex-shrink-0">
+              <v-icon icon="ri-shield-keyhole-line" color="white" size="20" />
             </v-avatar>
-            <div class="flex-grow-1">
-              <span class="text-h6 font-weight-bold d-block">إدارة صلاحيات الوصول</span>
-              <span v-if="permissionUser" class="text-caption opacity-80">{{ permissionUser.full_name }} ({{ permissionUser.username }})</span>
+            <div class="flex-grow-1 min-w-0">
+              <div class="text-subtitle-1 font-weight-bold">إدارة صلاحيات الوصول</div>
+              <div v-if="permissionUser" class="text-caption opacity-80">
+                {{ permissionUser.full_name }} — {{ permissionUser.username }}
+              </div>
             </div>
-            <v-btn icon="ri-close-line" variant="text" color="white" @click="closePermissions" />
+            <v-btn icon="ri-close-line" variant="text" color="white" density="comfortable" @click="closePermissions" />
           </div>
         </template>
 
-        <v-divider class="border-opacity-10" />
-
-        <div class="pa-6 bg-grey-lighten-4 border-b">
-          <AppUserBalanceProfile v-if="permissionUser" :user="permissionUser" mode="horizontal" hide-balance :clickable="false" />
-        </div>
-
-        <UserPermissionManager v-if="permissionUser" :user="permissionUser" @save="closePermissions" @cancel="closePermissions" />
+        <UserPermissionManager
+          v-if="permissionUser"
+          :user="permissionUser"
+          @save="closePermissions"
+          @cancel="closePermissions"
+        />
       </AppDialog>
 
       <div class="px-6 pb-6 mt-4">

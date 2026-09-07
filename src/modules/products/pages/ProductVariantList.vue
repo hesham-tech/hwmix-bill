@@ -285,17 +285,34 @@ const {
   immediate: true,
 });
 
+
 const headers = computed(() => {
   const isDigitalEnabled = userStore.currentCompany?.settings?.enable_digital_products;
+  const canSeePurchasePrice = can(PERMISSIONS.PRODUCTS_VIEW_PURCHASE_PRICE) || can(PERMISSIONS.ADMIN_COMPANY) || can(PERMISSIONS.ADMIN_SUPER);
+  const canSeeWholesalePrice = can(PERMISSIONS.PRODUCTS_VIEW_WHOLESALE_PRICE) || can(PERMISSIONS.ADMIN_COMPANY) || can(PERMISSIONS.ADMIN_SUPER);
+
   const list = [
     { title: 'المنتج / المتغير', key: 'product_name', sortable: true, minWidth: '200px' },
     { title: 'SKU', key: 'sku', sortable: true, minWidth: '120px' },
     { title: 'الباركود', key: 'barcode', sortable: true, minWidth: '150px' },
-    { title: 'التكلفة', key: 'cost', sortable: true, minWidth: '100px' },
-    { title: 'سعر الشراء', key: 'purchase_price', sortable: true, minWidth: '110px' },
-    { title: 'سعر البيع', key: 'retail_price', sortable: true, minWidth: '100px' },
-    { title: 'سعر الجملة', key: 'wholesale_price', sortable: true, minWidth: '110px' },
-    { title: 'هامش الربح', key: 'profit_margin', sortable: true, minWidth: '110px' },
+  ];
+
+  if (canSeePurchasePrice) {
+    list.push({ title: 'التكلفة', key: 'cost', sortable: true, minWidth: '100px' });
+    list.push({ title: 'سعر الشراء', key: 'purchase_price', sortable: true, minWidth: '110px' });
+  }
+
+  list.push({ title: 'سعر البيع', key: 'retail_price', sortable: true, minWidth: '100px' });
+
+  if (canSeeWholesalePrice) {
+    list.push({ title: 'سعر الجملة', key: 'wholesale_price', sortable: true, minWidth: '110px' });
+  }
+
+  if (canSeePurchasePrice) {
+    list.push({ title: 'هامش الربح', key: 'profit_margin', sortable: true, minWidth: '110px' });
+  }
+
+  list.push(
     { title: 'الخصم (%)', key: 'discount', sortable: true, minWidth: '100px' },
     { title: 'الضريبة (%)', key: 'tax', sortable: true, minWidth: '100px' },
     { title: 'المخزون', key: 'quantity', sortable: true, align: 'center', minWidth: '100px' },
@@ -303,7 +320,7 @@ const headers = computed(() => {
     { title: 'الوزن (كجم)', key: 'weight', sortable: true, align: 'center', minWidth: '110px' },
     { title: 'الأبعاد (ط×ع×ارتفاع)', key: 'dimensions', sortable: true, align: 'center', minWidth: '160px' },
     { title: 'الرابط البديل للمنتج', key: 'product_slug', sortable: true, minWidth: '160px' },
-  ];
+  );
 
   if (isDigitalEnabled) {
     list.push({ title: 'نوع المنتج الأب', key: 'product_type', sortable: true, minWidth: '130px' });
@@ -321,6 +338,8 @@ const headers = computed(() => {
 
   return list;
 });
+
+
 
 const getAttributesText = item => {
   if (!item.attributes || !item.attributes.length) return '';

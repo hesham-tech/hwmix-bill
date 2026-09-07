@@ -184,10 +184,10 @@ const canCreate = computed(() => userStore.hasPermission(PERMISSIONS.EXPENSES_CR
 const canManageCategories = computed(() => userStore.hasPermission(PERMISSIONS.EXPENSE_CATEGORIES_PAGE));
 const canUpdate = item =>
   userStore.hasPermission(PERMISSIONS.EXPENSES_UPDATE_ALL) ||
-  (userStore.hasPermission(PERMISSIONS.EXPENSES_UPDATE_SELF) && item.created_by === userStore.currentUser.id);
+  (userStore.hasPermission(PERMISSIONS.EXPENSES_UPDATE_SELF) && item.created_by === userStore.currentUser?.id);
 const canDelete = item =>
   userStore.hasPermission(PERMISSIONS.EXPENSES_DELETE_ALL) ||
-  (userStore.hasPermission(PERMISSIONS.EXPENSES_DELETE_SELF) && item.created_by === userStore.currentUser.id);
+  (userStore.hasPermission(PERMISSIONS.EXPENSES_DELETE_SELF) && item.created_by === userStore.currentUser?.id);
 
 const handleSearch = debounce(() => {
   applyFilters({ ...filters });
@@ -259,3 +259,4 @@ onMounted(() => {
   border: 1px solid #f1f5f9 !important;
 }
 </style>
+

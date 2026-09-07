@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ============================================================================
  * Permission Keys Constants - Complete Sync with Backend
  * ============================================================================
@@ -54,6 +54,7 @@ export const PERMISSIONS = {
   USERS_DELETE_ALL: 'users.delete_all',
   USERS_DELETE_CHILDREN: 'users.delete_children',
   USERS_DELETE_SELF: 'users.delete_self',
+  USERS_ASSIGN_PERMISSIONS: 'users.assign_permissions',
 
   // ==================== Roles ====================
   ROLES_PAGE: 'roles.page',
@@ -138,6 +139,7 @@ export const PERMISSIONS = {
   CASH_BOXES_VIEW_ALL: 'cash_boxes.view_all',
   CASH_BOXES_VIEW_CHILDREN: 'cash_boxes.view_children',
   CASH_BOXES_VIEW_SELF: 'cash_boxes.view_self',
+  CASH_BOXES_VIEW_BALANCE: 'cash_boxes.view_balance',
   CASH_BOXES_CREATE: 'cash_boxes.create',
   CASH_BOXES_UPDATE_ALL: 'cash_boxes.update_all',
   CASH_BOXES_UPDATE_CHILDREN: 'cash_boxes.update_children',
@@ -164,6 +166,7 @@ export const PERMISSIONS = {
   WAREHOUSES_VIEW_ALL: 'warehouses.view_all',
   WAREHOUSES_VIEW_CHILDREN: 'warehouses.view_children',
   WAREHOUSES_VIEW_SELF: 'warehouses.view_self',
+  WAREHOUSES_VIEW_STOCK_VALUE: 'warehouses.view_stock_value',
   WAREHOUSES_CREATE: 'warehouses.create',
   WAREHOUSES_UPDATE_ALL: 'warehouses.update_all',
   WAREHOUSES_UPDATE_CHILDREN: 'warehouses.update_children',
@@ -237,6 +240,7 @@ export const PERMISSIONS = {
   PRODUCTS_UPDATE_ALL: 'products.update_all',
   PRODUCTS_UPDATE_CHILDREN: 'products.update_children',
   PRODUCTS_UPDATE_SELF: 'products.update_self',
+  PRODUCTS_UPDATE_PRICES: 'products.update_prices',
   PRODUCTS_DELETE_ALL: 'products.delete_all',
   PRODUCTS_DELETE_CHILDREN: 'products.delete_children',
   PRODUCTS_DELETE_SELF: 'products.delete_self',
@@ -291,6 +295,7 @@ export const PERMISSIONS = {
   INVOICES_VIEW_ALL: 'invoices.view_all',
   INVOICES_VIEW_CHILDREN: 'invoices.view_children',
   INVOICES_VIEW_SELF: 'invoices.view_self',
+  INVOICES_VIEW_PROFIT: 'invoices.view_profit',
   INVOICES_CREATE: 'invoices.create',
   INVOICES_UPDATE_ALL: 'invoices.update_all',
   INVOICES_UPDATE_CHILDREN: 'invoices.update_children',
@@ -475,6 +480,7 @@ export const PERMISSIONS = {
   REPORTS_VIEW_ALL: 'reports.view_all',
   REPORTS_VIEW_CHILDREN: 'reports.view_children',
   REPORTS_VIEW_SELF: 'reports.view_self',
+  REPORTS_VIEW_LIQUIDITY: 'reports.view_liquidity',
   REPORTS_SALES: 'reports.sales',
   REPORTS_STOCK: 'reports.stock',
   REPORTS_PROFIT: 'reports.profit',
