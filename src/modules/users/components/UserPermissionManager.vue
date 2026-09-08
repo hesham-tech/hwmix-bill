@@ -609,7 +609,12 @@ const handleSave = async () => {
    MATRIX TABLE
 ══════════════════════════════════════════════════════ */
 .upm-matrix-wrapper {
-  overflow-x: auto;
+  /* ── scroll عمودي وأفقي داخل الـ wrapper نفسه ──
+     هذا ضروري لكي يعمل position:sticky على الـ thead
+     لأن overflow-x وحده يكسر الـ sticky العمودي في المتصفحات ── */
+  overflow: auto;
+  max-height: min(62vh, 560px);
+  min-height: 200px;
   border-radius: 12px;
   border: 1px solid #e2e8f0;
   box-shadow: 0 1px 4px rgba(0,0,0,0.05);
