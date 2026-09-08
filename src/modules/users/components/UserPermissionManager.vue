@@ -128,8 +128,9 @@
         </v-alert>
 
 
-        <!-- ── MATRIX TABLE ── -->
-        <div v-if="matrixGroups.length" class="upm-matrix-wrapper">
+        <!-- ══ DESKTOP: MATRIX TABLE ══ -->
+        <template v-if="!mobile">
+          <div v-if="matrixGroups.length" class="upm-matrix-wrapper">
           <table class="upm-matrix">
             <!-- رأس الجدول -->
             <thead>
@@ -274,21 +275,143 @@
           </table>
         </div>
 
-        <!-- لا نتائج -->
+        <!-- لا نتائج — ديسكتوب -->
         <div v-else class="upm-center py-16">
           <v-icon icon="ri-search-eye-line" size="52" color="grey-lighten-2" class="mb-3" />
           <div class="text-body-2 font-weight-bold text-grey-darken-1">لا توجد نتائج</div>
           <div class="text-caption text-grey">جرّب كلمات مختلفة</div>
         </div>
+        </template><!-- end desktop -->
+
+        <!-- ══ MOBILE: ACCORDION CARDS ══ -->
+        <template v-if="mobile">
+          <div v-if="matrixGroups.length" class="upm-accordion">
+            <div
+              v-for="group in matrixGroups"
+              :key="group.id"
+              class="upm-acc-card"
+              :class="{ 'upm-acc-card--active': expandedRows.has(group.id) }"
+            >
+              <!-- رأس البطاقة -->
+              <div class="upm-acc-header" @click="toggleRow(group.id)">
+                <div class="upm-acc-header__start">
+                  <div class="upm-acc-icon">
+                    <v-icon :icon="group.icon" size="15" color="primary" />
+                  </div>
+                  <div class="upm-acc-title">{{ group.name }}</div>
+                </div>
+                <div class="upm-acc-header__end">
+                  <span v-if="group.selectedCount > 0" class="upm-acc-badge">
+                    {{ group.selectedCount }}/{{ group.totalCount }}
+                  </span>
+                  <v-icon
+                    :icon="expandedRows.has(group.id) ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"
+                    size="18" color="grey"
+                  />
+                </div>
+              </div>
+
+              <!-- جسم البطاقة — الصلاحيات -->
+              <v-expand-transition>
+                <div v-if="expandedRows.has(group.id)" class="upm-acc-body">
+
+                  <!-- الصلاحيات القياسية -->
+                  <div class="upm-acc-perms-grid">
+                    <template v-for="col in STANDARD_COLUMNS" :key="col.id">
+                      <div
+                        v-if="group.standard[col.id]"
+                        class="upm-acc-perm"
+                        :class="{
+                          'upm-acc-perm--on':        isChecked(group.standard[col.id].key),
+                          'upm-acc-perm--inherited': isPermissionInherited(group.standard[col.id].key)
+                        }"
+                        @click="onCellClick(group.standard[col.id].key)"
+                      >
+                        <div
+                          class="upm-acc-cb"
+                          :class="{
+                            'upm-acc-cb--on':        isChecked(group.standard[col.id].key),
+                            'upm-acc-cb--inherited': isPermissionInherited(group.standard[col.id].key)
+                          }"
+                        >
+                          <v-icon
+                            v-if="isChecked(group.standard[col.id].key)"
+                            :icon="isPermissionInherited(group.standard[col.id].key) ? 'ri-shield-user-fill' : 'ri-check-line'"
+                            size="10" color="white"
+                          />
+                        </div>
+                        <span class="upm-acc-perm__label">
+                          {{ col.groupLabel ? col.groupLabel + ' ' : '' }}{{ col.label }}
+                        </span>
+                        <v-chip
+                          v-if="isPermissionInherited(group.standard[col.id].key)"
+                          size="x-small" color="info" variant="tonal" class="ms-auto"
+                        >موروثة</v-chip>
+                      </div>
+                    </template>
+                  </div>
+
+                  <!-- الصلاحيات الخاصة -->
+                  <template v-if="group.custom.length">
+                    <div class="upm-acc-divider">
+                      <span>صلاحيات خاصة</span>
+                    </div>
+                    <div class="upm-acc-perms-grid">
+                      <div
+                        v-for="perm in group.custom"
+                        :key="perm.key"
+                        class="upm-acc-perm"
+                        :class="{
+                          'upm-acc-perm--on':        isChecked(perm.key),
+                          'upm-acc-perm--inherited': isPermissionInherited(perm.key)
+                        }"
+                        @click="onCellClick(perm.key)"
+                      >
+                        <div
+                          class="upm-acc-cb"
+                          :class="{
+                            'upm-acc-cb--on':        isChecked(perm.key),
+                            'upm-acc-cb--inherited': isPermissionInherited(perm.key)
+                          }"
+                        >
+                          <v-icon
+                            v-if="isChecked(perm.key)"
+                            :icon="isPermissionInherited(perm.key) ? 'ri-shield-user-fill' : 'ri-check-line'"
+                            size="10" color="white"
+                          />
+                        </div>
+                        <span class="upm-acc-perm__label">{{ perm.label }}</span>
+                        <v-chip
+                          v-if="isPermissionInherited(perm.key)"
+                          size="x-small" color="info" variant="tonal" class="ms-auto"
+                        >موروثة</v-chip>
+                      </div>
+                    </div>
+                  </template>
+
+                </div>
+              </v-expand-transition>
+            </div>
+          </div>
+
+          <!-- لا نتائج — موبايل -->
+          <div v-else class="upm-center py-12">
+            <v-icon icon="ri-search-eye-line" size="48" color="grey-lighten-2" class="mb-3" />
+            <div class="text-body-2 font-weight-bold text-grey-darken-1">لا توجد نتائج</div>
+            <div class="text-caption text-grey">جرّب كلمات مختلفة</div>
+          </div>
+        </template><!-- end mobile -->
 
       </template>
+
     </div>
   </div>
 </template>
 
 <script setup>
-// مدير الأدوار والصلاحيات — عرض Matrix مع صفوف قابلة للتوسع للصلاحيات المخصصة
+// مدير الأدوار والصلاحيات — عرض Matrix على الديسكتوب + Accordion على الموبايل
 import { ref, computed, onMounted, watch } from 'vue';
+import { useDisplay } from 'vuetify';
 import { useUserStore } from '../store/user.store';
 import { useUserStore as useGlobalUserStore } from '@/stores/user';
 import { userService } from '@/api';
@@ -316,6 +439,7 @@ const emit  = defineEmits(['save', 'cancel']);
 // ── Stores ───────────────────────────────────────────────
 const store       = useUserStore();
 const globalStore = useGlobalUserStore();
+const { mobile }  = useDisplay();
 
 // ── State ────────────────────────────────────────────────
 const loading               = ref(false);
@@ -793,7 +917,129 @@ const handleSave = async () => {
   .upm-search-field { max-width: none; flex: 1; }
   .upm-expert-label span { display: none; } /* إخفاء نص مبسّط/خبير في الموبايل */
 
-  /* مصفوفة الصلاحيات في الموبايل */
-  .upm-matrix-wrapper { max-height: 50vh; border-radius: 8px; }
+  /* مصفوفة الصلاحيات في الموبايل — مخفية لصالح الـ Accordion */
+  .upm-matrix-wrapper { display: none; }
+}
+
+/* ══════════════════════════════════════════════════════
+   MOBILE ACCORDION
+══════════════════════════════════════════════════════ */
+.upm-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* البطاقة */
+.upm-acc-card {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color .2s, box-shadow .2s;
+}
+.upm-acc-card--active {
+  border-color: rgba(var(--v-theme-primary), 0.4);
+  box-shadow: 0 2px 12px rgba(var(--v-theme-primary), 0.08);
+}
+
+/* رأس البطاقة */
+.upm-acc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  cursor: pointer;
+  min-height: 52px; /* touch-friendly */
+  gap: 8px;
+  transition: background .15s;
+}
+.upm-acc-header:active { background: #f8fafc; }
+.upm-acc-header__start {
+  display: flex; align-items: center; gap: 10px; min-width: 0;
+}
+.upm-acc-header__end {
+  display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+}
+.upm-acc-icon {
+  width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0;
+  background: rgba(var(--v-theme-primary), 0.08);
+  display: flex; align-items: center; justify-content: center;
+}
+.upm-acc-title {
+  font-size: 0.85rem; font-weight: 600; color: #1e293b;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.upm-acc-badge {
+  font-size: 0.7rem; font-weight: 700;
+  color: rgb(var(--v-theme-primary));
+  background: rgba(var(--v-theme-primary), 0.1);
+  padding: 2px 8px; border-radius: 20px;
+}
+
+/* جسم البطاقة */
+.upm-acc-body {
+  border-top: 1px solid #f1f5f9;
+  padding: 12px;
+  background: #fafbfc;
+}
+
+/* شبكة الصلاحيات — عمودان */
+.upm-acc-perms-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+/* صلاحية واحدة */
+.upm-acc-perm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  border: 1.5px solid #e8edf2;
+  background: white;
+  cursor: pointer;
+  min-height: 40px; /* touch-friendly */
+  transition: all .15s;
+}
+.upm-acc-perm:active:not(.upm-acc-perm--inherited) { transform: scale(0.98); }
+.upm-acc-perm--on {
+  border-color: rgb(var(--v-theme-primary));
+  background: rgba(var(--v-theme-primary), 0.04);
+}
+.upm-acc-perm--inherited {
+  border-color: rgb(var(--v-theme-info));
+  background: rgba(var(--v-theme-info), 0.04);
+  cursor: default;
+}
+.upm-acc-perm__label {
+  font-size: 0.78rem; font-weight: 500; color: #374151;
+  flex: 1; min-width: 0; line-height: 1.3;
+}
+
+/* Checkbox الموبايل */
+.upm-acc-cb {
+  width: 18px; height: 18px; border-radius: 5px; flex-shrink: 0;
+  border: 1.5px solid #d1d5db; background: white;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+}
+.upm-acc-cb--on       { background: rgb(var(--v-theme-primary)); border-color: rgb(var(--v-theme-primary)); }
+.upm-acc-cb--inherited{ background: rgb(var(--v-theme-info));    border-color: rgb(var(--v-theme-info)); opacity:.8; }
+
+/* فاصل الصلاحيات الخاصة */
+.upm-acc-divider {
+  display: flex; align-items: center; gap: 8px;
+  margin: 10px 0 6px;
+}
+.upm-acc-divider::before,
+.upm-acc-divider::after {
+  content: ''; flex: 1; height: 1px; background: #e2e8f0;
+}
+.upm-acc-divider span {
+  font-size: 0.68rem; font-weight: 600; color: #9ca3af;
+  white-space: nowrap; text-transform: uppercase; letter-spacing: 0.5px;
 }
 </style>
