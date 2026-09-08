@@ -648,11 +648,11 @@ const handleSave = async () => {
 .upm-matrix__th--module { text-align: start; min-width: 160px; }
 .upm-matrix__th--custom { min-width: 60px; }
 
-/* color bands — فاتحة لتناسب الهيدر الفاتح */
-.upm-matrix__th--view   { background: rgba(99,102,241,0.1); }
-.upm-matrix__th--update { background: rgba(245,158,11,0.1); }
-.upm-matrix__th--delete { background: rgba(239,68,68,0.08); }
-.upm-matrix__th--create { background: rgba(34,197,94,0.1); }
+/* color bands — ألوان صلبة opaque لمنع الشفافية عند التثبيت */
+.upm-matrix__th--view   { background: #e6e7fa; } /* indigo فاتح */
+.upm-matrix__th--update { background: #fdf3e0; } /* amber فاتح  */
+.upm-matrix__th--delete { background: #fde8e8; } /* red فاتح    */
+.upm-matrix__th--create { background: #e3f5eb; } /* green فاتح  */
 
 .upm-matrix__th-inner {
   display: flex; flex-direction: column;
@@ -767,11 +767,33 @@ const handleSave = async () => {
 @media (max-width: 600px) {
   .upm-root          { background: white; }
   .upm-top-row       { padding: 8px 12px; gap: 6px; }
-  .upm-tabs-row      { padding: 0 12px; }
   .upm-body          { padding: 12px; }
   .upm-role-grid     { grid-template-columns: repeat(auto-fill, minmax(145px,1fr)); gap: 8px; }
-  .upm-perm-toolbar  { flex-wrap: wrap; }
-  .upm-expert-label  { width: 100%; justify-content: space-between; }
   .upm-stat-pill     { display: none; }
+
+  /* tabs-row: يتكدس عمودياً في الموبايل */
+  .upm-tabs-row {
+    flex-wrap: wrap;
+    padding: 0 8px;
+    gap: 0;
+  }
+  .upm-tabs-nav {
+    width: 100%;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  /* أدوات البحث: صف كامل منفصل */
+  .upm-tabs-tools {
+    width: 100%;
+    justify-content: flex-start;
+    padding: 6px 0;
+    gap: 6px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .upm-search-field { max-width: none; flex: 1; }
+  .upm-expert-label span { display: none; } /* إخفاء نص مبسّط/خبير في الموبايل */
+
+  /* مصفوفة الصلاحيات في الموبايل */
+  .upm-matrix-wrapper { max-height: 50vh; border-radius: 8px; }
 }
 </style>
