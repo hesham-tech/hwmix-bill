@@ -2,13 +2,12 @@
   <div class="upm-root">
 
     <!-- ══════════════════════════════════════════════
-         STICKY HEADER  — لا يتحرك مع السكرول أبداً
-         ══════════════════════════════════════════ -->
+         STICKY HEADER
+    ══════════════════════════════════════════════ -->
     <div class="upm-sticky-header">
 
       <!-- صف 1: الشركة + الإحصاء + الأزرار -->
       <div class="upm-top-row">
-        <!-- Company selector -->
         <div class="d-flex align-center gap-2 flex-shrink-0 flex-wrap">
           <v-icon icon="ri-community-line" color="primary" size="16" />
           <v-select
@@ -25,18 +24,10 @@
           />
         </div>
 
-        <!-- Right side: stats + actions -->
         <div class="d-flex align-center gap-2 flex-wrap">
-          <v-chip
-            v-if="hasChanges"
-            size="x-small"
-            color="warning"
-            variant="tonal"
-            prepend-icon="ri-edit-line"
-          >
+          <v-chip v-if="hasChanges" size="x-small" color="warning" variant="tonal" prepend-icon="ri-edit-line">
             تغييرات غير محفوظة
           </v-chip>
-
           <div class="upm-stat-pill upm-stat-pill--roles">
             <v-icon icon="ri-shield-user-line" size="12" />
             <span>{{ selectedRoles.length }} دور</span>
@@ -45,39 +36,16 @@
             <v-icon icon="ri-key-2-line" size="12" />
             <span>{{ selectedPermissions.length }} صلاحية</span>
           </div>
-
-          <v-btn
-            variant="text"
-            color="grey-darken-1"
-            size="small"
-            rounded="lg"
-            class="font-weight-bold"
-            @click="$emit('cancel')"
-          >
-            إلغاء
-          </v-btn>
-          <v-btn
-            color="primary"
-            size="small"
-            rounded="lg"
-            :loading="loading"
-            :disabled="!hasChanges"
-            class="px-4 font-weight-bold"
-            prepend-icon="ri-save-3-line"
-            @click="handleSave"
-          >
-            حفظ
-          </v-btn>
+          <v-btn variant="text" color="grey-darken-1" size="small" rounded="lg" class="font-weight-bold" @click="$emit('cancel')">إلغاء</v-btn>
+          <v-btn color="primary" size="small" rounded="lg" :loading="loading" :disabled="!hasChanges" class="px-4 font-weight-bold" prepend-icon="ri-save-3-line" @click="handleSave">حفظ</v-btn>
         </div>
       </div>
 
       <!-- صف 2: Tabs -->
       <div class="upm-tabs-row">
         <button
-          v-for="nav in navigationItems"
-          :key="nav.value"
-          class="upm-tab"
-          :class="{ 'upm-tab--active': tab === nav.value }"
+          v-for="nav in navigationItems" :key="nav.value"
+          class="upm-tab" :class="{ 'upm-tab--active': tab === nav.value }"
           @click="tab = nav.value"
         >
           <v-icon :icon="tab === nav.value ? nav.activeIcon : nav.icon" size="16" class="me-1" />
@@ -88,8 +56,8 @@
     </div>
 
     <!-- ══════════════════════════════════════════════
-         BODY — يسكرول الـ dialog فقط، لا نضيف سكرول
-         ══════════════════════════════════════════ -->
+         BODY
+    ══════════════════════════════════════════════ -->
     <div class="upm-body">
 
       <!-- ─── تبويب الأدوار ─── -->
@@ -97,17 +65,12 @@
         <div v-if="store.loading" class="upm-center py-16">
           <v-progress-circular indeterminate color="primary" />
         </div>
-
         <template v-else-if="store.roles.length">
-          <p class="text-caption text-grey-darken-1 mb-4">
-            اختر دوراً أو أكثر. كل دور يمنح حزمة من الصلاحيات المحددة مسبقاً.
-          </p>
+          <p class="text-caption text-grey-darken-1 mb-4">اختر دوراً أو أكثر. كل دور يمنح حزمة من الصلاحيات المحددة مسبقاً.</p>
           <div class="upm-role-grid">
             <div
-              v-for="role in store.roles"
-              :key="role.id"
-              class="upm-role-card"
-              :class="{ 'upm-role-card--on': isRoleSelected(role.name) }"
+              v-for="role in store.roles" :key="role.id"
+              class="upm-role-card" :class="{ 'upm-role-card--on': isRoleSelected(role.name) }"
               @click="toggleRole(role.name)"
             >
               <div class="upm-role-card__top">
@@ -118,26 +81,16 @@
                   <v-icon v-if="isRoleSelected(role.name)" icon="ri-check-line" size="11" color="white" />
                 </div>
               </div>
-
               <div class="text-body-2 font-weight-bold mt-2 mb-1">{{ role.label || role.name }}</div>
-              <div class="text-caption text-grey-darken-1 upm-clamp2 mb-3">
-                {{ role.description || 'لا يوجد وصف.' }}
-              </div>
-
+              <div class="text-caption text-grey-darken-1 upm-clamp2 mb-3">{{ role.description || 'لا يوجد وصف.' }}</div>
               <div class="upm-role-card__foot">
-                <v-chip
-                  size="x-small"
-                  :color="isRoleSelected(role.name) ? 'primary' : 'grey'"
-                  :variant="isRoleSelected(role.name) ? 'flat' : 'tonal'"
-                >
-                  <v-icon start icon="ri-key-fill" size="10" />
-                  {{ role.permissions_count || 0 }}
+                <v-chip size="x-small" :color="isRoleSelected(role.name) ? 'primary' : 'grey'" :variant="isRoleSelected(role.name) ? 'flat' : 'tonal'">
+                  <v-icon start icon="ri-key-fill" size="10" />{{ role.permissions_count || 0 }}
                 </v-chip>
               </div>
             </div>
           </div>
         </template>
-
         <div v-else class="upm-center py-16">
           <v-icon icon="ri-shield-flash-line" size="52" color="grey-lighten-2" class="mb-3" />
           <div class="text-body-2 font-weight-bold text-grey-darken-1">لا توجد أدوار مُعرَّفة</div>
@@ -145,14 +98,14 @@
         </div>
       </template>
 
-      <!-- ─── تبويب الصلاحيات ─── -->
+      <!-- ─── تبويب الصلاحيات (Matrix) ─── -->
       <template v-if="tab === 'permissions'">
 
-        <!-- شريط البحث + سويتش الخبير -->
+        <!-- شريط الأدوات -->
         <div class="upm-perm-toolbar">
           <v-text-field
             v-model="permissionSearch"
-            placeholder="ابحث عن صلاحية..."
+            placeholder="ابحث عن صلاحية أو وحدة..."
             prepend-inner-icon="ri-search-2-line"
             variant="outlined"
             density="compact"
@@ -163,245 +116,252 @@
           />
           <label class="upm-expert-label">
             <span class="text-caption font-weight-bold">{{ expertMode ? 'وضع الخبير' : 'المبسّط' }}</span>
-            <v-switch
-              v-model="expertMode"
-              color="primary"
-              hide-details
-              density="compact"
-              inset
-              class="ms-2"
-            />
+            <v-switch v-model="expertMode" color="primary" hide-details density="compact" inset class="ms-2" />
           </label>
         </div>
 
-        <!-- Expert notice -->
-        <v-alert
-          v-if="expertMode"
-          type="info"
-          variant="tonal"
-          density="compact"
-          rounded="lg"
-          class="mb-3"
-          icon="ri-shield-flash-line"
-        >
-          <span class="text-caption">
-            <strong>وضع الخبير:</strong>
-            تظهر الصلاحيات الموروثة من الأدوار للمراجعة فقط ولا يمكن سحبها من هنا.
-          </span>
+        <!-- تنبيهات -->
+        <v-alert v-if="expertMode" type="info" variant="tonal" density="compact" rounded="lg" class="mb-3" icon="ri-shield-flash-line">
+          <span class="text-caption"><strong>وضع الخبير:</strong> تظهر الصلاحيات الموروثة من الأدوار للمراجعة فقط.</span>
+        </v-alert>
+        <v-alert v-else-if="selectedPermissions.length > 0" type="success" variant="tonal" density="compact" rounded="lg" class="mb-3" icon="ri-checkbox-circle-line">
+          <span class="text-caption">لديك <strong>{{ selectedPermissions.length }}</strong> صلاحية مباشرة مخصصة لهذا المستخدم.</span>
         </v-alert>
 
-        <v-alert
-          v-else-if="selectedPermissions.length > 0"
-          type="success"
-          variant="tonal"
-          density="compact"
-          rounded="lg"
-          class="mb-3"
-          icon="ri-checkbox-circle-line"
-        >
-          <span class="text-caption">
-            لديك <strong>{{ selectedPermissions.length }}</strong> صلاحية مباشرة مخصصة لهذا المستخدم.
-          </span>
-        </v-alert>
-
-        <!-- Permission groups -->
-        <div v-if="Object.keys(filteredPermissions).length" class="upm-groups">
-          <div
-            v-for="(group, groupKey) in filteredPermissions"
-            :key="groupKey"
-            class="upm-group"
-          >
-            <!-- Group header -->
-            <div class="upm-group__hd" @click="toggleGroupOpen(groupKey)">
-              <div class="d-flex align-center gap-2">
-                <div class="upm-group-icon">
-                  <v-icon :icon="getGroupIcon(groupKey)" size="16" color="primary" />
-                </div>
-                <div>
-                  <div class="text-body-2 font-weight-bold">{{ fixLabel(group.name?.label) || groupKey }}</div>
-                  <div class="text-caption text-grey">{{ countGroupPerms(group) }} صلاحية</div>
-                </div>
-              </div>
-
-              <div class="d-flex align-center gap-2">
-                <v-btn
-                  size="x-small"
-                  :color="allDirectInGroupSelected(group) ? 'grey' : 'primary'"
-                  variant="tonal"
-                  rounded="lg"
-                  class="font-weight-bold"
-                  @click.stop="toggleGroup(group)"
+        <!-- ── MATRIX TABLE ── -->
+        <div v-if="matrixGroups.length" class="upm-matrix-wrapper">
+          <table class="upm-matrix">
+            <!-- رأس الجدول -->
+            <thead>
+              <tr class="upm-matrix__header-row">
+                <!-- عمود الوحدة -->
+                <th class="upm-matrix__th upm-matrix__th--module">الوحدة</th>
+                <!-- الأعمدة القياسية -->
+                <th
+                  v-for="col in STANDARD_COLUMNS"
+                  :key="col.id"
+                  class="upm-matrix__th"
+                  :class="`upm-matrix__th--${col.group}`"
                 >
-                  {{ allDirectInGroupSelected(group) ? 'إلغاء الكل' : 'تحديد الكل' }}
-                </v-btn>
+                  <div class="upm-matrix__th-inner">
+                    <span class="upm-matrix__th-group">{{ col.groupLabel }}</span>
+                    <span class="upm-matrix__th-label">{{ col.label }}</span>
+                  </div>
+                </th>
+                <!-- عمود الصلاحيات الخاصة -->
+                <th class="upm-matrix__th upm-matrix__th--custom">خاص</th>
+              </tr>
+            </thead>
 
-                <v-chip
-                  v-if="countSelectedInGroup(group) > 0"
-                  size="x-small"
-                  color="primary"
-                  variant="tonal"
+            <tbody>
+              <template v-for="group in matrixGroups" :key="group.id">
+                <!-- صف الوحدة الرئيسي -->
+                <tr
+                  class="upm-matrix__row"
+                  :class="{
+                    'upm-matrix__row--has-selected': group.selectedCount > 0,
+                    'upm-matrix__row--expanded': expandedRows.has(group.id)
+                  }"
                 >
-                  {{ countSelectedInGroup(group) }}
-                </v-chip>
+                  <!-- اسم الوحدة -->
+                  <td class="upm-matrix__td upm-matrix__td--module">
+                    <div class="upm-module-cell">
+                      <div class="upm-module-icon">
+                        <v-icon :icon="group.icon" size="14" color="primary" />
+                      </div>
+                      <div class="upm-module-info">
+                        <div class="upm-module-name">{{ group.name }}</div>
+                        <div v-if="group.selectedCount > 0" class="upm-module-count">
+                          {{ group.selectedCount }}/{{ group.totalCount }}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
 
-                <v-icon
-                  :icon="openGroups.includes(groupKey) ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"
-                  size="18"
-                  color="grey"
-                />
-              </div>
-            </div>
-
-            <!-- Group body -->
-            <v-expand-transition>
-              <div v-if="openGroups.includes(groupKey)" class="upm-group__bd">
-                <template v-for="(perm, pKey) in group" :key="pKey">
-                  <div
-                    v-if="pKey !== 'name' && perm && typeof perm === 'object' && (expertMode || !isPermissionInherited(perm.key))"
-                    class="upm-perm-row"
-                    :class="{
-                      'upm-perm-row--inherited': isPermissionInherited(perm.key),
-                      'upm-perm-row--on': selectedPermissions.includes(perm.key)
-                    }"
-                    @click="!isPermissionInherited(perm.key) && togglePermission(perm.key)"
+                  <!-- خلايا الأعمدة القياسية -->
+                  <td
+                    v-for="col in STANDARD_COLUMNS"
+                    :key="col.id"
+                    class="upm-matrix__td"
+                    :class="`upm-matrix__td--${col.group}`"
                   >
-                    <div
-                      class="upm-cb"
-                      :class="{
-                        'upm-cb--on': selectedPermissions.includes(perm.key),
-                        'upm-cb--inherited': isPermissionInherited(perm.key)
-                      }"
+                    <template v-if="group.standard[col.id]">
+                      <div
+                        class="upm-matrix-cb"
+                        :class="{
+                          'upm-matrix-cb--on':        isChecked(group.standard[col.id].key),
+                          'upm-matrix-cb--inherited': isPermissionInherited(group.standard[col.id].key),
+                          'upm-matrix-cb--disabled':  isPermissionInherited(group.standard[col.id].key) && !expertMode
+                        }"
+                        @click="onCellClick(group.standard[col.id].key)"
+                      >
+                        <v-icon
+                          v-if="isChecked(group.standard[col.id].key)"
+                          :icon="isPermissionInherited(group.standard[col.id].key) ? 'ri-shield-user-fill' : 'ri-check-line'"
+                          size="10"
+                          color="white"
+                        />
+                      </div>
+                    </template>
+                    <!-- خلية فارغة -->
+                    <span v-else class="upm-matrix-na">—</span>
+                  </td>
+
+                  <!-- عمود الصلاحيات الخاصة -->
+                  <td class="upm-matrix__td upm-matrix__td--custom">
+                    <button
+                      v-if="group.custom.length"
+                      class="upm-custom-btn"
+                      :class="{ 'upm-custom-btn--has': group.customSelected > 0 }"
+                      @click="toggleRow(group.id)"
                     >
                       <v-icon
-                        v-if="selectedPermissions.includes(perm.key) || isPermissionInherited(perm.key)"
-                        icon="ri-check-line"
-                        size="11"
-                        color="white"
+                        :icon="expandedRows.has(group.id) ? 'ri-arrow-up-s-line' : 'ri-add-line'"
+                        size="12"
                       />
-                    </div>
+                      <span>{{ group.custom.length }}</span>
+                    </button>
+                    <span v-else class="upm-matrix-na">—</span>
+                  </td>
+                </tr>
 
-                    <div class="flex-grow-1 min-w-0">
-                      <div class="d-flex align-center flex-wrap gap-1">
-                        <span
-                          class="text-body-2"
-                          :class="isPermissionInherited(perm.key) ? 'text-grey-darken-1' : 'font-weight-medium'"
-                        >{{ fixLabel(perm.label) }}</span>
-                        <v-chip
-                          v-if="isPermissionInherited(perm.key)"
-                          size="x-small"
-                          color="info"
-                          variant="tonal"
+                <!-- صف الصلاحيات الخاصة (قابل للتوسع) -->
+                <tr v-if="group.custom.length && expandedRows.has(group.id)" class="upm-matrix__custom-row">
+                  <td :colspan="STANDARD_COLUMNS.length + 2" class="upm-matrix__custom-td">
+                    <div class="upm-custom-perms">
+                      <div
+                        v-for="perm in group.custom"
+                        :key="perm.key"
+                        class="upm-custom-perm"
+                        :class="{
+                          'upm-custom-perm--on':        isChecked(perm.key),
+                          'upm-custom-perm--inherited': isPermissionInherited(perm.key)
+                        }"
+                        @click="onCellClick(perm.key)"
+                      >
+                        <div
+                          class="upm-matrix-cb upm-matrix-cb--sm"
+                          :class="{
+                            'upm-matrix-cb--on':        isChecked(perm.key),
+                            'upm-matrix-cb--inherited': isPermissionInherited(perm.key)
+                          }"
                         >
-                          <v-icon start icon="ri-shield-user-line" size="10" />
-                          موروثة
+                          <v-icon
+                            v-if="isChecked(perm.key)"
+                            :icon="isPermissionInherited(perm.key) ? 'ri-shield-user-fill' : 'ri-check-line'"
+                            size="9"
+                            color="white"
+                          />
+                        </div>
+                        <div class="upm-custom-perm__info">
+                          <div class="upm-custom-perm__label">{{ perm.label }}</div>
+                          <div class="upm-custom-perm__key">{{ perm.key }}</div>
+                        </div>
+                        <v-chip v-if="isPermissionInherited(perm.key)" size="x-small" color="info" variant="tonal" class="ms-1">
+                          <v-icon start icon="ri-shield-user-line" size="9" />موروثة
                         </v-chip>
                       </div>
-                      <div class="upm-perm-key">{{ perm.key }}</div>
                     </div>
-                  </div>
-                </template>
-              </div>
-            </v-expand-transition>
-          </div>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
         </div>
 
-        <!-- Empty search -->
+        <!-- لا نتائج -->
         <div v-else class="upm-center py-16">
           <v-icon icon="ri-search-eye-line" size="52" color="grey-lighten-2" class="mb-3" />
           <div class="text-body-2 font-weight-bold text-grey-darken-1">لا توجد نتائج</div>
           <div class="text-caption text-grey">جرّب كلمات مختلفة</div>
         </div>
+
       </template>
     </div>
-
   </div>
 </template>
 
 <script setup>
-// مدير الأدوار والصلاحيات الفردية لمستخدم محدد ضمن نطاق شركة
+// مدير الأدوار والصلاحيات — عرض Matrix مع صفوف قابلة للتوسع للصلاحيات المخصصة
 import { ref, computed, onMounted, watch } from 'vue';
 import { useUserStore } from '../store/user.store';
 import { useUserStore as useGlobalUserStore } from '@/stores/user';
 import { userService } from '@/api';
 
-const props = defineProps({
-  user: { type: Object, required: true },
-});
-const emit = defineEmits(['save', 'cancel']);
+// ── ثوابت الأعمدة القياسية ──────────────────────────────
+const STANDARD_COLUMNS = [
+  { id: 'page',            label: 'صفحة',       groupLabel: '',       group: 'page'   },
+  { id: 'view_all',        label: 'الكل',        groupLabel: 'عرض',    group: 'view'   },
+  { id: 'view_children',   label: 'التابعين',    groupLabel: 'عرض',    group: 'view'   },
+  { id: 'view_self',       label: 'الخاص',       groupLabel: 'عرض',    group: 'view'   },
+  { id: 'create',          label: 'إضافة',       groupLabel: '',       group: 'create' },
+  { id: 'update_all',      label: 'الكل',        groupLabel: 'تعديل',  group: 'update' },
+  { id: 'update_children', label: 'التابعين',    groupLabel: 'تعديل',  group: 'update' },
+  { id: 'update_self',     label: 'الخاص',       groupLabel: 'تعديل',  group: 'update' },
+  { id: 'delete_all',      label: 'الكل',        groupLabel: 'حذف',    group: 'delete' },
+  { id: 'delete_children', label: 'التابعين',    groupLabel: 'حذف',    group: 'delete' },
+  { id: 'delete_self',     label: 'الخاص',       groupLabel: 'حذف',    group: 'delete' },
+];
+const STANDARD_IDS = new Set(STANDARD_COLUMNS.map(c => c.id));
 
+// ── Props & Emits ────────────────────────────────────────
+const props = defineProps({ user: { type: Object, required: true } });
+const emit  = defineEmits(['save', 'cancel']);
+
+// ── Stores ───────────────────────────────────────────────
 const store       = useUserStore();
 const globalStore = useGlobalUserStore();
 
-const loading             = ref(false);
-const tab                 = ref('roles');
-const expertMode          = ref(false);
-const permissionSearch    = ref('');
-const selectedRoles       = ref([]);
-const selectedPermissions = ref([]);
-const originalRoles       = ref([]);
-const originalPermissions = ref([]);
+// ── State ────────────────────────────────────────────────
+const loading               = ref(false);
+const tab                   = ref('roles');
+const expertMode            = ref(false);
+const permissionSearch      = ref('');
+const selectedRoles         = ref([]);
+const selectedPermissions   = ref([]);
+const originalRoles         = ref([]);
+const originalPermissions   = ref([]);
 const selectedSyncCompanyId = ref(null);
-const openGroups            = ref([]);
+const expandedRows          = ref(new Set());
 
-// ── إصلاح ترميز النص العربي المكسور ─────────────────
+// ── إصلاح الترميز العربي ────────────────────────────────
 const fixLabel = (str) => {
   if (!str || typeof str !== 'string') return str;
-  try {
-    // نحول bytes اللاتينية المخطوئة إلى UTF-8 صحيح
-    return decodeURIComponent(escape(str));
-  } catch {
-    return str;
-  }
+  try { return decodeURIComponent(escape(str)); } catch { return str; }
 };
 
-// ── التبويبات ────────────────────────────────────────
+// ── Tabs ─────────────────────────────────────────────────
 const navigationItems = computed(() => [
-  {
-    label: 'الأدوار',
-    value: 'roles',
-    icon: 'ri-shield-user-line',
-    activeIcon: 'ri-shield-check-fill',
-    count: selectedRoles.value.length,
-  },
-  {
-    label: 'الصلاحيات',
-    value: 'permissions',
-    icon: 'ri-key-2-line',
-    activeIcon: 'ri-key-fill',
-    count: selectedPermissions.value.length,
-  },
+  { label: 'الأدوار',     value: 'roles',       icon: 'ri-shield-user-line', activeIcon: 'ri-shield-check-fill', count: selectedRoles.value.length       },
+  { label: 'الصلاحيات',  value: 'permissions',  icon: 'ri-key-2-line',       activeIcon: 'ri-key-fill',          count: selectedPermissions.value.length },
 ]);
 
-// ── كشف التغييرات ─────────────────────────────────────
+// ── hasChanges ───────────────────────────────────────────
 const hasChanges = computed(() => {
-  const rChanged = selectedRoles.value.length !== originalRoles.value.length ||
-                   selectedRoles.value.some(r => !originalRoles.value.includes(r));
-  const pChanged = selectedPermissions.value.length !== originalPermissions.value.length ||
-                   selectedPermissions.value.some(p => !originalPermissions.value.includes(p));
+  const rChanged = selectedRoles.value.length !== originalRoles.value.length
+                || selectedRoles.value.some(r => !originalRoles.value.includes(r));
+  const pChanged = selectedPermissions.value.length !== originalPermissions.value.length
+                || selectedPermissions.value.some(p => !originalPermissions.value.includes(p));
   return rChanged || pChanged;
 });
 
-// ── تهيئة ─────────────────────────────────────────────
+// ── تهيئة ────────────────────────────────────────────────
 onMounted(async () => {
   store.loading = true;
   try {
     await Promise.all([store.fetchRoles(), store.fetchAvailablePermissions()]);
-
     const userCompanyIds = props.user.companies?.map(c => c.id) ?? [];
     const authCompanyId  = globalStore.currentCompany?.id;
-
     selectedSyncCompanyId.value =
       (authCompanyId && userCompanyIds.includes(authCompanyId))
         ? authCompanyId
         : (userCompanyIds[0] ?? authCompanyId);
-
-    openGroups.value = Object.keys(store.availablePermissions ?? {});
   } finally {
     store.loading = false;
   }
 });
 
-// ── مراقبة تغيير الشركة ───────────────────────────────
+// ── تغيير الشركة ─────────────────────────────────────────
 const lastFetchedId = ref(null);
 watch(selectedSyncCompanyId, async newId => {
   if (!newId || newId === lastFetchedId.value) return;
@@ -416,14 +376,11 @@ watch(selectedSyncCompanyId, async newId => {
     originalRoles.value       = [...roles];
     selectedPermissions.value = [...perms];
     originalPermissions.value = [...perms];
-  } catch (e) {
-    console.error('Failed to load user roles:', e);
-  } finally {
-    loading.value = false;
-  }
+  } catch (e) { console.error('Failed to load user roles:', e); }
+  finally { loading.value = false; }
 });
 
-// ── منطق الأدوار ──────────────────────────────────────
+// ── منطق الأدوار ─────────────────────────────────────────
 const isRoleSelected = name => selectedRoles.value.includes(name);
 const toggleRole = name => {
   const i = selectedRoles.value.indexOf(name);
@@ -431,16 +388,15 @@ const toggleRole = name => {
   else         selectedRoles.value.push(name);
 };
 const getRoleIcon = name => {
-  const map = { admin:'ri-admin-line', manager:'ri-briefcase-line',
-    accountant:'ri-calculator-line', cashier:'ri-money-dollar-circle-line',
-    sales:'ri-store-2-line', warehouse:'ri-home-gear-line',
+  const map = { admin:'ri-admin-line', manager:'ri-briefcase-line', accountant:'ri-calculator-line',
+    cashier:'ri-money-dollar-circle-line', sales:'ri-store-2-line', warehouse:'ri-home-gear-line',
     customer:'ri-user-heart-line', viewer:'ri-eye-line' };
   const lower = (name || '').toLowerCase();
   for (const [k, icon] of Object.entries(map)) { if (lower.includes(k)) return icon; }
   return 'ri-shield-user-line';
 };
 
-// ── منطق الصلاحيات ───────────────────────────────────
+// ── منطق الصلاحيات ───────────────────────────────────────
 const inheritedPermissions = computed(() => {
   const s = new Set();
   selectedRoles.value.forEach(roleName => {
@@ -449,60 +405,23 @@ const inheritedPermissions = computed(() => {
   return s;
 });
 const isPermissionInherited = key => inheritedPermissions.value.has(key);
-const togglePermission = key => {
+const isChecked = key =>
+  selectedPermissions.value.includes(key) || isPermissionInherited(key);
+
+const onCellClick = key => {
   if (isPermissionInherited(key)) return;
   const i = selectedPermissions.value.indexOf(key);
   if (i > -1) selectedPermissions.value.splice(i, 1);
   else         selectedPermissions.value.push(key);
 };
-const toggleGroupOpen = key => {
-  const i = openGroups.value.indexOf(key);
-  if (i > -1) openGroups.value.splice(i, 1);
-  else         openGroups.value.push(key);
+
+const toggleRow = id => {
+  const s = new Set(expandedRows.value);
+  s.has(id) ? s.delete(id) : s.add(id);
+  expandedRows.value = s;
 };
 
-const filteredPermissions = computed(() => {
-  const out   = {};
-  const query = permissionSearch.value.toLowerCase().trim();
-  let src = store.availablePermissions;
-  if (Array.isArray(src) && src.length === 1 && !src[0].name) src = src[0];
-  if (!src || typeof src !== 'object') return out;
-
-  Object.entries(src).forEach(([gKey, group]) => {
-    if (!group?.name) return;
-    const fg = { name: group.name };
-    let hit  = false;
-    const gLabel = fixLabel(group.name?.label)?.toLowerCase() || '';
-    const groupMatch = !query || gLabel.includes(query);
-
-    Object.entries(group).forEach(([pKey, p]) => {
-      if (pKey === 'name' || !p || typeof p !== 'object') return;
-      const pLabel = fixLabel(p.label)?.toLowerCase() || '';
-      const match  = !query || groupMatch || pLabel.includes(query) || p.key?.toLowerCase().includes(query);
-      if (match) { fg[pKey] = p; hit = true; }
-    });
-    if (hit) out[gKey] = fg;
-  });
-  return out;
-});
-
-const countGroupPerms          = g => Object.keys(g).filter(k => k !== 'name').length;
-const countSelectedInGroup     = g => Object.entries(g)
-  .filter(([k, p]) => k !== 'name' && p?.key &&
-    (selectedPermissions.value.includes(p.key) || isPermissionInherited(p.key))).length;
-const allDirectInGroupSelected = g => {
-  const perms = Object.entries(g).filter(([k,p])=>k!=='name'&&p?.key&&!isPermissionInherited(p.key)).map(([,p])=>p.key);
-  return perms.length > 0 && perms.every(p => selectedPermissions.value.includes(p));
-};
-const toggleGroup = g => {
-  const perms  = Object.entries(g).filter(([k,p])=>k!=='name'&&p?.key&&!isPermissionInherited(p.key)).map(([,p])=>p.key);
-  const allSel = allDirectInGroupSelected(g);
-  perms.forEach(p => {
-    const i = selectedPermissions.value.indexOf(p);
-    if (allSel) { if (i > -1) selectedPermissions.value.splice(i, 1); }
-    else         { if (i === -1) selectedPermissions.value.push(p); }
-  });
-};
+// ── أيقونة المجموعة ──────────────────────────────────────
 const getGroupIcon = key => ({
   admin:'ri-admin-line', companies:'ri-community-line', users:'ri-user-settings-line',
   warehouses:'ri-home-gear-line', products:'ri-box-3-line', invoices:'ri-file-list-3-line',
@@ -510,9 +429,65 @@ const getGroupIcon = key => ({
   balance:'ri-scales-line', settings:'ri-settings-3-line', roles:'ri-shield-user-line',
   profits:'ri-funds-line', stocks:'ri-stack-line', installments:'ri-calendar-todo-line',
   payments:'ri-money-dollar-circle-line', customers:'ri-user-heart-line', exports:'ri-download-2-line',
+  custodies:'ri-archive-drawer-line', owner_fund_transactions:'ri-group-line',
+  expenses:'ri-receipt-line', revenues:'ri-hand-coin-line', categories:'ri-price-tag-3-line',
+  brands:'ri-award-line', legal_documents:'ri-file-paper-2-line', backups:'ri-database-2-line',
+  branches:'ri-building-2-line', attribute_values:'ri-list-settings-line', attributes:'ri-equalizer-line',
 })[key] || 'ri-folder-keyhole-line';
 
-// ── حفظ ──────────────────────────────────────────────
+// ── بناء مجموعات الـ Matrix ──────────────────────────────
+const matrixGroups = computed(() => {
+  let src = store.availablePermissions;
+  if (Array.isArray(src) && src.length === 1 && !src[0].name) src = src[0];
+  if (!src || typeof src !== 'object') return [];
+
+  const query = permissionSearch.value.toLowerCase().trim();
+
+  return Object.entries(src)
+    .map(([groupKey, group]) => {
+      if (!group?.name) return null;
+
+      const groupName  = fixLabel(group.name?.label) || groupKey;
+      const standard   = {};
+      const custom     = [];
+
+      Object.entries(group).forEach(([pKey, p]) => {
+        if (pKey === 'name' || !p || typeof p !== 'object') return;
+        const item = { id: pKey, key: p.key, label: fixLabel(p.label) || pKey };
+        if (STANDARD_IDS.has(pKey)) standard[pKey] = item;
+        else custom.push(item);
+      });
+
+      // فلترة البحث
+      if (query) {
+        const nameMatch = groupName.toLowerCase().includes(query);
+        const stdMatch  = Object.values(standard).some(p =>
+          p.label.toLowerCase().includes(query) || p.key.toLowerCase().includes(query)
+        );
+        const cusMatch  = custom.some(p =>
+          p.label.toLowerCase().includes(query) || p.key.toLowerCase().includes(query)
+        );
+        if (!nameMatch && !stdMatch && !cusMatch) return null;
+        // عند البحث: فتح الصفوف تلقائياً
+        if (cusMatch) expandedRows.value = new Set([...expandedRows.value, groupKey]);
+      }
+
+      const allPerms      = [...Object.values(standard), ...custom];
+      const selectedCount = allPerms.filter(p => isChecked(p.key)).length;
+      const customSelected = custom.filter(p => isChecked(p.key)).length;
+
+      return {
+        id: groupKey, name: groupName,
+        icon: getGroupIcon(groupKey),
+        standard, custom,
+        totalCount: allPerms.length,
+        selectedCount, customSelected,
+      };
+    })
+    .filter(Boolean);
+});
+
+// ── حفظ ──────────────────────────────────────────────────
 const handleSave = async () => {
   loading.value = true;
   try {
@@ -522,18 +497,14 @@ const handleSave = async () => {
       sync_company_id: selectedSyncCompanyId.value,
     });
     emit('save');
-  } catch (e) {
-    console.error('Failed to update permissions:', e);
-  } finally {
-    loading.value = false;
-  }
+  } catch (e) { console.error('Failed to update permissions:', e); }
+  finally { loading.value = false; }
 };
 </script>
 
 <style scoped>
 /* ══════════════════════════════════════════════════════
-   المكوّن — بدون overflow خاص به
-   الـ Dialog يملك سكرول واحد، نحن لا نضيف سكرولاً ثانياً
+   Root
 ══════════════════════════════════════════════════════ */
 .upm-root {
   display: block;
@@ -542,8 +513,7 @@ const handleSave = async () => {
 }
 
 /* ══════════════════════════════════════════════════════
-   Sticky Header — يبقى ثابتاً بينما يسكرول v-card-text
-   position:sticky يعمل داخل الـ scroll container للـ dialog
+   Sticky Header
 ══════════════════════════════════════════════════════ */
 .upm-sticky-header {
   position: sticky;
@@ -551,206 +521,229 @@ const handleSave = async () => {
   z-index: 50;
   background: #ffffff;
   border-bottom: 1px solid #e2e8f0;
-  /* shadow خفيف يدل على أنه ثابت */
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
-
-/* صف الشركة + الأزرار */
 .upm-top-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 6px;
-  padding: 6px 12px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 6px; padding: 6px 12px;
 }
-
-/* إحصاء صغير */
 .upm-stat-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 8px;
-  border-radius: 20px;
-  font-size: 0.72rem;
-  font-weight: 600;
-  line-height: 1.6;
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 20px;
+  font-size: 0.72rem; font-weight: 600; line-height: 1.6;
 }
 .upm-stat-pill--roles { background: rgba(var(--v-theme-primary), 0.1); color: rgb(var(--v-theme-primary)); }
 .upm-stat-pill--perms { background: rgba(var(--v-theme-secondary), 0.1); color: rgb(var(--v-theme-secondary)); }
 
-/* صف التبويبات */
+/* Tabs */
 .upm-tabs-row {
-  display: flex;
-  align-items: center;
-  padding: 0 12px;
-  gap: 2px;
-  background: white;
-  border-top: 1px solid #f1f5f9;
+  display: flex; align-items: center;
+  padding: 0 12px; gap: 2px;
+  background: white; border-top: 1px solid #f1f5f9;
 }
 .upm-tab {
-  display: inline-flex;
-  align-items: center;
-  padding: 6px 12px;
-  font-size: 0.85rem;
-  font-family: inherit;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  color: #6b7280;
-  border-bottom: 2px solid transparent;
-  position: relative;
-  bottom: -1px;
+  display: inline-flex; align-items: center;
+  padding: 6px 12px; font-size: 0.85rem; font-family: inherit;
+  border: none; background: transparent; cursor: pointer;
+  color: #6b7280; border-bottom: 2px solid transparent;
+  position: relative; bottom: -1px;
   transition: color .2s, border-color .2s;
 }
 .upm-tab:hover    { color: rgb(var(--v-theme-primary)); }
-.upm-tab--active  {
-  color: rgb(var(--v-theme-primary));
-  font-weight: 700;
-  border-bottom-color: rgb(var(--v-theme-primary));
-}
+.upm-tab--active  { color: rgb(var(--v-theme-primary)); font-weight: 700; border-bottom-color: rgb(var(--v-theme-primary)); }
 .upm-tab-badge {
   display: inline-flex; align-items: center; justify-content: center;
-  width: 18px; height: 18px;
-  border-radius: 50%;
-  background: rgb(var(--v-theme-primary));
-  color: white;
-  font-size: 0.62rem; font-weight: 700;
-  margin-inline-start: 5px;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: rgb(var(--v-theme-primary)); color: white;
+  font-size: 0.62rem; font-weight: 700; margin-inline-start: 5px;
 }
 
-/* ══════════════════════════════════════════════════════
-   Body — بدون سكرول خاص
-══════════════════════════════════════════════════════ */
-.upm-body {
-  padding: 16px;
-  /* NO overflow-y — الـ dialog يسكرول */
-}
-
-.upm-center {
-  display: flex; flex-direction: column;
-  align-items: center; text-align: center;
-}
+/* Body */
+.upm-body { padding: 16px; }
+.upm-center { display: flex; flex-direction: column; align-items: center; text-align: center; }
 
 /* ══════════════════════════════════════════════════════
    Roles
 ══════════════════════════════════════════════════════ */
-.upm-role-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 12px;
-}
+.upm-role-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: 12px; }
 .upm-role-card {
-  background: #fff;
-  border: 2px solid #e2e8f0;
-  border-radius: 14px;
-  padding: 14px;
-  cursor: pointer;
+  background: #fff; border: 2px solid #e2e8f0; border-radius: 14px;
+  padding: 14px; cursor: pointer;
   transition: border-color .2s, box-shadow .2s, transform .2s;
   display: flex; flex-direction: column;
 }
-.upm-role-card:hover {
-  border-color: rgba(var(--v-theme-primary), .4);
-  box-shadow: 0 4px 16px rgba(var(--v-theme-primary), .1);
-  transform: translateY(-2px);
-}
-.upm-role-card--on {
-  border-color: rgb(var(--v-theme-primary));
-  background: rgba(var(--v-theme-primary), .03);
-  box-shadow: 0 6px 20px rgba(var(--v-theme-primary), .12);
-}
-.upm-role-card__top {
-  display: flex; justify-content: space-between; align-items: flex-start;
-}
-.upm-role-icon {
-  width:40px; height:40px; border-radius:10px;
-  background: rgba(var(--v-theme-primary),.09);
-  display:flex; align-items:center; justify-content:center;
-}
-.upm-check-ring {
-  width:22px; height:22px; border-radius:50%;
-  border: 2px solid #d1d5db;
-  display:flex; align-items:center; justify-content:center;
-  flex-shrink:0; transition: background .2s, border-color .2s; background:white;
-}
+.upm-role-card:hover { border-color: rgba(var(--v-theme-primary),.4); box-shadow: 0 4px 16px rgba(var(--v-theme-primary),.1); transform: translateY(-2px); }
+.upm-role-card--on  { border-color: rgb(var(--v-theme-primary)); background: rgba(var(--v-theme-primary),.03); box-shadow: 0 6px 20px rgba(var(--v-theme-primary),.12); }
+.upm-role-card__top { display: flex; justify-content: space-between; align-items: flex-start; }
+.upm-role-icon { width:40px; height:40px; border-radius:10px; background: rgba(var(--v-theme-primary),.09); display:flex; align-items:center; justify-content:center; }
+.upm-check-ring { width:22px; height:22px; border-radius:50%; border:2px solid #d1d5db; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition: background .2s, border-color .2s; background:white; }
 .upm-check-ring--on { background: rgb(var(--v-theme-primary)); border-color: rgb(var(--v-theme-primary)); }
 .upm-role-card__foot { margin-top: auto; }
-.upm-clamp2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2; line-clamp: 2;
-  -webkit-box-orient: vertical; overflow: hidden;
-}
+.upm-clamp2 { display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
 /* ══════════════════════════════════════════════════════
-   Permissions toolbar
+   Toolbar
 ══════════════════════════════════════════════════════ */
-.upm-perm-toolbar {
-  display: flex; align-items: center; gap: 12px;
-  margin-bottom: 14px; flex-wrap: nowrap;
-}
+.upm-perm-toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: nowrap; }
 .upm-search-field { flex: 1; min-width: 0; }
-.upm-expert-label {
-  display: flex; align-items: center; flex-shrink: 0;
-  white-space: nowrap; cursor: pointer;
-}
+.upm-expert-label { display: flex; align-items: center; flex-shrink: 0; white-space: nowrap; cursor: pointer; }
 
 /* ══════════════════════════════════════════════════════
-   Permission groups
+   MATRIX TABLE
 ══════════════════════════════════════════════════════ */
-.upm-groups { display: flex; flex-direction: column; gap: 8px; }
-.upm-group  { background:#fff; border:1px solid #e2e8f0; border-radius:10px; overflow:hidden; }
-.upm-group__hd {
-  display:flex; align-items:center; justify-content:space-between;
-  padding:10px 14px; cursor:pointer; gap:10px;
-  transition: background .15s;
+.upm-matrix-wrapper {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  background: white;
 }
-.upm-group__hd:hover { background:#f8fafc; }
-.upm-group-icon {
-  width:32px; height:32px; border-radius:8px;
-  background: rgba(var(--v-theme-primary),.08);
-  display:flex; align-items:center; justify-content:center; flex-shrink:0;
-}
-.upm-group__bd { border-top:1px solid #f1f5f9; }
 
-/* Permission row */
-.upm-perm-row {
-  display:flex; align-items:center; gap:12px;
-  padding:9px 14px; cursor:pointer; border-bottom:1px solid #f8fafc;
-  transition: background .15s;
+.upm-matrix {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  min-width: 780px;
 }
-.upm-perm-row:last-child { border-bottom:none; }
-.upm-perm-row:hover:not(.upm-perm-row--inherited) { background: rgba(var(--v-theme-primary),.03); }
-.upm-perm-row--on       { background: rgba(var(--v-theme-primary),.04); }
-.upm-perm-row--inherited{ background: rgba(var(--v-theme-info),.02); cursor:default; }
 
-/* Custom checkbox */
-.upm-cb {
-  width:18px; height:18px; border-radius:5px; border:2px solid #d1d5db;
-  display:flex; align-items:center; justify-content:center;
-  flex-shrink:0; transition:all .15s; background:white;
-}
-.upm-cb--on       { background: rgb(var(--v-theme-primary)); border-color: rgb(var(--v-theme-primary)); }
-.upm-cb--inherited{ background: rgb(var(--v-theme-info));    border-color: rgb(var(--v-theme-info)); opacity:.75; }
+/* Header */
+.upm-matrix__header-row { background: #1e293b; }
 
-/* permission key monospace */
-.upm-perm-key {
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 0.68rem;
-  color: #9ca3af;
-  margin-top: 1px;
+.upm-matrix__th {
+  padding: 0;
+  text-align: center;
+  font-weight: 600;
+  color: white;
+  border-left: 1px solid rgba(255,255,255,0.08);
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
 }
+.upm-matrix__th:first-child { border-left: none; }
+.upm-matrix__th--module { text-align: start; min-width: 160px; }
+.upm-matrix__th--custom { min-width: 60px; }
+
+/* color bands */
+.upm-matrix__th--view   { background: rgba(99,102,241,0.25); }
+.upm-matrix__th--update { background: rgba(245,158,11,0.25); }
+.upm-matrix__th--delete { background: rgba(239,68,68,0.2); }
+.upm-matrix__th--create { background: rgba(34,197,94,0.2); }
+
+.upm-matrix__th-inner {
+  display: flex; flex-direction: column;
+  align-items: center; padding: 8px 6px; gap: 1px;
+}
+.upm-matrix__th-group { font-size: 0.6rem; opacity: 0.65; text-transform: uppercase; letter-spacing: 0.5px; min-height: 10px; }
+.upm-matrix__th-label { font-size: 0.75rem; font-weight: 700; }
+
+/* Rows */
+.upm-matrix__row {
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.15s;
+}
+.upm-matrix__row:hover { background: #f8fafc; }
+.upm-matrix__row--has-selected { background: rgba(var(--v-theme-primary), 0.02); }
+.upm-matrix__row--has-selected:hover { background: rgba(var(--v-theme-primary), 0.04); }
+.upm-matrix__row--expanded { background: rgba(var(--v-theme-primary), 0.03); }
+
+/* TD */
+.upm-matrix__td {
+  padding: 6px 4px;
+  text-align: center;
+  border-left: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+.upm-matrix__td:first-child { border-left: none; }
+
+/* color bands TD */
+.upm-matrix__td--view   { background: rgba(99,102,241,0.025); }
+.upm-matrix__td--update { background: rgba(245,158,11,0.025); }
+.upm-matrix__td--delete { background: rgba(239,68,68,0.02); }
+.upm-matrix__td--create { background: rgba(34,197,94,0.02); }
+.upm-matrix__td--module { text-align: start; padding: 6px 10px; }
+.upm-matrix__td--custom { text-align: center; }
+
+/* Module cell */
+.upm-module-cell { display: flex; align-items: center; gap: 8px; }
+.upm-module-icon {
+  width: 26px; height: 26px; border-radius: 7px; flex-shrink: 0;
+  background: rgba(var(--v-theme-primary), 0.08);
+  display: flex; align-items: center; justify-content: center;
+}
+.upm-module-info { min-width: 0; }
+.upm-module-name { font-weight: 600; font-size: 0.8rem; color: #1e293b; white-space: nowrap; }
+.upm-module-count { font-size: 0.65rem; color: rgb(var(--v-theme-primary)); font-weight: 600; }
+
+/* N/A dash */
+.upm-matrix-na { color: #cbd5e1; font-size: 0.75rem; user-select: none; }
+
+/* Checkbox cell */
+.upm-matrix-cb {
+  width: 20px; height: 20px; border-radius: 5px;
+  border: 1.5px solid #d1d5db; background: white;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto; cursor: pointer; flex-shrink: 0;
+  transition: all 0.15s;
+}
+.upm-matrix-cb:hover:not(.upm-matrix-cb--disabled) {
+  border-color: rgb(var(--v-theme-primary));
+  box-shadow: 0 0 0 3px rgba(var(--v-theme-primary), 0.12);
+}
+.upm-matrix-cb--on        { background: rgb(var(--v-theme-primary)); border-color: rgb(var(--v-theme-primary)); }
+.upm-matrix-cb--inherited { background: rgb(var(--v-theme-info));    border-color: rgb(var(--v-theme-info)); opacity: 0.8; }
+.upm-matrix-cb--disabled  { cursor: default; }
+.upm-matrix-cb--sm        { width: 16px; height: 16px; border-radius: 4px; }
+
+/* Custom btn */
+.upm-custom-btn {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 3px 8px; border-radius: 20px;
+  border: 1.5px solid #e2e8f0; background: white;
+  font-size: 0.72rem; font-weight: 600; cursor: pointer; color: #64748b;
+  transition: all 0.15s;
+}
+.upm-custom-btn:hover { border-color: rgb(var(--v-theme-primary)); color: rgb(var(--v-theme-primary)); }
+.upm-custom-btn--has {
+  border-color: rgb(var(--v-theme-primary));
+  background: rgba(var(--v-theme-primary), 0.06);
+  color: rgb(var(--v-theme-primary));
+}
+
+/* Custom expanded row */
+.upm-matrix__custom-row { background: #f8fafc; }
+.upm-matrix__custom-td { padding: 0; border-bottom: 1px solid #e2e8f0; }
+.upm-custom-perms {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  padding: 10px 16px;
+  border-top: 1px dashed #e2e8f0;
+}
+.upm-custom-perm {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 10px; border-radius: 8px;
+  border: 1.5px solid #e2e8f0; background: white;
+  cursor: pointer; transition: all 0.15s;
+}
+.upm-custom-perm:hover:not(.upm-custom-perm--inherited) {
+  border-color: rgba(var(--v-theme-primary), 0.4);
+  box-shadow: 0 2px 8px rgba(var(--v-theme-primary), 0.1);
+}
+.upm-custom-perm--on        { border-color: rgb(var(--v-theme-primary)); background: rgba(var(--v-theme-primary), 0.04); }
+.upm-custom-perm--inherited { border-color: rgb(var(--v-theme-info)); background: rgba(var(--v-theme-info), 0.04); cursor: default; }
+.upm-custom-perm__info { min-width: 0; }
+.upm-custom-perm__label { font-size: 0.78rem; font-weight: 600; color: #1e293b; }
+.upm-custom-perm__key   { font-family: 'Courier New', monospace; font-size: 0.62rem; color: #9ca3af; }
 
 /* ══════════════════════════════════════════════════════
    Responsive
 ══════════════════════════════════════════════════════ */
 @media (max-width: 600px) {
-  .upm-root { background: white; }
-  .upm-top-row { padding: 8px 12px; gap: 6px; }
-  .upm-tabs-row { padding: 0 12px; }
-  .upm-body { padding: 12px; }
-  .upm-role-grid { grid-template-columns: repeat(auto-fill, minmax(145px,1fr)); gap:8px; }
-  .upm-perm-toolbar { flex-wrap: wrap; }
-  .upm-expert-label { width: 100%; justify-content: space-between; }
-  .upm-stat-pill { display: none; }
+  .upm-root          { background: white; }
+  .upm-top-row       { padding: 8px 12px; gap: 6px; }
+  .upm-tabs-row      { padding: 0 12px; }
+  .upm-body          { padding: 12px; }
+  .upm-role-grid     { grid-template-columns: repeat(auto-fill, minmax(145px,1fr)); gap: 8px; }
+  .upm-perm-toolbar  { flex-wrap: wrap; }
+  .upm-expert-label  { width: 100%; justify-content: space-between; }
+  .upm-stat-pill     { display: none; }
 }
 </style>

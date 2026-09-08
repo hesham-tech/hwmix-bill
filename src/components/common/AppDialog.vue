@@ -78,7 +78,7 @@ const props = defineProps({
   },
   title: {
     type: String,
-    required: true,
+    default: '',
   },
   subtitle: {
     type: String,
@@ -244,3 +244,4 @@ const handleConfirm = () => {
   margin-right: 0;
 }
 </style>
+
