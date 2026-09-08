@@ -41,17 +41,38 @@
         </div>
       </div>
 
-      <!-- صف 2: Tabs -->
+      <!-- صف 2: Tabs + أدوات البحث -->
       <div class="upm-tabs-row">
-        <button
-          v-for="nav in navigationItems" :key="nav.value"
-          class="upm-tab" :class="{ 'upm-tab--active': tab === nav.value }"
-          @click="tab = nav.value"
-        >
-          <v-icon :icon="tab === nav.value ? nav.activeIcon : nav.icon" size="16" class="me-1" />
-          <span>{{ nav.label }}</span>
-          <span v-if="nav.count > 0" class="upm-tab-badge">{{ nav.count }}</span>
-        </button>
+        <div class="upm-tabs-nav">
+          <button
+            v-for="nav in navigationItems" :key="nav.value"
+            class="upm-tab" :class="{ 'upm-tab--active': tab === nav.value }"
+            @click="tab = nav.value"
+          >
+            <v-icon :icon="tab === nav.value ? nav.activeIcon : nav.icon" size="16" class="me-1" />
+            <span>{{ nav.label }}</span>
+            <span v-if="nav.count > 0" class="upm-tab-badge">{{ nav.count }}</span>
+          </button>
+        </div>
+
+        <!-- أدوات البحث — تظهر فقط في تبويب الصلاحيات -->
+        <div v-if="tab === 'permissions'" class="upm-tabs-tools">
+          <v-text-field
+            v-model="permissionSearch"
+            placeholder="ابحث عن صلاحية أو وحدة..."
+            prepend-inner-icon="ri-search-2-line"
+            variant="outlined"
+            density="compact"
+            hide-details
+            clearable
+            rounded="lg"
+            class="upm-search-field"
+          />
+          <label class="upm-expert-label">
+            <span class="text-caption font-weight-bold">{{ expertMode ? 'خبير' : 'مبسّط' }}</span>
+            <v-switch v-model="expertMode" color="primary" hide-details density="compact" inset class="ms-1" />
+          </label>
+        </div>
       </div>
     </div>
 
@@ -101,32 +122,11 @@
       <!-- ─── تبويب الصلاحيات (Matrix) ─── -->
       <template v-if="tab === 'permissions'">
 
-        <!-- شريط الأدوات -->
-        <div class="upm-perm-toolbar">
-          <v-text-field
-            v-model="permissionSearch"
-            placeholder="ابحث عن صلاحية أو وحدة..."
-            prepend-inner-icon="ri-search-2-line"
-            variant="outlined"
-            density="compact"
-            hide-details
-            clearable
-            rounded="lg"
-            class="upm-search-field"
-          />
-          <label class="upm-expert-label">
-            <span class="text-caption font-weight-bold">{{ expertMode ? 'وضع الخبير' : 'المبسّط' }}</span>
-            <v-switch v-model="expertMode" color="primary" hide-details density="compact" inset class="ms-2" />
-          </label>
-        </div>
-
-        <!-- تنبيهات -->
+        <!-- تنبيه وضع الخبير فقط -->
         <v-alert v-if="expertMode" type="info" variant="tonal" density="compact" rounded="lg" class="mb-3" icon="ri-shield-flash-line">
           <span class="text-caption"><strong>وضع الخبير:</strong> تظهر الصلاحيات الموروثة من الأدوار للمراجعة فقط.</span>
         </v-alert>
-        <v-alert v-else-if="selectedPermissions.length > 0" type="success" variant="tonal" density="compact" rounded="lg" class="mb-3" icon="ri-checkbox-circle-line">
-          <span class="text-caption">لديك <strong>{{ selectedPermissions.length }}</strong> صلاحية مباشرة مخصصة لهذا المستخدم.</span>
-        </v-alert>
+
 
         <!-- ── MATRIX TABLE ── -->
         <div v-if="matrixGroups.length" class="upm-matrix-wrapper">
@@ -154,13 +154,14 @@
             </thead>
 
             <tbody>
-              <template v-for="group in matrixGroups" :key="group.id">
+              <template v-for="(group, groupIndex) in matrixGroups" :key="group.id">
                 <!-- صف الوحدة الرئيسي -->
                 <tr
                   class="upm-matrix__row"
                   :class="{
-                    'upm-matrix__row--has-selected': group.selectedCount > 0,
-                    'upm-matrix__row--expanded': expandedRows.has(group.id)
+                    'upm-matrix__row--even':         groupIndex % 2 !== 0,
+                    'upm-matrix__row--has-selected':  group.selectedCount > 0,
+                    'upm-matrix__row--expanded':      expandedRows.has(group.id)
                   }"
                 >
                   <!-- اسم الوحدة -->
@@ -226,7 +227,11 @@
                 </tr>
 
                 <!-- صف الصلاحيات الخاصة (قابل للتوسع) -->
-                <tr v-if="group.custom.length && expandedRows.has(group.id)" class="upm-matrix__custom-row">
+                <tr
+                  v-if="group.custom.length && expandedRows.has(group.id)"
+                  class="upm-matrix__custom-row"
+                  :class="{ 'upm-matrix__custom-row--even': groupIndex % 2 !== 0 }"
+                >
                   <td :colspan="STANDARD_COLUMNS.length + 2" class="upm-matrix__custom-td">
                     <div class="upm-custom-perms">
                       <div
@@ -536,11 +541,6 @@ const handleSave = async () => {
 .upm-stat-pill--perms { background: rgba(var(--v-theme-secondary), 0.1); color: rgb(var(--v-theme-secondary)); }
 
 /* Tabs */
-.upm-tabs-row {
-  display: flex; align-items: center;
-  padding: 0 12px; gap: 2px;
-  background: white; border-top: 1px solid #f1f5f9;
-}
 .upm-tab {
   display: inline-flex; align-items: center;
   padding: 6px 12px; font-size: 0.85rem; font-family: inherit;
@@ -582,11 +582,28 @@ const handleSave = async () => {
 .upm-clamp2 { display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
 /* ══════════════════════════════════════════════════════
-   Toolbar
+   Toolbar (قديم — محتفظ بها للمتوافقية)
 ══════════════════════════════════════════════════════ */
-.upm-perm-toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: nowrap; }
-.upm-search-field { flex: 1; min-width: 0; }
+.upm-search-field { flex: 1; min-width: 0; max-width: 260px; }
 .upm-expert-label { display: flex; align-items: center; flex-shrink: 0; white-space: nowrap; cursor: pointer; }
+
+/* ── tabs-row مع أدوات البحث ── */
+.upm-tabs-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  gap: 8px;
+  background: white;
+  border-top: 1px solid #f1f5f9;
+  flex-wrap: nowrap;
+}
+.upm-tabs-nav { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
+.upm-tabs-tools {
+  display: flex; align-items: center; gap: 8px;
+  flex: 1; justify-content: flex-end;
+  padding: 4px 0;
+}
 
 /* ══════════════════════════════════════════════════════
    MATRIX TABLE
@@ -606,45 +623,50 @@ const handleSave = async () => {
   min-width: 780px;
 }
 
-/* Header */
-.upm-matrix__header-row { background: #1e293b; }
+/* Header — فاتح واضح */
+.upm-matrix__header-row { background: #f1f5f9; }
 
 .upm-matrix__th {
   padding: 0;
   text-align: center;
   font-weight: 600;
-  color: white;
-  border-left: 1px solid rgba(255,255,255,0.08);
+  color: #374151;
+  border-left: 1px solid #e2e8f0;
   white-space: nowrap;
+  /* Sticky: يعمل لأن الـ dialog هو container الـ scroll العمودي */
   position: sticky;
   top: 0;
+  z-index: 10;
+  background: #f1f5f9;
 }
 .upm-matrix__th:first-child { border-left: none; }
 .upm-matrix__th--module { text-align: start; min-width: 160px; }
 .upm-matrix__th--custom { min-width: 60px; }
 
-/* color bands */
-.upm-matrix__th--view   { background: rgba(99,102,241,0.25); }
-.upm-matrix__th--update { background: rgba(245,158,11,0.25); }
-.upm-matrix__th--delete { background: rgba(239,68,68,0.2); }
-.upm-matrix__th--create { background: rgba(34,197,94,0.2); }
+/* color bands — فاتحة لتناسب الهيدر الفاتح */
+.upm-matrix__th--view   { background: rgba(99,102,241,0.1); }
+.upm-matrix__th--update { background: rgba(245,158,11,0.1); }
+.upm-matrix__th--delete { background: rgba(239,68,68,0.08); }
+.upm-matrix__th--create { background: rgba(34,197,94,0.1); }
 
 .upm-matrix__th-inner {
   display: flex; flex-direction: column;
   align-items: center; padding: 8px 6px; gap: 1px;
 }
-.upm-matrix__th-group { font-size: 0.6rem; opacity: 0.65; text-transform: uppercase; letter-spacing: 0.5px; min-height: 10px; }
-.upm-matrix__th-label { font-size: 0.75rem; font-weight: 700; }
+.upm-matrix__th-group { font-size: 0.6rem; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.5px; min-height: 10px; color: #6b7280; }
+.upm-matrix__th-label { font-size: 0.75rem; font-weight: 700; color: #374151; }
 
 /* Rows */
 .upm-matrix__row {
+  background: #ffffff;
   border-bottom: 1px solid #f1f5f9;
-  transition: background 0.15s;
+  transition: background 0.12s;
 }
-.upm-matrix__row:hover { background: #f8fafc; }
-.upm-matrix__row--has-selected { background: rgba(var(--v-theme-primary), 0.02); }
-.upm-matrix__row--has-selected:hover { background: rgba(var(--v-theme-primary), 0.04); }
-.upm-matrix__row--expanded { background: rgba(var(--v-theme-primary), 0.03); }
+/* صفوف زوجية — لون مختلف قليلاً */
+.upm-matrix__row--even { background: #f8fafc; }
+.upm-matrix__row:hover { background: rgba(var(--v-theme-primary), 0.04) !important; }
+.upm-matrix__row--has-selected { /* لا تغيير على الخلفية — نعتمد فقط على الـ zebra */ }
+.upm-matrix__row--expanded { outline: 2px solid rgba(var(--v-theme-primary), 0.15); outline-offset: -1px; }
 
 /* TD */
 .upm-matrix__td {
@@ -655,13 +677,13 @@ const handleSave = async () => {
 }
 .upm-matrix__td:first-child { border-left: none; }
 
-/* color bands TD */
+/* color bands TD — شفافة جداً حتى لا تعطّل الـ zebra */
 .upm-matrix__td--view   { background: rgba(99,102,241,0.025); }
 .upm-matrix__td--update { background: rgba(245,158,11,0.025); }
-.upm-matrix__td--delete { background: rgba(239,68,68,0.02); }
+.upm-matrix__td--delete { background: rgba(239,68,68,0.018); }
 .upm-matrix__td--create { background: rgba(34,197,94,0.02); }
 .upm-matrix__td--module { text-align: start; padding: 6px 10px; }
-.upm-matrix__td--custom { text-align: center; }
+
 
 /* Module cell */
 .upm-module-cell { display: flex; align-items: center; gap: 8px; }
@@ -710,7 +732,8 @@ const handleSave = async () => {
 }
 
 /* Custom expanded row */
-.upm-matrix__custom-row { background: #f8fafc; }
+.upm-matrix__custom-row { background: #f1f5f9; }
+.upm-matrix__custom-row--even { background: #eaeff5; }
 .upm-matrix__custom-td { padding: 0; border-bottom: 1px solid #e2e8f0; }
 .upm-custom-perms {
   display: flex; flex-wrap: wrap; gap: 6px;
