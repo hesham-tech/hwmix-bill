@@ -303,7 +303,8 @@ import { PERMISSIONS } from '@/config/permissions';
 import { useAuthStore } from '@/stores/auth';
 import { useUserStore } from '@/stores/user';
 
-const { mobile: isMobile } = useDisplay();
+const { width } = useDisplay();
+const isMobile = computed(() => width.value <= 768);
 const { can } = usePermissions();
 const userStore = useAuthStore();
 const globalUserStore = useUserStore();

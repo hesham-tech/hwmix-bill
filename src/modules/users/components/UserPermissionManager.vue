@@ -439,7 +439,8 @@ const emit  = defineEmits(['save', 'cancel']);
 // ── Stores ───────────────────────────────────────────────
 const store       = useUserStore();
 const globalStore = useGlobalUserStore();
-const { mobile }  = useDisplay();
+const { width }   = useDisplay();
+const mobile      = computed(() => width.value <= 768);
 
 // ── State ────────────────────────────────────────────────
 const loading               = ref(false);

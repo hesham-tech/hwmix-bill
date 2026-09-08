@@ -347,7 +347,8 @@ const {
   handleCreate: baseHandleCreate,
 } = useUser();
 
-const { mobile: isMobile } = useDisplay();
+const { width } = useDisplay();
+const isMobile = computed(() => width.value <= 768);
 
 const handleConfirm = async () => {
   await baseHandleConfirm();
