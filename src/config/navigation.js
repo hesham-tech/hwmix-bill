@@ -285,6 +285,12 @@ export default [
         permission: PERMISSIONS.REPORTS_STOCK,
       },
       {
+        title: 'أرباح مبيعات الأصناف',
+        to: '/app/reports/item-profitability',
+        icon: 'ri-line-chart-line',
+        permission: PERMISSIONS.REPORTS_PROFIT,
+      },
+      {
         title: 'تقرير الأرباح والخسائر',
         to: '/app/reports/profit',
         icon: 'ri-funds-line',

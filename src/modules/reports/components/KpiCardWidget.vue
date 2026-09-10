@@ -1,5 +1,5 @@
 <template>
-  <v-card border flat class="rounded-lg overflow-hidden h-100 kpi-card-widget">
+  <v-card border flat :class="['rounded-lg overflow-hidden h-100 kpi-card-widget', { 'cursor-pointer hover-card': isClickable }]" @click="navigateToDetails">
     <!-- Skeleton Loading state -->
     <v-skeleton-loader v-if="loading" type="list-item-avatar, heading, subtitle" class="pa-2" />
     
@@ -28,8 +28,11 @@
 <script setup>
 // يعرض بطاقة مؤشر مالي أو تشغيلي مفرش بناءً على عقد البيانات المركزي المستلم من بيئة التشغيل.
 import { computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { formatCurrency } from '@/utils/formatters';
 import { useDashboardStore } from '@/@core/dashboard/store/dashboardStore';
+
+const router = useRouter();
 
 const props = defineProps({
   instanceId: {
@@ -45,6 +48,20 @@ const props = defineProps({
 const dashboardStore = useDashboardStore();
 
 const indicator = computed(() => props.userConfig.indicator || 'totalSales');
+
+const isClickable = computed(() => {
+  return ['todayRevenue', 'todayProfit', 'monthlySales', 'monthlyProfit', 'totalSales'].includes(indicator.value);
+});
+
+const navigateToDetails = () => {
+  if (!isClickable.value) return;
+  
+  let period = dashboardStore.filters?.period || 'today';
+  if (indicator.value.includes('today')) period = 'today';
+  if (indicator.value.includes('month') || indicator.value === 'totalSales') period = 'month';
+  
+  router.push({ path: '/app/reports/item-profitability', query: { period } });
+};
 
 const numericValue = computed(() => {
   const wData = dashboardStore.dashboardData[props.instanceId];
@@ -212,5 +229,10 @@ export default {
 .kpi-card-widget:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(0,0,0,0.05);
+}
+.hover-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1) !important;
+  cursor: pointer;
 }
 </style>

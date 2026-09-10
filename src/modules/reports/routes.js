@@ -26,6 +26,15 @@ export default [
     },
   },
   {
+    path: 'reports/item-profitability',
+    name: 'item-profitability',
+    component: () => import('@/modules/reports/pages/ItemProfitability.vue'),
+    meta: {
+      title: 'أرباح مبيعات الأصناف',
+      permission: PERMISSIONS.REPORTS_PROFIT,
+    },
+  },
+  {
     path: 'reports/profit',
     name: 'profit-report',
     component: () => import('@/modules/reports/pages/ProfitReport.vue'),
