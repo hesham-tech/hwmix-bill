@@ -10,8 +10,8 @@
       <!-- Filters -->
       <div class="d-flex gap-3 align-center flex-wrap">
         <div v-if="selectedPeriod === 'custom'" class="d-flex gap-2">
-          <v-text-field type="date" v-model="dateFrom" density="compact" variant="outlined" hide-details @change="fetchData" style="width: 130px"></v-text-field>
-          <v-text-field type="date" v-model="dateTo" density="compact" variant="outlined" hide-details @change="fetchData" style="width: 130px"></v-text-field>
+          <v-text-field label="من تاريخ" type="date" v-model="dateFrom" density="compact" variant="outlined" hide-details @update:model-value="fetchData" style="width: 140px;"></v-text-field>
+          <v-text-field label="إلى تاريخ" type="date" v-model="dateTo" density="compact" variant="outlined" hide-details @update:model-value="fetchData" style="width: 140px;"></v-text-field>
         </div>
 
         <v-btn-toggle v-model="selectedPeriod" mandatory color="primary" variant="outlined" divided density="comfortable" class="rounded-lg" @update:model-value="onPeriodChange">
