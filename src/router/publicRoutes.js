@@ -45,4 +45,47 @@ export default [
     component: () => import('@/pages/MagicLogin.vue'),
     meta: { title: 'تسجيل الدخول السريع', public: true },
   },
+  // Store Routes
+  {
+    path: '/store',
+    name: 'store-home',
+    component: () => import('@/pages/store/StorePage.vue'),
+    meta: { title: 'المتجر', public: true },
+  },
+  {
+    path: '/store/product/:id',
+    name: 'store-product-detail',
+    component: () => import('@/pages/store/ProductDetailPage.vue'),
+    meta: { title: 'تفاصيل المنتج', public: true },
+  },
+  {
+    path: '/store/cart',
+    name: 'store-cart',
+    component: () => import('@/pages/store/CartPage.vue'),
+    meta: { title: 'سلة المشتريات', public: true },
+  },
+  {
+    path: '/store/checkout',
+    name: 'store-checkout',
+    component: () => import('@/pages/store/CheckoutPage.vue'),
+    meta: { title: 'إتمام الطلب', public: true },
+  },
+  {
+    path: '/store/my-orders',
+    name: 'store-my-orders',
+    component: () => import('@/pages/store/MyOrdersPage.vue'),
+    meta: { title: 'طلباتي', requiresAuth: true }, // or public if magic link
+  },
+  {
+    path: '/store/order-confirmation/:id',
+    name: 'store-order-confirmation',
+    component: () => import('@/pages/store/OrderConfirmationPage.vue'),
+    meta: { title: 'تأكيد الطلب', public: true },
+  },
+  {
+    path: '/store/vendor/:id',
+    name: 'store-vendor',
+    component: () => import('@/pages/store/VendorPage.vue'),
+    meta: { title: 'صفحة البائع', public: true },
+  },
 ];

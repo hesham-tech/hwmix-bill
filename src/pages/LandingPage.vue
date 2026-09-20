@@ -17,7 +17,7 @@
       <div class="d-none d-md-flex gap-6">
         <a href="#features" class="nav-link">المميزات</a>
         <a href="#categories" class="nav-link">الأقسام</a>
-        <a href="#products" class="nav-link">المنتجات</a>
+        <router-link to="/store" class="nav-link">المنتجات</router-link>
         <router-link v-if="userStore.isStaff" to="/saas" class="nav-link gold-text font-weight-bold">نظام الإدارة</router-link>
       </div>
 
@@ -80,7 +80,7 @@
 
         <a href="#features" class="nav-link px-2 py-2" @click="mobileDrawer = false">المميزات</a>
         <a href="#categories" class="nav-link px-2 py-2" @click="mobileDrawer = false">الأقسام</a>
-        <a href="#products" class="nav-link px-2 py-2" @click="mobileDrawer = false">المنتجات</a>
+        <router-link to="/store" class="nav-link px-2 py-2" @click="mobileDrawer = false">المنتجات</router-link>
 
         <v-divider />
 
@@ -153,7 +153,7 @@
               >
                 {{ userStore.isStaff ? 'انتقل للوحة التحكم' : 'انتقل إلى حسابي' }}
               </v-btn>
-              <v-btn size="x-large" variant="outlined" color="primary" class="rounded-md px-12 font-weight-bold" height="56" href="#products">
+              <v-btn size="x-large" variant="outlined" color="primary" class="rounded-md px-12 font-weight-bold" height="56" to="/store">
                 تصفح المنتجات
               </v-btn>
             </template>
@@ -174,12 +174,12 @@
 
           <v-row>
             <v-col v-for="(cat, i) in categories" :key="i" cols="6" md="3">
-              <v-card variant="flat" border class="category-card rounded-md text-center pa-6 hover-lift-up">
-                <v-avatar :color="cat.color + '-lighten-5'" rounded="circle" size="80" class="mb-4">
-                  <v-icon :icon="cat.icon" :color="cat.color" size="40" />
+              <v-card variant="flat" border class="category-card rounded-md text-center pa-6 hover-lift-up" :to="`/store?category_id=${cat.id}`">
+                <v-avatar :color="(cat.color || 'primary') + '-lighten-5'" rounded="circle" size="80" class="mb-4">
+                  <v-icon :icon="cat.icon || 'ri-layout-grid-line'" :color="cat.color || 'primary'" size="40" />
                 </v-avatar>
                 <h3 class="text-h6 font-weight-bold">{{ cat.name }}</h3>
-                <p class="text-caption text-grey">{{ cat.count }} منتج</p>
+                <p class="text-caption text-grey" v-if="cat.products_count">{{ cat.products_count }} منتج</p>
               </v-card>
             </v-col>
           </v-row>
@@ -193,20 +193,26 @@
 
           <v-row>
             <v-col v-for="(prod, i) in featuredProducts" :key="i" cols="12" sm="6" md="3">
-              <v-card variant="flat" border class="product-card rounded-md overflow-hidden hover-lift h-100">
+              <v-card variant="flat" border class="product-card rounded-md overflow-hidden hover-lift h-100" :to="`/store/product/${prod.id}`">
                 <div class="product-image-container pa-4 bg-white d-flex align-center justify-center">
-                  <v-icon :icon="prod.icon" size="100" class="text-grey-lighten-2" />
+                  <v-img v-if="prod.image" :src="prod.image" height="150" contain></v-img>
+                  <v-icon v-else icon="ri-image-line" size="100" class="text-grey-lighten-2" />
                   <v-chip color="error" class="product-badge" size="small" v-if="prod.discount">خصم {{ prod.discount }}%</v-chip>
                 </div>
                 <v-card-text class="pa-4">
                   <div class="d-flex justify-space-between align-center mb-1">
-                    <span class="text-caption text-grey">{{ prod.category }}</span>
+                    <span class="text-caption text-grey">{{ prod.category?.name || 'غير محدد' }}</span>
                     <div class="d-flex align-center">
                       <v-icon icon="ri-star-fill" color="orange" size="14" />
-                      <span class="text-caption ms-1 text-grey">{{ prod.rating }}</span>
+                      <span class="text-caption ms-1 text-grey">{{ prod.rating || '4.5' }}</span>
                     </div>
                   </div>
-                  <h3 class="text-body-1 font-weight-bold mb-3 line-clamp-1">{{ prod.name }}</h3>
+                  <h3 class="text-body-1 font-weight-bold mb-1 line-clamp-1">{{ prod.name }}</h3>
+                  <div class="text-caption text-grey mb-3 d-flex align-center gap-1">
+                    <span>بواسطة:</span>
+                    <SellerBadge v-if="prod.vendor" :company="prod.vendor" />
+                    <span v-else class="font-weight-bold">غير محدد</span>
+                  </div>
                   <div class="d-flex align-center gap-2">
                     <span class="text-h6 font-weight-bold text-primary">{{ prod.price }} ج.م</span>
                     <span class="text-caption text-grey text-decoration-line-through" v-if="prod.oldPrice"> {{ prod.oldPrice }} ج.م </span>
@@ -215,7 +221,7 @@
                 <v-divider class="mx-4" />
                 <v-card-actions class="pa-4">
                   <v-btn color="primary" variant="flat" block class="rounded-md font-weight-bold" prepend-icon="ri-shopping-cart-line">
-                    أضف للسلة
+                    عرض المنتج
                   </v-btn>
                 </v-card-actions>
               </v-card>
@@ -329,12 +335,17 @@ import { useAuthStore } from '@/stores/auth';
 import { useUserStore } from '@/stores/user';
 import { useBranding } from '@/composables/useBranding';
 import AppUserBalanceProfile from '@/components/common/AppUserBalanceProfile.vue';
+import SellerBadge from '@/modules/store/components/SellerBadge.vue';
+import { storeProductsApi } from '@/modules/store/api/storeProducts.api.js';
 
 const authStore = useAuthStore();
 const userStore = useUserStore();
 const mobileDrawer = ref(false);
 
 const { logoUrl, companyName, tagline, fetchBranding } = useBranding();
+
+const categories = ref([]);
+const featuredProducts = ref([]);
 
 onMounted(async () => {
   fetchBranding();
@@ -345,41 +356,27 @@ onMounted(async () => {
       console.error('Failed to fetch profile:', error);
     }
   }
+
+  try {
+    const catsRes = await storeProductsApi.getCategories();
+    categories.value = catsRes.data?.data || catsRes.data || [];
+  } catch (error) {
+    console.error('Failed to fetch categories:', error);
+  }
+
+  try {
+    const prodsRes = await storeProductsApi.getFeatured();
+    let productsList = [];
+    if (prodsRes.data?.data?.data && Array.isArray(prodsRes.data.data.data)) {
+        productsList = prodsRes.data.data.data;
+    } else if (prodsRes.data?.data && Array.isArray(prodsRes.data.data)) {
+        productsList = prodsRes.data.data;
+    }
+    featuredProducts.value = productsList;
+  } catch (error) {
+    console.error('Failed to fetch featured products:', error);
+  }
 });
-
-const categories = [
-  { name: 'موبايلات', count: 125, icon: 'ri-smartphone-line', color: 'primary' },
-  { name: 'إكسسوارات', count: 86, icon: 'ri-headphone-line', color: 'orange' },
-  { name: 'لابتوب', count: 42, icon: 'ri-macbook-line', color: 'info' },
-  { name: 'ساعات ذكية', count: 34, icon: 'ri-watch-2-line', color: 'success' },
-];
-
-const featuredProducts = [
-  {
-    name: 'iPhone 15 Pro Max - 256GB',
-    price: '65,000',
-    oldPrice: '72,000',
-    discount: 10,
-    category: 'موبايلات',
-    rating: 4.8,
-    icon: 'ri-smartphone-line',
-  },
-  {
-    name: 'Samsung Galaxy S24 Ultra',
-    price: '58,000',
-    oldPrice: '62,000',
-    discount: 6,
-    category: 'موبايلات',
-    rating: 4.9,
-    icon: 'ri-smartphone-line',
-  },
-  { name: 'AirPods Pro (2nd Gen)', price: '12,500', category: 'إكسسوارات', rating: 4.7, icon: 'ri-headphone-line' },
-  { name: 'PlayStation 5 Slim Edition', price: '28,000', oldPrice: '30,000', discount: 7, category: 'ألعاب', rating: 4.9, icon: 'ri-gamepad-line' },
-  { name: 'MacBook Air M2 - 13 inch', price: '45,000', category: 'لابتوب', rating: 4.8, icon: 'ri-macbook-line' },
-  { name: 'Apple Watch Series 9', price: '18,500', oldPrice: '20,000', discount: 8, category: 'ساعات', rating: 4.6, icon: 'ri-watch-2-line' },
-  { name: 'iPad Pro M2 - 11 inch', price: '38,000', category: 'تابلت', rating: 4.7, icon: 'ri-tablet-line' },
-  { name: 'Sony WH-1000XM5', price: '15,000', oldPrice: '16,500', discount: 9, category: 'إكسسوارات', rating: 4.9, icon: 'ri-headphone-line' },
-];
 
 const trustBadges = [
   { title: 'شحن سريع', desc: 'توصيل في أقل من 24 ساعة', icon: 'ri-truck-line' },
