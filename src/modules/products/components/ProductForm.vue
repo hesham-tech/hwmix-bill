@@ -409,7 +409,7 @@
                   <div class="text-body-2 font-weight-bold">يظهر في المتجر <AppFieldHelp text="يتمكن العملاء من رؤيته وطلبه عبر متجرك الإلكتروني." /></div>
                   <div class="text-caption text-grey">عرض المنتج في المتجر الإلكتروني</div>
                 </div>
-                <v-switch v-model="productData.is_active_in_store" color="primary" hide-details inset density="compact" />
+                <v-switch :model-value="productData.is_active_in_store" @update:model-value="handleStorePublishToggle" color="primary" hide-details inset density="compact" />
               </div>
               <v-divider />
               <div class="d-flex align-center justify-space-between px-2 py-1 hover-bg rounded">
@@ -480,6 +480,26 @@
         <v-chip v-if="existingProduct?.category" size="small" color="primary" variant="tonal" class="mt-2">
           {{ existingProduct.category.name }}
         </v-chip>
+      </div>
+    </AppDialog>
+
+    <!-- Store Publish Warning Dialog -->
+    <AppDialog
+      v-model="showStorePublishWarning"
+      title="ميزة العرض في المتجر غير متاحة"
+      max-width="450"
+      hide-confirm
+      cancel-text="حسناً، فهمت"
+      @cancel="showStorePublishWarning = false"
+    >
+      <div class="pa-4 text-center">
+        <v-avatar color="info-lighten-5" size="64" class="mb-4">
+          <v-icon icon="ri-store-2-line" color="info" size="32" />
+        </v-avatar>
+        <div class="text-h6 font-weight-bold mb-2">الترقية مطلوبة</div>
+        <p class="text-body-2 text-grey-darken-1 mb-4">
+          الباقة الحالية الخاصة بك لا تدعم ميزة "نشر المنتجات في المتجر العام". للاستفادة من هذه الميزة وعرض منتجاتك للجميع، يرجى ترقية باقتك من إعدادات الاشتراك.
+        </p>
       </div>
     </AppDialog>
   </v-form>
@@ -653,6 +673,16 @@ const isEdit = computed(() => !!currentProductId.value);
 const loading = ref(false);
 const isValid = ref(false);
 const form = ref(null);
+
+const showStorePublishWarning = ref(false);
+
+const handleStorePublishToggle = (val) => {
+  if (val && !userStore.currentCompany?.can_publish_to_store) {
+    showStorePublishWarning.value = true;
+  } else {
+    productData.value.is_active_in_store = val;
+  }
+};
 
 // حالات إدارة مجموعات وحدات القياس وقواعد التحويل
 const selectedGroup = ref(null);
