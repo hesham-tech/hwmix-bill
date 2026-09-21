@@ -63,7 +63,7 @@
         <AppButton
           prepend-icon="ri-add-line"
           color="primary"
-          @click="openAddAccountDialog()"
+          @click="isAccountTypeSelectionOpen = true"
         >
           إضافة حساب مالي جديد
         </AppButton>
@@ -438,6 +438,37 @@
                   persistent-hint
                   no-data-text="لم يتم اكتشاف رسائل سابقة — يمكنك الكتابة يدوياً"
                 />
+              </v-col>
+
+              <!-- الربط الذكي مع شاشة الكاشير السريع (POS) -->
+              <v-col cols="12" v-if="!isEditingAccount">
+                <v-card variant="tonal" color="primary" class="mb-2">
+                  <v-card-text class="pa-4">
+                    <v-switch
+                      v-model="accountForm.create_provider_account"
+                      label="تفعيل هذه المحفظة في شاشة الكاشير السريع (لعمليات السحب والإيداع)"
+                      color="primary"
+                      hide-details
+                      class="mb-2 font-weight-bold"
+                    />
+                    <v-expand-transition>
+                      <div v-if="accountForm.create_provider_account" class="mt-3">
+                        <v-select
+                          v-model="accountForm.service_provider_id"
+                          :items="serviceProviders"
+                          item-title="name"
+                          item-value="id"
+                          label="مقدم الخدمة المُرتبط (مثال: فودافون كاش)"
+                          variant="outlined"
+                          density="compact"
+                          prepend-inner-icon="ri-share-forward-box-line"
+                          :rules="[v => !!v || 'يرجى اختيار مقدم الخدمة ليتم ربط المحفظة به']"
+                          hide-details="auto"
+                        />
+                      </div>
+                    </v-expand-transition>
+                  </v-card-text>
+                </v-card>
               </v-col>
 
               <!-- فاصل — الحدود المالية -->
@@ -874,12 +905,49 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- بوابة اختيار نوع الحساب -->
+    <v-dialog v-model="isAccountTypeSelectionOpen" max-width="600">
+      <v-card>
+        <v-card-title class="bg-primary text-white d-flex align-center justify-space-between">
+          <span>اختر نوع الحساب / الماكينة</span>
+          <v-btn icon="ri-close-line" variant="text" color="white" @click="isAccountTypeSelectionOpen = false" />
+        </v-card-title>
+        <v-card-text class="pt-6 pb-6">
+          <v-row>
+            <v-col cols="12" sm="6">
+              <v-card variant="outlined" hover class="text-center pa-5 h-100" @click="openAddAccountDialog()">
+                <v-icon size="48" color="info" class="mb-3">ri-smartphone-line</v-icon>
+                <div class="text-h6 font-weight-bold">محفظة ذكية (SMS)</div>
+                <div class="text-caption text-grey mt-2">تعتمد على قراءة رسائل الموبايل للعمليات (مثل: فودافون كاش، إنستاباي)</div>
+              </v-card>
+            </v-col>
+            <v-col cols="12" sm="6">
+              <v-card variant="outlined" hover class="text-center pa-5 h-100" @click="isProviderSetupOpen = true">
+                <v-icon size="48" color="success" class="mb-3">ri-device-line</v-icon>
+                <div class="text-h6 font-weight-bold">ماكينة دفع (أخرى)</div>
+                <div class="text-caption text-grey mt-2">ماكينة دفع مباشر أو كيان غير مربوط بخط (مثل: فوري، مصاري)</div>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
+    <ProviderAccountSetupDialog v-model="isProviderSetupOpen" @success="isAccountTypeSelectionOpen = false" />
   </div>
 </template>
 
 <script setup>
 // صفحة الحسابات المالية والمحافظ مع دمج إدارة مصادر الرسائل
 import { ref, computed, onMounted } from 'vue';
+import ProviderAccountSetupDialog from '@/modules/hwnix-cash/components/ProviderAccountSetupDialog.vue';
+
+import digitalServicesService from '@/api/services/digital-services.service';
+
+const isAccountTypeSelectionOpen = ref(false);
+const isProviderSetupOpen = ref(false);
+
 import { useHwnixCashFinancialAccountStore } from '../store/hwnix-cash-financial-account.store';
 import { useHwnixCashLineStore } from '../store/hwnix-cash-line.store';
 import { useHwnixCashMessageSourceStore } from '../store/hwnix-cash-message-source.store';
@@ -933,6 +1001,8 @@ const accountForm = ref({
   name: '',
   account_number: '',
   sender_identifier: '',
+    create_provider_account: false,
+    service_provider_id: null,
   daily_deposit_limit: DEFAULT_CBE_LIMITS.DAILY_DEPOSIT,
   daily_withdraw_limit: DEFAULT_CBE_LIMITS.DAILY_WITHDRAW,
   monthly_deposit_limit: DEFAULT_CBE_LIMITS.MONTHLY_DEPOSIT,
@@ -964,6 +1034,8 @@ const sourceSearch = ref('');
 
 const sourceForm = ref({
   sender_identifier: '',
+    create_provider_account: false,
+    service_provider_id: null,
   provider: 'vodafone_cash',
   description: '',
   is_active: true,
@@ -1015,6 +1087,8 @@ function openAddAccountDialog() {
     name: '',
     account_number: '',
     sender_identifier: '',
+    create_provider_account: false,
+    service_provider_id: null,
     daily_deposit_limit: DEFAULT_CBE_LIMITS.DAILY_DEPOSIT,
     daily_withdraw_limit: DEFAULT_CBE_LIMITS.DAILY_WITHDRAW,
     monthly_deposit_limit: DEFAULT_CBE_LIMITS.MONTHLY_DEPOSIT,
@@ -1073,6 +1147,7 @@ async function saveAccount() {
     await accountStore.updateFinancialAccount(editingAccountId.value, accountForm.value);
   } else {
     await accountStore.createFinancialAccount(accountForm.value);
+    isAccountTypeSelectionOpen.value = false;
   }
   accountFormDialog.value = false;
   loadData();
@@ -1123,6 +1198,8 @@ function openSourceFormDialog(item) {
     editingSourceId.value = null;
     sourceForm.value = {
       sender_identifier: '',
+    create_provider_account: false,
+    service_provider_id: null,
       provider: 'vodafone_cash',
       description: '',
       is_active: true,
@@ -1158,16 +1235,26 @@ async function doSourceDelete() {
   sourceDeleteDialog.value = false;
 }
 
-// ─── تحميل البيانات ───────────────────────────────────────────────────────────
+// --- ????? ???????? -----------------------------------------------------------
 function loadData() {
   accountStore.fetchFinancialAccounts();
   accountStore.fetchLimitAlerts();
   lineStore.fetchLines();
 }
 
+const serviceProviders = ref([]);
+
+const fetchProviders = async () => {
+  try {
+    const res = await digitalServicesService.getServiceProviders({ category: 'wallet' });
+    serviceProviders.value = res.data.data || [];
+  } catch (e) {}
+};
+
 onMounted(() => {
   loadData();
   sourceStore.fetchSources();
+  fetchProviders();
 });
 </script>
 
@@ -1176,7 +1263,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  min-width: 220px; /* العرض الأدنى المناسب للمحتوى الداخلي بدون التفاف سيء */
+  min-width: 220px;
   max-width: 100%;
 }
 </style>

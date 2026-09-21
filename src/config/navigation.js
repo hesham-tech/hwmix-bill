@@ -374,6 +374,12 @@ export default [
         icon: 'ri-exchange-dollar-line',
         permission: [PERMISSIONS.HWNIX_CASH_WALLET_TRANSACTIONS_VIEW_ALL, PERMISSIONS.HWNIX_CASH_WALLET_TRANSACTIONS_VIEW_SELF],
       },
+      {
+        title: 'إعدادات شبكات الدفع',
+        to: '/app/hwnix-cash/digital-services-config',
+        icon: 'ri-list-settings-line',
+        permission: [PERMISSIONS.HWNIX_CASH_VIEW_ALL],
+      },
     ],
   },
 

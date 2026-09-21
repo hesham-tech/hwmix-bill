@@ -133,4 +133,19 @@ export default [
       ],
     },
   },
+  {
+    path: 'hwnix-cash/digital-services-config',
+    name: 'hwnix-cash-digital-services-config',
+    component: () => import('@/modules/hwnix-cash/pages/HwnixCashDigitalServicesConfig.vue'),
+    meta: {
+      title: 'إعدادات شبكات الدفع',
+      permission: [
+        PERMISSIONS.HWNIX_CASH_VIEW_ALL,
+      ],
+      breadcrumbs: [
+        { title: 'كاش هونكس', disabled: true },
+        { title: 'إعدادات شبكات الدفع', disabled: true },
+      ],
+    },
+  },
 ];

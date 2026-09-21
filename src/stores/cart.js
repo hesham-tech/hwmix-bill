@@ -1,13 +1,20 @@
 // متجر السلة — يحفظ منتجات السلة في localStorage ويوفر دوال الإضافة والحذف والتحديث
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 
 export const useCartStore = defineStore(
   'cart',
   () => {
-    const items = ref([])
+    // Load from localStorage initially
+    const savedCart = localStorage.getItem('hwnix_store_cart')
+    const items = ref(savedCart ? JSON.parse(savedCart) : [])
     // { variantId, productId, companyId, companyName, companyLogo, productName, variantSku, image, unitPrice, quantity, maxStock }
     const isDrawerOpen = ref(false)
+
+    // Sync to localStorage on every change
+    watch(items, (newItems) => {
+      localStorage.setItem('hwnix_store_cart', JSON.stringify(newItems))
+    }, { deep: true })
 
     const itemCount = computed(() =>
       items.value.reduce((sum, i) => sum + Number(i.quantity), 0)

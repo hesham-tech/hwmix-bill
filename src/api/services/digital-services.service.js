@@ -6,19 +6,27 @@ class DigitalServicesService extends BaseService {
   }
 
   getProviders() {
-    return this.http.get('/providers');
+    return this.get('providers');
+  }
+
+  getServiceProviders(params = {}) {
+    return this.get('service-providers', params);
+  }
+
+  getServiceDefinitions(params = {}) {
+    return this.get('service-definitions', params);
   }
 
   createProvider(data) {
-    return this.http.post('/providers', data);
+    return this.post('providers', data);
   }
 
   createTransaction(data) {
-    return this.http.post('/transactions', data);
+    return this.post('transactions', data);
   }
 
   reverseTransaction(id, data) {
-    return this.http.post(`/transactions/${id}/reverse`, data);
+    return this.post(`transactions/${id}/reverse`, data);
   }
 }
 

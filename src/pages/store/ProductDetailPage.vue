@@ -91,8 +91,20 @@
                   prepend-icon="ri-shopping-cart-add-line"
                   @click="addToCart"
                   :disabled="!isAvailable"
+                  variant="outlined"
                 >
                   أضف للسلة
+                </v-btn>
+                <v-btn
+                  color="primary"
+                  size="x-large"
+                  class="flex-grow-1 font-weight-bold"
+                  prepend-icon="ri-money-dollar-circle-line"
+                  @click="buyNow"
+                  :disabled="!isAvailable"
+                  elevation="2"
+                >
+                  شراء الآن
                 </v-btn>
               </div>
 
@@ -175,6 +187,25 @@ const addToCart = () => {
     quantity: quantity.value,
     maxStock: product.value.quantity
   })
+}
+
+const buyNow = () => {
+  if (!isAvailable.value) return
+  cartStore.addItem({
+    variantId: product.value.default_variant_id || product.value.id,
+    productId: product.value.id,
+    companyId: product.value.vendor?.id,
+    companyName: product.value.vendor?.name,
+    companyLogo: product.value.vendor?.logo,
+    productName: product.value.name,
+    variantSku: product.value.sku,
+    image: product.value.image || defaultImage,
+    unitPrice: product.value.price,
+    quantity: quantity.value,
+    maxStock: product.value.quantity
+  })
+  cartStore.isDrawerOpen = false
+  router.push('/store/checkout')
 }
 
 onMounted(() => {

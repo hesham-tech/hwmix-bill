@@ -1,13 +1,33 @@
 <template>
   <div class="invoice-create-page">
+    <!-- زر الخدمات السريعة العائم (فوري والمحافظ) -->
+    <v-btn
+      v-if="invoiceType === 'sale' || invoiceType === 'sales'"
+      color="primary"
+      size="x-large"
+      class="position-fixed font-weight-bold"
+      style="bottom: 24px; left: 24px; z-index: 99; border-radius: 50%; height: 72px; width: 72px;"
+      elevation="8"
+      @click="isQuickServiceOpen = true"
+    >
+      <div class="d-flex flex-column align-center">
+        <v-icon size="24" class="mb-1">ri-exchange-dollar-line</v-icon>
+        <span style="font-size: 10px; line-height: 1;">خدمات دفع<br>ومحافظ</span>
+      </div>
+    </v-btn>
+
     <InvoiceForm :key="invoiceType" :initial-type="invoiceType" @success="handleSuccess" @cancel="goBack" />
+    <QuickServiceOperation v-model="isQuickServiceOpen" />
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import InvoiceForm from '../components/InvoiceForm.vue';
+import QuickServiceOperation from '@/modules/hwnix-cash/components/QuickServiceOperation.vue';
+
+const isQuickServiceOpen = ref(false);
 
 const router = useRouter();
 const route = useRoute();
