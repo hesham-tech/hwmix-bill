@@ -330,6 +330,15 @@
               </v-col>
               <v-col cols="12" md="6">
                 <v-switch
+                  v-model="featuresData.store_publish"
+                  color="success"
+                  label="تفعيل السماح بالنشر في المتجر العام"
+                  inset
+                  density="compact"
+                />
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-switch
                   v-model="featuresData.export_import"
                   color="primary"
                   label="تفعيل استيراد وتصدير المنتجات بالخلفية"
@@ -691,6 +700,7 @@ const formData = ref({
 
 const featuresData = ref({
   payment_gateways: false,
+  store_publish: false,
   export_import: false,
   mail_settings: false,
   warehouses_multi: false,
@@ -814,6 +824,7 @@ const handleCreate = () => {
   };
   featuresData.value = {
     payment_gateways: false,
+  store_publish: false,
     export_import: false,
     mail_settings: false,
     warehouses_multi: false,
