@@ -871,6 +871,7 @@ const handleEdit = item => {
 
   featuresData.value = {
     payment_gateways: !!feats.payment_gateways,
+    store_publish: !!feats.store_publish,
     export_import: !!feats.export_import,
     mail_settings: !!feats.mail_settings,
     warehouses_multi: !!feats.warehouses_multi,
@@ -900,6 +901,7 @@ const handleSave = async () => {
 
   const finalFeatures = {
     payment_gateways: !!featuresData.value.payment_gateways,
+    store_publish: !!featuresData.value.store_publish,
     export_import: !!featuresData.value.export_import,
     mail_settings: !!featuresData.value.mail_settings,
     warehouses_multi: !!featuresData.value.warehouses_multi,
