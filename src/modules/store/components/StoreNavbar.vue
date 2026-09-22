@@ -1,62 +1,120 @@
 <template>
-  <v-app-bar color="white" elevation="1" class="border-b">
-    <v-container class="d-flex align-center py-0 px-2 px-md-4 max-w-1200 mx-auto w-100">
-      
-      <!-- Brand / Logo -->
-      <router-link to="/store" class="text-decoration-none d-flex align-center me-6">
-        <div class="text-h5 font-weight-black text-primary">المتجر</div>
-      </router-link>
+  <header class="store-header bg-white border-b" dir="rtl">
+    <v-container class="py-2" style="max-width: 1400px;">
+      <div class="d-flex align-center justify-space-between gap-4">
+        
+        <!-- Logo -->
+        <router-link to="/store" class="d-flex align-center gap-2 text-decoration-none">
+          <v-avatar color="primary" size="40" rounded="lg">
+            <v-icon icon="ri-store-2-fill" color="white" size="24"></v-icon>
+          </v-avatar>
+          <div>
+            <div class="text-h6 font-weight-black text-primary" style="line-height: 1;">HWNix</div>
+            <div class="text-caption text-grey-darken-1">المتجر</div>
+          </div>
+        </router-link>
 
-      <v-spacer></v-spacer>
+        <!-- Search -->
+        <div class="flex-grow-1 mx-md-8 hidden-sm-and-down" style="max-width: 600px;">
+          <v-text-field
+            v-model="searchQuery"
+            placeholder="ابحث عن المنتجات..."
+            variant="outlined"
+            density="compact"
+            hide-details
+            rounded="pill"
+            bg-color="grey-lighten-4"
+            prepend-inner-icon="ri-search-line"
+            @keyup.enter="handleSearch"
+          >
+            <template v-slot:append-inner>
+              <v-btn
+                color="primary"
+                size="small"
+                variant="flat"
+                class="rounded-pill px-4 ms-n2"
+                height="32"
+                @click="handleSearch"
+              >
+                بحث
+              </v-btn>
+            </template>
+          </v-text-field>
+        </div>
 
-      <!-- Search (Desktop) -->
-      <div class="hidden-sm-and-down w-50 max-w-600 me-6">
+        <!-- Actions -->
+        <div class="d-flex align-center gap-2">
+          
+          <!-- Cart -->
+          <v-btn
+            icon
+            variant="text"
+            color="grey-darken-3"
+            @click="cartStore.toggleDrawer"
+          >
+            <v-badge
+              v-if="cartStore.itemCount > 0"
+              :content="cartStore.itemCount"
+              color="error"
+              floating
+            >
+              <v-icon icon="ri-shopping-cart-2-line" size="24"></v-icon>
+            </v-badge>
+            <v-icon v-else icon="ri-shopping-cart-2-line" size="24"></v-icon>
+          </v-btn>
+
+          <!-- User Menu -->
+          <v-menu v-if="authStore.isAuthenticated" transition="slide-y-transition">
+            <template v-slot:activator="{ props }">
+              <v-btn variant="text" v-bind="props" class="px-2" rounded="pill">
+                <v-avatar color="primary-lighten-1" size="32" class="me-2 text-white font-weight-bold">
+                  {{ authStore.user?.name?.charAt(0) || 'م' }}
+                </v-avatar>
+                <span class="hidden-sm-and-down font-weight-medium">
+                  {{ authStore.user?.name?.split(' ')[0] || 'حسابي' }}
+                </span>
+                <v-icon icon="ri-arrow-down-s-line" size="16" class="ms-1 hidden-sm-and-down"></v-icon>
+              </v-btn>
+            </template>
+            <v-list min-width="200" rounded="xl" elevation="4" class="mt-2">
+              <v-list-item to="/store/orders" prepend-icon="ri-file-list-3-line" title="طلباتي"></v-list-item>
+              <v-list-item to="/dashboard" prepend-icon="ri-dashboard-line" title="لوحة التحكم"></v-list-item>
+              <v-divider class="my-2"></v-divider>
+              <v-list-item @click="logout" prepend-icon="ri-logout-circle-line" title="تسجيل الخروج" color="error"></v-list-item>
+            </v-list>
+          </v-menu>
+
+          <template v-else>
+            <v-btn variant="text" color="primary" to="/store/login" class="px-2 font-weight-medium">
+              دخول
+            </v-btn>
+            <v-btn variant="flat" color="primary" to="/store/register" rounded="pill" class="px-3 px-sm-4 font-weight-bold" size="small" class="d-none d-sm-flex">
+              حساب جديد
+            </v-btn>
+            <v-btn variant="flat" color="primary" to="/store/register" rounded="pill" class="px-3 font-weight-bold d-sm-none" size="small">
+              تسجيل
+            </v-btn>
+          </template>
+
+        </div>
+      </div>
+
+      <!-- Mobile Search -->
+      <div class="d-md-none mt-3">
         <v-text-field
           v-model="searchQuery"
-          variant="solo-filled"
-          density="compact"
-          flat
-          hide-details
           placeholder="ابحث عن منتج..."
-          prepend-inner-icon="ri-search-line"
+          variant="outlined"
+          density="compact"
+          hide-details
           rounded="pill"
           bg-color="grey-lighten-4"
+          prepend-inner-icon="ri-search-line"
           @keyup.enter="handleSearch"
         ></v-text-field>
       </div>
-
-      <!-- Actions -->
-      <div class="d-flex align-center gap-2">
-        <v-btn icon @click="cartStore.toggleDrawer">
-          <v-badge :content="cartStore.itemCount" color="error" v-if="cartStore.itemCount > 0">
-            <v-icon icon="ri-shopping-cart-2-line"></v-icon>
-          </v-badge>
-          <v-icon v-else icon="ri-shopping-cart-2-line"></v-icon>
-        </v-btn>
-
-        <!-- User Menu -->
-        <v-menu v-if="authStore.isAuthenticated" transition="slide-y-transition">
-          <template v-slot:activator="{ props }">
-            <v-btn icon v-bind="props">
-              <v-avatar color="primary" size="32">
-                <span class="text-caption">{{ authStore.user?.name?.charAt(0) || 'م' }}</span>
-              </v-avatar>
-            </v-btn>
-          </template>
-          <v-list min-width="200" elevation="3" class="mt-2 rounded-lg">
-            <v-list-item to="/store/orders" prepend-icon="ri-file-list-3-line" title="طلباتي"></v-list-item>
-            <v-list-item to="/dashboard" prepend-icon="ri-dashboard-line" title="لوحة التحكم"></v-list-item>
-            <v-divider class="my-2"></v-divider>
-            <v-list-item @click="logout" prepend-icon="ri-logout-circle-line" title="تسجيل الخروج" color="error"></v-list-item>
-          </v-list>
-        </v-menu>
-
-        <v-btn v-else variant="outlined" color="primary" to="/login" rounded="pill" class="font-weight-bold">
-          تسجيل الدخول
-        </v-btn>
-      </div>
     </v-container>
-  </v-app-bar>
+  </header>
 </template>
 
 <script setup>
@@ -78,15 +136,15 @@ const handleSearch = () => {
 
 const logout = () => {
   authStore.logout()
-  router.push('/login')
+  router.push('/store/login')
 }
 </script>
 
 <style scoped>
-.max-w-1200 {
-  max-width: 1200px;
-}
-.max-w-600 {
-  max-width: 600px;
+.store-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 </style>

@@ -1,84 +1,262 @@
 <template>
-  <div class="store-page pb-10">
+  <div class="store-page-wrapper" dir="rtl">
     <StoreNavbar />
-    
-    <v-main class="bg-grey-lighten-4 min-vh-100">
-      <v-container class="max-w-1200 py-8">
-        
-        <!-- Header -->
-        <div class="d-flex align-center justify-space-between mb-8">
-          <h1 class="text-h4 font-weight-black">المنتجات</h1>
-          <div class="d-flex gap-2">
-            <!-- Filter stub -->
-            <v-btn icon="ri-filter-3-line" variant="tonal" color="primary"></v-btn>
-          </div>
-        </div>
 
-        <!-- Error State -->
-        <v-alert v-if="storeProductsStore.error" type="error" variant="tonal" class="mb-6">
-          {{ storeProductsStore.error }}
-        </v-alert>
+    <div class="store-main-bg py-8">
+      <v-container style="max-width: 1400px;">
+        <v-row>
+          <!-- Sidebar Filters (Desktop) -->
+          <v-col cols="12" md="3" lg="3" class="hidden-sm-and-down">
+            <FiltersSidebar
+              :categories="categories"
+              :brands="brands"
+              :filters="storeProductsStore.filters"
+              @update:filters="applyFilters"
+            />
+          </v-col>
 
-        <!-- Loading State -->
-        <v-row v-if="storeProductsStore.loading && storeProductsStore.products.length === 0">
-          <v-col v-for="i in 8" :key="i" cols="12" sm="6" md="4" lg="3">
-            <ProductCardSkeleton />
+          <!-- Products Area -->
+          <v-col cols="12" md="9" lg="9">
+            
+            <!-- Toolbar -->
+            <v-card class="mb-4 rounded-xl border-0 bg-white" elevation="0">
+              <v-card-text class="d-flex align-center justify-space-between flex-wrap gap-2 py-2 px-3 py-sm-3 px-sm-4">
+                
+                <div class="d-flex align-center gap-2">
+                  <v-btn
+                    class="d-md-none"
+                    variant="tonal"
+                    color="primary"
+                    prepend-icon="ri-filter-3-line"
+                    @click="showMobileFilter = true"
+                    rounded="pill"
+                    size="small"
+                  >
+                    تصفية
+                  </v-btn>
+
+                  <div class="text-caption text-sm-body-2 text-grey-darken-1">
+                    المنتجات: 
+                    <span class="font-weight-bold text-primary">{{ storeProductsStore.pagination.total || 0 }}</span>
+                  </div>
+                </div>
+
+                <div class="d-flex align-center gap-3">
+                  <v-select
+                    v-model="sortBy"
+                    :items="sortOptions"
+                    item-title="label"
+                    item-value="value"
+                    variant="outlined"
+                    density="compact"
+                    hide-details
+                    style="min-width: 150px; max-width: 200px;"
+                    rounded="lg"
+                    @update:model-value="applySort"
+                  ></v-select>
+
+                  <v-btn-group variant="outlined" density="compact" divided>
+                    <v-btn
+                      :color="viewMode === 'grid' ? 'primary' : 'grey'"
+                      icon="ri-grid-fill"
+                      @click="viewMode = 'grid'"
+                    ></v-btn>
+                    <v-btn
+                      :color="viewMode === 'list' ? 'primary' : 'grey'"
+                      icon="ri-list-check"
+                      @click="viewMode = 'list'"
+                    ></v-btn>
+                  </v-btn-group>
+                </div>
+              </v-card-text>
+            </v-card>
+
+            <!-- Active Filters -->
+            <div v-if="hasActiveFilters" class="d-flex flex-wrap gap-2 mb-4 px-1">
+              <v-chip
+                v-if="storeProductsStore.filters.search"
+                closable
+                @click:close="clearFilter('search')"
+                color="primary"
+                variant="flat"
+                size="small"
+              >
+                البحث: {{ storeProductsStore.filters.search }}
+              </v-chip>
+              <v-chip
+                v-if="storeProductsStore.filters.category_id"
+                closable
+                @click:close="clearFilter('category_id')"
+                color="primary"
+                variant="flat"
+                size="small"
+              >
+                تصفية بالقسم
+              </v-chip>
+              <v-btn
+                variant="text"
+                color="error"
+                size="small"
+                @click="clearAllFilters"
+                class="font-weight-bold"
+              >
+                مسح الكل
+              </v-btn>
+            </div>
+
+            <!-- Error -->
+            <v-alert v-if="storeProductsStore.error" type="error" variant="tonal" class="mb-6 rounded-xl">
+              {{ storeProductsStore.error }}
+            </v-alert>
+
+            <!-- Loading Skeleton -->
+            <v-row v-if="storeProductsStore.loading && storeProductsStore.products.length === 0">
+              <v-col 
+                v-for="i in 8" :key="i" 
+                :cols="viewMode === 'grid' ? 6 : 12" 
+                :md="viewMode === 'grid' ? 4 : 12" 
+                :lg="viewMode === 'grid' ? 3 : 12"
+              >
+                <ProductCardSkeleton :list-view="viewMode === 'list'" />
+              </v-col>
+            </v-row>
+
+            <!-- Products Grid -->
+            <v-row v-else-if="storeProductsStore.products.length > 0">
+              <v-col
+                v-for="product in storeProductsStore.products"
+                :key="product.id"
+                :cols="viewMode === 'grid' ? 6 : 12"
+                :md="viewMode === 'grid' ? 4 : 12"
+                :lg="viewMode === 'grid' ? 3 : 12"
+              >
+                <ProductCard :product="product" :list-view="viewMode === 'list'" />
+              </v-col>
+            </v-row>
+
+            <!-- Empty -->
+            <v-card v-else class="rounded-xl border-0 bg-white py-16" elevation="0">
+              <v-card-text class="text-center">
+                <v-icon icon="ri-search-2-line" size="64" color="grey-lighten-2" class="mb-4"></v-icon>
+                <h3 class="text-h6 font-weight-bold text-grey-darken-2 mb-2">لا توجد منتجات</h3>
+                <p class="text-grey mb-6">جرب تغيير كلمات البحث أو إزالة الفلاتر المحددة</p>
+                <v-btn color="primary" variant="tonal" rounded="pill" @click="clearAllFilters">
+                  إزالة جميع الفلاتر
+                </v-btn>
+              </v-card-text>
+            </v-card>
+
+            <!-- Pagination -->
+            <div v-if="storeProductsStore.pagination.lastPage > 1" class="d-flex justify-center mt-8">
+              <v-pagination
+                v-model="storeProductsStore.pagination.currentPage"
+                :length="storeProductsStore.pagination.lastPage"
+                @update:model-value="onPageChange"
+                color="primary"
+                rounded="circle"
+                :total-visible="5"
+              ></v-pagination>
+            </div>
+
           </v-col>
         </v-row>
-
-        <!-- Products Grid -->
-        <v-row v-else-if="storeProductsStore.products.length > 0">
-          <v-col 
-            v-for="product in storeProductsStore.products" 
-            :key="product.id"
-            cols="12" sm="6" md="4" lg="3"
-          >
-            <ProductCard :product="product" />
-          </v-col>
-        </v-row>
-
-        <!-- Empty State -->
-        <div v-else class="text-center py-16">
-          <v-icon icon="ri-search-2-line" size="64" color="grey-lighten-1" class="mb-4"></v-icon>
-          <h3 class="text-h5 text-grey-darken-1 mb-2">لا توجد منتجات</h3>
-          <p class="text-grey">جرب البحث بكلمات مختلفة أو إزالة الفلاتر</p>
-        </div>
-
-        <!-- Pagination -->
-        <div v-if="storeProductsStore.pagination.lastPage > 1" class="d-flex justify-center mt-8">
-          <v-pagination
-            v-model="storeProductsStore.pagination.currentPage"
-            :length="storeProductsStore.pagination.lastPage"
-            @update:model-value="onPageChange"
-            color="primary"
-            rounded="circle"
-          ></v-pagination>
-        </div>
       </v-container>
-    </v-main>
+    </div>
+
+    <!-- Mobile Drawer -->
+    <v-navigation-drawer v-model="showMobileFilter" location="right" temporary width="300" class="bg-white">
+      <div class="pa-4 d-flex align-center justify-space-between border-b">
+        <h3 class="text-h6 font-weight-bold mb-0">تصفية</h3>
+        <v-btn icon="ri-close-line" variant="text" density="comfortable" @click="showMobileFilter = false"></v-btn>
+      </div>
+      <div class="pa-4">
+        <FiltersSidebar
+          :categories="categories"
+          :brands="brands"
+          :filters="storeProductsStore.filters"
+          @update:filters="applyFilters"
+        />
+      </div>
+    </v-navigation-drawer>
+
     <CartDrawer />
   </div>
 </template>
 
 <script setup>
-import { onMounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useStoreProductsStore } from '@/stores/storeProducts'
+import { storeProductsApi } from '@/modules/store/api/storeProducts.api.js'
 import StoreNavbar from '@/modules/store/components/StoreNavbar.vue'
 import ProductCard from '@/modules/store/components/ProductCard.vue'
 import ProductCardSkeleton from '@/modules/store/components/ProductCardSkeleton.vue'
 import CartDrawer from '@/modules/store/components/CartDrawer.vue'
+import FiltersSidebar from '@/modules/store/components/FiltersSidebar.vue'
 
 const route = useRoute()
+const router = useRouter()
 const storeProductsStore = useStoreProductsStore()
+
+const viewMode = ref('grid')
+const sortBy = ref('newest')
+const showMobileFilter = ref(false)
+const categories = ref([])
+const brands = ref([])
+
+const sortOptions = [
+  { label: 'الأحدث', value: 'newest' },
+  { label: 'السعر: من الأقل', value: 'price_asc' },
+  { label: 'السعر: من الأعلى', value: 'price_desc' },
+  { label: 'الأكثر مبيعاً', value: 'best_selling' },
+]
+
+const hasActiveFilters = computed(() => {
+  const f = storeProductsStore.filters
+  return f.search || f.category_id || f.brand_id || f.in_stock
+})
+
+const applyFilters = (newFilters) => {
+  storeProductsStore.setFilters(newFilters)
+  showMobileFilter.value = false
+}
+
+const applySort = (value) => {
+  storeProductsStore.setFilters({ sort: value })
+}
+
+const clearFilter = (key) => {
+  storeProductsStore.setFilters({ [key]: null })
+}
+
+const clearAllFilters = () => {
+  storeProductsStore.clearFilters()
+  if (route.query.q) {
+    router.replace({ path: '/store' })
+  }
+}
 
 const onPageChange = (page) => {
   storeProductsStore.fetchProducts(page)
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
+const loadCategories = async () => {
+  try {
+    const res = await storeProductsApi.getCategories()
+    categories.value = res.data?.data || []
+  } catch {}
+}
+
+const loadBrands = async () => {
+  try {
+    const res = await storeProductsApi.getBrands()
+    brands.value = res.data?.data || []
+  } catch {}
+}
+
 watch(() => route.query, (newQuery) => {
-  storeProductsStore.setFilters({ 
+  storeProductsStore.setFilters({
     search: newQuery.q || '',
     vendor_id: newQuery.vendor_id || '',
     category_id: newQuery.category_id || ''
@@ -86,15 +264,22 @@ watch(() => route.query, (newQuery) => {
 }, { deep: true })
 
 onMounted(() => {
-  storeProductsStore.setFilters({ 
+  storeProductsStore.setFilters({
     search: route.query.q || '',
     vendor_id: route.query.vendor_id || '',
     category_id: route.query.category_id || ''
   })
+  loadCategories()
+  loadBrands()
 })
 </script>
 
 <style scoped>
-.max-w-1200 { max-width: 1200px; }
-.min-vh-100 { min-height: 100vh; }
+.store-page-wrapper {
+  background: #f8fafc;
+  min-height: 100vh;
+}
+.store-main-bg {
+  background: #f8fafc;
+}
 </style>
