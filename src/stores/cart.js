@@ -103,7 +103,7 @@ export const useCartStore = defineStore(
     // بناء payload للإرسال للـ API
     function buildOrderPayload(addressId, notes = '') {
       return {
-        address_id: addressId,
+        shipping_address_id: addressId,
         payment_method: 'cod',
         notes,
         items: items.value.map((i) => ({

@@ -74,7 +74,7 @@ export default [
     path: '/store/my-orders',
     name: 'store-my-orders',
     component: () => import('@/pages/store/MyOrdersPage.vue'),
-    meta: { title: 'طلباتي', requiresAuth: true }, // or public if magic link
+    meta: { title: 'طلباتي', public: true }, // Made public
   },
   {
     path: '/store/order-confirmation/:id',

@@ -51,12 +51,12 @@
                   <template v-slot:prepend>
                     <v-icon icon="ri-information-line"></v-icon>
                   </template>
-                  <span>يرجى <router-link to="/store/login" class="font-weight-bold">تسجيل الدخول</router-link> أو <router-link to="/store/register" class="font-weight-bold">إنشاء حساب</router-link> لإتمام الشراء</span>
+                  <span>للاستمتاع بتجربة تسوق أفضل، يمكنك <router-link to="/login" class="font-weight-bold">تسجيل الدخول</router-link> أو <router-link to="/register?type=customer" class="font-weight-bold">إنشاء حساب</router-link>. أو يمكنك المتابعة كزائر.</span>
                 </v-alert>
 
-                <div v-if="authStore.isAuthenticated">
+                <div>
                   <!-- Saved Addresses -->
-                  <div v-if="savedAddresses.length > 0" class="mb-6">
+                  <div v-if="authStore.isAuthenticated && savedAddresses.length > 0" class="mb-6">
                     <p class="text-body-2 font-weight-bold mb-3">العناوين المحفوظة</p>
                     <div class="d-flex flex-column gap-3">
                       <div
@@ -92,8 +92,8 @@
                   </div>
 
                   <!-- New Address Form -->
-                  <div v-if="showNewAddressForm || savedAddresses.length === 0">
-                    <p class="text-body-2 font-weight-bold mb-3">عنوان جديد</p>
+                  <div v-if="showNewAddressForm || !authStore.isAuthenticated || savedAddresses.length === 0">
+                    <p class="text-body-2 font-weight-bold mb-3">عنوان التوصيل</p>
                     <v-row dense>
                       <v-col cols="12" sm="6">
                         <v-text-field
@@ -179,7 +179,7 @@
                           hint="مثال: بجوار مسجد النور"
                         ></v-textarea>
                       </v-col>
-                      <v-col cols="12">
+                      <v-col cols="12" v-if="authStore.isAuthenticated">
                         <v-checkbox
                           v-model="newAddress.is_default"
                           label="جعله العنوان الافتراضي"
@@ -460,9 +460,12 @@ const trustItems = [
   { icon: 'ri-refresh-line', label: 'إمكانية الإرجاع خلال 14 يوم' },
 ]
 
-const selectedAddressObj = computed(() =>
-  savedAddresses.value.find(a => a.id === selectedAddressId.value)
-)
+const selectedAddressObj = computed(() => {
+  if (selectedAddressId.value) {
+    return savedAddresses.value.find(a => a.id === selectedAddressId.value)
+  }
+  return newAddress.value.recipient_name ? newAddress.value : null
+})
 
 const canProceedToStep1 = computed(() =>
   selectedAddressId.value ||
@@ -486,7 +489,7 @@ const loadAddresses = async () => {
 }
 
 const goToStep = async (step) => {
-  if (step === 1 && !selectedAddressId.value && showNewAddressForm.value) {
+  if (step === 1 && !selectedAddressId.value && showNewAddressForm.value && authStore.isAuthenticated) {
     try {
       const res = await customerAddressesApi.createAddress(newAddress.value)
       const created = res.data?.data || res.data
@@ -505,6 +508,13 @@ const placeOrder = async () => {
   placingOrder.value = true
   try {
     const payload = cartStore.buildOrderPayload(selectedAddressId.value, orderNotes.value)
+    
+    // If not authenticated or creating a new address directly without saving
+    if (!selectedAddressId.value) {
+      delete payload.shipping_address_id;
+      payload.guest_address = { ...newAddress.value };
+    }
+    
     const res = await storeOrdersApi.placeOrder(payload)
     const order = res.data?.data || res.data
     cartStore.clearCart()

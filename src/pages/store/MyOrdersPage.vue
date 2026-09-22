@@ -49,7 +49,10 @@
           <h3 class="text-h5 font-weight-bold text-grey-darken-1 mb-2">
             {{ activeTab === 'all' ? 'لا توجد طلبات' : 'لا توجد طلبات بهذه الحالة' }}
           </h3>
-          <p class="text-grey mb-6">
+          <p class="text-grey mb-6" v-if="!authStore.isAuthenticated">
+            الزوار ليس لديهم سجل للطلبات السابقة. يمكنك عرض حالة طلبك من الرابط المرسل إليك، أو <router-link to="/login">تسجيل الدخول</router-link> لعرض جميع طلباتك.
+          </p>
+          <p class="text-grey mb-6" v-else>
             {{ activeTab === 'all' ? 'لم تقم بأي طلب حتى الآن. ابدأ التسوق الآن!' : 'حاول اختيار حالة أخرى' }}
           </p>
           <v-btn color="primary" rounded="pill" to="/store" prepend-icon="ri-store-2-line">
@@ -168,8 +171,11 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { storeOrdersApi } from '@/modules/store/api/storeOrders.api.js'
+import { useAuthStore } from '@/stores/auth'
 import StoreNavbar from '@/modules/store/components/StoreNavbar.vue'
 import OrderStatusBadge from '@/modules/store/components/OrderStatusBadge.vue'
+
+const authStore = useAuthStore()
 
 const orders = ref([])
 const loading = ref(true)
