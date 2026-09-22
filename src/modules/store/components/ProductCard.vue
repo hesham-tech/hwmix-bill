@@ -131,15 +131,19 @@ const addToCart = async () => {
   if (!defaultVariant.value || !inStock.value) return
   isAdding.value = true
   
+  const totalQty = defaultVariant.value.stocks?.reduce((sum, stock) => sum + (stock.quantity - stock.reserved), 0) || 0
+
   cartStore.addItem({
-    product_id: props.product.id,
-    variant_id: defaultVariant.value.id,
-    name: props.product.name,
-    company_id: props.product.company_id,
-    company_name: props.product.company?.name || 'البائع',
-    price: price.value,
+    productId: props.product.id,
+    variantId: defaultVariant.value.id,
+    productName: props.product.name,
+    companyId: props.product.company?.id || props.product.company_id,
+    companyName: props.product.company?.name || 'البائع',
+    companyLogo: props.product.company?.logo?.url,
+    unitPrice: price.value,
     image: imageUrl.value,
-    quantity: 1
+    quantity: 1,
+    maxStock: totalQty
   })
 
   setTimeout(() => {

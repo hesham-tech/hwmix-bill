@@ -88,7 +88,7 @@
             <v-btn variant="text" color="primary" to="/store/login" class="px-2 font-weight-medium">
               دخول
             </v-btn>
-            <v-btn variant="flat" color="primary" to="/store/register" rounded="pill" class="px-3 px-sm-4 font-weight-bold" size="small" class="d-none d-sm-flex">
+            <v-btn variant="flat" color="primary" to="/store/register" rounded="pill" class="px-3 px-sm-4 font-weight-bold d-none d-sm-flex" size="small">
               حساب جديد
             </v-btn>
             <v-btn variant="flat" color="primary" to="/store/register" rounded="pill" class="px-3 font-weight-bold d-sm-none" size="small">
