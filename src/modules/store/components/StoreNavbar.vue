@@ -3,16 +3,28 @@
     <v-container class="py-2" style="max-width: 1400px;">
       <div class="d-flex align-center justify-space-between gap-4">
         
-        <!-- Logo -->
-        <router-link to="/store" class="d-flex align-center gap-2 text-decoration-none">
-          <v-avatar color="primary" size="40" rounded="lg">
-            <v-icon icon="ri-store-2-fill" color="white" size="24"></v-icon>
-          </v-avatar>
-          <div>
-            <div class="text-h6 font-weight-black text-primary" style="line-height: 1;">HWNix</div>
-            <div class="text-caption text-grey-darken-1">المتجر</div>
-          </div>
-        </router-link>
+        <!-- Hamburger & Logo -->
+        <div class="d-flex align-center gap-2">
+          <!-- Mobile Menu Toggle -->
+          <v-btn
+            icon
+            variant="text"
+            class="d-md-none"
+            @click="mobileMenu = true"
+          >
+            <v-icon icon="ri-menu-line" size="24"></v-icon>
+          </v-btn>
+
+          <router-link to="/store" class="d-flex align-center gap-2 text-decoration-none">
+            <v-avatar color="primary" size="40" rounded="lg">
+              <v-icon icon="ri-store-2-fill" color="white" size="24"></v-icon>
+            </v-avatar>
+            <div>
+              <div class="text-h6 font-weight-black text-primary" style="line-height: 1;">HWNix</div>
+              <div class="text-caption text-grey-darken-1">المتجر</div>
+            </div>
+          </router-link>
+        </div>
 
         <!-- Search -->
         <div class="flex-grow-1 mx-md-8 hidden-sm-and-down" style="max-width: 600px;">
@@ -144,12 +156,20 @@
         <router-link to="/store?sort=best_selling" class="nav-link text-body-2 font-weight-bold text-error">
           <v-icon icon="ri-fire-line" size="18" class="me-1"></v-icon> الأكثر مبيعاً
         </router-link>
-        <v-spacer></v-spacer>
-        <router-link to="/saas" class="nav-link text-caption text-grey-darken-1">
-          انضم كتاجر (SaaS)
-        </router-link>
       </div>
     </v-container>
+
+    <!-- Mobile Navigation Drawer -->
+    <v-navigation-drawer v-model="mobileMenu" temporary location="right" class="d-md-none">
+      <div class="pa-4">
+        <div class="text-h6 font-weight-black text-primary mb-6">HWNix</div>
+        <v-list nav>
+          <v-list-item to="/" prepend-icon="ri-home-4-line" title="الرئيسية"></v-list-item>
+          <v-list-item to="/store" prepend-icon="ri-shopping-bag-3-line" title="المنتجات"></v-list-item>
+          <v-list-item to="/store?sort=best_selling" prepend-icon="ri-fire-line" title="الأكثر مبيعاً" class="text-error"></v-list-item>
+        </v-list>
+      </div>
+    </v-navigation-drawer>
   </header>
 </template>
 
@@ -159,6 +179,8 @@ import { useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
 import { useAuthStore } from '@/stores/auth'
 import { useWishlistStore } from '@/stores/wishlist'
+
+const mobileMenu = ref(false)
 
 const router = useRouter()
 const cartStore = useCartStore()

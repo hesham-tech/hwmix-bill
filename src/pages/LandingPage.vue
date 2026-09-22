@@ -6,7 +6,7 @@
     <v-main>
       <!-- Hero Carousel -->
       <section class="banner-carousel-section">
-        <v-carousel cycle hide-delimiter-background show-arrows="hover" height="400">
+        <v-carousel cycle hide-delimiter-background show-arrows="hover" :height="$vuetify.display.smAndDown ? 200 : 450" class="mb-8">
           <v-carousel-item
             v-for="(banner, i) in banners"
             :key="i"
@@ -203,8 +203,8 @@ const categories = ref([]);
 const featuredProducts = ref([]);
 
 const banners = [
-  { image: 'https://placehold.co/1600x500/1a3d8f/ffffff?text=Mega+Sale+20%25+Off', title: 'عروض كبرى' },
-  { image: 'https://placehold.co/1600x500/6a5ae0/ffffff?text=New+Electronics', title: 'إلكترونيات حديثة' }
+  { image: '/images/banner1.jpg', title: 'عروض كبرى' },
+  { image: '/images/banner2.jpg', title: 'إلكترونيات حديثة' }
 ];
 
 onMounted(async () => {
