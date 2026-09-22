@@ -133,6 +133,22 @@
           @keyup.enter="handleSearch"
         ></v-text-field>
       </div>
+      <!-- Desktop Navigation Links -->
+      <div class="d-none d-md-flex align-center gap-8 mt-3 pt-3 border-t">
+        <router-link to="/" class="nav-link text-body-2 font-weight-bold">
+          <v-icon icon="ri-home-4-line" size="18" class="me-1"></v-icon> الرئيسية
+        </router-link>
+        <router-link to="/store" class="nav-link text-body-2 font-weight-bold">
+          <v-icon icon="ri-shopping-bag-3-line" size="18" class="me-1"></v-icon> المنتجات
+        </router-link>
+        <router-link to="/store?sort=best_selling" class="nav-link text-body-2 font-weight-bold text-error">
+          <v-icon icon="ri-fire-line" size="18" class="me-1"></v-icon> الأكثر مبيعاً
+        </router-link>
+        <v-spacer></v-spacer>
+        <router-link to="/saas" class="nav-link text-caption text-grey-darken-1">
+          انضم كتاجر (SaaS)
+        </router-link>
+      </div>
     </v-container>
   </header>
 </template>
@@ -167,5 +183,15 @@ const logout = async () => {
   top: 0;
   z-index: 100;
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.nav-link {
+  text-decoration: none;
+  color: #334155;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+}
+.nav-link:hover {
+  color: #1a73e8 !important;
 }
 </style>
