@@ -1,164 +1,20 @@
 <template>
   <div class="landing-page">
-    <!-- Navigation Bar -->
-    <nav class="landing-nav pa-4 d-flex align-center justify-space-between glass-effect">
-      <div class="d-flex align-center gap-2">
-        <div class="store-logo" :style="logoUrl ? 'background: transparent; box-shadow: none;' : ''">
-          <img v-if="logoUrl" :src="logoUrl" alt="Logo" class="logo-img-store" />
-          <span v-else class="logo-h-store">{{ companyName.charAt(0) }}</span>
-        </div>
-        <div class="brand-text-group">
-          <span class="store-brand-name">{{ companyName }}</span>
-          <span class="store-tagline">{{ tagline }}</span>
-        </div>
-      </div>
-
-      <!-- Center Links (Desktop) -->
-      <div class="d-none d-md-flex gap-6">
-        <a href="#features" class="nav-link">المميزات</a>
-        <a href="#categories" class="nav-link">الأقسام</a>
-        <router-link to="/store" class="nav-link">المنتجات</router-link>
-        <router-link v-if="userStore.isStaff" to="/saas" class="nav-link gold-text font-weight-bold">نظام الإدارة</router-link>
-      </div>
-
-      <div class="d-flex align-center gap-2">
-        <div class="d-none d-sm-flex gap-2" v-if="!authStore.isAuthenticated">
-          <v-btn variant="text" color="primary" class="font-weight-bold" to="/register?type=customer">إنشاء حساب</v-btn>
-          <v-btn prepend-icon="ri-login-box-line" color="primary" variant="elevated" class="rounded-pill px-6 font-weight-bold" to="/login">
-            دخول
-          </v-btn>
-        </div>
-        <div class="d-none d-sm-flex align-center gap-4" v-else>
-          <AppUserBalanceProfile
-            v-if="authStore.isAuthenticated"
-            :user="userStore.currentUser || authStore.user || {}"
-            hide-phone
-            hide-balance
-            :clickable="false"
-            avatar-size="36"
-          />
-          <v-btn
-            :prepend-icon="userStore.isStaff ? 'ri-dashboard-line' : 'ri-user-line'"
-            color="primary"
-            variant="elevated"
-            class="rounded-pill px-6 font-weight-bold"
-            :to="userStore.isStaff ? '/app/admin/dashboard' : '/app/portal'"
-          >
-            {{ userStore.isStaff ? 'لوحة التحكم' : 'حسابي' }}
-          </v-btn>
-        </div>
-
-        <!-- Mobile Menu Toggle -->
-        <v-btn icon="ri-menu-line" variant="text" color="primary" class="d-flex d-md-none" @click="mobileDrawer = !mobileDrawer" />
-      </div>
-    </nav>
-
-    <!-- Mobile Navigation Drawer -->
-    <v-navigation-drawer v-model="mobileDrawer" location="right" temporary class="pa-4">
-      <div class="d-flex flex-column gap-4 mt-4">
-        <div class="d-flex align-center gap-2 mb-6 px-2">
-          <v-avatar v-if="logoUrl" rounded="md" size="32">
-            <v-img :src="logoUrl" alt="Logo" />
-          </v-avatar>
-          <v-avatar v-else color="primary" rounded="md" size="32">
-            <v-icon icon="ri-building-line" color="white" size="18" />
-          </v-avatar>
-          <span class="text-subtitle-1 font-weight-bold text-primary">{{ companyName }}</span>
-        </div>
-
-        <router-link
-          v-if="userStore.isStaff"
-          to="/saas"
-          class="nav-link gold-text font-weight-bold text-h6 px-2 py-2 rounded-md bg-amber-lighten-5 d-flex align-center gap-2"
-          @click="mobileDrawer = false"
-        >
-          <v-icon icon="ri-shield-flash-line" color="amber-darken-3" />
-          نظام الإدارة
-        </router-link>
-
-        <v-divider />
-
-        <a href="#features" class="nav-link px-2 py-2" @click="mobileDrawer = false">المميزات</a>
-        <a href="#categories" class="nav-link px-2 py-2" @click="mobileDrawer = false">الأقسام</a>
-        <router-link to="/store" class="nav-link px-2 py-2" @click="mobileDrawer = false">المنتجات</router-link>
-
-        <v-divider />
-
-        <template v-if="!authStore.isAuthenticated">
-          <v-btn color="primary" block variant="elevated" class="rounded-md mt-4" to="/login">دخول</v-btn>
-          <v-btn color="primary" block variant="outlined" class="rounded-md" to="/register?type=customer">إنشاء حساب</v-btn>
-        </template>
-        <template v-else>
-          <div class="d-flex justify-center mb-2 mt-4">
-            <AppUserBalanceProfile
-              v-if="authStore.isAuthenticated"
-              :user="userStore.currentUser || authStore.user || {}"
-              hide-phone
-              hide-balance
-              :clickable="false"
-              avatar-size="48"
-            />
-          </div>
-          <v-btn
-            color="primary"
-            block
-            variant="elevated"
-            class="rounded-pill mt-2 font-weight-bold"
-            :to="userStore.isStaff ? '/app/admin/dashboard' : '/app/portal'"
-          >
-            {{ userStore.isStaff ? 'لوحة التحكم' : 'حسابي' }}
-          </v-btn>
-        </template>
-      </div>
-    </v-navigation-drawer>
+    <StoreNavbar />
+    <CartDrawer />
 
     <v-main>
-      <!-- Hero Section -->
-      <section class="hero-section d-flex align-center justify-center text-center">
-        <div class="content-wrapper">
-          <div class="vibrant-bg"></div>
-          <v-chip color="primary" variant="tonal" class="mb-4 font-weight-bold py-4 px-6 border slide-up hwnix-chip">
-            اكتشف أفضل المنتجات — أسعار لا تنسى
-          </v-chip>
-          <h1 class="text-h2 font-weight-bold mb-6 hero-title slide-up-delay-1">
-            تسوق <span class="hwnix-gradient-text">بثقة</span> وادفع <br />
-            <span class="hwnix-gradient-text">بسهولة</span> فائقة.
-          </h1>
-          <p class="text-h6 text-grey-darken-1 mb-10 max-w-700 mx-auto leading-relaxed slide-up-delay-2">
-            أحدث المنتجات بأفضل الاسعار ....... كل شيء في مكان واحد.
-          </p>
-          <div class="d-flex gap-4 justify-center flex-wrap slide-up-delay-3">
-            <template v-if="!authStore.isAuthenticated">
-              <v-btn size="x-large" color="primary" class="rounded-md px-12 font-weight-bold elevation-8" to="/store" height="56">
-                تصفح المتجر الآن
-              </v-btn>
-              <v-btn
-                size="x-large"
-                variant="outlined"
-                color="primary"
-                class="rounded-md px-12 font-weight-bold"
-                height="56"
-                to="/register?type=customer"
-              >
-                إنشاء حساب جديد
-              </v-btn>
-            </template>
-            <template v-else>
-              <v-btn
-                size="x-large"
-                color="primary"
-                class="rounded-md px-12 font-weight-bold elevation-8"
-                :to="userStore.isStaff ? '/app/admin/dashboard' : '/app/portal'"
-                height="56"
-              >
-                {{ userStore.isStaff ? 'انتقل للوحة التحكم' : 'انتقل إلى حسابي' }}
-              </v-btn>
-              <v-btn size="x-large" variant="outlined" color="primary" class="rounded-md px-12 font-weight-bold" height="56" to="/store">
-                تصفح المنتجات
-              </v-btn>
-            </template>
-          </div>
-        </div>
+      <!-- Hero Carousel -->
+      <section class="banner-carousel-section">
+        <v-carousel cycle hide-delimiter-background show-arrows="hover" height="400">
+          <v-carousel-item
+            v-for="(banner, i) in banners"
+            :key="i"
+            :src="banner.image"
+            cover
+          >
+          </v-carousel-item>
+        </v-carousel>
       </section>
 
       <!-- Category Section -->
@@ -256,9 +112,9 @@
             <v-col cols="12" md="4" class="mb-8 mb-md-0">
               <div class="d-flex align-center gap-2 mb-6">
                 <v-avatar color="primary" rounded="md" size="40">
-                  <v-icon icon="ri-building-line" color="white" />
+                  <v-icon icon="ri-shopping-bag-3-line" color="white" />
                 </v-avatar>
-                <span class="text-h5 font-weight-bold">hwmix-bill</span>
+                <span class="text-h5 font-weight-bold">متجر HWNix</span>
               </div>
               <p class="text-body-2 text-grey-lighten-1 mb-6 leading-relaxed">
                 نحن نوفر لك أفضل المنتجات الإلكترونية بأعلى جودة، مع نظام إدارة مالية وتقسيط يضمن لك راحة البال والتحكم الكامل في ميزانيتك.
@@ -274,10 +130,9 @@
               <h4 class="text-h6 font-weight-bold mb-6">المتجر</h4>
               <div class="d-flex flex-column gap-3">
                 <router-link to="/" class="footer-link">الرئيسية</router-link>
-                <router-link to="/saas" class="footer-link gold-text">نظام HWNix (SaaS)</router-link>
-                <router-link to="/products" class="footer-link">المنتجات</router-link>
-                <router-link to="/categories" class="footer-link">الأقسام</router-link>
-                <router-link to="/brands" class="footer-link">العلامات التجارية</router-link>
+                <router-link to="/saas" class="footer-link gold-text">انضم كتاجر (SaaS)</router-link>
+                <router-link to="/store" class="footer-link">تصفح المنتجات</router-link>
+                <a href="#categories" class="footer-link">الأقسام</a>
               </div>
             </v-col>
 
@@ -307,7 +162,7 @@
               </div>
               <div class="mt-8 text-caption text-grey-lighten-2 d-flex align-center gap-2">
                 <v-icon icon="ri-admin-line" size="14" />
-                <router-link to="/saas/login" class="text-grey-lighten-2 text-decoration-none hover-primary">دخول الموظفين</router-link>
+                <router-link to="/saas" class="text-grey-lighten-2 text-decoration-none hover-primary">نظام إدارة الشركات</router-link>
               </div>
             </v-col>
           </v-row>
@@ -315,7 +170,7 @@
           <v-divider class="my-10 border-primary-lighten-4" />
 
           <div class="d-flex flex-column flex-md-row justify-space-between align-center gap-4">
-            <div class="text-caption text-grey-lighten-1">جميع الحقوق محفوظة © {{ new Date().getFullYear() }} - {{ companyName }}</div>
+            <div class="text-caption text-grey-lighten-1">جميع الحقوق محفوظة © {{ new Date().getFullYear() }} - متجر HWNix</div>
             <div class="d-flex gap-6 text-caption text-grey-lighten-1">
               <router-link to="/legal/privacy-policy" class="text-decoration-none text-inherit">سياسة الخصوصية</router-link>
               <router-link to="/legal/terms-of-use" class="text-decoration-none text-inherit">شروط الاستخدام</router-link>
@@ -334,18 +189,23 @@ import { ref, onMounted } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { useUserStore } from '@/stores/user';
 import { useBranding } from '@/composables/useBranding';
-import AppUserBalanceProfile from '@/components/common/AppUserBalanceProfile.vue';
 import SellerBadge from '@/modules/store/components/SellerBadge.vue';
+import StoreNavbar from '@/modules/store/components/StoreNavbar.vue';
+import CartDrawer from '@/modules/store/components/CartDrawer.vue';
 import { storeProductsApi } from '@/modules/store/api/storeProducts.api.js';
 
 const authStore = useAuthStore();
 const userStore = useUserStore();
-const mobileDrawer = ref(false);
 
 const { logoUrl, companyName, tagline, fetchBranding } = useBranding();
 
 const categories = ref([]);
 const featuredProducts = ref([]);
+
+const banners = [
+  { image: 'https://placehold.co/1600x500/1a3d8f/ffffff?text=Mega+Sale+20%25+Off', title: 'عروض كبرى' },
+  { image: 'https://placehold.co/1600x500/6a5ae0/ffffff?text=New+Electronics', title: 'إلكترونيات حديثة' }
+];
 
 onMounted(async () => {
   fetchBranding();
@@ -396,7 +256,6 @@ const scrollToFeatures = () => {
 .landing-page {
   font-family: 'Cairo', 'Montserrat', sans-serif;
   scroll-behavior: smooth;
-  overflow-x: hidden;
 }
 
 /* Brand Logo */

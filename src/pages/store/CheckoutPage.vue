@@ -526,7 +526,13 @@ const placeOrder = async () => {
   }
 }
 
-onMounted(() => { loadAddresses() })
+onMounted(() => { 
+  loadAddresses() 
+  if (authStore.user) {
+    newAddress.value.recipient_name = authStore.user.name || ''
+    newAddress.value.phone = authStore.user.phone || ''
+  }
+})
 </script>
 
 <style scoped>
