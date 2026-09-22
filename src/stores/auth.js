@@ -58,14 +58,31 @@ export const useAuthStore = defineStore('auth', () => {
     // 5. Clear user store
     userStore.clearUser();
 
+    // Clear Store Cart and Wishlist
+    try {
+      const { useCartStore } = await import('@/stores/cart');
+      const { useWishlistStore } = await import('@/stores/wishlist');
+      useCartStore().clearCart();
+      useWishlistStore().clear();
+    } catch (e) {
+      console.warn('Could not clear cart/wishlist stores', e);
+    }
+    localStorage.removeItem('hwnix_store_cart');
+    localStorage.removeItem('hwnix_store_wishlist');
+
     // 6. Show toast once
     if (showToast) {
       const { toast } = await import('vue3-toastify');
       notificationManager.success('تم تسجيل الخروج بنجاح');
     }
 
-    // 7. Redirect to the determined path
-    if (router.currentRoute.value.path !== redirectPath) {
+    // 7. Redirect logic based on Route Guards (Separation of Concerns)
+    // If the current route requires auth (not public), we must kick them to login.
+    // Otherwise, they stay exactly where they are as a guest.
+    const currentRoute = router.currentRoute.value;
+    const isPublic = currentRoute.meta?.public;
+    
+    if (!isPublic) {
       router.push({
         path: redirectPath,
         query: options.sessionExpired ? { sessionExpired: 1 } : {},

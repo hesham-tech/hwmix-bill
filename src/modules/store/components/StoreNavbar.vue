@@ -32,9 +32,10 @@
                 color="primary"
                 size="small"
                 variant="flat"
-                class="rounded-pill px-4 ms-n2"
+                class="rounded-pill px-4 me-1"
                 height="32"
                 @click="handleSearch"
+                elevation="0"
               >
                 بحث
               </v-btn>
@@ -45,6 +46,25 @@
         <!-- Actions -->
         <div class="d-flex align-center gap-2">
           
+          <!-- Wishlist -->
+          <v-btn
+            icon
+            variant="text"
+            color="grey-darken-3"
+            to="/store/wishlist"
+            class="hidden-xs"
+          >
+            <v-badge
+              v-if="wishlistStore.items.length > 0"
+              :content="wishlistStore.items.length"
+              color="error"
+              floating
+            >
+              <v-icon icon="ri-heart-3-line" size="24"></v-icon>
+            </v-badge>
+            <v-icon v-else icon="ri-heart-3-line" size="24"></v-icon>
+          </v-btn>
+
           <!-- Cart -->
           <v-btn
             icon
@@ -85,14 +105,14 @@
           </v-menu>
 
           <template v-else>
-            <v-btn variant="text" color="primary" to="/login" class="px-2 font-weight-medium">
+            <v-btn variant="text" color="primary" :to="{ path: '/login', query: { redirect: $route.fullPath } }" class="px-2 font-weight-medium">
               دخول
             </v-btn>
-            <v-btn variant="flat" color="primary" to="/register?type=customer" rounded="pill" class="px-3 px-sm-4 font-weight-bold d-none d-sm-flex" size="small">
+            <v-btn variant="flat" color="primary" :to="{ path: '/register', query: { type: 'customer', redirect: $route.fullPath } }" rounded="pill" class="px-3 px-sm-4 font-weight-bold d-none d-sm-flex" size="small">
               حساب جديد
             </v-btn>
-            <v-btn variant="flat" color="primary" to="/register?type=customer" rounded="pill" class="px-3 font-weight-bold d-sm-none" size="small">
-              تسجيل
+            <v-btn variant="flat" color="primary" :to="{ path: '/register', query: { type: 'customer', redirect: $route.fullPath } }" rounded="pill" class="px-3 font-weight-bold d-sm-none" size="small">
+              جديد
             </v-btn>
           </template>
 
@@ -122,10 +142,12 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
 import { useAuthStore } from '@/stores/auth'
+import { useWishlistStore } from '@/stores/wishlist'
 
 const router = useRouter()
 const cartStore = useCartStore()
 const authStore = useAuthStore()
+const wishlistStore = useWishlistStore()
 const searchQuery = ref('')
 
 const handleSearch = () => {
@@ -134,9 +156,8 @@ const handleSearch = () => {
   }
 }
 
-const logout = () => {
-  authStore.logout()
-  router.push('/login')
+const logout = async () => {
+  await authStore.logout()
 }
 </script>
 

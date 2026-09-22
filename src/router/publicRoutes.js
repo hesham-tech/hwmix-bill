@@ -59,6 +59,12 @@ export default [
     meta: { title: 'تفاصيل المنتج', public: true },
   },
   {
+    path: '/store/wishlist',
+    name: 'store-wishlist',
+    component: () => import('@/pages/store/WishlistPage.vue'),
+    meta: { title: 'قائمة المفضلة', public: true },
+  },
+  {
     path: '/store/cart',
     name: 'store-cart',
     component: () => import('@/pages/store/CartPage.vue'),

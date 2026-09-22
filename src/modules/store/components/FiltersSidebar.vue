@@ -1,7 +1,7 @@
 <template>
   <div class="filters-sidebar" dir="rtl">
     <!-- Categories -->
-    <div class="filter-section mb-6">
+    <div v-if="props.categories.length > 0" class="filter-section mb-6">
       <div class="filter-title d-flex align-center justify-space-between mb-3">
         <span class="font-weight-bold text-body-1">التصنيفات</span>
         <v-btn v-if="localFilters.category_id" variant="text" size="x-small" color="primary" @click="clearCategory">
@@ -22,35 +22,34 @@
           </v-chip>
         </div>
       </div>
+      <v-divider class="mt-6"></v-divider>
     </div>
-
-    <v-divider class="mb-6"></v-divider>
 
     <!-- Price Range -->
     <div class="filter-section mb-6">
       <div class="filter-title font-weight-bold text-body-1 mb-3">نطاق السعر</div>
-      <div class="price-inputs d-flex gap-2 mb-4">
-        <v-text-field
-          v-model.number="localFilters.min_price"
-          label="من"
-          variant="outlined"
-          density="compact"
-          hide-details
-          type="number"
-          suffix="ج.م"
-          class="price-field"
-        ></v-text-field>
-        <v-text-field
-          v-model.number="localFilters.max_price"
-          label="إلى"
-          variant="outlined"
-          density="compact"
-          hide-details
-          type="number"
-          suffix="ج.م"
-          class="price-field"
-        ></v-text-field>
-      </div>
+      <v-row dense class="mb-4">
+        <v-col cols="6">
+          <v-text-field
+            v-model.number="localFilters.min_price"
+            label="من (ج.م)"
+            variant="outlined"
+            density="compact"
+            hide-details
+            type="number"
+          ></v-text-field>
+        </v-col>
+        <v-col cols="6">
+          <v-text-field
+            v-model.number="localFilters.max_price"
+            label="إلى (ج.م)"
+            variant="outlined"
+            density="compact"
+            hide-details
+            type="number"
+          ></v-text-field>
+        </v-col>
+      </v-row>
     </div>
 
     <v-divider class="mb-6"></v-divider>

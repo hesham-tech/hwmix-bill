@@ -59,8 +59,8 @@ const handleRegister = async () => {
         email: form.value.email,
         password: form.value.password,
       });
-    }
-    router.push('/login?registered=1');
+    const redirectQuery = route.query.redirect ? `&redirect=${encodeURIComponent(route.query.redirect)}` : '';
+    router.push(`/login?registered=1${redirectQuery}`);
   } catch (error) {
     // Error notification handled in interceptor
   } finally {
@@ -262,7 +262,7 @@ const handleRegister = async () => {
 
                 <div class="text-center mt-6">
                   <span class="text-caption text-slate-500">لديك حساب بالفعل؟</span>
-                  <router-link to="/login" class="text-caption text-primary font-weight-bold ms-2 text-decoration-none hover-underline">
+                  <router-link :to="{ path: '/login', query: { redirect: $route.query.redirect } }" class="text-caption text-primary font-weight-bold ms-2 text-decoration-none hover-underline">
                     تسجيل الدخول
                   </router-link>
                 </div>

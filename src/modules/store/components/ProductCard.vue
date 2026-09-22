@@ -1,12 +1,12 @@
 <template>
   <v-card 
-    class="product-card h-100 rounded-xl bg-white border-0 transition-swing overflow-hidden" 
-    :class="{ 'd-flex flex-row': listView }"
+    class="product-card h-100 rounded-xl bg-white border-0 transition-swing overflow-hidden d-flex flex-column" 
+    :class="{ 'flex-row': listView }"
     elevation="0"
-    :to="`/store/products/${product.slug || product.id}`"
+    :to="`/store/product/${product.slug || product.id}`"
   >
     <!-- Card Image -->
-    <div :class="listView ? 'w-25' : 'w-100'" class="position-relative bg-grey-lighten-4">
+    <div :class="listView ? 'w-25' : 'w-100'" class="position-relative bg-grey-lighten-5">
       <v-img
         :src="imageUrl"
         :aspect-ratio="1"
@@ -15,62 +15,99 @@
       >
         <template v-slot:placeholder>
           <div class="d-flex align-center justify-center h-100 bg-grey-lighten-4">
-            <v-icon icon="ri-image-line" color="grey-lighten-1" size="48"></v-icon>
+            <v-icon icon="ri-image-2-line" color="grey-lighten-1" size="48"></v-icon>
           </div>
         </template>
       </v-img>
 
-      <!-- Status Badges -->
-      <div class="position-absolute top-0 right-0 pa-2 w-100 d-flex justify-space-between pointer-events-none">
-        <v-chip v-if="product.featured" color="warning" size="x-small" label class="font-weight-bold shadow-1">
-          مميز
-        </v-chip>
+      <!-- Status Badges & Wishlist -->
+      <div class="position-absolute top-0 left-0 right-0 pa-2 w-100 d-flex justify-space-between align-start pointer-events-none">
+        <div class="d-flex flex-column gap-1">
+          <v-chip v-if="product.featured" color="warning" size="small" label class="font-weight-bold shadow-1 rounded-lg w-auto">
+            مميز
+          </v-chip>
+          <v-chip v-if="product.discount > 0" color="error" size="small" label class="font-weight-bold shadow-1 rounded-lg w-auto">
+            خصم
+          </v-chip>
+        </div>
+        <v-btn
+          :icon="isFavorite ? 'ri-heart-3-fill' : 'ri-heart-3-line'"
+          variant="flat"
+          size="small"
+          :color="isFavorite ? 'error' : 'white'"
+          class="shadow-1"
+          :class="isFavorite ? 'text-white' : 'text-grey-darken-2'"
+          style="pointer-events: auto;"
+          @click.prevent="toggleFavorite"
+        ></v-btn>
       </div>
     </div>
 
     <!-- Card Content -->
-    <div class="d-flex flex-column flex-grow-1">
-      <v-card-text class="pa-2 pa-sm-4 pb-1 pb-sm-2 d-flex flex-column flex-grow-1">
-        
+    <div class="d-flex flex-column flex-grow-1 pa-4">
         <!-- Vendor Info -->
-        <div class="d-flex align-center gap-1 mb-2" v-if="product.company">
-          <v-avatar size="16" color="grey-lighten-2">
-            <v-img v-if="product.company.logo?.url" :src="product.company.logo.url"></v-img>
-            <v-icon v-else icon="ri-store-2-fill" size="10" color="grey-darken-1"></v-icon>
+        <div class="d-flex align-center gap-2 mb-2" v-if="product.company || product.vendor">
+          <v-avatar size="24" color="grey-lighten-4" class="border">
+            <v-img v-if="product.company?.logo?.url || product.vendor?.logo" :src="product.company?.logo?.url || product.vendor?.logo"></v-img>
+            <v-icon v-else icon="ri-store-2-fill" size="14" color="grey-darken-1"></v-icon>
           </v-avatar>
-          <span class="text-caption text-grey-darken-1 text-truncate">{{ product.company.name }}</span>
+          <span class="text-caption text-grey-darken-2 font-weight-medium text-truncate">{{ product.company?.name || product.vendor?.name }}</span>
         </div>
 
         <!-- Product Title -->
-        <h3 class="text-body-1 font-weight-bold text-truncate mb-1 text-grey-darken-4 line-clamp-2" :title="product.name" style="line-height: 1.4;">
+        <h3 class="text-body-1 font-weight-bold text-truncate mb-1 text-grey-darken-4 line-clamp-2" :title="product.name" style="line-height: 1.5; text-align: right;">
           {{ product.name }}
         </h3>
+
+        <!-- Rating -->
+        <div class="d-flex align-center gap-1 mb-2">
+          <v-rating
+            :model-value="product.rating || 0"
+            color="amber"
+            density="compact"
+            size="x-small"
+            half-increments
+            readonly
+          ></v-rating>
+          <span class="text-caption text-grey-darken-1">({{ product.reviews_count || 0 }})</span>
+        </div>
+
+        <!-- Description (List View Only) -->
+        <p v-if="listView && product.description" class="text-body-2 text-grey-darken-2 mb-2 line-clamp-2" style="text-align: right;">
+          {{ product.description }}
+        </p>
 
         <div class="flex-grow-1"></div> <!-- Spacer -->
 
         <!-- Price -->
-        <div class="d-flex align-center mt-3 mb-1">
-          <span class="text-h6 font-weight-black text-primary">{{ formatPrice(price) }}</span>
-          <span class="text-caption text-primary ms-1 font-weight-bold">ج.م</span>
+        <div class="d-flex align-center flex-wrap gap-2 mt-2 mb-2">
+          <div class="d-flex align-end">
+            <span class="text-h6 font-weight-black text-primary">{{ formatPrice(price) }}</span>
+            <span class="text-caption text-primary ms-1 font-weight-bold mb-1">ج.م</span>
+          </div>
+          <div v-if="product.old_price > price" class="d-flex align-end text-decoration-line-through text-grey-darken-1">
+            <span class="text-body-2">{{ formatPrice(product.old_price) }}</span>
+            <span class="text-caption ms-1 mb-1">ج.م</span>
+          </div>
         </div>
 
         <!-- Stock Status -->
-        <div class="d-flex align-center mt-1">
+        <div class="d-flex align-center mb-4">
           <v-icon :icon="inStock ? 'ri-checkbox-circle-fill' : 'ri-close-circle-fill'" 
                   :color="inStock ? 'success' : 'error'" 
-                  size="14" class="me-1"></v-icon>
-          <span class="text-caption font-weight-medium" :class="inStock ? 'text-success' : 'text-error'">
+                  size="16" class="me-1"></v-icon>
+          <span class="text-caption font-weight-bold" :class="inStock ? 'text-success' : 'text-error'">
             {{ inStock ? 'متوفر' : 'غير متوفر' }}
           </span>
         </div>
-      </v-card-text>
 
       <!-- Card Actions -->
-      <v-card-actions class="pa-2 pa-sm-4 pt-0 mt-auto d-flex flex-column flex-sm-row gap-2">
+      <div class="d-flex flex-column gap-2 mt-auto">
         <v-btn 
           color="primary" 
           variant="flat" 
-          class="flex-grow-1 w-100 rounded-pill font-weight-bold ma-0" 
+          class="w-100 rounded-xl font-weight-bold" 
+          height="40"
           @click.prevent="buyNow" 
           :disabled="!inStock"
         >
@@ -80,14 +117,16 @@
         <v-btn 
           color="primary" 
           variant="tonal" 
-          class="flex-grow-1 w-100 rounded-pill ma-0" 
+          class="w-100 rounded-xl font-weight-bold" 
+          height="40"
           @click.prevent="addToCart" 
           :loading="isAdding" 
           :disabled="!inStock"
         >
-          السلة
+          <v-icon icon="ri-shopping-cart-2-line" class="me-2"></v-icon>
+          أضف للسلة
         </v-btn>
-      </v-card-actions>
+      </div>
     </div>
   </v-card>
 </template>
@@ -96,6 +135,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
+import { useWishlistStore } from '@/stores/wishlist'
 
 const props = defineProps({
   product: { type: Object, required: true },
@@ -104,10 +144,11 @@ const props = defineProps({
 
 const router = useRouter()
 const cartStore = useCartStore()
+const wishlistStore = useWishlistStore()
 const isAdding = ref(false)
 
 const imageUrl = computed(() => {
-  return props.product.images?.[0]?.url || ''
+  return props.product.image || props.product.images?.[0]?.url || ''
 })
 
 const defaultVariant = computed(() => {
@@ -116,31 +157,41 @@ const defaultVariant = computed(() => {
 })
 
 const price = computed(() => {
-  return defaultVariant.value?.retail_price || 0
+  return props.product.price || defaultVariant.value?.price || 0
 })
 
 const inStock = computed(() => {
+  if (props.product.stock_status) return props.product.stock_status === 'in_stock'
+  if (props.product.quantity !== undefined) return props.product.quantity > 0
+  
   if (!defaultVariant.value) return false
-  const totalQty = defaultVariant.value.stocks?.reduce((sum, stock) => sum + (stock.quantity - stock.reserved), 0) || 0
-  return totalQty > 0
+  return (defaultVariant.value.available_stock || 0) > 0
+})
+
+const isFavorite = computed(() => {
+  return wishlistStore.isFavorite(props.product.id)
 })
 
 const formatPrice = (p) => Number(p).toLocaleString('en-US', { minimumFractionDigits: 0 })
+
+const toggleFavorite = () => {
+  wishlistStore.toggle(props.product.id)
+}
 
 const addToCart = async () => {
   if (!defaultVariant.value || !inStock.value) return
   isAdding.value = true
   
-  const totalQty = defaultVariant.value.stocks?.reduce((sum, stock) => sum + (stock.quantity - stock.reserved), 0) || 0
+  const totalQty = props.product.quantity ?? defaultVariant.value.available_stock ?? 1
 
   cartStore.addItem({
     productId: props.product.id,
     variantId: defaultVariant.value.id,
     productName: props.product.name,
-    companyId: props.product.company?.id || props.product.company_id,
-    companyName: props.product.company?.name || 'البائع',
-    companyLogo: props.product.company?.logo?.url,
-    unitPrice: price.value,
+    companyId: props.product.company?.id || props.product.company_id || props.product.vendor?.id,
+    companyName: props.product.company?.name || props.product.vendor?.name || 'البائع',
+    companyLogo: props.product.company?.logo?.url || props.product.vendor?.logo,
+    unitPrice: defaultVariant.value.price || price.value,
     image: imageUrl.value,
     quantity: 1,
     maxStock: totalQty

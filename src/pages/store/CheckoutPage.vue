@@ -51,7 +51,7 @@
                   <template v-slot:prepend>
                     <v-icon icon="ri-information-line"></v-icon>
                   </template>
-                  <span>للاستمتاع بتجربة تسوق أفضل، يمكنك <router-link to="/login" class="font-weight-bold">تسجيل الدخول</router-link> أو <router-link to="/register?type=customer" class="font-weight-bold">إنشاء حساب</router-link>. أو يمكنك المتابعة كزائر.</span>
+                  <span>للاستمتاع بتجربة تسوق أفضل، يمكنك <router-link :to="{ path: '/login', query: { redirect: $route.fullPath } }" class="font-weight-bold">تسجيل الدخول</router-link> أو <router-link :to="{ path: '/register', query: { type: 'customer', redirect: $route.fullPath } }" class="font-weight-bold">إنشاء حساب</router-link>. أو يمكنك المتابعة كزائر.</span>
                 </v-alert>
 
                 <div>

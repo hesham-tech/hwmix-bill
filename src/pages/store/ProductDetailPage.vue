@@ -275,8 +275,8 @@ const addingToCart = ref(false)
 const defaultImage = 'https://placehold.co/600x600?text=No+Image'
 
 const breadcrumbs = computed(() => [
-  { title: 'المتجر', href: '/store' },
-  { title: product.value?.category?.name || 'منتجات', href: '/store' },
+  { title: 'المتجر', to: '/store' },
+  { title: product.value?.category?.name || 'منتجات', to: '/store' },
   { title: product.value?.name || '...', disabled: true }
 ])
 

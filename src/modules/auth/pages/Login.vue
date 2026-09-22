@@ -91,7 +91,7 @@
 
                   <div class="mt-8 text-center">
                     <span class="text-slate-500">ليس لديك حساب؟</span>
-                    <router-link to="/register" class="text-primary font-weight-bold ms-2 text-decoration-none hover-underline">
+                    <router-link :to="{ path: '/register', query: { redirect: $route.query.redirect } }" class="text-primary font-weight-bold ms-2 text-decoration-none hover-underline">
                       إنشاء حساب جديد
                     </router-link>
                   </div>

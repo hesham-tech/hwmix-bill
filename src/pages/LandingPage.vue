@@ -129,7 +129,7 @@
           </p>
           <div class="d-flex gap-4 justify-center flex-wrap slide-up-delay-3">
             <template v-if="!authStore.isAuthenticated">
-              <v-btn size="x-large" color="primary" class="rounded-md px-12 font-weight-bold elevation-8" to="/login" height="56">
+              <v-btn size="x-large" color="primary" class="rounded-md px-12 font-weight-bold elevation-8" to="/store" height="56">
                 تصفح المتجر الآن
               </v-btn>
               <v-btn

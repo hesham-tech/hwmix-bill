@@ -20,9 +20,9 @@
             
             <!-- Toolbar -->
             <v-card class="mb-4 rounded-xl border-0 bg-white" elevation="0">
-              <v-card-text class="d-flex align-center justify-space-between flex-wrap gap-2 py-2 px-3 py-sm-3 px-sm-4">
+              <v-card-text class="d-flex align-center justify-space-between flex-wrap gap-4 py-3 px-4">
                 
-                <div class="d-flex align-center gap-2">
+                <div class="d-flex align-center gap-3">
                   <v-btn
                     class="d-md-none"
                     variant="tonal"
@@ -35,9 +35,8 @@
                     تصفية
                   </v-btn>
 
-                  <div class="text-caption text-sm-body-2 text-grey-darken-1">
-                    المنتجات: 
-                    <span class="font-weight-bold text-primary">{{ storeProductsStore.pagination.total || 0 }}</span>
+                  <div class="text-body-2 font-weight-medium text-grey-darken-2">
+                    عرض <span class="font-weight-black text-primary mx-1">{{ storeProductsStore.pagination.total || 0 }}</span> منتج
                   </div>
                 </div>
 
@@ -48,25 +47,22 @@
                     item-title="label"
                     item-value="value"
                     variant="outlined"
-                    density="compact"
+                    density="comfortable"
                     hide-details
-                    style="min-width: 150px; max-width: 200px;"
+                    style="min-width: 160px; max-width: 220px;"
                     rounded="lg"
                     @update:model-value="applySort"
                   ></v-select>
 
-                  <v-btn-group variant="outlined" density="compact" divided>
-                    <v-btn
-                      :color="viewMode === 'grid' ? 'primary' : 'grey'"
-                      icon="ri-grid-fill"
-                      @click="viewMode = 'grid'"
-                    ></v-btn>
-                    <v-btn
-                      :color="viewMode === 'list' ? 'primary' : 'grey'"
-                      icon="ri-list-check"
-                      @click="viewMode = 'list'"
-                    ></v-btn>
-                  </v-btn-group>
+                  <v-btn
+                    variant="outlined"
+                    color="grey-darken-1"
+                    :icon="viewMode === 'grid' ? 'ri-list-check' : 'ri-grid-fill'"
+                    @click="viewMode = viewMode === 'grid' ? 'list' : 'grid'"
+                    density="comfortable"
+                    rounded="lg"
+                    class="border-grey-lighten-2"
+                  ></v-btn>
                 </div>
               </v-card-text>
             </v-card>
@@ -114,21 +110,21 @@
               <v-col 
                 v-for="i in 8" :key="i" 
                 :cols="viewMode === 'grid' ? 6 : 12" 
-                :md="viewMode === 'grid' ? 4 : 12" 
-                :lg="viewMode === 'grid' ? 3 : 12"
+                :md="viewMode === 'grid' ? 6 : 12" 
+                :lg="viewMode === 'grid' ? 4 : 12"
               >
                 <ProductCardSkeleton :list-view="viewMode === 'list'" />
               </v-col>
             </v-row>
 
             <!-- Products Grid -->
-            <v-row v-else-if="storeProductsStore.products.length > 0">
+            <v-row v-else-if="storeProductsStore.products.length > 0" class="justify-start">
               <v-col
                 v-for="product in storeProductsStore.products"
                 :key="product.id"
                 :cols="viewMode === 'grid' ? 6 : 12"
-                :md="viewMode === 'grid' ? 4 : 12"
-                :lg="viewMode === 'grid' ? 3 : 12"
+                :md="viewMode === 'grid' ? 6 : 12"
+                :lg="viewMode === 'grid' ? 4 : 12"
               >
                 <ProductCard :product="product" :list-view="viewMode === 'list'" />
               </v-col>
