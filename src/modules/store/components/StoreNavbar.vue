@@ -99,9 +99,9 @@
           <v-menu v-if="authStore.isAuthenticated" transition="slide-y-transition">
             <template v-slot:activator="{ props }">
               <v-btn variant="text" v-bind="props" class="px-2" rounded="pill" min-width="48">
-                <v-avatar color="primary-lighten-1" size="32" class="text-white font-weight-bold">
+                <v-avatar color="primary" size="32" class="text-white font-weight-bold">
                   <v-img v-if="authStore.user?.avatar_url" :src="authStore.user.avatar_url"></v-img>
-                  <v-icon v-else icon="ri-user-smile-line" size="20"></v-icon>
+                  <span v-else>{{ authStore.user?.name?.charAt(0) || 'ح' }}</span>
                 </v-avatar>
                 <span class="hidden-sm-and-down ms-2 font-weight-medium">
                   {{ authStore.user?.name?.split(' ')[0] || 'حسابي' }}
@@ -206,8 +206,7 @@ const logout = async () => {
   top: 0;
   z-index: 100;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
-  background-color: rgba(255, 255, 255, 0.98) !important;
-  backdrop-filter: blur(10px);
+  background-color: #ffffff !important;
 }
 .nav-link {
   text-decoration: none;

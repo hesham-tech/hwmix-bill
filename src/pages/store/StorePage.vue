@@ -3,7 +3,7 @@
     <StoreNavbar />
 
     <div class="store-main-bg py-4 py-md-8">
-      <v-container class="px-2 px-md-4" style="max-width: 1400px;">
+      <v-container class="px-1 px-md-4" style="max-width: 1400px;">
         <v-row>
           <!-- Sidebar Filters (Desktop) -->
           <v-col cols="12" md="3" lg="3" class="hidden-sm-and-down">
@@ -106,25 +106,27 @@
             </v-alert>
 
             <!-- Loading Skeleton -->
-            <v-row v-if="storeProductsStore.loading && storeProductsStore.products.length === 0" dense>
+            <v-row v-if="storeProductsStore.loading && storeProductsStore.products.length === 0" no-gutters>
               <v-col 
                 v-for="i in 8" :key="i" 
                 :cols="viewMode === 'grid' ? 6 : 12" 
                 :md="viewMode === 'grid' ? 6 : 12" 
                 :lg="viewMode === 'grid' ? 4 : 12"
+                class="pa-1"
               >
                 <ProductCardSkeleton :list-view="viewMode === 'list'" />
               </v-col>
             </v-row>
 
             <!-- Products Grid -->
-            <v-row v-else-if="storeProductsStore.products.length > 0" class="justify-start" dense>
+            <v-row v-else-if="storeProductsStore.products.length > 0" class="justify-start" no-gutters>
               <v-col
                 v-for="product in storeProductsStore.products"
                 :key="product.id"
                 :cols="viewMode === 'grid' ? 6 : 12"
                 :md="viewMode === 'grid' ? 6 : 12"
                 :lg="viewMode === 'grid' ? 4 : 12"
+                class="pa-1"
               >
                 <ProductCard :product="product" :list-view="viewMode === 'list'" />
               </v-col>

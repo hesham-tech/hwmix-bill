@@ -126,8 +126,9 @@
                 </div>
 
                 <!-- Description -->
-                <div class="product-desc mb-6" v-if="product.description">
-                  <div class="text-body-1 text-medium-emphasis" style="line-height: 1.7;" v-html="product.description"></div>
+                <div class="product-desc mb-6" v-if="product.description || product.desc_long">
+                  <div v-if="product.description" class="text-body-1 text-medium-emphasis mb-3" style="line-height: 1.7;" v-html="product.description"></div>
+                  <div v-if="product.desc_long" class="text-body-1 text-medium-emphasis" style="line-height: 1.7;" v-html="product.desc_long"></div>
                 </div>
 
                 <v-divider class="mb-6"></v-divider>
