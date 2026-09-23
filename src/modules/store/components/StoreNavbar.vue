@@ -70,7 +70,7 @@
               v-if="wishlistStore.items.length > 0"
               :content="wishlistStore.items.length"
               color="error"
-              floating
+              class="custom-badge"
             >
               <v-icon icon="ri-heart-3-line" size="24"></v-icon>
             </v-badge>
@@ -88,7 +88,7 @@
               v-if="cartStore.itemCount > 0"
               :content="cartStore.itemCount"
               color="error"
-              floating
+              class="custom-badge"
             >
               <v-icon icon="ri-shopping-cart-2-line" size="24"></v-icon>
             </v-badge>
@@ -217,5 +217,13 @@ const logout = async () => {
 }
 .nav-link:hover {
   color: #1a73e8 !important;
+}
+
+:deep(.custom-badge .v-badge__badge) {
+  font-size: 0.65rem !important;
+  min-width: 16px !important;
+  height: 16px !important;
+  padding: 0 4px !important;
+  transform: translate(25%, 25%) !important;
 }
 </style>

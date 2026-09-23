@@ -31,8 +31,9 @@
           <v-row>
             <v-col v-for="(cat, i) in categories" :key="i" cols="6" md="3">
               <v-card variant="flat" border class="category-card rounded-md text-center pa-6 hover-lift-up" :to="`/store?category_id=${cat.id}`">
-                <v-avatar :color="(cat.color || 'primary') + '-lighten-5'" rounded="circle" size="80" class="mb-4">
-                  <v-icon :icon="cat.icon || 'ri-layout-grid-line'" :color="cat.color || 'primary'" size="40" />
+                <v-avatar :color="cat.image_url ? 'transparent' : ((cat.color || 'primary') + '-lighten-5')" rounded="circle" size="80" class="mb-4">
+                  <v-img v-if="cat.image_url" :src="cat.image_url" cover></v-img>
+                  <v-icon v-else :icon="cat.icon || 'ri-layout-grid-line'" :color="cat.color || 'primary'" size="40" />
                 </v-avatar>
                 <h3 class="text-h6 font-weight-bold">{{ cat.name }}</h3>
                 <p class="text-caption text-grey" v-if="cat.products_count">{{ cat.products_count }} منتج</p>
