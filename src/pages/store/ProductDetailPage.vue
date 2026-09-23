@@ -61,9 +61,9 @@
                 </div>
 
                 <!-- Thumbnails -->
-                <div v-if="product.images?.length > 1" class="thumbnails-row d-flex gap-2 overflow-x-auto">
+                <div v-if="displayImages?.length > 1" class="thumbnails-row d-flex gap-2 overflow-x-auto">
                   <div
-                    v-for="img in product.images"
+                    v-for="img in displayImages"
                     :key="img.id"
                     class="thumbnail-item flex-shrink-0"
                     :class="{ 'thumbnail-active': selectedImage === img.url }"
@@ -316,6 +316,7 @@ const error = ref(null)
 const quantity = ref(1)
 const selectedImage = ref(null)
 const selectedVariant = ref(null)
+const displayImages = ref([])
 const addingToCart = ref(false)
 const zoomStyle = ref({})
 
@@ -363,7 +364,9 @@ const fetchProduct = async () => {
     product.value = res.data?.data || res.data
     selectedImage.value = product.value?.image || null
     if (product.value?.variants?.length > 0) {
-      selectedVariant.value = product.value.variants[0]
+      selectVariant(product.value.variants[0])
+    } else {
+      displayImages.value = product.value?.images || []
     }
   } catch {
     error.value = 'تعذر تحميل بيانات المنتج'
@@ -381,18 +384,14 @@ const selectVariant = (variant) => {
   
   if (variant.images && variant.images.length > 0) {
     selectedImage.value = variant.images[0].url
-    if (!product.value.images) product.value.images = []
-    variant.images.forEach(img => {
-      if (!product.value.images.some(existing => existing.url === img.url)) {
-        product.value.images.push({ id: 'var-' + img.id, url: img.url })
-      }
-    })
+    displayImages.value = variant.images
   } else if (variant.image) {
     selectedImage.value = variant.image
-    if (!product.value.images) product.value.images = []
-    if (!product.value.images.some(img => img.url === variant.image)) {
-      product.value.images.push({ id: 'var-' + variant.id, url: variant.image })
-    }
+    displayImages.value = [{ id: 'var-' + variant.id, url: variant.image }]
+  } else {
+    // Fallback to original product images
+    selectedImage.value = product.value?.image || (product.value?.images?.[0]?.url) || null
+    displayImages.value = product.value?.images || []
   }
 }
 
