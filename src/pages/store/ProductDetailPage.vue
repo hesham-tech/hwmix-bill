@@ -263,10 +263,7 @@
                         <td class="text-grey spec-label">وحدة القياس</td>
                         <td class="font-weight-medium spec-value">{{ product.unit?.name || product.unit }}</td>
                       </tr>
-                      <tr v-if="selectedVariant?.weight || product.weight">
-                        <td class="text-grey spec-label">الوزن</td>
-                        <td class="font-weight-medium spec-value">{{ selectedVariant?.weight || product.weight }}</td>
-                      </tr>
+
                       <tr v-if="selectedVariant?.dimensions || product.dimensions">
                         <td class="text-grey spec-label">الأبعاد</td>
                         <td class="font-weight-medium spec-value">{{ selectedVariant?.dimensions || product.dimensions }}</td>
@@ -381,7 +378,16 @@ const goToVendor = (id) => {
 
 const selectVariant = (variant) => {
   selectedVariant.value = variant
-  if (variant.image) {
+  
+  if (variant.images && variant.images.length > 0) {
+    selectedImage.value = variant.images[0].url
+    if (!product.value.images) product.value.images = []
+    variant.images.forEach(img => {
+      if (!product.value.images.some(existing => existing.url === img.url)) {
+        product.value.images.push({ id: 'var-' + img.id, url: img.url })
+      }
+    })
+  } else if (variant.image) {
     selectedImage.value = variant.image
     if (!product.value.images) product.value.images = []
     if (!product.value.images.some(img => img.url === variant.image)) {
