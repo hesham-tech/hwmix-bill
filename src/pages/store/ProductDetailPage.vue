@@ -325,9 +325,9 @@ const zoomStyle = ref({})
 useHead({
   title: computed(() => product.value?.name ? `${product.value.name} - هونكس` : 'هونكس'),
   meta: [
-    { name: 'description', content: computed(() => product.value?.desc || 'وصف المنتج') },
+    { name: 'description', content: computed(() => product.value?.description || 'وصف المنتج') },
     { property: 'og:title', content: computed(() => product.value?.name ? `${product.value.name} - هونكس` : 'هونكس') },
-    { property: 'og:description', content: computed(() => product.value?.desc || '') },
+    { property: 'og:description', content: computed(() => product.value?.description || '') },
     { property: 'og:image', content: computed(() => product.value?.image || '') }
   ]
 })
