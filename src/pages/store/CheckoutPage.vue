@@ -71,6 +71,7 @@
                           <div class="d-flex align-center justify-space-between">
                             <span class="text-body-2 font-weight-bold">{{ addr.recipient_name }}</span>
                             <v-chip v-if="addr.is_default" size="x-small" color="primary" variant="tonal">الافتراضي</v-chip>
+                            <v-btn v-else variant="text" size="x-small" color="primary" @click.stop="setAsDefault(addr.id)">جعل الافتراضي</v-btn>
                           </div>
                           <p class="text-caption text-grey mt-1">
                             {{ addr.street }}, {{ addr.district }}, {{ addr.city }}
@@ -488,6 +489,15 @@ const loadAddresses = async () => {
   } catch {}
 }
 
+const setAsDefault = async (id) => {
+  try {
+    await customerAddressesApi.setDefault(id)
+    savedAddresses.value.forEach(a => a.is_default = (a.id === id))
+  } catch (err) {
+    console.error('Error setting default address', err)
+  }
+}
+
 const goToStep = async (step) => {
   if (step === 1 && !selectedAddressId.value && showNewAddressForm.value && authStore.isAuthenticated) {
     try {
@@ -531,6 +541,9 @@ onMounted(() => {
   if (authStore.user) {
     newAddress.value.recipient_name = authStore.user.name || ''
     newAddress.value.phone = authStore.user.phone || ''
+    if (authStore.user.city) newAddress.value.city = authStore.user.city
+    if (authStore.user.district) newAddress.value.district = authStore.user.district
+    if (authStore.user.address || authStore.user.street) newAddress.value.street = authStore.user.street || authStore.user.address
   }
 })
 </script>
