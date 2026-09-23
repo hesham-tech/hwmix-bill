@@ -173,23 +173,25 @@
                   <div class="text-body-2 font-weight-bold mb-3">الكمية:</div>
                   <div class="d-flex flex-column flex-sm-row align-sm-center gap-4">
                     <!-- Quantity Stepper -->
-                    <div class="quantity-stepper d-flex align-center flex-shrink-0">
-                      <v-btn
-                        icon="ri-subtract-line"
-                        size="small"
-                        variant="text"
-                        :disabled="quantity <= 1"
-                        @click="quantity = Math.max(1, quantity - 1)"
-                        color="primary"
-                      ></v-btn>
-                      <span class="quantity-num">{{ quantity }}</span>
+                    <div class="d-flex align-center gap-3 flex-shrink-0">
                       <v-btn
                         icon="ri-add-line"
                         size="small"
-                        variant="text"
+                        variant="outlined"
+                        class="rounded-lg"
                         :disabled="quantity >= (product.quantity || 99)"
                         @click="quantity++"
-                        color="primary"
+                        color="grey-darken-2"
+                      ></v-btn>
+                      <span class="quantity-num">{{ quantity }}</span>
+                      <v-btn
+                        icon="ri-subtract-line"
+                        size="small"
+                        variant="outlined"
+                        class="rounded-lg"
+                        :disabled="quantity <= 1"
+                        @click="quantity = Math.max(1, quantity - 1)"
+                        color="grey-darken-2"
                       ></v-btn>
                     </div>
 
@@ -529,13 +531,6 @@ onMounted(() => { fetchProduct() })
   margin-right: 4px;
 }
 
-.quantity-stepper {
-  background: #f8fafc;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  overflow: hidden;
-  gap: 0;
-}
 
 .quantity-num {
   min-width: 48px;
