@@ -15,7 +15,7 @@
             <v-icon icon="ri-menu-line" size="24"></v-icon>
           </v-btn>
 
-          <router-link to="/store" class="d-flex align-center gap-2 text-decoration-none">
+          <router-link to="/" class="d-flex align-center gap-2 text-decoration-none">
             <v-avatar color="primary" size="40" rounded="lg">
               <v-icon icon="ri-store-2-fill" color="white" size="24"></v-icon>
             </v-avatar>
@@ -148,10 +148,10 @@
       </div>
       <!-- Desktop Navigation Links -->
       <div class="d-none d-md-flex align-center gap-8 mt-3 pt-3 border-t">
-        <router-link to="/store" class="nav-link text-body-2 font-weight-bold">
+        <router-link to="/" class="nav-link text-body-2 font-weight-bold">
           <v-icon icon="ri-home-4-line" size="18" class="me-1"></v-icon> الرئيسية
         </router-link>
-        <router-link to="/store?sort=newest" class="nav-link text-body-2 font-weight-bold">
+        <router-link to="/store" class="nav-link text-body-2 font-weight-bold">
           <v-icon icon="ri-shopping-bag-3-line" size="18" class="me-1"></v-icon> المنتجات
         </router-link>
         <router-link to="/store?sort=best_selling" class="nav-link text-body-2 font-weight-bold text-error">
@@ -165,8 +165,8 @@
       <div class="pa-4">
         <div class="text-h6 font-weight-black text-primary mb-6">HWNix</div>
         <v-list nav>
-          <v-list-item to="/store" prepend-icon="ri-home-4-line" title="الرئيسية"></v-list-item>
-          <v-list-item to="/store?sort=newest" prepend-icon="ri-shopping-bag-3-line" title="المنتجات"></v-list-item>
+          <v-list-item to="/" prepend-icon="ri-home-4-line" title="الرئيسية"></v-list-item>
+          <v-list-item to="/store" prepend-icon="ri-shopping-bag-3-line" title="المنتجات"></v-list-item>
           <v-list-item to="/store?sort=best_selling" prepend-icon="ri-fire-line" title="الأكثر مبيعاً" class="text-error"></v-list-item>
         </v-list>
       </div>
