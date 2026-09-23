@@ -1,5 +1,15 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
+  
+  # Redirect Social Media Bots to Laravel API to get dynamic Open Graph (OG) tags
+  RewriteCond %{HTTP_USER_AGENT} (facebookexternalhit|WhatsApp|Twitterbot|Pinterest|Google.*snippet|LinkedInBot|Discordbot|TelegramBot|Slackbot|SkypeUriPreview) [NC]
+  RewriteRule ^store/product/(.*)$ https://bill-api.hwnix.com/api/v1/store/og-preview/$1 [R=302,L]
+
+  # Redirect Store Index for Bots
+  RewriteCond %{HTTP_USER_AGENT} (facebookexternalhit|WhatsApp|Twitterbot|Pinterest|Google.*snippet|LinkedInBot|Discordbot|TelegramBot|Slackbot|SkypeUriPreview) [NC]
+  RewriteRule ^(store/?)$ https://bill-api.hwnix.com/api/v1/store/og-preview/store-index [R=302,L]
+
+  # Vue routing catch-all
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule . index.html [L]

@@ -279,6 +279,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
+import { useHead } from '@vueuse/head'
 import { storeProductsApi } from '@/modules/store/api/storeProducts.api.js'
 import StoreNavbar from '@/modules/store/components/StoreNavbar.vue'
 import CartDrawer from '@/modules/store/components/CartDrawer.vue'
@@ -294,6 +295,16 @@ const quantity = ref(1)
 const selectedImage = ref(null)
 const selectedVariant = ref(null)
 const addingToCart = ref(false)
+
+useHead({
+  title: computed(() => product.value?.name ? `${product.value.name} - المتجر` : 'المتجر - HWNix ERP'),
+  meta: [
+    { name: 'description', content: computed(() => product.value?.desc || 'وصف المنتج') },
+    { property: 'og:title', content: computed(() => product.value?.name || 'المتجر') },
+    { property: 'og:description', content: computed(() => product.value?.desc || '') },
+    { property: 'og:image', content: computed(() => product.value?.image || '') }
+  ]
+})
 
 const defaultImage = 'https://placehold.co/600x600?text=No+Image'
 

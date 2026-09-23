@@ -1,6 +1,7 @@
 // Harmless comment to trigger deployment test
 import '@/utils/console-guard';
 import { createApp } from 'vue';
+import { createHead } from '@vueuse/head';
 import App from '@/App.vue';
 import { registerPlugins } from '@utils/helpers/plugins';
 import { useUserStore } from './stores/user';
@@ -13,6 +14,8 @@ import '@layouts/styles/index.scss';
 
 // إنشاء تطبيق Vue
 const app = createApp(App);
+const head = createHead();
+app.use(head);
 
 // كتم تحذيرات Suspense التجريبية
 app.config.warnHandler = (msg, vm, trace) => {
