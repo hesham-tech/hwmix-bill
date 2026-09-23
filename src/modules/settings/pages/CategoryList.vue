@@ -187,11 +187,18 @@
         <v-list-item prepend-icon="ri-arrow-right-up-line" title="دخول القسم" class="text-info" @click="handleCategoryClick(item)" />
         <!-- Admin Actions -->
         <v-list-item
-          v-if="can(PERMISSIONS.ADMIN_SUPER) && item.company_id"
+          v-if="can(PERMISSIONS.ADMIN_SUPER) && !item.is_system"
           prepend-icon="ri-global-line"
           title="تحويل لسجل عالمي"
           class="text-warning"
           @click="handleGlobalize(item)"
+        />
+        <v-list-item
+          v-if="can(PERMISSIONS.ADMIN_SUPER) && item.is_system"
+          prepend-icon="ri-building-line"
+          title="تخصيص للشركة الحالية"
+          class="text-info"
+          @click="handleLocalize(item)"
         />
         <v-list-item
           v-if="can(PERMISSIONS.ADMIN_SUPER)"
@@ -452,6 +459,16 @@ const handleGlobalize = async category => {
   globalizingId.value = category.id;
   try {
     await api.request('post', `/${category.id}/globalize`, {}, { successMessage: 'تم التحويل لنظام عالمي بنجاح' });
+    fetchData();
+  } finally {
+    globalizingId.value = null;
+  }
+};
+
+const handleLocalize = async category => {
+  globalizingId.value = category.id; // Reuse the same loading state
+  try {
+    await api.request('post', `/${category.id}/localize`, {}, { successMessage: 'تم التخصيص للشركة الحالية بنجاح' });
     fetchData();
   } finally {
     globalizingId.value = null;
