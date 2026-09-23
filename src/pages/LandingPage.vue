@@ -50,38 +50,7 @@
 
           <v-row>
             <v-col v-for="(prod, i) in featuredProducts" :key="i" cols="12" sm="6" md="3">
-              <v-card variant="flat" border class="product-card rounded-md overflow-hidden hover-lift h-100" :to="`/store/product/${prod.id}`">
-                <div class="product-image-container pa-4 bg-white d-flex align-center justify-center">
-                  <v-img v-if="prod.image" :src="prod.image" height="150" contain></v-img>
-                  <v-icon v-else icon="ri-image-line" size="100" class="text-grey-lighten-2" />
-                  <v-chip color="error" class="product-badge" size="small" v-if="prod.discount">خصم {{ prod.discount }}%</v-chip>
-                </div>
-                <v-card-text class="pa-4">
-                  <div class="d-flex justify-space-between align-center mb-1">
-                    <span class="text-caption text-grey">{{ prod.category?.name || 'غير محدد' }}</span>
-                    <div class="d-flex align-center">
-                      <v-icon icon="ri-star-fill" color="orange" size="14" />
-                      <span class="text-caption ms-1 text-grey">{{ prod.rating || '4.5' }}</span>
-                    </div>
-                  </div>
-                  <h3 class="text-body-1 font-weight-bold mb-1 line-clamp-1">{{ prod.name }}</h3>
-                  <div class="text-caption text-grey mb-3 d-flex align-center gap-1">
-                    <span>بواسطة:</span>
-                    <SellerBadge v-if="prod.vendor" :company="prod.vendor" />
-                    <span v-else class="font-weight-bold">غير محدد</span>
-                  </div>
-                  <div class="d-flex align-center gap-2">
-                    <span class="text-h6 font-weight-bold text-primary">{{ prod.price }} ج.م</span>
-                    <span class="text-caption text-grey text-decoration-line-through" v-if="prod.oldPrice"> {{ prod.oldPrice }} ج.م </span>
-                  </div>
-                </v-card-text>
-                <v-divider class="mx-4" />
-                <v-card-actions class="pa-4">
-                  <v-btn color="primary" variant="flat" block class="rounded-md font-weight-bold" prepend-icon="ri-shopping-cart-line">
-                    عرض المنتج
-                  </v-btn>
-                </v-card-actions>
-              </v-card>
+              <ProductCard :product="prod" />
             </v-col>
           </v-row>
         </v-container>
@@ -193,6 +162,7 @@ import { useBranding } from '@/composables/useBranding';
 import SellerBadge from '@/modules/store/components/SellerBadge.vue';
 import StoreNavbar from '@/modules/store/components/StoreNavbar.vue';
 import CartDrawer from '@/modules/store/components/CartDrawer.vue';
+import ProductCard from '@/modules/store/components/ProductCard.vue';
 import { storeProductsApi } from '@/modules/store/api/storeProducts.api.js';
 
 const authStore = useAuthStore();

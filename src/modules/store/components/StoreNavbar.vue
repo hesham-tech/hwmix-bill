@@ -224,6 +224,6 @@ const logout = async () => {
   min-width: 16px !important;
   height: 16px !important;
   padding: 0 4px !important;
-  transform: translate(25%, 25%) !important;
+  transform: translate(-25%, -25%) !important;
 }
 </style>
