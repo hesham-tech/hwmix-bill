@@ -2,8 +2,8 @@
   <div class="store-page-wrapper" dir="rtl">
     <StoreNavbar />
 
-    <div class="store-main-bg py-8">
-      <v-container style="max-width: 1400px;">
+    <div class="store-main-bg py-4 py-md-8">
+      <v-container class="px-2 px-md-4" style="max-width: 1400px;">
         <v-row>
           <!-- Sidebar Filters (Desktop) -->
           <v-col cols="12" md="3" lg="3" class="hidden-sm-and-down">
@@ -16,11 +16,11 @@
           </v-col>
 
           <!-- Products Area -->
-          <v-col cols="12" md="9" lg="9">
+          <v-col cols="12" md="9" lg="9" class="pa-2 pa-md-3">
             
             <!-- Toolbar -->
             <v-card class="mb-4 rounded-xl border-0 bg-white" elevation="0">
-              <v-card-text class="d-flex align-center justify-space-between flex-wrap gap-4 py-3 px-4">
+              <v-card-text class="d-flex align-center justify-space-between flex-wrap gap-4 py-2 px-3 py-md-3 px-md-4">
                 
                 <div class="d-flex align-center gap-3">
                   <v-btn
@@ -49,7 +49,7 @@
                     variant="outlined"
                     density="comfortable"
                     hide-details
-                    style="min-width: 160px; max-width: 220px;"
+                    style="min-width: 140px; max-width: 200px;"
                     rounded="lg"
                     @update:model-value="applySort"
                   ></v-select>
@@ -106,7 +106,7 @@
             </v-alert>
 
             <!-- Loading Skeleton -->
-            <v-row v-if="storeProductsStore.loading && storeProductsStore.products.length === 0">
+            <v-row v-if="storeProductsStore.loading && storeProductsStore.products.length === 0" dense>
               <v-col 
                 v-for="i in 8" :key="i" 
                 :cols="viewMode === 'grid' ? 6 : 12" 
@@ -118,7 +118,7 @@
             </v-row>
 
             <!-- Products Grid -->
-            <v-row v-else-if="storeProductsStore.products.length > 0" class="justify-start">
+            <v-row v-else-if="storeProductsStore.products.length > 0" class="justify-start" dense>
               <v-col
                 v-for="product in storeProductsStore.products"
                 :key="product.id"

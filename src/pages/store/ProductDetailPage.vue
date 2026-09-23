@@ -127,9 +127,7 @@
 
                 <!-- Description -->
                 <div class="product-desc mb-6" v-if="product.description">
-                  <p class="text-body-1 text-medium-emphasis" style="line-height: 1.7;">
-                    {{ product.description }}
-                  </p>
+                  <div class="text-body-1 text-medium-emphasis" style="line-height: 1.7;" v-html="product.description"></div>
                 </div>
 
                 <v-divider class="mb-6"></v-divider>
@@ -229,9 +227,33 @@
                         <td class="text-grey spec-label">كود المنتج</td>
                         <td class="font-weight-medium spec-value">{{ product.sku }}</td>
                       </tr>
+                      <tr v-if="product.barcode">
+                        <td class="text-grey spec-label">الباركود</td>
+                        <td class="font-weight-medium spec-value">{{ product.barcode }}</td>
+                      </tr>
+                      <tr v-if="product.brand?.name || product.brand">
+                        <td class="text-grey spec-label">الماركة</td>
+                        <td class="font-weight-medium spec-value">{{ product.brand?.name || product.brand }}</td>
+                      </tr>
                       <tr v-if="product.category?.name">
                         <td class="text-grey spec-label">التصنيف</td>
                         <td class="font-weight-medium spec-value">{{ product.category?.name }}</td>
+                      </tr>
+                      <tr v-if="product.unit">
+                        <td class="text-grey spec-label">وحدة القياس</td>
+                        <td class="font-weight-medium spec-value">{{ product.unit }}</td>
+                      </tr>
+                      <tr v-if="product.weight">
+                        <td class="text-grey spec-label">الوزن</td>
+                        <td class="font-weight-medium spec-value">{{ product.weight }}</td>
+                      </tr>
+                      <tr v-if="product.dimensions">
+                        <td class="text-grey spec-label">الأبعاد</td>
+                        <td class="font-weight-medium spec-value">{{ product.dimensions }}</td>
+                      </tr>
+                      <tr v-if="product.warranty_days">
+                        <td class="text-grey spec-label">الضمان</td>
+                        <td class="font-weight-medium spec-value">{{ product.warranty_days }} يوم</td>
                       </tr>
                       <tr v-if="product.vendor?.name">
                         <td class="text-grey spec-label">البائع</td>

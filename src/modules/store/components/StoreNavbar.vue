@@ -98,11 +98,12 @@
           <!-- User Menu -->
           <v-menu v-if="authStore.isAuthenticated" transition="slide-y-transition">
             <template v-slot:activator="{ props }">
-              <v-btn variant="text" v-bind="props" class="px-2" rounded="pill">
-                <v-avatar color="primary-lighten-1" size="32" class="me-2 text-white font-weight-bold">
-                  {{ authStore.user?.name?.charAt(0) || 'م' }}
+              <v-btn variant="text" v-bind="props" class="px-2" rounded="pill" min-width="48">
+                <v-avatar color="primary-lighten-1" size="32" class="text-white font-weight-bold">
+                  <v-img v-if="authStore.user?.avatar_url" :src="authStore.user.avatar_url"></v-img>
+                  <v-icon v-else icon="ri-user-smile-line" size="20"></v-icon>
                 </v-avatar>
-                <span class="hidden-sm-and-down font-weight-medium">
+                <span class="hidden-sm-and-down ms-2 font-weight-medium">
                   {{ authStore.user?.name?.split(' ')[0] || 'حسابي' }}
                 </span>
                 <v-icon icon="ri-arrow-down-s-line" size="16" class="ms-1 hidden-sm-and-down"></v-icon>
@@ -147,10 +148,10 @@
       </div>
       <!-- Desktop Navigation Links -->
       <div class="d-none d-md-flex align-center gap-8 mt-3 pt-3 border-t">
-        <router-link to="/" class="nav-link text-body-2 font-weight-bold">
+        <router-link to="/store" class="nav-link text-body-2 font-weight-bold">
           <v-icon icon="ri-home-4-line" size="18" class="me-1"></v-icon> الرئيسية
         </router-link>
-        <router-link to="/store" class="nav-link text-body-2 font-weight-bold">
+        <router-link to="/store?sort=newest" class="nav-link text-body-2 font-weight-bold">
           <v-icon icon="ri-shopping-bag-3-line" size="18" class="me-1"></v-icon> المنتجات
         </router-link>
         <router-link to="/store?sort=best_selling" class="nav-link text-body-2 font-weight-bold text-error">
@@ -164,8 +165,8 @@
       <div class="pa-4">
         <div class="text-h6 font-weight-black text-primary mb-6">HWNix</div>
         <v-list nav>
-          <v-list-item to="/" prepend-icon="ri-home-4-line" title="الرئيسية"></v-list-item>
-          <v-list-item to="/store" prepend-icon="ri-shopping-bag-3-line" title="المنتجات"></v-list-item>
+          <v-list-item to="/store" prepend-icon="ri-home-4-line" title="الرئيسية"></v-list-item>
+          <v-list-item to="/store?sort=newest" prepend-icon="ri-shopping-bag-3-line" title="المنتجات"></v-list-item>
           <v-list-item to="/store?sort=best_selling" prepend-icon="ri-fire-line" title="الأكثر مبيعاً" class="text-error"></v-list-item>
         </v-list>
       </div>
@@ -204,7 +205,9 @@ const logout = async () => {
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+  background-color: rgba(255, 255, 255, 0.98) !important;
+  backdrop-filter: blur(10px);
 }
 .nav-link {
   text-decoration: none;
