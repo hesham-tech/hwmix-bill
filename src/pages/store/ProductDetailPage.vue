@@ -297,10 +297,10 @@ const selectedVariant = ref(null)
 const addingToCart = ref(false)
 
 useHead({
-  title: computed(() => product.value?.name ? `${product.value.name} - المتجر` : 'المتجر - HWNix ERP'),
+  title: computed(() => product.value?.name ? `${product.value.name} - هونكس` : 'هونكس'),
   meta: [
     { name: 'description', content: computed(() => product.value?.desc || 'وصف المنتج') },
-    { property: 'og:title', content: computed(() => product.value?.name || 'المتجر') },
+    { property: 'og:title', content: computed(() => product.value?.name ? `${product.value.name} - هونكس` : 'هونكس') },
     { property: 'og:description', content: computed(() => product.value?.desc || '') },
     { property: 'og:image', content: computed(() => product.value?.image || '') }
   ]
