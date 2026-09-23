@@ -34,12 +34,17 @@
             <v-col cols="12" md="5">
               <div class="sticky-images">
                 <!-- Main Image -->
-                <div class="main-image-wrapper mb-3">
+                <div 
+                  class="main-image-wrapper mb-3"
+                  @mousemove="handleZoom"
+                  @mouseleave="resetZoom"
+                >
                   <v-img
                     :src="selectedImage || defaultImage"
                     :aspect-ratio="1"
                     cover
                     class="rounded-2xl main-product-img"
+                    :style="zoomStyle"
                   >
                     <template v-slot:error>
                       <div class="d-flex align-center justify-center fill-height bg-grey-lighten-3">
@@ -51,7 +56,7 @@
                   <!-- Zoom badge -->
                   <div class="zoom-hint">
                     <v-icon icon="ri-zoom-in-line" size="14" class="me-1"></v-icon>
-                    <span>اضغط للتكبير</span>
+                    <span>التكبير بالماوس</span>
                   </div>
                 </div>
 
@@ -63,6 +68,7 @@
                     class="thumbnail-item flex-shrink-0"
                     :class="{ 'thumbnail-active': selectedImage === img.url }"
                     @click="selectedImage = img.url"
+                    @mouseover="selectedImage = img.url"
                   >
                     <v-img :src="img.url" cover width="72" height="72" class="rounded-xl"></v-img>
                   </div>
@@ -93,21 +99,30 @@
                   </v-chip>
                 </div>
 
-                <!-- Title -->
-                <h1 class="product-title mb-4">{{ product.name }}</h1>
+                <!-- Title & Wishlist -->
+                <div class="d-flex justify-space-between align-start mb-4">
+                  <h1 class="product-title">{{ product.name }}</h1>
+                  <v-btn
+                    :icon="isFavorite ? 'ri-heart-3-fill' : 'ri-heart-3-line'"
+                    variant="tonal"
+                    :color="isFavorite ? 'error' : 'grey-darken-2'"
+                    @click="toggleFavorite"
+                    class="ms-4 rounded-circle flex-shrink-0"
+                  ></v-btn>
+                </div>
 
                 <!-- Price & Stock -->
-                <div class="price-stock-row d-flex align-center flex-wrap gap-2 justify-space-between mb-6">
-                  <div>
-                    <span class="detail-price">{{ formatPrice(product.price) }}</span>
-                    <span class="detail-currency">ج.م</span>
-                    <div class="text-caption text-grey mt-1">السعر شامل الضريبة</div>
+                <div class="price-stock-row mb-6">
+                  <div class="d-flex align-end gap-2 mb-2">
+                    <span class="detail-price">{{ formatPrice(selectedVariant?.price || product.price) }}</span>
+                    <span class="detail-currency mb-2">ج.م</span>
                   </div>
-                  <div>
+                  
+                  <div class="d-flex align-center gap-3">
                     <v-chip
                       v-if="isAvailable"
                       color="success"
-                      variant="tonal"
+                      variant="flat"
                       size="small"
                       prepend-icon="ri-checkbox-circle-fill"
                     >
@@ -116,12 +131,13 @@
                     <v-chip
                       v-else
                       color="error"
-                      variant="tonal"
+                      variant="flat"
                       size="small"
                       prepend-icon="ri-close-circle-fill"
                     >
                       نفذ المخزون
                     </v-chip>
+                    <span class="text-caption text-grey">السعر شامل الضريبة</span>
                   </div>
                 </div>
 
@@ -157,11 +173,11 @@
                   <div class="text-body-2 font-weight-bold mb-3">الكمية:</div>
                   <div class="d-flex flex-column flex-sm-row align-sm-center gap-4">
                     <!-- Quantity Stepper -->
-                    <div class="quantity-stepper d-flex align-center align-self-start align-self-sm-auto">
+                    <div class="quantity-stepper d-flex align-center flex-shrink-0">
                       <v-btn
                         icon="ri-subtract-line"
                         size="small"
-                        variant="outlined"
+                        variant="text"
                         :disabled="quantity <= 1"
                         @click="quantity = Math.max(1, quantity - 1)"
                         color="primary"
@@ -170,14 +186,14 @@
                       <v-btn
                         icon="ri-add-line"
                         size="small"
-                        variant="outlined"
+                        variant="text"
                         :disabled="quantity >= (product.quantity || 99)"
                         @click="quantity++"
                         color="primary"
                       ></v-btn>
                     </div>
 
-                    <div class="d-flex flex-column flex-sm-row gap-3 flex-grow-1 w-100">
+                    <div class="d-flex flex-column flex-sm-row gap-3 flex-grow-1">
                       <v-btn
                         :disabled="!isAvailable || addingToCart"
                         :loading="addingToCart"
@@ -228,9 +244,9 @@
                         <td class="text-grey spec-label">كود المنتج</td>
                         <td class="font-weight-medium spec-value">{{ product.sku }}</td>
                       </tr>
-                      <tr v-if="product.barcode">
+                      <tr v-if="selectedVariant?.barcode || product.barcode">
                         <td class="text-grey spec-label">الباركود</td>
-                        <td class="font-weight-medium spec-value">{{ product.barcode }}</td>
+                        <td class="font-weight-medium spec-value">{{ selectedVariant?.barcode || product.barcode }}</td>
                       </tr>
                       <tr v-if="product.brand?.name || product.brand">
                         <td class="text-grey spec-label">الماركة</td>
@@ -240,21 +256,21 @@
                         <td class="text-grey spec-label">التصنيف</td>
                         <td class="font-weight-medium spec-value">{{ product.category?.name }}</td>
                       </tr>
-                      <tr v-if="product.unit">
+                      <tr v-if="product.unit?.name || product.unit">
                         <td class="text-grey spec-label">وحدة القياس</td>
-                        <td class="font-weight-medium spec-value">{{ product.unit }}</td>
+                        <td class="font-weight-medium spec-value">{{ product.unit?.name || product.unit }}</td>
                       </tr>
-                      <tr v-if="product.weight">
+                      <tr v-if="selectedVariant?.weight || product.weight">
                         <td class="text-grey spec-label">الوزن</td>
-                        <td class="font-weight-medium spec-value">{{ product.weight }}</td>
+                        <td class="font-weight-medium spec-value">{{ selectedVariant?.weight || product.weight }}</td>
                       </tr>
-                      <tr v-if="product.dimensions">
+                      <tr v-if="selectedVariant?.dimensions || product.dimensions">
                         <td class="text-grey spec-label">الأبعاد</td>
-                        <td class="font-weight-medium spec-value">{{ product.dimensions }}</td>
+                        <td class="font-weight-medium spec-value">{{ selectedVariant?.dimensions || product.dimensions }}</td>
                       </tr>
-                      <tr v-if="product.warranty_days">
+                      <tr v-if="selectedVariant?.warranty_days || product.warranty_days">
                         <td class="text-grey spec-label">الضمان</td>
-                        <td class="font-weight-medium spec-value">{{ product.warranty_days }} يوم</td>
+                        <td class="font-weight-medium spec-value">{{ selectedVariant?.warranty_days || product.warranty_days }} يوم</td>
                       </tr>
                       <tr v-if="product.vendor?.name">
                         <td class="text-grey spec-label">البائع</td>
@@ -279,6 +295,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
+import { useWishlistStore } from '@/stores/wishlist'
 import { useHead } from '@vueuse/head'
 import { storeProductsApi } from '@/modules/store/api/storeProducts.api.js'
 import StoreNavbar from '@/modules/store/components/StoreNavbar.vue'
@@ -287,6 +304,7 @@ import CartDrawer from '@/modules/store/components/CartDrawer.vue'
 const route = useRoute()
 const router = useRouter()
 const cartStore = useCartStore()
+const wishlistStore = useWishlistStore()
 
 const product = ref(null)
 const loading = ref(true)
@@ -295,6 +313,7 @@ const quantity = ref(1)
 const selectedImage = ref(null)
 const selectedVariant = ref(null)
 const addingToCart = ref(false)
+const zoomStyle = ref({})
 
 useHead({
   title: computed(() => product.value?.name ? `${product.value.name} - هونكس` : 'هونكس'),
@@ -325,6 +344,10 @@ const isAvailable = computed(() =>
   product.value && (product.value.stock_status === 'in_stock' || product.value.quantity > 0)
 )
 
+const isFavorite = computed(() => {
+  return wishlistStore.items.some(i => i.productId === product.value?.id)
+})
+
 const formatPrice = (price) => {
   if (!price && price !== 0) return '0'
   return new Intl.NumberFormat('ar-EG').format(Number(price))
@@ -351,6 +374,39 @@ const goToVendor = (id) => {
 
 const selectVariant = (variant) => {
   selectedVariant.value = variant
+}
+
+const toggleFavorite = () => {
+  if (!product.value) return
+  if (isFavorite.value) {
+    wishlistStore.removeItem(product.value.id)
+  } else {
+    wishlistStore.addItem({
+      productId: product.value.id,
+      name: product.value.name,
+      image: product.value.image || defaultImage,
+      price: product.value.price,
+      discount: product.value.discount || 0
+    })
+  }
+}
+
+const handleZoom = (e) => {
+  const { left, top, width, height } = e.currentTarget.getBoundingClientRect()
+  const x = (e.clientX - left) / width * 100
+  const y = (e.clientY - top) / height * 100
+  
+  zoomStyle.value = {
+    transformOrigin: `${x}% ${y}%`,
+    transform: 'scale(1.8)'
+  }
+}
+
+const resetZoom = () => {
+  zoomStyle.value = {
+    transformOrigin: 'center center',
+    transform: 'scale(1)'
+  }
 }
 
 const buildCartItem = () => ({
@@ -404,6 +460,7 @@ onMounted(() => { fetchProduct() })
 
 .main-product-img {
   border-radius: 20px;
+  transition: transform 0.1s ease-out;
 }
 
 .zoom-hint {
@@ -418,6 +475,7 @@ onMounted(() => { fetchProduct() })
   font-size: 11px;
   display: flex;
   align-items: center;
+  pointer-events: none;
 }
 
 .thumbnails-row {
