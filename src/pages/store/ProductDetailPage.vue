@@ -152,19 +152,20 @@
                 <!-- Variants (if multiple) -->
                 <div v-if="product.variants?.length > 1" class="variants-section mb-6">
                   <div class="text-body-2 font-weight-bold mb-3">الخيار المتاح:</div>
-                  <div class="d-flex flex-wrap gap-2">
-                    <v-chip
+                  <div class="d-flex flex-wrap gap-3">
+                    <div
                       v-for="variant in product.variants"
                       :key="variant.id"
-                      :color="selectedVariant?.id === variant.id ? 'primary' : 'default'"
-                      :variant="selectedVariant?.id === variant.id ? 'flat' : 'outlined'"
-                      class="cursor-pointer"
-                      @click="selectVariant(variant)"
-                      :disabled="variant.available_stock <= 0"
+                      class="variant-box cursor-pointer d-flex align-center gap-2 px-3 py-2"
+                      :class="{ 'variant-active': selectedVariant?.id === variant.id, 'variant-disabled': variant.available_stock <= 0 }"
+                      @click="variant.available_stock > 0 ? selectVariant(variant) : null"
                     >
-                      {{ variant.name }}
-                      <span class="text-caption ms-1">({{ formatPrice(variant.price) }})</span>
-                    </v-chip>
+                      <v-img v-if="variant.image" :src="variant.image" width="40" height="40" cover class="rounded-sm flex-shrink-0"></v-img>
+                      <div class="variant-info">
+                        <div class="text-caption font-weight-bold">{{ variant.name }}</div>
+                        <div class="text-caption text-primary">{{ formatPrice(variant.price) }} ج.م</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -278,6 +279,10 @@
                         <td class="text-grey spec-label">البائع</td>
                         <td class="font-weight-medium spec-value">{{ product.vendor?.name }}</td>
                       </tr>
+                      <tr v-for="attr in selectedVariant?.attributes || []" :key="attr.name">
+                        <td class="text-grey spec-label">{{ attr.name }}</td>
+                        <td class="font-weight-medium spec-value">{{ attr.value }}</td>
+                      </tr>
                     </tbody>
                   </v-table>
                 </div>
@@ -376,6 +381,13 @@ const goToVendor = (id) => {
 
 const selectVariant = (variant) => {
   selectedVariant.value = variant
+  if (variant.image) {
+    selectedImage.value = variant.image
+    if (!product.value.images) product.value.images = []
+    if (!product.value.images.some(img => img.url === variant.image)) {
+      product.value.images.push({ id: 'var-' + variant.id, url: variant.image })
+    }
+  }
 }
 
 const toggleFavorite = () => {
@@ -505,6 +517,26 @@ onMounted(() => { fetchProduct() })
   background: white;
   border-radius: 24px;
   box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+}
+
+.variant-box {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  transition: all 0.2s;
+  background: white;
+}
+.variant-box:hover:not(.variant-disabled) {
+  border-color: #93c5fd;
+}
+.variant-active {
+  border-color: #1a73e8 !important;
+  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1);
+  background: #f8fafc;
+}
+.variant-disabled {
+  opacity: 0.5;
+  cursor: not-allowed !important;
+  background: #f1f5f9;
 }
 
 .vendor-chip {
