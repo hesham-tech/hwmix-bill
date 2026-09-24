@@ -95,7 +95,7 @@
                   </div>
 
                   <!-- Main lightbox image -->
-                  <div class="lightbox-image-wrapper">
+                  <div class="lightbox-image-wrapper" @click.self="closeLightbox">
                     <img
                       :src="lightboxImages[lightboxIndex]"
                       class="lightbox-img"
@@ -104,7 +104,7 @@
                   </div>
 
                   <!-- Navigation arrows (desktop) + dots (below) -->
-                  <div v-if="displayImages.length > 1" class="lightbox-nav">
+                  <div v-if="displayImages.length > 1" class="lightbox-nav" @click.self="closeLightbox">
                     <!-- Prev arrow -->
                     <button
                       class="lightbox-arrow lightbox-arrow-prev"
@@ -115,7 +115,7 @@
                     </button>
 
                     <!-- Thumbnail dots -->
-                    <div class="lightbox-dots">
+                    <div class="lightbox-dots" @click.self="closeLightbox">
                       <div
                         v-for="(img, i) in lightboxImages"
                         :key="i"
@@ -558,7 +558,7 @@ const buyNow = () => {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: rgba(0, 0, 0, 0.92);
+  background: rgba(0, 0, 0, 0.75);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -604,8 +604,8 @@ const buyNow = () => {
 }
 
 .lightbox-img {
-  max-width: 100%;
-  max-height: calc(100vh - 160px);
+  max-width: 90%;
+  max-height: calc(90vh - 160px);
   object-fit: contain;
   border-radius: 12px;
   user-select: none;
