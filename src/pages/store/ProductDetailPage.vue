@@ -61,7 +61,7 @@
                 </div>
 
                 <!-- Thumbnails -->
-                <div v-if="displayImages?.length > 1" class="thumbnails-row d-flex gap-2 overflow-x-auto">
+                <div v-if="displayImages?.length > 0" class="thumbnails-row d-flex gap-2 overflow-x-auto">
                   <div
                     v-for="img in displayImages"
                     :key="img.id"
@@ -381,17 +381,26 @@ const goToVendor = (id) => {
 
 const selectVariant = (variant) => {
   selectedVariant.value = variant
-  
+
+  // جمع صور المنتج الأصلية
+  const productImages = product.value?.images || []
+
   if (variant.images && variant.images.length > 0) {
+    // صور الفيرنت أولاً + صور المنتج الأصلية (تجنب التكرار)
+    const variantImageUrls = new Set(variant.images.map(i => i.url))
+    const extraProductImages = productImages.filter(i => !variantImageUrls.has(i.url))
+    displayImages.value = [...variant.images, ...extraProductImages]
     selectedImage.value = variant.images[0].url
-    displayImages.value = variant.images
   } else if (variant.image) {
+    // صورة الفيرنت الواحدة + صور المنتج
+    const variantImg = { id: 'var-' + variant.id, url: variant.image }
+    const extraProductImages = productImages.filter(i => i.url !== variant.image)
+    displayImages.value = [variantImg, ...extraProductImages]
     selectedImage.value = variant.image
-    displayImages.value = [{ id: 'var-' + variant.id, url: variant.image }]
   } else {
-    // Fallback to original product images
-    selectedImage.value = product.value?.image || (product.value?.images?.[0]?.url) || null
-    displayImages.value = product.value?.images || []
+    // لا توجد صور للفيرنت، اعرض صور المنتج
+    displayImages.value = productImages
+    selectedImage.value = product.value?.image || productImages[0]?.url || null
   }
 }
 
