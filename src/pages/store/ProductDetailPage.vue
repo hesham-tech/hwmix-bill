@@ -558,7 +558,7 @@ const buyNow = () => {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.25); /* شفافية عالية جدا */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -570,7 +570,7 @@ const buyNow = () => {
   position: absolute;
   top: 20px;
   right: 20px;
-  background: rgba(255,255,255,0.1);
+  background: rgba(0, 0, 0, 0.6); /* خلفية داكنة لتكون واضحة */
   border: none;
   border-radius: 50%;
   width: 48px;
@@ -582,33 +582,32 @@ const buyNow = () => {
   transition: background 0.2s;
   z-index: 10;
 }
-.lightbox-close:hover { background: rgba(255,255,255,0.2); }
+.lightbox-close:hover { background: rgba(0, 0, 0, 0.8); }
 
 .lightbox-counter {
-  position: absolute;
-  top: 26px;
-  left: 50%;
-  transform: translateX(-50%);
-  color: rgba(255,255,255,0.7);
-  font-size: 14px;
-  font-weight: 500;
+  margin-bottom: 8px; /* مسافة بسيطة فوق الصورة فقط */
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 4px 12px;
+  border-radius: 20px;
 }
 
 .lightbox-image-wrapper {
-  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  max-height: calc(100vh - 160px);
   width: 100%;
 }
 
 .lightbox-img {
   max-width: 90%;
-  max-height: calc(90vh - 160px);
+  max-height: 75vh;
   object-fit: contain;
   border-radius: 12px;
   user-select: none;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15); /* ظل للصورة لتمييزها عن الخلفية الشفافة */
 }
 
 /* Navigation bar below image */
@@ -616,14 +615,14 @@ const buyNow = () => {
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-top: 16px;
+  margin-top: 12px; /* ملاصق للصورة من الأسفل */
   width: 100%;
   max-width: 700px;
   justify-content: center;
 }
 
 .lightbox-arrow {
-  background: rgba(255,255,255,0.1);
+  background: rgba(0, 0, 0, 0.6); /* خلفية داكنة للوضوح */
   border: none;
   border-radius: 50%;
   width: 48px;
@@ -635,7 +634,7 @@ const buyNow = () => {
   flex-shrink: 0;
   transition: background 0.2s;
 }
-.lightbox-arrow:hover:not(:disabled) { background: rgba(255,255,255,0.25); }
+.lightbox-arrow:hover:not(:disabled) { background: rgba(0, 0, 0, 0.8); }
 .lightbox-arrow:disabled { opacity: 0.3; cursor: default; }
 
 /* Thumbnail dots strip */
