@@ -558,7 +558,7 @@ const buyNow = () => {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: rgba(0, 0, 0, 0.25); /* شفافية عالية جدا */
+  background: rgba(0, 0, 0, 0.15); /* شفافية عالية جدا - يظهر ما في الخلفية بوضوح */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -592,6 +592,7 @@ const buyNow = () => {
   background: rgba(0, 0, 0, 0.5);
   padding: 4px 12px;
   border-radius: 20px;
+  flex-shrink: 0; /* منع الانضغاط */
 }
 
 .lightbox-image-wrapper {
@@ -599,11 +600,12 @@ const buyNow = () => {
   align-items: center;
   justify-content: center;
   width: 100%;
+  height: 75vh; /* ارتفاع ثابت لضمان عدم تحرك العناصر العلوية والسفلية */
 }
 
 .lightbox-img {
-  max-width: 90%;
-  max-height: 75vh;
+  max-width: 90vw;
+  max-height: 100%; /* تتمدد بحد أقصى للارتفاع الثابت الخاص بالحاوية */
   object-fit: contain;
   border-radius: 12px;
   user-select: none;
