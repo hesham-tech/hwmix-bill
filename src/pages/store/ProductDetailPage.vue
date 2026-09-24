@@ -226,8 +226,8 @@
                     >
                       <v-img v-if="variant.image" :src="variant.image" width="40" height="40" cover class="rounded-sm flex-shrink-0"></v-img>
                       <div class="variant-info">
-                        <div class="text-caption font-weight-bold">{{ variant.name }}</div>
-                        <div class="text-caption text-primary">{{ formatPrice(variant.price) }} ج.م</div>
+                        <div class="text-caption font-weight-bold mb-1">{{ variant.name }}</div>
+                        <div class="text-body-2 font-weight-bold text-primary">{{ formatPrice(variant.price) }} ج.م</div>
                       </div>
                     </div>
                   </div>
@@ -423,7 +423,7 @@ const isFavorite = computed(() => {
 
 const formatPrice = (price) => {
   if (!price && price !== 0) return '0'
-  return new Intl.NumberFormat('ar-EG').format(Number(price))
+  return new Intl.NumberFormat('en-US').format(Number(price))
 }
 
 const fetchProduct = async () => {
@@ -651,25 +651,29 @@ const buyNow = () => {
 .lightbox-dots::-webkit-scrollbar { display: none; }
 
 .lightbox-dot {
-  width: 56px;
-  height: 56px;
+  width: 60px;
+  height: 60px;
   flex-shrink: 0;
   border-radius: 8px;
   overflow: hidden;
   cursor: pointer;
   border: 2px solid transparent;
-  opacity: 0.55;
+  opacity: 0.6;
   transition: all 0.2s;
+  background: rgba(0, 0, 0, 0.7); /* لون المكان اسود غامق */
+  padding: 4px;
 }
 .lightbox-dot img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain; /* تملا المكان المخصص للصور بالكامل */
+  border-radius: 4px;
 }
 .lightbox-dot:hover { opacity: 0.85; }
 .lightbox-dot-active {
   border-color: white;
   opacity: 1;
+  background: rgba(0, 0, 0, 0.9);
 }
 
 /* Transition */
