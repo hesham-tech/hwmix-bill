@@ -34,17 +34,16 @@
             <v-col cols="12" md="5">
               <div class="sticky-images">
                 <!-- Main Image -->
-                <div 
+                <div
                   class="main-image-wrapper mb-3"
-                  @mousemove="handleZoom"
-                  @mouseleave="resetZoom"
+                  style="cursor: zoom-in;"
+                  @click="openLightbox(selectedImage)"
                 >
                   <v-img
                     :src="selectedImage || defaultImage"
                     :aspect-ratio="1"
                     cover
                     class="rounded-2xl main-product-img"
-                    :style="zoomStyle"
                   >
                     <template v-slot:error>
                       <div class="d-flex align-center justify-center fill-height bg-grey-lighten-3">
@@ -53,10 +52,10 @@
                     </template>
                   </v-img>
 
-                  <!-- Zoom badge -->
+                  <!-- Click hint -->
                   <div class="zoom-hint">
-                    <v-icon icon="ri-zoom-in-line" size="14" class="me-1"></v-icon>
-                    <span>التكبير بالماوس</span>
+                    <v-icon icon="ri-fullscreen-line" size="14" class="me-1"></v-icon>
+                    <span>اضغط للتكبير</span>
                   </div>
                 </div>
 
@@ -75,6 +74,71 @@
                 </div>
               </div>
             </v-col>
+
+            <!-- ===== Lightbox Overlay ===== -->
+            <teleport to="body">
+              <transition name="lightbox-fade">
+                <div
+                  v-if="lightboxOpen"
+                  class="lightbox-overlay"
+                  @click.self="closeLightbox"
+                  @keydown.esc="closeLightbox"
+                >
+                  <!-- Close button -->
+                  <button class="lightbox-close" @click="closeLightbox">
+                    <v-icon icon="ri-close-line" size="28" color="white"></v-icon>
+                  </button>
+
+                  <!-- Image counter -->
+                  <div v-if="displayImages.length > 1" class="lightbox-counter">
+                    {{ lightboxIndex + 1 }} / {{ displayImages.length }}
+                  </div>
+
+                  <!-- Main lightbox image -->
+                  <div class="lightbox-image-wrapper">
+                    <img
+                      :src="lightboxImages[lightboxIndex]"
+                      class="lightbox-img"
+                      @error="$event.target.src = defaultImage"
+                    />
+                  </div>
+
+                  <!-- Navigation arrows (desktop) + dots (below) -->
+                  <div v-if="displayImages.length > 1" class="lightbox-nav">
+                    <!-- Prev arrow -->
+                    <button
+                      class="lightbox-arrow lightbox-arrow-prev"
+                      :disabled="lightboxIndex === 0"
+                      @click="lightboxIndex--"
+                    >
+                      <v-icon icon="ri-arrow-right-s-line" size="32" color="white"></v-icon>
+                    </button>
+
+                    <!-- Thumbnail dots -->
+                    <div class="lightbox-dots">
+                      <div
+                        v-for="(img, i) in lightboxImages"
+                        :key="i"
+                        class="lightbox-dot"
+                        :class="{ 'lightbox-dot-active': lightboxIndex === i }"
+                        @click="lightboxIndex = i"
+                      >
+                        <img :src="img" />
+                      </div>
+                    </div>
+
+                    <!-- Next arrow -->
+                    <button
+                      class="lightbox-arrow lightbox-arrow-next"
+                      :disabled="lightboxIndex === lightboxImages.length - 1"
+                      @click="lightboxIndex++"
+                    >
+                      <v-icon icon="ri-arrow-left-s-line" size="32" color="white"></v-icon>
+                    </button>
+                  </div>
+                </div>
+              </transition>
+            </teleport>
 
             <!-- Details Column -->
             <v-col cols="12" md="7">
@@ -296,7 +360,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
 import { useWishlistStore } from '@/stores/wishlist'
@@ -318,7 +382,11 @@ const selectedImage = ref(null)
 const selectedVariant = ref(null)
 const displayImages = ref([])
 const addingToCart = ref(false)
-const zoomStyle = ref({})
+
+// حالة الـ Lightbox
+const lightboxOpen = ref(false)
+const lightboxIndex = ref(0)
+const lightboxImages = computed(() => displayImages.value.map(img => img.url))
 
 useHead({
   title: computed(() => product.value?.name ? `${product.value.name} - هونكس` : 'هونكس'),
@@ -419,23 +487,35 @@ const toggleFavorite = () => {
   }
 }
 
-const handleZoom = (e) => {
-  const { left, top, width, height } = e.currentTarget.getBoundingClientRect()
-  const x = (e.clientX - left) / width * 100
-  const y = (e.clientY - top) / height * 100
-  
-  zoomStyle.value = {
-    transformOrigin: `${x}% ${y}%`,
-    transform: 'scale(1.8)'
-  }
+const openLightbox = (imageUrl) => {
+  const idx = lightboxImages.value.indexOf(imageUrl)
+  lightboxIndex.value = idx >= 0 ? idx : 0
+  lightboxOpen.value = true
+  document.body.style.overflow = 'hidden'
 }
 
-const resetZoom = () => {
-  zoomStyle.value = {
-    transformOrigin: 'center center',
-    transform: 'scale(1)'
-  }
+const closeLightbox = () => {
+  lightboxOpen.value = false
+  document.body.style.overflow = ''
 }
+
+// إغلاق الـ Lightbox بمفتاح Escape
+const handleKeydown = (e) => {
+  if (!lightboxOpen.value) return
+  if (e.key === 'Escape') closeLightbox()
+  if (e.key === 'ArrowRight' && lightboxIndex.value > 0) lightboxIndex.value--
+  if (e.key === 'ArrowLeft' && lightboxIndex.value < lightboxImages.value.length - 1) lightboxIndex.value++
+}
+
+onMounted(() => {
+  fetchProduct()
+  window.addEventListener('keydown', handleKeydown)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeydown)
+  document.body.style.overflow = ''
+})
 
 const buildCartItem = () => ({
   variantId: selectedVariant.value?.id || product.value.default_variant_id || product.value.id,
@@ -465,13 +545,137 @@ const buyNow = () => {
   router.push('/store/checkout')
 }
 
-onMounted(() => { fetchProduct() })
+
 </script>
 
 <style scoped>
 .product-detail-page {
   direction: rtl;
 }
+
+/* ===== Lightbox ===== */
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.92);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255,255,255,0.1);
+  border: none;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+  z-index: 10;
+}
+.lightbox-close:hover { background: rgba(255,255,255,0.2); }
+
+.lightbox-counter {
+  position: absolute;
+  top: 26px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255,255,255,0.7);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.lightbox-image-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-height: calc(100vh - 160px);
+  width: 100%;
+}
+
+.lightbox-img {
+  max-width: 100%;
+  max-height: calc(100vh - 160px);
+  object-fit: contain;
+  border-radius: 12px;
+  user-select: none;
+}
+
+/* Navigation bar below image */
+.lightbox-nav {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 16px;
+  width: 100%;
+  max-width: 700px;
+  justify-content: center;
+}
+
+.lightbox-arrow {
+  background: rgba(255,255,255,0.1);
+  border: none;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.lightbox-arrow:hover:not(:disabled) { background: rgba(255,255,255,0.25); }
+.lightbox-arrow:disabled { opacity: 0.3; cursor: default; }
+
+/* Thumbnail dots strip */
+.lightbox-dots {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  max-width: 500px;
+  padding: 4px;
+  scrollbar-width: none;
+}
+.lightbox-dots::-webkit-scrollbar { display: none; }
+
+.lightbox-dot {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+  opacity: 0.55;
+  transition: all 0.2s;
+}
+.lightbox-dot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.lightbox-dot:hover { opacity: 0.85; }
+.lightbox-dot-active {
+  border-color: white;
+  opacity: 1;
+}
+
+/* Transition */
+.lightbox-fade-enter-active,
+.lightbox-fade-leave-active { transition: opacity 0.25s ease; }
+.lightbox-fade-enter-from,
+.lightbox-fade-leave-to { opacity: 0; }
 
 .sticky-images {
   position: sticky;
