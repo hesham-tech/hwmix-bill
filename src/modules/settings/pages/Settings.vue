@@ -71,7 +71,7 @@ const settingCards = computed(() => {
       description: 'تخصيص العلامة المائية لصور المنتجات والمرفقات',
       icon: 'ri-water-flash-line',
       color: 'info',
-      to: '/app/settings/watermark',
+      to: '/app/watermark',
     });
   }
 

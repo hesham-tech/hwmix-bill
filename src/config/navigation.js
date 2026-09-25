@@ -468,6 +468,12 @@ export default [
         permission: [PERMISSIONS.ADMIN_SUPER, PERMISSIONS.ADMIN_COMPANY],
       },
       {
+        title: 'إعدادات العلامة المائية',
+        to: '/app/watermark',
+        icon: 'ri-water-flash-line',
+        permission: [PERMISSIONS.ADMIN_SUPER, PERMISSIONS.ADMIN_COMPANY],
+      },
+      {
         title: 'اشتراكي الحالي',
         to: '/app/my-subscription',
         icon: 'ri-vip-crown-2-line',
