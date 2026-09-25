@@ -356,6 +356,15 @@
                 />
               </v-col>
               <v-col cols="12" md="6">
+                <v-switch
+                  v-model="featuresData.custom_watermark"
+                  color="info"
+                  label="تفعيل تخصيص العلامة المائية للصور"
+                  inset
+                  density="compact"
+                />
+              </v-col>
+              <v-col cols="12" md="6">
                 <v-switch v-model="featuresData.warehouses_multi" color="primary" label="تنشيط المخازن المتعددة" inset density="compact" />
               </v-col>
               <v-col cols="12" md="6">
@@ -700,6 +709,7 @@ const formData = ref({
 
 const featuresData = ref({
   payment_gateways: false,
+  custom_watermark: false,
   store_publish: false,
   export_import: false,
   mail_settings: false,
@@ -824,7 +834,8 @@ const handleCreate = () => {
   };
   featuresData.value = {
     payment_gateways: false,
-  store_publish: false,
+    custom_watermark: false,
+    store_publish: false,
     export_import: false,
     mail_settings: false,
     warehouses_multi: false,
@@ -871,6 +882,7 @@ const handleEdit = item => {
 
   featuresData.value = {
     payment_gateways: !!feats.payment_gateways,
+    custom_watermark: !!feats.custom_watermark,
     store_publish: !!feats.store_publish,
     export_import: !!feats.export_import,
     mail_settings: !!feats.mail_settings,
@@ -901,6 +913,7 @@ const handleSave = async () => {
 
   const finalFeatures = {
     payment_gateways: !!featuresData.value.payment_gateways,
+    custom_watermark: !!featuresData.value.custom_watermark,
     store_publish: !!featuresData.value.store_publish,
     export_import: !!featuresData.value.export_import,
     mail_settings: !!featuresData.value.mail_settings,
