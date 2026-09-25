@@ -2,7 +2,7 @@
   <div class="media-manager">
     <!-- Dropzone -->
     <div
-      class="upload-zone d-flex flex-column align-center justify-center border-dashed rounded-md pa-2 mb-4 cursor-pointer transition-all"
+      class="upload-zone d-flex flex-column align-center justify-center border-dashed rounded-md pa-4 mb-4 cursor-pointer transition-all"
       :class="{ 'border-primary bg-blue-lighten-5': isDragging, 'bg-grey-lighten-5': !isDragging }"
       @dragover.prevent="isDragging = true"
       @dragleave.prevent="isDragging = false"
@@ -19,8 +19,15 @@
       <div class="text-subtitle-2 font-weight-bold mb-1 text-center">
         {{ loading ? 'جاري الرفع...' : 'اسحب الصور هنا أو اختر من المعرض' }}
       </div>
+      
+      <!-- Hint Text -->
+      <div class="text-caption text-grey-darken-1 text-center mb-3">
+        <v-icon icon="ri-information-line" size="small" class="me-1"></v-icon>
+        الأبعاد المُوصى بها: <strong>800x800 بكسل (1:1)</strong>.<br>
+        سيتم وضع الصور غير المربعة داخل إطار أبيض تلقائياً للحفاظ على تناسق المتجر.
+      </div>
 
-      <div class="d-flex gap-2 mt-2">
+      <div class="d-flex gap-2">
         <v-btn size="small" variant="tonal" color="primary" prepend-icon="ri-upload-line" :loading="loading" @click.stop="$refs.fileInput.click()">
           رفع ملفات
         </v-btn>
@@ -32,10 +39,11 @@
     <v-row v-if="images.length" dense>
       <v-col v-for="(img, index) in images" :key="img.id || index" cols="4" class="relative">
         <v-card border flat class="rounded-md overflow-hidden aspect-square group">
-          <v-img :src="img.url" cover crossorigin="anonymous" class="fill-height bg-grey-lighten-4">
+          <!-- SIMULATION: Changed from cover to contain (no cover prop) and white background to simulate padded square -->
+          <v-img :src="img.url" class="fill-height bg-white" style="object-fit: contain;" crossorigin="anonymous">
             <template #placeholder>
-              <div class="d-flex align-center justify-center fill-height">
-                <v-progress-circular indeterminate color="grey-lighten-4" size="20" />
+              <div class="d-flex align-center justify-center fill-height bg-grey-lighten-4">
+                <v-progress-circular indeterminate color="grey" size="20" />
               </div>
             </template>
 
@@ -85,7 +93,7 @@ const props = defineProps({
   },
   type: {
     type: String,
-    default: 'gallery',
+    default: 'product',
   },
   primaryImageId: {
     type: [Number, String],

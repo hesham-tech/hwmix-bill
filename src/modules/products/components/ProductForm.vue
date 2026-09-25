@@ -438,7 +438,7 @@
             </div>
           </div>
           <v-card-text class="pa-2">
-            <ProductMediaManager v-model="productData.images" v-model:primaryImageId="productData.primary_image_id" class="mt-1" />
+            <ProductMediaManager type="product" v-model="productData.images" v-model:primaryImageId="productData.primary_image_id" class="mt-1" />
             <div v-if="productData.is_active_in_store && (!productData.images || productData.images.length === 0)" class="text-caption text-error px-2 mt-1 font-weight-bold">
               يجب إضافة صورة واحدة على الأقل عند التفعيل للمتجر.
             </div>

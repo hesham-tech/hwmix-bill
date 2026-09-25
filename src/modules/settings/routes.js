@@ -74,6 +74,15 @@ export default [
     },
   },
   {
+    path: 'watermark',
+    name: 'watermark-settings',
+    component: () => import('@/modules/settings/pages/WatermarkSettings.vue'),
+    meta: {
+      title: 'إعدادات العلامة المائية',
+      permission: [PERMISSIONS.ADMIN_SUPER, PERMISSIONS.ADMIN_COMPANY],
+    },
+  },
+  {
     path: 'mail',
     name: 'mail-settings',
     component: () => import('@/modules/settings/pages/MailSettings.vue'),

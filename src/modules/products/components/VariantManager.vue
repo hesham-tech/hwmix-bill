@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="variant-manager">
 
     <!-- ===== Shell ===== -->
@@ -294,7 +294,7 @@
             </span>
           </div>
           <div class="vm-section-content">
-            <ProductMediaManager v-model="currentVariant.images" v-model:primaryImageId="currentVariant.primary_image_id" />
+            <ProductMediaManager type="product" v-model="currentVariant.images" v-model:primaryImageId="currentVariant.primary_image_id" />
           </div>
         </div>
       </div>

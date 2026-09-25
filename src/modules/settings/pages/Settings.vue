@@ -65,6 +65,14 @@ const settingCards = computed(() => {
       color: 'success',
       to: '/app/company',
     });
+
+    cards.push({
+      title: 'إعدادات العلامة المائية',
+      description: 'تخصيص العلامة المائية لصور المنتجات والمرفقات',
+      icon: 'ri-water-flash-line',
+      color: 'info',
+      to: '/app/settings/watermark',
+    });
   }
 
   if (canAny(PERMISSIONS.ADMIN_SUPER, PERMISSIONS.ADMIN_COMPANY)) {

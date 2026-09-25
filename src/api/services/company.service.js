@@ -19,6 +19,18 @@ class CompanyService extends BaseService {
   forceDeleteTrash(itemIds) {
     return this.post('force-delete', { item_ids: itemIds }, { showToast: true });
   }
+
+  getWatermarkSettings() {
+    return this.get('watermark-settings');
+  }
+
+  updateWatermarkSettings(data) {
+    const isFormData = data instanceof FormData;
+    return this.post('watermark-settings', data, { 
+      showToast: true,
+      headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : undefined
+    });
+  }
 }
 
 export default new CompanyService();
