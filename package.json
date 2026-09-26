@@ -19,6 +19,8 @@
   "dependencies": {
     "@floating-ui/dom": "1.6.8",
     "@iconify-json/bxl": "^1.1.10",
+    "@imgly/background-removal": "^1.7.0",
+    "@imgly/background-removal-data": "^1.4.5",
     "@vueuse/core": "^10.5.0",
     "@vueuse/head": "^2.0.0",
     "@vueuse/math": "^10.5.0",
