@@ -163,36 +163,36 @@
                     <v-row no-gutters>
                       <v-col cols="4" class="pa-1">
                         <v-item v-slot="{ isSelected, toggle }" value="top-right">
-                          <v-card :color="isSelected ? 'primary' : 'grey-lighten-3'" class="d-flex align-center justify-center cursor-pointer" height="60" @click="toggle" rounded="lg">
-                            <v-icon :color="isSelected ? 'white' : 'grey-darken-1'">mdi-arrow-top-right-thick</v-icon>
+                          <v-card :color="isSelected ? 'primary' : 'grey-lighten-4'" class="d-flex align-center justify-center cursor-pointer border" height="60" @click="toggle" rounded="lg">
+                            <v-icon :color="isSelected ? 'white' : 'grey-darken-1'">mdi-arrow-top-right</v-icon>
                           </v-card>
                         </v-item>
                       </v-col>
                       <v-col cols="4" class="pa-1">
                         <v-item v-slot="{ isSelected, toggle }" value="top-left">
-                          <v-card :color="isSelected ? 'primary' : 'grey-lighten-3'" class="d-flex align-center justify-center cursor-pointer" height="60" @click="toggle" rounded="lg">
-                            <v-icon :color="isSelected ? 'white' : 'grey-darken-1'">mdi-arrow-top-left-thick</v-icon>
+                          <v-card :color="isSelected ? 'primary' : 'grey-lighten-4'" class="d-flex align-center justify-center cursor-pointer border" height="60" @click="toggle" rounded="lg">
+                            <v-icon :color="isSelected ? 'white' : 'grey-darken-1'">mdi-arrow-top-left</v-icon>
                           </v-card>
                         </v-item>
                       </v-col>
                       <v-col cols="4" class="pa-1">
                         <v-item v-slot="{ isSelected, toggle }" value="center">
-                          <v-card :color="isSelected ? 'primary' : 'grey-lighten-3'" class="d-flex align-center justify-center cursor-pointer" height="60" @click="toggle" rounded="lg">
+                          <v-card :color="isSelected ? 'primary' : 'grey-lighten-4'" class="d-flex align-center justify-center cursor-pointer border" height="60" @click="toggle" rounded="lg">
                             <v-icon :color="isSelected ? 'white' : 'grey-darken-1'">mdi-target</v-icon>
                           </v-card>
                         </v-item>
                       </v-col>
                       <v-col cols="6" class="pa-1">
                         <v-item v-slot="{ isSelected, toggle }" value="bottom-right">
-                          <v-card :color="isSelected ? 'primary' : 'grey-lighten-3'" class="d-flex align-center justify-center cursor-pointer" height="60" @click="toggle" rounded="lg">
-                            <v-icon :color="isSelected ? 'white' : 'grey-darken-1'">mdi-arrow-bottom-right-thick</v-icon>
+                          <v-card :color="isSelected ? 'primary' : 'grey-lighten-4'" class="d-flex align-center justify-center cursor-pointer border" height="60" @click="toggle" rounded="lg">
+                            <v-icon :color="isSelected ? 'white' : 'grey-darken-1'">mdi-arrow-bottom-right</v-icon>
                           </v-card>
                         </v-item>
                       </v-col>
                       <v-col cols="6" class="pa-1">
                         <v-item v-slot="{ isSelected, toggle }" value="bottom-left">
-                          <v-card :color="isSelected ? 'primary' : 'grey-lighten-3'" class="d-flex align-center justify-center cursor-pointer" height="60" @click="toggle" rounded="lg">
-                            <v-icon :color="isSelected ? 'white' : 'grey-darken-1'">mdi-arrow-bottom-left-thick</v-icon>
+                          <v-card :color="isSelected ? 'primary' : 'grey-lighten-4'" class="d-flex align-center justify-center cursor-pointer border" height="60" @click="toggle" rounded="lg">
+                            <v-icon :color="isSelected ? 'white' : 'grey-darken-1'">mdi-arrow-bottom-left</v-icon>
                           </v-card>
                         </v-item>
                       </v-col>
@@ -325,8 +325,9 @@ const loadSettings = async () => {
 };
 
 const onLogoSelected = (files) => {
-  if (files && files.length > 0) {
-    const file = files[0];
+  if (!files) return;
+  const file = Array.isArray(files) ? files[0] : (files instanceof File ? files : null);
+  if (file) {
     previewLogoUrl.value = URL.createObjectURL(file);
   }
 };
@@ -343,8 +344,9 @@ const saveSettings = async () => {
       }
     });
 
-    if (logoFile.value && logoFile.value.length > 0) {
-      formData.append('logo', logoFile.value[0]);
+    const file = Array.isArray(logoFile.value) ? logoFile.value[0] : (logoFile.value instanceof File ? logoFile.value : null);
+    if (file) {
+      formData.append('logo', file);
     }
 
     const res = await companyService.updateWatermarkSettings(formData);
@@ -352,7 +354,8 @@ const saveSettings = async () => {
     const dataObj = Array.isArray(res.data) ? res.data[0] : res.data;
     if (dataObj) {
       settings.value = { ...settings.value, ...dataObj };
-      if (settings.value.image_path && (!logoFile.value || logoFile.value.length === 0)) {
+      const fileObj = Array.isArray(logoFile.value) ? logoFile.value[0] : (logoFile.value instanceof File ? logoFile.value : null);
+      if (settings.value.image_path && !fileObj) {
         previewLogoUrl.value = import.meta.env.VITE_API_URL.replace('/api/v1', '') + '/storage/' + settings.value.image_path;
       }
     }
