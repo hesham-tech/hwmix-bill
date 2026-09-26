@@ -216,7 +216,7 @@
     "size": 11269756,
     "mime": "application/wasm"
   },
-  "/models/small": {
+  "/models/isnet_quint8": {
     "chunks": [
       {
         "hash": "b34a3e9350ad77140964b6a2e1e32cd9738acd9d01e5899b96be71901a22ef47",
@@ -299,7 +299,7 @@
     "size": 44342436,
     "mime": "application/octet-steam"
   },
-  "/models/medium": {
+  "/models/isnet_fp16": {
     "chunks": [
       {
         "hash": "fe1b9f06af9d2147016884f4eb683d4dc540244a7453c3b742ae527725df2eec",
