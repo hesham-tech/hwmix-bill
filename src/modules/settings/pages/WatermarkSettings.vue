@@ -4,7 +4,7 @@
     <!-- Page Header -->
     <div class="d-flex align-center mb-6">
       <v-btn icon variant="text" class="ml-3" @click="$router.push({ name: 'settings' })">
-        <v-icon>mdi-arrow-right</v-icon>
+        <v-icon icon="ri-arrow-right-line" />
       </v-btn>
       <div>
         <h1 class="text-h5 font-weight-bold mb-0">إعدادات العلامة المائية</h1>
@@ -13,7 +13,7 @@
     </div>
 
     <!-- Upgrade Alert -->
-    <v-alert v-if="!canCustomize" type="warning" variant="tonal" class="mb-6" border="start" icon="mdi-crown">
+    <v-alert v-if="!canCustomize" type="warning" variant="tonal" class="mb-6" border="start" icon="ri-vip-crown-line">
       <div class="d-flex align-center justify-space-between flex-wrap gap-3">
         <div>
           <strong>ميزة حصرية للباقات المتقدمة!</strong>
@@ -34,7 +34,7 @@
 
           <!-- Header with Enable Toggle -->
           <v-card-title class="pa-5 d-flex align-center border-b">
-            <v-icon color="primary" class="ml-3" size="24">mdi-watermark</v-icon>
+            <v-icon icon="ri-image-edit-line" color="primary" class="ml-3" size="24" />
             <span class="text-subtitle-1 font-weight-bold">إعدادات العلامة المائية</span>
             <v-spacer />
             <v-switch
@@ -70,13 +70,13 @@
               class="w-100 mb-5 rounded-lg"
             >
               <v-btn value="text" class="flex-grow-1">
-                <v-icon size="18" class="ml-2">mdi-format-text</v-icon> نص
+                <v-icon icon="ri-text" size="18" class="ml-2" /> نص
               </v-btn>
               <v-btn value="image" class="flex-grow-1">
-                <v-icon size="18" class="ml-2">mdi-image-outline</v-icon> صورة
+                <v-icon icon="ri-image-line" size="18" class="ml-2" /> صورة
               </v-btn>
               <v-btn value="both" class="flex-grow-1">
-                <v-icon size="18" class="ml-2">mdi-layers-outline</v-icon> نص + صورة
+                <v-icon icon="ri-stack-line" size="18" class="ml-2" /> نص + صورة
               </v-btn>
             </v-btn-toggle>
 
@@ -91,7 +91,7 @@
                     v-model="settings.text"
                     label="نص العلامة المائية"
                     variant="outlined" density="compact"
-                    prepend-inner-icon="mdi-format-title"
+                    prepend-inner-icon="ri-font-size"
                     hide-details class="mb-3"
                   />
                 </v-col>
@@ -148,7 +148,7 @@
 
                     <!-- Empty -->
                     <template v-else>
-                      <v-icon size="40" color="primary" class="mb-2">mdi-cloud-upload-outline</v-icon>
+                      <v-icon icon="ri-upload-cloud-2-line" size="40" color="primary" class="mb-2" />
                       <p class="text-body-2 font-weight-medium mb-1">اسحب صورة الشعار هنا</p>
                       <p class="text-caption text-medium-emphasis mb-0">أو انقر للاختيار · PNG / JPEG / WEBP</p>
                     </template>
@@ -161,12 +161,12 @@
                   <div v-if="previewLogoUrl && !removingBg" class="d-flex gap-2 mb-3 flex-wrap">
                     <v-btn
                       variant="tonal" color="primary" size="small"
-                      prepend-icon="mdi-magic-staff"
+                      prepend-icon="ri-magic-line"
                       @click.stop="handleRemoveBackground"
                     >
                       إزالة الخلفية تلقائياً ✨
                     </v-btn>
-                    <v-btn variant="text" color="error" size="small" prepend-icon="mdi-delete-outline" @click.stop="removeLogo">
+                    <v-btn variant="text" color="error" size="small" prepend-icon="ri-delete-bin-7-line" @click.stop="removeLogo">
                       حذف الشعار
                     </v-btn>
                   </div>
@@ -205,7 +205,7 @@
                   type="button"
                   :title="pos.label"
                 >
-                  <v-icon size="20">{{ pos.icon }}</v-icon>
+                  <v-icon :icon="pos.icon" size="20" />
                   <span class="position-label">{{ pos.label }}</span>
                 </button>
               </div>
@@ -227,7 +227,7 @@
             <v-btn
               color="primary" variant="flat" size="large"
               :loading="saving" @click="saveSettings"
-              prepend-icon="mdi-content-save-outline"
+              prepend-icon="ri-save-3-line"
               class="px-8 rounded-lg font-weight-bold"
             >
               حفظ الإعدادات
@@ -240,7 +240,7 @@
       <v-col cols="12" lg="5">
         <v-card class="rounded-xl sticky-preview" elevation="2">
           <v-card-title class="pa-5 d-flex align-center border-b">
-            <v-icon color="secondary" class="ml-3" size="24">mdi-eye-outline</v-icon>
+            <v-icon icon="ri-eye-line" color="secondary" class="ml-3" size="24" />
             <span class="text-subtitle-1 font-weight-bold">معاينة حية</span>
           </v-card-title>
 
@@ -248,7 +248,7 @@
             <div class="preview-box rounded-xl elevation-3" :class="{ 'is-disabled': !settings.enabled || !canCustomize }">
               <!-- Background Product Placeholder -->
               <div class="preview-bg d-flex flex-column align-center justify-center">
-                <v-icon size="100" color="grey-lighten-1">mdi-package-variant-closed</v-icon>
+                <v-icon icon="ri-box-3-line" size="100" color="grey-lighten-1" />
                 <span class="text-caption text-grey-lighten-1 mt-2">صورة المنتج الافتراضية</span>
               </div>
 
@@ -314,15 +314,15 @@ const entityOptions = [
 ];
 
 const positions = [
-  { value: 'top-right',     icon: 'mdi-arrow-top-right',    label: 'أعلى يمين'    },
-  { value: 'top-center',    icon: 'mdi-arrow-up',           label: 'أعلى وسط'     },
-  { value: 'top-left',      icon: 'mdi-arrow-top-left',     label: 'أعلى يسار'    },
-  { value: 'center-right',  icon: 'mdi-arrow-right',        label: 'وسط يمين'     },
-  { value: 'center',        icon: 'mdi-circle-small',       label: 'وسط'          },
-  { value: 'center-left',   icon: 'mdi-arrow-left',         label: 'وسط يسار'     },
-  { value: 'bottom-right',  icon: 'mdi-arrow-bottom-right', label: 'أسفل يمين'    },
-  { value: 'bottom-center', icon: 'mdi-arrow-down',         label: 'أسفل وسط'     },
-  { value: 'bottom-left',   icon: 'mdi-arrow-bottom-left',  label: 'أسفل يسار'    },
+  { value: 'top-right',     icon: 'ri-arrow-right-up-line',    label: 'أعلى يمين'    },
+  { value: 'top-center',    icon: 'ri-arrow-up-line',           label: 'أعلى وسط'     },
+  { value: 'top-left',      icon: 'ri-arrow-left-up-line',     label: 'أعلى يسار'    },
+  { value: 'center-right',  icon: 'ri-arrow-right-line',        label: 'وسط يمين'     },
+  { value: 'center',        icon: 'ri-focus-3-line',            label: 'وسط'          },
+  { value: 'center-left',   icon: 'ri-arrow-left-line',         label: 'وسط يسار'     },
+  { value: 'bottom-right',  icon: 'ri-arrow-right-down-line',  label: 'أسفل يمين'    },
+  { value: 'bottom-center', icon: 'ri-arrow-down-line',         label: 'أسفل وسط'     },
+  { value: 'bottom-left',   icon: 'ri-arrow-left-down-line',   label: 'أسفل يسار'    },
 ];
 
 // ─── Settings ─────────────────────────────────────────────────────────────────
@@ -651,3 +651,4 @@ onMounted(loadSettings);
 
 .pointer-events-none { pointer-events: none; }
 </style>
+
