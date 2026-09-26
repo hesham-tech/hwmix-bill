@@ -600,6 +600,7 @@ onMounted(loadSettings);
   inset: 0;
   padding: 12px;
   pointer-events: none;
+  direction: ltr; /* منع RTL من عكس اتجاه الفلكس - المواضع يمين/يسار يجب أن تكون حرفية */
 }
 
 .watermark-content {
