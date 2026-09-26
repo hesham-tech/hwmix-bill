@@ -41,7 +41,7 @@ export function useBackgroundRemoval() {
       removingBgStatus.value = 'جاري تحليل الصورة وإزالة الخلفية...';
 
       const resultBlob = await imglyRemoveBg(input, {
-        publicPath: '/ai-models/bg-removal/',
+        publicPath: window.location.origin + '/ai-models/bg-removal/',
         model:  options.model   ?? 'medium',
         output: {
           format:  'image/png',
