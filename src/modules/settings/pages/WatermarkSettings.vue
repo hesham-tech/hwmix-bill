@@ -185,7 +185,7 @@
                     <span class="text-body-2">حجم الشعار مقارنةً بالصورة</span>
                     <span class="text-caption text-primary font-weight-bold">{{ settings.scale }}%</span>
                   </div>
-                  <v-slider v-model="settings.scale" min="5" max="80" step="1" thumb-label="always" color="primary" hide-details />
+                  <v-slider v-model="settings.scale" min="5" max="100" step="1" thumb-label="always" color="primary" hide-details />
                 </v-col>
               </v-row>
 
@@ -248,8 +248,8 @@
             <div class="preview-box rounded-xl elevation-3" :class="{ 'is-disabled': !settings.enabled || !canCustomize }">
               <!-- Background Product Placeholder -->
               <div class="preview-bg d-flex flex-column align-center justify-center">
-                <v-icon size="80" color="grey-lighten-2">mdi-image-outline</v-icon>
-                <span class="text-caption text-grey-lighten-1 mt-2">صورة المنتج</span>
+                <v-icon size="100" color="grey-lighten-1">mdi-package-variant-closed</v-icon>
+                <span class="text-caption text-grey-lighten-1 mt-2">صورة المنتج الافتراضية</span>
               </div>
 
               <!-- Watermark Layer -->
@@ -466,7 +466,6 @@ const textStyle = computed(() => ({
 
 const logoStyle = computed(() => ({
   width:     `${settings.value.scale}%`,
-  maxWidth:  '120px',
   objectFit: 'contain',
 }));
 
@@ -479,6 +478,10 @@ onMounted(loadSettings);
 .position-grid-wrapper {
   display: flex;
   justify-content: center;
+  background-color: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 16px;
 }
 
 .position-grid {
@@ -498,7 +501,7 @@ onMounted(loadSettings);
   padding: 10px 4px;
   border: 1.5px solid #e0e0e0;
   border-radius: 10px;
-  background: #fafafa;
+  background: #ffffff;
   cursor: pointer;
   transition: all 0.15s ease;
   color: #9e9e9e;
@@ -584,7 +587,7 @@ onMounted(loadSettings);
   max-width: 320px;
   aspect-ratio: 1 / 1;
   overflow: hidden;
-  background: #f5f5f5;
+  background: #ffffff;
   border: 1px solid #e0e0e0;
 }
 
@@ -596,7 +599,26 @@ onMounted(loadSettings);
 .preview-bg {
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #f5f5f5 0%, #eeeeee 100%);
+  /* A nice subtle checkered pattern simulating a transparent PNG background but softer, or just a subtle gradient with a package icon */
+  background: 
+    radial-gradient(circle at center, #ffffff 0%, #f0f0f0 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #cfd8dc;
+}
+
+.preview-bg .v-icon {
+  font-size: 120px !important;
+  opacity: 0.5;
+}
+
+.preview-bg .text-caption {
+  font-size: 1.2rem !important;
+  opacity: 0.6;
+  font-weight: 500;
+  color: #90a4ae !important;
 }
 
 .watermark-layer {

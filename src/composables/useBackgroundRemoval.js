@@ -41,6 +41,7 @@ export function useBackgroundRemoval() {
       removingBgStatus.value = 'جاري تحليل الصورة وإزالة الخلفية...';
 
       const resultBlob = await imglyRemoveBg(input, {
+        publicPath: 'https://static.imgly.com/@imgly/background-removal-data/1.4.3/dist/',
         model:  options.model   ?? 'small',
         output: {
           format:  'image/png',
@@ -66,8 +67,9 @@ export function useBackgroundRemoval() {
 
     } catch (err) {
       console.error('[useBackgroundRemoval] فشل إزالة الخلفية:', err);
+      // إظهار سبب الخطأ للمستخدم
       removeBgError.value =
-        'حدث خطأ أثناء معالجة الصورة. تأكد من أن الصورة واضحة وحاول مرة أخرى.';
+        `حدث خطأ أثناء إزالة الخلفية: ${err.message || err}`;
       return null;
 
     } finally {
