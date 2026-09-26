@@ -200,6 +200,21 @@
                   </v-container>
                 </v-item-group>
               </v-col>
+              
+              <v-divider class="my-4 w-100"></v-divider>
+
+              <!-- Opacity Settings -->
+              <v-col cols="12">
+                <p class="mb-1 text-subtitle-1 font-weight-bold">شفافية العلامة المائية ({{ settings.opacity }}%)</p>
+                <v-slider
+                  v-model="settings.opacity"
+                  min="10"
+                  max="100"
+                  step="1"
+                  thumb-label
+                  color="primary"
+                ></v-slider>
+              </v-col>
             </v-row>
           </v-card-text>
           
@@ -365,6 +380,7 @@ const watermarkStyle = computed(() => {
     alignItems: align,
     color: settings.value.color,
     fontSize: `${settings.value.size}px`,
+    opacity: settings.value.opacity / 100,
   };
 });
 
