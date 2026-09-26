@@ -292,11 +292,14 @@ const loadSettings = async () => {
   loading.value = true;
   try {
     const res = await companyService.getWatermarkSettings();
-    canCustomize.value = res.data.data.can_customize;
-    if (res.data.data.settings) {
-      settings.value = { ...settings.value, ...res.data.data.settings };
-      if (settings.value.image_path) {
-        previewLogoUrl.value = import.meta.env.VITE_API_URL.replace('/api/v1', '') + '/storage/' + settings.value.image_path;
+    const dataObj = Array.isArray(res.data) ? res.data[0] : res.data;
+    if (dataObj) {
+      canCustomize.value = dataObj.can_customize;
+      if (dataObj.settings) {
+        settings.value = { ...settings.value, ...dataObj.settings };
+        if (settings.value.image_path) {
+          previewLogoUrl.value = import.meta.env.VITE_API_URL.replace('/api/v1', '') + '/storage/' + settings.value.image_path;
+        }
       }
     }
   } catch (error) {
@@ -331,8 +334,9 @@ const saveSettings = async () => {
 
     const res = await companyService.updateWatermarkSettings(formData);
     
-    if (res.data.data) {
-      settings.value = { ...settings.value, ...res.data.data };
+    const dataObj = Array.isArray(res.data) ? res.data[0] : res.data;
+    if (dataObj) {
+      settings.value = { ...settings.value, ...dataObj };
       if (settings.value.image_path && (!logoFile.value || logoFile.value.length === 0)) {
         previewLogoUrl.value = import.meta.env.VITE_API_URL.replace('/api/v1', '') + '/storage/' + settings.value.image_path;
       }
