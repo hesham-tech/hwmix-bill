@@ -13,14 +13,7 @@
     </div>
 
     <!-- Upgrade Alert -->
-    <v-alert
-      v-if="!canCustomize"
-      type="warning"
-      variant="tonal"
-      class="mb-6"
-      border="start"
-      icon="mdi-crown"
-    >
+    <v-alert v-if="!canCustomize" type="warning" variant="tonal" class="mb-6" border="start" icon="mdi-crown">
       <div class="d-flex align-center justify-space-between flex-wrap gap-3">
         <div>
           <strong>ميزة حصرية للباقات المتقدمة!</strong>
@@ -39,7 +32,7 @@
       <v-col cols="12" lg="7">
         <v-card class="rounded-xl" elevation="2" :disabled="!canCustomize || loading">
 
-          <!-- Enable Toggle Header -->
+          <!-- Header with Enable Toggle -->
           <v-card-title class="pa-5 d-flex align-center border-b">
             <v-icon color="primary" class="ml-3" size="24">mdi-watermark</v-icon>
             <span class="text-subtitle-1 font-weight-bold">إعدادات العلامة المائية</span>
@@ -62,13 +55,9 @@
               v-model="settings.apply_to"
               :items="entityOptions"
               label="تطبيق العلامة على"
-              multiple
-              chips
-              closable-chips
-              variant="outlined"
-              density="compact"
-              class="mb-5"
-              hide-details
+              multiple chips closable-chips
+              variant="outlined" density="compact"
+              class="mb-5" hide-details
             />
 
             <v-divider class="mb-5" />
@@ -77,23 +66,17 @@
             <p class="text-overline text-medium-emphasis mb-2">نوع العلامة المائية</p>
             <v-btn-toggle
               v-model="settings.type"
-              color="primary"
-              mandatory
-              divided
-              variant="outlined"
+              color="primary" mandatory divided variant="outlined"
               class="w-100 mb-5 rounded-lg"
             >
               <v-btn value="text" class="flex-grow-1">
-                <v-icon size="18" class="ml-2">mdi-format-text</v-icon>
-                نص
+                <v-icon size="18" class="ml-2">mdi-format-text</v-icon> نص
               </v-btn>
               <v-btn value="image" class="flex-grow-1">
-                <v-icon size="18" class="ml-2">mdi-image-outline</v-icon>
-                صورة
+                <v-icon size="18" class="ml-2">mdi-image-outline</v-icon> صورة
               </v-btn>
               <v-btn value="both" class="flex-grow-1">
-                <v-icon size="18" class="ml-2">mdi-layers-outline</v-icon>
-                نص + صورة
+                <v-icon size="18" class="ml-2">mdi-layers-outline</v-icon> نص + صورة
               </v-btn>
             </v-btn-toggle>
 
@@ -107,21 +90,15 @@
                   <v-text-field
                     v-model="settings.text"
                     label="نص العلامة المائية"
-                    variant="outlined"
-                    density="compact"
+                    variant="outlined" density="compact"
                     prepend-inner-icon="mdi-format-title"
-                    hide-details
-                    class="mb-3"
+                    hide-details class="mb-3"
                   />
                 </v-col>
                 <v-col cols="12" sm="4">
-                  <div class="d-flex align-center gap-2 h-100">
-                    <label class="text-body-2 text-medium-emphasis">لون النص:</label>
-                    <input
-                      type="color"
-                      v-model="settings.color"
-                      class="color-picker-input cursor-pointer"
-                    />
+                  <div class="d-flex align-center gap-2">
+                    <label class="text-body-2 text-medium-emphasis">لون:</label>
+                    <input type="color" v-model="settings.color" class="color-picker-input cursor-pointer" />
                     <span class="text-caption text-medium-emphasis">{{ settings.color }}</span>
                   </div>
                 </v-col>
@@ -133,13 +110,7 @@
                   <v-slider v-model="settings.size" min="8" max="120" step="1" thumb-label="always" color="primary" hide-details class="mb-2" />
                 </v-col>
                 <v-col cols="12">
-                  <v-switch
-                    v-model="settings.stroke"
-                    color="primary"
-                    hide-details
-                    density="compact"
-                    label="إطار أبيض حول النص (Stroke)"
-                  />
+                  <v-switch v-model="settings.stroke" color="primary" hide-details density="compact" label="إطار أبيض حول النص (Stroke)" />
                 </v-col>
               </v-row>
               <v-divider class="mb-5 mt-2" v-if="settings.type === 'both'" />
@@ -150,19 +121,32 @@
               <p class="text-overline text-medium-emphasis mb-3">إعدادات الصورة (Logo)</p>
               <v-row>
                 <v-col cols="12">
+
                   <!-- Upload Zone -->
                   <div
                     class="upload-zone rounded-lg d-flex flex-column align-center justify-center cursor-pointer mb-3"
-                    :class="{ 'upload-zone--active': isDragOver }"
+                    :class="{ 'upload-zone--active': isDragOver, 'upload-zone--processing': removingBg }"
                     @dragover.prevent="isDragOver = true"
                     @dragleave.prevent="isDragOver = false"
                     @drop.prevent="onDrop"
                     @click="triggerFileInput"
                   >
-                    <template v-if="previewLogoUrl">
-                      <img :src="previewLogoUrl" class="logo-preview-img rounded" />
+                    <!-- Processing State -->
+                    <template v-if="removingBg">
+                      <v-progress-circular indeterminate color="primary" size="44" width="3" class="mb-3" />
+                      <p class="text-body-2 font-weight-medium mb-1">جاري إزالة الخلفية...</p>
+                      <p class="text-caption text-medium-emphasis mb-0">{{ removingBgStatus }}</p>
+                    </template>
+
+                    <!-- Has Image -->
+                    <template v-else-if="previewLogoUrl">
+                      <div class="transparent-checker rounded d-flex align-center justify-center">
+                        <img :src="previewLogoUrl" class="logo-preview-img" />
+                      </div>
                       <p class="text-caption text-medium-emphasis mt-2 mb-0">انقر للتغيير</p>
                     </template>
+
+                    <!-- Empty -->
                     <template v-else>
                       <v-icon size="40" color="primary" class="mb-2">mdi-cloud-upload-outline</v-icon>
                       <p class="text-body-2 font-weight-medium mb-1">اسحب صورة الشعار هنا</p>
@@ -170,27 +154,30 @@
                     </template>
                   </div>
 
-                  <!-- Hidden real input -->
-                  <input
-                    ref="fileInputRef"
-                    type="file"
-                    accept="image/png,image/jpeg,image/webp"
-                    class="d-none"
-                    @change="onFileInputChange"
-                  />
+                  <!-- Hidden file input -->
+                  <input ref="fileInputRef" type="file" accept="image/png,image/jpeg,image/webp" class="d-none" @change="onFileInputChange" />
 
-                  <!-- Remove logo button -->
-                  <v-btn
-                    v-if="previewLogoUrl"
-                    variant="text"
-                    color="error"
-                    size="small"
-                    prepend-icon="mdi-delete-outline"
-                    @click.stop="removeLogo"
-                    class="mb-3"
-                  >
-                    حذف الشعار
-                  </v-btn>
+                  <!-- Action Buttons -->
+                  <div v-if="previewLogoUrl && !removingBg" class="d-flex gap-2 mb-3 flex-wrap">
+                    <v-btn
+                      variant="tonal" color="primary" size="small"
+                      prepend-icon="mdi-magic-staff"
+                      @click.stop="handleRemoveBackground"
+                    >
+                      إزالة الخلفية تلقائياً ✨
+                    </v-btn>
+                    <v-btn variant="text" color="error" size="small" prepend-icon="mdi-delete-outline" @click.stop="removeLogo">
+                      حذف الشعار
+                    </v-btn>
+                  </div>
+
+                  <!-- BG Removal Error -->
+                  <v-alert
+                    v-if="removeBgError"
+                    type="error" variant="tonal" density="compact" closable class="mb-3"
+                    @click:close="resetBgState"
+                  >{{ removeBgError }}</v-alert>
+
                 </v-col>
 
                 <v-col cols="12">
@@ -229,15 +216,7 @@
               <span class="text-overline text-medium-emphasis">الشفافية</span>
               <span class="text-caption text-primary font-weight-bold">{{ settings.opacity }}%</span>
             </div>
-            <v-slider
-              v-model="settings.opacity"
-              min="10"
-              max="100"
-              step="1"
-              thumb-label="always"
-              color="primary"
-              hide-details
-            />
+            <v-slider v-model="settings.opacity" min="10" max="100" step="1" thumb-label="always" color="primary" hide-details />
 
           </v-card-text>
 
@@ -246,11 +225,8 @@
           <v-card-actions class="pa-4">
             <v-spacer />
             <v-btn
-              color="primary"
-              variant="flat"
-              size="large"
-              :loading="saving"
-              @click="saveSettings"
+              color="primary" variant="flat" size="large"
+              :loading="saving" @click="saveSettings"
               prepend-icon="mdi-content-save-outline"
               class="px-8 rounded-lg font-weight-bold"
             >
@@ -269,7 +245,6 @@
           </v-card-title>
 
           <v-card-text class="pa-6 d-flex flex-column align-center">
-            <!-- Preview Box -->
             <div class="preview-box rounded-xl elevation-3" :class="{ 'is-disabled': !settings.enabled || !canCustomize }">
               <!-- Background Product Placeholder -->
               <div class="preview-bg d-flex flex-column align-center justify-center">
@@ -309,17 +284,27 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import companyService from '@/api/services/company.service';
+import { useBackgroundRemoval } from '@/composables/useBackgroundRemoval';
+
+// ─── Background Removal Composable ────────────────────────────────────────────
+const {
+  removingBg,
+  removingBgStatus,
+  removeBgError,
+  removeBackground,
+  resetBgState,
+} = useBackgroundRemoval();
 
 // ─── State ────────────────────────────────────────────────────────────────────
-const loading    = ref(true);
-const saving     = ref(false);
-const canCustomize = ref(false);
-const isDragOver = ref(false);
-const logoFile   = ref(null);         // actual File object
-const previewLogoUrl = ref('');       // object URL or server URL
+const loading        = ref(true);
+const saving         = ref(false);
+const canCustomize   = ref(false);
+const isDragOver     = ref(false);
+const logoFile       = ref(null);
+const previewLogoUrl = ref('');
 const fileInputRef   = ref(null);
 
-// ─── Options ──────────────────────────────────────────────────────────────────
+// ─── Static Data ──────────────────────────────────────────────────────────────
 const entityOptions = [
   { title: 'المنتجات',                    value: 'product'  },
   { title: 'متغيرات المنتجات (Variants)', value: 'variant'  },
@@ -329,37 +314,37 @@ const entityOptions = [
 ];
 
 const positions = [
-  { value: 'top-right',    icon: 'mdi-arrow-top-right',    label: 'أعلى يمين'   },
-  { value: 'top-center',   icon: 'mdi-arrow-up',           label: 'أعلى وسط'    },
-  { value: 'top-left',     icon: 'mdi-arrow-top-left',     label: 'أعلى يسار'   },
-  { value: 'center-right', icon: 'mdi-arrow-right',        label: 'وسط يمين'    },
-  { value: 'center',       icon: 'mdi-circle-small',       label: 'وسط'         },
-  { value: 'center-left',  icon: 'mdi-arrow-left',         label: 'وسط يسار'    },
-  { value: 'bottom-right', icon: 'mdi-arrow-bottom-right', label: 'أسفل يمين'   },
-  { value: 'bottom-center',icon: 'mdi-arrow-down',         label: 'أسفل وسط'    },
-  { value: 'bottom-left',  icon: 'mdi-arrow-bottom-left',  label: 'أسفل يسار'   },
+  { value: 'top-right',     icon: 'mdi-arrow-top-right',    label: 'أعلى يمين'    },
+  { value: 'top-center',    icon: 'mdi-arrow-up',           label: 'أعلى وسط'     },
+  { value: 'top-left',      icon: 'mdi-arrow-top-left',     label: 'أعلى يسار'    },
+  { value: 'center-right',  icon: 'mdi-arrow-right',        label: 'وسط يمين'     },
+  { value: 'center',        icon: 'mdi-circle-small',       label: 'وسط'          },
+  { value: 'center-left',   icon: 'mdi-arrow-left',         label: 'وسط يسار'     },
+  { value: 'bottom-right',  icon: 'mdi-arrow-bottom-right', label: 'أسفل يمين'    },
+  { value: 'bottom-center', icon: 'mdi-arrow-down',         label: 'أسفل وسط'     },
+  { value: 'bottom-left',   icon: 'mdi-arrow-bottom-left',  label: 'أسفل يسار'    },
 ];
 
 // ─── Settings ─────────────────────────────────────────────────────────────────
 const settings = ref({
-  enabled:   true,
-  type:      'text',
-  text:      'hwnix.com',
+  enabled:    true,
+  type:       'text',
+  text:       'hwnix.com',
   image_path: null,
-  position:  'bottom-right',
-  opacity:   40,
-  size:      24,
-  color:     '#888888',
-  stroke:    true,
-  scale:     20,
-  apply_to:  ['product', 'variant'],
+  position:   'bottom-right',
+  opacity:    40,
+  size:       24,
+  color:      '#888888',
+  stroke:     true,
+  scale:      20,
+  apply_to:   ['product', 'variant'],
 });
 
 // ─── Load ─────────────────────────────────────────────────────────────────────
 const loadSettings = async () => {
   loading.value = true;
   try {
-    const res = await companyService.getWatermarkSettings();
+    const res     = await companyService.getWatermarkSettings();
     const dataObj = Array.isArray(res.data) ? res.data[0] : res.data;
     if (dataObj) {
       canCustomize.value = dataObj.can_customize ?? false;
@@ -372,8 +357,8 @@ const loadSettings = async () => {
         }
       }
     }
-  } catch (error) {
-    console.error('فشل في تحميل الإعدادات', error);
+  } catch (err) {
+    console.error('فشل في تحميل الإعدادات', err);
   } finally {
     loading.value = false;
   }
@@ -382,28 +367,33 @@ const loadSettings = async () => {
 // ─── File Handling ────────────────────────────────────────────────────────────
 const applyFile = (file) => {
   if (!file || !(file instanceof File)) return;
-  logoFile.value   = file;
+  logoFile.value       = file;
   previewLogoUrl.value = URL.createObjectURL(file);
+  resetBgState();
 };
 
-const triggerFileInput = () => fileInputRef.value?.click();
-
-const onFileInputChange = (event) => {
-  const file = event.target.files?.[0];
-  applyFile(file);
-};
-
-const onDrop = (event) => {
-  isDragOver.value = false;
-  const file = event.dataTransfer?.files?.[0];
-  applyFile(file);
-};
+const triggerFileInput  = () => { if (!removingBg.value) fileInputRef.value?.click(); };
+const onFileInputChange = (e) => applyFile(e.target.files?.[0]);
+const onDrop            = (e) => { isDragOver.value = false; applyFile(e.dataTransfer?.files?.[0]); };
 
 const removeLogo = () => {
-  logoFile.value = null;
-  previewLogoUrl.value = '';
-  settings.value.image_path = null;
+  logoFile.value             = null;
+  previewLogoUrl.value       = '';
+  settings.value.image_path  = null;
   if (fileInputRef.value) fileInputRef.value.value = '';
+  resetBgState();
+};
+
+// ─── Background Removal Handler ───────────────────────────────────────────────
+const handleRemoveBackground = async () => {
+  const input = logoFile.value ?? previewLogoUrl.value;
+  if (!input) return;
+
+  const result = await removeBackground(input);
+  if (result) {
+    logoFile.value       = result.file;
+    previewLogoUrl.value = result.url;
+  }
 };
 
 // ─── Save ─────────────────────────────────────────────────────────────────────
@@ -413,7 +403,7 @@ const saveSettings = async () => {
     const formData = new FormData();
     Object.keys(settings.value).forEach(key => {
       if (key === 'apply_to' && Array.isArray(settings.value[key])) {
-        settings.value[key].forEach((val, i) => formData.append(`apply_to[${i}]`, val));
+        settings.value[key].forEach((v, i) => formData.append(`apply_to[${i}]`, v));
       } else if (settings.value[key] !== null && settings.value[key] !== undefined) {
         formData.append(key, settings.value[key] === true ? 1 : (settings.value[key] === false ? 0 : settings.value[key]));
       }
@@ -423,52 +413,47 @@ const saveSettings = async () => {
       formData.append('logo', logoFile.value);
     }
 
-    const res = await companyService.updateWatermarkSettings(formData);
+    const res     = await companyService.updateWatermarkSettings(formData);
     const dataObj = Array.isArray(res.data) ? res.data[0] : res.data;
     if (dataObj?.settings) {
       settings.value = { ...settings.value, ...dataObj.settings };
-      // If server stored an image path and we didn't upload a new one:
       if (settings.value.image_path && !logoFile.value) {
         previewLogoUrl.value =
           import.meta.env.VITE_API_URL.replace('/api/v1', '') +
           '/storage/' + settings.value.image_path;
       }
     }
-  } catch (error) {
-    console.error('فشل حفظ الإعدادات', error);
+  } catch (err) {
+    console.error('فشل حفظ الإعدادات', err);
   } finally {
     saving.value = false;
   }
 };
 
-// ─── Computed Styles for Preview ──────────────────────────────────────────────
+// ─── Computed Styles (Preview) ────────────────────────────────────────────────
 const positionMap = {
-  'top-right':     { justify: 'flex-end',    align: 'flex-start' },
-  'top-center':    { justify: 'center',      align: 'flex-start' },
-  'top-left':      { justify: 'flex-start',  align: 'flex-start' },
-  'center-right':  { justify: 'flex-end',    align: 'center'     },
-  'center':        { justify: 'center',      align: 'center'     },
-  'center-left':   { justify: 'flex-start',  align: 'center'     },
-  'bottom-right':  { justify: 'flex-end',    align: 'flex-end'   },
-  'bottom-center': { justify: 'center',      align: 'flex-end'   },
-  'bottom-left':   { justify: 'flex-start',  align: 'flex-end'   },
+  'top-right':     { justify: 'flex-end',   align: 'flex-start' },
+  'top-center':    { justify: 'center',     align: 'flex-start' },
+  'top-left':      { justify: 'flex-start', align: 'flex-start' },
+  'center-right':  { justify: 'flex-end',   align: 'center'     },
+  'center':        { justify: 'center',     align: 'center'     },
+  'center-left':   { justify: 'flex-start', align: 'center'     },
+  'bottom-right':  { justify: 'flex-end',   align: 'flex-end'   },
+  'bottom-center': { justify: 'center',     align: 'flex-end'   },
+  'bottom-left':   { justify: 'flex-start', align: 'flex-end'   },
 };
 
 const watermarkContainerStyle = computed(() => {
-  const map = positionMap[settings.value.position] ?? positionMap['bottom-right'];
-  return {
-    display: 'flex',
-    justifyContent: map.justify,
-    alignItems: map.align,
-  };
+  const m = positionMap[settings.value.position] ?? positionMap['bottom-right'];
+  return { display: 'flex', justifyContent: m.justify, alignItems: m.align };
 });
 
 const watermarkContentStyle = computed(() => ({
-  opacity: settings.value.opacity / 100,
-  display: 'flex',
+  opacity:       settings.value.opacity / 100,
+  display:       'flex',
   flexDirection: 'column',
-  alignItems: 'center',
-  gap: '4px',
+  alignItems:    'center',
+  gap:           '4px',
 }));
 
 const textStyle = computed(() => ({
@@ -476,13 +461,13 @@ const textStyle = computed(() => ({
   fontSize:   `${settings.value.size * 0.4}px`,
   fontWeight: 'bold',
   fontFamily: 'Arial, sans-serif',
-  lineHeight: 1,
+  lineHeight:  1,
 }));
 
 const logoStyle = computed(() => ({
-  width:      `${settings.value.scale}%`,
-  maxWidth:   '120px',
-  objectFit:  'contain',
+  width:     `${settings.value.scale}%`,
+  maxWidth:  '120px',
+  objectFit: 'contain',
 }));
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
@@ -490,7 +475,7 @@ onMounted(loadSettings);
 </script>
 
 <style scoped>
-/* Position Grid */
+/* ── Position Grid ─────────────────────────────────────────── */
 .position-grid-wrapper {
   display: flex;
   justify-content: center;
@@ -517,7 +502,6 @@ onMounted(loadSettings);
   cursor: pointer;
   transition: all 0.15s ease;
   color: #9e9e9e;
-  font-size: 0;
 }
 
 .position-cell:hover {
@@ -536,19 +520,18 @@ onMounted(loadSettings);
 .position-label {
   font-size: 9px;
   font-weight: 600;
-  letter-spacing: 0;
   white-space: nowrap;
   font-family: 'Tajawal', sans-serif;
 }
 
-/* Upload Zone */
+/* ── Upload Zone ───────────────────────────────────────────── */
 .upload-zone {
   border: 2px dashed #bdbdbd;
   padding: 28px 16px;
   text-align: center;
   background: #fafafa;
   transition: border-color 0.2s, background 0.2s;
-  min-height: 140px;
+  min-height: 150px;
 }
 
 .upload-zone:hover,
@@ -557,13 +540,34 @@ onMounted(loadSettings);
   background: #e3f2fd;
 }
 
+.upload-zone--processing {
+  border-color: #1976d2;
+  background: #e3f2fd;
+  cursor: not-allowed;
+}
+
+/* Checkered pattern to show image transparency */
+.transparent-checker {
+  background-image:
+    linear-gradient(45deg, #ccc 25%, transparent 25%),
+    linear-gradient(-45deg, #ccc 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ccc 75%),
+    linear-gradient(-45deg, transparent 75%, #ccc 75%);
+  background-size: 12px 12px;
+  background-position: 0 0, 0 6px, 6px -6px, -6px 0px;
+  background-color: #f0f0f0;
+  min-width: 80px;
+  min-height: 80px;
+  padding: 6px;
+}
+
 .logo-preview-img {
   max-height: 90px;
   max-width: 80%;
   object-fit: contain;
 }
 
-/* Color picker */
+/* ── Color Picker ──────────────────────────────────────────── */
 .color-picker-input {
   width: 40px;
   height: 32px;
@@ -573,7 +577,7 @@ onMounted(loadSettings);
   padding: 2px;
 }
 
-/* Preview Box */
+/* ── Preview Box ───────────────────────────────────────────── */
 .preview-box {
   position: relative;
   width: 100%;
@@ -600,14 +604,13 @@ onMounted(loadSettings);
   inset: 0;
   padding: 12px;
   pointer-events: none;
-  direction: ltr; /* منع RTL من عكس اتجاه الفلكس - المواضع يمين/يسار يجب أن تكون حرفية */
+  direction: ltr; /* منع RTL من عكس المواضع */
 }
 
 .watermark-content {
-  /* flex/opacity set via inline style */
+  /* styles applied inline */
 }
 
-/* Watermark text stroke */
 .wm-stroke {
   text-shadow:
     -1px -1px 0 #fff,
@@ -616,7 +619,7 @@ onMounted(loadSettings);
      1px  1px 0 #fff;
 }
 
-/* Sticky preview on large screens */
+/* ── Sticky Preview ────────────────────────────────────────── */
 @media (min-width: 1280px) {
   .sticky-preview {
     position: sticky;
@@ -624,8 +627,5 @@ onMounted(loadSettings);
   }
 }
 
-/* Pointer events helper */
-.pointer-events-none {
-  pointer-events: none;
-}
+.pointer-events-none { pointer-events: none; }
 </style>
