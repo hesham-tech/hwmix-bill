@@ -315,13 +315,13 @@ const entityOptions = [
 
 const positions = [
   { value: 'top-right',     icon: 'ri-arrow-right-up-line',    label: 'أعلى يمين'    },
-  { value: 'top-center',    icon: 'ri-arrow-up-line',           label: 'أعلى وسط'     },
+  { value: 'top',           icon: 'ri-arrow-up-line',           label: 'أعلى وسط'     },
   { value: 'top-left',      icon: 'ri-arrow-left-up-line',     label: 'أعلى يسار'    },
-  { value: 'center-right',  icon: 'ri-arrow-right-line',        label: 'وسط يمين'     },
+  { value: 'right',         icon: 'ri-arrow-right-line',        label: 'وسط يمين'     },
   { value: 'center',        icon: 'ri-focus-3-line',            label: 'وسط'          },
-  { value: 'center-left',   icon: 'ri-arrow-left-line',         label: 'وسط يسار'     },
+  { value: 'left',          icon: 'ri-arrow-left-line',         label: 'وسط يسار'     },
   { value: 'bottom-right',  icon: 'ri-arrow-right-down-line',  label: 'أسفل يمين'    },
-  { value: 'bottom-center', icon: 'ri-arrow-down-line',         label: 'أسفل وسط'     },
+  { value: 'bottom',        icon: 'ri-arrow-down-line',         label: 'أسفل وسط'     },
   { value: 'bottom-left',   icon: 'ri-arrow-left-down-line',   label: 'أسفل يسار'    },
 ];
 
@@ -433,13 +433,13 @@ const saveSettings = async () => {
 // ─── Computed Styles (Preview) ────────────────────────────────────────────────
 const positionMap = {
   'top-right':     { justify: 'flex-end',   align: 'flex-start' },
-  'top-center':    { justify: 'center',     align: 'flex-start' },
+  'top':           { justify: 'center',     align: 'flex-start' },
   'top-left':      { justify: 'flex-start', align: 'flex-start' },
-  'center-right':  { justify: 'flex-end',   align: 'center'     },
+  'right':         { justify: 'flex-end',   align: 'center'     },
   'center':        { justify: 'center',     align: 'center'     },
-  'center-left':   { justify: 'flex-start', align: 'center'     },
+  'left':          { justify: 'flex-start', align: 'center'     },
   'bottom-right':  { justify: 'flex-end',   align: 'flex-end'   },
-  'bottom-center': { justify: 'center',     align: 'flex-end'   },
+  'bottom':        { justify: 'center',     align: 'flex-end'   },
   'bottom-left':   { justify: 'flex-start', align: 'flex-end'   },
 };
 
