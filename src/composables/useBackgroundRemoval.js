@@ -42,7 +42,7 @@ export function useBackgroundRemoval() {
 
       const resultBlob = await imglyRemoveBg(input, {
         publicPath: 'https://static.imgly.com/@imgly/background-removal-data/1.4.3/dist/',
-        model:  options.model   ?? 'medium',
+        model:  options.model   ?? 'small',
         output: {
           format:  'image/png',
           quality: options.quality ?? 0.9,
