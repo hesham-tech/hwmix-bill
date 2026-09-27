@@ -40,7 +40,7 @@ export function useBackgroundRemoval() {
 
       removingBgStatus.value = 'جاري تحليل الصورة وإزالة الخلفية...';
 
-      const resolvedPath = window.location.origin + '/ai-models/bg-removal-v2/';
+      const resolvedPath = window.location.origin + '/ai-models/bg-removal-v3/';
       console.log('[useBackgroundRemoval] Using publicPath:', resolvedPath);
       
       const resultBlob = await imglyRemoveBg(input, {
