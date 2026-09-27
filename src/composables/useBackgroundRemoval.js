@@ -46,6 +46,8 @@ export function useBackgroundRemoval() {
       const resultBlob = await imglyRemoveBg(input, {
         publicPath: resolvedPath,
         model:  options.model   ?? 'medium',
+        device: 'gpu',
+        proxyToWorker: true,
         output: {
           format:  'image/png',
           quality: options.quality ?? 0.9,
