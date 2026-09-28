@@ -37,7 +37,17 @@
             <v-col cols="12" md="6">
               <v-text-field
                 v-model.number="formData.service_amount"
-                label="المبلغ الأساسي (قيمة العملية)"
+                label="قيمة العملية الأساسية"
+                type="number"
+                variant="outlined"
+                :rules="[v => !!v || 'مطلوب', v => v > 0 || 'يجب أن يكون أكبر من الصفر']"
+              ></v-text-field>
+            </v-col>
+
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model.number="formData.customer_amount"
+                label="المبلغ المدفوع / المستلم من العميل"
                 type="number"
                 variant="outlined"
                 :rules="[v => !!v || 'مطلوب', v => v > 0 || 'يجب أن يكون أكبر من الصفر']"
@@ -54,22 +64,11 @@
               ></v-text-field>
             </v-col>
             
-            <v-col cols="12" md="6">
-              <v-text-field
-                v-model.number="formData.shop_commission"
-                label="عمولة المحل (ربحك)"
-                type="number"
-                variant="outlined"
-                hide-details
-              ></v-text-field>
+            <v-col cols="12" md="6" class="d-flex align-center justify-center">
+                <div class="text-h6 text-primary">
+                    عمولة المحل: {{ calculatedShopCommission }} ج.م
+                </div>
             </v-col>
-            
-            <!-- Auto calculated summary -->
-             <v-col cols="12">
-                <v-alert type="success" variant="tonal" class="mt-2 text-center text-h6">
-                    المبلغ المطلوب من العميل: {{ totalFromCustomer }} ج.م
-                </v-alert>
-             </v-col>
           </v-row>
         </v-form>
       </v-card-text>
@@ -118,7 +117,7 @@ const formData = ref({
   service_definition_id: null,
   service_amount: 0,
   network_fee: 0,
-  shop_commission: 0,
+  customer_amount: 0,
 });
 
 // القائمة الفعلية من الباك إند
@@ -145,22 +144,15 @@ watch(() => props.modelValue, (isOpenVal) => {
 });
 
 // الديناميكية: حساب الإجمالي وتحديد المبلغ الكاش
-const totalFromCustomer = computed(() => {
-  const op = definitions.value.find(d => d.id === formData.value.service_definition_id);
+const calculatedShopCommission = computed(() => {
   const amount = Number(formData.value.service_amount) || 0;
+  const custAmount = Number(formData.value.customer_amount) || 0;
   const netFee = Number(formData.value.network_fee) || 0;
-  const shopComm = Number(formData.value.shop_commission) || 0;
-
-  if (op?.operation_type === 'customer_withdrawal') {
-    // العميل يسحب فلوس (هو هيأخد كاش، لكنه هيدفعلنا عمولة)
-    // الإجمالي اللي هياخده الكاشير من المحفظة = المبلغ
-    // الإجمالي اللي هيديه للعميل = المبلغ ناقص عمولة المحل
-    // سنعرضها كإجمالي التفاعل
-    return (amount - shopComm); 
-  } else {
-    // إيداع أو دفع فاتورة: الكاشير يأخذ من العميل المبلغ + العمولات
-    return amount + netFee + shopComm;
-  }
+  
+  if (amount === 0 || custAmount === 0) return 0;
+  
+  const diff = Math.abs(amount - custAmount);
+  return Math.max(0, diff - netFee);
 });
 
 const closeDialog = () => {
@@ -176,22 +168,24 @@ const submit = async () => {
   try {
     const op = definitions.value.find(d => d.id === formData.value.service_definition_id);
     const amount = Number(formData.value.service_amount);
+    const custAmount = Number(formData.value.customer_amount);
     const netFee = Number(formData.value.network_fee);
-    const shopComm = Number(formData.value.shop_commission);
+    const shopComm = calculatedShopCommission.value;
     
     let cashAmount = 0;
     let providerAmount = 0;
 
     if (op?.operation_type === 'customer_withdrawal') {
-      cashAmount = -(amount - shopComm); // Outgoing cash
+      cashAmount = -custAmount; // Outgoing cash to customer
       providerAmount = amount; // Incoming to wallet
     } else {
-      cashAmount = amount + netFee + shopComm; // Incoming cash
+      cashAmount = custAmount; // Incoming cash from customer
       providerAmount = -(amount + netFee); // Outgoing from wallet
     }
 
     const payload = {
       ...formData.value,
+      shop_commission: shopComm,
       cash_box_id: props.cashBoxId,
       provider_amount: providerAmount,
       cash_amount: cashAmount
