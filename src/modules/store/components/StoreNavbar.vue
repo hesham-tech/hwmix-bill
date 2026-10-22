@@ -157,6 +157,9 @@
         <router-link to="/store?sort=best_selling" class="nav-link text-body-2 font-weight-bold text-error">
           <v-icon icon="ri-fire-line" size="18" class="me-1"></v-icon> الأكثر مبيعاً
         </router-link>
+        <router-link to="/tools" class="nav-link text-body-2 font-weight-bold text-primary">
+          <v-icon icon="ri-apps-2-line" size="18" class="me-1"></v-icon> مركز الأدوات
+        </router-link>
       </div>
     </v-container>
 
@@ -168,6 +171,7 @@
           <v-list-item to="/" prepend-icon="ri-home-4-line" title="الرئيسية"></v-list-item>
           <v-list-item to="/store" prepend-icon="ri-shopping-bag-3-line" title="المنتجات"></v-list-item>
           <v-list-item to="/store?sort=best_selling" prepend-icon="ri-fire-line" title="الأكثر مبيعاً" class="text-error"></v-list-item>
+          <v-list-item to="/tools" prepend-icon="ri-apps-2-line" title="مركز الأدوات" class="text-primary"></v-list-item>
         </v-list>
       </div>
     </v-navigation-drawer>

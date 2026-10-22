@@ -16,6 +16,7 @@
         </div>
         <div class="nav-links">
           <router-link to="/" class="nav-link">المتجر</router-link>
+          <router-link to="/tools" class="nav-link">الأدوات</router-link>
           <a href="#features" class="nav-link">المميزات</a>
           <a href="#pricing" class="nav-link">الأسعار</a>
           <template v-if="!authStore.isAuthenticated">

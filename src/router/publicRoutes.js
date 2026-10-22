@@ -1,4 +1,7 @@
+import toolsRoutes from '@/modules/tools/routes';
+
 export default [
+  ...toolsRoutes,
   {
     path: '/',
     name: 'landing',
