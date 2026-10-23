@@ -5,7 +5,7 @@
     <StoreNavbar />
 
     <v-main class="bg-grey-lighten-5 min-vh-100 pb-16">
-      <v-container style="max-width: 1000px;" class="py-8">
+      <v-container style="max-width: 1000px;" class="py-8" id="tool-detail-container">
         <!-- Breadcrumb & Top Actions (ثابتة لجميع الأدوات) -->
         <div class="d-flex align-center justify-space-between flex-wrap gap-3 mb-6">
           <v-breadcrumbs
@@ -96,7 +96,7 @@
           </v-card>
 
           <!-- Other Recommended Tools (أدوات مقترحة تلقائية) -->
-          <div class="mt-12">
+          <div v-if="otherTools.length > 0" class="mt-12">
             <h3 class="text-h6 font-weight-bold mb-4">أدوات أخرى قد تهمك</h3>
             <v-row>
               <v-col
@@ -129,7 +129,7 @@
 </template>
 
 <script setup>
-import { computed, ref, defineAsyncComponent } from 'vue'
+import { computed, ref, defineAsyncComponent, onMounted, watch, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import StoreNavbar from '@/modules/store/components/StoreNavbar.vue'
 import ToolCard from '@/modules/tools/components/ToolCard.vue'
@@ -137,6 +137,24 @@ import { TOOLS_REGISTRY } from '@/modules/tools/data/toolsRegistry'
 
 const route = useRoute()
 const copied = ref(false)
+
+// تمرير تلقائي ديناميكي لأعلى الأداة عند فتح الصفحة أو تغيير الأداة
+const scrollToTop = () => {
+  nextTick(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    })
+  })
+}
+
+onMounted(() => {
+  scrollToTop()
+})
+
+watch(() => route.params.toolSlug, () => {
+  scrollToTop()
+})
 
 // تحميل ديناميكي آلي لجميع ملفات الأدوات داخل مجلد components
 const toolComponents = import.meta.glob('@/modules/tools/components/*.vue')

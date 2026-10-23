@@ -5,6 +5,7 @@
     class="tool-card rounded-xl pa-5 d-flex flex-column h-100 hover-lift tour-tool-card"
     :to="tool.route"
     elevation="0"
+    @click="onCardClick"
   >
     <div class="d-flex align-center justify-space-between mb-4">
       <v-avatar :color="tool.iconColor || 'primary'" size="52" rounded="lg" class="elevation-1">
@@ -55,6 +56,13 @@ defineProps({
     required: true,
   },
 })
+
+const onCardClick = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth',
+  })
+}
 </script>
 
 <style scoped>

@@ -3,10 +3,6 @@
 export const TOOL_CATEGORIES = [
   { id: 'all', title: 'جميع الأدوات', icon: 'ri-apps-2-line' },
   { id: 'education', title: 'تعليم وأطفال', icon: 'ri-book-read-line' },
-  { id: 'financial', title: 'حاسبات مالية وزكاة', icon: 'ri-hand-coin-line' },
-  { id: 'business', title: 'أعمال وتجارة', icon: 'ri-briefcase-4-line' },
-  { id: 'converters', title: 'محولات وعملات', icon: 'ri-exchange-dollar-line' },
-  { id: 'productivity', title: 'إنتاجية ومرافق', icon: 'ri-flashlight-line' },
 ];
 
 export const TOOLS_REGISTRY = [
@@ -23,69 +19,12 @@ export const TOOLS_REGISTRY = [
     tags: ['أطفال', 'ساعة', 'تعليم', 'وقت', 'عقارب', 'رقمية', 'زمن'],
     componentName: 'KidsClockLearning',
   },
-  {
-    id: 'zakat-calculator',
-    title: 'حاسبة زكاة المال والذهب',
-    description: 'احسب بدقة زكاة أموالك النقدية والودائع والذهب والفضة وعروض التجارة مع احتساب النصاب الشرعي للعام الحالي.',
-    icon: 'ri-hand-coin-line',
-    iconColor: 'success',
-    category: 'financial',
-    badge: 'الأكثر طلباً',
-    badgeColor: 'success',
-    route: '/tools/zakat-calculator',
-    tags: ['زكاة', 'أموال', 'ذهب', 'فضة', 'نصاب', 'حساب شرعي'],
-    componentName: 'ZakatCalculator',
-  },
-  {
-    id: 'vat-calculator',
-    title: 'حاسبة ضريبة القيمة المضافة (VAT)',
-    description: 'احتساب دقيق للمبلغ قبل الضريبة وبعدها واستخراج قيمة الضريبة المضافة بنسب قابلة للتخصيص بنقرة واحدة.',
-    icon: 'ri-percent-line',
-    iconColor: 'primary',
-    category: 'financial',
-    badge: 'أساسي',
-    badgeColor: 'primary',
-    route: '/tools/vat-calculator',
-    tags: ['ضريبة', 'VAT', 'فواتير', 'قيمة مضافة', 'مبيعات'],
-    componentName: 'VatCalculator',
-  },
-  {
-    id: 'currency-converter',
-    title: 'محول العملات السريع',
-    description: 'تحويل فوري وسلس بين العملات العربية (الريال السعودي، الجنيه المصري، الدرهم الإماراتي، إلخ) والعملات العالمية.',
-    icon: 'ri-exchange-dollar-line',
-    iconColor: 'info',
-    category: 'converters',
-    badge: 'تفاعلي',
-    badgeColor: 'info',
-    route: '/tools/currency-converter',
-    tags: ['عملات', 'دولار', 'ريال', 'جنيه', 'صرف', 'تحويل'],
-    componentName: 'CurrencyConverter',
-  },
-  {
-    id: 'profit-margin-calculator',
-    title: 'حاسبة هامش الربح والتسعير',
-    description: 'احسب هامش الربح (Markup & Margin) ونسب الربحية بدقة لتسعير المنتجات والخدمات التجارية بالشكل الأمثل.',
-    icon: 'ri-line-chart-line',
-    iconColor: 'deep-purple',
-    category: 'business',
-    badge: 'تجار',
-    badgeColor: 'deep-purple',
-    route: '/tools/profit-margin-calculator',
-    tags: ['أرباح', 'تسعير', 'مارجن', 'تكلفة', 'تجارة', 'منتجات'],
-    componentName: 'ProfitMarginCalculator',
-  },
-  {
-    id: 'qr-generator',
-    title: 'مولد ومصمم رموز QR الذكية',
-    description: 'أنشئ باركود QR سريع ومجاني للروابط والنصوص والواتساب مع إمكانية التنزيل بجودة عالية لاستخدامه فوراً.',
-    icon: 'ri-qr-code-line',
-    iconColor: 'amber-darken-2',
-    category: 'productivity',
-    badge: 'مفيد',
-    badgeColor: 'amber-darken-2',
-    route: '/tools/qr-generator',
-    tags: ['QR', 'باركود', 'روابط', 'واي فاي', 'تصميم'],
-    componentName: 'QrGenerator',
-  },
+  /* 
+  الأدوات الإضافية محفوظة ومتاحة للتفعيل عند الحاجة:
+  - zakat-calculator (حاسبة زكاة المال والذهب)
+  - vat-calculator (حاسبة ضريبة القيمة المضافة)
+  - currency-converter (محول العملات السريع)
+  - profit-margin-calculator (حاسبة هامش الربح والتسعير)
+  - qr-generator (مولد ومصمم رموز QR الذكية)
+  */
 ];
