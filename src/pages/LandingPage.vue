@@ -17,34 +17,6 @@
         </v-carousel>
       </section>
 
-      <!-- Free Tools Highlight Banner -->
-      <section class="py-6 bg-grey-lighten-5">
-        <v-container>
-          <v-card class="rounded-2xl border-0 pa-6 pa-md-8 text-white elevation-3 overflow-hidden position-relative" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #4338ca 100%);">
-            <div class="d-flex flex-column flex-md-row align-center justify-space-between gap-6 position-relative" style="z-index: 2;">
-              <div class="text-center text-md-start">
-                <v-chip color="amber-accent-3" variant="flat" size="small" class="font-weight-black mb-3 text-slate-900">
-                  ✨ مركز الأدوات المجانية 100%
-                </v-chip>
-                <h3 class="text-h4 font-weight-black mb-2">تطبيقات ويب وحاسبات ذكية بين يديك</h3>
-                <p class="text-body-1 text-grey-lighten-2 mb-0" style="max-width: 650px;">
-                  استمتع بأدوات تعليمية للأطفال، حاسبات زكاة وضريبة، محولات عملات، ورموز QR سريعة بدون الحاجة لتسجيل دخول.
-                </p>
-              </div>
-              <v-btn
-                to="/tools"
-                color="amber-accent-3"
-                size="x-large"
-                rounded="pill"
-                class="font-weight-black px-8 text-slate-900 elevation-2 flex-shrink-0"
-                append-icon="ri-arrow-left-line"
-              >
-                تصفح مركز الأدوات
-              </v-btn>
-            </div>
-          </v-card>
-        </v-container>
-      </section>
 
       <!-- Category Section -->
       <section id="categories" class="py-16 bg-white">

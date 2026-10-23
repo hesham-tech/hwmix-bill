@@ -17,32 +17,7 @@
 
           <!-- Products Area -->
           <v-col cols="12" md="9" lg="9" class="pa-2 pa-md-3">
-            
-            <!-- Tools Quick Access Banner -->
-            <v-card class="mb-4 rounded-xl border-0 text-white elevation-1 overflow-hidden" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
-              <v-card-text class="d-flex align-center justify-space-between flex-wrap gap-3 py-3 px-4">
-                <div class="d-flex align-center gap-3">
-                  <v-avatar color="primary" size="38" rounded="lg">
-                    <v-icon icon="ri-apps-2-line" color="white" size="22"></v-icon>
-                  </v-avatar>
-                  <div>
-                    <div class="text-subtitle-2 font-weight-bold text-white">هل تبحث عن حاسبات وأدوات مفيدة؟</div>
-                    <div class="text-caption text-grey-lighten-2">جرّب مركز الأدوات وتطبيقات الويب المجانية بدون تسجيل</div>
-                  </div>
-                </div>
-                <v-btn
-                  to="/tools"
-                  color="amber-accent-3"
-                  variant="flat"
-                  size="small"
-                  rounded="pill"
-                  class="font-weight-black text-slate-900 px-4"
-                  append-icon="ri-arrow-left-line"
-                >
-                  استكشف الأدوات 🛠️
-                </v-btn>
-              </v-card-text>
-            </v-card>
+
 
             <!-- Toolbar -->
             <v-card class="mb-4 rounded-xl border-0 bg-white" elevation="0">
