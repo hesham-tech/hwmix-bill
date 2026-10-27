@@ -253,4 +253,11 @@ const orderSteps = [
 .step-pending .timeline-icon {
   background: #f1f5f9;
 }
+
+/* مساحة أمان سفلية للهاتف - تمنع تغطية الشريط السفلي للمحتوى */
+@media (max-width: 959px) {
+  .order-confirmation-page {
+    padding-bottom: calc(var(--store-bottom-height, calc(66px + env(safe-area-inset-bottom, 0px))) + var(--store-purchase-height, 0px) + 12px) !important;
+  }
+}
 </style>

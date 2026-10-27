@@ -4,6 +4,9 @@
     location="left"
     temporary
     width="420"
+    :style="{ maxWidth: '100vw' }"
+    :z-index="2200"
+    aria-label="سلة التسوق"
     dir="rtl"
   >
     <div class="cart-drawer d-flex flex-column h-100">
@@ -19,7 +22,7 @@
             <p class="text-caption text-grey mb-0">{{ cartStore.itemCount }} منتج</p>
           </div>
         </div>
-        <v-btn icon="ri-close-line" variant="tonal" size="small" @click="cartStore.toggleDrawer" color="grey"></v-btn>
+        <v-btn aria-label="إغلاق السلة" icon="ri-close-line" variant="tonal" size="small" @click="cartStore.toggleDrawer" color="grey"></v-btn>
       </div>
 
       <v-divider></v-divider>

@@ -42,3 +42,8 @@ public/mockServiceWorker.js
 # Env files
 .env*
 !.env.example
+
+# Local analysis, previews, and one-off patch helpers
+.cache/
+graphify-out/
+/src/brain/patch_store_*.cjs

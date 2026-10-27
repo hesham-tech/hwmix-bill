@@ -14,7 +14,7 @@ export const storeProductsApi = {
     apiClient.get(`${BASE}/products/${slug}`),
 
   getCategories: () =>
-    apiClient.get(`${BASE}/categories`),
+    apiClient.get(`${BASE}/categories`, { handleErrorLocally: true }),
 
   getBrands: () =>
     apiClient.get(`${BASE}/brands`),

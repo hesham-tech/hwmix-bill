@@ -178,7 +178,7 @@
                 <!-- Price & Stock -->
                 <div class="price-stock-row mb-6">
                   <div class="d-flex align-end gap-2 mb-2">
-                    <span class="detail-price">{{ formatPrice(selectedVariant?.price || product.price) }}</span>
+                    <span class="detail-price">{{ formatPrice(selectedVariant?.price ?? product.price) }}</span>
                     <span class="detail-currency mb-2">ج.م</span>
                   </div>
                   
@@ -244,7 +244,7 @@
                         size="small"
                         variant="outlined"
                         class="rounded-lg"
-                        :disabled="quantity >= (product.quantity || 99)"
+                        :disabled="quantity >= maxAvailable"
                         @click="quantity++"
                         color="grey-darken-2"
                       ></v-btn>
@@ -354,20 +354,26 @@
         </div>
       </v-container>
     </v-main>
-
-    <CartDrawer />
+    <div v-if="!loading && !error && product && !lightboxOpen && !isMenuOpen && !keyboardOpen" ref="purchaseElement" class="mobile-purchase-bar d-md-none" :style="{ bottom: navOffset + 'px' }" aria-label="شراء المنتج">
+      <div class="purchase-price"><strong>{{ formatPrice(selectedVariant?.price ?? product.price) }}</strong> ج.م
+        <small class="d-block">الكمية: {{ quantity }}</small>
+      </div>
+      <v-btn color="primary" rounded="lg" height="44" min-width="144" class="text-body-2 font-weight-bold" :disabled="!isAvailable || addingToCart" :loading="addingToCart" @click="addToCart">
+        {{ isAvailable ? 'أضف للسلة' : 'نفد المخزون' }}
+      </v-btn>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { useStoreMobileNav } from '@/modules/store/composables/useStoreMobileNav'
 import { useRoute, useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
 import { useWishlistStore } from '@/stores/wishlist'
 import { useHead } from '@vueuse/head'
 import { storeProductsApi } from '@/modules/store/api/storeProducts.api.js'
 import StoreNavbar from '@/modules/store/components/StoreNavbar.vue'
-import CartDrawer from '@/modules/store/components/CartDrawer.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -413,9 +419,27 @@ const trustBadges = [
   { icon: 'ri-customer-service-2-line', label: 'دعم 24/7' },
 ]
 
-const isAvailable = computed(() =>
-  product.value && (product.value.stock_status === 'in_stock' || product.value.quantity > 0)
-)
+const maxAvailable = computed(() => Math.max(0, Number(selectedVariant.value?.available_stock ?? product.value?.quantity ?? 0)))
+const isAvailable = computed(() => !!product.value && maxAvailable.value > 0)
+watch(maxAvailable, stock => { quantity.value = Math.max(1, Math.min(quantity.value, stock)) })
+const { isNavVisible, bottomNavHeight, purchaseHeight, anyMenuOpen, keyboardOpen, overlayOpen } = useStoreMobileNav()
+const isMenuOpen = computed(() => anyMenuOpen.value || cartStore.isDrawerOpen)
+const navOffset = computed(() => isNavVisible.value && !keyboardOpen.value ? bottomNavHeight.value : 0)
+const purchaseElement = ref(null)
+let purchaseObserver
+watch(purchaseElement, element => {
+  purchaseObserver?.disconnect()
+  purchaseHeight.value = 0
+  if (!element) return
+  purchaseObserver = new ResizeObserver(() => { purchaseHeight.value = element.getBoundingClientRect().height })
+  purchaseObserver.observe(element, { box: 'border-box' })
+}, { flush: 'post' })
+watch(lightboxOpen, open => { overlayOpen.value = open })
+onUnmounted(() => {
+  purchaseObserver?.disconnect()
+  purchaseHeight.value = 0
+  overlayOpen.value = false
+})
 
 const isFavorite = computed(() => {
   return wishlistStore.items.some(i => i.productId === product.value?.id)
@@ -526,13 +550,13 @@ const buildCartItem = () => ({
   productName: product.value.name,
   variantSku: selectedVariant.value?.sku || product.value.sku,
   image: product.value.image || defaultImage,
-  unitPrice: selectedVariant.value?.price || product.value.price,
+  unitPrice: selectedVariant.value?.price ?? product.value.price,
   quantity: quantity.value,
-  maxStock: product.value.quantity
+  maxStock: maxAvailable.value
 })
 
 const addToCart = async () => {
-  if (!isAvailable.value) return
+  if (!isAvailable.value || addingToCart.value) return
   addingToCart.value = true
   setTimeout(() => { addingToCart.value = false }, 600)
   cartStore.addItem(buildCartItem())
@@ -841,4 +865,31 @@ const buyNow = () => {
 .cursor-pointer {
   cursor: pointer;
 }
+
+/* مساحة أمان سفلية للهاتف - تمنع تغطية الشريط السفلي للمحتوى */
+@media (max-width: 959px) {
+  .product-detail-page {
+    padding-bottom: calc(var(--store-bottom-height, calc(66px + env(safe-area-inset-bottom, 0px))) + var(--store-purchase-height, 0px) + 12px) !important;
+  }
+}
+</style>
+
+<style scoped>
+.mobile-purchase-bar {
+  position: fixed;
+  inset-inline: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px max(10px, env(safe-area-inset-bottom, 0px));
+  background: white;
+  border-top: 1px solid #e2e8f0;
+  box-shadow: 0 -3px 12px #00000008;
+  transition: bottom .28s cubic-bezier(.16, 1, .3, 1);
+}
+.purchase-price { min-width: 0; font-size: 14px; }
+.purchase-price small { color: #64748b; }
+@media (prefers-reduced-motion: reduce) { .mobile-purchase-bar { transition: none; } }
 </style>

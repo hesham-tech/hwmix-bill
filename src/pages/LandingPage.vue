@@ -1,38 +1,44 @@
 <template>
-  <div class="landing-page">
+  <div class="landing-page" dir="rtl">
     <StoreNavbar />
-    <CartDrawer />
 
-    <v-main>
+    <main>
       <!-- Hero Carousel -->
-      <section class="banner-carousel-section">
-        <v-carousel cycle hide-delimiter-background show-arrows="hover" :height="$vuetify.display.smAndDown ? 200 : 450" class="mb-8">
+      <section class="banner-carousel-section" aria-label="اكتشف المتجر">
+        <v-carousel hide-delimiter-background :show-arrows="!$vuetify.display.smAndDown" :height="$vuetify.display.smAndDown ? 210 : 380">
           <v-carousel-item
             v-for="(banner, i) in banners"
             :key="i"
             :src="banner.image"
             cover
           >
+            <div class="banner-content">
+              <span class="banner-eyebrow">اختياراتك تبدأ هنا</span>
+              <h1 v-if="i === 0">تقنية تناسب يومك</h1>
+              <h2 v-else>اكتشف جديد الإلكترونيات</h2>
+              <p>تصفح المنتجات واختر ما يناسبك</p>
+              <v-btn to="/store" color="white" rounded="pill" append-icon="ri-arrow-left-line" class="mt-3 font-weight-bold">تسوق الآن</v-btn>
+            </div>
           </v-carousel-item>
         </v-carousel>
       </section>
 
 
       <!-- Category Section -->
-      <section id="categories" class="py-16 bg-white">
+      <section id="categories" class="discovery-section bg-white">
         <v-container>
-          <div class="d-flex align-center justify-space-between mb-10">
+          <div class="section-heading d-flex align-center justify-space-between gap-2">
             <div>
-              <h2 class="text-h4 font-weight-bold mb-2">تسوق حسب القسم</h2>
-              <p class="text-grey">اختر ما يناسبك من بين تشكيلاتنا الواسعة</p>
+              <h2 class="section-title font-weight-bold mb-1">تسوق حسب القسم</h2>
+              <p class="text-grey">كل ما تحتاجه، في مكان واحد</p>
             </div>
-            <v-btn variant="text" color="primary" append-icon="ri-arrow-left-line">عرض الكل</v-btn>
+            <v-btn to="/store" variant="text" color="primary" append-icon="ri-arrow-left-line" class="flex-shrink-0">عرض الكل</v-btn>
           </div>
 
           <v-row>
             <v-col v-for="(cat, i) in categories" :key="i" cols="6" md="3">
-              <v-card variant="flat" border class="category-card rounded-md text-center pa-6 hover-lift-up" :to="`/store?category_id=${cat.id}`">
-                <v-avatar :color="cat.image_url ? 'transparent' : ((cat.color || 'primary') + '-lighten-5')" rounded="circle" size="80" class="mb-4">
+              <v-card variant="flat" border class="category-card rounded-xl text-center pa-4 hover-lift-up" :to="`/store?category_id=${cat.id}`">
+                <v-avatar :color="cat.image_url ? 'transparent' : ((cat.color || 'primary') + '-lighten-5')" rounded="circle" size="64" class="mb-2">
                   <v-img v-if="cat.image_url" :src="cat.image_url" cover></v-img>
                   <v-icon v-else :icon="cat.icon || 'ri-layout-grid-line'" :color="cat.color || 'primary'" size="40" />
                 </v-avatar>
@@ -45,12 +51,15 @@
       </section>
 
       <!-- Featured Products Section -->
-      <section id="products" class="py-16 bg-grey-lighten-5">
+      <section id="products" class="discovery-section bg-grey-lighten-5">
         <v-container>
-          <h2 class="text-h4 font-weight-bold text-center mb-12">المنتجات الأكثر مبيعاً</h2>
+          <div class="section-heading d-flex align-center justify-space-between gap-2">
+            <div><h2 class="section-title font-weight-bold mb-1">منتجات مميزة</h2><p class="text-grey">اكتشف اختيارات المتجر</p></div>
+            <v-btn to="/store" variant="text" color="primary" append-icon="ri-arrow-left-line">عرض الكل</v-btn>
+          </div>
 
           <v-row>
-            <v-col v-for="(prod, i) in featuredProducts" :key="i" cols="12" sm="6" md="3">
+            <v-col v-for="(prod, i) in featuredProducts" :key="prod.id || i" cols="6" sm="6" md="3">
               <ProductCard :product="prod" />
             </v-col>
           </v-row>
@@ -58,10 +67,10 @@
       </section>
 
       <!-- Why Us Section -->
-      <section class="py-16 bg-white border-y">
+      <section class="discovery-section bg-white border-y">
         <v-container>
           <v-row>
-            <v-col v-for="(item, i) in trustBadges" :key="i" cols="12" sm="6" md="3">
+            <v-col v-for="(item, i) in trustBadges" :key="i" cols="6" sm="6" md="3">
               <div class="d-flex align-start gap-4">
                 <v-avatar color="primary-lighten-5" rounded="md" size="48">
                   <v-icon :icon="item.icon" color="primary" />
@@ -151,7 +160,7 @@
           </div>
         </v-container>
       </footer>
-    </v-main>
+    </main>
   </div>
 </template>
 
@@ -163,7 +172,6 @@ import { useUserStore } from '@/stores/user';
 import { useBranding } from '@/composables/useBranding';
 import SellerBadge from '@/modules/store/components/SellerBadge.vue';
 import StoreNavbar from '@/modules/store/components/StoreNavbar.vue';
-import CartDrawer from '@/modules/store/components/CartDrawer.vue';
 import ProductCard from '@/modules/store/components/ProductCard.vue';
 import { storeProductsApi } from '@/modules/store/api/storeProducts.api.js';
 
@@ -224,7 +232,30 @@ const scrollToFeatures = () => {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Montserrat:wght@400;600;700;800&display=swap');
+.banner-carousel-section { max-width: 1280px; margin: 20px auto 0; padding: 0 24px; }
+.banner-carousel-section :deep(.v-carousel) { border-radius: 24px; overflow: hidden; }
+.banner-content { height: 100%; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: 40px; color: white; background: linear-gradient(270deg, rgba(10, 24, 42, .84), rgba(10, 24, 42, .08)); }
+.banner-content h1, .banner-content h2 { color: white; font-size: clamp(1.4rem, 4vw, 2.6rem); line-height: 1.5; }
+.banner-content :deep(.v-btn) { min-height: 44px; padding-inline: 24px; }
+.banner-content p { color: #f1f5f9; }
+.banner-eyebrow { font-size: .8rem; margin-bottom: 4px; }
+.discovery-section { padding: 32px 0; }
+.discovery-section > .v-container { max-width: 1280px; }
+.section-heading { margin-bottom: 20px; }
+.section-title { font-size: 1.4rem; line-height: 1.6; }
+#categories { scroll-margin-top: 128px; }
+@media (max-width: 959px) {
+  .banner-carousel-section { margin-top: 12px; padding: 0 16px; }
+  .banner-carousel-section :deep(.v-carousel) { border-radius: 18px; }
+  .banner-content { padding: 20px; }
+  .banner-content p, .section-heading p { font-size: .8rem; }
+  .discovery-section { padding: 20px 0; }
+  .section-title { font-size: 1.1rem; }
+  .section-heading { margin-bottom: 16px; }
+  .category-card h3 { font-size: .95rem !important; }
+  .footer { padding: 24px 16px calc(24px + var(--store-bottom-height, 66px)) !important; }
+}
+@media (prefers-reduced-motion: reduce) { .category-card { transition: none; } .hover-lift-up:hover { transform: none; } }
 
 .landing-page {
   font-family: 'Cairo', 'Montserrat', sans-serif;
@@ -407,8 +438,9 @@ const scrollToFeatures = () => {
 .footer {
   background: #0d1b4b !important;
 }
+.footer :is(h4, p, span) { color: #e2e8f0; }
 .footer-link {
-  color: #94a3b8;
+  color: #cbd5e1;
   text-decoration: none;
   font-size: 0.9rem;
   transition: color 0.3s;

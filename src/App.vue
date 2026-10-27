@@ -123,4 +123,15 @@ watch(
   z-index: 9999;
   padding: 0 !important;
 }
+@media (max-width: 959px) {
+  html[data-store-mobile] .global-fab-feedback {
+    bottom: calc(var(--store-nav-offset, 66px) + var(--store-purchase-height, 0px) + 12px);
+    z-index: 1001;
+    transition: bottom .28s;
+  }
+  html[data-store-overlay] .global-fab-feedback { visibility: hidden; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-store-mobile] .global-fab-feedback { transition: none; }
+}
 </style>

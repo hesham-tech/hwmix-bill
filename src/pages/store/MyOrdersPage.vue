@@ -339,4 +339,11 @@ onMounted(() => { fetchOrders() })
 .rounded-2xl { border-radius: 20px !important; }
 .cursor-pointer { cursor: pointer; }
 .border { border: 1px solid #f1f5f9 !important; }
+
+/* مساحة أمان سفلية للهاتف - تمنع تغطية الشريط السفلي للمحتوى */
+@media (max-width: 959px) {
+  .my-orders-page {
+    padding-bottom: calc(var(--store-bottom-height, calc(66px + env(safe-area-inset-bottom, 0px))) + var(--store-purchase-height, 0px) + 12px) !important;
+  }
+}
 </style>

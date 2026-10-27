@@ -232,34 +232,38 @@ apiClient.interceptors.response.use(
         });
       });
 
-      // Silent logging to background without interactive screen capture
-      import('@/modules/support/services/error-collector').then(module => {
-        module.collectErrorInfo(error, {
-          type: error?.response?.status === 400 ? 'bad_request' : isConnectivityError ? 'connectivity_error' : 'server_error',
-          isConnectivityError,
-          captureScreenshot: false,
-          request: {
-            method: error?.config?.method?.toUpperCase(),
-            url: error?.config?.url,
-            params: error?.config?.params,
-            data: error?.config?.data,
-          },
-          extraData: {
-            status: error?.response?.status || 0,
-            code: error?.code,
-            serverMessage: error?.response?.data?.message,
-            serverResponse: error?.response?.data,
-          },
-        }).then(info => {
-          import('@/stores/appState').then(storeModule => {
-            const appState = storeModule.useappState();
-            appState.pendingReport = info;
-            appState.isCapturing = false;
+      // Recoverable views can render their own retry UI without a blocking report dialog.
+      // Background logging above remains enabled; auth and service-unavailable handling is unchanged.
+      if (!error.config?.handleErrorLocally) {
+        // Silent logging to background without interactive screen capture
+        import('@/modules/support/services/error-collector').then(module => {
+          module.collectErrorInfo(error, {
+            type: error?.response?.status === 400 ? 'bad_request' : isConnectivityError ? 'connectivity_error' : 'server_error',
+            isConnectivityError,
+            captureScreenshot: false,
+            request: {
+              method: error?.config?.method?.toUpperCase(),
+              url: error?.config?.url,
+              params: error?.config?.params,
+              data: error?.config?.data,
+            },
+            extraData: {
+              status: error?.response?.status || 0,
+              code: error?.code,
+              serverMessage: error?.response?.data?.message,
+              serverResponse: error?.response?.data,
+            },
+          }).then(info => {
+            import('@/stores/appState').then(storeModule => {
+              const appState = storeModule.useappState();
+              appState.pendingReport = info;
+              appState.isCapturing = false;
+            });
+          }).catch(err => {
+            console.error('[AxiosInterceptor] Log error info failed:', err);
           });
-        }).catch(err => {
-          console.error('[AxiosInterceptor] Log error info failed:', err);
         });
-      });
+      }
     } else {
       // 409: Conflict
       if (error?.response?.status === 409) {

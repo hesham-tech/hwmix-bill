@@ -751,4 +751,11 @@ onMounted(() => {
 }
 
 .cursor-pointer { cursor: pointer; }
+
+/* مساحة أمان سفلية للهاتف - تمنع تغطية الشريط السفلي للمحتوى */
+@media (max-width: 959px) {
+  .checkout-page {
+    padding-bottom: calc(var(--store-bottom-height, calc(66px + env(safe-area-inset-bottom, 0px))) + var(--store-purchase-height, 0px) + 12px) !important;
+  }
+}
 </style>

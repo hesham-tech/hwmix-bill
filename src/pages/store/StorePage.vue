@@ -24,18 +24,6 @@
               <v-card-text class="d-flex align-center justify-space-between flex-wrap gap-4 py-2 px-3 py-md-3 px-md-4">
                 
                 <div class="d-flex align-center gap-3">
-                  <v-btn
-                    class="d-md-none"
-                    variant="tonal"
-                    color="primary"
-                    prepend-icon="ri-filter-3-line"
-                    @click="showMobileFilter = true"
-                    rounded="pill"
-                    size="small"
-                  >
-                    تصفية
-                  </v-btn>
-
                   <div class="text-body-2 font-weight-medium text-grey-darken-2">
                     عرض <span class="font-weight-black text-primary mx-1">{{ storeProductsStore.pagination.total || 0 }}</span> منتج
                   </div>
@@ -163,7 +151,7 @@
     </div>
 
     <!-- Mobile Drawer -->
-    <v-navigation-drawer v-model="showMobileFilter" location="right" temporary width="300" class="bg-white">
+    <v-navigation-drawer v-model="showMobileFilter" location="right" temporary width="300" :z-index="2200" :style="{ maxWidth: '100vw' }" class="bg-white">
       <div class="pa-4 d-flex align-center justify-space-between border-b">
         <h3 class="text-h6 font-weight-bold mb-0">تصفية</h3>
         <v-btn icon="ri-close-line" variant="text" density="comfortable" @click="showMobileFilter = false"></v-btn>
@@ -178,7 +166,6 @@
       </div>
     </v-navigation-drawer>
 
-    <CartDrawer />
   </div>
 </template>
 
@@ -190,17 +177,18 @@ import { storeProductsApi } from '@/modules/store/api/storeProducts.api.js'
 import StoreNavbar from '@/modules/store/components/StoreNavbar.vue'
 import ProductCard from '@/modules/store/components/ProductCard.vue'
 import ProductCardSkeleton from '@/modules/store/components/ProductCardSkeleton.vue'
-import CartDrawer from '@/modules/store/components/CartDrawer.vue'
 import FiltersSidebar from '@/modules/store/components/FiltersSidebar.vue'
+import { useStoreMobileNav } from '@/modules/store/composables/useStoreMobileNav'
+import { useStoreCategories } from '@/modules/store/composables/useStoreCategories'
 
 const route = useRoute()
 const router = useRouter()
 const storeProductsStore = useStoreProductsStore()
+const { isMobileFilterOpen: showMobileFilter } = useStoreMobileNav()
 
 const viewMode = ref('grid')
 const sortBy = ref('newest')
-const showMobileFilter = ref(false)
-const categories = ref([])
+const { categories, loadCategories } = useStoreCategories()
 const brands = ref([])
 
 const sortOptions = [
@@ -240,13 +228,6 @@ const onPageChange = (page) => {
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
-const loadCategories = async () => {
-  try {
-    const res = await storeProductsApi.getCategories()
-    categories.value = res.data?.data || []
-  } catch {}
-}
-
 const loadBrands = async () => {
   try {
     const res = await storeProductsApi.getBrands()
@@ -280,5 +261,12 @@ onMounted(() => {
 }
 .store-main-bg {
   background: #f8fafc;
+}
+
+/* مساحة أمان سفلية للهاتف - تمنع تغطية الشريط السفلي للمحتوى */
+@media (max-width: 959px) {
+  .store-page-wrapper {
+    padding-bottom: calc(var(--store-bottom-height, calc(66px + env(safe-area-inset-bottom, 0px))) + var(--store-purchase-height, 0px) + 12px) !important;
+  }
 }
 </style>

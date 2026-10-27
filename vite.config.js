@@ -133,6 +133,10 @@ export default defineConfig({
       '@configured-variables': fileURLToPath(new URL('./src/assets/styles/variables/_template.scss', import.meta.url)),
     },
   },
+  // Keep Vuetify style imports in the plugin pipeline across dev-server restarts.
+  optimizeDeps: {
+    exclude: ['vuetify'],
+  },
   build: {
     chunkSizeWarningLimit: 5000,
     rollupOptions: {

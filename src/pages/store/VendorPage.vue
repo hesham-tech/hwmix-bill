@@ -133,7 +133,6 @@
       </div>
     </v-main>
 
-    <CartDrawer />
   </div>
 </template>
 
@@ -144,7 +143,6 @@ import { vendorApi } from '@/modules/store/api/vendor.api.js'
 import StoreNavbar from '@/modules/store/components/StoreNavbar.vue'
 import ProductCard from '@/modules/store/components/ProductCard.vue'
 import ProductCardSkeleton from '@/modules/store/components/ProductCardSkeleton.vue'
-import CartDrawer from '@/modules/store/components/CartDrawer.vue'
 
 const route = useRoute()
 const vendorId = route.params.id
@@ -263,4 +261,11 @@ onMounted(() => { fetchVendorData() })
 }
 
 .rounded-2xl { border-radius: 20px !important; }
+
+/* مساحة أمان سفلية للهاتف - تمنع تغطية الشريط السفلي للمحتوى */
+@media (max-width: 959px) {
+  .vendor-page {
+    padding-bottom: calc(var(--store-bottom-height, calc(66px + env(safe-area-inset-bottom, 0px))) + var(--store-purchase-height, 0px) + 12px) !important;
+  }
+}
 </style>

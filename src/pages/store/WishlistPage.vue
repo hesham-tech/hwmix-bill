@@ -55,7 +55,6 @@
       </v-container>
     </div>
 
-    <CartDrawer />
   </div>
 </template>
 
@@ -65,7 +64,6 @@ import { useWishlistStore } from '@/stores/wishlist'
 import api from '@/services/api'
 import ProductCard from '@/modules/store/components/ProductCard.vue'
 import StoreNavbar from '@/modules/store/components/StoreNavbar.vue'
-import CartDrawer from '@/modules/store/components/CartDrawer.vue'
 
 const wishlistStore = useWishlistStore()
 const wishlistProducts = ref([])
@@ -126,5 +124,12 @@ watch(() => wishlistStore.items, (newItems) => {
 }
 .wishlist-page {
   min-height: calc(100vh - 80px);
+}
+
+/* مساحة أمان سفلية للهاتف - تمنع تغطية الشريط السفلي للمحتوى */
+@media (max-width: 959px) {
+  .wishlist-page {
+    padding-bottom: calc(var(--store-bottom-height, calc(66px + env(safe-area-inset-bottom, 0px))) + var(--store-purchase-height, 0px) + 12px) !important;
+  }
 }
 </style>
