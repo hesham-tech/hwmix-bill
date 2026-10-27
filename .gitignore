@@ -47,3 +47,16 @@ public/mockServiceWorker.js
 .cache/
 graphify-out/
 /src/brain/patch_store_*.cjs
+
+# Generated test reports and one-off exports
+/coverage/
+/playwright-report/
+/test-results/
+/tests/e2e/screenshots/
+/scratch/
+/package-*.tgz
+/build_log.txt
+/build_output.txt
+/resources_*.json
+/server_resources.json
+/0
