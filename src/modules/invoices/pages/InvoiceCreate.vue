@@ -5,7 +5,7 @@
       v-if="invoiceType === 'sale' || invoiceType === 'sales'"
       color="primary"
       size="x-large"
-      class="position-fixed font-weight-bold"
+      class="quick-service-button position-fixed font-weight-bold"
       style="bottom: 24px; left: 24px; z-index: 99; border-radius: 50%; height: 72px; width: 72px;"
       elevation="8"
       @click="isQuickServiceOpen = true"
@@ -48,5 +48,11 @@ const handleSuccess = invoice => {
 .invoice-create-page {
   background-color: rgb(var(--v-theme-background));
   min-height: 100vh;
+}
+@media(max-width:599.98px) {
+  .quick-service-button { position:static !important; width:auto !important; height:44px !important; border-radius:24px !important; margin:12px 12px 0; box-shadow:none !important; }
+  .quick-service-button :deep(.v-btn__content > div) { flex-direction:row !important; gap:8px; }
+  .quick-service-button :deep(span) { font-size:12px !important; line-height:1.4 !important; }
+  .quick-service-button :deep(br) { display:none; }
 }
 </style>

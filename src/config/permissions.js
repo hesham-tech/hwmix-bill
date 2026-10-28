@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ============================================================================
  * Permission Keys Constants - Complete Sync with Backend
  * ============================================================================
@@ -9,6 +9,9 @@
  */
 
 export const PERMISSIONS = {
+  LABEL_TEMPLATES_MANAGE: 'label_templates.manage',
+  LABEL_TEMPLATES_PUBLISH: 'label_templates.publish',
+  LABEL_TEMPLATES_SET_DEFAULT: 'label_templates.set_default',
   // ==================== Admin ====================
   ADMIN_PAGE: 'admin.page',
   ADMIN_SUPER: 'admin.super',

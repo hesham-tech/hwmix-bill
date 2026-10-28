@@ -45,6 +45,7 @@
               <!-- Actions Slot -->
               <template #actions>
                 <div class="d-flex gap-2">
+                  <AppButton v-if="selectedItems.length && canAny(PERMISSIONS.PRODUCTS_PRINT_LABELS)" color="primary" variant="tonal" prepend-icon="ri-printer-line" size="small" @click="stickerDialog?.openMany(selectedItems)">طباعة ملصقات المحدد</AppButton>
                   <AppButton
                     v-if="selectedItems.length > 0 && (canAny(PERMISSIONS.PRODUCTS_DELETE_ALL, PERMISSIONS.PRODUCTS_DELETE_CHILDREN, PERMISSIONS.PRODUCTS_DELETE_SELF) || userStore.isAdmin)"
                     color="error"
@@ -109,6 +110,14 @@
                     <span>إضافة منتج</span>
                   </AppButton>
                 </div>
+              </template>
+
+              <template #extra-actions="{ item }">
+                <v-list-item
+                  prepend-icon="ri-ticket-line"
+                  title="طباعة ملصقات الباركود"
+                  @click.stop="stickerDialog?.open(item.id)"
+                />
               </template>
 
               <!-- Category & Brand Column -->

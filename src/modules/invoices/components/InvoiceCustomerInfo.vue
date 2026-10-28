@@ -1,8 +1,12 @@
 <template>
   <div class="hyper-compact">
+    <button v-if="isPhone" type="button" class="phone-info-toggle" :aria-expanded="detailsOpen" @click="detailsOpen = !detailsOpen">
+      <span><strong>بيانات الفاتورة</strong><small>{{ invoiceTypes.find(t => t.id === modelValue.invoice_type_id)?.name || 'فاتورة جديدة' }} · {{ warehouses.find(w => w.id === modelValue.warehouse_id)?.name || 'اختر المخزن' }}</small></span>
+      <v-icon :icon="detailsOpen ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" />
+    </button>
     <v-row dense>
       <!-- Row: Responsive distribution -->
-      <v-col cols="6" md="4" lg="2" class="pa-2">
+      <v-col cols="12" sm="6" md="4" lg="2" class="pa-2">
         <CustomerSelector
           :model-value="selectedCustomer"
           :label="isPurchase ? 'المورد *' : 'العميل *'"
@@ -18,7 +22,7 @@
         />
       </v-col>
       
-      <v-col cols="6" md="4" lg="2" class="pa-2">
+      <v-col v-show="!isPhone || detailsOpen" cols="12" sm="6" md="4" lg="2" class="pa-2">
         <AppAutocomplete
           :model-value="modelValue.invoice_type_id"
           :items="invoiceTypes"
@@ -33,7 +37,7 @@
         />
       </v-col>
 
-      <v-col cols="6" md="4" lg="2" class="pa-2">
+      <v-col v-show="!isPhone || detailsOpen" cols="12" sm="6" md="4" lg="2" class="pa-2">
         <AppAutocomplete
           :model-value="modelValue.warehouse_id"
           :items="warehouses"
@@ -48,7 +52,7 @@
         />
       </v-col>
 
-      <v-col cols="6" md="4" lg="2" class="pa-2">
+      <v-col v-show="!isPhone || detailsOpen" cols="12" sm="6" md="4" lg="2" class="pa-2">
         <AppInput
           :model-value="modelValue.issue_date"
           type="date"
@@ -61,7 +65,7 @@
         />
       </v-col>
 
-      <v-col cols="6" md="4" lg="2" class="pa-2">
+      <v-col v-show="!isPhone || detailsOpen" cols="12" sm="6" md="4" lg="2" class="pa-2">
         <AppInput
           :model-value="modelValue.reference_number"
           label="المرجع"
@@ -72,7 +76,7 @@
         />
       </v-col>
 
-      <v-col cols="6" md="4" lg="2" class="pa-2">
+      <v-col v-show="!isPhone || detailsOpen" cols="12" sm="6" md="4" lg="2" class="pa-2">
         <div class="d-flex align-center h-100 px-2 bg-neutral-lighten-5 rounded border border-opacity-50 unified-input-height">
           <AppSwitch
             :model-value="modelValue.price_type === 'wholesale'"
@@ -90,8 +94,12 @@
 </template>
 
 <script setup>
+import { computed, ref, watch } from 'vue';
+import { useDisplay } from 'vuetify';
 import CustomerSelector from './CustomerSelector.vue';
-import { computed } from 'vue';
+const { xs: isPhone } = useDisplay();
+const detailsOpen = ref(false);
+defineExpose({ reveal: () => { detailsOpen.value = true; } });
 
 const props = defineProps({
   modelValue: {
@@ -116,6 +124,8 @@ const props = defineProps({
   },
 });
 
+watch(() => props.errors, errors => { if (Object.keys(errors).length) detailsOpen.value = true; });
+
 defineEmits(['update:selectedCustomer', 'create-customer', 'update:prop']);
 
 const isInstallmentSale = computed(() => {
@@ -137,4 +147,7 @@ const isPurchase = computed(() => {
 .border-dashed {
   border-style: dashed !important;
 }
+.phone-info-toggle { display:flex; width:100%; align-items:center; justify-content:space-between; text-align:start; padding:4px 8px 14px; color:inherit; }
+.phone-info-toggle strong { display:block; font-size:16px; }
+.phone-info-toggle small { display:block; margin-top:6px; font-size:12px; color:rgba(var(--v-theme-on-surface),.6); }
 </style>

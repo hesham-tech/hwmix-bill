@@ -48,7 +48,7 @@
           :loading="loading"
           @click="$emit('save')"
           :disabled="!canSubmit"
-          class="px-4 font-weight-bold text-xxs"
+          class="invoice-header-save px-4 font-weight-bold text-xxs"
         >
           حفظ الفاتورة
         </AppButton>
@@ -140,5 +140,12 @@ defineEmits(['save', 'cancel']);
 
 .mobile-dashboard {
   width: 100%;
+}
+@media(max-width:599.98px) {
+  .sticky-header { top:48px; min-height:60px; margin:0 !important; background:rgb(var(--v-theme-surface)); backdrop-filter:none; box-shadow:none; }
+  .sticky-header > div:first-child { min-height:60px !important; }
+  .sticky-header h1 { font-size:17px !important; max-width:220px !important; }
+  .mobile-dashboard, .invoice-header-save { display:none !important; }
+  .sticky-header :deep(.v-btn--icon) { width:44px; height:44px; }
 }
 </style>

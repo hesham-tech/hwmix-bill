@@ -5,7 +5,7 @@
       <div class="product-name">{{ item.productName }}</div>
       <div class="barcode-wrapper">
         <img :id="`bc-img-${index}`" :src="item.barcodeImage" alt="barcode" class="barcode-img" />
-        <div class="barcode-text">{{ item.barcode + '/' + Math.trunc(item.price) }}</div>
+        <div class="barcode-text">{{ item.barcode }} / {{ formatCurrency(item.price) }}</div>
       </div>
       <!-- <div class="price-box">
         <span class="price-val">{{ formatCurrency(item.price) }}</span>

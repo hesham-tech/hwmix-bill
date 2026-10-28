@@ -1,7 +1,64 @@
 <template>
   <div class="invoice-items-wrapper">
     <!-- الهيكل الموحد: Header + Input Row + Scrollable Items في وحدة بصرية واحدة -->
-    <div class="invoice-table-container">
+    <section v-if="isPhone" class="phone-items">
+      <div class="phone-section-heading">
+        <div><h2>أصناف الفاتورة <span>{{ items.length }}</span></h2><p>أضف الأصناف وراجع تفاصيلها</p></div>
+        <v-btn color="primary" variant="tonal" rounded="pill" prepend-icon="ri-add-line" @click="isAddOpen = true">إضافة صنف</v-btn>
+      </div>
+      <div v-if="!items.length" class="phone-empty">
+        <v-icon icon="ri-shopping-bag-3-line" size="44" color="primary" />
+        <h3>ابدأ بأول صنف</h3><p>ابحث بالاسم أو الباركود ثم حدد الكمية والسعر</p>
+        <v-btn color="primary" rounded="pill" @click="isAddOpen = true">إضافة صنف للفاتورة</v-btn>
+      </div>
+      <article v-for="(item, index) in items" :key="item.variant_id ? `v-${item.variant_id}` : (item.service_id ? `s-${item.service_id}` : index)" class="phone-item-card" :class="{ 'item-row--flash': highlightedItemIndex === index }">
+        <div class="phone-item-heading">
+          <AppAvatar :img-url="item.primary_image_url" :name="item.name" size="44" rounded="lg" />
+          <div class="phone-item-title"><h3>{{ item.name }}</h3><p v-if="getItemAttributesText(item)">{{ getItemAttributesText(item) }}</p><p>{{ item.allowed_units?.find(u => u.id === item.unit_id)?.name || (item.product_type === 'service' ? 'خدمة' : 'قطعة') }} · {{ formatCurrency(item.unit_price) }}</p></div>
+          <v-btn icon="ri-delete-bin-line" aria-label="حذف الصنف" variant="text" color="error" @click="$emit('remove', index)" />
+        </div>
+        <div class="phone-item-controls">
+          <div class="phone-quantity">
+            <v-btn icon="ri-subtract-line" aria-label="تقليل الكمية" variant="text" :disabled="item.quantity <= quantityStep(item)" @click="updateQuantity(item, item.quantity - quantityStep(item))" />
+            <AppInput :model-value="item.quantity" label="الكمية" type="number" inputmode="decimal" hide-details :step="quantityStep(item)" :error="isItemError(item)" @update:model-value="val => updateQuantity(item, val)" />
+            <v-btn icon="ri-add-line" aria-label="زيادة الكمية" variant="text" @click="updateQuantity(item, Number(item.quantity) + quantityStep(item))" />
+          </div>
+          <strong class="phone-item-total">{{ formatCurrency(item.total) }}</strong>
+        </div>
+        <p v-if="isItemError(item)" class="text-error text-body-2" role="alert">الكمية المطلوبة تتجاوز المخزون المتاح</p>
+        <v-btn variant="text" color="primary" block :append-icon="expandedItem === item ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" :aria-expanded="expandedItem === item" @click="expandedItem = expandedItem === item ? null : item">السعر والوحدة والخصم</v-btn>
+        <div v-if="expandedItem === item" class="phone-item-details">
+          <v-select v-if="item.allowed_units?.length > 1" :model-value="item.unit_id" :items="item.allowed_units" item-title="name" item-value="id" label="الوحدة" variant="outlined" hide-details @update:model-value="val => { item.unit_id = val; handleUnitChange(item, val); }" />
+          <AppInput v-model.number="item.unit_price" label="سعر الوحدة" type="number" inputmode="decimal" hide-details @update:model-value="$emit('calculate', item)" />
+          <AppInput v-model.number="item.discount" label="خصم الصنف" type="number" inputmode="decimal" hide-details @update:model-value="$emit('calculate', item)" />
+          <p v-if="invoiceType === 'purchase'">سعر البيع: {{ formatCurrency(getSellingPriceForCurrentUnit(item)) }}</p>
+          <p v-if="item.barcode" class="phone-item-code">الباركود: {{ item.barcode }}</p>
+        </div>
+      </article>
+      <slot v-if="showInstallmentSection" name="installment" />
+      <v-dialog v-model="isAddOpen" fullscreen transition="dialog-bottom-transition" content-class="invoice-phone-dialog">
+        <v-card class="phone-add-screen">
+          <v-toolbar color="surface" class="border-b"><v-btn icon="ri-arrow-right-line" aria-label="العودة إلى الفاتورة" @click="isAddOpen = false" /><v-toolbar-title>إضافة صنف</v-toolbar-title></v-toolbar>
+          <v-card-text class="phone-add-content">
+            <p class="phone-overline">ابحث عن منتج أو خدمة</p>
+            <ProductSelector v-if="isAddOpen" ref="productSelectorRef" :warehouse-id="warehouseId" :invoice-type="invoiceType" :customer-type="customerType" @select-item="onProductSelected" @create-product="name => { isAddOpen = false; $emit('create-product', name); }" />
+            <div v-if="inlineItem" class="phone-selected-product">
+              <h2>{{ inlineItem.name }}</h2><p>{{ getItemAttributesText(inlineItem) }}</p>
+              <div class="phone-add-fields">
+                <v-select v-if="inlineItem.allowed_units?.length > 1" v-model="inlineItem.unit_id" :items="inlineItem.allowed_units" item-title="name" item-value="id" label="الوحدة" variant="outlined" hide-details @update:model-value="onInlineUnitChange" />
+                <AppInput v-model.number="inlineQuantity" label="الكمية" type="number" inputmode="decimal" hide-details />
+                <AppInput v-model.number="inlineUnitPrice" label="سعر الوحدة" type="number" inputmode="decimal" hide-details />
+                <AppInput v-model.number="inlineDiscount" label="خصم الصنف" type="number" inputmode="decimal" hide-details />
+              </div>
+              <div class="phone-add-total"><span>إجمالي الصنف</span><strong>{{ formatCurrency(inlineSubtotal) }}</strong></div>
+            </div>
+            <div v-else class="phone-search-hint"><v-icon icon="ri-search-2-line" size="48" /><p>اختر الصنف من نتائج البحث<br>لتحديد الكمية ومراجعة السعر</p></div>
+          </v-card-text>
+          <v-card-actions class="phone-add-actions"><v-btn block color="primary" variant="flat" rounded="pill" :disabled="!inlineItem || inlineQuantity <= 0" @click="commitInlineItem">إضافة إلى الفاتورة</v-btn></v-card-actions>
+        </v-card>
+      </v-dialog>
+    </section>
+    <div v-else class="invoice-table-container">
 
       <!-- ═══ الجزء الثابت: رأس الأعمدة + صف الإدخال ═══ -->
       <div class="table-fixed-zone">
@@ -302,6 +359,7 @@
 <script setup>
 // منطقة أصناف الفاتورة — Workspace متكامل: Header ثابت + صف إدخال ثابت + Scroll للأصناف فقط
 import { ref, computed, nextTick } from 'vue';
+import { useDisplay } from 'vuetify';
 import ProductSelector from './ProductSelector.vue';
 import { formatCurrency } from '@/utils/formatters';
 
@@ -331,6 +389,11 @@ const props = defineProps({
     default: false,
   },
 });
+
+const { xs: isPhone } = useDisplay();
+const isAddOpen = ref(false);
+const expandedItem = ref(null);
+const quantityStep = item => item.allow_decimal_quantities ? 10 ** -(item.quantity_precision || 2) : 1;
 
 const emit = defineEmits(['update:taxInclusive', 'add', 'calculate', 'remove', 'create-product']);
 
@@ -368,6 +431,7 @@ const onProductSelected = itemObj => {
   inlineDiscount.value = itemObj.discount || 0;
 
   // نقل Focus إلى حقل الكمية فورًا
+  if (isPhone.value) return;
   nextTick(() => {
     if (qtyInputRef.value) {
       const inputEl = qtyInputRef.value.$el
@@ -431,6 +495,8 @@ const commitInlineItem = () => {
     total: qty * price - disc,
   });
 
+  if (isPhone.value) isAddOpen.value = false;
+
   // تصفية صف الإدخال
   inlineItem.value = null;
   inlineQuantity.value = 1;
@@ -445,7 +511,7 @@ const commitInlineItem = () => {
 
   // إعادة Focus لحقل البحث
   nextTick(() => {
-    productSelectorRef.value?.focus();
+    if (!isPhone.value) productSelectorRef.value?.focus();
   });
 };
 
@@ -904,4 +970,36 @@ const updateQuantity = (item, val) => {
     width: 70px;
   }
 }
+
+.phone-section-heading { display:flex; align-items:center; justify-content:space-between; gap:8px; margin:8px 0 16px; }
+.phone-section-heading h2 { font-size:17px; font-weight:800; margin:0; }
+.phone-section-heading h2 span { display:inline-grid; place-items:center; background:rgba(var(--v-theme-primary),.1); color:rgb(var(--v-theme-primary)); border-radius:50%; min-width:24px; height:24px; font-size:12px; }
+.phone-section-heading p, .phone-item-title p { color:rgba(var(--v-theme-on-surface),.65); font-size:12px; margin:4px 0 0; }
+.phone-empty { text-align:center; padding:32px 16px; background:rgb(var(--v-theme-surface)); border:1px dashed rgba(var(--v-theme-primary),.25); border-radius:24px; }
+.phone-empty h3 { margin:16px 0 8px; font-size:18px; }
+.phone-empty p { font-size:14px; margin-bottom:20px; color:rgba(var(--v-theme-on-surface),.65); }
+.phone-item-card { padding:14px; margin-bottom:12px; border-radius:20px; background:rgb(var(--v-theme-surface)); border:1px solid rgba(var(--v-border-color),.13); }
+.phone-item-heading { display:flex; align-items:flex-start; gap:10px; }
+.phone-item-title { flex:1; min-width:0; }
+.phone-item-title h3 { font-size:15px; line-height:1.7; overflow-wrap:anywhere; }
+.phone-item-controls { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:20px 0 4px; }
+.phone-quantity { display:flex; align-items:center; max-width:185px; }
+.phone-quantity .v-input { width:80px; min-width:65px; }
+.phone-quantity :deep(input) { text-align:center; }
+.phone-quantity .v-btn { width:44px; min-width:44px; height:48px; }
+.phone-item-total { color:rgb(var(--v-theme-primary)); font-size:16px; overflow-wrap:anywhere; }
+.phone-item-details, .phone-add-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px 12px; padding-top:20px; }
+.phone-item-details p { grid-column:1/-1; margin:0; font-size:13px; overflow-wrap:anywhere; }
+.phone-item-code { color:rgba(var(--v-theme-on-surface),.6); }
+.phone-add-screen { height:100dvh; }
+.phone-add-content { padding:24px 16px !important; }
+.phone-overline { font-size:13px; color:rgba(var(--v-theme-on-surface),.6); margin-bottom:16px; }
+.phone-selected-product { margin-top:28px; }
+.phone-selected-product h2 { font-size:20px; overflow-wrap:anywhere; }
+.phone-selected-product > p { color:rgba(var(--v-theme-on-surface),.65); }
+.phone-add-total { display:flex; justify-content:space-between; padding:20px 16px; margin-top:24px; border-radius:16px; background:rgba(var(--v-theme-primary),.08); }
+.phone-add-total strong { color:rgb(var(--v-theme-primary)); }
+.phone-search-hint { text-align:center; padding:64px 16px; color:rgba(var(--v-theme-on-surface),.45); line-height:2; }
+.phone-add-actions { flex-shrink:0; padding:12px 16px calc(12px + env(safe-area-inset-bottom)) !important; border-top:1px solid rgba(var(--v-border-color),.12); }
+.phone-add-actions .v-btn { height:52px; }
 </style>

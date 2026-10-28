@@ -38,6 +38,17 @@
       <template #append>
         <div v-if="product" class="d-flex gap-2">
           <AppButton
+            color="warning"
+            variant="tonal"
+            :prepend-icon="!mobile ? 'ri-ticket-line' : ''"
+            :icon="mobile ? 'ri-ticket-line' : false"
+            aria-label="طباعة ملصقات الباركود"
+            tooltip="طباعة ملصقات الباركود"
+            @click="stickerDialog?.open(product.id)"
+          >
+            <span v-if="!mobile">طباعة الملصقات</span>
+          </AppButton>
+          <AppButton
             v-if="can(PERMISSIONS.PRODUCTS_UPDATE_ALL)"
             color="primary"
             variant="flat"
@@ -507,11 +518,13 @@
         </v-card>
       </v-dialog>
     </v-container>
+    <PrintStickerDialog ref="stickerDialog" />
   </div>
 </template>
 
 <script setup>
 import { computed, onMounted, ref } from 'vue';
+import PrintStickerDialog from '../components/PrintStickerDialog.vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useDisplay } from 'vuetify';
 import { useProductStore } from '../store/product.store';
@@ -531,6 +544,7 @@ const { mobile } = useDisplay();
 const { fetchProduct, deleteProduct } = productStore;
 
 const product = ref(null);
+const stickerDialog = ref(null);
 const loading = ref(true);
 const variantSearch = ref('');
 

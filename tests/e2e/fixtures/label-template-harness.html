@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Label template UI test fixture</title></head><body><div id="app"></div>
+<script type="module">
+if(location.port!=='5175'||!['127.0.0.1','localhost'].includes(location.hostname))throw new Error('This fixture is restricted to the isolated label QA server.');
+import {createApp,h,ref} from 'vue';
+import {createPinia} from 'pinia';
+import {createRouter,createMemoryHistory,RouterView} from 'vue-router';
+import {createVuetify} from 'vuetify';
+import * as components from 'vuetify/components';
+import * as directives from 'vuetify/directives';
+import 'vuetify/styles';
+import {useUserStore} from '/src/stores/user.js';
+import routes from '/src/modules/print/routes.js';
+import LabelPrintDialog from '/src/modules/print/components/LabelPrintDialog.vue';
+import {renderTemplate,templatePdf,prepareTemplateLayout,preflightTemplates} from '/src/modules/print/templates-editor/templateRenderer.js';
+import {createStarterDesign,newElement,SAMPLE_VALUES} from '/src/modules/print/templates-editor/templateSchema.js';
+import {BrowserMultiFormatReader} from '@zxing/browser';
+const PrintFixture={setup(){const dialog=ref();return()=>h('div',[h(components.VBtn,{onClick:()=>dialog.value.open([{variant_id:1,name:'منتج اختبار',quantity:1}])},{default:()=> 'فتح طباعة تجريبية'}),h(LabelPrintDialog,{ref:dialog})]);}};
+const pinia=createPinia(),router=createRouter({history:createMemoryHistory(),routes:[...routes.map(r=>({...r,path:'/app/'+r.path})),{path:'/print',component:PrintFixture}]});
+const vuetify=createVuetify({components,directives,locale:{locale:'ar',rtl:{ar:true}},icons:{defaultSet:'test',sets:{test:{component:props=>h('span',{class:props.icon,'aria-hidden':'true'})}}}});
+const app=createApp({render:()=>h(components.VApp,null,{default:()=>h(components.VMain,{style:'padding:20px'},{default:()=>h(RouterView)})})});
+app.use(pinia);const user=useUserStore();user.currentUser={id:1,active_company_id:1};user.companies=[{id:1,name:'شركة الاختبار'},{id:2,name:'شركة ثانية'}];user.permissions=['admin.super'];
+localStorage.setItem('token','label-template-test-token');
+app.use(router);app.use(vuetify);const mode=new URLSearchParams(location.search).get('mode');await router.push(mode==='print'?'/print':mode==='list'?'/app/label-templates':mode==='new'?'/app/label-templates/new':'/app/label-templates/1/edit');await router.isReady();app.mount('#app');
+window.labelQA={router,user,renderTemplate,templatePdf,prepareTemplateLayout,preflightTemplates,createStarterDesign,newElement,SAMPLE_VALUES,decode:canvas=>new BrowserMultiFormatReader().decodeFromCanvas(canvas).getText()};
+</script></body></html>

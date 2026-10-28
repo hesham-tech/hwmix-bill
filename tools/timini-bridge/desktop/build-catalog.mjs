@@ -1,0 +1,11 @@
+import { writeFile, readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { parseModels, runCli } from '../desktop-config.mjs';
+import { extractTiMiniLicenses } from './extract-licenses.mjs';
+const [cli, output] = process.argv.slice(2);
+const result = await runCli(cli, ['--list-models']);
+const models = parseModels(result.stdout);
+if (!models.some(model => model.key === 'toprint_hprt_esc_zl1')) throw new Error('The supplied TiMini binary does not include the verified P2 profile.');
+await writeFile(join(output, 'resources', 'bridge', 'models.json'), JSON.stringify(models, null, 2));
+await writeFile(join(output, 'licenses', 'TiMini-Print-LICENSES.txt'), extractTiMiniLicenses(await readFile(cli)));
+console.log('Bundled model catalog:', models.length, 'models');

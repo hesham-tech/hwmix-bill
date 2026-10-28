@@ -135,6 +135,7 @@ export default defineConfig({
   },
   // Keep Vuetify style imports in the plugin pipeline across dev-server restarts.
   optimizeDeps: {
+    include: ['jspdf', 'jsbarcode'],
     exclude: ['vuetify'],
   },
   build: {

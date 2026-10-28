@@ -1,0 +1,2 @@
+import { defineConfig } from '@playwright/test';
+export default defineConfig({ testDir: './tests/e2e/invoices', timeout: 120000, expect: { timeout: 20000 }, workers: 1, reporter: 'list', use: { browserName: 'chromium', headless: true, actionTimeout: 20000 }, webServer: { command: 'npm run dev -- --host 127.0.0.1 --port 5176 --strictPort', url: 'http://127.0.0.1:5176', reuseExistingServer: true, timeout: 120000 } });

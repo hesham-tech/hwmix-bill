@@ -112,8 +112,14 @@ export default [
   {
     title: 'المنتجات والمخازن',
     icon: 'ri-shopping-bag-3-line',
-    permission: PERMISSIONS.PRODUCTS_PAGE,
+    permission: [PERMISSIONS.PRODUCTS_PAGE, PERMISSIONS.LABEL_TEMPLATES_MANAGE, PERMISSIONS.LABEL_TEMPLATES_PUBLISH, PERMISSIONS.LABEL_TEMPLATES_SET_DEFAULT],
     children: [
+      {
+        title: 'قوالب الملصقات',
+        to: '/app/label-templates',
+        icon: 'ri-layout-line',
+        permission: [PERMISSIONS.LABEL_TEMPLATES_MANAGE, PERMISSIONS.LABEL_TEMPLATES_PUBLISH, PERMISSIONS.LABEL_TEMPLATES_SET_DEFAULT],
+      },
       {
         title: 'قائمة المنتجات',
         to: '/app/products',

@@ -60,3 +60,16 @@ graphify-out/
 /resources_*.json
 /server_resources.json
 /0
+
+# Per-computer printer secrets and downloaded TiMini executable
+/tools/timini-bridge/config.local.json
+/tools/timini-bridge/bin/
+/tools/timini-bridge/printer-config.local.json
+
+# Desktop installer build outputs
+/tools/timini-bridge/.build/
+/tools/timini-bridge/release/
+/public/downloads/*.exe
+
+# Isolated label editor verification outputs
+tools/label-templates/.qa-output/

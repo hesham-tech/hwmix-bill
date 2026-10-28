@@ -12,9 +12,13 @@
       @cancel="$emit('cancel')"
     />
 
-    <v-form ref="form" v-model="isFormValid">
+    <v-alert v-if="Object.keys(errors).length" type="error" variant="tonal" class="ma-3" role="alert" title="تعذّر حفظ الفاتورة">
+      <div v-for="(messages, field) in errors" :key="field">{{ Array.isArray(messages) ? messages.join('، ') : messages }}</div>
+    </v-alert>
+    <v-form ref="form" v-model="isFormValid" @submit.prevent>
       <!-- ════ القسم 1: معلومات الفاتورة (صف مضغوط) ════ -->
       <InvoiceCustomerInfo
+        ref="customerInfo"
         v-model="invoiceData"
         :selected-customer="selectedCustomerObj"
         :invoice-types="invoiceTypes"
@@ -46,7 +50,7 @@
           @create-product="openQuickAddProduct"
         >
           <template #installment>
-            <div class="d-none d-sm-block pa-4">
+            <div class="pa-4">
               <InstallmentPlanner
                 :net-amount="financials.total_balance"
                 v-model="invoiceData.installment_plan"
@@ -72,8 +76,13 @@
       </div>
     </v-form>
 
+    <div v-if="isPhone && !keyboardOpen" class="invoice-phone-savebar">
+      <button type="button" class="invoice-phone-total" aria-label="عرض تفاصيل الدفع" @click="scrollToPayment"><small>صافي الفاتورة <v-icon icon="ri-arrow-up-s-line" size="16" /></small><strong>{{ formatCurrency(financials.net_amount) }}</strong></button>
+      <v-btn color="primary" rounded="pill" :loading="loading" :disabled="!canSubmit" prepend-icon="ri-check-line" @click="saveInvoice">{{ currentContext === 'installment_sale' ? 'متابعة التقسيط' : (isEdit ? 'حفظ التعديلات' : 'حفظ الفاتورة') }}</v-btn>
+    </div>
+
     <!-- Quick Add Customer Dialog -->
-    <AppDialog v-model="isQuickAddCustomerOpen" :title="currentContext === 'purchase' ? 'إضافة مورد جديد سريع' : 'إضافة عميل جديد سريع'" icon="ri-user-add-line" max-width="800" hide-actions draggable>
+    <AppDialog v-model="isQuickAddCustomerOpen" :title="currentContext === 'purchase' ? 'إضافة مورد جديد سريع' : 'إضافة عميل جديد سريع'" icon="ri-user-add-line" max-width="800" :fullscreen="isPhone" hide-actions :draggable="!isPhone">
       <UserForm :model-value="{ role: 'customer' }" @save="handleQuickCustomerSave" @cancel="isQuickAddCustomerOpen = false" />
     </AppDialog>
 
@@ -84,7 +93,8 @@
       icon="ri-shopping-bag-3-line"
       max-width="1000"
       hide-actions
-      draggable
+      :fullscreen="isPhone"
+      :draggable="!isPhone"
       no-padding
     >
       <ProductForm v-if="isQuickAddProductOpen" is-dialog :initial-name="quickAddProductName" @success="handleQuickProductSave" @cancel="isQuickAddProductOpen = false" />
@@ -93,7 +103,9 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
+import { useDisplay } from 'vuetify';
+import { formatCurrency } from '@/utils/formatters';
 import { useRoute } from 'vue-router';
 import { useApi } from '@/composables/useApi';
 
@@ -112,6 +124,13 @@ import ProductForm from '@/modules/products/components/ProductForm.vue';
 import { useappState } from '@/stores/appState';
 import { useUserStore as useUserManagementStore } from '@/modules/users/store/user.store';
 import { useUserStore } from '@/stores/user';
+
+const { xs: isPhone } = useDisplay();
+const keyboardOpen = ref(false);
+const syncKeyboard = () => { keyboardOpen.value = !!window.visualViewport && window.innerHeight - window.visualViewport.height > 150; };
+onMounted(() => window.visualViewport?.addEventListener('resize', syncKeyboard));
+onBeforeUnmount(() => window.visualViewport?.removeEventListener('resize', syncKeyboard));
+const scrollToPayment = () => document.querySelector('.invoice-financial-area')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
 const props = defineProps({
   invoiceId: {
@@ -141,6 +160,7 @@ const { get: getCashBoxes } = useApi('/api/cash-boxes');
 const loading = ref(false);
 const isFormValid = ref(false);
 const form = ref(null);
+const customerInfo = ref(null);
 const invoiceTypes = ref([]);
 const warehouses = ref([]);
 const cashBoxes = ref([]);
@@ -465,7 +485,12 @@ const handleQuickCustomerSave = async data => {
 
 const saveInvoice = async () => {
   const { valid } = await form.value.validate();
-  if (!valid) return;
+  if (!valid) {
+    customerInfo.value?.reveal();
+    await new Promise(resolve => requestAnimationFrame(resolve));
+    document.querySelector('.invoice-form-container .v-input--error')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
 
   loading.value = true;
   errors.value = {};
@@ -777,5 +802,17 @@ onMounted(async () => {
 /* القسم المالي — مضغوط في أسفل الشاشة */
 .invoice-financial-area {
   padding: 0 16px 16px;
+}
+
+.invoice-phone-savebar { position:fixed; bottom:0; inset-inline:0; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 16px calc(12px + env(safe-area-inset-bottom)); background:rgb(var(--v-theme-surface)); border-top:1px solid rgba(var(--v-border-color),.14); z-index:101; box-shadow:0 -4px 24px rgba(0,0,0,.04); }
+.invoice-phone-savebar .v-btn { height:52px; padding-inline:22px; font-size:14px; }
+.invoice-phone-total { text-align:start; min-width:0; }
+.invoice-phone-total small { display:block; font-size:11px; color:rgba(var(--v-theme-on-surface),.65); }
+.invoice-phone-total strong { display:block; font-size:19px; color:rgb(var(--v-theme-primary)); overflow-wrap:anywhere; }
+@media(max-width:599.98px) {
+  .invoice-form-container { min-height:calc(100dvh - 72px); padding-bottom:100px; }
+  .invoice-info-bar { margin:12px; padding:16px 8px 8px; border:1px solid rgba(var(--v-border-color),.12); border-radius:20px; }
+  .invoice-workspace { padding:4px 12px 12px; }
+  .invoice-financial-area { padding:0 12px 20px; scroll-margin-top:120px; }
 }
 </style>

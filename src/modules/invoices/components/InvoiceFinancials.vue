@@ -1,10 +1,12 @@
 <template>
   <!-- الملخص المالي وحقول الدفع — مضغوط وواضح -->
   <div class="invoice-financials">
+    <h2 class="phone-fin-title d-sm-none">الدفع والحسابات</h2>
     <div class="financials-grid">
 
       <!-- ═══ العمود الأيسر: حقول الإدخال ═══ -->
       <div class="fin-inputs">
+        <button v-if="isPhone" type="button" class="phone-fin-options" :aria-expanded="detailsOpen" @click="detailsOpen = !detailsOpen"><span>الضريبة والخصم والرصيد والملاحظات</span><v-icon :icon="detailsOpen ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" /></button>
 
         <!-- خزنة التحصيل -->
         <div class="fin-field-row">
@@ -21,7 +23,7 @@
         </div>
 
         <!-- الرصيد السابق + مفتاح الاحتساب (غير متاح في التقسيط) -->
-        <div v-if="!isInstallment" class="fin-field-row">
+        <div v-if="!isInstallment" v-show="!isPhone || detailsOpen" class="fin-field-row">
           <div class="balance-toggle-row">
             <div class="balance-display">
               <span class="balance-label">رصيد {{ isPurchase ? 'المورد' : 'العميل' }}</span>
@@ -46,7 +48,7 @@
         </div>
 
         <!-- الضريبة -->
-        <div v-if="!isInstallment" class="fin-field-row">
+        <div v-if="!isInstallment" v-show="!isPhone || detailsOpen" class="fin-field-row">
           <div class="two-col-row">
             <AppInput
               :model-value="modelValue.tax_rate"
@@ -72,7 +74,7 @@
         </div>
 
         <!-- خصم إضافي -->
-        <div v-if="!isInstallment" class="fin-field-row">
+        <div v-if="!isInstallment" v-show="!isPhone || detailsOpen" class="fin-field-row">
           <AppInput
             :model-value="modelValue.header_discount"
             label="خصم إضافي على الفاتورة"
@@ -86,7 +88,7 @@
         </div>
 
         <!-- ملاحظات -->
-        <div class="fin-field-row fin-field-row--notes">
+        <div v-show="!isPhone || detailsOpen" class="fin-field-row fin-field-row--notes">
           <AppTextarea
             :model-value="modelValue.notes"
             label="ملاحظات"
@@ -224,9 +226,14 @@
 
 <script setup>
 // الملخص المالي للفاتورة — مضغوط مع إبراز التسلسل: إجمالي → مدفوع → متبقي
+import { ref, watch } from 'vue';
+import { useDisplay } from 'vuetify';
 import CashBoxSelector from './CashBoxSelector.vue';
 import AppBalanceDisplay from '@/components/common/AppBalanceDisplay.vue';
 import { formatCurrency } from '@/utils/formatters';
+
+const { xs: isPhone } = useDisplay();
+const detailsOpen = ref(false);
 
 const props = defineProps({
   modelValue: {
@@ -258,6 +265,8 @@ const props = defineProps({
     default: false,
   },
 });
+
+watch(() => props.errors, errors => { if (Object.keys(errors).length) detailsOpen.value = true; });
 
 const emit = defineEmits(['update:modelValue', 'update:prop', 'update:showProfit']);
 </script>
@@ -547,5 +556,23 @@ const emit = defineEmits(['update:modelValue', 'update:prop', 'update:showProfit
   .remaining-value {
     font-size: 18px;
   }
+}
+
+.phone-fin-title { font-size:17px; padding:20px 16px 0; margin:0; }
+.phone-fin-options { display:flex; align-items:center; justify-content:space-between; gap:8px; min-height:48px; text-align:start; font-size:13px; color:rgb(var(--v-theme-primary)); }
+@media(max-width:599.98px) {
+  .invoice-financials { border-radius:20px; }
+  .fin-summary { order:-1; background:none; padding:16px; gap:10px; }
+  .fin-inputs { padding:0 16px 16px; gap:20px; border:0; }
+  .fin-inputs > .fin-field-row:first-of-type { order:-1; }
+  .calc-label, .calc-value, .net-label, .remaining-label, .paid-label, .balance-label, .toggle-label { font-size:13px; text-transform:none; letter-spacing:0; }
+  .calc-row { padding-block:5px; }
+  .net-amount-block { border-radius:14px; padding:16px; }
+  .net-value { font-size:23px; }
+  .paid-label-row .v-btn { min-width:44px; height:44px; }
+  .remaining-block { padding:14px; border-radius:14px; }
+  .overpaid-hint { font-size:12px; padding:10px; }
+  .balance-toggle-row, .two-col-row { gap:10px; flex-wrap:wrap; }
+  .two-col-row { grid-template-columns:minmax(0,1fr); }
 }
 </style>

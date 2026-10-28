@@ -11,6 +11,7 @@ import draggable from '@/directives/draggable';
 // Styles
 import '@core-styles/template/index.scss';
 import '@layouts/styles/index.scss';
+import '@/assets/styles/mobile-app.scss';
 
 // إنشاء تطبيق Vue
 const app = createApp(App);

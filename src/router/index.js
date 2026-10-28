@@ -8,6 +8,7 @@ import authRoutes from '@/modules/auth/routes';
 import customerRoutes from '@/modules/customer/portal-routes';
 import invoiceRoutes from '@/modules/invoices/routes';
 import productRoutes from '@/modules/products/routes';
+import labelTemplateRoutes from '@/modules/print/routes';
 import serviceRoutes from '@/modules/services/routes';
 import expenseRoutes from '@/modules/expenses/routes';
 import paymentRoutes from '@/modules/payments/routes';
@@ -70,6 +71,7 @@ const router = createRouter({
         ...customerRoutes,
         ...invoiceRoutes,
         ...productRoutes,
+        ...labelTemplateRoutes,
         ...serviceRoutes,
         ...expenseRoutes,
         ...paymentRoutes,

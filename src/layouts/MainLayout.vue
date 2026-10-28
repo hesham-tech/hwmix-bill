@@ -1,7 +1,7 @@
 <template>
-  <Sidebar v-model="drawer" />
+  <Sidebar v-if="!route.meta.labelEditor" v-model="drawer" />
 
-  <v-app-bar color="surface" elevation="0" class="border-b" height="48">
+  <v-app-bar v-if="!route.meta.labelEditor" color="surface" elevation="0" class="border-b" height="48">
     <v-app-bar-nav-icon color="primary" @click="drawer = !drawer" class="d-flex d-sm-none" size="small" />
 
     <v-spacer />
@@ -289,9 +289,9 @@
     </div>
   </v-app-bar>
 
-  <v-main class="main-content">
+  <v-main class="main-content" :class="{'label-focus-main':route.meta.labelEditor}">
     <!-- حزام تحذير قرب انتهاء ليميت الباقة (يظهر تلقائياً عند 90% استهلاك لأي مورد) -->
-    <transition name="expand">
+    <transition v-if="!route.meta.labelEditor" name="expand">
       <div v-if="nearingLimitResources.length > 0" class="limit-warning-bar border-b py-2 px-4 d-flex align-center justify-space-between text-caption font-weight-bold">
         <div class="d-flex align-center ga-2 flex-wrap">
           <v-icon icon="ri-error-warning-fill" color="warning" class="animate-pulse me-1" size="18" />
@@ -314,7 +314,7 @@
     </transition>
 
     <!-- بنر التنبيه بوضع القراءة فقط عند اختيار "كل الفروع" -->
-    <transition name="expand">
+    <transition v-if="!route.meta.labelEditor" name="expand">
       <div v-if="branchStore.activeBranchId === 'all'" class="readonly-warning-bar border-b py-2 px-4 d-flex align-center justify-center text-caption font-weight-bold">
         <v-icon icon="ri-information-fill" class="me-2 animate-pulse text-amber-500" size="18" />
         <span class="text-warning-light">وضع عرض كل الفروع:</span>
@@ -322,7 +322,7 @@
       </div>
     </transition>
 
-    <div class="sticky-breadcrumbs-container border-b bg-surface">
+    <div v-if="!route.meta.labelEditor" class="sticky-breadcrumbs-container border-b bg-surface">
       <v-container fluid class="py-0 px-1">
         <v-breadcrumbs :items="breadcrumbs" class="pa-0 text-caption">
           <template #divider>
@@ -332,7 +332,7 @@
       </v-container>
     </div>
 
-    <v-container fluid class="pa-6 position-relative">
+    <v-container fluid class="position-relative app-mobile-content" :class="route.meta.labelEditor?'pa-0':'pa-6'">
       <router-view v-slot="{ Component, route }">
         <transition name="page" mode="out-in">
           <div :key="route.path" class="route-wrapper h-100 w-100">
@@ -411,8 +411,8 @@
       <transition name="scale">
         <div
           v-if="appState.installmentCalc.isOpen"
-          v-draggable="{ id: 'installment', position: toolPositions.installment }"
-          class="floating-tool-window"
+          v-draggable="xs ? null : { id: 'installment', position: toolPositions.installment }"
+          class="floating-tool-window" :class="{ 'phone-installment-sheet': xs }"
           :style="{ zIndex: activeTool === 'installment' ? 2001 : 2000 }"
           @mousedown="setActiveTool('installment')"
           @touchstart="setActiveTool('installment')"
@@ -1236,4 +1236,8 @@ watch(
   padding-top: 0 !important;
   padding-bottom: 0 !important;
 }
+</style>
+
+<style scoped>
+.label-focus-main{--v-layout-left:0px!important;--v-layout-right:0px!important;--v-layout-top:0px!important;padding:0!important;}
 </style>

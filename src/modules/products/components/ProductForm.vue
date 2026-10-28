@@ -1,5 +1,5 @@
 <template>
-  <v-form ref="form" v-model="isValid" @submit.prevent="handleSubmit">
+  <v-form ref="form" @submit.prevent="handleSubmit">
     <AppPageHeader :sticky-top="isDialog ? 0 : 79" sticky>
       <template #prepend>
         <div class="d-flex align-center gap-2">
@@ -57,7 +57,7 @@
             {{ formCompletionPercent }}% مكتمل
           </v-chip>
           <AppButton variant="text" color="grey-darken-1" size="small" density="compact" @click="emit('cancel')"> إلغاء </AppButton>
-          <AppButton color="primary" type="submit" :loading="loading" :disabled="!isValid || missingConversionsError" size="small" density="compact" class="px-4" prepend-icon="ri-save-3-line">
+          <AppButton color="primary" type="submit" :loading="loading" :disabled="loading" size="small" density="compact" class="px-4" prepend-icon="ri-save-3-line">
             حفظ
           </AppButton>
         </div>
@@ -671,7 +671,6 @@ const currentProductId = ref(props.productId);
 
 const isEdit = computed(() => !!currentProductId.value);
 const loading = ref(false);
-const isValid = ref(false);
 const form = ref(null);
 
 const showStorePublishWarning = ref(false);
@@ -1168,22 +1167,33 @@ const resetForm = () => {
 };
 
 const handleSubmit = async () => {
-  if (!isValid.value) return;
-
-  if (missingConversionsError.value) {
-    notificationManager.error(`لا يمكن الحفظ: الوحدات المحددة (${missingConversionsList.value}) تفتقد لقواعد تحويل للوحدة الأساسية.`);
-    return;
-  }
-
-  if (productData.value.is_active_in_store) {
-    if (!productData.value.images || productData.value.images.length === 0) {
-      notificationManager.error('يجب إضافة صورة واحدة على الأقل لعرض المنتج في المتجر.');
-      return;
-    }
-  }
+  if (loading.value) return;
 
   loading.value = true;
   try {
+    const validation = await form.value?.validate();
+    if (!validation?.valid) {
+      const messages = [...new Set(
+        (validation?.errors || [])
+          .flatMap(error => error.errorMessages || [])
+          .filter(message => typeof message === 'string' && message.trim())
+      )];
+      notificationManager.error(messages.join('، ') || 'تعذر التحقق من بيانات النموذج. أعد المحاولة.');
+      return;
+    }
+
+    if (missingConversionsError.value) {
+      notificationManager.error(`لا يمكن الحفظ: الوحدات المحددة (${missingConversionsList.value}) تفتقد لقواعد تحويل للوحدة الأساسية.`);
+      return;
+    }
+
+    if (productData.value.is_active_in_store) {
+      if (!productData.value.images || productData.value.images.length === 0) {
+        notificationManager.error('يجب إضافة صورة واحدة على الأقل لعرض المنتج في المتجر.');
+        return;
+      }
+    }
+
     const payload = {
       ...productData.value,
       image_ids: productData.value.images?.map(img => img.id) || [],
@@ -1221,7 +1231,7 @@ const handleKeyboardShortcuts = e => {
   // Ctrl+S or Cmd+S -> Save
   if ((e.ctrlKey || e.metaKey) && e.key === 's') {
     e.preventDefault();
-    if (isValid.value && !loading.value) {
+    if (!loading.value) {
       handleSubmit();
     }
   }

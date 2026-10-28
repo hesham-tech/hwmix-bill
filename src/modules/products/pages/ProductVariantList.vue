@@ -29,6 +29,7 @@
               <!-- Actions Slot -->
               <template #actions>
                 <div class="d-flex gap-2">
+                  <AppButton v-if="selectedItems.length && can(PERMISSIONS.PRODUCTS_PRINT_LABELS)" color="primary" variant="tonal" size="small" prepend-icon="ri-printer-line" @click="printSelectedLabels">طباعة ملصقات المحدد</AppButton>
                   <AppButton
                     v-if="selectedItems.length > 0 && (canAny(PERMISSIONS.PRODUCT_VARIANTS_DELETE_ALL, PERMISSIONS.PRODUCT_VARIANTS_DELETE_CHILDREN, PERMISSIONS.PRODUCT_VARIANTS_DELETE_SELF) || userStore.isAdmin)"
                     color="error"
@@ -55,7 +56,8 @@
                     border
                   />
                   <div class="d-flex flex-column">
-                    <span class="font-weight-bold text-body-2">{{ item.product_name }}</span>
+                    <span class="font-weight-bold text-body-2">{{ item.product_name || '—' }}
+                      <v-btn v-if="can(PERMISSIONS.PRODUCTS_PRINT_LABELS)" icon="ri-printer-line" variant="text" size="x-small" aria-label="طباعة ملصق المتغير" @click.stop="labelPrintDialog?.open(variantLabelRows([item]))" /></span>
                     <span class="text-caption text-grey-darken-1" v-if="getAttributesText(item)">
                       {{ getAttributesText(item) }}
                     </span>
@@ -204,6 +206,7 @@
         </v-col>
       </v-row>
 
+      <LabelPrintDialog ref="labelPrintDialog" />
       <AppConfirmDialog
         ref="confirmDialog"
         :title="confirmTitle"
@@ -219,7 +222,10 @@
  */
 
 import { ref, computed } from 'vue';
+import LabelPrintDialog from '@/modules/print/components/LabelPrintDialog.vue';
+import {labelTemplateService as labelTemplateApi} from '@/modules/print/templates-editor/labelTemplate.service';
 import { useRouter } from 'vue-router';
+import { toast } from 'vue3-toastify';
 import productVariantService from '@/api/services/product-variant.service';
 import { useDataTable } from '@/composables/useDataTable';
 import AppDataTable from '@/components/common/AppDataTable.vue';
@@ -233,6 +239,7 @@ import { PERMISSIONS } from '@/config/permissions';
 
 const router = useRouter();
 const userStore = useUserStore();
+const { can, canAny } = usePermissions();
 
 // Advanced Filters Definition
 const advancedFilters = [
@@ -363,20 +370,37 @@ const formatProductType = type => {
   return types[type] || type || '---';
 };
 
-const viewVariant = item => {
-  router.push({ name: 'product-view', params: { id: item.product_id } });
+const openVariantProduct = (item, routeName) => {
+  if (!item?.product_id || item.product_available === false) {
+    toast.warning('المنتج الأب لهذا المتغير غير متاح للعرض أو التعديل.');
+    return;
+  }
+
+  return router.push({ name: routeName, params: { id: item.product_id } });
 };
 
-const editVariant = item => {
-  router.push({ name: 'product-edit', params: { id: item.product_id } });
-};
+const viewVariant = item => openVariantProduct(item, 'product-view');
+const editVariant = item => openVariantProduct(item, 'product-edit');
 
+const labelPrintDialog = ref(null);
+const variantLabelRows = rows => rows.map(item => ({variant_id:item.id,name:item.product_name||item.sku,sku:item.sku,quantity:1}));
+const printSelectedLabels = async () => {
+  if (selectedItems.value.length > 100) { toast.error('اختر حتى 100 متغير للطباعة.'); return; }
+  const companyId = userStore.currentCompany?.id;
+  try {
+    const ids = selectedItems.value.map(selected => Number(typeof selected === 'object' ? selected.id : selected));
+    const products = await labelTemplateApi.products({variant_ids: ids});
+    const rows = products.flatMap(product => product.variants.map(variant => ({...variant, product_name: product.name, company_id: product.company_id})));
+    if (companyId !== userStore.currentCompany?.id) return;
+    if (rows.some(row => row.company_id && Number(row.company_id) !== Number(companyId))) throw new Error('أعد اختيار متغيرات الشركة الحالية.');
+    labelPrintDialog.value?.open(variantLabelRows(rows));
+  } catch (error) { toast.error(error.response?.data?.message || error.message || 'تعذر تجهيز المتغيرات المحددة.'); }
+};
 const confirmDialog = ref(null);
 
 const selectedItems = ref([]);
 const confirmTitle = ref('حذف متغير المنتج');
 const confirmMessage = ref('هل أنت متأكد من حذف هذا المتغير؟ هذا الإجراء غير قابل للتراجع.');
-const { canAny } = usePermissions();
 
 const confirmDelete = async item => {
   confirmTitle.value = 'حذف متغير المنتج';
