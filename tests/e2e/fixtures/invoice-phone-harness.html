@@ -23,7 +23,7 @@ const unit={id:1,name:'قطعة',decimal_places:0},box={id:2,name:'علبة',dec
 const variant={id:11,product_id:1,product_name:'سماعة لاسلكية بتقنية بلوتوث',sku:'SKU-11',barcode:'123456',quantity:20,retail_price:150,wholesale_price:120,purchase_price:100,requires_stock:true,base_unit_id:1,base_unit:unit,display_unit_id:1,purchase_unit_id:2,purchase_unit:box,units:[{unit_id:2,conversion_factor_to_base:5,unit:box}],unit_prices:[]};
 const types=[{id:1,code:'sale',name:'بيع'},{id:2,code:'purchase',name:'شراء'},{id:3,code:'installment_sale',name:'بيع بالتقسيط'},{id:4,code:'sale_return',name:'مرتجع بيع'}];
 const params=new URLSearchParams(location.search), type=params.get('type')||'sale', edit=params.has('edit');
-const saved=[]; window.invoiceQA={saved};
+const saved=[]; window.invoiceQA={saved,supportClicks:0};
 api.defaults.adapter=async config=>{
  let data=[]; const url=config.url;
  if(url==='invoice-types')data=types;
@@ -31,14 +31,14 @@ api.defaults.adapter=async config=>{
  else if(url==='cash-boxes')data=[{id:1,name:'الخزنة الرئيسية',is_default:true}];
  else if(url==='users')data=[customer];
  else if(url==='product-variants/search-by-product')data=[variant];
- else if(url==='invoices/7'&&config.method==='get')data={id:7,user_id:1,customer,invoice_type_id:types.find(t=>t.code===type).id,issue_date:'2026-10-28',warehouse_id:1,cash_box_id:1,paid_amount:150,items:[{product_id:1,variant_id:11,name:variant.product_name,quantity:1,unit_price:150,retail_price:150,discount:0,total:150,unit_id:1,requires_stock:true,variant}]};
+ else if(url==='invoices/7'&&config.method==='get')data={id:7,user_id:1,customer,invoice_type_id:types.find(t=>t.code===type).id,issue_date:'2026-10-28',warehouse_id:1,cash_box_id:1,paid_amount:150,items:Array.from({length:Number(params.get('count')||1)},(_,i)=>({product_id:i+1,variant_id:11+i,name:i?`صنف تجريبي ${i+1}`:variant.product_name,sku:`SKU-${11+i}`,quantity:1,unit_price:150,retail_price:150,discount:0,total:150,unit_id:1,requires_stock:true,variant:{...variant,id:11+i}}))};
  else if(url.startsWith('invoices')&&config.method!=='get'){const payload=JSON.parse(config.data);saved.push(payload);data={id:7,...payload};}
  return {data:{data},status:200,statusText:'OK',headers:{},config};
 };
 const pinia=createPinia(), router=createRouter({history:createMemoryHistory(),routes:[{path:'/',component:{render:()=>null}}]});
 const vuetify=createVuetify({components,directives,defaults,locale:{locale:'ar',rtl:{ar:true}},theme:{defaultTheme:'light',themes:{light:{colors:{primary:'#6554c0',background:'#f5f5fa',surface:'#ffffff'}}}},icons:{defaultSet:'fixture',sets:{fixture:{component:props=>h('span',{class:props.icon,'aria-hidden':'true'})}}}});
-const app=createApp({setup(){return()=>h(components.VApp,{style:'font-family: Noto Sans Arabic, sans-serif'},{default:()=>h(components.VMain,null,{default:()=>[h(components.VAppBar,{height:48,elevation:0},{default:()=>h('div',{style:'padding:0 16px;font-weight:700'},'HWNix Bill')}),h(InvoiceForm,{invoiceId:edit?7:null,initialType:type})]})});}});
+const app=createApp({setup(){return()=>h(components.VApp,{style:'font-family: Noto Sans Arabic, sans-serif'},{default:()=>h(components.VMain,null,{default:()=>[h(components.VAppBar,{height:48,elevation:0},{default:()=>h('div',{style:'padding:0 16px;font-weight:700'},'HWNix Bill')}),h(InvoiceForm,{invoiceId:edit?7:null,initialType:type}),h('button',{class:'global-fab-feedback'},'دعم عائم تجريبي')]})});}});
 app.use(pinia);const user=useUserStore();user.currentUser={id:1,active_company_id:1};user.companies=[{id:1,default_cash_customer:customer,default_cash_customer_id:1}];user.fetchUser=async()=>{};
-app.use(router);app.use(vuetify);app.directive('draggable',{});
+app.provide('openSupport',()=>window.invoiceQA.supportClicks++);app.use(router);app.use(vuetify);app.directive('draggable',{});
 await router.push('/'); await router.isReady(); app.mount('#app');
 </script></body></html>

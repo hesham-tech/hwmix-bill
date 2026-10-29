@@ -8,6 +8,7 @@
       class="quick-service-button position-fixed font-weight-bold"
       style="bottom: 24px; left: 24px; z-index: 99; border-radius: 50%; height: 72px; width: 72px;"
       elevation="8"
+      :disabled="!selectedCashBoxId"
       @click="isQuickServiceOpen = true"
     >
       <div class="d-flex flex-column align-center">
@@ -16,8 +17,8 @@
       </div>
     </v-btn>
 
-    <InvoiceForm :key="invoiceType" :initial-type="invoiceType" @success="handleSuccess" @cancel="goBack" />
-    <QuickServiceOperation v-model="isQuickServiceOpen" />
+    <InvoiceForm :key="invoiceType" :initial-type="invoiceType" @cash-box-change="selectedCashBoxId = $event" @success="handleSuccess" @cancel="goBack" />
+    <QuickServiceOperation v-if="selectedCashBoxId" v-model="isQuickServiceOpen" :cash-box-id="selectedCashBoxId" />
   </div>
 </template>
 
@@ -28,6 +29,7 @@ import InvoiceForm from '../components/InvoiceForm.vue';
 import QuickServiceOperation from '@/modules/hwnix-cash/components/QuickServiceOperation.vue';
 
 const isQuickServiceOpen = ref(false);
+const selectedCashBoxId = ref(null);
 
 const router = useRouter();
 const route = useRoute();

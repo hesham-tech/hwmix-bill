@@ -1,34 +1,118 @@
+body:has(.invoice-form-container) .global-fab-feedback {
+  display: none !important;
+}
 /* Shared phone interaction sizes; desktop rules stay with their components. */
 @media (max-width: 599.98px) {
-  .app-mobile-content { padding: 12px !important; }
-  .app-mobile-content:has(.invoice-form-container) { padding: 0 !important; }
-  .sticky-breadcrumbs-container:has(+ .app-mobile-content .invoice-form-container) { display:none; }
-  .sidebar { border-start-end-radius:24px; border-end-end-radius:24px; }
-  .sidebar .v-list-item { min-height:48px; border-radius:14px; margin-block:4px; }
-  .sidebar .v-list-item-title { font-size:14px; }
-  .invoice-form-container, .invoice-phone-dialog, .app-dialog-card {
-    .v-input:not(.v-textarea) .v-field {
-      height:52px !important; min-height:52px !important; max-height:none !important;
-      border-radius:12px !important; font-size:16px !important;
-      .v-field__field, .v-field__input, input { min-height:52px !important; max-height:none !important; font-size:16px !important; line-height:1.5 !important; }
-      .v-field__append-inner, .v-field__clearable, .v-field__prepend-inner,
-      .v-field__prefix, .v-field__suffix, .v-text-field__prefix, .v-text-field__suffix { height:52px !important; font-size:14px !important; }
-      .v-label.v-field-label { font-size:14px !important; }
-      .v-field__outline { --v-field-border-radius:12px !important; }
-    }
-    .v-field__input { min-height:48px !important; font-size:16px !important; }
-    .v-field-label { font-size:14px; }
-    .v-btn { text-transform:none; letter-spacing:0; min-height:48px; block-size:48px; }
-    .v-input__details { font-size:12px; }
+  .app-mobile-content {
+    padding: 12px !important;
   }
-  .invoice-phone-dialog .v-overlay__content { margin:0; max-height:100%; }
-  .app-dialog-card .dialog-premium-header { padding:16px !important; }
-  .app-dialog-card .dialog-content > div { padding:16px !important; }
-  .phone-installment-sheet { position:fixed !important; inset:48px 0 0 !important; transform:none !important; width:100% !important; height:calc(100dvh - 48px); overflow:auto; background:rgb(var(--v-theme-surface)); }
-  .phone-installment-sheet > .v-card { width:100% !important; min-height:100%; border-radius:20px 20px 0 0; }
-  .phone-installment-sheet .v-field__input { min-height:48px; font-size:16px; }
-  .phone-installment-sheet .tool-content { max-height:none; }
+  .app-mobile-content:has(.invoice-form-container) {
+    padding: 0 !important;
+  }
+  .sticky-breadcrumbs-container:has(+ .app-mobile-content .invoice-form-container) {
+    display: none;
+  }
+  .sidebar {
+    border-start-end-radius: 24px;
+    border-end-end-radius: 24px;
+  }
+  .sidebar .v-list-item {
+    min-height: 48px;
+    border-radius: 14px;
+    margin-block: 4px;
+  }
+  .sidebar .v-list-item-title {
+    font-size: 14px;
+  }
+  .invoice-form-container,
+  .invoice-phone-dialog,
+  .invoice-item-details-dialog,
+  .app-dialog-card {
+    .v-input:not(.v-textarea) .v-field {
+      height: 52px !important;
+      min-height: 52px !important;
+      max-height: none !important;
+      border-radius: 12px !important;
+      font-size: 16px !important;
+      .v-field__field,
+      .v-field__input,
+      input {
+        min-height: 52px !important;
+        max-height: none !important;
+        font-size: 16px !important;
+        line-height: 1.5 !important;
+      }
+      .v-field__append-inner,
+      .v-field__clearable,
+      .v-field__prepend-inner,
+      .v-field__prefix,
+      .v-field__suffix,
+      .v-text-field__prefix,
+      .v-text-field__suffix {
+        height: 52px !important;
+        font-size: 14px !important;
+      }
+      .v-label.v-field-label {
+        font-size: 14px !important;
+      }
+      .v-field__outline {
+        --v-field-border-radius: 12px !important;
+      }
+    }
+    .v-field__input {
+      min-height: 48px !important;
+      font-size: 16px !important;
+    }
+    .v-field-label {
+      font-size: 14px;
+    }
+    .v-btn {
+      text-transform: none;
+      letter-spacing: 0;
+      min-height: 48px;
+      block-size: 48px;
+    }
+    .v-input__details {
+      font-size: 12px;
+    }
+  }
+  .invoice-phone-dialog .v-overlay__content {
+    margin: 0;
+    max-height: 100%;
+  }
+  .app-dialog-card .dialog-premium-header {
+    padding: 16px !important;
+  }
+  .app-dialog-card .dialog-content > div {
+    padding: 16px !important;
+  }
+  .phone-installment-sheet {
+    position: fixed !important;
+    inset: 48px 0 0 !important;
+    transform: none !important;
+    width: 100% !important;
+    height: calc(100dvh - 48px);
+    overflow: auto;
+    background: rgb(var(--v-theme-surface));
+  }
+  .phone-installment-sheet > .v-card {
+    width: 100% !important;
+    min-height: 100%;
+    border-radius: 20px 20px 0 0;
+  }
+  .phone-installment-sheet .v-field__input {
+    min-height: 48px;
+    font-size: 16px;
+  }
+  .phone-installment-sheet .tool-content {
+    max-height: none;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .invoice-form-container *, .invoice-phone-dialog * { animation:none !important; transition:none !important; scroll-behavior:auto !important; }
+  .invoice-form-container *,
+  .invoice-phone-dialog * {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
 }

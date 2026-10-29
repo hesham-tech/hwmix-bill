@@ -33,7 +33,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, provide } from 'vue';
 import ErrorDialog from '@/modules/support/components/ErrorDialog.vue';
 import CaptureOverlay from '@/modules/capture/components/CaptureOverlay.vue';
 import AppPrinter from '@/modules/print/components/PrintDriver.vue';
@@ -67,6 +67,8 @@ const captureAndReport = async (type = 'feedback') => {
     });
   });
 };
+
+provide('openSupport', () => captureAndReport('feedback'));
 
 // ✅ تطبيق اللغة وإعداد الإشعارات عند بدء التطبيق
 onMounted(() => {
@@ -127,11 +129,15 @@ watch(
   html[data-store-mobile] .global-fab-feedback {
     bottom: calc(var(--store-nav-offset, 66px) + var(--store-purchase-height, 0px) + 12px);
     z-index: 1001;
-    transition: bottom .28s;
+    transition: bottom 0.28s;
   }
-  html[data-store-overlay] .global-fab-feedback { visibility: hidden; }
+  html[data-store-overlay] .global-fab-feedback {
+    visibility: hidden;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
-  html[data-store-mobile] .global-fab-feedback { transition: none; }
+  html[data-store-mobile] .global-fab-feedback {
+    transition: none;
+  }
 }
 </style>

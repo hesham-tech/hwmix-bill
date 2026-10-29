@@ -29,6 +29,17 @@
       </div>
 
       <!-- Actions Section -->
+      <v-btn
+        v-if="openSupport"
+        icon="ri-customer-service-2-line"
+        variant="text"
+        color="error"
+        aria-label="الدعم الفني"
+        title="الدعم الفني والاقتراحات"
+        class="invoice-support-button"
+        @click="openSupport()"
+      />
+
       <div class="d-flex gap-2 align-center flex-grow-0">
         <AppButton
           variant="tonal"
@@ -77,10 +88,11 @@
 
 <script setup>
 //   هيدر الفاتورة الموحد لعرض الإجماليات وأزرار الإجراءات وحفظ فواتير البيع والشراء
-import { computed } from 'vue';
+import { computed, inject } from 'vue';
 import { formatCurrency } from '@/utils/formatters';
 import AppActionHelp from '@/components/common/AppActionHelp.vue';
 
+const openSupport = inject('openSupport', null);
 const props = defineProps({
   isEdit: Boolean,
   financials: {
@@ -109,7 +121,7 @@ defineEmits(['save', 'cancel']);
   top: 73px;
   z-index: 100;
   backdrop-filter: blur(12px);
-  background: rgba(var(--v-theme-surface), 0.85);
+  background: rgb(var(--v-theme-surface));
   border-bottom: 1px solid rgba(var(--v-border-color), 0.12);
   min-height: 48px;
 }
@@ -141,11 +153,31 @@ defineEmits(['save', 'cancel']);
 .mobile-dashboard {
   width: 100%;
 }
-@media(max-width:599.98px) {
-  .sticky-header { top:48px; min-height:60px; margin:0 !important; background:rgb(var(--v-theme-surface)); backdrop-filter:none; box-shadow:none; }
-  .sticky-header > div:first-child { min-height:60px !important; }
-  .sticky-header h1 { font-size:17px !important; max-width:220px !important; }
-  .mobile-dashboard, .invoice-header-save { display:none !important; }
-  .sticky-header :deep(.v-btn--icon) { width:44px; height:44px; }
+@media (max-width: 599.98px) {
+  .sticky-header {
+    position: relative;
+    top: auto;
+    z-index: 1;
+    min-height: 60px;
+    margin: 0 !important;
+    background: rgb(var(--v-theme-surface));
+    backdrop-filter: none;
+    box-shadow: none;
+  }
+  .sticky-header > div:first-child {
+    min-height: 60px !important;
+  }
+  .sticky-header h1 {
+    font-size: 17px !important;
+    max-width: 220px !important;
+  }
+  .mobile-dashboard,
+  .invoice-header-save {
+    display: none !important;
+  }
+  .sticky-header :deep(.v-btn--icon) {
+    width: 44px;
+    height: 44px;
+  }
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="invoice-form-container">
+  <div ref="formRoot" class="invoice-form-container">
     <!-- ════ الهيدر الثابت ════ -->
     <InvoiceHeader
       :is-edit="isEdit"
@@ -38,6 +38,7 @@
       <!-- ════ القسم 2: منطقة العمل الرئيسية (Workspace) ════ -->
       <div class="invoice-workspace">
         <InvoiceItemsList
+          ref="itemsList"
           v-model:tax-inclusive="invoiceData.tax_inclusive"
           :items="invoiceData.items"
           :warehouse-id="invoiceData.warehouse_id"
@@ -62,7 +63,7 @@
       </div>
 
       <!-- ════ القسم 3: الملخص المالي ════ -->
-      <div class="invoice-financial-area">
+      <div ref="paymentArea" class="invoice-financial-area" tabindex="-1" aria-label="الدفع والحسابات">
         <InvoiceFinancials
           v-model="invoiceData"
           v-model:show-profit="showProfit"
@@ -77,12 +78,40 @@
     </v-form>
 
     <div v-if="isPhone && !keyboardOpen" class="invoice-phone-savebar">
-      <button type="button" class="invoice-phone-total" aria-label="عرض تفاصيل الدفع" @click="scrollToPayment"><small>صافي الفاتورة <v-icon icon="ri-arrow-up-s-line" size="16" /></small><strong>{{ formatCurrency(financials.net_amount) }}</strong></button>
-      <v-btn color="primary" rounded="pill" :loading="loading" :disabled="!canSubmit" prepend-icon="ri-check-line" @click="saveInvoice">{{ currentContext === 'installment_sale' ? 'متابعة التقسيط' : (isEdit ? 'حفظ التعديلات' : 'حفظ الفاتورة') }}</v-btn>
+      <button type="button" class="invoice-phone-total" aria-label="الدفع والحسابات" @click="scrollToPayment">
+        <small>الدفع والحسابات <v-icon icon="ri-arrow-up-s-line" size="16" /></small><strong>{{ formatCurrency(financials.net_amount) }}</strong>
+      </button>
+      <v-btn color="primary" rounded="pill" :loading="loading" :disabled="!canSubmit" prepend-icon="ri-check-line" @click="saveInvoice">{{
+        currentContext === 'installment_sale' ? 'متابعة التقسيط' : isEdit ? 'حفظ التعديلات' : 'حفظ الفاتورة'
+      }}</v-btn>
     </div>
 
+    <v-snackbar
+      :key="undoNoticeId"
+      v-model="undoOpen"
+      :timeout="10000"
+      location="bottom"
+      class="invoice-undo-notice"
+      @update:model-value="
+        value => {
+          if (!value) undoRecords = [];
+        }
+      "
+      ><span role="status"
+        >تم حذف {{ undoRecords.at(-1)?.item.name || 'الصنف'
+        }}{{ undoRecords.length > 1 ? ` · ${undoRecords.length} أصناف قابلة للاستعادة` : '' }}</span
+      ><template #actions><v-btn variant="text" color="yellow" @click="undoRemove">تراجع</v-btn></template></v-snackbar
+    >
     <!-- Quick Add Customer Dialog -->
-    <AppDialog v-model="isQuickAddCustomerOpen" :title="currentContext === 'purchase' ? 'إضافة مورد جديد سريع' : 'إضافة عميل جديد سريع'" icon="ri-user-add-line" max-width="800" :fullscreen="isPhone" hide-actions :draggable="!isPhone">
+    <AppDialog
+      v-model="isQuickAddCustomerOpen"
+      :title="currentContext === 'purchase' ? 'إضافة مورد جديد سريع' : 'إضافة عميل جديد سريع'"
+      icon="ri-user-add-line"
+      max-width="800"
+      :fullscreen="isPhone"
+      hide-actions
+      :draggable="!isPhone"
+    >
       <UserForm :model-value="{ role: 'customer' }" @save="handleQuickCustomerSave" @cancel="isQuickAddCustomerOpen = false" />
     </AppDialog>
 
@@ -97,13 +126,19 @@
       :draggable="!isPhone"
       no-padding
     >
-      <ProductForm v-if="isQuickAddProductOpen" is-dialog :initial-name="quickAddProductName" @success="handleQuickProductSave" @cancel="isQuickAddProductOpen = false" />
+      <ProductForm
+        v-if="isQuickAddProductOpen"
+        is-dialog
+        :initial-name="quickAddProductName"
+        @success="handleQuickProductSave"
+        @cancel="isQuickAddProductOpen = false"
+      />
     </AppDialog>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
 import { useDisplay } from 'vuetify';
 import { formatCurrency } from '@/utils/formatters';
 import { useRoute } from 'vue-router';
@@ -127,10 +162,18 @@ import { useUserStore } from '@/stores/user';
 
 const { xs: isPhone } = useDisplay();
 const keyboardOpen = ref(false);
-const syncKeyboard = () => { keyboardOpen.value = !!window.visualViewport && window.innerHeight - window.visualViewport.height > 150; };
+const syncKeyboard = () => {
+  keyboardOpen.value = !!window.visualViewport && window.innerHeight - window.visualViewport.height > 150;
+};
 onMounted(() => window.visualViewport?.addEventListener('resize', syncKeyboard));
 onBeforeUnmount(() => window.visualViewport?.removeEventListener('resize', syncKeyboard));
-const scrollToPayment = () => document.querySelector('.invoice-financial-area')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+const formRoot = ref(null),
+  paymentArea = ref(null),
+  itemsList = ref(null);
+const scrollToPayment = () => {
+  paymentArea.value?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+  paymentArea.value?.focus({ preventScroll: true });
+};
 
 const props = defineProps({
   invoiceId: {
@@ -143,7 +186,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['success', 'cancel']);
+const emit = defineEmits(['success', 'cancel', 'cash-box-change']);
 
 // API
 const appState = useappState();
@@ -191,6 +234,12 @@ const invoiceData = ref({
   include_previous_balance: true,
 });
 
+watch(
+  () => invoiceData.value.cash_box_id,
+  value => emit('cash-box-change', value ? Number(value) : null),
+  { immediate: true }
+);
+
 const isInstallmentFinalized = ref(false);
 
 const handleInstallmentConfirmation = data => {
@@ -234,9 +283,7 @@ const financials = computed(() => {
   }
 
   const raw_previous_balance = parseFloat(
-    currentContext.value === 'purchase'
-      ? selectedCustomerObj.value?.payable_balance ?? 0
-      : selectedCustomerObj.value?.receivable_balance ?? 0
+    currentContext.value === 'purchase' ? (selectedCustomerObj.value?.payable_balance ?? 0) : (selectedCustomerObj.value?.receivable_balance ?? 0)
   );
   const effective_previous_balance = invoiceData.value.include_previous_balance ? raw_previous_balance : 0;
 
@@ -295,14 +342,13 @@ const getItemPrice = item => {
 };
 
 const addItem = productItem => {
-  const existingIndex = invoiceData.value.items.findIndex(i =>
-    (productItem.variant_id && i.variant_id === productItem.variant_id) ||
-    (productItem.service_id && i.service_id === productItem.service_id)
+  const existingIndex = invoiceData.value.items.findIndex(
+    i => (productItem.variant_id && i.variant_id === productItem.variant_id) || (productItem.service_id && i.service_id === productItem.service_id)
   );
 
   if (existingIndex > -1) {
     const existing = invoiceData.value.items[existingIndex];
-    existing.quantity += (productItem.quantity || 1);
+    existing.quantity += productItem.quantity || 1;
     if (productItem.unit_price) existing.unit_price = productItem.unit_price;
     if (productItem.discount) existing.discount = productItem.discount;
     calculateItem(existing);
@@ -337,7 +383,7 @@ const handleQuickProductSave = product => {
   if (Array.isArray(product) && product.length > 0) {
     product = product[0];
   }
-  
+
   // If product has variants, add the first one by default for quick add
   if (product && product.variants?.length > 0) {
     const variant = product.variants[0];
@@ -408,8 +454,8 @@ watch(
       if (!isInitializing.value) {
         invoiceData.value.price_type = selectedCustomerObj.value?.customer_type === 'wholesale' ? 'wholesale' : 'retail';
       }
-      const isDefaultCash = selectedCustomerObj.value?.id === userStore.currentCompany?.default_cash_customer_id
-        || selectedCustomerObj.value?.is_default_cash_customer;
+      const isDefaultCash =
+        selectedCustomerObj.value?.id === userStore.currentCompany?.default_cash_customer_id || selectedCustomerObj.value?.is_default_cash_customer;
       if (isDefaultCash && currentContext.value !== 'purchase') {
         invoiceData.value.paid_amount = financials.value.total_balance;
       }
@@ -433,7 +479,7 @@ watch(
 
       // 2. Reset items (Prices and stock rules vary heavily between sales and purchases)
       invoiceData.value.items = [];
-      
+
       // 3. Reset financials
       invoiceData.value.paid_amount = 0;
       invoiceData.value.header_discount = 0;
@@ -446,8 +492,8 @@ watch(
 watch(
   () => financials.value.total_balance,
   (newTotal, oldTotal) => {
-    const isDefaultCash = selectedCustomerObj.value?.id === userStore.currentCompany?.default_cash_customer_id
-      || selectedCustomerObj.value?.is_default_cash_customer;
+    const isDefaultCash =
+      selectedCustomerObj.value?.id === userStore.currentCompany?.default_cash_customer_id || selectedCustomerObj.value?.is_default_cash_customer;
     if (isDefaultCash && currentContext.value !== 'purchase') {
       if (invoiceData.value.paid_amount === 0 || invoiceData.value.paid_amount === oldTotal || isInitializing.value) {
         invoiceData.value.paid_amount = newTotal;
@@ -464,9 +510,37 @@ const calculateItem = item => {
   item.total = (item.quantity || 0) * (item.unit_price || 0) - (item.discount || 0);
 };
 
+const undoRecords = ref([]),
+  undoOpen = ref(false),
+  undoNoticeId = ref(0);
 const removeItem = index => {
-  invoiceData.value.items.splice(index, 1);
+  const items = invoiceData.value.items,
+    item = items[index];
+  if (!item) return;
+  undoRecords.value.push({ item, index, before: items[index - 1], after: items[index + 1] });
+  items.splice(index, 1);
+  undoNoticeId.value++;
+  undoOpen.value = true;
 };
+const undoRemove = () => {
+  const record = undoRecords.value.pop();
+  if (!record) return;
+  const items = invoiceData.value.items;
+  let index = record.after ? items.indexOf(record.after) : -1;
+  if (index < 0) {
+    const before = record.before ? items.indexOf(record.before) : -1;
+    index = before >= 0 ? before + 1 : Math.min(record.index, items.length);
+  }
+  items.splice(index, 0, record.item);
+  calculateItem(record.item);
+  undoOpen.value = undoRecords.value.length > 0;
+  undoNoticeId.value++;
+  nextTick(() => itemsList.value?.revealItem(record.item, true));
+};
+watch(currentContext, () => {
+  undoRecords.value = [];
+  undoOpen.value = false;
+});
 
 const handleQuickCustomerSave = async data => {
   loading.value = true;
@@ -526,7 +600,8 @@ const saveInvoice = async () => {
       delete payload.installment_plan;
     } else if (payload.installment_plan) {
       // Ensure start_date and frequency are set by default if missing
-      payload.installment_plan.start_date = payload.installment_plan.start_date || new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString().split('T')[0];
+      payload.installment_plan.start_date =
+        payload.installment_plan.start_date || new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString().split('T')[0];
       payload.installment_plan.frequency = payload.installment_plan.frequency || 'monthly';
     }
 
@@ -540,6 +615,8 @@ const saveInvoice = async () => {
     // تحديث بيانات المستخدم (الرصيد في القائمة العلوية)
     userStore.fetchUser();
 
+    undoRecords.value = [];
+    undoOpen.value = false;
     emit('success', response.data);
   } catch (error) {
     if (error.response?.data?.errors) {
@@ -629,7 +706,7 @@ const fetchInvoice = async () => {
           if (variant.base_unit) allowedUnits.push(variant.base_unit);
           if (variant.purchase_unit && !allowedUnits.some(u => u.id === variant.purchase_unit.id)) allowedUnits.push(variant.purchase_unit);
           if (variant.display_unit && !allowedUnits.some(u => u.id === variant.display_unit.id)) allowedUnits.push(variant.display_unit);
-          
+
           if (variant.units && Array.isArray(variant.units)) {
             variant.units.forEach(vu => {
               if (vu.unit && !allowedUnits.some(u => u.id === vu.unit.id)) {
@@ -666,14 +743,16 @@ const fetchInvoice = async () => {
           quantity_precision: variant?.product?.quantity_precision || 0,
         };
       }),
-      installment_plan: invoice.installment_plan ? {
-        down_payment: parseFloat(invoice.installment_plan.down_payment || 0),
-        number_of_installments: parseInt(invoice.installment_plan.number_of_installments || 1),
-        interest_rate: parseFloat(invoice.installment_plan.interest_rate || 0),
-        round_step: parseInt(invoice.installment_plan.round_step || 1),
-        start_date: invoice.installment_plan.start_date?.substring(0, 10),
-        frequency: invoice.installment_plan.frequency || 'monthly',
-      } : null,
+      installment_plan: invoice.installment_plan
+        ? {
+            down_payment: parseFloat(invoice.installment_plan.down_payment || 0),
+            number_of_installments: parseInt(invoice.installment_plan.number_of_installments || 1),
+            interest_rate: parseFloat(invoice.installment_plan.interest_rate || 0),
+            round_step: parseInt(invoice.installment_plan.round_step || 1),
+            start_date: invoice.installment_plan.start_date?.substring(0, 10),
+            frequency: invoice.installment_plan.frequency || 'monthly',
+          }
+        : null,
     };
 
     invoiceData.value = { ...invoiceData.value, ...data };
@@ -691,17 +770,17 @@ const fetchInvoice = async () => {
 
 // ... watch ...
 
-const fetchReturnInvoice = async (returnFromId) => {
+const fetchReturnInvoice = async returnFromId => {
   loading.value = true;
   try {
     const response = await invoiceApi.getById(returnFromId);
     const originalInvoice = response.data;
-    
+
     // Determine return type based on exact DB codes
     const isSale = ['sale', 'sales', 'installment_sale'].includes(originalInvoice.invoice_type?.code);
     const returnTypeCode = isSale ? 'sale_return' : 'purchase_return';
     const targetType = invoiceTypes.value.find(t => t.code === returnTypeCode);
-    
+
     const data = {
       user_id: originalInvoice.user_id,
       invoice_type_id: targetType ? targetType.id : invoiceTypes.value[0]?.id,
@@ -749,7 +828,7 @@ const fetchReturnInvoice = async (returnFromId) => {
           allow_decimal_quantities: variant?.product?.allow_decimal_quantities || false,
           quantity_precision: variant?.product?.quantity_precision || 0,
         };
-      })
+      }),
     };
 
     invoiceData.value = { ...invoiceData.value, ...data };
@@ -804,15 +883,75 @@ onMounted(async () => {
   padding: 0 16px 16px;
 }
 
-.invoice-phone-savebar { position:fixed; bottom:0; inset-inline:0; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 16px calc(12px + env(safe-area-inset-bottom)); background:rgb(var(--v-theme-surface)); border-top:1px solid rgba(var(--v-border-color),.14); z-index:101; box-shadow:0 -4px 24px rgba(0,0,0,.04); }
-.invoice-phone-savebar .v-btn { height:52px; padding-inline:22px; font-size:14px; }
-.invoice-phone-total { text-align:start; min-width:0; }
-.invoice-phone-total small { display:block; font-size:11px; color:rgba(var(--v-theme-on-surface),.65); }
-.invoice-phone-total strong { display:block; font-size:19px; color:rgb(var(--v-theme-primary)); overflow-wrap:anywhere; }
-@media(max-width:599.98px) {
-  .invoice-form-container { min-height:calc(100dvh - 72px); padding-bottom:100px; }
-  .invoice-info-bar { margin:12px; padding:16px 8px 8px; border:1px solid rgba(var(--v-border-color),.12); border-radius:20px; }
-  .invoice-workspace { padding:4px 12px 12px; }
-  .invoice-financial-area { padding:0 12px 20px; scroll-margin-top:120px; }
+.invoice-phone-savebar {
+  position: fixed;
+  bottom: 0;
+  inset-inline: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  background: rgb(var(--v-theme-surface));
+  border-top: 1px solid rgba(var(--v-border-color), 0.14);
+  z-index: 101;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.04);
+}
+.invoice-phone-savebar .v-btn {
+  height: 52px;
+  padding-inline: 22px;
+  font-size: 14px;
+}
+.invoice-phone-total {
+  text-align: start;
+  min-width: 0;
+}
+.invoice-phone-total {
+  touch-action: manipulation;
+}
+.invoice-phone-total small {
+  display: block;
+  font-size: 11px;
+  color: rgba(var(--v-theme-on-surface), 0.65);
+}
+.invoice-phone-total strong {
+  display: block;
+  font-size: 19px;
+  color: rgb(var(--v-theme-primary));
+  overflow-wrap: anywhere;
+}
+@media (max-width: 599.98px) {
+  .invoice-form-container {
+    min-height: 0;
+    padding-bottom: calc(100px + env(safe-area-inset-bottom));
+  }
+  .invoice-info-bar {
+    margin: 12px;
+    padding: 16px 8px 8px;
+    border: 1px solid rgba(var(--v-border-color), 0.12);
+    border-radius: 20px;
+  }
+  .invoice-workspace {
+    padding: 4px 12px 12px;
+    flex: none;
+  }
+  .invoice-financial-area {
+    padding: 0 12px 20px;
+    scroll-margin-top: 60px;
+  }
+}
+</style>
+
+<style>
+.invoice-undo-notice .v-overlay__content {
+  max-width: calc(100vw - 24px);
+}
+@media (max-width: 599.98px) {
+  .invoice-undo-notice {
+    padding-bottom: calc(100px + env(safe-area-inset-bottom)) !important;
+  }
+  .invoice-undo-notice .v-btn {
+    min-height: 44px;
+  }
 }
 </style>
