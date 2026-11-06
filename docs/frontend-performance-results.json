@@ -1,0 +1,1995 @@
+{
+  "measuredAt": "2026-11-06T13:36:27.549Z",
+  "runs": 5,
+  "note": "Mock API, fixed viewport, service workers blocked; repeat uses SPA navigation except login. Font requests retain the application behavior.",
+  "rows": [
+    {
+      "screen": "login",
+      "scenario": "cold",
+      "before": {
+        "readyMs": 1392,
+        "assetBytes": 862319,
+        "uniqueAssetBytes": 862319,
+        "decodedBytes": 3622372,
+        "assetRequests": 49,
+        "longTaskMs": 447
+      },
+      "after": {
+        "readyMs": 959,
+        "assetBytes": 349428,
+        "uniqueAssetBytes": 349428,
+        "decodedBytes": 1293602,
+        "assetRequests": 36,
+        "longTaskMs": 381
+      },
+      "readyReductionPercent": 31.1,
+      "bytesReductionPercent": 59.5
+    },
+    {
+      "screen": "login",
+      "scenario": "repeat",
+      "before": {
+        "readyMs": 817,
+        "assetBytes": 862319,
+        "uniqueAssetBytes": 862319,
+        "decodedBytes": 3622372,
+        "assetRequests": 49,
+        "longTaskMs": 225
+      },
+      "after": {
+        "readyMs": 589,
+        "assetBytes": 349428,
+        "uniqueAssetBytes": 349428,
+        "decodedBytes": 1293602,
+        "assetRequests": 36,
+        "longTaskMs": 52
+      },
+      "readyReductionPercent": 27.9,
+      "bytesReductionPercent": 59.5
+    },
+    {
+      "screen": "login",
+      "scenario": "cpu4",
+      "before": {
+        "readyMs": 4450,
+        "assetBytes": 862319,
+        "uniqueAssetBytes": 862319,
+        "decodedBytes": 3622372,
+        "assetRequests": 49,
+        "longTaskMs": 3558
+      },
+      "after": {
+        "readyMs": 4389,
+        "assetBytes": 368616,
+        "uniqueAssetBytes": 349428,
+        "decodedBytes": 1312790,
+        "assetRequests": 38,
+        "longTaskMs": 3266
+      },
+      "readyReductionPercent": 1.4,
+      "bytesReductionPercent": 59.5
+    },
+    {
+      "screen": "customers",
+      "scenario": "cold",
+      "before": {
+        "readyMs": 2904,
+        "assetBytes": 1179291,
+        "uniqueAssetBytes": 1179291,
+        "decodedBytes": 4591107,
+        "assetRequests": 129,
+        "longTaskMs": 1234
+      },
+      "after": {
+        "readyMs": 2280,
+        "assetBytes": 530941,
+        "uniqueAssetBytes": 530941,
+        "decodedBytes": 1728655,
+        "assetRequests": 103,
+        "longTaskMs": 1180
+      },
+      "readyReductionPercent": 21.5,
+      "bytesReductionPercent": 55
+    },
+    {
+      "screen": "customers",
+      "scenario": "repeat",
+      "before": {
+        "readyMs": 85,
+        "assetBytes": 0,
+        "uniqueAssetBytes": 0,
+        "decodedBytes": 0,
+        "assetRequests": 0,
+        "longTaskMs": 124
+      },
+      "after": {
+        "readyMs": 42,
+        "assetBytes": 0,
+        "uniqueAssetBytes": 0,
+        "decodedBytes": 0,
+        "assetRequests": 0,
+        "longTaskMs": 70
+      },
+      "readyReductionPercent": 50.6,
+      "bytesReductionPercent": null
+    },
+    {
+      "screen": "customers",
+      "scenario": "cpu4",
+      "before": {
+        "readyMs": 12429,
+        "assetBytes": 1227715,
+        "uniqueAssetBytes": 1227715,
+        "decodedBytes": 4752728,
+        "assetRequests": 139,
+        "longTaskMs": 9933
+      },
+      "after": {
+        "readyMs": 9796,
+        "assetBytes": 617169,
+        "uniqueAssetBytes": 530941,
+        "decodedBytes": 1814883,
+        "assetRequests": 109,
+        "longTaskMs": 8148
+      },
+      "readyReductionPercent": 21.2,
+      "bytesReductionPercent": 56.8
+    },
+    {
+      "screen": "dashboard",
+      "scenario": "cold",
+      "before": {
+        "readyMs": 2034,
+        "assetBytes": 1041383,
+        "uniqueAssetBytes": 1041383,
+        "decodedBytes": 4172309,
+        "assetRequests": 117,
+        "longTaskMs": 784
+      },
+      "after": {
+        "readyMs": 1672,
+        "assetBytes": 561335,
+        "uniqueAssetBytes": 561335,
+        "decodedBytes": 1849568,
+        "assetRequests": 99,
+        "longTaskMs": 758
+      },
+      "readyReductionPercent": 17.8,
+      "bytesReductionPercent": 46.1
+    },
+    {
+      "screen": "dashboard",
+      "scenario": "repeat",
+      "before": {
+        "readyMs": 55,
+        "assetBytes": 0,
+        "uniqueAssetBytes": 0,
+        "decodedBytes": 0,
+        "assetRequests": 0,
+        "longTaskMs": 122
+      },
+      "after": {
+        "readyMs": 52,
+        "assetBytes": 0,
+        "uniqueAssetBytes": 0,
+        "decodedBytes": 0,
+        "assetRequests": 0,
+        "longTaskMs": 145
+      },
+      "readyReductionPercent": 5.5,
+      "bytesReductionPercent": null
+    },
+    {
+      "screen": "dashboard",
+      "scenario": "cpu4",
+      "before": {
+        "readyMs": 14054,
+        "assetBytes": 1041383,
+        "uniqueAssetBytes": 1041383,
+        "decodedBytes": 4172309,
+        "assetRequests": 117,
+        "longTaskMs": 11220
+      },
+      "after": {
+        "readyMs": 11020,
+        "assetBytes": 647563,
+        "uniqueAssetBytes": 561335,
+        "decodedBytes": 1935796,
+        "assetRequests": 105,
+        "longTaskMs": 9002
+      },
+      "readyReductionPercent": 21.6,
+      "bytesReductionPercent": 46.1
+    },
+    {
+      "screen": "invoice",
+      "scenario": "cold",
+      "before": {
+        "readyMs": 2121,
+        "assetBytes": 1087138,
+        "uniqueAssetBytes": 1087138,
+        "decodedBytes": 4330136,
+        "assetRequests": 133,
+        "longTaskMs": 798
+      },
+      "after": {
+        "readyMs": 1267,
+        "assetBytes": 515624,
+        "uniqueAssetBytes": 515624,
+        "decodedBytes": 1690012,
+        "assetRequests": 92,
+        "longTaskMs": 745
+      },
+      "readyReductionPercent": 40.3,
+      "bytesReductionPercent": 52.6
+    },
+    {
+      "screen": "invoice",
+      "scenario": "repeat",
+      "before": {
+        "readyMs": 144,
+        "assetBytes": 0,
+        "uniqueAssetBytes": 0,
+        "decodedBytes": 0,
+        "assetRequests": 0,
+        "longTaskMs": 201
+      },
+      "after": {
+        "readyMs": 95,
+        "assetBytes": 0,
+        "uniqueAssetBytes": 0,
+        "decodedBytes": 0,
+        "assetRequests": 0,
+        "longTaskMs": 133
+      },
+      "readyReductionPercent": 34,
+      "bytesReductionPercent": null
+    },
+    {
+      "screen": "invoice",
+      "scenario": "cpu4",
+      "before": {
+        "readyMs": 16287,
+        "assetBytes": 1166382,
+        "uniqueAssetBytes": 1166382,
+        "decodedBytes": 4593456,
+        "assetRequests": 153,
+        "longTaskMs": 14187
+      },
+      "after": {
+        "readyMs": 12899,
+        "assetBytes": 601852,
+        "uniqueAssetBytes": 515624,
+        "decodedBytes": 1776240,
+        "assetRequests": 98,
+        "longTaskMs": 10751
+      },
+      "readyReductionPercent": 20.8,
+      "bytesReductionPercent": 55.8
+    },
+    {
+      "screen": "products",
+      "scenario": "cold",
+      "before": {
+        "readyMs": 1956,
+        "assetBytes": 1164588,
+        "uniqueAssetBytes": 1164588,
+        "decodedBytes": 4526836,
+        "assetRequests": 112,
+        "longTaskMs": 823
+      },
+      "after": {
+        "readyMs": 1140,
+        "assetBytes": 525433,
+        "uniqueAssetBytes": 525433,
+        "decodedBytes": 1719536,
+        "assetRequests": 90,
+        "longTaskMs": 673
+      },
+      "readyReductionPercent": 41.7,
+      "bytesReductionPercent": 54.9
+    },
+    {
+      "screen": "products",
+      "scenario": "repeat",
+      "before": {
+        "readyMs": 95,
+        "assetBytes": 0,
+        "uniqueAssetBytes": 0,
+        "decodedBytes": 0,
+        "assetRequests": 0,
+        "longTaskMs": 124
+      },
+      "after": {
+        "readyMs": 57,
+        "assetBytes": 0,
+        "uniqueAssetBytes": 0,
+        "decodedBytes": 0,
+        "assetRequests": 0,
+        "longTaskMs": 68
+      },
+      "readyReductionPercent": 40,
+      "bytesReductionPercent": null
+    },
+    {
+      "screen": "products",
+      "scenario": "cpu4",
+      "before": {
+        "readyMs": 13727,
+        "assetBytes": 1164588,
+        "uniqueAssetBytes": 1164588,
+        "decodedBytes": 4526836,
+        "assetRequests": 112,
+        "longTaskMs": 11956
+      },
+      "after": {
+        "readyMs": 9966,
+        "assetBytes": 611661,
+        "uniqueAssetBytes": 525433,
+        "decodedBytes": 1805764,
+        "assetRequests": 96,
+        "longTaskMs": 8626
+      },
+      "readyReductionPercent": 27.4,
+      "bytesReductionPercent": 54.9
+    }
+  ],
+  "acceptance": {
+    "compressedAssets": true,
+    "slowCpuReady": false
+  },
+  "beforeSamples": [
+    {
+      "screen": "login",
+      "scenario": "cold",
+      "run": 0,
+      "readyMs": 1519,
+      "assetBytes": 974270,
+      "decodedBytes": 3967668,
+      "assetRequests": 92,
+      "longTaskMs": 582,
+      "uniqueAssetBytes": 974270
+    },
+    {
+      "screen": "login",
+      "scenario": "cold",
+      "run": 1,
+      "readyMs": 1392,
+      "assetBytes": 862319,
+      "decodedBytes": 3622372,
+      "assetRequests": 49,
+      "longTaskMs": 491,
+      "uniqueAssetBytes": 862319
+    },
+    {
+      "screen": "login",
+      "scenario": "cold",
+      "run": 2,
+      "readyMs": 1404,
+      "assetBytes": 862319,
+      "decodedBytes": 3622372,
+      "assetRequests": 49,
+      "longTaskMs": 431,
+      "uniqueAssetBytes": 862319
+    },
+    {
+      "screen": "login",
+      "scenario": "cold",
+      "run": 3,
+      "readyMs": 1359,
+      "assetBytes": 862319,
+      "decodedBytes": 3622372,
+      "assetRequests": 49,
+      "longTaskMs": 447,
+      "uniqueAssetBytes": 862319
+    },
+    {
+      "screen": "login",
+      "scenario": "cold",
+      "run": 4,
+      "readyMs": 1219,
+      "assetBytes": 862319,
+      "decodedBytes": 3622372,
+      "assetRequests": 49,
+      "longTaskMs": 431,
+      "uniqueAssetBytes": 862319
+    },
+    {
+      "screen": "login",
+      "scenario": "repeat",
+      "run": 0,
+      "readyMs": 806,
+      "assetBytes": 862319,
+      "decodedBytes": 3622372,
+      "assetRequests": 49,
+      "longTaskMs": 280,
+      "uniqueAssetBytes": 862319
+    },
+    {
+      "screen": "login",
+      "scenario": "repeat",
+      "run": 1,
+      "readyMs": 1009,
+      "assetBytes": 862319,
+      "decodedBytes": 3622372,
+      "assetRequests": 49,
+      "longTaskMs": 99,
+      "uniqueAssetBytes": 862319
+    },
+    {
+      "screen": "login",
+      "scenario": "repeat",
+      "run": 2,
+      "readyMs": 817,
+      "assetBytes": 862319,
+      "decodedBytes": 3622372,
+      "assetRequests": 49,
+      "longTaskMs": 276,
+      "uniqueAssetBytes": 862319
+    },
+    {
+      "screen": "login",
+      "scenario": "repeat",
+      "run": 3,
+      "readyMs": 864,
+      "assetBytes": 862319,
+      "decodedBytes": 3622372,
+      "assetRequests": 49,
+      "longTaskMs": 225,
+      "uniqueAssetBytes": 862319
+    },
+    {
+      "screen": "login",
+      "scenario": "repeat",
+      "run": 4,
+      "readyMs": 725,
+      "assetBytes": 862319,
+      "decodedBytes": 3622372,
+      "assetRequests": 49,
+      "longTaskMs": 157,
+      "uniqueAssetBytes": 862319
+    },
+    {
+      "screen": "login",
+      "scenario": "cpu4",
+      "run": 0,
+      "readyMs": 5969,
+      "assetBytes": 862319,
+      "decodedBytes": 3622372,
+      "assetRequests": 49,
+      "longTaskMs": 4476,
+      "uniqueAssetBytes": 862319
+    },
+    {
+      "screen": "login",
+      "scenario": "cpu4",
+      "run": 1,
+      "readyMs": 4696,
+      "assetBytes": 862319,
+      "decodedBytes": 3622372,
+      "assetRequests": 49,
+      "longTaskMs": 3699,
+      "uniqueAssetBytes": 862319
+    },
+    {
+      "screen": "login",
+      "scenario": "cpu4",
+      "run": 2,
+      "readyMs": 3561,
+      "assetBytes": 862319,
+      "decodedBytes": 3622372,
+      "assetRequests": 49,
+      "longTaskMs": 2924,
+      "uniqueAssetBytes": 862319
+    },
+    {
+      "screen": "login",
+      "scenario": "cpu4",
+      "run": 3,
+      "readyMs": 4450,
+      "assetBytes": 862319,
+      "decodedBytes": 3622372,
+      "assetRequests": 49,
+      "longTaskMs": 3165,
+      "uniqueAssetBytes": 862319
+    },
+    {
+      "screen": "login",
+      "scenario": "cpu4",
+      "run": 4,
+      "readyMs": 3919,
+      "assetBytes": 862319,
+      "decodedBytes": 3622372,
+      "assetRequests": 49,
+      "longTaskMs": 3558,
+      "uniqueAssetBytes": 862319
+    },
+    {
+      "screen": "customers",
+      "scenario": "cold",
+      "run": 0,
+      "readyMs": 2803,
+      "assetBytes": 1227715,
+      "decodedBytes": 4752728,
+      "assetRequests": 139,
+      "longTaskMs": 1370,
+      "uniqueAssetBytes": 1227715
+    },
+    {
+      "screen": "customers",
+      "scenario": "cold",
+      "run": 1,
+      "readyMs": 2960,
+      "assetBytes": 1179291,
+      "decodedBytes": 4591107,
+      "assetRequests": 129,
+      "longTaskMs": 1284,
+      "uniqueAssetBytes": 1179291
+    },
+    {
+      "screen": "customers",
+      "scenario": "cold",
+      "run": 2,
+      "readyMs": 2904,
+      "assetBytes": 1179291,
+      "decodedBytes": 4591107,
+      "assetRequests": 129,
+      "longTaskMs": 1213,
+      "uniqueAssetBytes": 1179291
+    },
+    {
+      "screen": "customers",
+      "scenario": "cold",
+      "run": 3,
+      "readyMs": 3642,
+      "assetBytes": 1179291,
+      "decodedBytes": 4591107,
+      "assetRequests": 129,
+      "longTaskMs": 1204,
+      "uniqueAssetBytes": 1179291
+    },
+    {
+      "screen": "customers",
+      "scenario": "cold",
+      "run": 4,
+      "readyMs": 2659,
+      "assetBytes": 1179291,
+      "decodedBytes": 4591107,
+      "assetRequests": 129,
+      "longTaskMs": 1234,
+      "uniqueAssetBytes": 1179291
+    },
+    {
+      "screen": "customers",
+      "scenario": "repeat",
+      "run": 0,
+      "readyMs": 76,
+      "assetBytes": 0,
+      "decodedBytes": 0,
+      "assetRequests": 0,
+      "longTaskMs": 137,
+      "uniqueAssetBytes": 0
+    },
+    {
+      "screen": "customers",
+      "scenario": "repeat",
+      "run": 1,
+      "readyMs": 87,
+      "assetBytes": 0,
+      "decodedBytes": 0,
+      "assetRequests": 0,
+      "longTaskMs": 102,
+      "uniqueAssetBytes": 0
+    },
+    {
+      "screen": "customers",
+      "scenario": "repeat",
+      "run": 2,
+      "readyMs": 78,
+      "assetBytes": 0,
+      "decodedBytes": 0,
+      "assetRequests": 0,
+      "longTaskMs": 106,
+      "uniqueAssetBytes": 0
+    },
+    {
+      "screen": "customers",
+      "scenario": "repeat",
+      "run": 3,
+      "readyMs": 85,
+      "assetBytes": 0,
+      "decodedBytes": 0,
+      "assetRequests": 0,
+      "longTaskMs": 130,
+      "uniqueAssetBytes": 0
+    },
+    {
+      "screen": "customers",
+      "scenario": "repeat",
+      "run": 4,
+      "readyMs": 99,
+      "assetBytes": 0,
+      "decodedBytes": 0,
+      "assetRequests": 0,
+      "longTaskMs": 124,
+      "uniqueAssetBytes": 0
+    },
+    {
+      "screen": "customers",
+      "scenario": "cpu4",
+      "run": 0,
+      "readyMs": 13518,
+      "assetBytes": 1227715,
+      "decodedBytes": 4752728,
+      "assetRequests": 139,
+      "longTaskMs": 11444,
+      "uniqueAssetBytes": 1227715
+    },
+    {
+      "screen": "customers",
+      "scenario": "cpu4",
+      "run": 1,
+      "readyMs": 12454,
+      "assetBytes": 1179291,
+      "decodedBytes": 4591107,
+      "assetRequests": 129,
+      "longTaskMs": 10457,
+      "uniqueAssetBytes": 1179291
+    },
+    {
+      "screen": "customers",
+      "scenario": "cpu4",
+      "run": 2,
+      "readyMs": 11276,
+      "assetBytes": 1227715,
+      "decodedBytes": 4752728,
+      "assetRequests": 139,
+      "longTaskMs": 9188,
+      "uniqueAssetBytes": 1227715
+    },
+    {
+      "screen": "customers",
+      "scenario": "cpu4",
+      "run": 3,
+      "readyMs": 12429,
+      "assetBytes": 1227715,
+      "decodedBytes": 4752728,
+      "assetRequests": 139,
+      "longTaskMs": 9933,
+      "uniqueAssetBytes": 1227715
+    },
+    {
+      "screen": "customers",
+      "scenario": "cpu4",
+      "run": 4,
+      "readyMs": 12022,
+      "assetBytes": 1227715,
+      "decodedBytes": 4752728,
+      "assetRequests": 139,
+      "longTaskMs": 9918,
+      "uniqueAssetBytes": 1227715
+    },
+    {
+      "screen": "dashboard",
+      "scenario": "cold",
+      "run": 0,
+      "readyMs": 2125,
+      "assetBytes": 1047596,
+      "decodedBytes": 4187597,
+      "assetRequests": 120,
+      "longTaskMs": 784,
+      "uniqueAssetBytes": 1047596
+    },
+    {
+      "screen": "dashboard",
+      "scenario": "cold",
+      "run": 1,
+      "readyMs": 2034,
+      "assetBytes": 1041383,
+      "decodedBytes": 4172309,
+      "assetRequests": 117,
+      "longTaskMs": 803,
+      "uniqueAssetBytes": 1041383
+    },
+    {
+      "screen": "dashboard",
+      "scenario": "cold",
+      "run": 2,
+      "readyMs": 3055,
+      "assetBytes": 1041383,
+      "decodedBytes": 4172309,
+      "assetRequests": 117,
+      "longTaskMs": 1448,
+      "uniqueAssetBytes": 1041383
+    },
+    {
+      "screen": "dashboard",
+      "scenario": "cold",
+      "run": 3,
+      "readyMs": 2008,
+      "assetBytes": 1041383,
+      "decodedBytes": 4172309,
+      "assetRequests": 117,
+      "longTaskMs": 778,
+      "uniqueAssetBytes": 1041383
+    },
+    {
+      "screen": "dashboard",
+      "scenario": "cold",
+      "run": 4,
+      "readyMs": 1902,
+      "assetBytes": 1041383,
+      "decodedBytes": 4172309,
+      "assetRequests": 117,
+      "longTaskMs": 753,
+      "uniqueAssetBytes": 1041383
+    },
+    {
+      "screen": "dashboard",
+      "scenario": "repeat",
+      "run": 0,
+      "readyMs": 52,
+      "assetBytes": 0,
+      "decodedBytes": 0,
+      "assetRequests": 0,
+      "longTaskMs": 182,
+      "uniqueAssetBytes": 0
+    },
+    {
+      "screen": "dashboard",
+      "scenario": "repeat",
+      "run": 1,
+      "readyMs": 54,
+      "assetBytes": 0,
+      "decodedBytes": 0,
+      "assetRequests": 0,
+      "longTaskMs": 122,
+      "uniqueAssetBytes": 0
+    },
+    {
+      "screen": "dashboard",
+      "scenario": "repeat",
+      "run": 2,
+      "readyMs": 55,
+      "assetBytes": 0,
+      "decodedBytes": 0,
+      "assetRequests": 0,
+      "longTaskMs": 120,
+      "uniqueAssetBytes": 0
+    },
+    {
+      "screen": "dashboard",
+      "scenario": "repeat",
+      "run": 3,
+      "readyMs": 60,
+      "assetBytes": 0,
+      "decodedBytes": 0,
+      "assetRequests": 0,
+      "longTaskMs": 136,
+      "uniqueAssetBytes": 0
+    },
+    {
+      "screen": "dashboard",
+      "scenario": "repeat",
+      "run": 4,
+      "readyMs": 58,
+      "assetBytes": 0,
+      "decodedBytes": 0,
+      "assetRequests": 0,
+      "longTaskMs": 115,
+      "uniqueAssetBytes": 0
+    },
+    {
+      "screen": "dashboard",
+      "scenario": "cpu4",
+      "run": 0,
+      "readyMs": 13887,
+      "assetBytes": 1047596,
+      "decodedBytes": 4187597,
+      "assetRequests": 120,
+      "longTaskMs": 10729,
+      "uniqueAssetBytes": 1047596
+    },
+    {
+      "screen": "dashboard",
+      "scenario": "cpu4",
+      "run": 1,
+      "readyMs": 14054,
+      "assetBytes": 1041383,
+      "decodedBytes": 4172309,
+      "assetRequests": 117,
+      "longTaskMs": 11172,
+      "uniqueAssetBytes": 1041383
+    },
+    {
+      "screen": "dashboard",
+      "scenario": "cpu4",
+      "run": 2,
+      "readyMs": 14017,
+      "assetBytes": 1041383,
+      "decodedBytes": 4172309,
+      "assetRequests": 117,
+      "longTaskMs": 11220,
+      "uniqueAssetBytes": 1041383
+    },
+    {
+      "screen": "dashboard",
+      "scenario": "cpu4",
+      "run": 3,
+      "readyMs": 16696,
+      "assetBytes": 1041383,
+      "decodedBytes": 4172309,
+      "assetRequests": 117,
+      "longTaskMs": 13487,
+      "uniqueAssetBytes": 1041383
+    },
+    {
+      "screen": "dashboard",
+      "scenario": "cpu4",
+      "run": 4,
+      "readyMs": 16556,
+      "assetBytes": 1047596,
+      "decodedBytes": 4187597,
+      "assetRequests": 120,
+      "longTaskMs": 12955,
+      "uniqueAssetBytes": 1047596
+    },
+    {
+      "screen": "invoice",
+      "scenario": "cold",
+      "run": 0,
+      "readyMs": 2401,
+      "assetBytes": 1166382,
+      "decodedBytes": 4593456,
+      "assetRequests": 153,
+      "longTaskMs": 1091,
+      "uniqueAssetBytes": 1166382
+    },
+    {
+      "screen": "invoice",
+      "scenario": "cold",
+      "run": 1,
+      "readyMs": 1855,
+      "assetBytes": 1087138,
+      "decodedBytes": 4330136,
+      "assetRequests": 133,
+      "longTaskMs": 636,
+      "uniqueAssetBytes": 1087138
+    },
+    {
+      "screen": "invoice",
+      "scenario": "cold",
+      "run": 2,
+      "readyMs": 2183,
+      "assetBytes": 1087138,
+      "decodedBytes": 4330136,
+      "assetRequests": 133,
+      "longTaskMs": 773,
+      "uniqueAssetBytes": 1087138
+    },
+    {
+      "screen": "invoice",
+      "scenario": "cold",
+      "run": 3,
+      "readyMs": 2030,
+      "assetBytes": 1087138,
+      "decodedBytes": 4330136,
+      "assetRequests": 133,
+      "longTaskMs": 867,
+      "uniqueAssetBytes": 1087138
+    },
+    {
+      "screen": "invoice",
+      "scenario": "cold",
+      "run": 4,
+      "readyMs": 2121,
+      "assetBytes": 1087138,
+      "decodedBytes": 4330136,
+      "assetRequests": 133,
+      "longTaskMs": 798,
+      "uniqueAssetBytes": 1087138
+    },
+    {
+      "screen": "invoice",
+      "scenario": "repeat",
+      "run": 0,
+      "readyMs": 127,
+      "assetBytes": 0,
+      "decodedBytes": 0,
+      "assetRequests": 0,
+      "longTaskMs": 201,
+      "uniqueAssetBytes": 0
+    },
+    {
+      "screen": "invoice",
+      "scenario": "repeat",
+      "run": 1,
+      "readyMs": 144,
+      "assetBytes": 0,
+      "decodedBytes": 0,
+      "assetRequests": 0,
+      "longTaskMs": 207,
+      "uniqueAssetBytes": 0
+    },
+    {
+      "screen": "invoice",
+      "scenario": "repeat",
+      "run": 2,
+      "readyMs": 420,
+      "assetBytes": 0,
+      "decodedBytes": 0,
+      "assetRequests": 0,
+      "longTaskMs": 238,
+      "uniqueAssetBytes": 0
+    },
+    {
+      "screen": "invoice",
+      "scenario": "repeat",
+      "run": 3,
+      "readyMs": 148,
+      "assetBytes": 0,
+      "decodedBytes": 0,
+      "assetRequests": 0,
+      "longTaskMs": 141,
+      "uniqueAssetBytes": 0
+    },
+    {
+      "screen": "invoice",
+      "scenario": "repeat",
+      "run": 4,
+      "readyMs": 122,
+      "assetBytes": 0,
+      "decodedBytes": 0,
+      "assetRequests": 0,
+      "longTaskMs": 166,
+      "uniqueAssetBytes": 0
+    },
+    {
+      "screen": "invoice",
+      "scenario": "cpu4",
+      "run": 0,
+      "readyMs": 16920,
+      "assetBytes": 1166382,
+      "decodedBytes": 4593456,
+      "assetRequests": 153,
+      "longTaskMs": 14503,
+      "uniqueAssetBytes": 1166382
+    },
+    {
+      "screen": "invoice",
+      "scenario": "cpu4",
+      "run": 1,
+      "readyMs": 16133,
+      "assetBytes": 1087138,
+      "decodedBytes": 4330136,
+      "assetRequests": 133,
+      "longTaskMs": 13924,
+      "uniqueAssetBytes": 1087138
+    },
+    {
+      "screen": "invoice",
+      "scenario": "cpu4",
+      "run": 2,
+      "readyMs": 15887,
+      "assetBytes": 1087138,
+      "decodedBytes": 4330136,
+      "assetRequests": 133,
+      "longTaskMs": 13982,
+      "uniqueAssetBytes": 1087138
+    },
+    {
+      "screen": "invoice",
+      "scenario": "cpu4",
+      "run": 3,
+      "readyMs": 17136,
+      "assetBytes": 1166382,
+      "decodedBytes": 4593456,
+      "assetRequests": 153,
+      "longTaskMs": 14706,
+      "uniqueAssetBytes": 1166382
+    },
+    {
+      "screen": "invoice",
+      "scenario": "cpu4",
+      "run": 4,
+      "readyMs": 16287,
+      "assetBytes": 1166382,
+      "decodedBytes": 4593456,
+      "assetRequests": 153,
+      "longTaskMs": 14187,
+      "uniqueAssetBytes": 1166382
+    },
+    {
+      "screen": "products",
+      "scenario": "cold",
+      "run": 0,
+      "readyMs": 1956,
+      "assetBytes": 1305323,
+      "decodedBytes": 5004159,
+      "assetRequests": 150,
+      "longTaskMs": 823,
+      "uniqueAssetBytes": 1305323
+    },
+    {
+      "screen": "products",
+      "scenario": "cold",
+      "run": 1,
+      "readyMs": 1772,
+      "assetBytes": 1164588,
+      "decodedBytes": 4526836,
+      "assetRequests": 112,
+      "longTaskMs": 624,
+      "uniqueAssetBytes": 1164588
+    },
+    {
+      "screen": "products",
+      "scenario": "cold",
+      "run": 2,
+      "readyMs": 1699,
+      "assetBytes": 1164588,
+      "decodedBytes": 4526836,
+      "assetRequests": 112,
+      "longTaskMs": 637,
+      "uniqueAssetBytes": 1164588
+    },
+    {
+      "screen": "products",
+      "scenario": "cold",
+      "run": 3,
+      "readyMs": 2800,
+      "assetBytes": 1164588,
+      "decodedBytes": 4526836,
+      "assetRequests": 112,
+      "longTaskMs": 1415,
+      "uniqueAssetBytes": 1164588
+    },
+    {
+      "screen": "products",
+      "scenario": "cold",
+      "run": 4,
+      "readyMs": 3271,
+      "assetBytes": 1164588,
+      "decodedBytes": 4526836,
+      "assetRequests": 112,
+      "longTaskMs": 1455,
+      "uniqueAssetBytes": 1164588
+    },
+    {
+      "screen": "products",
+      "scenario": "repeat",
+      "run": 0,
+      "readyMs": 95,
+      "assetBytes": 0,
+      "decodedBytes": 0,
+      "assetRequests": 0,
+      "longTaskMs": 133,
+      "uniqueAssetBytes": 0
+    },
+    {
+      "screen": "products",
+      "scenario": "repeat",
+      "run": 1,
+      "readyMs": 85,
+      "assetBytes": 0,
+      "decodedBytes": 0,
+      "assetRequests": 0,
+      "longTaskMs": 124,
+      "uniqueAssetBytes": 0
+    },
+    {
+      "screen": "products",
+      "scenario": "repeat",
+      "run": 2,
+      "readyMs": 79,
+      "assetBytes": 54804,
+      "decodedBytes": 184528,
+      "assetRequests": 18,
+      "longTaskMs": 90,
+      "uniqueAssetBytes": 54804
+    },
+    {
+      "screen": "products",
+      "scenario": "repeat",
+      "run": 3,
+      "readyMs": 98,
+      "assetBytes": 0,
+      "decodedBytes": 0,
+      "assetRequests": 0,
+      "longTaskMs": 117,
+      "uniqueAssetBytes": 0
+    },
+    {
+      "screen": "products",
+      "scenario": "repeat",
+      "run": 4,
+      "readyMs": 131,
+      "assetBytes": 0,
+      "decodedBytes": 0,
+      "assetRequests": 0,
+      "longTaskMs": 128,
+      "uniqueAssetBytes": 0
+    },
+    {
+      "screen": "products",
+      "scenario": "cpu4",
+      "run": 0,
+      "readyMs": 13553,
+      "assetBytes": 1164588,
+      "decodedBytes": 4526836,
+      "assetRequests": 112,
+      "longTaskMs": 11985,
+      "uniqueAssetBytes": 1164588
+    },
+    {
+      "screen": "products",
+      "scenario": "cpu4",
+      "run": 1,
+      "readyMs": 13525,
+      "assetBytes": 1213012,
+      "decodedBytes": 4688457,
+      "assetRequests": 122,
+      "longTaskMs": 10981,
+      "uniqueAssetBytes": 1213012
+    },
+    {
+      "screen": "products",
+      "scenario": "cpu4",
+      "run": 2,
+      "readyMs": 13914,
+      "assetBytes": 1164588,
+      "decodedBytes": 4526836,
+      "assetRequests": 112,
+      "longTaskMs": 11821,
+      "uniqueAssetBytes": 1164588
+    },
+    {
+      "screen": "products",
+      "scenario": "cpu4",
+      "run": 3,
+      "readyMs": 13727,
+      "assetBytes": 1164588,
+      "decodedBytes": 4526836,
+      "assetRequests": 112,
+      "longTaskMs": 11956,
+      "uniqueAssetBytes": 1164588
+    },
+    {
+      "screen": "products",
+      "scenario": "cpu4",
+      "run": 4,
+      "readyMs": 14230,
+      "assetBytes": 1213012,
+      "decodedBytes": 4688457,
+      "assetRequests": 122,
+      "longTaskMs": 12251,
+      "uniqueAssetBytes": 1213012
+    }
+  ],
+  "afterSamples": [
+    {
+      "screen": "login",
+      "scenario": "cold",
+      "run": 0,
+      "readyMs": 991,
+      "assetBytes": 349428,
+      "decodedBytes": 1293602,
+      "assetRequests": 36,
+      "longTaskMs": 446,
+      "uniqueAssetBytes": 349428
+    },
+    {
+      "screen": "login",
+      "scenario": "cold",
+      "run": 1,
+      "readyMs": 852,
+      "assetBytes": 349428,
+      "decodedBytes": 1293602,
+      "assetRequests": 36,
+      "longTaskMs": 333,
+      "uniqueAssetBytes": 349428
+    },
+    {
+      "screen": "login",
+      "scenario": "cold",
+      "run": 2,
+      "readyMs": 774,
+      "assetBytes": 349428,
+      "decodedBytes": 1293602,
+      "assetRequests": 36,
+      "longTaskMs": 375,
+      "uniqueAssetBytes": 349428
+    },
+    {
+      "screen": "login",
+      "scenario": "cold",
+      "run": 3,
+      "readyMs": 959,
+      "assetBytes": 349428,
+      "decodedBytes": 1293602,
+      "assetRequests": 36,
+      "longTaskMs": 381,
+      "uniqueAssetBytes": 349428
+    },
+    {
+      "screen": "login",
+      "scenario": "cold",
+      "run": 4,
+      "readyMs": 1010,
+      "assetBytes": 349428,
+      "decodedBytes": 1293602,
+      "assetRequests": 36,
+      "longTaskMs": 469,
+      "uniqueAssetBytes": 349428
+    },
+    {
+      "screen": "login",
+      "scenario": "repeat",
+      "run": 0,
+      "readyMs": 540,
+      "assetBytes": 349428,
+      "decodedBytes": 1293602,
+      "assetRequests": 36,
+      "longTaskMs": 0,
+      "uniqueAssetBytes": 349428
+    },
+    {
+      "screen": "login",
+      "scenario": "repeat",
+      "run": 1,
+      "readyMs": 693,
+      "assetBytes": 349428,
+      "decodedBytes": 1293602,
+      "assetRequests": 36,
+      "longTaskMs": 118,
+      "uniqueAssetBytes": 349428
+    },
+    {
+      "screen": "login",
+      "scenario": "repeat",
+      "run": 2,
+      "readyMs": 589,
+      "assetBytes": 349428,
+      "decodedBytes": 1293602,
+      "assetRequests": 36,
+      "longTaskMs": 51,
+      "uniqueAssetBytes": 349428
+    },
+    {
+      "screen": "login",
+      "scenario": "repeat",
+      "run": 3,
+      "readyMs": 542,
+      "assetBytes": 349428,
+      "decodedBytes": 1293602,
+      "assetRequests": 36,
+      "longTaskMs": 52,
+      "uniqueAssetBytes": 349428
+    },
+    {
+      "screen": "login",
+      "scenario": "repeat",
+      "run": 4,
+      "readyMs": 666,
+      "assetBytes": 349428,
+      "decodedBytes": 1293602,
+      "assetRequests": 36,
+      "longTaskMs": 59,
+      "uniqueAssetBytes": 349428
+    },
+    {
+      "screen": "login",
+      "scenario": "cpu4",
+      "run": 0,
+      "readyMs": 3935,
+      "assetBytes": 368616,
+      "decodedBytes": 1312790,
+      "assetRequests": 38,
+      "longTaskMs": 3019,
+      "uniqueAssetBytes": 349428
+    },
+    {
+      "screen": "login",
+      "scenario": "cpu4",
+      "run": 1,
+      "readyMs": 4403,
+      "assetBytes": 368616,
+      "decodedBytes": 1312790,
+      "assetRequests": 38,
+      "longTaskMs": 3400,
+      "uniqueAssetBytes": 349428
+    },
+    {
+      "screen": "login",
+      "scenario": "cpu4",
+      "run": 2,
+      "readyMs": 4389,
+      "assetBytes": 368616,
+      "decodedBytes": 1312790,
+      "assetRequests": 38,
+      "longTaskMs": 3266,
+      "uniqueAssetBytes": 349428
+    },
+    {
+      "screen": "login",
+      "scenario": "cpu4",
+      "run": 3,
+      "readyMs": 3957,
+      "assetBytes": 368616,
+      "decodedBytes": 1312790,
+      "assetRequests": 38,
+      "longTaskMs": 3025,
+      "uniqueAssetBytes": 349428
+    },
+    {
+      "screen": "login",
+      "scenario": "cpu4",
+      "run": 4,
+      "readyMs": 4758,
+      "assetBytes": 368616,
+      "decodedBytes": 1312790,
+      "assetRequests": 38,
+      "longTaskMs": 3833,
+      "uniqueAssetBytes": 349428
+    },
+    {
+      "screen": "customers",
+      "scenario": "cold",
+      "run": 0,
+      "readyMs": 1664,
+      "assetBytes": 530941,
+      "decodedBytes": 1728655,
+      "assetRequests": 103,
+      "longTaskMs": 928,
+      "uniqueAssetBytes": 530941
+    },
+    {
+      "screen": "customers",
+      "scenario": "cold",
+      "run": 1,
+      "readyMs": 2579,
+      "assetBytes": 530941,
+      "decodedBytes": 1728655,
+      "assetRequests": 103,
+      "longTaskMs": 1180,
+      "uniqueAssetBytes": 530941
+    },
+    {
+      "screen": "customers",
+      "scenario": "cold",
+      "run": 2,
+      "readyMs": 2375,
+      "assetBytes": 530941,
+      "decodedBytes": 1728655,
+      "assetRequests": 103,
+      "longTaskMs": 1320,
+      "uniqueAssetBytes": 530941
+    },
+    {
+      "screen": "customers",
+      "scenario": "cold",
+      "run": 3,
+      "readyMs": 2280,
+      "assetBytes": 530941,
+      "decodedBytes": 1728655,
+      "assetRequests": 103,
+      "longTaskMs": 1255,
+      "uniqueAssetBytes": 530941
+    },
+    {
+      "screen": "customers",
+      "scenario": "cold",
+      "run": 4,
+      "readyMs": 1506,
+      "assetBytes": 530941,
+      "decodedBytes": 1728655,
+      "assetRequests": 103,
+      "longTaskMs": 688,
+      "uniqueAssetBytes": 530941
+    },
+    {
+      "screen": "customers",
+      "scenario": "repeat",
+      "run": 0,
+      "readyMs": 43,
+      "assetBytes": 0,
+      "decodedBytes": 0,
+      "assetRequests": 0,
+      "longTaskMs": 65,
+      "uniqueAssetBytes": 0
+    },
+    {
+      "screen": "customers",
+      "scenario": "repeat",
+      "run": 1,
+      "readyMs": 40,
+      "assetBytes": 0,
+      "decodedBytes": 0,
+      "assetRequests": 0,
+      "longTaskMs": 82,
+      "uniqueAssetBytes": 0
+    },
+    {
+      "screen": "customers",
+      "scenario": "repeat",
+      "run": 2,
+      "readyMs": 40,
+      "assetBytes": 0,
+      "decodedBytes": 0,
+      "assetRequests": 0,
+      "longTaskMs": 70,
+      "uniqueAssetBytes": 0
+    },
+    {
+      "screen": "customers",
+      "scenario": "repeat",
+      "run": 3,
+      "readyMs": 42,
+      "assetBytes": 0,
+      "decodedBytes": 0,
+      "assetRequests": 0,
+      "longTaskMs": 85,
+      "uniqueAssetBytes": 0
+    },
+    {
+      "screen": "customers",
+      "scenario": "repeat",
+      "run": 4,
+      "readyMs": 48,
+      "assetBytes": 0,
+      "decodedBytes": 0,
+      "assetRequests": 0,
+      "longTaskMs": 50,
+      "uniqueAssetBytes": 0
+    },
+    {
+      "screen": "customers",
+      "scenario": "cpu4",
+      "run": 0,
+      "readyMs": 8951,
+      "assetBytes": 617169,
+      "decodedBytes": 1814883,
+      "assetRequests": 109,
+      "longTaskMs": 7486,
+      "uniqueAssetBytes": 530941
+    },
+    {
+      "screen": "customers",
+      "scenario": "cpu4",
+      "run": 1,
+      "readyMs": 10499,
+      "assetBytes": 617169,
+      "decodedBytes": 1814883,
+      "assetRequests": 109,
+      "longTaskMs": 8971,
+      "uniqueAssetBytes": 530941
+    },
+    {
+      "screen": "customers",
+      "scenario": "cpu4",
+      "run": 2,
+      "readyMs": 10582,
+      "assetBytes": 530941,
+      "decodedBytes": 1728655,
+      "assetRequests": 103,
+      "longTaskMs": 9370,
+      "uniqueAssetBytes": 530941
+    },
+    {
+      "screen": "customers",
+      "scenario": "cpu4",
+      "run": 3,
+      "readyMs": 9011,
+      "assetBytes": 617169,
+      "decodedBytes": 1814883,
+      "assetRequests": 109,
+      "longTaskMs": 7204,
+      "uniqueAssetBytes": 530941
+    },
+    {
+      "screen": "customers",
+      "scenario": "cpu4",
+      "run": 4,
+      "readyMs": 9796,
+      "assetBytes": 617169,
+      "decodedBytes": 1814883,
+      "assetRequests": 109,
+      "longTaskMs": 8148,
+      "uniqueAssetBytes": 530941
+    },
+    {
+      "screen": "dashboard",
+      "scenario": "cold",
+      "run": 0,
+      "readyMs": 1818,
+      "assetBytes": 561335,
+      "decodedBytes": 1849568,
+      "assetRequests": 99,
+      "longTaskMs": 938,
+      "uniqueAssetBytes": 561335
+    },
+    {
+      "screen": "dashboard",
+      "scenario": "cold",
+      "run": 1,
+      "readyMs": 1672,
+      "assetBytes": 561335,
+      "decodedBytes": 1849568,
+      "assetRequests": 99,
+      "longTaskMs": 758,
+      "uniqueAssetBytes": 561335
+    },
+    {
+      "screen": "dashboard",
+      "scenario": "cold",
+      "run": 2,
+      "readyMs": 1606,
+      "assetBytes": 561335,
+      "decodedBytes": 1849568,
+      "assetRequests": 99,
+      "longTaskMs": 729,
+      "uniqueAssetBytes": 561335
+    },
+    {
+      "screen": "dashboard",
+      "scenario": "cold",
+      "run": 3,
+      "readyMs": 1859,
+      "assetBytes": 561335,
+      "decodedBytes": 1849568,
+      "assetRequests": 99,
+      "longTaskMs": 858,
+      "uniqueAssetBytes": 561335
+    },
+    {
+      "screen": "dashboard",
+      "scenario": "cold",
+      "run": 4,
+      "readyMs": 1621,
+      "assetBytes": 561335,
+      "decodedBytes": 1849568,
+      "assetRequests": 99,
+      "longTaskMs": 749,
+      "uniqueAssetBytes": 561335
+    },
+    {
+      "screen": "dashboard",
+      "scenario": "repeat",
+      "run": 0,
+      "readyMs": 42,
+      "assetBytes": 0,
+      "decodedBytes": 0,
+      "assetRequests": 0,
+      "longTaskMs": 134,
+      "uniqueAssetBytes": 0
+    },
+    {
+      "screen": "dashboard",
+      "scenario": "repeat",
+      "run": 1,
+      "readyMs": 46,
+      "assetBytes": 0,
+      "decodedBytes": 0,
+      "assetRequests": 0,
+      "longTaskMs": 124,
+      "uniqueAssetBytes": 0
+    },
+    {
+      "screen": "dashboard",
+      "scenario": "repeat",
+      "run": 2,
+      "readyMs": 65,
+      "assetBytes": 0,
+      "decodedBytes": 0,
+      "assetRequests": 0,
+      "longTaskMs": 284,
+      "uniqueAssetBytes": 0
+    },
+    {
+      "screen": "dashboard",
+      "scenario": "repeat",
+      "run": 3,
+      "readyMs": 52,
+      "assetBytes": 0,
+      "decodedBytes": 0,
+      "assetRequests": 0,
+      "longTaskMs": 145,
+      "uniqueAssetBytes": 0
+    },
+    {
+      "screen": "dashboard",
+      "scenario": "repeat",
+      "run": 4,
+      "readyMs": 116,
+      "assetBytes": 0,
+      "decodedBytes": 0,
+      "assetRequests": 0,
+      "longTaskMs": 185,
+      "uniqueAssetBytes": 0
+    },
+    {
+      "screen": "dashboard",
+      "scenario": "cpu4",
+      "run": 0,
+      "readyMs": 11020,
+      "assetBytes": 647563,
+      "decodedBytes": 1935796,
+      "assetRequests": 105,
+      "longTaskMs": 9002,
+      "uniqueAssetBytes": 561335
+    },
+    {
+      "screen": "dashboard",
+      "scenario": "cpu4",
+      "run": 1,
+      "readyMs": 11933,
+      "assetBytes": 647563,
+      "decodedBytes": 1935796,
+      "assetRequests": 105,
+      "longTaskMs": 9726,
+      "uniqueAssetBytes": 561335
+    },
+    {
+      "screen": "dashboard",
+      "scenario": "cpu4",
+      "run": 2,
+      "readyMs": 10479,
+      "assetBytes": 647563,
+      "decodedBytes": 1935796,
+      "assetRequests": 105,
+      "longTaskMs": 8536,
+      "uniqueAssetBytes": 561335
+    },
+    {
+      "screen": "dashboard",
+      "scenario": "cpu4",
+      "run": 3,
+      "readyMs": 11441,
+      "assetBytes": 561335,
+      "decodedBytes": 1849568,
+      "assetRequests": 99,
+      "longTaskMs": 9492,
+      "uniqueAssetBytes": 561335
+    },
+    {
+      "screen": "dashboard",
+      "scenario": "cpu4",
+      "run": 4,
+      "readyMs": 10449,
+      "assetBytes": 561335,
+      "decodedBytes": 1849568,
+      "assetRequests": 99,
+      "longTaskMs": 8410,
+      "uniqueAssetBytes": 561335
+    },
+    {
+      "screen": "invoice",
+      "scenario": "cold",
+      "run": 0,
+      "readyMs": 1464,
+      "assetBytes": 515624,
+      "decodedBytes": 1690012,
+      "assetRequests": 92,
+      "longTaskMs": 940,
+      "uniqueAssetBytes": 515624
+    },
+    {
+      "screen": "invoice",
+      "scenario": "cold",
+      "run": 1,
+      "readyMs": 1267,
+      "assetBytes": 515624,
+      "decodedBytes": 1690012,
+      "assetRequests": 92,
+      "longTaskMs": 801,
+      "uniqueAssetBytes": 515624
+    },
+    {
+      "screen": "invoice",
+      "scenario": "cold",
+      "run": 2,
+      "readyMs": 1128,
+      "assetBytes": 515624,
+      "decodedBytes": 1690012,
+      "assetRequests": 92,
+      "longTaskMs": 647,
+      "uniqueAssetBytes": 515624
+    },
+    {
+      "screen": "invoice",
+      "scenario": "cold",
+      "run": 3,
+      "readyMs": 1172,
+      "assetBytes": 515624,
+      "decodedBytes": 1690012,
+      "assetRequests": 92,
+      "longTaskMs": 638,
+      "uniqueAssetBytes": 515624
+    },
+    {
+      "screen": "invoice",
+      "scenario": "cold",
+      "run": 4,
+      "readyMs": 1277,
+      "assetBytes": 515624,
+      "decodedBytes": 1690012,
+      "assetRequests": 92,
+      "longTaskMs": 745,
+      "uniqueAssetBytes": 515624
+    },
+    {
+      "screen": "invoice",
+      "scenario": "repeat",
+      "run": 0,
+      "readyMs": 99,
+      "assetBytes": 0,
+      "decodedBytes": 0,
+      "assetRequests": 0,
+      "longTaskMs": 132,
+      "uniqueAssetBytes": 0
+    },
+    {
+      "screen": "invoice",
+      "scenario": "repeat",
+      "run": 1,
+      "readyMs": 82,
+      "assetBytes": 0,
+      "decodedBytes": 0,
+      "assetRequests": 0,
+      "longTaskMs": 162,
+      "uniqueAssetBytes": 0
+    },
+    {
+      "screen": "invoice",
+      "scenario": "repeat",
+      "run": 2,
+      "readyMs": 101,
+      "assetBytes": 0,
+      "decodedBytes": 0,
+      "assetRequests": 0,
+      "longTaskMs": 171,
+      "uniqueAssetBytes": 0
+    },
+    {
+      "screen": "invoice",
+      "scenario": "repeat",
+      "run": 3,
+      "readyMs": 95,
+      "assetBytes": 0,
+      "decodedBytes": 0,
+      "assetRequests": 0,
+      "longTaskMs": 133,
+      "uniqueAssetBytes": 0
+    },
+    {
+      "screen": "invoice",
+      "scenario": "repeat",
+      "run": 4,
+      "readyMs": 87,
+      "assetBytes": 0,
+      "decodedBytes": 0,
+      "assetRequests": 0,
+      "longTaskMs": 119,
+      "uniqueAssetBytes": 0
+    },
+    {
+      "screen": "invoice",
+      "scenario": "cpu4",
+      "run": 0,
+      "readyMs": 15116,
+      "assetBytes": 601852,
+      "decodedBytes": 1776240,
+      "assetRequests": 98,
+      "longTaskMs": 13168,
+      "uniqueAssetBytes": 515624
+    },
+    {
+      "screen": "invoice",
+      "scenario": "cpu4",
+      "run": 1,
+      "readyMs": 11420,
+      "assetBytes": 515624,
+      "decodedBytes": 1690012,
+      "assetRequests": 92,
+      "longTaskMs": 9025,
+      "uniqueAssetBytes": 515624
+    },
+    {
+      "screen": "invoice",
+      "scenario": "cpu4",
+      "run": 2,
+      "readyMs": 12899,
+      "assetBytes": 601852,
+      "decodedBytes": 1776240,
+      "assetRequests": 98,
+      "longTaskMs": 10751,
+      "uniqueAssetBytes": 515624
+    },
+    {
+      "screen": "invoice",
+      "scenario": "cpu4",
+      "run": 3,
+      "readyMs": 12202,
+      "assetBytes": 601852,
+      "decodedBytes": 1776240,
+      "assetRequests": 98,
+      "longTaskMs": 10210,
+      "uniqueAssetBytes": 515624
+    },
+    {
+      "screen": "invoice",
+      "scenario": "cpu4",
+      "run": 4,
+      "readyMs": 13025,
+      "assetBytes": 601852,
+      "decodedBytes": 1776240,
+      "assetRequests": 98,
+      "longTaskMs": 11424,
+      "uniqueAssetBytes": 515624
+    },
+    {
+      "screen": "products",
+      "scenario": "cold",
+      "run": 0,
+      "readyMs": 2619,
+      "assetBytes": 525433,
+      "decodedBytes": 1719536,
+      "assetRequests": 90,
+      "longTaskMs": 1447,
+      "uniqueAssetBytes": 525433
+    },
+    {
+      "screen": "products",
+      "scenario": "cold",
+      "run": 1,
+      "readyMs": 1119,
+      "assetBytes": 525433,
+      "decodedBytes": 1719536,
+      "assetRequests": 90,
+      "longTaskMs": 629,
+      "uniqueAssetBytes": 525433
+    },
+    {
+      "screen": "products",
+      "scenario": "cold",
+      "run": 2,
+      "readyMs": 1062,
+      "assetBytes": 525433,
+      "decodedBytes": 1719536,
+      "assetRequests": 90,
+      "longTaskMs": 609,
+      "uniqueAssetBytes": 525433
+    },
+    {
+      "screen": "products",
+      "scenario": "cold",
+      "run": 3,
+      "readyMs": 1140,
+      "assetBytes": 525433,
+      "decodedBytes": 1719536,
+      "assetRequests": 90,
+      "longTaskMs": 673,
+      "uniqueAssetBytes": 525433
+    },
+    {
+      "screen": "products",
+      "scenario": "cold",
+      "run": 4,
+      "readyMs": 1273,
+      "assetBytes": 525433,
+      "decodedBytes": 1719536,
+      "assetRequests": 90,
+      "longTaskMs": 723,
+      "uniqueAssetBytes": 525433
+    },
+    {
+      "screen": "products",
+      "scenario": "repeat",
+      "run": 0,
+      "readyMs": 72,
+      "assetBytes": 0,
+      "decodedBytes": 0,
+      "assetRequests": 0,
+      "longTaskMs": 146,
+      "uniqueAssetBytes": 0
+    },
+    {
+      "screen": "products",
+      "scenario": "repeat",
+      "run": 1,
+      "readyMs": 57,
+      "assetBytes": 0,
+      "decodedBytes": 0,
+      "assetRequests": 0,
+      "longTaskMs": 68,
+      "uniqueAssetBytes": 0
+    },
+    {
+      "screen": "products",
+      "scenario": "repeat",
+      "run": 2,
+      "readyMs": 55,
+      "assetBytes": 1076,
+      "decodedBytes": 2253,
+      "assetRequests": 1,
+      "longTaskMs": 61,
+      "uniqueAssetBytes": 1076
+    },
+    {
+      "screen": "products",
+      "scenario": "repeat",
+      "run": 3,
+      "readyMs": 56,
+      "assetBytes": 1076,
+      "decodedBytes": 2253,
+      "assetRequests": 1,
+      "longTaskMs": 64,
+      "uniqueAssetBytes": 1076
+    },
+    {
+      "screen": "products",
+      "scenario": "repeat",
+      "run": 4,
+      "readyMs": 65,
+      "assetBytes": 0,
+      "decodedBytes": 0,
+      "assetRequests": 0,
+      "longTaskMs": 68,
+      "uniqueAssetBytes": 0
+    },
+    {
+      "screen": "products",
+      "scenario": "cpu4",
+      "run": 0,
+      "readyMs": 11019,
+      "assetBytes": 611661,
+      "decodedBytes": 1805764,
+      "assetRequests": 96,
+      "longTaskMs": 9627,
+      "uniqueAssetBytes": 525433
+    },
+    {
+      "screen": "products",
+      "scenario": "cpu4",
+      "run": 1,
+      "readyMs": 9861,
+      "assetBytes": 525433,
+      "decodedBytes": 1719536,
+      "assetRequests": 90,
+      "longTaskMs": 8459,
+      "uniqueAssetBytes": 525433
+    },
+    {
+      "screen": "products",
+      "scenario": "cpu4",
+      "run": 2,
+      "readyMs": 9966,
+      "assetBytes": 611661,
+      "decodedBytes": 1805764,
+      "assetRequests": 96,
+      "longTaskMs": 8626,
+      "uniqueAssetBytes": 525433
+    },
+    {
+      "screen": "products",
+      "scenario": "cpu4",
+      "run": 3,
+      "readyMs": 11446,
+      "assetBytes": 611661,
+      "decodedBytes": 1805764,
+      "assetRequests": 96,
+      "longTaskMs": 9493,
+      "uniqueAssetBytes": 525433
+    },
+    {
+      "screen": "products",
+      "scenario": "cpu4",
+      "run": 4,
+      "readyMs": 9881,
+      "assetBytes": 611661,
+      "decodedBytes": 1805764,
+      "assetRequests": 96,
+      "longTaskMs": 8355,
+      "uniqueAssetBytes": 525433
+    }
+  ]
+}

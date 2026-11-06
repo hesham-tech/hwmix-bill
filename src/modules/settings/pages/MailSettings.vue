@@ -107,6 +107,7 @@
                     <v-btn
                       v-bind="tooltipProps"
                       icon="ri-edit-line"
+                      aria-label="تعديل حساب البريد"
                       variant="text"
                       color="info"
                       size="small"
@@ -186,6 +187,13 @@
               </v-col>
 
               <!-- SMTP Config Fields -->
+              <v-col cols="12" md="6">
+                <AppInput v-model="formData.mail_reply_to_address" label="بريد استقبال الردود (اختياري)" type="email" dir="ltr" placeholder="support@example.com" />
+              </v-col>
+              <v-col cols="12" md="6">
+                <AppInput v-model="formData.mail_reply_to_name" label="اسم جهة استقبال الردود (اختياري)" />
+              </v-col>
+
               <template v-if="formData.mail_transport === 'smtp'">
                 <v-col cols="12" md="8">
                   <AppInput v-model="formData.mail_host" label="عنوان خادم SMTP *" placeholder="smtp.mailtrap.io" dir="ltr" required />
@@ -352,6 +360,8 @@ const formData = ref({
   mail_encryption: 'tls',
   mail_from_address: '',
   mail_from_name: '',
+  mail_reply_to_address: '',
+  mail_reply_to_name: '',
   is_active: true,
   is_default: false,
   is_global: false,
@@ -396,6 +406,8 @@ const openAddDialog = () => {
     mail_encryption: 'tls',
     mail_from_address: '',
     mail_from_name: '',
+    mail_reply_to_address: '',
+    mail_reply_to_name: '',
     is_active: true,
     is_default: mailAccounts.value.length === 0, // تلقائياً أول خادم مضاف يكون افتراضي
     is_global: false,
@@ -412,10 +424,12 @@ const openEditDialog = account => {
     mail_host: account.mail_host || '',
     mail_port: account.mail_port || 587,
     mail_username: account.mail_username || '',
-    mail_password: account.mail_password || '', // إظهار كلمة المرور الحالية المسترجعة من الباك اند
+    mail_password: '', // Stored credentials are never returned by the API.
     mail_encryption: account.mail_encryption || 'tls',
     mail_from_address: account.mail_from_address || '',
     mail_from_name: account.mail_from_name || '',
+    mail_reply_to_address: account.mail_reply_to_address || '',
+    mail_reply_to_name: account.mail_reply_to_name || '',
     is_active: !!account.is_active,
     is_default: !!account.is_default,
     is_global: !!account.is_global,

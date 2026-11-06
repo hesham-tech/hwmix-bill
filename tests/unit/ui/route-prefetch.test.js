@@ -1,7 +1,21 @@
 import { describe, it, expect, vi } from 'vitest';
-import { canPrefetch, setupRoutePrefetching } from '@/router/prefetch';
+import { canPrefetch, setupRoutePrefetching, preloadInitialRoute } from '@/router/prefetch';
 
 describe('intent based route prefetch', () => {
+  it('loads only the explicitly requested route when a session exists', async () => {
+    const requested = vi.fn(async () => ({}));
+    const other = vi.fn(async () => ({}));
+    const router = { resolve: vi.fn(() => ({ matched: [{ components: { default: requested } }] })) };
+    const url = { pathname: '/app/customers', search: '?page=2' };
+    await preloadInitialRoute(router, url, [{ getItem: () => null }]);
+    expect(requested).not.toHaveBeenCalled();
+    await preloadInitialRoute(router, url, [{ getItem: () => 'session' }]);
+    expect(router.resolve).toHaveBeenCalledWith('/app/customers?page=2');
+    expect(requested).toHaveBeenCalledTimes(1);
+    expect(other).not.toHaveBeenCalled();
+    await preloadInitialRoute(router, { pathname: '/saas/login' }, [{ getItem: () => 'session' }]);
+    expect(requested).toHaveBeenCalledTimes(1);
+  });
   it('respects slow connections and data saving', () => {
     expect(canPrefetch({ saveData: true, effectiveType: '4g' })).toBe(false);
     for (const effectiveType of ['slow-2g', '2g', '3g']) expect(canPrefetch({ effectiveType })).toBe(false);

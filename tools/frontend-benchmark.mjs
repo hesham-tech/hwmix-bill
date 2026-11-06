@@ -1,5 +1,5 @@
 import { chromium } from '@playwright/test';
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, readdirSync } from 'node:fs';
 
 const args = Object.fromEntries(process.argv.slice(2).map(value => value.replace(/^--/, '').split('=')));
 const baseURL = args.url || 'http://127.0.0.1:5178';
@@ -23,7 +23,7 @@ const results = [];
 const failures = [];
 const output = args.output || 'scratch/frontend-benchmark.json';
 mkdirSync('scratch', { recursive: true });
-const save = () => writeFileSync(output, JSON.stringify({ baseURL, runs, version, note: 'Mock API, fixed viewport, service workers blocked; repeat uses SPA navigation except login. Font requests retain the application behavior.', results, failures }, null, 2));
+const save = () => writeFileSync(output, JSON.stringify({ baseURL, runs, version, experimental: Boolean(args.contain || args.trace || args.fontPreload), note: 'Mock API, fixed viewport, service workers blocked; repeat uses SPA navigation except login. Font requests retain the application behavior.', results, failures }, null, 2));
 try {
   for (const [screen, path, selector] of screens) {
     if (args.screen && args.screen !== screen) continue;
@@ -44,6 +44,19 @@ try {
             new PerformanceObserver(list => window.benchmarkLongTasks.push(...list.getEntries().map(entry => entry.duration)))
               .observe({ type: 'longtask', buffered: true });
           }, { user, version, screen });
+          if (args.contain) await context.addInitScript(() => {
+            const insert = () => { const style = document.createElement('style'); style.textContent = '.v-data-table { contain: layout; }'; document.head.append(style); };
+            document.addEventListener('DOMContentLoaded', insert, { once: true });
+          });
+          if (args.fontPreload) await context.addInitScript(files => {
+            document.addEventListener('DOMContentLoaded', () => {
+              for (const file of files) {
+                const link = document.createElement('link');
+                Object.assign(link, { rel: 'preload', as: 'font', type: 'font/woff2', crossOrigin: 'anonymous', href: '/assets/' + file });
+                document.head.append(link);
+              }
+            }, { once: true });
+          }, readdirSync('dist/assets').filter(file => /^(?:tajawal-(?:arabic|latin)|inter-latin)-(?:400|700)-normal-.*\.woff2$/.test(file)));
           await context.route('**/api/v1/**', async route => {
             const url = new URL(route.request().url());
             let data = [];

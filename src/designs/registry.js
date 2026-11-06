@@ -1,5 +1,12 @@
 export const designDefinitions = Object.freeze({
-  classic: { id: 'classic', label: 'التصميم الحالي', load: () => import('./classic') },
+  classic: {
+    id: 'classic', label: 'التصميم الحالي',
+    load: () => {
+      // Font hints are optional: their failure must never block the selected design.
+      import('./classic/fontPreload').then(module => module.preloadFonts()).catch(() => undefined);
+      return import('./classic');
+    },
+  },
 });
 
 export function designScope(user) {

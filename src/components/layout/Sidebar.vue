@@ -77,7 +77,7 @@
               <v-list-item v-else v-bind="groupProps" :prepend-icon="item.icon" :title="item.title" class="menu-item group-header" />
             </template>
 
-            <template v-for="(child, childIndex) in item.children.filter(c => canAccess(c.permission))" :key="childIndex">
+            <template v-for="(child, childIndex) in (openedGroups.includes(item.title) ? item.children.filter(c => canAccess(c.permission)) : [])" :key="childIndex">
               <v-tooltip v-if="rail && !xs" :text="child.title" location="end">
                 <template #activator="{ props: childTooltipProps }">
                   <v-list-item
@@ -251,6 +251,13 @@ const isItemActive = itemPath => {
   // Otherwise let Vuetify handle it (or basic path check)
   return route.path === pathStr;
 };
+
+// Closed groups need no link components, tooltips or route watchers.
+// Open the current route's group explicitly because its links are created lazily.
+watch([() => route.fullPath, filteredMenu], () => {
+  const activeGroup = filteredMenu.value.find(item => item.children?.some(child => canAccess(child.permission) && isItemActive(child.to)));
+  if (activeGroup && !openedGroups.value.includes(activeGroup.title)) openedGroups.value = [activeGroup.title];
+}, { immediate: true });
 
 const handleLogout = async () => {
   try {

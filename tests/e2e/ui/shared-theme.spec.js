@@ -99,6 +99,21 @@ test('customer page remains forbidden without its permission', async ({ page }) 
   await expect(page.locator('.customers-page')).toHaveCount(0);
 });
 
+test('sidebar builds links only for the open group and still navigates', async ({ page }) => {
+  await page.goto('/app/customers');
+  await expect(page.locator('.customers-page')).toBeVisible();
+  const sidebar = page.locator('.sidebar');
+  await expect(sidebar.locator('a[href="/app/invoices/create?type=sale"]')).toHaveCount(0);
+  await sidebar.getByText('الفواتير والبيع', { exact: true }).click();
+  const invoice = sidebar.locator('a[href="/app/invoices/create?type=sale"]');
+  await expect(invoice).toBeVisible();
+  await invoice.click();
+  await expect(page.locator('.invoice-create-page')).toBeVisible();
+  await expect(invoice).toHaveClass(/active-link/);
+  await sidebar.getByText('الفواتير والبيع', { exact: true }).click();
+  await expect(sidebar.locator('a[href="/app/invoices/create?type=sale"]')).toHaveCount(0);
+});
+
 test('shared surfaces, hover colors and sticky headers stay readable', async ({ page }) => {
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));

@@ -3,7 +3,7 @@ import '@/utils/console-guard';
 import { createApp } from 'vue';
 import { createAppHead } from '@/utils/createAppHead';
 import App from '@/App.vue';
-import { registerPlugins } from '@utils/helpers/plugins';
+import { registerPlugins, prepareInitialRoute } from '@utils/helpers/plugins';
 import setupAutoSelectOnFocus from './utils/auto-select-on-focus';
 import draggable from '@/directives/draggable';
 
@@ -11,7 +11,9 @@ import { loadSelectedDesign } from '@/designs/registry';
 import { claimReleaseRecovery } from '@/utils/releaseRecovery';
 
 async function bootstrap() {
-const design = await loadSelectedDesign();
+const designPromise = loadSelectedDesign();
+prepareInitialRoute();
+const design = await designPromise;
 // إنشاء تطبيق Vue
 const app = createApp(App);
 const head = createAppHead();

@@ -3,6 +3,14 @@ import { readFileSync, writeFileSync } from 'node:fs';
 const before = JSON.parse(readFileSync(process.argv[2] || 'scratch/frontend-before.json', 'utf8'));
 const after = JSON.parse(readFileSync(process.argv[3] || 'scratch/frontend-after.json', 'utf8'));
 if ((before.failures?.length || 0) + (after.failures?.length || 0)) throw new Error('Failed samples must be investigated before comparing runs');
+if (before.experimental || after.experimental) throw new Error('Diagnostic traces and experimental styles cannot be used for acceptance measurements');
+// Font preload reuse can produce two ResourceTiming rows for one immutable URL.
+// Keep raw measurements and calculate the unique file payload identically for both builds.
+for (const report of [before, after]) for (const sample of report.results) {
+  const files = new Map();
+  for (const resource of sample.resources) files.set(resource.file, Math.max(files.get(resource.file) || 0, resource.bytes));
+  sample.uniqueAssetBytes = [...files.values()].reduce((sum, bytes) => sum + bytes, 0);
+}
 const median = (samples, key) => samples.map(sample => sample[key]).sort((a, b) => a - b)[Math.floor(samples.length / 2)];
 const reduced = (oldValue, newValue) => oldValue ? Math.round((1 - newValue / oldValue) * 1000) / 10 : null;
 const rows = [];
@@ -11,9 +19,9 @@ for (const screen of ['login', 'customers', 'dashboard', 'invoice', 'products'])
     const select = report => report.results.filter(sample => sample.screen === screen && sample.scenario === scenario);
     const previous = select(before), current = select(after);
     if (previous.length !== 5 || current.length !== 5) throw new Error(`Five samples required: ${screen}/${scenario}`);
-    const metrics = samples => Object.fromEntries(['readyMs', 'assetBytes', 'decodedBytes', 'assetRequests', 'longTaskMs'].map(key => [key, median(samples, key)]));
+    const metrics = samples => Object.fromEntries(['readyMs', 'assetBytes', 'uniqueAssetBytes', 'decodedBytes', 'assetRequests', 'longTaskMs'].map(key => [key, median(samples, key)]));
     const oldMetrics = metrics(previous), newMetrics = metrics(current);
-    rows.push({ screen, scenario, before: oldMetrics, after: newMetrics, readyReductionPercent: reduced(oldMetrics.readyMs, newMetrics.readyMs), bytesReductionPercent: reduced(oldMetrics.assetBytes, newMetrics.assetBytes) });
+    rows.push({ screen, scenario, before: oldMetrics, after: newMetrics, readyReductionPercent: reduced(oldMetrics.readyMs, newMetrics.readyMs), bytesReductionPercent: reduced(oldMetrics.uniqueAssetBytes, newMetrics.uniqueAssetBytes) });
   }
 }
 const customerCold = rows.find(row => row.screen === 'customers' && row.scenario === 'cold');
@@ -27,7 +35,7 @@ const seconds = value => `${(value / 1000).toFixed(2)} ث`;
 for (const screen of Object.keys(names)) {
   const cold = rows.find(row => row.screen === screen && row.scenario === 'cold');
   const cpu = rows.find(row => row.screen === screen && row.scenario === 'cpu4');
-  table.push(`| ${names[screen]} | ${(cold.before.assetBytes / 1000).toFixed(0)} ← ${(cold.after.assetBytes / 1000).toFixed(0)} KB | ${seconds(cold.before.readyMs)} ← ${seconds(cold.after.readyMs)} | ${seconds(cpu.before.readyMs)} ← ${seconds(cpu.after.readyMs)} |`);
+  table.push(`| ${names[screen]} | ${(cold.before.uniqueAssetBytes / 1000).toFixed(0)} ← ${(cold.after.uniqueAssetBytes / 1000).toFixed(0)} KB | ${seconds(cold.before.readyMs)} ← ${seconds(cold.after.readyMs)} | ${seconds(cpu.before.readyMs)} ← ${seconds(cpu.after.readyMs)} |`);
 }
 const documentPath = 'docs/frontend-performance-and-designs.md';
 const document = readFileSync(documentPath, 'utf8');
