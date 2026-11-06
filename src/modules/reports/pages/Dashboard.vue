@@ -8,6 +8,8 @@
 </template>
 
 <script setup>
+import { installDashboardEngine } from '@/@core/dashboard/registry/install';
+installDashboardEngine();
 import { useUserStore } from '@/stores/user';
 import AdminDashboard from './AdminDashboard.vue';
 import CustomerDashboard from './CustomerDashboard.vue';

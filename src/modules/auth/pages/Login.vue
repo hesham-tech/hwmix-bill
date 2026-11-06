@@ -156,7 +156,7 @@ const handleLogin = async () => {
 <style scoped>
 .login-wrapper {
   min-height: 100vh;
-  background: #2e263d;
+  background: #0071AD;
   position: relative;
   overflow: hidden;
   display: flex;
@@ -188,7 +188,7 @@ const handleLogin = async () => {
   color: white;
   overflow: hidden;
   border-radius: 4px;
-  background: linear-gradient(135deg, #2e263d 0%, #8c57ff 100%);
+  background: linear-gradient(135deg, #0071AD 0%, #8c57ff 100%);
 }
 
 /* Form Card */

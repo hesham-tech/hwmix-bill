@@ -36,7 +36,7 @@
         </v-alert>
 
         <!-- Document Text Body -->
-        <div class="legal-document-body text-body-1 leading-relaxed text-slate-700" v-html="currentDoc.content"></div>
+        <div class="legal-document-body text-body-1 leading-relaxed text-slate-700" v-html="safeHtml(currentDoc.content)"></div>
       </v-card-text>
 
       <!-- Dialog Actions / Sticky Buttons -->
@@ -89,9 +89,11 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
 import apiClient from '@/services/api';
+import { safeHtml } from '@/utils/safeHtml';
 
 const props = defineProps({
-  modelValue: { type: Boolean, default: false }
+  modelValue: { type: Boolean, default: false },
+  scope: { type: String, default: 'platform' }
 });
 
 const emit = defineEmits(['update:modelValue', 'agree', 'disagree']);
@@ -116,6 +118,14 @@ const fetchDocuments = async () => {
   loading.value = true;
   error.value = false;
   try {
+    if (props.scope === 'store') {
+      const response = await apiClient.get('/store/public/registration-legal');
+      const documents = response.data?.data || [];
+      termsDoc.value = documents.find(d => d.key === 'terms-of-use');
+      privacyDoc.value = documents.find(d => d.key === 'privacy-policy');
+      if (!termsDoc.value || !privacyDoc.value) throw new Error('Published registration documents are missing.');
+      return;
+    }
     const [termsRes, privacyRes] = await Promise.all([
       apiClient.get('v1/legal/documents/terms-of-use/active'),
       apiClient.get('v1/legal/documents/privacy-policy/active')
@@ -139,7 +149,7 @@ const handleAgree = () => {
   if (currentStep.value === 1) {
     currentStep.value = 2;
   } else {
-    emit('agree');
+    emit('agree', { version_ids: [termsDoc.value.id, privacyDoc.value.id] });
     visible.value = false;
   }
 };
@@ -154,9 +164,7 @@ watch(visible, (isOpen) => {
   if (isOpen) {
     currentStep.value = 1;
     // جلب البيانات فقط إذا لم تكن محملة مسبقاً لتوفير البيانات وتسريع الاستجابة
-    if (!termsDoc.value || !privacyDoc.value) {
-      fetchDocuments();
-    }
+    fetchDocuments();
   }
 });
 </script>

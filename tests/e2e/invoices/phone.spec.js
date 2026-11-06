@@ -1,5 +1,22 @@
 import { test, expect } from '@playwright/test';
 const fixture = 'http://127.0.0.1:5176/tests/e2e/fixtures/invoice-phone-harness.html';
+
+test('first print use loads its template without global initialization', async ({ page }) => {
+  await page.goto(fixture);
+  await expect(page.locator('.phone-empty')).toBeVisible();
+  const result = await page.evaluate(async () => {
+    const { printService } = await import('/src/modules/print/core/PrintService.ts');
+    const data = await printService.getPrintData('invoice', {
+      invoice_number: 'LAZY-PRINT-001', customer: { full_name: 'عميل الطباعة' },
+      gross_amount: 100, net_amount: 100, paid_amount: 100, items: [],
+    }, { format: 'a4', companyName: 'شركة الاختبار' });
+    return { html: data.html, cssLength: data.css.length, format: data.format };
+  });
+  expect(result.html).toContain('LAZY-PRINT-001');
+  expect(result.html).toContain('عميل الطباعة');
+  expect(result.cssLength).toBeGreaterThan(0);
+  expect(result.format).toBe('a4');
+});
 test.use({ viewport: { width: 390, height: 844 } });
 const rows = page => page.locator('.phone-items-table tbody tr');
 async function openDetails(page, index = 0) {

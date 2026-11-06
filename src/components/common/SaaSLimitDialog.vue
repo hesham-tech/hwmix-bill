@@ -158,7 +158,7 @@ const goToUpgrade = () => {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+
 
 .saas-limit-dialog :deep(.v-overlay__content) {
   border-radius: 24px !important;
@@ -168,7 +168,7 @@ const goToUpgrade = () => {
 /* تصميم الكارد الزجاجي */
 .saas-limit-card {
   font-family: 'Cairo', sans-serif;
-  background: rgba(10, 16, 32, 0.95);
+  background: rgba(0, 113, 173, 0.95);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.1);

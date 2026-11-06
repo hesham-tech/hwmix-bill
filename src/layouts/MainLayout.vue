@@ -1,7 +1,7 @@
 <template>
   <Sidebar v-if="!route.meta.labelEditor" v-model="drawer" />
 
-  <v-app-bar v-if="!route.meta.labelEditor" color="surface" elevation="0" class="border-b" height="48">
+  <v-app-bar v-if="!route.meta.labelEditor" color="surface" elevation="0" class="app-navbar border-b" height="48">
     <v-app-bar-nav-icon color="primary" @click="drawer = !drawer" class="d-flex d-sm-none" size="small" />
 
     <v-spacer />
@@ -490,7 +490,7 @@
     />
 
     <!-- Global Search Dialog -->
-    <GlobalSearchDialog v-model="isSearchOpen" />
+    <GlobalSearchDialog v-if="isSearchOpen" v-model="isSearchOpen" />
 
     <!-- Dialog for System Release Notes / What's New Updates -->
     <AppSystemUpdatesDialog ref="systemUpdatesDialog" />
@@ -498,19 +498,19 @@
 
   <!-- Guidance System Components -->
   <ContextualHelpDrawer
-    v-model="isHelpDrawerOpen"
+    v-if="isHelpDrawerOpen" v-model="isHelpDrawerOpen"
     :tour-key="activeTourKey"
     @restart-tour="handleRestartTour"
   />
-  <GuidanceTour />
-  <OnboardingChecklist />
-  <HintBubble />
+  <GuidanceTour v-if="guidanceStore.guidanceEnabled" />
+  <OnboardingChecklist v-if="guidanceStore.guidanceEnabled" />
+  <HintBubble v-if="guidanceStore.guidanceEnabled" />
   
   <!-- Legal Document Acceptance Modal -->
   <LegalAcceptanceModal ref="legalAcceptanceModal" />
 
   <!-- Company Deleted Switch Modal -->
-  <CompanySwitchDialog
+  <CompanySwitchDialog v-if="isCompanyDeletedDialogOpen"
     :model-value="isCompanyDeletedDialogOpen"
     :persistent="true"
     :company-deleted-mode="true"
@@ -528,17 +528,17 @@ import { authService } from '@/api';
 import Sidebar from '@/components/layout/Sidebar.vue';
 import BranchSwitcher from '@/components/layout/BranchSwitcher.vue';
 import NavbarThemeSwitcher from '@/layouts/components/NavbarThemeSwitcher.vue';
-import GlobalSearchDialog from '@/layouts/components/GlobalSearchDialog.vue';
+const GlobalSearchDialog = defineAsyncComponent(() => import('@/layouts/components/GlobalSearchDialog.vue'));
 import AppSystemUpdatesDialog from '@/components/common/AppSystemUpdatesDialog.vue';
 import AppButton from '@/components/common/AppButton.vue';
 import AppAvatar from '@/components/common/AppAvatar.vue';
 import AppConfirmDialog from '@/components/common/AppConfirmDialog.vue';
 import AppBalanceDisplay from '@/components/common/AppBalanceDisplay.vue';
-import Calculator from '@/components/tools/Calculator.vue';
-import InstallmentCalc from '@/components/tools/InstallmentCalc.vue';
-import PercentageTool from '@/components/tools/PercentageTool.vue';
+const Calculator = defineAsyncComponent(() => import('@/components/tools/Calculator.vue'));
+const InstallmentCalc = defineAsyncComponent(() => import('@/components/tools/InstallmentCalc.vue'));
+const PercentageTool = defineAsyncComponent(() => import('@/components/tools/PercentageTool.vue'));
 import LegalAcceptanceModal from '@/modules/legal/components/LegalAcceptanceModal.vue';
-import CompanySwitchDialog from '@/components/common/CompanySwitchDialog.vue';
+const CompanySwitchDialog = defineAsyncComponent(() => import('@/components/common/CompanySwitchDialog.vue'));
 import notificationManager from '@/services/notificationManager';
 import { useDisplay, useTheme } from 'vuetify';
 import { formatCurrency } from '@/utils/formatters';
@@ -988,7 +988,7 @@ watch(
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(15, 23, 42, 0.75); /* Slate 900 with opacity */
+  background: rgba(186, 230, 253, 0.65);
   backdrop-filter: blur(12px);
   display: flex;
   align-items: center;
@@ -1000,7 +1000,7 @@ watch(
 }
 
 .premium-paywall-card {
-  background: rgba(30, 41, 59, 0.8) !important; /* Slate 800 with opacity */
+  background: rgba(0, 113, 173, 0.96) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
   backdrop-filter: blur(8px);
   border-radius: 20px !important;
@@ -1057,7 +1057,7 @@ watch(
 
 .sticky-breadcrumbs-container {
   position: sticky;
-  top: 33px;
+  top: var(--v-layout-top, 48px);
   z-index: 5;
   background: rgb(var(--v-theme-surface));
 }
@@ -1065,6 +1065,10 @@ watch(
 .main-content {
   background: rgb(var(--v-theme-background));
   min-height: 100vh;
+}
+
+.app-navbar {
+  background: rgb(var(--v-theme-surface)) !important;
 }
 
 .user-menu-btn {

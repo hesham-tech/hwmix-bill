@@ -112,7 +112,7 @@
       hide-actions
       :draggable="!isPhone"
     >
-      <UserForm :model-value="{ role: 'customer' }" @save="handleQuickCustomerSave" @cancel="isQuickAddCustomerOpen = false" />
+      <UserForm v-if="isQuickAddCustomerOpen" :model-value="{ role: 'customer' }" @save="handleQuickCustomerSave" @cancel="isQuickAddCustomerOpen = false" />
     </AppDialog>
 
     <!-- Quick Add Product Dialog -->
@@ -138,10 +138,11 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
+import { calculateInvoiceFinancials } from '../domain/invoiceFinancials';
+import { defineAsyncComponent, ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
 import { useDisplay } from 'vuetify';
 import { formatCurrency } from '@/utils/formatters';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useApi } from '@/composables/useApi';
 
 // Global Components
@@ -152,8 +153,8 @@ import InvoiceCustomerInfo from './InvoiceCustomerInfo.vue';
 import InvoiceItemsList from './InvoiceItemsList.vue';
 import InvoiceFinancials from './InvoiceFinancials.vue';
 import InstallmentPlanner from './InstallmentPlanner.vue';
-import UserForm from '@/modules/users/components/UserForm.vue';
-import ProductForm from '@/modules/products/components/ProductForm.vue';
+const UserForm = defineAsyncComponent(() => import('@/modules/users/components/UserForm.vue'));
+const ProductForm = defineAsyncComponent(() => import('@/modules/products/components/ProductForm.vue'));
 
 // Stores & Composables
 import { useappState } from '@/stores/appState';
@@ -161,6 +162,7 @@ import { useUserStore as useUserManagementStore } from '@/modules/users/store/us
 import { useUserStore } from '@/stores/user';
 
 const { xs: isPhone } = useDisplay();
+const marketplaceRouter = useRouter();
 const keyboardOpen = ref(false);
 const syncKeyboard = () => {
   keyboardOpen.value = !!window.visualViewport && window.innerHeight - window.visualViewport.height > 150;
@@ -261,49 +263,7 @@ const currentContext = computed(() => {
 
 const isEdit = computed(() => !!props.invoiceId);
 
-const financials = computed(() => {
-  let gross_amount = 0;
-  let total_discount = 0;
-  let total_profit = 0;
-
-  invoiceData.value.items.forEach(item => {
-    gross_amount += (item.quantity || 0) * (item.unit_price || 0);
-    total_discount += item.discount || 0;
-    total_profit += (item.profit_margin || 0) * (item.quantity || 0);
-  });
-
-  const taxable_amount = gross_amount - total_discount - (invoiceData.value.header_discount || 0);
-  let total_tax = 0;
-  let net_amount = taxable_amount;
-
-  // Treat tax_inclusive as "is_tax_enabled" based on the UI label
-  if (invoiceData.value.tax_inclusive && invoiceData.value.tax_rate > 0) {
-    total_tax = taxable_amount * (invoiceData.value.tax_rate / 100);
-    net_amount = taxable_amount + total_tax;
-  }
-
-  const raw_previous_balance = parseFloat(
-    currentContext.value === 'purchase' ? (selectedCustomerObj.value?.payable_balance ?? 0) : (selectedCustomerObj.value?.receivable_balance ?? 0)
-  );
-  const effective_previous_balance = invoiceData.value.include_previous_balance ? raw_previous_balance : 0;
-
-  const total_balance = net_amount - effective_previous_balance;
-  const remaining_amount = total_balance - (invoiceData.value.paid_amount || 0);
-
-  return {
-    gross_amount,
-    total_discount,
-    taxable_amount,
-    total_tax,
-    net_amount,
-    header_discount: invoiceData.value.header_discount || 0,
-    paid_amount: invoiceData.value.paid_amount || 0,
-    previous_balance: effective_previous_balance,
-    total_balance,
-    remaining_amount,
-    total_profit,
-  };
-});
+const financials = computed(() => calculateInvoiceFinancials(invoiceData.value, currentContext.value, selectedCustomerObj.value));
 
 const invoiceTotal = computed(() => financials.value.net_amount);
 
@@ -684,6 +644,7 @@ const fetchInvoice = async () => {
   try {
     const response = await invoiceApi.getById(props.invoiceId);
     const invoice = response.data;
+    if(invoice.is_marketplace_managed){await marketplaceRouter.replace(`/app/invoices/${invoice.id}`);return;}
 
     // Direct assignment to ensure reactivity and correctness
     const data = {
@@ -775,6 +736,7 @@ const fetchReturnInvoice = async returnFromId => {
   try {
     const response = await invoiceApi.getById(returnFromId);
     const originalInvoice = response.data;
+    if(originalInvoice.is_marketplace_managed){await marketplaceRouter.replace(`/app/invoices/${originalInvoice.id}`);return;}
 
     // Determine return type based on exact DB codes
     const isSale = ['sale', 'sales', 'installment_sale'].includes(originalInvoice.invoice_type?.code);

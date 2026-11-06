@@ -630,7 +630,7 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(0, 134, 205, 0.05);
   border: 2px dashed rgb(var(--v-theme-primary));
   z-index: 10;
   backdrop-filter: blur(1px);
@@ -644,7 +644,7 @@ export default {
   bottom: 12px;
 }
 .customizer-overlay:hover {
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 134, 205, 0.1);
   backdrop-filter: blur(2px);
 }
 .grayscale {

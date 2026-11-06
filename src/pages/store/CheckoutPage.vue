@@ -1,761 +1,191 @@
 <template>
   <div class="checkout-page" dir="rtl">
     <StoreNavbar />
-
-    <v-main style="background: #f8fafc; min-height: 100vh;">
-      <v-container style="max-width: 1200px;" class="py-8 py-md-12">
-
-        <!-- Checkout Steps -->
-        <div class="checkout-steps mb-6 mb-md-10 overflow-x-auto">
-          <div class="d-flex align-center justify-center justify-md-center gap-0 min-w-max pa-2">
-            <div
-              v-for="(step, i) in steps"
-              :key="i"
-              class="d-flex align-center"
-            >
-              <div class="step-item d-flex flex-column align-center text-center">
-                <div
-                  class="step-circle mb-2"
-                  :class="{
-                    'step-active': currentStep === i,
-                    'step-done': currentStep > i
-                  }"
-                >
-                  <v-icon v-if="currentStep > i" icon="ri-check-line" size="20" color="white"></v-icon>
-                  <span v-else>{{ i + 1 }}</span>
-                </div>
-                <span class="step-label text-caption" :class="currentStep >= i ? 'text-primary font-weight-bold' : 'text-grey'">
-                  {{ step }}
-                </span>
-              </div>
-              <div v-if="i < steps.length - 1" class="step-line mx-2 mx-md-3" :class="{ 'step-line-done': currentStep > i }"></div>
-            </div>
+    <v-main class="checkout-main">
+      <v-container class="checkout-container py-7">
+        <v-btn variant="text" to="/store/cart" prepend-icon="ri-arrow-right-line" class="mb-4">العودة للسلة</v-btn>
+        <h1 class="text-h4 font-weight-bold mb-6">إتمام الطلب</h1>
+        <v-progress-linear v-if="loading" indeterminate aria-label="تحميل إعدادات الشراء" />
+        <v-alert v-else-if="loadError" type="error" variant="tonal">{{ loadError }} <v-btn variant="text" @click="load">إعادة المحاولة</v-btn></v-alert>
+        <v-alert v-else-if="!config.enabled" type="info" variant="tonal">المتجر لا يستقبل طلبات جديدة حاليًا. يمكنك متابعة تصفح المنتجات.</v-alert>
+        <v-card v-else-if="config.requires_account && !authStore.isAuthenticated" rounded="xl" class="pa-6">
+          <h2 class="text-h6 mb-3">حسابك يحفظ مشترياتك</h2>
+          <p class="mb-5">سجل الدخول أو أنشئ حسابًا لإتمام الشراء ومتابعة الطلبات والمرتجعات. سنحتفظ بسلتك.</p>
+          <div class="d-flex flex-wrap ga-3">
+            <v-btn color="primary" :to="{ path: '/login', query: { redirect: '/store/checkout' } }">تسجيل الدخول</v-btn>
+            <v-btn variant="outlined" :to="{ path: '/register', query: { redirect: '/store/checkout' } }">إنشاء حساب</v-btn>
           </div>
-        </div>
-
-        <v-row>
-          <!-- Left: Steps Forms -->
-          <v-col cols="12" md="7" lg="8">
-
-            <!-- Step 1: Address -->
-            <v-card v-if="currentStep === 0" class="checkout-card mb-4" elevation="0">
-              <v-card-title class="step-card-title">
-                <div class="d-flex align-center gap-3">
-                  <div class="step-num-badge">1</div>
-                  <span>عنوان التوصيل</span>
+        </v-card>
+        <StoreEmailVerification v-else-if="authStore.isAuthenticated && config.requires_verified_email && !account.email_verified" :email="account.email || authStore.user?.email || ''" @verified="onVerified" />
+        <v-alert v-else-if="cartStore.isEmpty" type="info" variant="tonal">سلتك فارغة. <router-link to="/store">تصفح المنتجات</router-link></v-alert>
+        <v-row v-else class="mt-1">
+          <v-col cols="12" md="8">
+            <ol class="checkout-steps mb-5" aria-label="خطوات الشراء">
+              <li v-for="(label, index) in steps" :key="label" :aria-current="step === index ? 'step' : undefined" :class="{ active: step === index }">{{ index + 1 }}. {{ label }}</li>
+            </ol>
+            <v-card rounded="xl" class="pa-5">
+              <v-form v-if="step === 0" @submit.prevent="step = 1">
+                <h2 class="text-h6 mb-4">عنوان التوصيل</h2>
+                <v-radio-group v-if="addresses.length" v-model="addressId">
+                  <v-radio v-for="address in addresses" :key="address.id" :value="address.id" :label="address.recipient_name + ' — ' + address.city + '، ' + address.street" />
+                  <v-radio :value="null" label="عنوان جديد" />
+                </v-radio-group>
+                <template v-if="!addressId">
+                  <v-row>
+                    <v-col cols="12" sm="6"><v-text-field v-model="newAddress.recipient_name" label="اسم المستلم" autocomplete="name" maxlength="150" required /></v-col>
+                    <v-col cols="12" sm="6"><v-text-field v-model="newAddress.phone" label="رقم الهاتف" autocomplete="tel" inputmode="tel" dir="ltr" required /></v-col>
+                    <v-col cols="12" sm="6"><v-select v-model="newAddress.governorate_code" :items="config.governorates" item-title="name" item-value="id" label="المحافظة" required /></v-col>
+                    <v-col cols="12" sm="6"><v-text-field v-model="newAddress.city" label="المدينة أو المنطقة" autocomplete="address-level2" required /></v-col>
+                    <v-col cols="12"><v-text-field v-model="newAddress.street" label="الشارع والعنوان التفصيلي" autocomplete="street-address" required /></v-col>
+                    <v-col cols="12" sm="4"><v-text-field v-model="newAddress.building" label="المبنى" /></v-col>
+                    <v-col cols="6" sm="4"><v-text-field v-model="newAddress.floor" label="الدور" /></v-col>
+                    <v-col cols="6" sm="4"><v-text-field v-model="newAddress.apartment" label="الشقة" /></v-col>
+                    <v-col cols="12"><v-text-field v-model="newAddress.landmark" label="علامة مميزة (اختياري)" /></v-col>
+                  </v-row>
+                </template>
+                <v-btn type="submit" color="primary" :disabled="!addressReady">المتابعة إلى الدفع</v-btn>
+              </v-form>
+              <v-form v-else-if="step === 1" @submit.prevent="requestQuote">
+                <h2 class="text-h6 mb-4">طريقة الدفع</h2>
+                <v-radio-group v-model="paymentMethod">
+                  <v-radio v-if="config.cod_enabled" value="cod" label="الدفع عند الاستلام" />
+                  <v-radio v-if="config.online_enabled" value="online" label="الدفع بالبطاقة عبر بوابة الدفع" />
+                </v-radio-group>
+                <v-select v-if="paymentMethod === 'online'" v-model="gatewayId" :items="config.gateways" item-title="name" item-value="id" label="بوابة الدفع" />
+                <p v-if="paymentMethod === 'online'" class="text-body-2 mb-4">تُدخل بيانات البطاقة على صفحة مزود الدفع الآمنة.</p>
+                <v-textarea v-model="notes" label="ملاحظات الطلب (اختياري)" rows="2" maxlength="2000" />
+                <v-alert v-if="error" type="error" variant="tonal" class="mb-4">{{ error }}</v-alert>
+                <div class="d-flex ga-3"><v-btn variant="outlined" @click="step = 0">رجوع</v-btn><v-btn type="submit" color="primary" :loading="quoting" :disabled="!paymentMethod || (paymentMethod === 'online' && !gatewayId)">مراجعة السعر النهائي</v-btn></div>
+              </v-form>
+              <div v-else>
+                <h2 class="text-h6 mb-4">مراجعة الطلب</h2>
+                <p class="mb-4">{{ deliveryAddress?.recipient_name }} — {{ deliveryAddress?.city }}، {{ deliveryAddress?.street }}</p>
+                <v-alert v-if="quoteExpired" type="warning" variant="tonal" class="mb-4">انتهى عرض السعر. <v-btn variant="text" :loading="quoting" @click="requestQuote">تحديث السعر</v-btn></v-alert>
+                <section v-for="group in quote?.groups || []" :key="group.company_id" class="shipment-summary mb-4">
+                  <p class="font-weight-bold mb-2">شحنة مستقلة — {{ group.carrier_name }}</p>
+                  <p v-for="item in group.items" :key="item.variant_id" class="text-body-2 mb-1">{{ item.product_name }} × {{ item.quantity }} — {{ money(item.total_minor / 100) }}</p>
+                  <p class="text-body-2 mt-2">الشحن: {{ money(group.shipping_minor / 100) }}</p>
+                </section>
+                <div class="d-flex flex-wrap ga-2 mb-3"><v-btn v-for="document in quote?.legal_documents || []" :key="document.version_id" variant="text" size="small" @click="openDocument(document)">{{ document.title }}</v-btn></div>
+                <v-checkbox v-model="legalAccepted" label="قرأت شروط الشراء وسياسة الخصوصية والمرتجعات المعروضة وأوافق عليها" />
+                <v-alert v-if="error" type="error" variant="tonal" class="mb-4">{{ error }}</v-alert>
+                <div class="d-flex flex-wrap ga-3">
+                  <v-btn variant="outlined" :disabled="placing" @click="step = 1">تعديل</v-btn>
+                  <v-btn color="primary" :loading="placing" :disabled="!legalAccepted || quoteExpired || !quote" @click="placeOrder">{{ paymentMethod === 'cod' ? 'تأكيد طلب الدفع عند الاستلام' : 'إنشاء الطلب والمتابعة إلى الدفع' }}</v-btn>
                 </div>
-              </v-card-title>
-              <v-card-text class="pa-6 pt-0">
-
-                <v-alert v-if="!authStore.isAuthenticated" type="info" variant="tonal" class="mb-6" rounded="xl">
-                  <template v-slot:prepend>
-                    <v-icon icon="ri-information-line"></v-icon>
-                  </template>
-                  <span>للاستمتاع بتجربة تسوق أفضل، يمكنك <router-link :to="{ path: '/login', query: { redirect: $route.fullPath } }" class="font-weight-bold">تسجيل الدخول</router-link> أو <router-link :to="{ path: '/register', query: { type: 'customer', redirect: $route.fullPath } }" class="font-weight-bold">إنشاء حساب</router-link>. أو يمكنك المتابعة كزائر.</span>
-                </v-alert>
-
-                <div>
-                  <!-- Saved Addresses -->
-                  <div v-if="authStore.isAuthenticated && savedAddresses.length > 0" class="mb-6">
-                    <p class="text-body-2 font-weight-bold mb-3">العناوين المحفوظة</p>
-                    <div class="d-flex flex-column gap-3">
-                      <div
-                        v-for="addr in savedAddresses"
-                        :key="addr.id"
-                        class="address-card d-flex align-start gap-3 pa-4 rounded-xl cursor-pointer"
-                        :class="{ 'address-selected': selectedAddressId === addr.id }"
-                        @click="selectedAddressId = addr.id"
-                      >
-                        <v-radio :model-value="selectedAddressId === addr.id" color="primary" hide-details></v-radio>
-                        <div class="flex-grow-1">
-                          <div class="d-flex align-center justify-space-between">
-                            <span class="text-body-2 font-weight-bold">{{ addr.recipient_name }}</span>
-                            <v-chip v-if="addr.is_default" size="x-small" color="primary" variant="tonal">الافتراضي</v-chip>
-                            <v-btn v-else variant="text" size="x-small" color="primary" @click.stop="setAsDefault(addr.id)">جعل الافتراضي</v-btn>
-                          </div>
-                          <p class="text-caption text-grey mt-1">
-                            {{ addr.street }}, {{ addr.district }}, {{ addr.city }}
-                          </p>
-                          <p class="text-caption text-grey">{{ addr.phone }}</p>
-                        </div>
-                      </div>
-                    </div>
-                    <v-btn
-                      variant="text"
-                      color="primary"
-                      size="small"
-                      prepend-icon="ri-add-line"
-                      class="mt-3"
-                      @click="showNewAddressForm = !showNewAddressForm"
-                    >
-                      إضافة عنوان جديد
-                    </v-btn>
-                  </div>
-
-                  <!-- New Address Form -->
-                  <div v-if="showNewAddressForm || !authStore.isAuthenticated || savedAddresses.length === 0">
-                    <p class="text-body-2 font-weight-bold mb-3">عنوان التوصيل</p>
-                    <v-row dense>
-                      <v-col cols="12" sm="6">
-                        <v-text-field
-                          v-model="newAddress.recipient_name"
-                          label="اسم المستلم *"
-                          variant="outlined"
-                          density="comfortable"
-                          rounded="lg"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" sm="6">
-                        <v-text-field
-                          v-model="newAddress.phone"
-                          label="رقم الهاتف *"
-                          variant="outlined"
-                          density="comfortable"
-                          rounded="lg"
-                          type="tel"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" sm="6">
-                        <v-text-field
-                          v-model="newAddress.city"
-                          label="المدينة *"
-                          variant="outlined"
-                          density="comfortable"
-                          rounded="lg"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" sm="6">
-                        <v-text-field
-                          v-model="newAddress.district"
-                          label="الحي"
-                          variant="outlined"
-                          density="comfortable"
-                          rounded="lg"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12">
-                        <v-text-field
-                          v-model="newAddress.street"
-                          label="الشارع والرقم *"
-                          variant="outlined"
-                          density="comfortable"
-                          rounded="lg"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" sm="4">
-                        <v-text-field
-                          v-model="newAddress.building"
-                          label="المبنى"
-                          variant="outlined"
-                          density="comfortable"
-                          rounded="lg"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" sm="4">
-                        <v-text-field
-                          v-model="newAddress.floor"
-                          label="الدور"
-                          variant="outlined"
-                          density="comfortable"
-                          rounded="lg"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" sm="4">
-                        <v-text-field
-                          v-model="newAddress.apartment"
-                          label="الشقة"
-                          variant="outlined"
-                          density="comfortable"
-                          rounded="lg"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12">
-                        <v-textarea
-                          v-model="newAddress.landmark"
-                          label="علامة مميزة (اختياري)"
-                          variant="outlined"
-                          density="comfortable"
-                          rounded="lg"
-                          rows="2"
-                          hint="مثال: بجوار مسجد النور"
-                        ></v-textarea>
-                      </v-col>
-                      <v-col cols="12" v-if="authStore.isAuthenticated">
-                        <v-checkbox
-                          v-model="newAddress.is_default"
-                          label="جعله العنوان الافتراضي"
-                          color="primary"
-                          hide-details
-                        ></v-checkbox>
-                      </v-col>
-                    </v-row>
-                  </div>
-
-                  <v-btn
-                    color="primary"
-                    block
-                    height="52"
-                    class="rounded-xl font-weight-bold mt-4"
-                    @click="goToStep(1)"
-                    :disabled="!canProceedToStep1"
-                  >
-                    التالي: طريقة الدفع
-                    <v-icon icon="ri-arrow-left-line" class="ms-2" size="18"></v-icon>
-                  </v-btn>
-                </div>
-              </v-card-text>
-            </v-card>
-
-            <!-- Step 2: Payment -->
-            <v-card v-if="currentStep === 1" class="checkout-card mb-4" elevation="0">
-              <v-card-title class="step-card-title">
-                <div class="d-flex align-center gap-3">
-                  <div class="step-num-badge">2</div>
-                  <span>طريقة الدفع</span>
-                </div>
-              </v-card-title>
-              <v-card-text class="pa-6 pt-0">
-                <div class="payment-options d-flex flex-column gap-3 mb-6">
-                  <div
-                    class="payment-option d-flex align-center gap-4 pa-4 rounded-xl cursor-pointer"
-                    :class="{ 'payment-selected': paymentMethod === 'cod' }"
-                    @click="paymentMethod = 'cod'"
-                  >
-                    <v-radio :model-value="paymentMethod === 'cod'" color="primary" hide-details></v-radio>
-                    <div class="payment-icon-bg cod-bg">
-                      <v-icon icon="ri-money-dollar-circle-line" color="white" size="22"></v-icon>
-                    </div>
-                    <div>
-                      <div class="text-body-2 font-weight-bold">الدفع عند الاستلام</div>
-                      <div class="text-caption text-grey">ادفع نقداً عند وصول طلبك</div>
-                    </div>
-                    <v-spacer></v-spacer>
-                    <v-chip color="success" variant="tonal" size="x-small">متاح</v-chip>
-                  </div>
-
-                  <div class="payment-option payment-disabled d-flex align-center gap-4 pa-4 rounded-xl">
-                    <v-radio disabled hide-details></v-radio>
-                    <div class="payment-icon-bg card-bg">
-                      <v-icon icon="ri-bank-card-line" color="white" size="22"></v-icon>
-                    </div>
-                    <div>
-                      <div class="text-body-2 font-weight-bold text-grey">بطاقة ائتمان / فيزا</div>
-                      <div class="text-caption text-grey">قريباً</div>
-                    </div>
-                    <v-spacer></v-spacer>
-                    <v-chip color="warning" variant="tonal" size="x-small">قريباً</v-chip>
-                  </div>
-                </div>
-
-                <!-- Notes -->
-                <v-textarea
-                  v-model="orderNotes"
-                  label="ملاحظات للطلب (اختياري)"
-                  variant="outlined"
-                  rounded="xl"
-                  rows="3"
-                  hint="أضف أي تعليمات خاصة للبائع أو الشاحن"
-                  class="mb-4"
-                ></v-textarea>
-
-                <div class="d-flex gap-3">
-                  <v-btn
-                    variant="outlined"
-                    color="grey"
-                    @click="currentStep = 0"
-                    class="rounded-xl"
-                    height="52"
-                  >
-                    <v-icon icon="ri-arrow-right-line" class="me-2" size="18"></v-icon>
-                    رجوع
-                  </v-btn>
-                  <v-btn
-                    color="primary"
-                    flex-grow-1
-                    class="flex-grow-1 rounded-xl font-weight-bold"
-                    height="52"
-                    @click="goToStep(2)"
-                  >
-                    مراجعة الطلب
-                    <v-icon icon="ri-arrow-left-line" class="ms-2" size="18"></v-icon>
-                  </v-btn>
-                </div>
-              </v-card-text>
-            </v-card>
-
-            <!-- Step 3: Review & Place Order -->
-            <v-card v-if="currentStep === 2" class="checkout-card" elevation="0">
-              <v-card-title class="step-card-title">
-                <div class="d-flex align-center gap-3">
-                  <div class="step-num-badge">3</div>
-                  <span>مراجعة الطلب</span>
-                </div>
-              </v-card-title>
-              <v-card-text class="pa-6 pt-0">
-
-                <!-- Review Address -->
-                <div class="review-section mb-4">
-                  <div class="d-flex align-center justify-space-between mb-3">
-                    <span class="text-body-2 font-weight-bold text-grey">عنوان التوصيل</span>
-                    <v-btn variant="text" size="x-small" color="primary" @click="currentStep = 0">تعديل</v-btn>
-                  </div>
-                  <div class="review-box rounded-xl pa-4">
-                    <template v-if="selectedAddressObj">
-                      <p class="text-body-2 font-weight-bold mb-1">{{ selectedAddressObj.recipient_name }}</p>
-                      <p class="text-caption text-grey">{{ selectedAddressObj.street }}, {{ selectedAddressObj.district }}, {{ selectedAddressObj.city }}</p>
-                      <p class="text-caption text-grey">{{ selectedAddressObj.phone }}</p>
-                    </template>
-                  </div>
-                </div>
-
-                <!-- Review Payment -->
-                <div class="review-section mb-4">
-                  <div class="d-flex align-center justify-space-between mb-3">
-                    <span class="text-body-2 font-weight-bold text-grey">طريقة الدفع</span>
-                    <v-btn variant="text" size="x-small" color="primary" @click="currentStep = 1">تعديل</v-btn>
-                  </div>
-                  <div class="review-box rounded-xl pa-4 d-flex align-center gap-2">
-                    <v-icon icon="ri-money-dollar-circle-line" color="success"></v-icon>
-                    <span class="text-body-2 font-weight-medium">الدفع عند الاستلام</span>
-                  </div>
-                </div>
-
-                <!-- Order Items -->
-                <div class="review-section mb-6">
-                  <div class="text-body-2 font-weight-bold text-grey mb-3">المنتجات</div>
-                  <div class="review-box rounded-xl pa-4">
-                    <div v-for="group in cartStore.groupedByVendor" :key="group.companyId" class="mb-4 last-child-no-mb">
-                      <div class="text-caption font-weight-bold text-primary mb-2">{{ group.companyName }}</div>
-                      <div v-for="item in group.items" :key="item.variantId" class="d-flex align-center gap-3 mb-3">
-                        <v-img :src="item.image" width="48" height="48" cover class="rounded-lg flex-shrink-0"></v-img>
-                        <div class="flex-grow-1">
-                          <p class="text-body-2 font-weight-medium">{{ item.productName }}</p>
-                          <p class="text-caption text-grey">الكمية: {{ item.quantity }}</p>
-                        </div>
-                        <span class="text-body-2 font-weight-bold text-error">
-                          {{ formatPrice(Number(item.unitPrice) * Number(item.quantity)) }} ج.م
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Error -->
-                <v-alert v-if="placeOrderError" type="error" variant="tonal" class="mb-4" rounded="xl">
-                  {{ placeOrderError }}
-                </v-alert>
-
-                <div class="d-flex gap-3">
-                  <v-btn variant="outlined" color="grey" @click="currentStep = 1" class="rounded-xl" height="52">
-                    <v-icon icon="ri-arrow-right-line" class="me-2" size="18"></v-icon>
-                    رجوع
-                  </v-btn>
-                  <v-btn
-                    color="success"
-                    class="flex-grow-1 rounded-xl font-weight-black"
-                    height="52"
-                    elevation="2"
-                    :loading="placingOrder"
-                    @click="placeOrder"
-                    prepend-icon="ri-shield-check-line"
-                  >
-                    تأكيد الطلب
-                  </v-btn>
-                </div>
-              </v-card-text>
+              </div>
             </v-card>
           </v-col>
-
-          <!-- Right: Order Summary -->
-          <v-col cols="12" md="5" lg="4">
-            <div class="order-summary-card">
-              <div class="summary-header d-flex align-center gap-2 mb-4">
-                <v-icon icon="ri-receipt-line" color="primary"></v-icon>
-                <span class="text-h6 font-weight-bold">ملخص الطلب</span>
-              </div>
-
-              <!-- Items -->
-              <div class="summary-items mb-4">
-                <div
-                  v-for="group in cartStore.groupedByVendor"
-                  :key="group.companyId"
-                  class="mb-3"
-                >
-                  <p class="text-caption font-weight-bold text-grey mb-2">{{ group.companyName }}</p>
-                  <div v-for="item in group.items" :key="item.variantId" class="d-flex justify-space-between align-center mb-2">
-                    <div class="d-flex align-center gap-2">
-                      <v-img :src="item.image" width="36" height="36" cover class="rounded-lg flex-shrink-0"></v-img>
-                      <span class="text-caption summary-item-name">{{ item.productName }} × {{ item.quantity }}</span>
-                    </div>
-                    <span class="text-caption font-weight-bold">{{ formatPrice(Number(item.unitPrice) * Number(item.quantity)) }}</span>
-                  </div>
-                </div>
-              </div>
-
-              <v-divider class="mb-4"></v-divider>
-
-              <!-- Totals -->
-              <div class="d-flex justify-space-between mb-2">
-                <span class="text-body-2 text-grey">المجموع</span>
-                <span class="text-body-2 font-weight-medium">{{ formatPrice(cartStore.totalAmount) }} ج.م</span>
-              </div>
-              <div class="d-flex justify-space-between mb-3">
-                <span class="text-body-2 text-grey">الشحن</span>
-                <span class="text-body-2 text-success font-weight-bold">مجاني 🎉</span>
-              </div>
-
-              <v-divider class="mb-4"></v-divider>
-
-              <div class="d-flex justify-space-between align-center">
-                <span class="text-body-1 font-weight-black">الإجمالي الكلي</span>
-                <span class="summary-total">{{ formatPrice(cartStore.totalAmount) }}<span class="text-caption ms-1 text-grey">ج.م</span></span>
-              </div>
-
-              <!-- Trust -->
-              <div class="trust-footer mt-6">
-                <div v-for="t in trustItems" :key="t.label" class="d-flex align-center gap-2 mb-2">
-                  <v-icon :icon="t.icon" size="16" color="success"></v-icon>
-                  <span class="text-caption text-grey">{{ t.label }}</span>
-                </div>
-              </div>
-            </div>
+          <v-col cols="12" md="4">
+            <v-card rounded="xl" class="pa-5 checkout-summary">
+              <h2 class="text-h6 mb-4">ملخص الطلب</h2>
+              <p v-for="item in cartStore.items" :key="item.variantId" class="mb-2">{{ item.productName }} × {{ item.quantity }}</p>
+              <v-divider class="my-4" />
+              <template v-if="quote">
+                <p class="summary-row"><span>المنتجات قبل الضريبة</span><strong>{{ money(quote.subtotal_minor / 100) }}</strong></p>
+                <p class="summary-row"><span>الضريبة</span><strong>{{ money(quote.tax_minor / 100) }}</strong></p>
+                <p class="summary-row"><span>الشحن</span><strong>{{ money(quote.shipping_minor / 100) }}</strong></p>
+                <p class="summary-row text-h6 mt-4"><span>الإجمالي</span><strong>{{ money(quote.total_minor / 100) }}</strong></p>
+              </template>
+              <template v-else><p>قيمة المنتجات المبدئية: {{ money(cartStore.totalAmount) }}</p><p class="text-caption mt-3">نحسب الشحن والضريبة والسعر النهائي بعد تحديد العنوان وطريقة الدفع.</p></template>
+            </v-card>
           </v-col>
         </v-row>
+        <v-dialog v-model="legalDialog" max-width="760" scrollable>
+          <v-card rounded="xl"><v-card-title>{{ legalDocument?.title }}</v-card-title><v-card-text><v-progress-linear v-if="legalLoading" indeterminate /><div v-else v-html="safeHtml(legalDocument?.content)" /></v-card-text><v-card-actions><v-btn @click="legalDialog = false">إغلاق</v-btn></v-card-actions></v-card>
+        </v-dialog>
       </v-container>
     </v-main>
   </div>
 </template>
-
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useCartStore } from '@/stores/cart'
-import { useAuthStore } from '@/stores/auth'
-import { customerAddressesApi } from '@/modules/store/api/customerAddresses.api.js'
-import { storeOrdersApi } from '@/modules/store/api/storeOrders.api.js'
 import StoreNavbar from '@/modules/store/components/StoreNavbar.vue'
-
+import StoreEmailVerification from '@/modules/store/components/StoreEmailVerification.vue'
+import { useAuthStore } from '@/stores/auth'
+import { useCartStore } from '@/stores/cart'
+import { storeOrdersApi } from '@/modules/store/api/storeOrders.api'
+import { customerAddressesApi } from '@/modules/store/api/customerAddresses.api'
+import { checkoutAttempt, finishCheckoutAttempt, saveOrderAccess, storePayload, formatStoreMoney } from '@/modules/store/utils/checkoutSession'
+import { safeHtml } from '@/utils/safeHtml'
+import { parseApiError } from '@/utils/errorParser'
 const router = useRouter()
-const cartStore = useCartStore()
 const authStore = useAuthStore()
-
-const currentStep = ref(0)
-const steps = ['العنوان', 'الدفع', 'المراجعة']
-const savedAddresses = ref([])
-const selectedAddressId = ref(null)
-const showNewAddressForm = ref(false)
-const paymentMethod = ref('cod')
-const orderNotes = ref('')
-const placingOrder = ref(false)
-const placeOrderError = ref(null)
-
-const newAddress = ref({
-  recipient_name: '', phone: '', city: '', district: '',
-  street: '', building: '', floor: '', apartment: '',
-  landmark: '', is_default: false, label: 'home'
+const cartStore = useCartStore()
+const loading = ref(true), loadError = ref(''), error = ref('')
+const config = ref({ enabled: false, requires_account: true, requires_verified_email: true, governorates: [], gateways: [] })
+const account = ref({ email_verified: false })
+const addresses = ref([]), addressId = ref(null), step = ref(0)
+const paymentMethod = ref('cod'), gatewayId = ref(null), notes = ref('')
+const quoting = ref(false), placing = ref(false), quote = ref(null), quoteExpired = ref(false), legalAccepted = ref(false)
+const legalDialog = ref(false), legalLoading = ref(false), legalDocument = ref(null)
+const newAddress = ref({ recipient_name: authStore.user?.full_name || authStore.user?.name || '', phone: authStore.user?.phone || '', governorate_code: '', city: '', street: '', building: '', floor: '', apartment: '', landmark: '' })
+const steps = ['عنوان التوصيل', 'طريقة الدفع', 'مراجعة الطلب']
+let expirationTimer
+const money = value => formatStoreMoney(value, config.value.currency || 'EGP')
+const deliveryAddress = computed(() => addressId.value ? addresses.value.find(a => a.id === addressId.value) : newAddress.value)
+const addressReady = computed(() => {
+  const a = deliveryAddress.value
+  return !!(a?.recipient_name && a?.phone && a?.governorate_code && a?.city && a?.street)
 })
-
-const trustItems = [
-  { icon: 'ri-shield-check-line', label: 'بيانات محمية بتشفير SSL' },
-  { icon: 'ri-truck-line', label: 'شحن مجاني على الطلبات فوق 200 ج.م' },
-  { icon: 'ri-refresh-line', label: 'إمكانية الإرجاع خلال 14 يوم' },
-]
-
-const selectedAddressObj = computed(() => {
-  if (selectedAddressId.value) {
-    return savedAddresses.value.find(a => a.id === selectedAddressId.value)
-  }
-  return newAddress.value.recipient_name ? newAddress.value : null
-})
-
-const canProceedToStep1 = computed(() =>
-  selectedAddressId.value ||
-  (newAddress.value.recipient_name && newAddress.value.phone && newAddress.value.city && newAddress.value.street)
-)
-
-const formatPrice = (price) => {
-  if (!price && price !== 0) return '0'
-  return new Intl.NumberFormat('ar-EG').format(Number(price))
+function payload() {
+  const data = cartStore.buildOrderPayload(addressId.value, notes.value, paymentMethod.value)
+  data.checkout_key = checkoutAttempt()
+  if (!addressId.value) { delete data.shipping_address_id; data.guest_address = { ...newAddress.value } }
+  return data
 }
-
-const loadAddresses = async () => {
-  if (!authStore.isAuthenticated) return
+async function load() {
+  loading.value = true; loadError.value = ''
   try {
-    const res = await customerAddressesApi.getAddresses()
-    savedAddresses.value = res.data?.data || res.data || []
-    const def = savedAddresses.value.find(a => a.is_default)
-    if (def) selectedAddressId.value = def.id
-    else if (savedAddresses.value.length > 0) selectedAddressId.value = savedAddresses.value[0].id
-  } catch {}
-}
-
-const setAsDefault = async (id) => {
-  try {
-    await customerAddressesApi.setDefault(id)
-    savedAddresses.value.forEach(a => a.is_default = (a.id === id))
-  } catch (err) {
-    console.error('Error setting default address', err)
-  }
-}
-
-const goToStep = async (step) => {
-  if (step === 1 && !selectedAddressId.value && showNewAddressForm.value && authStore.isAuthenticated) {
-    try {
-      const res = await customerAddressesApi.createAddress(newAddress.value)
-      const created = res.data?.data || res.data
-      savedAddresses.value.push(created)
-      selectedAddressId.value = created.id
-      showNewAddressForm.value = false
-    } catch (err) {
-      return
+    config.value = { ...config.value, ...storePayload(await storeOrdersApi.configuration()) }
+    if (!config.value.cod_enabled) paymentMethod.value = config.value.online_enabled ? 'online' : ''
+    gatewayId.value = config.value.gateways.find(g => g.is_default)?.id || config.value.gateways[0]?.id || null
+    if (authStore.isAuthenticated) {
+      account.value = storePayload(await storeOrdersApi.accountStatus())
+      addresses.value = storePayload(await customerAddressesApi.getAddresses()) || []
+      addressId.value = addresses.value.find(a => a.is_default && a.governorate_code)?.id || null
     }
-  }
-  currentStep.value = step
+  } catch (err) { loadError.value = parseApiError(err, 'تعذر تحميل بيانات إتمام الطلب.') }
+  finally { loading.value = false }
 }
-
-const placeOrder = async () => {
-  placeOrderError.value = null
-  placingOrder.value = true
+function onVerified(result) { account.value = { ...account.value, ...result, email_verified: true } }
+async function requestQuote() {
+  quoting.value = true; error.value = ''; legalAccepted.value = false
   try {
-    const payload = cartStore.buildOrderPayload(selectedAddressId.value, orderNotes.value)
-    
-    // If not authenticated or creating a new address directly without saving
-    if (!selectedAddressId.value) {
-      delete payload.shipping_address_id;
-      payload.guest_address = { ...newAddress.value };
-    }
-    
-    const res = await storeOrdersApi.placeOrder(payload)
-    const order = res.data?.data || res.data
+    quote.value = storePayload(await storeOrdersApi.quote(payload()))
+    quoteExpired.value = false; step.value = 2
+    clearTimeout(expirationTimer)
+    expirationTimer = setTimeout(() => { quoteExpired.value = true }, Math.max(0, Date.parse(quote.value.expires_at) - Date.now()))
+  } catch (err) { error.value = parseApiError(err, 'تعذر تسعير الطلب. راجع المنتجات والعنوان.') }
+  finally { quoting.value = false }
+}
+async function placeOrder() {
+  if (placing.value || !legalAccepted.value || !quote.value || quoteExpired.value) return
+  placing.value = true; error.value = ''
+  try {
+    const data = { ...payload(), quote_id: quote.value.id, legal_accepted: true, legal_version_ids: quote.value.legal_documents.map(d => d.version_id) }
+    if (paymentMethod.value === 'online') data.payment_gateway_id = gatewayId.value
+    const response = await storeOrdersApi.placeOrder(data)
+    const order = storePayload(response)
+    saveOrderAccess(order, response.data.access_token)
+    finishCheckoutAttempt()
     cartStore.clearCart()
-    router.push(`/store/order-confirmation/${order.id || order.order_number}`)
-  } catch (err) {
-    placeOrderError.value = err.response?.data?.message || 'حدث خطأ أثناء إتمام الطلب. حاول مجدداً.'
-  } finally {
-    placingOrder.value = false
-  }
+    await router.replace({ name: 'store-order-confirmation', params: { id: order.order_number }, query: paymentMethod.value === 'online' ? { pay: '1', gateway: gatewayId.value } : {} })
+  } catch (err) { error.value = parseApiError(err, 'تعذر إنشاء الطلب. أعد المحاولة بالمحاولة نفسها.') }
+  finally { placing.value = false }
 }
-
-onMounted(() => { 
-  loadAddresses() 
-  if (authStore.user) {
-    newAddress.value.recipient_name = authStore.user.name || ''
-    newAddress.value.phone = authStore.user.phone || ''
-    if (authStore.user.city) newAddress.value.city = authStore.user.city
-    if (authStore.user.district) newAddress.value.district = authStore.user.district
-    if (authStore.user.address || authStore.user.street) newAddress.value.street = authStore.user.street || authStore.user.address
-  }
-})
+async function openDocument(document) {
+  legalDialog.value = true; legalLoading.value = true; legalDocument.value = { title: document.title, content: '' }
+  try { legalDocument.value = storePayload(await storeOrdersApi.legal(document.version_id)) }
+  catch (err) { error.value = parseApiError(err, 'تعذر تحميل المستند.'); legalDialog.value = false }
+  finally { legalLoading.value = false }
+}
+watch([addressId, newAddress, notes, paymentMethod], () => { quote.value = null; legalAccepted.value = false }, { deep: true })
+watch(() => cartStore.items, () => { quote.value = null; legalAccepted.value = false; if (step.value === 2) step.value = 1 }, { deep: true })
+onMounted(load)
+onUnmounted(() => clearTimeout(expirationTimer))
 </script>
-
 <style scoped>
-.checkout-page {
-  direction: rtl;
-}
-
-/* Steps */
-.checkout-steps {
-  direction: rtl;
-}
-
-.step-item {
-  min-width: 80px;
-}
-
-.step-circle {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 15px;
-  background: #e2e8f0;
-  color: #94a3b8;
-  transition: all 0.3s;
-}
-
-.step-active {
-  background: linear-gradient(135deg, #1a73e8, #6c47ff) !important;
-  color: white !important;
-  box-shadow: 0 4px 15px rgba(26, 115, 232, 0.4);
-}
-
-.step-done {
-  background: #10b981 !important;
-  color: white !important;
-}
-
-.step-label {
-  font-size: 12px;
-  white-space: nowrap;
-}
-
-.step-line {
-  width: 30px;
-  height: 2px;
-  background: #e2e8f0;
-  flex-shrink: 0;
-  margin-bottom: 20px;
-  transition: background 0.3s;
-}
-
-@media (min-width: 600px) {
-  .step-line {
-    width: 60px;
-  }
-}
-
-.step-line-done {
-  background: #10b981;
-}
-
-/* Cards */
-.checkout-card {
-  background: white;
-  border-radius: 16px !important;
-  border: 1px solid #f1f5f9;
-  overflow: hidden;
-}
-
-.step-card-title {
-  padding: 16px 16px 12px !important;
-  font-size: 16px !important;
-  font-weight: 800 !important;
-  color: #0f172a;
-  border-bottom: 1px solid #f8fafc;
-}
-
-@media (min-width: 600px) {
-  .checkout-card {
-    border-radius: 24px !important;
-  }
-  .step-card-title {
-    padding: 24px 24px 20px !important;
-    font-size: 18px !important;
-  }
-}
-
-.step-num-badge {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #1a73e8, #6c47ff);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 14px;
-  flex-shrink: 0;
-}
-
-/* Address */
-.address-card {
-  border: 2px solid #f1f5f9;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.address-card:hover {
-  border-color: #bfdbfe;
-}
-
-.address-selected {
-  border-color: #1a73e8 !important;
-  background: #eff6ff;
-}
-
-/* Payment */
-.payment-option {
-  border: 2px solid #f1f5f9;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.payment-option:hover:not(.payment-disabled) {
-  border-color: #bfdbfe;
-}
-
-.payment-selected {
-  border-color: #1a73e8 !important;
-  background: #eff6ff;
-}
-
-.payment-disabled {
-  opacity: 0.55;
-  cursor: default;
-}
-
-.payment-icon-bg {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.cod-bg { background: linear-gradient(135deg, #10b981, #059669); }
-.card-bg { background: linear-gradient(135deg, #6c47ff, #4f46e5); }
-
-/* Review */
-.review-section {}
-.review-box {
-  background: #f8fafc;
-  border: 1px solid #f1f5f9;
-}
-
-/* Summary Card */
-.order-summary-card {
-  background: white;
-  border-radius: 24px;
-  padding: 24px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
-  position: sticky;
-  top: 90px;
-  border: 1px solid #f1f5f9;
-}
-
-.summary-header {
-  padding-bottom: 16px;
-  border-bottom: 1px solid #f1f5f9;
-}
-
-.summary-items {
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-.summary-item-name {
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  max-width: 130px;
-}
-
-.summary-total {
-  font-size: 24px;
-  font-weight: 900;
-  color: #e53935;
-}
-
-.trust-footer {
-  padding: 16px;
-  background: #f8fafc;
-  border-radius: 12px;
-  border: 1px solid #f1f5f9;
-}
-
-.cursor-pointer { cursor: pointer; }
-
-/* مساحة أمان سفلية للهاتف - تمنع تغطية الشريط السفلي للمحتوى */
-@media (max-width: 959px) {
-  .checkout-page {
-    padding-bottom: calc(var(--store-bottom-height, calc(66px + env(safe-area-inset-bottom, 0px))) + var(--store-purchase-height, 0px) + 12px) !important;
-  }
-}
+.checkout-page{direction:rtl}.checkout-main{background:#f8fafc;min-height:100vh}.checkout-container{max-width:1200px}.checkout-steps{display:flex;flex-wrap:wrap;gap:12px;list-style:none;padding:0}.checkout-steps li{padding:8px 12px;border-radius:20px;background:#e8edf4;color:#475569}.checkout-steps .active{background:#1a3d8f;color:white}.shipment-summary{padding:14px;border:1px solid #e2e8f0;border-radius:14px}.summary-row{display:flex;justify-content:space-between;gap:8px;margin-bottom:12px}.summary-row strong{white-space:nowrap}@media(min-width:960px){.checkout-summary{position:sticky;top:110px}}
 </style>

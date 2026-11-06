@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { authGuard, permissionGuard, roleGuard, defaultGuard } from './guards';
 import { setupRoutePrefetching } from './prefetch';
+import { loadSelectedDesign } from '@/designs/registry';
+import { claimReleaseRecovery } from '@/utils/releaseRecovery';
 
 // Import Route Modules
 import publicRoutes from './publicRoutes';
@@ -48,7 +50,7 @@ const router = createRouter({
     // ==================== Protected Routes (With MainLayout) ====================
     {
       path: '/app',
-      component: () => import('@/layouts/MainLayout.vue'),
+      component: () => loadSelectedDesign().then(design => design.loadLayout()).then(module => module.default),
       meta: { requiresAuth: true },
       children: [
         // Role-based redirection entry point
@@ -109,7 +111,7 @@ router.beforeEach(permissionGuard);
 router.beforeEach(roleGuard);
 router.beforeEach(defaultGuard);
 
-// Setup route prefetching for common pages
+// Prefetch only the link the user points to or focuses.
 setupRoutePrefetching(router);
 
 // Handle chunk load errors (due to new deployments)
@@ -119,8 +121,10 @@ router.onError((error, to) => {
     error.message.includes('Importing a module script failed') ||
     error.name === 'ChunkLoadError'
   ) {
-    console.warn('Chunk load error detected. Reloading page to fetch latest version...', error);
-    window.location.href = to.fullPath;
+    if (claimReleaseRecovery()) {
+      console.warn('Chunk load error detected. Recovering once for this release...', error);
+      window.location.href = to.fullPath;
+    }
   }
 });
 

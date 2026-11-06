@@ -461,7 +461,7 @@ const testimonials = [
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Montserrat:wght@400;600;700;800&display=swap');
+
 
 * {
   box-sizing: border-box;
@@ -1042,7 +1042,7 @@ const testimonials = [
 }
 
 .hero {
-  background: linear-gradient(140deg, #0d1b4b 0%, #1a3d8f 45%, #2d5ddb 75%, #6a5ae0 100%) !important;
+  background: linear-gradient(140deg, #075985 0%, #1a3d8f 45%, #2d5ddb 75%, #6a5ae0 100%) !important;
 }
 .hero-badge {
   background: rgba(106, 90, 224, 0.2) !important;
@@ -1086,7 +1086,7 @@ const testimonials = [
 }
 
 .how-it-works {
-  background: linear-gradient(140deg, #0d1b4b, #1a3d8f, #2d5ddb) !important;
+  background: linear-gradient(140deg, #075985, #1a3d8f, #2d5ddb) !important;
 }
 .step-num {
   background: linear-gradient(135deg, #2d5ddb, #6a5ae0) !important;
@@ -1110,7 +1110,7 @@ const testimonials = [
 }
 
 .saas-footer {
-  background: #0d1b4b !important;
+  background: #075985 !important;
 }
 
 /* Pricing Section */

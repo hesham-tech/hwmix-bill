@@ -173,7 +173,7 @@ onUnmounted(() => {
 .smart-tooltip-box {
   position: fixed; /* استخدام fixed لتجنب مشاكل overflow الأب */
   z-index: 2000;
-  background: rgba(15, 32, 67, 0.95);
+  background: rgba(0, 113, 173, 0.95);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -211,7 +211,7 @@ onUnmounted(() => {
 
 .tooltip-arrow {
   position: absolute;
-  background: rgba(15, 32, 67, 0.95);
+  background: rgba(0, 113, 173, 0.95);
   width: 8px;
   height: 8px;
   transform: rotate(45deg);

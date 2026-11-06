@@ -111,10 +111,11 @@
           @click.prevent="buyNow" 
           :disabled="!inStock"
         >
-          شراء الآن
+          {{ requiresChoice ? 'اختيار الخيارات' : 'شراء الآن' }}
         </v-btn>
         
         <v-btn 
+          v-if="!requiresChoice"
           color="primary" 
           variant="tonal" 
           class="w-100 rounded-xl font-weight-bold" 
@@ -146,6 +147,7 @@ const router = useRouter()
 const cartStore = useCartStore()
 const wishlistStore = useWishlistStore()
 const isAdding = ref(false)
+const requiresChoice = computed(() => (props.product.variants?.length || 0) > 1)
 
 const imageUrl = computed(() => {
   return props.product.image || props.product.images?.[0]?.url || ''
@@ -157,13 +159,10 @@ const defaultVariant = computed(() => {
 })
 
 const price = computed(() => {
-  return props.product.price || defaultVariant.value?.price || 0
+  return defaultVariant.value?.price ?? props.product.price ?? 0
 })
 
 const inStock = computed(() => {
-  if (props.product.stock_status) return props.product.stock_status === 'in_stock'
-  if (props.product.quantity !== undefined) return props.product.quantity > 0
-  
   if (!defaultVariant.value) return false
   return (defaultVariant.value.available_stock || 0) > 0
 })
@@ -179,12 +178,13 @@ const toggleFavorite = () => {
 }
 
 const addToCart = async () => {
+  if (requiresChoice.value) { router.push(`/store/product/${props.product.id}`); return false }
   if (!defaultVariant.value || !inStock.value) return
   isAdding.value = true
   
-  const totalQty = props.product.quantity ?? defaultVariant.value.available_stock ?? 1
+  const totalQty = defaultVariant.value.available_stock ?? 0
 
-  cartStore.addItem({
+  const added = cartStore.addItem({
     productId: props.product.id,
     variantId: defaultVariant.value.id,
     productName: props.product.name,
@@ -199,13 +199,15 @@ const addToCart = async () => {
 
   setTimeout(() => {
     isAdding.value = false
-    cartStore.isDrawerOpen = true
   }, 400)
+  return added
 }
 
 const buyNow = async () => {
-  await addToCart()
-  router.push('/store/checkout')
+  if (await addToCart()) {
+    cartStore.isDrawerOpen = false
+    router.push('/store/checkout')
+  }
 }
 </script>
 

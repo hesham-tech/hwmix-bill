@@ -344,7 +344,7 @@
                               type="checkbox"
                               :value="opt.value"
                               :checked="step.channel?.includes(opt.value)"
-                              :disabled="isFormDisabled"
+                              :disabled="isFormDisabled || (selectedEventType?.startsWith('store.') && opt.value !== 'email')"
                               @change="toggleStepChannel(step, opt.value)"
                               class="wf-ch-input"
                             />
@@ -472,7 +472,17 @@ const toggleStepChannel = (step, value) => {
   }
 };
 
+const storeEvents = [
+  ['store.customer.created','المتجر: استلام طلب العميل'],
+  ['store.customer.updated','المتجر: تحديث طلب العميل'],
+  ['store.customer.refunded','المتجر: استرداد العميل'],
+  ['store.vendor.created','المتجر: طلب جديد للبائع'],
+  ['store.vendor.updated','المتجر: تحديث طلب البائع'],
+  ['store.vendor.return_requested','المتجر: طلب إرجاع للبائع'],
+  ['store.vendor.return_to_origin','المتجر: رجوع شحنة دون تسليم'],
+].map(([type,label])=>({type,label,description:'بريد المتجر مع إعادة المحاولة',icon:'ri-store-2-line',helpText:'البريد الإلكتروني فقط متاح لأحداث المتجر حاليًا. عند غياب قاعدة مفعلة يستخدم الإشعار الأساسي. استخدم متغيرات المتجر من محرر القوالب.'}));
 const eventsList = [
+  ...storeEvents,
   {
     type: 'invoice.created',
     label: 'فاتورة مبيعات جديدة',
@@ -588,6 +598,7 @@ const eventsList = [
 ];
 
 const immediateTypes = [
+  ...storeEvents.map(event=>event.type),
   'invoice.created',
   'payment.received',
   'subscription.expired',
@@ -683,7 +694,7 @@ const selectEvent = type => {
           step_number: s.step_number,
           delay_days: s.delay_days,
           userDelayDays: Math.abs(s.delay_days),
-          channel: ch,
+          channel: type.startsWith('store.') ? ch.filter(channel=>channel==='email') : ch,
           template_id: s.template_id,
           is_active: !!s.is_active,
         };
@@ -701,7 +712,7 @@ const addNewStep = () => {
   // القناة الافتراضية: جميع القنوات المتاحة
   const defaultChannels = [];
   if (integrationsStatus.value.email) defaultChannels.push('email');
-  if (integrationsStatus.value.whatsapp) defaultChannels.push('whatsapp');
+  if (integrationsStatus.value.whatsapp && !selectedEventType.value?.startsWith('store.')) defaultChannels.push('whatsapp');
   const newStep = {
     id: null,
     step_number: editorData.value.steps.length + 1,

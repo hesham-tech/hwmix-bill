@@ -1,5 +1,8 @@
 // إعدادات إطار عمل Playwright لتشغيل اختبارات E2E التشغيلية
 import { defineConfig, devices } from '@playwright/test';
+const preview = process.env.E2E_PREVIEW === '1';
+const baseURL = process.env.E2E_BASE_URL || 'http://localhost:5173';
+const testPort = Number(new URL(baseURL).port || 5173);
 
 export default defineConfig({
   testDir: './tests/e2e',
@@ -13,7 +16,8 @@ export default defineConfig({
   workers: 1,
   reporter: 'list',     // إخراج مريح كقائمة
   use: {
-    baseURL: 'http://localhost:5173',
+    serviceWorkers: preview ? 'block' : 'allow',
+    baseURL,
     trace: 'on-first-retry',
     actionTimeout: 0,
     ignoreHTTPSErrors: true
@@ -40,9 +44,9 @@ export default defineConfig({
         }
       ],
   webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:5173',
-    reuseExistingServer: true,
+    command: preview ? `npm run preview -- --host localhost --port ${testPort} --strictPort` : 'npm run dev',
+    url: baseURL,
+    reuseExistingServer: !preview,
     timeout: 120 * 1000,
   },
 });

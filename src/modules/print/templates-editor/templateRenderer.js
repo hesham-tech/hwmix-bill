@@ -2,7 +2,6 @@ import { formatPrice, priceField } from './priceFormat';
 import { resolveFlexLayout, overlapIssues } from './flexLayout';
 import JsBarcode from 'jsbarcode';
 import QRCode from 'qrcode';
-import { jsPDF } from 'jspdf';
 import '@fontsource/noto-sans-arabic/400.css';
 import '@fontsource/noto-sans-arabic/700.css';
 import { mmToDots, validateDesign, sheetPlacements } from './templateSchema';
@@ -354,6 +353,7 @@ export async function renderTemplate(design, values, { dpi = 203, monochrome = t
 }
 
 export async function templatePdf(design, records, { layout = 'roll', startCell = 1, dpi, geometry, monochrome = true, loadImage } = {}) {
+  const { jsPDF } = await import('jspdf');
   const sheet = layout === 'a4';
   validateDesign(design, { geometry: sheet ? undefined : geometry, sheet, startCell });
   const count = records.reduce((sum, r) => sum + Number(r.quantity), 0);

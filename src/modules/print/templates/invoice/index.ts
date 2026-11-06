@@ -32,6 +32,7 @@ templateRegistry.register('invoice', {
             remainingAmount: invoice.remaining_amount || 0,
             totalDiscount: invoice.total_discount || 0,
             previousBalance: invoice.previous_balance || 0,
+            isMarketplaceManaged: !!invoice.is_marketplace_managed,
             totalRequired: invoice.total_required || 0,
             userBalanceAfter: invoice.user_balance_after || 0,
 

@@ -361,7 +361,7 @@ onMounted(() => {
   max-width: 150px;
 }
 .checklist-item-checked {
-  background-color: rgba(0, 0, 0, 0.02);
+  background-color: rgba(0, 134, 205, 0.02);
   border-color: rgba(0, 0, 0, 0.05) !important;
 }
 .gap-2 {

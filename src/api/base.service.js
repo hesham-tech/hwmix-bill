@@ -60,6 +60,7 @@ class BaseService {
    * معالجة الأخطاء وعرضها للمستخدم
    */
   handleError(error, showToast = true) {
+    if (error?.code === 'ERR_CANCELED' || error?.name === 'AbortError') throw error;
     const userStore = useUserStore();
     userStore.loadingApi = false;
 
@@ -113,7 +114,7 @@ class BaseService {
     if (loading) userStore.loadingApi = true;
 
     try {
-      const response = await apiClient.get(this.resource, { params });
+      const response = await apiClient.get(this.resource, { params, signal: options.signal });
       return this.handleSuccess(response, showToast);
     } catch (error) {
       return this.handleError(error, showToast);

@@ -177,7 +177,7 @@ onMounted(() => { fetchVendorData() })
 /* Hero */
 .vendor-hero {
   position: relative;
-  background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #1a237e 100%);
+  background: linear-gradient(135deg, #0071AD 0%, #1e3a5f 60%, #1a237e 100%);
   background-size: cover;
   background-position: center;
   min-height: 240px;
@@ -188,7 +188,7 @@ onMounted(() => { fetchVendorData() })
 .vendor-hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 60%, transparent 100%);
+  background: linear-gradient(to top, rgba(0, 134, 205,0.7) 0%, rgba(0, 134, 205,0.2) 60%, transparent 100%);
 }
 
 .hero-container {

@@ -131,7 +131,7 @@ export default defineComponent({
   .layout-overlay {
     position: fixed;
     z-index: variables.$layout-overlay-z-index;
-    background-color: rgb(0 0 0 / 60%);
+    background-color: rgb(186 230 253 / 60%);
     cursor: pointer;
     inset: 0;
     opacity: 0;

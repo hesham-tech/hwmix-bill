@@ -70,7 +70,7 @@
           </div>
 
           <!-- Eye-catching Store Conversion Card (كارت المتجر الثابت أسفل كل أداة) -->
-          <v-card class="rounded-2xl border pa-6 my-8 text-white elevation-2 overflow-hidden position-relative" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);">
+          <v-card class="rounded-2xl border pa-6 my-8 text-white elevation-2 overflow-hidden position-relative" style="background: linear-gradient(135deg, #0071AD 0%, #0071AD 100%);">
             <div class="d-flex flex-column flex-sm-row align-center justify-space-between gap-4">
               <div class="d-flex align-center gap-4 text-center text-sm-start">
                 <v-avatar color="error" size="52" rounded="lg" class="elevation-2 flex-shrink-0">

@@ -191,7 +191,7 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+
 * {
   box-sizing: border-box;
 }
@@ -199,7 +199,7 @@ const handleLogin = async () => {
 .saas-login-wrapper {
   font-family: 'Cairo', sans-serif;
   min-height: 100vh;
-  background: #060b18;
+  background: #0071AD;
   position: relative;
   overflow: hidden;
   overflow-x: clip;

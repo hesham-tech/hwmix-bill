@@ -225,7 +225,7 @@ const updateParent = () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 134, 205, 0.4);
 }
 
 .group:hover .group-hover-opacity-100 {

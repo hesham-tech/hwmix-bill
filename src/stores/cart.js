@@ -6,14 +6,19 @@ export const useCartStore = defineStore(
   'cart',
   () => {
     // Load from localStorage initially
-    const savedCart = localStorage.getItem('hwnix_store_cart')
-    const items = ref(savedCart ? JSON.parse(savedCart) : [])
+    let initialItems = []
+    try {
+      const savedCart = localStorage.getItem('hwnix_store_cart')
+      const parsed = savedCart ? JSON.parse(savedCart) : []
+      initialItems = Array.isArray(parsed) ? parsed.filter(i => i && Number.isSafeInteger(Number(i.variantId)) && Number(i.variantId) > 0 && Number.isSafeInteger(Number(i.productId)) && Number(i.productId) > 0 && Number.isFinite(Number(i.quantity)) && Number(i.quantity) >= 1).map(i=>({...i,variantId:Number(i.variantId),productId:Number(i.productId),companyId:Number(i.companyId),quantity:Math.min(9999,Math.trunc(Number(i.quantity)))})) : []
+    } catch { /* A corrupt saved cart must not prevent browsing the store. */ }
+    const items = ref(initialItems)
     // { variantId, productId, companyId, companyName, companyLogo, productName, variantSku, image, unitPrice, quantity, maxStock }
     const isDrawerOpen = ref(false)
 
     // Sync to localStorage on every change
     watch(items, (newItems) => {
-      localStorage.setItem('hwnix_store_cart', JSON.stringify(newItems))
+      try { localStorage.setItem('hwnix_store_cart', JSON.stringify(newItems)) } catch { /* The in-memory cart remains usable. */ }
     }, { deep: true })
 
     const itemCount = computed(() =>
@@ -58,10 +63,17 @@ export const useCartStore = defineStore(
       quantity = 1,
       maxStock,
     }) {
+      quantity = Math.trunc(Number(quantity))
+      variantId = Number(variantId); productId = Number(productId)
+      const limit = Math.max(0, Math.trunc(Number(maxStock ?? 9999)))
+      if (!Number(variantId) || !Number(productId) || !Number.isFinite(quantity) || quantity <= 0 || limit <= 0) return false
+      quantity = Math.min(quantity, limit)
       const existing = items.value.find((i) => i.variantId === variantId)
       if (existing) {
+        existing.unitPrice = unitPrice
+        existing.maxStock = maxStock
         const newQty = existing.quantity + quantity
-        existing.quantity = Math.min(newQty, maxStock ?? 9999)
+        existing.quantity = Math.min(newQty, limit)
       } else {
         items.value.push({
           variantId,
@@ -78,6 +90,7 @@ export const useCartStore = defineStore(
         })
       }
       isDrawerOpen.value = true
+      return true
     }
 
     function removeItem(variantId) {
@@ -85,6 +98,8 @@ export const useCartStore = defineStore(
     }
 
     function updateQuantity(variantId, quantity) {
+      quantity = Math.trunc(Number(quantity))
+      if (!Number.isFinite(quantity)) return
       const item = items.value.find((i) => i.variantId === variantId)
       if (item) {
         if (quantity <= 0) removeItem(variantId)
@@ -101,17 +116,15 @@ export const useCartStore = defineStore(
     }
 
     // بناء payload للإرسال للـ API
-    function buildOrderPayload(addressId, notes = '') {
+    function buildOrderPayload(addressId, notes = '', paymentMethod = 'cod') {
       return {
         shipping_address_id: addressId,
-        payment_method: 'cod',
+        payment_method: paymentMethod,
         notes,
         items: items.value.map((i) => ({
-          variant_id: i.variantId,
-          company_id: i.companyId,
-          quantity: i.quantity,
-          unit_price: i.unitPrice,
-          total_price: Number(i.unitPrice) * Number(i.quantity),
+          product_id: Number(i.productId),
+          variant_id: Number(i.variantId),
+          quantity: Number(i.quantity),
         })),
       }
     }

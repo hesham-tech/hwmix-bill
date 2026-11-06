@@ -1,5 +1,5 @@
 // خدمات API لصفحات البائعين في المتجر
-import apiClient from '@/api/axios.config'
+import apiClient from '@/modules/store/api/storeClient'
 
 const BASE = '/store/public/vendors'
 

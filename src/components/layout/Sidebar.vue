@@ -6,7 +6,7 @@
     :persistent="smAndUp"
     :temporary="xs"
     :touchless="smAndUp"
-    :scrim="xs ? 'rgba(0,0,0,0.1)' : false"
+    :scrim="xs ? 'rgba(186,230,253,0.6)' : false"
     width="280"
     class="sidebar"
     color="background"

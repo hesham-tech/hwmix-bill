@@ -91,6 +91,9 @@ export default [
     component: () => import('@/pages/store/OrderConfirmationPage.vue'),
     meta: { title: 'تأكيد الطلب', public: true },
   },
+  { path: '/store/orders', redirect: '/store/my-orders' },
+  { path: '/store/orders/:id', redirect: route => ({ name: 'store-order-confirmation', params: { id: route.params.id } }) },
+  { path: '/store/payment-return', name: 'store-payment-return', component: () => import('@/pages/store/PaymentReturnPage.vue'), meta: { title: 'متابعة الدفع', public: true } },
   {
     path: '/store/vendor/:id',
     name: 'store-vendor',

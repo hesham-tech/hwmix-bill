@@ -75,7 +75,7 @@
             <td class="label">صافي الفاتورة:</td>
             <td class="value font-bold text-primary">{{ formatCurrency(netAmount) }}</td>
           </tr>
-          <tr>
+          <tr v-if="!isMarketplaceManaged">
             <td class="label">رصيد العميل قبل:</td>
             <td class="value" :class="parseFloat(previousBalance) < 0 ? 'text-error' : 'text-success'">
               {{ formatCurrency(previousBalance) }}
@@ -95,7 +95,7 @@
               {{ formatCurrency(remainingAmount) }}
             </td>
           </tr>
-          <tr class="hero-row">
+          <tr v-if="!isMarketplaceManaged" class="hero-row">
             <td class="label">رصيد العميل بعد:</td>
             <td class="value font-bold text-primary">{{ formatCurrency(userBalanceAfter || 0) }}</td>
           </tr>
@@ -126,6 +126,7 @@ import { formatCurrency, formatDate } from '@/utils/formatters';
 import { PRINT_CONFIG } from '@/modules/print/core/printConfig';
 
 const props = defineProps({
+  isMarketplaceManaged: Boolean,
   // Invoice basic info
   invoiceNumber: String,
   invoiceTypeName: String,

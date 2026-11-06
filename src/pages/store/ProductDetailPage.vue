@@ -207,8 +207,8 @@
 
                 <!-- Description -->
                 <div class="product-desc mb-6" v-if="product.description || product.desc_long">
-                  <div v-if="product.description" class="text-body-1 text-medium-emphasis mb-3" style="line-height: 1.7;" v-html="product.description"></div>
-                  <div v-if="product.desc_long" class="text-body-1 text-medium-emphasis" style="line-height: 1.7;" v-html="product.desc_long"></div>
+                  <div v-if="product.description" class="text-body-1 text-medium-emphasis mb-3" style="line-height: 1.7;" v-html="safeHtml(product.description)"></div>
+                  <div v-if="product.desc_long" class="text-body-1 text-medium-emphasis" style="line-height: 1.7;" v-html="safeHtml(product.desc_long)"></div>
                 </div>
 
                 <v-divider class="mb-6"></v-divider>
@@ -323,9 +323,9 @@
                         <td class="text-grey spec-label">التصنيف</td>
                         <td class="font-weight-medium spec-value">{{ product.category?.name }}</td>
                       </tr>
-                      <tr v-if="product.unit?.name || product.unit">
+                      <tr v-if="selectedVariant?.unit_name || product.unit?.name">
                         <td class="text-grey spec-label">وحدة القياس</td>
-                        <td class="font-weight-medium spec-value">{{ product.unit?.name || product.unit }}</td>
+                        <td class="font-weight-medium spec-value">{{ selectedVariant?.unit_name || product.unit?.name }}</td>
                       </tr>
 
                       <tr v-if="selectedVariant?.dimensions || product.dimensions">
@@ -371,7 +371,8 @@ import { useStoreMobileNav } from '@/modules/store/composables/useStoreMobileNav
 import { useRoute, useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
 import { useWishlistStore } from '@/stores/wishlist'
-import { useHead } from '@vueuse/head'
+import { safeHtml } from '@/utils/safeHtml'
+import { useHead } from '@unhead/vue'
 import { storeProductsApi } from '@/modules/store/api/storeProducts.api.js'
 import StoreNavbar from '@/modules/store/components/StoreNavbar.vue'
 
@@ -413,10 +414,10 @@ const breadcrumbs = computed(() => [
 ])
 
 const trustBadges = [
-  { icon: 'ri-shield-check-line', label: 'دفع آمن 100%' },
-  { icon: 'ri-truck-line', label: 'شحن سريع' },
-  { icon: 'ri-refresh-line', label: 'إرجاع مجاني' },
-  { icon: 'ri-customer-service-2-line', label: 'دعم 24/7' },
+  { icon: 'ri-shield-check-line', label: 'تأكيد التكلفة قبل الدفع' },
+  { icon: 'ri-truck-line', label: 'الشحن حسب العنوان والبائع' },
+  { icon: 'ri-refresh-line', label: 'الإرجاع وفق سياسة المنتج' },
+  { icon: 'ri-customer-service-2-line', label: 'متابعة الطلب من حسابك' },
 ]
 
 const maxAvailable = computed(() => Math.max(0, Number(selectedVariant.value?.available_stock ?? product.value?.quantity ?? 0)))
@@ -442,7 +443,7 @@ onUnmounted(() => {
 })
 
 const isFavorite = computed(() => {
-  return wishlistStore.items.some(i => i.productId === product.value?.id)
+  return wishlistStore.isFavorite(product.value?.id)
 })
 
 const formatPrice = (price) => {
@@ -456,7 +457,9 @@ const fetchProduct = async () => {
     product.value = res.data?.data || res.data
     selectedImage.value = product.value?.image || null
     if (product.value?.variants?.length > 0) {
-      selectVariant(product.value.variants[0])
+      selectVariant(product.value.variants.find(variant => variant.id === product.value.default_variant_id)
+        || product.value.variants.find(variant => variant.available_stock > 0)
+        || product.value.variants[0])
     } else {
       displayImages.value = product.value?.images || []
     }
@@ -498,17 +501,7 @@ const selectVariant = (variant) => {
 
 const toggleFavorite = () => {
   if (!product.value) return
-  if (isFavorite.value) {
-    wishlistStore.removeItem(product.value.id)
-  } else {
-    wishlistStore.addItem({
-      productId: product.value.id,
-      name: product.value.name,
-      image: product.value.image || defaultImage,
-      price: product.value.price,
-      discount: product.value.discount || 0
-    })
-  }
+  wishlistStore.toggle(product.value.id)
 }
 
 const openLightbox = (imageUrl) => {
@@ -564,9 +557,10 @@ const addToCart = async () => {
 
 const buyNow = () => {
   if (!isAvailable.value) return
-  cartStore.addItem(buildCartItem())
-  cartStore.isDrawerOpen = false
-  router.push('/store/checkout')
+  if (cartStore.addItem(buildCartItem())) {
+    cartStore.isDrawerOpen = false
+    router.push('/store/checkout')
+  }
 }
 
 
@@ -582,7 +576,7 @@ const buyNow = () => {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: rgba(0, 0, 0, 0.15); /* شفافية عالية جدا - يظهر ما في الخلفية بوضوح */
+  background: rgba(0, 134, 205, 0.15); /* شفافية عالية جدا - يظهر ما في الخلفية بوضوح */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -594,7 +588,7 @@ const buyNow = () => {
   position: absolute;
   top: 20px;
   right: 20px;
-  background: rgba(0, 0, 0, 0.6); /* خلفية داكنة لتكون واضحة */
+  background: rgba(0, 134, 205, 0.6); /* خلفية داكنة لتكون واضحة */
   border: none;
   border-radius: 50%;
   width: 48px;
@@ -606,14 +600,14 @@ const buyNow = () => {
   transition: background 0.2s;
   z-index: 10;
 }
-.lightbox-close:hover { background: rgba(0, 0, 0, 0.8); }
+.lightbox-close:hover { background: rgba(0, 134, 205, 0.8); }
 
 .lightbox-counter {
   margin-bottom: 8px; /* مسافة بسيطة فوق الصورة فقط */
   color: #fff;
   font-size: 16px;
   font-weight: 700;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 134, 205, 0.5);
   padding: 4px 12px;
   border-radius: 20px;
   flex-shrink: 0; /* منع الانضغاط */
@@ -648,7 +642,7 @@ const buyNow = () => {
 }
 
 .lightbox-arrow {
-  background: rgba(0, 0, 0, 0.6); /* خلفية داكنة للوضوح */
+  background: rgba(0, 134, 205, 0.6); /* خلفية داكنة للوضوح */
   border: none;
   border-radius: 50%;
   width: 48px;
@@ -660,7 +654,7 @@ const buyNow = () => {
   flex-shrink: 0;
   transition: background 0.2s;
 }
-.lightbox-arrow:hover:not(:disabled) { background: rgba(0, 0, 0, 0.8); }
+.lightbox-arrow:hover:not(:disabled) { background: rgba(0, 134, 205, 0.8); }
 .lightbox-arrow:disabled { opacity: 0.3; cursor: default; }
 
 /* Thumbnail dots strip */
@@ -684,7 +678,7 @@ const buyNow = () => {
   border: 2px solid transparent;
   opacity: 0.6;
   transition: all 0.2s;
-  background: rgba(0, 0, 0, 0.7); /* لون المكان اسود غامق */
+  background: rgba(0, 134, 205, 0.7);
   padding: 4px;
 }
 .lightbox-dot img {
@@ -697,7 +691,7 @@ const buyNow = () => {
 .lightbox-dot-active {
   border-color: white;
   opacity: 1;
-  background: rgba(0, 0, 0, 0.9);
+  background: rgba(0, 134, 205, 0.9);
 }
 
 /* Transition */
@@ -729,7 +723,7 @@ const buyNow = () => {
   bottom: 12px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 134, 205,0.5);
   color: white;
   border-radius: 50px;
   padding: 4px 12px;

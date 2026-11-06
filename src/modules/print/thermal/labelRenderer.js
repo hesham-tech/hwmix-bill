@@ -1,5 +1,4 @@
 import JsBarcode from 'jsbarcode';
-import { jsPDF } from 'jspdf';
 import { validateLabelOptions, labelGeometry } from './labelData';
 
 // Verified from TiMini v0.9's exported toprint_hprt_esc_zl1 profile.
@@ -102,6 +101,7 @@ export async function renderLabel(label, settings, companyName = '') {
 }
 
 export async function createLabelPdf(labels, settings, companyName) {
+  const { jsPDF } = await import('jspdf');
   const height = Number(settings.heightMm);
   const width = labelGeometry(settings).widthMm;
   const orientation = width > height ? 'landscape' : 'portrait';

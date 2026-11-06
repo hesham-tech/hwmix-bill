@@ -190,7 +190,7 @@ function triggerRestartTour() {
 
 /* تصميم الدرج الجانبي زجاجي فاخر (Glassmorphism) */
 .help-navigation-drawer {
-  background: rgba(18, 18, 24, 0.9) !important;
+  background: rgba(0, 113, 173, 0.95) !important;
   backdrop-filter: blur(12px) !important;
   -webkit-backdrop-filter: blur(12px) !important;
   border-right: 1px solid rgba(255, 255, 255, 0.08) !important;

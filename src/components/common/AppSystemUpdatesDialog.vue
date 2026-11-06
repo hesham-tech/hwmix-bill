@@ -279,7 +279,7 @@ defineExpose({ show });
 }
 
 .scrollable-area::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(0, 134, 205, 0.1);
   border-radius: 4px;
 }
 

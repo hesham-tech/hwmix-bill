@@ -26,7 +26,7 @@ export default defineConfig({
 
     // PWA Configuration
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       includeAssets: ['favicon.ico', 'robots.txt', 'pwa-192x192.png', 'pwa-512x512.png'],
       manifest: {
         name: 'HWNix Bill',
@@ -53,9 +53,20 @@ export default defineConfig({
       },
       workbox: {
         navigateFallback: null,
-        globPatterns: ['assets/main-*.js', 'assets/index-*.js', 'assets/*.css', '**/*.{ico,png,svg}'],
+        globPatterns: ['favicon.ico', 'pwa-192x192.png', 'pwa-512x512.png'],
+        // A release must change the worker even when icons and loader styles do not.
+        additionalManifestEntries: [{ url: 'loader.css', revision: packageJson.version }],
         globIgnores: ['**/vendor-*.js', '**/Dashboard-*.js', '**/InvoiceList-*.js'],
         runtimeCaching: [
+          {
+            urlPattern: ({ url, sameOrigin }) => sameOrigin && /\/assets\/.*\.(?:js|css|woff2?|png|svg)$/i.test(url.pathname),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'hwnix-requested-assets-v1',
+              expiration: { maxEntries: 250, maxAgeSeconds: 60 * 60 * 24 * 30 },
+              cacheableResponse: { statuses: [200] },
+            },
+          },
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
             handler: 'CacheFirst',
@@ -147,12 +158,12 @@ export default defineConfig({
         store: fileURLToPath(new URL('./store/index.html', import.meta.url)),
       },
       output: {
-        manualChunks: {
-          'vendor-vue': ['vue', 'vue-router', 'pinia'],
-          'vendor-vuetify': ['vuetify'],
-          'vendor-charts': ['apexcharts', 'vue3-apexcharts', 'chart.js', 'vue-chartjs'],
-          'vendor-utils': ['dayjs', 'axios', '@vueuse/core', '@vueuse/math'],
-          'vendor-print': ['jsbarcode', 'qrcode.vue', 'html2canvas'],
+        // Do not drag shared CommonJS helpers into an optional feature chunk.
+        onlyExplicitManualChunks: true,
+        manualChunks(id) {
+          // Rollup otherwise may put helpers used by dayjs in the chart chunk.
+          // Keep them independent and let actual import boundaries split features.
+          if (id.includes('commonjsHelpers')) return 'vendor-shared';
         },
       },
     },

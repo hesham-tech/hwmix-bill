@@ -13,7 +13,7 @@ class AuthService {
    * @param {Object} credentials - { email, password }
    */
   async login(credentials, options = {}) {
-    const { showToast = true, loading = true } = options;
+    const { showToast = true, loading = true, loadWorkspace = true } = options;
     const { useAuthStore } = await import('@/stores/auth');
     const { useUserStore } = await import('@/stores/user');
     const authStore = useAuthStore();
@@ -30,7 +30,8 @@ class AuthService {
       apiClient.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
 
       // Fetch complete user data with permissions
-      await userStore.fetchUser();
+      if (loadWorkspace) await userStore.fetchUser();
+      else userStore.clearUser();
 
       if (showToast) {
         notificationManager.success(response.data.message || 'تم تسجيل الدخول بنجاح');

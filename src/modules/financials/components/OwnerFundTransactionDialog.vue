@@ -144,6 +144,7 @@ const transactionTypes = [
 ];
 
 const form = reactive({
+  idempotency_key: null,
   type: null,
   user_id: null,
   cashbox_id: null,
@@ -183,6 +184,7 @@ const loadBoxes = async () => {
 
 watch(() => props.modelValue, (newVal) => {
   if (newVal) {
+    form.idempotency_key = crypto.randomUUID();
     form.type = null;
     form.user_id = null;
     form.cashbox_id = null;
@@ -201,10 +203,11 @@ const close = () => {
 };
 
 const handleSubmit = async () => {
-  if (!formRef.value) return;
+  if (!formRef.value || loading.value) return;
 
   const { valid } = await formRef.value.validate();
-  if (!valid) return;
+  if (!valid || loading.value) return;
+  form.idempotency_key ||= crypto.randomUUID();
 
   loading.value = true;
   try {

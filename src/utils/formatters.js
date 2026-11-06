@@ -85,13 +85,13 @@ export const formatTime = date => {
 /**
  * Format currency
  */
+const currencyFormatter = new Intl.NumberFormat('en-US', { style: 'decimal', maximumFractionDigits: 2 });
+const numberFormatters = new Map();
+
 export const formatCurrency = (amount, currency = 'EGP') => {
   if (amount === null || amount === undefined) return '-';
 
-  const formattedAmount = new Intl.NumberFormat('en-US', {
-    style: 'decimal',
-    maximumFractionDigits: 2,
-  }).format(amount);
+  const formattedAmount = currencyFormatter.format(amount);
 
   const symbol = currency === 'EGP' ? 'ج' : currency;
 
@@ -104,10 +104,10 @@ export const formatCurrency = (amount, currency = 'EGP') => {
 export const formatNumber = (number, decimals = 2) => {
   if (number === null || number === undefined) return '-';
 
-  const formattedNumber = new Intl.NumberFormat('en-US', {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  }).format(number);
+  if (!numberFormatters.has(decimals)) {
+    numberFormatters.set(decimals, new Intl.NumberFormat('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }));
+  }
+  const formattedNumber = numberFormatters.get(decimals).format(number);
 
   return `\u200E${formattedNumber}`;
 };

@@ -171,3 +171,21 @@ test('unavailable products disable buying and failed products have no purchase b
   await expect(page.getByText('تعذر تحميل بيانات المنتج')).toBeVisible()
   await expect(page.locator('.mobile-purchase-bar')).toHaveCount(0)
 })
+
+test('product starts with its sellable default option when the cheapest option is unavailable',async({page})=>{
+  await page.setViewportSize({width:390,height:844})
+  await page.route('**/api/v1/store/public/products/1',route=>route.fulfill({json:{data:{...product,price:200,default_variant_id:12,variants:[{...product.variants[0],available_stock:0},product.variants[1]]}}}))
+  await page.goto('/store/product/1')
+  const bar=page.locator('.mobile-purchase-bar')
+  await expect(bar.getByRole('button')).toBeEnabled()
+  await bar.getByRole('button').click()
+  await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('hwnix_store_cart')||'[]')[0]?.variantId)).toBe(12)
+})
+
+test('multi-option cards ask the customer to choose instead of silently adding an option',async({page})=>{
+  await page.route('**/api/v1/store/public/products?*',route=>route.fulfill({json:{data:{data:[product],meta:{current_page:1,last_page:1,total:1}}}}))
+  await page.goto('/store')
+  await page.getByRole('button',{name:'اختيار الخيارات',exact:true}).click()
+  await expect(page).toHaveURL(/\/store\/product\/1$/)
+  expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('hwnix_store_cart')||'[]'))).toEqual([])
+})

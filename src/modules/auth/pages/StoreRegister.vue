@@ -80,7 +80,7 @@
               <v-col cols="12" sm="6">
                 <div class="field-group">
                   <label class="field-label">البريد الإلكتروني</label>
-                  <AppInput v-model="form.email" placeholder="user@example.com" prepend-inner-icon="ri-mail-line" class="store-input" />
+                  <AppInput v-model="form.email" type="email" autocomplete="email" :rules="[required]" placeholder="user@example.com" prepend-inner-icon="ri-mail-line" class="store-input" />
                 </div>
               </v-col>
               <v-col cols="12">
@@ -123,14 +123,15 @@
 
           <div class="store-bottom-hint">
             لديك حساب بالفعل؟
-            <router-link to="/login" class="terms-link">تسجيل الدخول</router-link>
+            <router-link :to="{ path: '/login', query: { redirect: returnPath } }" class="terms-link">تسجيل الدخول</router-link>
           </div>
         </div>
       </div>
     </div>
     <RegistrationLegalDialog
       v-model="showLegalDialog"
-      @agree="form.agree = true"
+      scope="store"
+      @agree="onLegalAgreement"
       @disagree="form.agree = false"
     />
   </div>
@@ -138,7 +139,9 @@
 
 <script setup>
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
+import { safeStoreRedirect } from '@/modules/store/utils/checkoutSession';
 import { authService } from '@/api';
 import { required, phone as phoneValidator, strongPassword } from '@/utils/validators';
 import AppInput from '@/components/common/AppInput.vue';
@@ -147,15 +150,20 @@ import AppButton from '@/components/common/AppButton.vue';
 import RegistrationLegalDialog from '@/modules/auth/components/RegistrationLegalDialog.vue';
 
 const router = useRouter();
+const route = useRoute();
+const authStore = useAuthStore();
+const returnPath = safeStoreRedirect(route.query.redirect, '/store/my-orders');
+const legalVersionIds = ref([]);
+const onLegalAgreement = payload => { legalVersionIds.value = payload.version_ids; form.value.agree = true; };
 const formRef = ref(null);
 const loading = ref(false);
 const showLegalDialog = ref(false);
 const form = ref({ full_name: '', nickname: '', phone: '', email: '', password: '', agree: false });
 
 const perks = [
-  { icon: 'ri-gift-2-line', title: 'عروض حصرية', desc: 'وصول أول لأفضل الصفقات والتخفيضات' },
-  { icon: 'ri-shield-check-line', title: 'دفع آمن', desc: 'حماية كاملة لبياناتك وعملياتك' },
-  { icon: 'ri-refresh-line', title: 'استرجاع مضمون', desc: 'ضمان الاسترجاع خلال 30 يوماً' },
+  { icon: 'ri-shopping-bag-line', title: 'سجل مشترياتك', desc: 'اجمع طلباتك وتابع حالتها من حسابك' },
+  { icon: 'ri-shield-check-line', title: 'تفاصيل قبل الشراء', desc: 'راجع المنتجات والتكلفة والسياسات قبل تأكيد طلبك' },
+  { icon: 'ri-refresh-line', title: 'سياسات واضحة', desc: 'راجع سياسة مرتجع كل منتج قبل الشراء' },
 ];
 
 const handleRegister = async () => {
@@ -163,14 +171,17 @@ const handleRegister = async () => {
   if (!valid) return;
   loading.value = true;
   try {
-    await authService.registerCustomer({
+    const result = await authService.registerCustomer({
       full_name: form.value.full_name,
       nickname: form.value.nickname,
       phone: form.value.phone,
       email: form.value.email,
       password: form.value.password,
+      legal_accepted: form.value.agree,
+      legal_version_ids: legalVersionIds.value,
     });
-    router.push('/login?registered=1');
+    authStore.saveLoginData(result.data, true);
+    router.replace(returnPath);
   } catch (error) {
     // Handled by interceptor
   } finally {
@@ -180,7 +191,7 @@ const handleRegister = async () => {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+
 * {
   box-sizing: border-box;
 }

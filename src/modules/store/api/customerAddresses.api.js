@@ -1,5 +1,5 @@
 // خدمات API لإدارة عناوين الشحن الخاصة بالعميل
-import apiClient from '@/api/axios.config'
+import apiClient from '@/modules/store/api/storeClient'
 
 const BASE = '/store/addresses'
 

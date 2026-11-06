@@ -1,6 +1,8 @@
 <template>
   <v-app>
     <router-view />
+    <AppRouteLoading />
+    <AppUpdateNotice />
     <ErrorDialog />
     <CaptureOverlay />
     <AppPrinter />
@@ -34,6 +36,8 @@
 
 <script setup>
 import { ref, onMounted, watch, provide } from 'vue';
+import AppRouteLoading from '@/components/common/AppRouteLoading.vue';
+import AppUpdateNotice from '@/components/common/AppUpdateNotice.vue';
 import ErrorDialog from '@/modules/support/components/ErrorDialog.vue';
 import CaptureOverlay from '@/modules/capture/components/CaptureOverlay.vue';
 import AppPrinter from '@/modules/print/components/PrintDriver.vue';

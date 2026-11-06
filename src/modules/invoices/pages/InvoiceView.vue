@@ -20,7 +20,7 @@
       </div>
       <div class="d-flex gap-2 no-print flex-grow-1 flex-sm-grow-0 justify-end">
         <AppButton
-          v-if="['sale', 'sales', 'purchase', 'purchases'].includes(invoice?.invoice_type?.code) && invoice?.status !== 'draft'"
+          v-if="!invoice?.is_marketplace_managed && ['sale', 'sales', 'purchase', 'purchases'].includes(invoice?.invoice_type?.code) && invoice?.status !== 'draft'"
           color="secondary"
           :prepend-icon="!mobile ? 'ri-arrow-go-back-line' : false"
           :icon="mobile ? 'ri-arrow-go-back-line' : false"
@@ -30,7 +30,7 @@
           <span v-if="!mobile">إرجاع</span>
         </AppButton>
         <AppButton
-          v-if="can('invoices.update_all')"
+          v-if="invoice && !invoice.is_marketplace_managed && can('invoices.update_all')"
           color="primary"
           :prepend-icon="!mobile ? 'ri-edit-line' : false"
           :icon="mobile ? 'ri-edit-line' : false"
@@ -51,7 +51,7 @@
         </AppButton>
         <AppPrintShare v-if="invoice" type="invoice" :data="{ invoice }" label="طباعة الفاتورة" color="info" :size="mobile ? 'small' : 'default'" />
         <AppButton
-          v-if="can('invoices.delete_all')"
+          v-if="invoice && !invoice.is_marketplace_managed && can('invoices.delete_all')"
           color="error"
           :prepend-icon="!mobile ? 'ri-delete-bin-line' : false"
           :icon="mobile ? 'ri-delete-bin-line' : false"
@@ -73,7 +73,8 @@
         <!-- Invoice Details -->
         <v-col cols="12" md="8">
           <!-- Unified Customer Card -->
-          <FinancialCustomerCard v-if="invoice.customer" :customer="invoice.customer" :balance="invoice.customer.balance" class="mb-4 mb-sm-6" />
+          <v-card v-if="invoice.is_marketplace_managed" class="pa-5 mb-4"><h2 class="text-h6">فاتورة طلب متجر</h2><p>{{ invoice.customer?.name }} — {{ invoice.customer?.phone }}</p><p>التحصيل والعمولة والمرتجعات تُتابع من إدارة المتجر؛ هذه الفاتورة لا تنشئ حركة في خزينة الشركة أو مديونية على العميل.</p><v-btn to="/app/my-store" variant="text">طلبات المتجر ورصيد الشركة</v-btn></v-card>
+          <FinancialCustomerCard v-else-if="invoice.customer" :customer="invoice.customer" :balance="invoice.customer.balance" class="mb-4 mb-sm-6" />
 
           <!-- Items -->
           <AppCard title="عناصر الفاتورة" icon="ri-list-check-2" class="mb-4 mb-sm-6" padding="0" rounded="md">
@@ -353,7 +354,7 @@
             </div>
 
             <div class="pa-4 rounded-lg bg-grey-lighten-4 border-s-4 border-s-primary mb-4">
-              <div class="d-flex justify-space-between text-caption mb-1">
+              <div v-if="!invoice.is_marketplace_managed" class="d-flex justify-space-between text-caption mb-1">
                 <span class="text-grey">رصيد العميل قبل هذه الفاتورة:</span>
                 <span class="font-weight-bold" :class="parseFloat(invoice.previous_balance) < 0 ? 'text-error' : 'text-success'">
                   {{ formatCurrency(invoice.previous_balance) }}
@@ -377,7 +378,7 @@
 
               <v-divider class="my-3 opacity-25" />
 
-              <div class="d-flex justify-space-between text-body-1 font-weight-black">
+              <div v-if="!invoice.is_marketplace_managed" class="d-flex justify-space-between text-body-1 font-weight-black">
                 <span class="text-primary-darken-4">رصيد العميل النهائي:</span>
                 <span :class="parseFloat(invoice.user_balance_after || 0) < 0 ? 'text-error' : 'text-primary-darken-4'">
                   {{ formatCurrency(invoice.user_balance_after || 0) }}

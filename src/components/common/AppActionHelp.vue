@@ -101,7 +101,7 @@ const openDialog = () => {
 }
 
 .help-header-bg {
-  background: linear-gradient(135deg, rgb(var(--v-theme-primary)) 0%, #1e293b 100%);
+  background: linear-gradient(135deg, rgb(var(--v-theme-primary)) 0%, #0071AD 100%);
 }
 
 .help-point-item {

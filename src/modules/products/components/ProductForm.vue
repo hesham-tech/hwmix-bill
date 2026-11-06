@@ -1309,7 +1309,7 @@ onUnmounted(() => {
 .gap-3 { gap: 0.75rem; }
 
 .hover-bg:hover {
-  background-color: var(--v-theme-surface-variant);
+  background-color: rgb(var(--v-theme-surface-variant));
 }
 
 .min-height-28 {

@@ -166,6 +166,7 @@ const handleConfirm = () => {
 <style scoped>
 .app-dialog-card {
   border-radius: 4px !important;
+  max-height: calc(100dvh - 32px);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
 }
 
@@ -179,6 +180,7 @@ const handleConfirm = () => {
 
 .dialog-premium-header {
   position: relative;
+  flex-shrink: 0;
   border-bottom: 2px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -191,11 +193,13 @@ const handleConfirm = () => {
 }
 
 .title-text {
+  color: white !important;
   letter-spacing: -0.5px !important;
   line-height: 1.2 !important;
 }
 
 .subtitle-text {
+  color: white !important;
   font-weight: 500;
 }
 
@@ -213,11 +217,14 @@ const handleConfirm = () => {
 }
 
 .dialog-content {
-  background-color: #fff;
+  background-color: rgb(var(--v-theme-surface));
+  min-height: 0;
+  overscroll-behavior: contain;
 }
 
 .dialog-actions {
   border-top: 1px solid rgba(0, 0, 0, 0.05);
+  flex-shrink: 0;
 }
 
 .gap-3 {

@@ -98,7 +98,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, nextTick, useAttrs } from 'vue';
+import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick, useAttrs } from 'vue';
 import apiClient from '@/api/axios.config';
 import { debounce, highlightText } from '@/utils/helpers';
 import AppFieldHelp from '@/components/common/AppFieldHelp.vue';
@@ -279,20 +279,31 @@ const computedRules = computed(() => {
   return rules;
 });
 
+let requestId = 0;
+let controller;
+let disposed = false;
+const cancelSearch = () => { requestId++; controller?.abort(); internalLoading.value = false; };
+onBeforeUnmount(() => { disposed = true; cancelSearch(); });
 const fetchItems = debounce(async query => {
-  if (!normalizedEndpoint.value) return;
+  if (disposed || !normalizedEndpoint.value || (query || '') !== (computedSearch.value || '')) return;
+  const currentRequest = ++requestId;
+  controller?.abort();
+  controller = new AbortController();
 
   internalLoading.value = true;
   try {
     const response = await apiClient.get(normalizedEndpoint.value, {
       params: { search: query, per_page: 50 },
+      signal: controller.signal,
     });
+    if (currentRequest !== requestId || disposed) return;
     const resData = response.data?.data || response.data || [];
     fetchedItems.value = Array.isArray(resData) ? resData : Array.isArray(resData?.data) ? resData.data : [];
   } catch (error) {
+    if (currentRequest !== requestId || error?.code === 'ERR_CANCELED' || error?.name === 'AbortError') return;
     console.error(`Error fetching from ${props.apiEndpoint}:`, error);
   } finally {
-    internalLoading.value = false;
+    if (currentRequest === requestId) internalLoading.value = false;
   }
 }, 500);
 
@@ -364,6 +375,7 @@ const handleChange = value => {
 };
 
 const onSearchUpdate = (val) => {
+  cancelSearch();
   internalSearch.value = val;
   // Always emit to parent first
   emit('update:search', val);
@@ -378,6 +390,7 @@ const onSearchUpdate = (val) => {
 watch(
   () => props.apiEndpoint,
   newVal => {
+    cancelSearch();
     if (newVal) {
       fetchItems(computedSearch.value);
     } else {

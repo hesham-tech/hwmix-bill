@@ -35,6 +35,7 @@ const selectTheme = (themeNameValue) => {
       <v-btn
         v-bind="menuProps"
         icon
+        aria-label="تغيير المظهر"
         variant="text"
         color="primary"
         class="rounded-lg"

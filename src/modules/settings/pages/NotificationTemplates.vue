@@ -374,6 +374,7 @@ const formDataChannelOptions = [
 
 const placeholderFilterOptions = [
   { label: 'الكل', value: 'all' },
+  { label: 'المتجر', value: 'store' },
   { label: 'الفواتير', value: 'invoice' },
   { label: 'الدفعات', value: 'payment' },
   { label: 'المهام', value: 'task' },
@@ -385,6 +386,12 @@ const placeholderFilterOptions = [
 ];
 
 const allPlaceholders = [
+  {label:'رقم طلب المتجر',tag:'{order_number}',category:'store'},
+  {label:'إجمالي طلب المتجر',tag:'{order_total}',category:'store'},
+  {label:'العملة',tag:'{currency}',category:'store'},
+  {label:'رابط متابعة الطلب',tag:'{order_url}',category:'store'},
+  {label:'نوع تحديث المتجر',tag:'{event_name}',category:'store'},
+  {label:'اسم شركة البائع',tag:'{company_name}',category:'store'},
   { label: 'اسم العميل', tag: '{customer_name}', category: 'general' },
   { label: 'رقم هاتف العميل', tag: '{customer_phone}', category: 'general' },
   { label: 'بريد العميل', tag: '{customer_email}', category: 'general' },

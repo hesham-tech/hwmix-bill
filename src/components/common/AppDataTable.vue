@@ -800,7 +800,8 @@
 <script setup>
 import { computed, ref, reactive, nextTick, watch, useSlots, useAttrs, defineAsyncComponent } from 'vue';
 import { useRoute } from 'vue-router';
-import { useWindowSize, useElementSize, useLocalStorage } from '@vueuse/core';
+import { useWindowSize, useLocalStorage } from '@vueuse/core';
+import { useObservedHeight } from '@/composables/useObservedHeight';
 import { useDisplay } from 'vuetify';
 import { usePermissions } from '@/composables/usePermissions';
 import AppButton from '@/components/common/AppButton.vue';
@@ -936,14 +937,17 @@ const selectedModel = computed({
 // --- Elements Measurement ---
 const tableRootRef = ref(null);
 // Lazy internal size measurement
-const { height: internalHeaderHeight } = useElementSize(
+const internalHeaderHeight = useObservedHeight(
   computed(() => {
     const el = tableRootRef.value?.$el || tableRootRef.value;
     return el?.querySelector?.('.v-card-title');
   })
 );
 const paginationRef = ref(null);
-const { height: internalPaginationHeight } = useElementSize(paginationRef);
+const internalPaginationHeight = useObservedHeight(paginationRef);
+const navbarHeight = useObservedHeight(() => document.querySelector('.v-app-bar'), { box: 'border-box' });
+const breadcrumbsHeight = useObservedHeight(() => document.querySelector('.sticky-breadcrumbs-container'), { box: 'border-box' });
+const pageHeaderHeight = useObservedHeight(() => document.querySelector('.app-page-header'), { box: 'border-box' });
 
 const calculatedTableHeight = computed(() => {
   // Manual override takes precedence
@@ -952,14 +956,9 @@ const calculatedTableHeight = computed(() => {
   // If not full height and no manual height, return undefined to allow natural expansion
   if (!props.fullHeight) return undefined;
 
-  // Find environment elements for dynamic calculation
-  const navbarEl = document.querySelector('.v-app-bar');
-  const breadcrumbsEl = document.querySelector('.sticky-breadcrumbs-container');
-  const pageHeaderEl = document.querySelector('.app-page-header');
-
-  const navbarH = navbarEl?.offsetHeight || 0;
-  const breadcrumbsH = breadcrumbsEl?.offsetHeight || 0;
-  const pageHeaderH = pageHeaderEl?.offsetHeight || 0;
+  const navbarH = navbarHeight.value;
+  const breadcrumbsH = breadcrumbsHeight.value;
+  const pageHeaderH = pageHeaderHeight.value;
   const tableHeaderH = internalHeaderHeight.value || 48;
   const paginationH = props.hidePagination ? 0 : internalPaginationHeight.value || 56;
 
@@ -1607,7 +1606,7 @@ watch(viewMode, (newVal, oldVal) => {
 .search-input-mini :deep(.v-label.v-field-label--floating) {
   top: 0px !important;
   transform: translateY(-50%) scale(0.8) !important;
-  background-color: var(--v-theme-surface) !important;
+  background-color: rgb(var(--v-theme-surface)) !important;
   padding: 0 4px !important;
 }
 
@@ -1700,7 +1699,7 @@ watch(viewMode, (newVal, oldVal) => {
 /* Hidden (faded) column in customization mode */
 :deep(.hidden-column-faded) {
   opacity: 0.35 !important;
-  background-color: rgba(0, 0, 0, 0.03) !important;
+  background-color: rgba(var(--v-theme-interaction), 0.06) !important;
 }
 
 /* The column actively being DRAGGED — header */

@@ -474,13 +474,13 @@ const goToForgotPassword = () => {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+
 * { box-sizing: border-box; }
 
 .saas-register-wrapper {
   font-family: 'Cairo', sans-serif;
   min-height: 100vh;
-  background: #060b18;
+  background: #0071AD;
   position: relative; overflow: hidden;
   display: flex; align-items: center; justify-content: center;
   padding: 10px;

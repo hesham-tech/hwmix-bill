@@ -85,6 +85,7 @@ export const useUserStore = defineStore('user', () => {
              p.startsWith('subscriptions.') ||
              p.startsWith('plans.') ||
              p.startsWith('backups.') ||
+               (p.startsWith('store.') && !p.startsWith('store.vendor.')) ||
              p.startsWith('error_reports.');
     };
 

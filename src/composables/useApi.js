@@ -31,9 +31,10 @@ export function useApi(baseUrl) {
     error.value = null;
 
     try {
-      const response = await apiClient.get(resource, { params });
+      const response = await apiClient.get(resource, { params, signal: options.signal });
       return response.data;
     } catch (err) {
+      if (err?.code === 'ERR_CANCELED' || err?.name === 'AbortError') throw err;
       error.value = extractErrorMessage(err, 'حدث خطأ في تحميل البيانات');
 
       if (showError) {

@@ -200,7 +200,7 @@ const sortOptions = [
 
 const hasActiveFilters = computed(() => {
   const f = storeProductsStore.filters
-  return f.search || f.category_id || f.brand_id || f.in_stock
+  return f.search || f.category_id || f.brand_id || f.in_stock || f.min_price != null || f.max_price != null
 })
 
 const applyFilters = (newFilters) => {
@@ -218,7 +218,8 @@ const clearFilter = (key) => {
 
 const clearAllFilters = () => {
   storeProductsStore.clearFilters()
-  if (route.query.q) {
+  sortBy.value = 'newest'
+  if (Object.keys(route.query).length) {
     router.replace({ path: '/store' })
   }
 }

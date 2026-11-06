@@ -1,6 +1,7 @@
 import axios from 'axios';
 import notificationManager from '@/services/notificationManager';
 import router from '@/router';
+import { createRequestCache } from './requestCache';
 
 // Preventing multiple 401 notices
 let last401Time = 0;
@@ -32,6 +33,11 @@ const apiClient = axios.create({
   },
   withCredentials: false,
 });
+
+const requestCache = createRequestCache(axios.getAdapter(apiClient.defaults.adapter));
+apiClient.defaults.adapter = requestCache.adapter;
+export const clearRequestCache = requestCache.clear;
+if (typeof window !== 'undefined') window.addEventListener('focus', clearRequestCache);
 
 /**
  * Request Interceptor
@@ -97,7 +103,7 @@ apiClient.interceptors.response.use(
   async response => {
     // Global User State Sync (Balance, etc.)
     // We check if the response contains the 'auth' context we added in the backend helper
-    if (response.data?.auth?.user) {
+    if (!response.config?.referenceCacheHit && response.data?.auth?.user) {
       try {
         const { useUserStore } = await import('@/stores/user');
         const userStore = useUserStore();
@@ -117,6 +123,10 @@ apiClient.interceptors.response.use(
     if (axios.isCancel(error)) {
       return Promise.reject(error);
     }
+    // Store screens render their own retry/error state. Session expiry still uses central cleanup.
+    if (error.config?.handleErrorsLocally && error?.response?.status !== 401) {
+      return Promise.reject(error);
+    }
 
     // 503: Service Unavailable
     if (error?.response?.status === 503) {
@@ -130,6 +140,10 @@ apiClient.interceptors.response.use(
 
     // 401: Unauthorized - Token expired
     if (error?.response?.status === 401 || error?.response?.data?.message === 'Unauthenticated.') {
+        if (/(^|\/)login(?:\?|$)/.test(error.config?.url || '')) {
+          notificationManager.error(error.response?.data?.message || 'بيانات تسجيل الدخول غير صحيحة.');
+          return Promise.reject(error);
+        }
       // Avoid spamming notifications
       const now = Date.now();
       if (now - last401Time > DEBOUNCE_TIME) {
@@ -147,7 +161,7 @@ apiClient.interceptors.response.use(
         .then(m => {
           const authStore = m.useStore ? m.useStore() : m.useAuthStore();
           if (authStore && authStore.logout) {
-            authStore.logout();
+            authStore.logout({ revoke: false, preserveCart: router.currentRoute.value.path.startsWith('/store'), sessionExpired: true });
           }
         })
         .catch(() => {

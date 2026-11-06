@@ -171,7 +171,7 @@
         max-width="800"
         hide-actions
       >
-        <UserForm ref="userFormRef" v-model="formData" :is-edit-mode="isEditMode" hide-actions @save="handleSave" @cancel="close" />
+        <UserForm v-if="isOpen" ref="userFormRef" v-model="formData" :is-edit-mode="isEditMode" hide-actions @save="handleSave" @cancel="close" />
 
         <template #actions>
           <AppButton variant="tonal" color="grey" @click="close">إلغاء</AppButton>
@@ -286,14 +286,14 @@
  * مكون عرض وإدارة قائمة العملاء.
  * يعرض قائمة العملاء وحالاتهم وأرصدتهم، ويدعم عمليات الإيداع، السحب، التحويل، وإدارة الدفعات.
  */
-import { ref, computed, watch } from 'vue';
+import { defineAsyncComponent, ref, computed, watch } from 'vue';
 import { useDisplay } from 'vuetify';
 import { usePermissions } from '@/composables/usePermissions';
-import { useDataTable } from '@/composables/useDataTable';
+import { useCustomerTable } from '../composables/useCustomerTable';
 import { userService } from '@/api';
 import { useUser } from '../composables/useUser';
-import UserForm from '../components/UserForm.vue';
-import UserPermissionManager from '../components/UserPermissionManager.vue';
+const UserForm = defineAsyncComponent(() => import('../components/UserForm.vue'));
+const UserPermissionManager = defineAsyncComponent(() => import('../components/UserPermissionManager.vue'));
 import UserCompanyManager from '../components/UserCompanyManager.vue';
 import BalanceOperations from '@/modules/financials/components/BalanceOperations.vue';
 import { AppDataTable, AppButton, AppDialog, AppConfirmDialog, AppUserBalanceProfile, AppBalanceDisplay } from '@/components';
@@ -362,45 +362,7 @@ const handleCreate = () => {
   formData.value.roles = ['customer'];
 };
 
-// API fetch function
-const fetchUsersApi = async params => {
-  return await userService.getCustomers(params, { showToast: false });
-};
-
-// DataTable Logic
-const {
-  items: users,
-  loading,
-  currentPage: page,
-  perPage: itemsPerPage,
-  total: totalItems,
-  lastPage,
-  search: searchText,
-  filters,
-  sortByVuetify,
-  changeSort,
-  applyFilters,
-  fetchData,
-  refresh,
-} = useDataTable(fetchUsersApi, {
-  syncWithUrl: true,
-  initialSortBy: 'created_at',
-  initialSortOrder: 'desc',
-  immediate: true,
-});
-
-const onTableOptionsUpdate = options => {
-  changeSort(options);
-};
-
-// Computed for company visibility filter
-const currentCompanyOnly = computed({
-  get: () => !filters.value?.global,
-  set: val => {
-    filters.value.global = !val;
-    applyFilters(filters.value);
-  },
-});
+const { users, loading, page, itemsPerPage, totalItems, lastPage, searchText, filters, sortByVuetify, changeSort, applyFilters, fetchData, refresh, onTableOptionsUpdate, currentCompanyOnly } = useCustomerTable();
 
 // Switch: show users with no active company (unaffiliated)
 const showUnaffiliated = ref(false);

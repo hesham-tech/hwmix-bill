@@ -1,5 +1,5 @@
 // خدمات API لجلب منتجات المتجر والفئات والبائعين
-import apiClient from '@/api/axios.config'
+import apiClient from '@/modules/store/api/storeClient'
 
 const BASE = '/store/public'
 

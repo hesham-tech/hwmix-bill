@@ -168,7 +168,7 @@ watch(() => route.params.key, (newKey) => {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+
 
 .public-legal-layout {
   font-family: 'Cairo', sans-serif;

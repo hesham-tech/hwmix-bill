@@ -1,6 +1,16 @@
 import { PERMISSIONS } from './permissions';
 
 export default [
+  {
+    title: 'المتجر الإلكتروني',
+    icon: 'ri-store-2-line',
+    permission: [PERMISSIONS.ADMIN_SUPER, PERMISSIONS.ADMIN_COMPANY, PERMISSIONS.STORE_SETTINGS_MANAGE, PERMISSIONS.STORE_ORDERS_MANAGE, PERMISSIONS.STORE_FINANCE_MANAGE, PERMISSIONS.STORE_VENDOR_ORDERS_VIEW,PERMISSIONS.STORE_VENDOR_FINANCE_VIEW],
+    children: [
+      { title: 'إدارة المتجر', to: '/app/store-operations', icon: 'ri-store-2-line', permission: [PERMISSIONS.ADMIN_SUPER, PERMISSIONS.STORE_SETTINGS_MANAGE, PERMISSIONS.STORE_ORDERS_MANAGE, PERMISSIONS.STORE_FINANCE_MANAGE] },
+      { title: 'عرض المتجر', to: '/store', icon: 'ri-external-link-line', permission: null },
+      { title: 'متجر شركتي', to:'/app/my-store',icon:'ri-shopping-bag-line',permission:[PERMISSIONS.STORE_VENDOR_ORDERS_VIEW,PERMISSIONS.STORE_VENDOR_FINANCE_VIEW] },
+    ],
+  },
   // ==================== 1. الرئيسية والإدارة (Workspace) ====================
   {
     title: 'لوحة التحكم',

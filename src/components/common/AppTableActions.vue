@@ -18,7 +18,7 @@
     <!-- Edit Action -->
     <v-list-item
       v-if="
-        canEdit &&
+        canEdit && !item.is_marketplace_managed &&
         (!permissionModule || canAny(`${permissionModule}.update_all`, `${permissionModule}.update_children`, `${permissionModule}.update_self`))
       "
       prepend-icon="ri-edit-line"
@@ -33,7 +33,7 @@
     <!-- Delete Action -->
     <template
       v-if="
-        canDelete &&
+        canDelete && !item.is_marketplace_managed &&
         (!permissionModule || canAny(`${permissionModule}.delete_all`, `${permissionModule}.delete_children`, `${permissionModule}.delete_self`))
       "
     >

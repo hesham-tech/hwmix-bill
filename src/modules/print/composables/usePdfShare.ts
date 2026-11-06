@@ -1,6 +1,4 @@
 import { ref } from 'vue';
-import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf';
 import { printService } from '../core/PrintService';
 
 /**
@@ -19,6 +17,9 @@ export function usePdfShare() {
     async function generatePdf(type, data, options = {}) {
         isGenerating.value = true;
         try {
+            const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+                import('html2canvas'), import('jspdf'),
+            ]);
             // 1. Get raw HTML and CSS from PrintService
             // We force 'a4' format as requested
             const printData = await printService.getPrintData(type, data, {

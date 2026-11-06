@@ -1,4 +1,4 @@
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onScopeDispose } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 
 /**
@@ -27,6 +27,9 @@ export function useDataTable(fetchFunction, options = {}) {
   // ✅ الحالة (State)
   const items = ref([]);
   const loading = ref(false);
+  let requestId = 0;
+  let controller;
+  onScopeDispose(() => { requestId++; controller?.abort(); });
   const error = ref(null);
 
   // Pagination safety
@@ -93,7 +96,10 @@ export function useDataTable(fetchFunction, options = {}) {
    */
   const fetchData = async (fetchOptions = {}) => {
     const { append = false } = fetchOptions;
-    if (loading.value && !append) return;
+    if (loading.value && append) return;
+    const currentRequest = ++requestId;
+    controller?.abort();
+    controller = new AbortController();
 
     loading.value = true;
     error.value = null;
@@ -111,7 +117,8 @@ export function useDataTable(fetchFunction, options = {}) {
         if (value !== null && value !== undefined && value !== '') params[key] = value;
       });
 
-      const response = await fetchFunction(params);
+      const response = await fetchFunction(params, { signal: controller.signal });
+      if (currentRequest !== requestId) return;
       let newData = response.data || [];
 
       // [FIX] Global Deduplication based on ID to prevent "Duplicate keys" warnings
@@ -145,10 +152,11 @@ export function useDataTable(fetchFunction, options = {}) {
         currentPage.value = responsePage;
       }
     } catch (err) {
+      if (currentRequest !== requestId || err?.code === 'ERR_CANCELED' || err?.name === 'AbortError') return;
       error.value = err.message || 'حدث خطأ في تحميل البيانات';
       console.error('DataTable fetch error:', err);
     } finally {
-      loading.value = false;
+      if (currentRequest === requestId) loading.value = false;
     }
   };
 

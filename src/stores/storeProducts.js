@@ -6,6 +6,7 @@ export const useStoreProductsStore = defineStore('storeProducts', () => {
   const products = ref([])
   const loading = ref(false)
   const error = ref(null)
+  let requestVersion = 0
 
   const pagination = ref({
     currentPage: 1,
@@ -23,6 +24,7 @@ export const useStoreProductsStore = defineStore('storeProducts', () => {
   })
 
   async function fetchProducts(page = 1) {
+    const version = ++requestVersion
     loading.value = true
     error.value = null
     try {
@@ -31,6 +33,7 @@ export const useStoreProductsStore = defineStore('storeProducts', () => {
         per_page: pagination.value.perPage,
         ...filters.value
       })
+      if (version !== requestVersion) return
       const resData = response.data?.data;
       if (resData && resData.data && Array.isArray(resData.data)) {
         products.value = resData.data;
@@ -46,10 +49,11 @@ export const useStoreProductsStore = defineStore('storeProducts', () => {
         products.value = [];
       }
     } catch (err) {
+      if (version !== requestVersion) return
       error.value = err.response?.data?.message || err.message || 'حدث خطأ أثناء جلب المنتجات'
       products.value = []
     } finally {
-      loading.value = false
+      if (version === requestVersion) loading.value = false
     }
   }
 
@@ -60,6 +64,10 @@ export const useStoreProductsStore = defineStore('storeProducts', () => {
 
   function clearFilters() {
     filters.value = {
+      brand_id: null,
+      in_stock: false,
+      vendor_id: null,
+      sort: 'newest',
       category_id: null,
       search: '',
       company_id: null,

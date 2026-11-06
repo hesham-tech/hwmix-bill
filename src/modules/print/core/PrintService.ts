@@ -31,6 +31,7 @@ class PrintService implements IPrintService {
 
         try {
             // Get template from registry (with lazy loading support)
+            await import('../templates');
             const template = await templateRegistry.get(type);
 
             if (!template) {
@@ -112,6 +113,7 @@ class PrintService implements IPrintService {
         data: T,
         options: PrintOptions = {}
     ): Promise<PrintData> {
+        await import('../templates');
         const template = await templateRegistry.get(type);
         if (!template) {
             throw new Error(`قالب الطباعة "${type}" غير موجود.`);

@@ -45,12 +45,12 @@ export function useBackgroundRemoval() {
       
       const resultBlob = await imglyRemoveBg(input, {
         publicPath: resolvedPath,
-        model:  options.model   ?? 'medium',
+        model: ['small', 'medium'].includes(options.model) ? options.model : 'medium',
         device: 'gpu',
         proxyToWorker: true,
         output: {
           format:  'image/png',
-          quality: options.quality ?? 0.9,
+          quality: typeof options.quality === 'number' && Number.isFinite(options.quality) ? Math.max(0, Math.min(1, options.quality)) : 0.9,
         },
         progress: (key, current, total) => {
           if (total > 0) {

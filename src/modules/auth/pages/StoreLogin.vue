@@ -106,7 +106,7 @@
 
           <div class="register-cta">
             <span class="register-cta-text">ليس لديك حساب؟</span>
-            <router-link to="/register" class="register-cta-link">إنشاء حساب مجاني</router-link>
+            <router-link :to="{ path: '/register', query: { redirect: safeStoreRedirect(route.query.redirect, '/store/my-orders') } }" class="register-cta-link">إنشاء حساب مجاني</router-link>
           </div>
 
           <!-- Staff login hint -->
@@ -130,6 +130,7 @@ import { required } from '@/utils/validators';
 import AppInput from '@/components/common/AppInput.vue';
 import AppPasswordInput from '@/components/common/AppPasswordInput.vue';
 import AppButton from '@/components/common/AppButton.vue';
+import { safeStoreRedirect } from '@/modules/store/utils/checkoutSession';
 
 const router = useRouter();
 const route = useRoute();
@@ -140,9 +141,9 @@ const justRegistered = computed(() => !!route.query.registered);
 const form = ref({ login: '', password: '', remember: true });
 
 const badges = [
-  { icon: 'ri-shield-check-line', text: 'دفع آمن 100%' },
-  { icon: 'ri-truck-line', text: 'توصيل سريع' },
-  { icon: 'ri-customer-service-2-line', text: 'دعم 24/7' },
+  { icon: 'ri-shield-check-line', text: 'تفاصيل التكلفة قبل الشراء' },
+  { icon: 'ri-truck-line', text: 'شحن حسب عنوانك والبائع' },
+  { icon: 'ri-customer-service-2-line', text: 'متابعة طلباتك من حسابك' },
 ];
 
 const handleLogin = async () => {
@@ -152,16 +153,8 @@ const handleLogin = async () => {
   try {
     const { useUserStore } = await import('@/stores/user');
     const userStore = useUserStore();
-    await authService.login(form.value);
-    await userStore.fetchUser();
-    const redirectPath = route.query.redirect;
-    if (redirectPath) {
-      router.push(redirectPath);
-    } else if (userStore.isStaff) {
-      router.push('/app/admin/dashboard');
-    } else {
-      router.push('/app/portal');
-    }
+    await authService.login(form.value, { loadWorkspace: false });
+    router.replace(safeStoreRedirect(route.query.redirect, '/store/my-orders'));
   } catch (error) {
     // Handled by interceptor
   } finally {
@@ -171,7 +164,7 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+
 
 * {
   box-sizing: border-box;

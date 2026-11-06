@@ -722,7 +722,7 @@ onMounted(() => fetchAttributes());
   position: relative;
 }
 .vm-tab-btn:hover {
-  background: rgba(0,0,0,0.04);
+  background: rgba(0, 134, 205,0.04);
   color: #212529;
 }
 .vm-tab-btn--active {

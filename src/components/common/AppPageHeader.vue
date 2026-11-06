@@ -1,6 +1,6 @@
 <template>
   <header class="app-page-header" :class="{ 'sticky-header': sticky }" :style="sticky ? { top: stickyTop + 'px' } : {}">
-    <v-card flat color="transparent pa-2">
+    <v-card flat color="transparent" class="pa-2">
       <v-row align="center" no-gutters>
         <!-- Prepend Content (Icon or custom) -->
         <v-col v-if="$slots.prepend || icon" cols="auto" class="">
@@ -88,7 +88,7 @@ const { mobile } = useDisplay();
 
 <style scoped>
 .app-page-header {
-  background-color: var(--v-theme-background);
+  background-color: rgb(var(--v-theme-surface));
   transition: all 0.3s ease;
   width: 100%;
 }

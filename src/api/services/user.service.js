@@ -29,7 +29,7 @@ class UserService extends BaseService {
   async getCustomers(params = {}, options = {}) {
     const { showToast = false } = options;
     try {
-      const response = await apiClient.get('users/customers', { params });
+      const response = await apiClient.get('users/customers', { params, signal: options.signal });
       return this.handleSuccess(response, showToast);
     } catch (error) {
       return this.handleError(error, showToast);

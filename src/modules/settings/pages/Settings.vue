@@ -56,6 +56,9 @@ const settingCards = computed(() => {
       to: '/app/profile',
     },
   ];
+  if (canAny(PERMISSIONS.ADMIN_SUPER, PERMISSIONS.STORE_SETTINGS_MANAGE, PERMISSIONS.STORE_ORDERS_MANAGE, PERMISSIONS.STORE_FINANCE_MANAGE)) {
+    cards.push({title:'إدارة المتجر',description:'الطلبات والشحن وأرصدة البائعين وسياسات المتجر',icon:'ri-store-2-line',color:'primary',to:'/app/store-operations'});
+  }
 
   if (canAny(PERMISSIONS.COMPANIES_VIEW_ALL, PERMISSIONS.COMPANIES_VIEW_CHILDREN, PERMISSIONS.COMPANIES_VIEW_SELF)) {
     cards.push({

@@ -10,9 +10,9 @@ export const colors = {
   primaryLight: '#42A5F5',
 
   // Secondary Colors
-  secondary: '#424242',
-  secondaryDark: '#212121',
-  secondaryLight: '#757575',
+  secondary: '#397DA5',
+  secondaryDark: '#286B94',
+  secondaryLight: '#BAE6FD',
 
   // Status Colors
   success: '#4CAF50',
@@ -53,9 +53,9 @@ export const colors = {
 
   // Background Colors
   background: '#F5F5F5',
-  backgroundDark: '#121212',
+  backgroundDark: '#123F62',
   surface: '#FFFFFF',
-  surfaceDark: '#1E1E1E',
+  surfaceDark: '#194D73',
 
   // Text Colors
   text: {

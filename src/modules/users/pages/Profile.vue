@@ -579,7 +579,7 @@ onMounted(() => {
   height: 4px;
   flex: 1;
   border-radius: 2px;
-  background: rgba(0, 0, 0, 0.06);
+  background: rgba(0, 134, 205, 0.06);
   transition: background 0.3s ease;
 }
 .strength-bar--active.strength-bar--error { background: #f87171; }

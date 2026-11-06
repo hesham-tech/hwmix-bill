@@ -62,11 +62,10 @@
   </v-dialog>
 </template>
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { defineAsyncComponent, ref, computed, watch } from 'vue';
 import { useUserStore } from '@/stores/user';
-import ThermalLabelOptions from './ThermalLabelOptions.vue';
+const ThermalLabelOptions = defineAsyncComponent(() => import('./ThermalLabelOptions.vue'));
 import { loadLabelSettings } from '../thermal/timiniClient';
-import { printTemplateLabels } from '../templates-editor/printTemplateLabels';
 import { labelError } from '../templates-editor/labelTemplate.service';
 import notificationManager from '@/services/notificationManager';
 const user = useUserStore(),
@@ -113,6 +112,7 @@ async function print() {
   printing.value = true;
   error.value = '';
   try {
+    const { printTemplateLabels } = await import('../templates-editor/printTemplateLabels');
     const message = await printTemplateLabels(items.value, settings.value);
     notificationManager.success(message);
     show.value = false;

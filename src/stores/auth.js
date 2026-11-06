@@ -16,6 +16,9 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = userData;
 
     const storage = remember ? localStorage : sessionStorage;
+    const previousStorage = remember ? sessionStorage : localStorage;
+    previousStorage.removeItem('token');
+    previousStorage.removeItem('user');
     storage.setItem('token', tokenData);
     storage.setItem('user', JSON.stringify(userData));
   }
@@ -35,7 +38,7 @@ export const useAuthStore = defineStore('auth', () => {
     const redirectPath = isStaff ? '/saas/login' : '/login';
 
     // 2. Invalidate token on the server if present
-    if (token.value) {
+    if (token.value && options.revoke !== false) {
       try {
         const { default: apiClient } = await import('@/api/axios.config');
         await apiClient.post('logout');
@@ -62,12 +65,12 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const { useCartStore } = await import('@/stores/cart');
       const { useWishlistStore } = await import('@/stores/wishlist');
-      useCartStore().clearCart();
+      if (!options.preserveCart) useCartStore().clearCart();
       useWishlistStore().clear();
     } catch (e) {
       console.warn('Could not clear cart/wishlist stores', e);
     }
-    localStorage.removeItem('hwnix_store_cart');
+    if (!options.preserveCart) localStorage.removeItem('hwnix_store_cart');
     localStorage.removeItem('hwnix_store_wishlist');
 
     // 6. Show toast once

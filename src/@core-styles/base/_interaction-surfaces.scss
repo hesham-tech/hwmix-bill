@@ -1,0 +1,37 @@
+// Interaction layers must not inherit a dark text color as their background.
+// Keep Vuetify's state opacities, disabled behavior, and semantic button colors.
+body .v-btn__overlay,
+body .v-card__overlay,
+body .v-list-item__overlay,
+body .v-chip__overlay,
+body .v-btn--variant-tonal > .v-btn__underlay,
+body .v-card--variant-tonal > .v-card__underlay,
+body .v-list-item--variant-tonal > .v-list-item__underlay,
+body .v-chip--variant-tonal > .v-chip__underlay,
+body .v-field--variant-filled > .v-field__overlay,
+body .v-expansion-panel-title__overlay {
+  background-color: rgb(var(--v-theme-interaction, 0, 134, 205));
+}
+
+.v-tooltip > .v-overlay__content {
+  color: #075985;
+}
+
+// Legacy utility classes are still used by dialogs and print/share controls.
+// Remap their UI surfaces without changing dark text or printed documents.
+@media screen {
+  :is(.v-application, .v-overlay-container) :is(
+    .bg-black,
+    .bg-grey-600,
+    .bg-grey-700,
+    .bg-grey-800,
+    .bg-grey-900,
+    .bg-grey-darken-1,
+    .bg-grey-darken-2,
+    .bg-grey-darken-3,
+    .bg-grey-darken-4
+  ) {
+    background-color: #E0F2FE !important;
+    color: #075985 !important;
+  }
+}

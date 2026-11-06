@@ -373,7 +373,7 @@ const initialsFontSize = computed(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 134, 205, 0.4);
   opacity: 0;
   transition: all 0.3s ease;
   z-index: 100;
@@ -424,7 +424,7 @@ const initialsFontSize = computed(() => {
   bottom: 0px;
   left: 0;
   right: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+  background: linear-gradient(to top, rgba(0, 134, 205, 0.8), transparent);
   padding: 60px 20px 20px !important;
   z-index: 110;
 }

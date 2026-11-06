@@ -380,6 +380,9 @@
 
             <v-divider class="mb-6" />
 
+            <h3 class="text-subtitle-1 font-weight-bold mb-4 text-primary">سياسة المتجر لهذه الباقة</h3>
+            <StorePolicyFields v-model="featuresData.store_policy" inherit />
+            <v-alert type="info" variant="tonal" class="mb-5">تغيير الباقة يحافظ على أرصدة الشركات واستثناءاتها، ويطلب مراجعة الاستثناءات القائمة قبل قبول طلبات جديدة.</v-alert>
             <h3 class="text-subtitle-1 font-weight-bold mb-4 text-primary">الحدود والقيود العددية (Numeric Limits)</h3>
             <p class="text-caption text-grey mb-4">* ملاحظة: اكتب القيمة (-1) أو اترك الحقل فارغاً لجعل الحد غير محدود</p>
             <v-row>
@@ -658,6 +661,7 @@ import notificationManager from '@/services/notificationManager';
 import { usePermissions } from '@/composables/usePermissions';
 import { PERMISSIONS } from '@/config/permissions';
 import AppDataTable from '@/components/common/AppDataTable.vue';
+import StorePolicyFields from '@/modules/store/components/StorePolicyFields.vue';
 
 const router = useRouter();
 const { can, canAny } = usePermissions();
@@ -708,6 +712,7 @@ const formData = ref({
 });
 
 const featuresData = ref({
+  store_policy: {},
   payment_gateways: false,
   custom_watermark: false,
   store_publish: false,
@@ -833,6 +838,7 @@ const handleCreate = () => {
     pricing_tiers: [],
   };
   featuresData.value = {
+    store_policy: {},
     payment_gateways: false,
     custom_watermark: false,
     store_publish: false,
@@ -880,7 +886,10 @@ const handleEdit = item => {
     }
   }
 
+  feats = { ...feats, ...(feats.flags || {}) };
   featuresData.value = {
+    ...feats,
+    store_policy: feats.store_policy || {},
     payment_gateways: !!feats.payment_gateways,
     custom_watermark: !!feats.custom_watermark,
     store_publish: !!feats.store_publish,
@@ -912,6 +921,9 @@ const handleSave = async () => {
   saving.value = true;
 
   const finalFeatures = {
+    ...featuresData.value,
+    flags: {...(featuresData.value.flags || {}), ...Object.fromEntries(['payment_gateways','custom_watermark','store_publish','export_import','mail_settings','warehouses_multi','installment_system','activity_logs','reports_advanced'].map(key=>[key,!!featuresData.value[key]]))},
+    store_policy: Object.fromEntries(Object.entries(featuresData.value.store_policy || {}).filter(([,value]) => value != null)),
     payment_gateways: !!featuresData.value.payment_gateways,
     custom_watermark: !!featuresData.value.custom_watermark,
     store_publish: !!featuresData.value.store_publish,

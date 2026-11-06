@@ -1,6 +1,12 @@
 import { PERMISSIONS } from '@/config/permissions';
 
 export default [
+  { path:'my-store',name:'my-store',component:()=>import('@/modules/store/pages/VendorStore.vue'),meta:{title:'متجر شركتي',permission:[PERMISSIONS.STORE_VENDOR_ORDERS_VIEW,PERMISSIONS.STORE_VENDOR_FINANCE_VIEW]} },
+  {
+    path: 'store-operations', name: 'store-operations',
+    component: () => import('@/modules/settings/pages/StoreOperations.vue'),
+    meta: { title: 'إدارة المتجر', permission: [PERMISSIONS.ADMIN_SUPER, PERMISSIONS.STORE_SETTINGS_MANAGE, PERMISSIONS.STORE_ORDERS_MANAGE, PERMISSIONS.STORE_FINANCE_MANAGE] },
+  },
   {
     path: 'categories',
     name: 'categories',

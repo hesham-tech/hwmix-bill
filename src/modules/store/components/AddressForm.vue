@@ -1,116 +1,20 @@
 <template>
-  <v-form ref="form" @submit.prevent="submit" v-model="isValid">
-    <v-row>
-      <v-col cols="12" md="6">
-        <v-text-field
-          v-model="address.first_name"
-          label="الاسم الأول"
-          :rules="[v => !!v || 'مطلوب']"
-          variant="outlined"
-          density="comfortable"
-        ></v-text-field>
-      </v-col>
-      <v-col cols="12" md="6">
-        <v-text-field
-          v-model="address.last_name"
-          label="اسم العائلة"
-          :rules="[v => !!v || 'مطلوب']"
-          variant="outlined"
-          density="comfortable"
-        ></v-text-field>
-      </v-col>
-      <v-col cols="12" md="6">
-        <v-text-field
-          v-model="address.phone"
-          label="رقم الهاتف"
-          :rules="[v => !!v || 'مطلوب']"
-          variant="outlined"
-          density="comfortable"
-          dir="ltr"
-        ></v-text-field>
-      </v-col>
-      <v-col cols="12" md="6">
-        <v-text-field
-          v-model="address.city"
-          label="المدينة"
-          :rules="[v => !!v || 'مطلوب']"
-          variant="outlined"
-          density="comfortable"
-        ></v-text-field>
-      </v-col>
-      <v-col cols="12">
-        <v-textarea
-          v-model="address.address_line_1"
-          label="العنوان التفصيلي (الشارع، الحي، المبنى)"
-          :rules="[v => !!v || 'مطلوب']"
-          variant="outlined"
-          density="comfortable"
-          rows="2"
-        ></v-textarea>
-      </v-col>
-      <v-col cols="12" class="pt-0">
-        <v-checkbox
-          v-model="address.is_default"
-          label="تعيين كعنوان افتراضي"
-          color="primary"
-          density="comfortable"
-          hide-details
-        ></v-checkbox>
-      </v-col>
-    </v-row>
-
-    <div class="d-flex justify-end gap-2 mt-4">
-      <v-btn variant="text" @click="$emit('cancel')">إلغاء</v-btn>
-      <v-btn
-        color="primary"
-        type="submit"
-        :loading="loading"
-        :disabled="!isValid"
-      >
-        حفظ العنوان
-      </v-btn>
-    </div>
-  </v-form>
+<v-form ref="form" @submit.prevent="submit"><v-row>
+<v-col v-for="field in fields" :key="field.key" cols="12" sm="6"><v-text-field v-model="address[field.key]" :aria-label="field.label" :label="field.label" :rules="field.required ? [required] : []" :autocomplete="field.autocomplete || 'off'" :dir="field.key === 'phone' ? 'ltr' : undefined" /></v-col>
+<v-col cols="12" sm="6"><v-select v-model="address.governorate_code" :items="governorates" item-title="name" item-value="id" aria-label="المحافظة" label="المحافظة" :rules="[required]" /></v-col>
+</v-row><v-alert v-if="error" type="error" class="mb-3">{{ error }}<v-btn variant="text" @click="loadGovernorates">إعادة المحاولة</v-btn></v-alert><v-checkbox v-model="address.is_default" aria-label="العنوان الافتراضي" label="العنوان الافتراضي" /><div class="d-flex ga-3 justify-end"><v-btn @click="$emit('cancel')">إلغاء</v-btn><v-btn type="submit" color="primary" :loading="loading" :disabled="!governorates.length">حفظ العنوان</v-btn></div></v-form>
 </template>
-
 <script setup>
-import { ref, watch } from 'vue'
-
-const props = defineProps({
-  initialData: {
-    type: Object,
-    default: () => ({})
-  },
-  loading: {
-    type: Boolean,
-    default: false
-  }
-})
-
-const emit = defineEmits(['submit', 'cancel'])
-
-const form = ref(null)
-const isValid = ref(false)
-
-const address = ref({
-  first_name: '',
-  last_name: '',
-  phone: '',
-  city: '',
-  address_line_1: '',
-  is_default: false
-})
-
-watch(() => props.initialData, (newVal) => {
-  if (newVal && Object.keys(newVal).length > 0) {
-    address.value = { ...address.value, ...newVal }
-  }
-}, { immediate: true })
-
-const submit = async () => {
-  const { valid } = await form.value.validate()
-  if (valid) {
-    emit('submit', address.value)
-  }
-}
+import { onMounted, ref, watch } from 'vue'
+import { storeOrdersApi } from '../api/storeOrders.api'
+import { storePayload } from '../utils/checkoutSession'
+const props=defineProps({initialData:{type:Object,default:()=>({})},loading:Boolean})
+const emit=defineEmits(['submit','cancel'])
+const form=ref(null), address=ref({}), governorates=ref([]), error=ref('')
+const required=value=>!!String(value??'').trim()||'مطلوب'
+const fields=[{key:'label',label:'اسم العنوان'},{key:'recipient_name',label:'اسم المستلم',required:true,autocomplete:'name'},{key:'phone',label:'الهاتف',required:true,autocomplete:'tel'},{key:'city',label:'المدينة',required:true,autocomplete:'address-level2'},{key:'street',label:'الشارع والعنوان التفصيلي',required:true,autocomplete:'street-address'},{key:'district',label:'الحي'},{key:'building',label:'المبنى'},{key:'floor',label:'الدور'},{key:'apartment',label:'الشقة'},{key:'landmark',label:'علامة مميزة'}]
+watch(()=>props.initialData,value=>{address.value={label:'',recipient_name:'',phone:'',country:'EG',city:'',street:'',district:'',building:'',floor:'',apartment:'',landmark:'',governorate_code:null,is_default:false,...value}},{immediate:true})
+async function loadGovernorates(){error.value='';try{governorates.value=storePayload(await storeOrdersApi.configuration())?.governorates||[]}catch{error.value='تعذر تحميل المحافظات'}}
+async function submit(){if((await form.value.validate()).valid)emit('submit',{...address.value})}
+onMounted(loadGovernorates)
 </script>

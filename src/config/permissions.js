@@ -9,6 +9,13 @@
  */
 
 export const PERMISSIONS = {
+  STORE_SETTINGS_MANAGE: 'store.settings.manage',
+  STORE_ORDERS_MANAGE: 'store.orders.manage',
+  STORE_FINANCE_MANAGE: 'store.finance.manage',
+  STORE_VENDOR_ORDERS_VIEW: 'store.vendor.orders.view',
+  STORE_VENDOR_ORDERS_MANAGE: 'store.vendor.orders.manage',
+  STORE_VENDOR_FINANCE_VIEW: 'store.vendor.finance.view',
+  STORE_VENDOR_FINANCE_MANAGE: 'store.vendor.finance.manage',
   LABEL_TEMPLATES_MANAGE: 'label_templates.manage',
   LABEL_TEMPLATES_PUBLISH: 'label_templates.publish',
   LABEL_TEMPLATES_SET_DEFAULT: 'label_templates.set_default',

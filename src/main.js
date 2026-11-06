@@ -1,21 +1,20 @@
 // Harmless comment to trigger deployment test
 import '@/utils/console-guard';
 import { createApp } from 'vue';
-import { createHead } from '@vueuse/head';
+import { createAppHead } from '@/utils/createAppHead';
 import App from '@/App.vue';
 import { registerPlugins } from '@utils/helpers/plugins';
-import { useUserStore } from './stores/user';
 import setupAutoSelectOnFocus from './utils/auto-select-on-focus';
 import draggable from '@/directives/draggable';
 
-// Styles
-import '@core-styles/template/index.scss';
-import '@layouts/styles/index.scss';
-import '@/assets/styles/mobile-app.scss';
+import { loadSelectedDesign } from '@/designs/registry';
+import { claimReleaseRecovery } from '@/utils/releaseRecovery';
 
+async function bootstrap() {
+const design = await loadSelectedDesign();
 // إنشاء تطبيق Vue
 const app = createApp(App);
-const head = createHead();
+const head = createAppHead();
 app.use(head);
 
 // كتم تحذيرات Suspense التجريبية
@@ -39,12 +38,8 @@ const handleGlobalError = error => {
   const isChunkError = chunkFailedWords.some(word => errorMessage.includes(word));
 
   if (isChunkError) {
-    const lastReload = sessionStorage.getItem('last-chunk-reload');
-    const now = Date.now();
-
-    // منع حلقة إعادة تحميل لانهائية (لا نكرر العملية إلا بعد 10 ثواني على الأقل)
-    if (!lastReload || now - parseInt(lastReload) > 10000) {
-      sessionStorage.setItem('last-chunk-reload', now.toString());
+    // محاولة واحدة لكل إصدار، مع الاحتفاظ بالجلسة ومنع حلقات إعادة التحميل.
+    if (claimReleaseRecovery()) {
       console.warn('Chunk loading failed! Auto-reloading to fetch latest version...', errorMessage);
       window.location.reload();
     }
@@ -66,19 +61,23 @@ window.addEventListener('unhandledrejection', e => {
 
 // 1. التسجيل المتزامن للـ plugins الأساسية (Vuetify, Pinia, Router)
 // هذا ضروري قبل الـ mount لأن المكونات تعتمد عليها
-registerPlugins(app);
-
-// تهيئة محرك لوحة التحكم ويدجت وباقات تشغيلية
-import { installDashboardEngine } from '@core/dashboard/registry/install';
-installDashboardEngine();
-
-
+registerPlugins(app, design.install);
 
 // تسجيل الـ directives الضرورية للواجهة الأولية
 app.directive('draggable', draggable);
 
 // 2. Mount vue app فوراً لاستبدال الـ Splash Screen بأسرع وقت
 app.mount('#app');
+
+if (import.meta.env.PROD) {
+  import('virtual:pwa-register').then(({ registerSW }) => {
+    const update = registerSW({
+      onNeedRefresh() {
+        window.dispatchEvent(new CustomEvent('hwnix-update-available', { detail: () => update(true) }));
+      },
+    });
+  });
+}
 
 // 3. تحميل المزايا والـ Directives غير الحرجة في الخلفية
 // نستخدم requestIdleCallback لضمان استقرار الواجهة أولاً
@@ -101,28 +100,13 @@ async function initializeSecondaryFeatures(appInstance) {
     })
     .catch(e => console.warn('Failed to initialize logger:', e));
 
-  // Initialize print system
-  import('@/modules/print').catch(e => {
-    console.warn('Failed to initialize print system:', e);
-  });
-
-  // Initialize guidance system (Lazy Loaded)
-  import('@/modules/guidance')
-    .then(({ default: guidance }) => {
-      appInstance.use(guidance);
-    })
-    .catch(e => console.warn('Failed to initialize guidance system:', e));
-
-  // Prefetch common routes
-  import('@/router/prefetch')
-    .then(({ prefetchCommonRoutes }) => {
-      prefetchCommonRoutes();
-    })
-    .catch(e => console.warn('Failed to initialize route prefetching:', e));
 }
 setupAutoSelectOnFocus(); // 👈 تطبيق السلوك على كامل النظام
 
-async function getUserApi() {
-  const userStore = useUserStore();
-  await userStore.fetchUser();
 }
+
+bootstrap().catch(error => {
+  console.error('Application startup failed:', error);
+  const root = document.getElementById('app');
+  if (root) root.textContent = 'تعذر تحميل الواجهة. يرجى إعادة تحميل الصفحة.';
+});

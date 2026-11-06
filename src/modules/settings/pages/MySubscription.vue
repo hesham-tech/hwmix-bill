@@ -616,7 +616,7 @@ export default {
 }
 
 .auto-renew-box {
-  background-color: rgba(0, 0, 0, 0.03);
+  background-color: rgba(0, 134, 205, 0.03);
 }
 
 .featured-plan-card {

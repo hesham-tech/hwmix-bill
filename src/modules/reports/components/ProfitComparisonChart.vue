@@ -100,7 +100,7 @@ const chartOptions = {
     },
     tooltip: {
       rtl: true,
-      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+      backgroundColor: 'rgba(0, 134, 205, 0.8)',
       padding: 12,
       titleFont: {
         family: 'Cairo, sans-serif',

@@ -669,7 +669,7 @@ onMounted(async () => {
 }
 
 .variant-table :deep(.v-data-table__tr:hover) {
-  background-color: var(--v-theme-primary-lighten-5) !important;
+  background-color: rgb(var(--v-theme-surface-variant)) !important;
 }
 
 .aspect-square {
@@ -677,7 +677,7 @@ onMounted(async () => {
 }
 
 .bg-black-opacity-20 {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 134, 205, 0.2);
 }
 
 .image-lightbox :deep(.v-overlay__content) {

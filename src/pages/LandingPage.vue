@@ -234,7 +234,7 @@ const scrollToFeatures = () => {
 <style scoped>
 .banner-carousel-section { max-width: 1280px; margin: 20px auto 0; padding: 0 24px; }
 .banner-carousel-section :deep(.v-carousel) { border-radius: 24px; overflow: hidden; }
-.banner-content { height: 100%; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: 40px; color: white; background: linear-gradient(270deg, rgba(10, 24, 42, .84), rgba(10, 24, 42, .08)); }
+.banner-content { height: 100%; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: 40px; color: white; background: linear-gradient(270deg, rgba(0, 113, 173, .84), rgba(0, 113, 173, .08)); }
 .banner-content h1, .banner-content h2 { color: white; font-size: clamp(1.4rem, 4vw, 2.6rem); line-height: 1.5; }
 .banner-content :deep(.v-btn) { min-height: 44px; padding-inline: 24px; }
 .banner-content p { color: #f1f5f9; }
@@ -436,7 +436,7 @@ const scrollToFeatures = () => {
 
 /* Footer */
 .footer {
-  background: #0d1b4b !important;
+  background: #075985 !important;
 }
 .footer :is(h4, p, span) { color: #e2e8f0; }
 .footer-link {

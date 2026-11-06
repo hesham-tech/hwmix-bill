@@ -130,7 +130,7 @@ onBeforeUnmount(() => {
 
 /* تصميم الزجاج الملون الفخم المتناسق مع الهوية */
 .glass-panel {
-  background: linear-gradient(135deg, rgba(var(--v-theme-primary), 0.92), rgba(15, 32, 67, 0.9)) !important;
+  background: linear-gradient(135deg, rgba(var(--v-theme-primary), 0.92), rgba(0, 113, 173, 0.95)) !important;
   backdrop-filter: blur(14px) !important;
   -webkit-backdrop-filter: blur(14px) !important;
   border: 1px solid rgba(255, 255, 255, 0.25) !important;

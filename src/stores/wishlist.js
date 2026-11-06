@@ -1,80 +1,32 @@
 import { defineStore } from 'pinia'
-import { ref, computed, watch } from 'vue'
-import api from '@/services/api'
+import { ref, watch } from 'vue'
+import api from '@/modules/store/api/storeClient'
 import { useAuthStore } from './auth'
-
-export const useWishlistStore = defineStore('wishlist', () => {
-  const saved = localStorage.getItem('hwnix_store_wishlist')
-  const items = ref(saved ? JSON.parse(saved) : [])
-  const loading = ref(false)
-  const authStore = useAuthStore()
-
-  // Sync to localStorage on every change
-  watch(items, (newItems) => {
-    localStorage.setItem('hwnix_store_wishlist', JSON.stringify(newItems))
-  }, { deep: true })
-
-  const fetchWishlist = async () => {
-    if (!authStore.isAuthenticated) return
-    loading.value = true
-    try {
-      const response = await api.get('/store/wishlist/ids')
-      if (response.data?.status === 'success') {
-        items.value = response.data.data
-      }
-    } catch (error) {
-      console.error('Failed to fetch wishlist', error)
-    } finally {
-      loading.value = false
-    }
+function guestItems(){try{const value=JSON.parse(localStorage.getItem('hwnix_store_wishlist')||'[]');return Array.isArray(value)?[...new Set(value.map(Number).filter(Number.isSafeInteger).filter(i=>i>0))]:[]}catch{return []}}
+export const useWishlistStore=defineStore('wishlist',()=>{
+  const authStore=useAuthStore(),items=ref(guestItems()),loading=ref(false)
+  const pending=new Set();let generation=0
+  watch(items,value=>{if(!authStore.isAuthenticated){try{localStorage.setItem('hwnix_store_wishlist',JSON.stringify(value))}catch{}}},{deep:true})
+  async function fetchWishlist(){
+    if(!authStore.isAuthenticated)return
+    const current=generation;loading.value=true
+    try{const response=await api.get('/store/wishlist/ids');const data=response.data?.data
+      if(current===generation&&authStore.isAuthenticated&&Array.isArray(data))items.value=[...new Set(data.map(Number).filter(Number.isSafeInteger).filter(i=>i>0))]
+    }finally{if(current===generation)loading.value=false}
   }
-
-  // Fetch immediately if authenticated
-  if (authStore.isAuthenticated) {
-    fetchWishlist()
+  async function toggle(productId){
+    const id=Number(productId);if(!Number.isSafeInteger(id)||id<=0||pending.has(id))return false
+    const current=generation,previous=items.value.includes(id)
+    items.value=previous?items.value.filter(i=>i!==id):[...items.value,id]
+    if(!authStore.isAuthenticated)return true
+    pending.add(id)
+    try{await api.post('/store/wishlist/toggle',{product_id:id});return true}
+    catch{if(current===generation)items.value=previous?[...new Set([...items.value,id])]:items.value.filter(i=>i!==id);return false}
+    finally{pending.delete(id)}
   }
-
-  const toggle = async (productId) => {
-    const id = Number(productId)
-    const index = items.value.indexOf(id)
-    
-    // Optimistic UI update
-    if (index === -1) {
-      items.value.push(id)
-    } else {
-      items.value.splice(index, 1)
-    }
-
-    // Sync with API if logged in
-    if (authStore.isAuthenticated) {
-      try {
-        await api.post('/store/wishlist/toggle', { product_id: id })
-      } catch (error) {
-        console.error('Failed to toggle wishlist on server', error)
-        // Revert optimistic update on failure
-        if (index === -1) {
-          items.value = items.value.filter(i => i !== id)
-        } else {
-          items.value.push(id)
-        }
-      }
-    }
-  }
-
-  const isFavorite = (productId) => {
-    return items.value.includes(Number(productId))
-  }
-
-  const clear = () => {
-    items.value = []
-  }
-
-  return {
-    items,
-    loading,
-    fetchWishlist,
-    toggle,
-    isFavorite,
-    clear,
-  }
+  watch(()=>[authStore.isAuthenticated,authStore.user?.id],()=>{
+    generation++;pending.clear();loading.value=false
+    if(authStore.isAuthenticated){items.value=[];fetchWishlist().catch(()=>{})}else items.value=guestItems()
+  },{immediate:true})
+  return{items,loading,fetchWishlist,toggle,isFavorite:id=>items.value.includes(Number(id)),clear:()=>{items.value=[]}}
 })

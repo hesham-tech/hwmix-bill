@@ -551,7 +551,7 @@ const goBackToEmail = () => {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;900&display=swap');
+
 
 /* ═══════════════════════════════
    متغيرات الألوان
@@ -560,7 +560,7 @@ const goBackToEmail = () => {
   --fp-amber: #f59e0b;
   --fp-amber-dark: #d97706;
   --fp-amber-glow: rgba(245, 158, 11, 0.25);
-  --fp-bg: #060b18;
+  --fp-bg: #0071AD;
   --fp-surface: rgba(255, 255, 255, 0.05);
   --fp-border: rgba(255, 255, 255, 0.1);
   --fp-text: rgba(255, 255, 255, 0.9);
@@ -693,7 +693,7 @@ const goBackToEmail = () => {
   z-index: 1;
   width: 100%;
   max-width: 460px;
-  background: rgba(10, 16, 34, 0.85);
+  background: rgba(0, 113, 173, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 24px;
   backdrop-filter: blur(24px);
