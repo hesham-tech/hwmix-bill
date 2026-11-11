@@ -50,6 +50,12 @@ export default [
   },
   // Store Routes
   {
+    path: '/store/policies/:key',
+    name: 'store-policy',
+    component: () => import('@/pages/store/StorePolicyPage.vue'),
+    meta: { title: 'سياسات متجر هونكس', public: true },
+  },
+  {
     path: '/store',
     name: 'store-home',
     component: () => import('@/pages/store/StorePage.vue'),

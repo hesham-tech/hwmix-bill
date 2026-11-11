@@ -108,7 +108,7 @@
                 >
                   <template #label>
                     <span class="terms-text">
-                      أوافق على <a href="/legal.html?key=privacy-policy" target="_blank" class="terms-link" @click.stop>سياسة الخصوصية</a> و<a href="/legal.html?key=terms-of-use" target="_blank" class="terms-link" @click.stop>شروط الاستخدام</a>
+                      أوافق على <router-link to="/store/policies/store-privacy-policy" target="_blank" class="terms-link" @click.stop>سياسة خصوصية المتجر</router-link> و<router-link to="/store/policies/store-terms-of-sale" target="_blank" class="terms-link" @click.stop>شروط الشراء</router-link>
                     </span>
                   </template>
                 </v-checkbox>
