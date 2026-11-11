@@ -3,16 +3,18 @@
     <div class="d-flex flex-wrap ga-3 align-center mb-5"><h1 class="text-h4">متجر شركتي</h1><v-spacer/><v-btn :loading="busy" @click="load">تحديث</v-btn><v-btn to="/store" variant="outlined">عرض المتجر</v-btn></div>
     <v-alert v-if="error" type="error" class="mb-4">{{ error }}</v-alert>
     <StoreNotificationsPanel v-if="canOrders" scope="vendor"/>
-    <v-tabs v-model="tab" class="mb-4"><v-tab v-if="canOrders" value="orders">طلبات الشركة</v-tab><v-tab v-if="canFinance" value="finance">الرصيد والسحب</v-tab></v-tabs>
+    <v-tabs v-model="tab" class="mb-4"><v-tab v-if="canOrders" value="orders">طلبات الشركة</v-tab><v-tab v-if="canDeliverySettings" value="delivery">إعداد التوصيل الذاتي</v-tab><v-tab v-if="canFinance" value="finance">الرصيد والسحب</v-tab></v-tabs>
+    <StoreLocalDeliverySettings v-if="tab === 'delivery' && canDeliverySettings" />
     <template v-if="tab === 'orders' && canOrders">
       <v-alert v-if="!busy && !orders.length" type="info">لا توجد طلبات للشركة الحالية.</v-alert>
       <v-card v-for="order in orders" :key="order.id" class="pa-5 mb-4">
-        <div class="d-flex flex-wrap ga-3 align-center"><strong>{{ order.sub_order_number }}</strong><v-chip>{{ statusName(order.status) }}</v-chip><v-spacer/><v-btn @click="show(order.id)">التفاصيل</v-btn></div>
+        <div class="d-flex flex-wrap ga-3 align-center"><strong>{{ order.sub_order_number }}</strong><v-chip>{{ order.delivery_method==='seller_local' && order.status==='shipped' ? 'خرج للتوصيل الذاتي' : statusName(order.status) }}</v-chip><v-spacer/><v-btn @click="show(order.id)">التفاصيل</v-btn></div>
         <p class="mt-3">{{ order.items?.map(item => item.product?.name + ' × ' + item.quantity).join('، ') }}</p>
         <div v-if="canManageOrders" class="d-flex flex-wrap ga-3 mt-4">
           <v-btn v-if="order.status === 'confirmed'" color="primary" :disabled="busy" @click="change(order, 'processing')">تجهيز الطلب جاهز للاستلام</v-btn>
           <v-btn v-if="['pending','confirmed'].includes(order.status)" color="error" variant="outlined" :disabled="busy" @click="cancelTarget = order; cancelReason = ''">تعذر توفير الطلب</v-btn>
         </div>
+        <StorePickupOverride :order="order" @changed="load" /><StoreLocalDeliveryActions :order="order" @changed="load" />
       </v-card>
       <v-pagination v-if="lastPage > 1" v-model="page" :length="lastPage" :disabled="busy" aria-label="صفحات طلبات الشركة" @update:model-value="load"/>
     </template>
@@ -34,12 +36,16 @@
 </template>
 <script setup>
 import { computed,onMounted,ref,watch } from 'vue'
+import StoreLocalDeliverySettings from '@/modules/store/components/StoreLocalDeliverySettings.vue'
+import StorePickupOverride from '@/modules/store/components/StorePickupOverride.vue'
+import StoreLocalDeliveryActions from '@/modules/store/components/StoreLocalDeliveryActions.vue'
 import StoreNotificationsPanel from '@/modules/store/components/StoreNotificationsPanel.vue'
 import api from '@/modules/store/api/storeClient'
 import { storePayload } from '@/modules/store/utils/checkoutSession'
 import { useUserStore } from '@/stores/user'
 import { PERMISSIONS } from '@/config/permissions'
 const user=useUserStore(),busy=ref(false),error=ref(''),tab=ref('orders'),orders=ref([]),financial=ref(null),page=ref(1),lastPage=ref(1),selected=ref(null),cancelTarget=ref(null),cancelReason=ref('')
+const canDeliverySettings=computed(()=>user.hasPermission(PERMISSIONS.STORE_VENDOR_DELIVERY_SETTINGS))
 const payout=ref({amount:'',operation_key:crypto.randomUUID()})
 const canOrders=computed(()=>user.hasPermission(PERMISSIONS.STORE_VENDOR_ORDERS_VIEW)),canFinance=computed(()=>user.hasPermission(PERMISSIONS.STORE_VENDOR_FINANCE_VIEW)),canManageOrders=computed(()=>user.hasPermission(PERMISSIONS.STORE_VENDOR_ORDERS_MANAGE)),canRequestPayout=computed(()=>user.hasPermission(PERMISSIONS.STORE_VENDOR_FINANCE_MANAGE))
 const balances=[{key:'balance_minor',label:'الرصيد الحالي'},{key:'pending_minor',label:'إيرادات معلقة'},{key:'prepaid_minor',label:'رصيد مسبق للعمولات'},{key:'payout_held_minor',label:'محجوز للصرف'}]
@@ -57,6 +63,6 @@ async function change(order,status){await run(async()=>{await api.patch('/vendor
 async function requestPayout(){await run(async()=>{await api.post('/vendor/store/payouts',payout.value);payout.value={amount:'',operation_key:crypto.randomUUID()};await fetchData()})}
 watch(tab,()=>{generation++;page.value=1;load()})
 watch(()=>user.currentUser?.active_company_id,()=>{generation++;orders.value=[];financial.value=null;selected.value=null;cancelTarget.value=null;page.value=1;load()})
-onMounted(()=>{if(!canOrders.value)tab.value='finance';load()})
+onMounted(()=>{if(!canOrders.value)tab.value=canFinance.value?'finance':'delivery';load()})
 </script>
 <style scoped>.vendor-store{max-width:1400px;margin:auto}.vendor-store :deep(td){white-space:normal;min-width:95px}dl{display:grid;grid-template-columns:100px 1fr;gap:8px}dd{overflow-wrap:anywhere}</style>

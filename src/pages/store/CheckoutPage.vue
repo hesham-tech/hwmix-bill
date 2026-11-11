@@ -24,7 +24,7 @@
               <li v-for="(label, index) in steps" :key="label" :aria-current="step === index ? 'step' : undefined" :class="{ active: step === index }">{{ index + 1 }}. {{ label }}</li>
             </ol>
             <v-card rounded="xl" class="pa-5">
-              <v-form v-if="step === 0" @submit.prevent="step = 1">
+              <v-form v-if="step === 0" @submit.prevent="continueAddress">
                 <h2 class="text-h6 mb-4">عنوان التوصيل</h2>
                 <v-radio-group v-if="addresses.length" v-model="addressId">
                   <v-radio v-for="address in addresses" :key="address.id" :value="address.id" :label="address.recipient_name + ' — ' + address.city + '، ' + address.street" />
@@ -43,7 +43,8 @@
                     <v-col cols="12"><v-text-field v-model="newAddress.landmark" label="علامة مميزة (اختياري)" /></v-col>
                   </v-row>
                 </template>
-                <v-btn type="submit" color="primary" :disabled="!addressReady">المتابعة إلى الدفع</v-btn>
+                <StoreLocationPicker v-if="requiresLocation" v-model="locationAddress" :required="true" /><v-alert v-if="error" type="error" class="mb-3">{{ error }}</v-alert>
+                <v-btn type="submit" color="primary" :loading="savingAddress" :disabled="!addressReady">المتابعة إلى الدفع</v-btn>
               </v-form>
               <v-form v-else-if="step === 1" @submit.prevent="requestQuote">
                 <h2 class="text-h6 mb-4">طريقة الدفع</h2>
@@ -102,6 +103,8 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import StoreNavbar from '@/modules/store/components/StoreNavbar.vue'
+import StoreLocationPicker from '@/modules/store/components/StoreLocationPicker.vue'
+import {storeProductsApi} from '@/modules/store/api/storeProducts.api'
 import StoreEmailVerification from '@/modules/store/components/StoreEmailVerification.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useCartStore } from '@/stores/cart'
@@ -115,6 +118,7 @@ const authStore = useAuthStore()
 const cartStore = useCartStore()
 const loading = ref(true), loadError = ref(''), error = ref('')
 const config = ref({ enabled: false, requires_account: true, requires_verified_email: true, governorates: [], gateways: [] })
+const requiresLocation=ref(false),savingAddress=ref(false),addressLocationDirty=ref(false)
 const account = ref({ email_verified: false })
 const addresses = ref([]), addressId = ref(null), step = ref(0)
 const paymentMethod = ref('cod'), gatewayId = ref(null), notes = ref('')
@@ -125,9 +129,10 @@ const steps = ['عنوان التوصيل', 'طريقة الدفع', 'مراجع
 let expirationTimer
 const money = value => formatStoreMoney(value, config.value.currency || 'EGP')
 const deliveryAddress = computed(() => addressId.value ? addresses.value.find(a => a.id === addressId.value) : newAddress.value)
+const locationAddress=computed({get:()=>deliveryAddress.value||{},set:value=>{if(addressId.value){addresses.value=addresses.value.map(a=>a.id===addressId.value?value:a);addressLocationDirty.value=true}else newAddress.value=value;quote.value=null;legalAccepted.value=false}})
 const addressReady = computed(() => {
   const a = deliveryAddress.value
-  return !!(a?.recipient_name && a?.phone && a?.governorate_code && a?.city && a?.street)
+  return !!(a?.recipient_name && a?.phone && a?.governorate_code && a?.city && a?.street && (!requiresLocation.value || (a.location_confirmed && a.latitude!=null && a.longitude!=null)))
 })
 function payload() {
   const data = cartStore.buildOrderPayload(addressId.value, notes.value, paymentMethod.value)
@@ -139,6 +144,7 @@ async function load() {
   loading.value = true; loadError.value = ''
   try {
     config.value = { ...config.value, ...storePayload(await storeOrdersApi.configuration()) }
+    const check=storePayload(await storeProductsApi.validateCart(cartStore.buildOrderPayload(null).items));requiresLocation.value=!!check?.requires_delivery_location
     if (!config.value.cod_enabled) paymentMethod.value = config.value.online_enabled ? 'online' : ''
     gatewayId.value = config.value.gateways.find(g => g.is_default)?.id || config.value.gateways[0]?.id || null
     if (authStore.isAuthenticated) {
@@ -149,6 +155,7 @@ async function load() {
   } catch (err) { loadError.value = parseApiError(err, 'تعذر تحميل بيانات إتمام الطلب.') }
   finally { loading.value = false }
 }
+async function continueAddress(){if(!addressReady.value||savingAddress.value)return;savingAddress.value=true;error.value='';try{if(addressId.value&&addressLocationDirty.value){await customerAddressesApi.updateAddress(addressId.value,{...deliveryAddress.value});addressLocationDirty.value=false}step.value=1}catch(e){error.value=parseApiError(e,'تعذر حفظ موقع العنوان')}finally{savingAddress.value=false}}
 function onVerified(result) { account.value = { ...account.value, ...result, email_verified: true } }
 async function requestQuote() {
   quoting.value = true; error.value = ''; legalAccepted.value = false
@@ -182,7 +189,14 @@ async function openDocument(document) {
   finally { legalLoading.value = false }
 }
 watch([addressId, newAddress, notes, paymentMethod], () => { quote.value = null; legalAccepted.value = false }, { deep: true })
-watch(() => cartStore.items, () => { quote.value = null; legalAccepted.value = false; if (step.value === 2) step.value = 1 }, { deep: true })
+watch(() => cartStore.items, async () => {
+  quote.value = null; legalAccepted.value = false; step.value = 0
+  if (loading.value || placing.value || !cartStore.items.length) return
+  try {
+    const check = storePayload(await storeProductsApi.validateCart(cartStore.buildOrderPayload(null).items))
+    requiresLocation.value = !!check?.requires_delivery_location
+  } catch (err) { loadError.value = parseApiError(err, 'تعذر التحقق من متطلبات عنوان التوصيل. أعد المحاولة.') }
+}, { deep: true })
 onMounted(load)
 onUnmounted(() => clearTimeout(expirationTimer))
 </script>

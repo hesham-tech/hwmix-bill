@@ -15,9 +15,10 @@
 
       <!-- Location -->
       <v-col cols="12">
-        <AppInput v-model="form.location" label="وقع المخزن / العنوان" placeholder="ادخل العنوان بالتفصيل" prepend-inner-icon="ri-map-pin-line" />
+        <AppInput v-model="form.location" label="موقع المخزن / العنوان" placeholder="ادخل العنوان بالتفصيل" prepend-inner-icon="ri-map-pin-line" />
       </v-col>
 
+      <v-col cols="12"><StoreLocationPicker v-model="form" label="إحداثيات عنوان المخزن" /><p class="text-caption">تستخدم نقطة المخزن افتراضيًا لاستلام طلبات المتجر؛ تعديل طلب محدد لا يغير هذه النقطة.</p></v-col>
       <!-- Description -->
       <v-col cols="12">
         <AppTextarea
@@ -65,6 +66,7 @@
 </template>
 
 <script setup>
+import StoreLocationPicker from '@/modules/store/components/StoreLocationPicker.vue';
 import { ref, watch } from 'vue';
 import { useApi } from '@/composables/useApi';
 import AppSwitch from '@/components/common/AppSwitch.vue';
@@ -86,7 +88,7 @@ const loading = ref(false);
 
 const form = ref({
   name: '',
-  location: '',
+  location: '',latitude:null,longitude:null,location_confirmed:false,
   description: '',
   is_active: true,
   is_default: false,

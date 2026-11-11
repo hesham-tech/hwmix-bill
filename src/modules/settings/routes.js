@@ -1,7 +1,7 @@
 import { PERMISSIONS } from '@/config/permissions';
 
 export default [
-  { path:'my-store',name:'my-store',component:()=>import('@/modules/store/pages/VendorStore.vue'),meta:{title:'متجر شركتي',permission:[PERMISSIONS.STORE_VENDOR_ORDERS_VIEW,PERMISSIONS.STORE_VENDOR_FINANCE_VIEW]} },
+  { path:'my-store',name:'my-store',component:()=>import('@/modules/store/pages/VendorStore.vue'),meta:{title:'متجر شركتي',permission:[PERMISSIONS.STORE_VENDOR_ORDERS_VIEW,PERMISSIONS.STORE_VENDOR_FINANCE_VIEW,PERMISSIONS.STORE_VENDOR_DELIVERY_SETTINGS]} },
   {
     path: 'store-operations', name: 'store-operations',
     component: () => import('@/modules/settings/pages/StoreOperations.vue'),

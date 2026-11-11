@@ -37,7 +37,7 @@
             <span>{{ money(item.subtotal) }}</span>
           </div>
           <v-divider class="my-3" /><p>الشحن: {{ money(shipment.shipping_cost) }}</p>
-          <p v-if="shipment.tracking_number" class="mt-2">شركة الشحن: {{ shipment.shipping_carrier }} — رقم التتبع: <b dir="ltr">{{ shipment.tracking_number }}</b></p>
+          <p v-if="shipment.tracking_number" class="mt-2">{{ shipment.delivery_method === 'seller_local' ? 'توصيل البائع' : 'شركة الشحن: ' + shipment.shipping_carrier }} — رقم التتبع: <b dir="ltr">{{ shipment.tracking_number }}</b></p>
         </v-card>
         <v-card rounded="xl" class="pa-5 mb-4">
           <h2 class="text-h6 mb-3">عنوان التوصيل</h2>
