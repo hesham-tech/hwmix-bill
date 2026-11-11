@@ -7,7 +7,7 @@
     <div v-if="expanded" ref="canvas" class="location-map" aria-label="خريطة اختيار العنوان" />
     <p v-if="expanded" class="text-caption" v-html="attribution" />
     <v-row class="mt-2"><v-col cols="6"><v-text-field :model-value="modelValue.latitude" type="number" step="any" min="-90" max="90" label="خط العرض" aria-label="خط العرض" @update:model-value="setCoordinate('latitude',$event)" /></v-col><v-col cols="6"><v-text-field :model-value="modelValue.longitude" type="number" step="any" min="-180" max="180" label="خط الطول" aria-label="خط الطول" @update:model-value="setCoordinate('longitude',$event)" /></v-col></v-row>
-    <v-btn :disabled="!valid" :color="modelValue.location_confirmed ? 'success' : 'primary'" variant="tonal" @click="confirm">{{ modelValue.location_confirmed ? 'تم تأكيد نقطة العنوان' : 'تأكيد نقطة العنوان' }}</v-btn>
+    <v-btn block :disabled="!valid" :color="modelValue.location_confirmed ? 'success' : 'primary'" variant="tonal" @click="confirm">{{ modelValue.location_confirmed ? 'تم تأكيد نقطة العنوان' : 'تأكيد نقطة العنوان' }}</v-btn>
     <p v-if="required && !modelValue.location_confirmed" class="text-body-2 mt-2">تأكيد الموقع مطلوب لحساب طريقة التوصيل.</p>
   </section>
 </template>
