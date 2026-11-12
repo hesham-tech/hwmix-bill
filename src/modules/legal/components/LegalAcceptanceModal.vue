@@ -88,6 +88,7 @@ import apiClient from '@/services/api';
 import notificationManager from '@/services/notificationManager';
 
 const visible = ref(false);
+const checking = ref(false);
 const pendingVersions = ref([]);
 const currentIndex = ref(0);
 const agreed = ref(false);
@@ -109,7 +110,7 @@ const checkPendingAgreements = async () => {
   // Check if user token exists in localStorage
   const token = localStorage.getItem('authToken');
   if (!token) return;
-
+  checking.value=true;
   try {
     const url = 'v1/legal/acceptances/pending';
     const response = await apiClient.get(url);
@@ -125,7 +126,7 @@ const checkPendingAgreements = async () => {
     }
   } catch (err) {
     console.error('Failed to check pending legal agreements:', err);
-  }
+  } finally { checking.value=false; }
 };
 
 // Accept currently viewed version
@@ -161,7 +162,7 @@ const acceptCurrentVersion = async () => {
 
 // Expose checks so route guards or main layout can trigger it
 defineExpose({
-  checkPendingAgreements
+  checkPendingAgreements, visible, checking
 });
 
 onMounted(() => {

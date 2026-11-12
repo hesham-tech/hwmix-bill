@@ -1,4 +1,5 @@
 import { ref, computed } from 'vue';
+import {useCompanySetupStore} from '../store/useCompanySetupStore';
 import { useGuidance } from './useGuidance';
 
 // الحالات المشتركة بين المكونات للجولة النشطة حالياً
@@ -35,6 +36,8 @@ export function useTour() {
    * @param {Boolean} force - تشغيلها إجبارياً حتى لو تم إكمالها مسبقاً (مثلاً من الإعدادات)
    */
   function startTour(tourConfig, tourKey, force = false) {
+    const setup=useCompanySetupStore();
+    if(setup.open||(!force&&setup.autoPending)) return false;
     if (!force && !shouldShow(tourKey)) {
       return false;
     }

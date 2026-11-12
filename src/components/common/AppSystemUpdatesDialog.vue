@@ -226,7 +226,7 @@ onMounted(() => {
   }, 2000); // 2 seconds delay to allow system state stabilization
 });
 
-defineExpose({ show });
+defineExpose({ show, visible });
 </script>
 
 <style scoped>

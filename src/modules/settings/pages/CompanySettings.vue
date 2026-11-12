@@ -2,7 +2,7 @@
   <div class="company-settings-page">
     <!-- Header -->
     <div class="page-header mb-8">
-      <h1 class="text-h3 font-weight-bold primary--text mb-2">إعدادات الشركة</h1>
+      <h1 class="text-h3 font-weight-bold primary--text mb-2">إعدادات الشركة</h1><v-btn color="primary" variant="tonal" prepend-icon="ri-magic-line" class="my-3" @click="companySetup.show(userStore.currentUser?.active_company_id)">إعداد شركتي خطوة بخطوة</v-btn>
       <p class="text-subtitle-1 text-grey-darken-1">تخصيص الهوية البصرية وإدارة البيانات الأساسية للنظام</p>
     </div>
 
@@ -740,6 +740,8 @@
 </template>
 
 <script setup>
+import {useCompanySetupStore} from '@/modules/guidance/store/useCompanySetupStore';
+const companySetup=useCompanySetupStore();
 // مكون إعدادات الشركة: يتيح تعديل الشعار، البيانات الأساسية والقانونية، قنوات التواصل، وتفضيلات النظام والطباعة.
 import { ref, onMounted, computed, watch } from 'vue';
 import dayjs from 'dayjs';

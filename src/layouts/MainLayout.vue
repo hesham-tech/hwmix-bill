@@ -502,9 +502,9 @@
     :tour-key="activeTourKey"
     @restart-tour="handleRestartTour"
   />
-  <GuidanceTour v-if="guidanceStore.guidanceEnabled" />
-  <OnboardingChecklist v-if="guidanceStore.guidanceEnabled" />
-  <HintBubble v-if="guidanceStore.guidanceEnabled" />
+  <GuidanceTour v-if="guidanceStore.guidanceEnabled && !companySetup.open && !companySetup.autoPending" />
+  <CompanySetupWizard :blocked="!!legalAcceptanceModal?.visible || !!legalAcceptanceModal?.checking || !!systemUpdatesDialog?.visible" />
+  <HintBubble v-if="guidanceStore.guidanceEnabled && !companySetup.open && !companySetup.autoPending" />
   
   <!-- Legal Document Acceptance Modal -->
   <LegalAcceptanceModal ref="legalAcceptanceModal" />
@@ -582,7 +582,9 @@ import unitsTour from '@/modules/guidance/content/tours/units.tour.js';
 
 // تعريف المكونات بشكل غير متزامن (Lazy loading) لمنع زيادة حجم الـ main bundle
 const GuidanceTour = defineAsyncComponent(() => import('@/modules/guidance/components/GuidanceTour.vue'));
-const OnboardingChecklist = defineAsyncComponent(() => import('@/modules/guidance/components/OnboardingChecklist.vue'));
+const CompanySetupWizard = defineAsyncComponent(() => import('@/modules/guidance/components/CompanySetupWizard.vue'));
+import {useCompanySetupStore} from '@/modules/guidance/store/useCompanySetupStore';
+const companySetup=useCompanySetupStore();
 const HintBubble = defineAsyncComponent(() => import('@/modules/guidance/components/HintBubble.vue'));
 const ContextualHelpDrawer = defineAsyncComponent(() => import('@/modules/guidance/components/ContextualHelpDrawer.vue'));
 

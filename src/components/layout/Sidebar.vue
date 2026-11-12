@@ -58,6 +58,7 @@
     </div>
     <v-divider />
 
+    <v-btn v-if="userStore.currentUser?.active_company_id" variant="text" class="ma-2" prepend-icon="ri-magic-line" aria-label="إعداد شركتي خطوة بخطوة" @click="companySetup.show(userStore.currentUser.active_company_id)">{{ rail&&!xs ? '' : 'إعداد شركتي خطوة بخطوة' }}</v-btn>
     <div class="sidebar-menu-wrapper">
       <v-list v-model:opened="openedGroups" open-strategy="single" density="compact" nav class="sidebar-menu">
         <template v-for="(item, index) in filteredMenu" :key="index">
@@ -153,6 +154,8 @@
 </template>
 
 <script setup>
+import {useCompanySetupStore} from '@/modules/guidance/store/useCompanySetupStore';
+const companySetup=useCompanySetupStore();
 import { ref, computed, watch, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useUserStore } from '@/stores/user';
