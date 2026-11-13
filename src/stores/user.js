@@ -91,6 +91,9 @@ export const useUserStore = defineStore('user', () => {
 
     // Company admin bypasses everything EXCEPT super admin and company management permissions
     if (rawPermissions.includes(PERMISSIONS.ADMIN_COMPANY)) {
+      // Explicit delegation is required; company-admin inheritance never grants contact editing.
+      if(permission===PERMISSIONS.STORE_CONTACT_MANAGE)return rawPermissions.includes(PERMISSIONS.STORE_CONTACT_MANAGE);
+      if(Array.isArray(permission)&&permission.includes(PERMISSIONS.STORE_CONTACT_MANAGE)&&rawPermissions.includes(PERMISSIONS.STORE_CONTACT_MANAGE))return true;
       if (Array.isArray(permission)) {
         // If all are restricted, block access
         const hasNonRestricted = permission.some(p => !isRestrictedPermission(p));

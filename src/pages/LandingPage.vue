@@ -86,80 +86,7 @@
       </section>
 
       <!-- Footer -->
-      <footer class="footer pa-12 bg-primary-darken-1 text-white">
-        <v-container>
-          <v-row>
-            <v-col cols="12" md="4" class="mb-8 mb-md-0">
-              <div class="d-flex align-center gap-2 mb-6">
-                <v-avatar color="primary" rounded="md" size="40">
-                  <v-icon icon="ri-shopping-bag-3-line" color="white" />
-                </v-avatar>
-                <span class="text-h5 font-weight-bold">متجر HWNix</span>
-              </div>
-              <p class="text-body-2 text-grey-lighten-1 mb-6 leading-relaxed">
-                نحن نوفر لك أفضل المنتجات الإلكترونية بأعلى جودة، مع نظام إدارة مالية وتقسيط يضمن لك راحة البال والتحكم الكامل في ميزانيتك.
-              </p>
-              <div class="d-flex gap-4">
-                <v-btn icon="ri-facebook-fill" variant="text" color="white" />
-                <v-btn icon="ri-twitter-fill" variant="text" color="white" />
-                <v-btn icon="ri-instagram-line" variant="text" color="white" />
-              </div>
-            </v-col>
 
-            <v-col cols="12" sm="6" md="2" class="mb-8 mb-md-0">
-              <h4 class="text-h6 font-weight-bold mb-6">المتجر</h4>
-              <div class="d-flex flex-column gap-3">
-                <router-link to="/" class="footer-link">الرئيسية</router-link>
-                <router-link to="/saas" class="footer-link gold-text">انضم كتاجر (SaaS)</router-link>
-                <router-link to="/store" class="footer-link">تصفح المنتجات</router-link>
-                <router-link to="/tools" class="footer-link">مركز الأدوات</router-link>
-                <a href="#categories" class="footer-link">الأقسام</a>
-              </div>
-            </v-col>
-
-            <v-col cols="12" sm="6" md="2" class="mb-8 mb-md-0">
-              <h4 class="text-h6 font-weight-bold mb-6">الدعم</h4>
-              <div class="d-flex flex-column gap-3">
-                <a href="#" class="footer-link">الأسئلة الشائعة</a>
-                <router-link to="/legal/refund-policy" class="footer-link">سياسة الاسترجاع</router-link>
-                <a href="#" class="footer-link">طرق الدفع</a>
-                <a href="#" class="footer-link">تواصل معنا</a>
-              </div>
-            </v-col>
-
-            <v-col cols="12" md="4">
-              <h4 class="text-h6 font-weight-bold mb-6">النشرة البريدية</h4>
-              <p class="text-body-2 text-grey-lighten-1 mb-4">احصل على أحدث العروض والخصومات مباشرة في بريدك.</p>
-              <div class="d-flex gap-2">
-                <v-text-field
-                  placeholder="بريدك الإلكتروني"
-                  variant="solo-filled"
-                  density="comfortable"
-                  hide-details
-                  bg-color="primary-lighten-5"
-                  class="rounded-md"
-                />
-                <v-btn color="primary" height="48" class="px-6 rounded-md font-weight-bold">اشترك</v-btn>
-              </div>
-              <div class="mt-8 text-caption text-grey-lighten-2 d-flex align-center gap-2">
-                <v-icon icon="ri-admin-line" size="14" />
-                <router-link to="/saas" class="text-grey-lighten-2 text-decoration-none hover-primary">نظام إدارة الشركات</router-link>
-              </div>
-            </v-col>
-          </v-row>
-
-          <v-divider class="my-10 border-primary-lighten-4" />
-
-          <div class="d-flex flex-column flex-md-row justify-space-between align-center gap-4">
-            <div class="text-caption text-grey-lighten-1">جميع الحقوق محفوظة © {{ new Date().getFullYear() }} - متجر HWNix</div>
-            <div class="d-flex gap-6 text-caption text-grey-lighten-1">
-              <router-link to="/legal/privacy-policy" class="text-decoration-none text-inherit">سياسة الخصوصية</router-link>
-              <router-link to="/legal/terms-of-use" class="text-decoration-none text-inherit">شروط الاستخدام</router-link>
-              <router-link to="/legal/refund-policy" class="text-decoration-none text-inherit">سياسة الاسترجاع</router-link>
-            </div>
-          </div>
-        </v-container>
-      </footer>
     </main>
   </div>
 </template>
@@ -169,7 +96,6 @@
 import { ref, onMounted } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { useUserStore } from '@/stores/user';
-import { useBranding } from '@/composables/useBranding';
 import SellerBadge from '@/modules/store/components/SellerBadge.vue';
 import StoreNavbar from '@/modules/store/components/StoreNavbar.vue';
 import ProductCard from '@/modules/store/components/ProductCard.vue';
@@ -178,7 +104,6 @@ import { storeProductsApi } from '@/modules/store/api/storeProducts.api.js';
 const authStore = useAuthStore();
 const userStore = useUserStore();
 
-const { logoUrl, companyName, tagline, fetchBranding } = useBranding();
 
 const categories = ref([]);
 const featuredProducts = ref([]);
@@ -189,7 +114,6 @@ const banners = [
 ];
 
 onMounted(async () => {
-  fetchBranding();
   if (authStore.token && !userStore.currentUser) {
     try {
       await userStore.fetchUser();

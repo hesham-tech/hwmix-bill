@@ -1,6 +1,7 @@
 import { PERMISSIONS } from '@/config/permissions';
 
 export default [
+  {path: 'store-contact',name: 'store-contact-settings',component:()=>import('@/modules/settings/pages/StoreContactSettings.vue'),meta:{title:'بيانات تواصل المتجر',permission:[PERMISSIONS.ADMIN_SUPER,PERMISSIONS.STORE_CONTACT_MANAGE]}},
   { path:'my-store',name:'my-store',component:()=>import('@/modules/store/pages/VendorStore.vue'),meta:{title:'متجر شركتي',permission:[PERMISSIONS.STORE_VENDOR_ORDERS_VIEW,PERMISSIONS.STORE_VENDOR_FINANCE_VIEW,PERMISSIONS.STORE_VENDOR_DELIVERY_SETTINGS]} },
   {
     path: 'store-operations', name: 'store-operations',

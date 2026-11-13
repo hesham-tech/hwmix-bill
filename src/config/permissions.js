@@ -9,6 +9,7 @@
  */
 
 export const PERMISSIONS = {
+  STORE_CONTACT_MANAGE: 'store.contact.manage',
   STORE_SETTINGS_MANAGE: 'store.settings.manage',
   STORE_ORDERS_MANAGE: 'store.orders.manage',
   STORE_FINANCE_MANAGE: 'store.finance.manage',

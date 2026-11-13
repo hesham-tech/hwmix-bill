@@ -1,6 +1,7 @@
 <template>
   <v-app>
     <router-view />
+    <StoreFooter v-if="showStoreFooter" />
     <AppRouteLoading />
     <AppUpdateNotice />
     <ErrorDialog />
@@ -35,7 +36,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, provide } from 'vue';
+import { ref, onMounted, watch, provide, computed, defineAsyncComponent } from 'vue';
+import {useRoute} from 'vue-router';
+const StoreFooter=defineAsyncComponent(()=>import('@/modules/store/components/StoreFooter.vue'));
+const route=useRoute();
+const showStoreFooter=computed(()=>route.meta.public&&(route.name==='landing'||String(route.name||'').startsWith('store-')));
 import AppRouteLoading from '@/components/common/AppRouteLoading.vue';
 import AppUpdateNotice from '@/components/common/AppUpdateNotice.vue';
 import ErrorDialog from '@/modules/support/components/ErrorDialog.vue';

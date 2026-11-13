@@ -150,12 +150,7 @@
       </v-container>
     </div>
 
-    <footer class="d-flex flex-wrap justify-center ga-4 pa-5" aria-label="سياسات المتجر">
-      <router-link to="/store/policies/store-terms-of-sale">شروط الشراء</router-link>
-      <router-link to="/store/policies/store-privacy-policy">خصوصية المتجر</router-link>
-      <router-link to="/store/policies/store-returns-policy">الاستبدال والاسترجاع</router-link>
-      <a href="mailto:support@hwnix.com">الدعم</a>
-    </footer>
+
     <!-- Mobile Drawer -->
     <v-navigation-drawer v-model="showMobileFilter" location="right" temporary width="300" :z-index="2200" :style="{ maxWidth: '100vw' }" class="bg-white">
       <div class="pa-4 d-flex align-center justify-space-between border-b">
