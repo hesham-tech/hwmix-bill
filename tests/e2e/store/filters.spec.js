@@ -67,6 +67,19 @@ for (const width of [360, 390, 768, 959, 960, 1440]) {
   })
 }
 
+test('hosting trailing-slash URLs keep the mobile panel open after filtering', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 900 })
+  await page.goto('/store/', { waitUntil: 'networkidle' })
+  await page.getByRole('button', { name: 'تصفية المنتجات', exact: true }).click()
+  const drawer = page.getByRole('navigation', { name: 'تصفية المنتجات', exact: true })
+  await drawer.getByRole('button', { name: /هواتف/ }).click()
+  await expect(page.getByTestId('catalog-total')).toContainText('2')
+  await expect(drawer).toHaveClass(/v-navigation-drawer--active/)
+  await drawer.getByRole('button', { name: /لابتوبات/ }).click()
+  await expect(page.getByTestId('catalog-total')).toContainText('3')
+  await expect(drawer).toHaveClass(/v-navigation-drawer--active/)
+})
+
 test('price edits update results without a hidden apply button', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/store', { waitUntil: 'networkidle' })
