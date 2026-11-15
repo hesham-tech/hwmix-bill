@@ -1,0 +1,96 @@
+name: Deploy frontend staging
+
+on:
+  push:
+    branches: [staging]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: frontend-staging
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment: staging
+    timeout-minutes: 25
+    env:
+      VITE_API_BASE_URL: https://staging-api.hwnix.com/api/v1
+      VITE_API_URL: https://staging-api.hwnix.com/api/v1
+      VITE_APP_ENV: staging
+      STAGING_HOST: ${{ vars.STAGING_SSH_HOST }}
+      STAGING_USER: ${{ vars.STAGING_SSH_USER }}
+      STAGING_PORT: ${{ vars.STAGING_SSH_PORT }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Require current production source to be integrated
+        run: |
+          git fetch origin main
+          git merge-base --is-ancestor origin/main HEAD || {
+            echo 'Merge the latest main into staging and resolve conflicts before deployment.'
+            exit 1
+          }
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci --legacy-peer-deps --prefer-offline --no-audit --progress=false
+
+      - name: Run unit tests and validate deploy scripts
+        run: |
+          npm test
+          bash -n tools/deploy/frontend-staging.sh
+          node --check tools/deploy/prepare-staging.mjs
+
+      - name: Build and verify staging artifact
+        run: |
+          npm run build -- --mode staging
+          node tools/deploy/prepare-staging.mjs
+
+      - name: Install browser for catalog interaction checks
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify filters and mobile navigation before deployment
+        env:
+          E2E_PREVIEW: '1'
+          E2E_BASE_URL: http://localhost:5050
+        run: npx playwright test tests/e2e/store/filters.spec.js tests/e2e/store/mobile-store.spec.js --project=chromium --workers=1
+
+      - name: Configure dedicated staging SSH credentials
+        env:
+          DEPLOY_KEY: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
+          KNOWN_HOSTS: ${{ secrets.STAGING_SSH_KNOWN_HOSTS }}
+        run: |
+          test -n "$STAGING_HOST" && test -n "$STAGING_USER" && test -n "$STAGING_PORT"
+          test -n "$DEPLOY_KEY" && test -n "$KNOWN_HOSTS"
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/staging_frontend
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/staging_frontend ~/.ssh/known_hosts
+
+      - name: Upload static output only
+        run: |
+          tar -czf "$RUNNER_TEMP/frontend-$GITHUB_SHA.tgz" -C dist .
+          scp -i ~/.ssh/staging_frontend -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            -P "$STAGING_PORT" "$RUNNER_TEMP/frontend-$GITHUB_SHA.tgz" \
+            "$STAGING_USER@$STAGING_HOST:/home/u715355537/apps/hwnix-frontend-staging/incoming/$GITHUB_SHA.tgz"
+
+      - name: Activate staging and verify revision
+        run: |
+          ssh -i ~/.ssh/staging_frontend -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            -o ConnectTimeout=20 -p "$STAGING_PORT" "$STAGING_USER@$STAGING_HOST" \
+            "bash -s -- $GITHUB_SHA" < tools/deploy/frontend-staging.sh
+          test "$(curl --fail --silent --show-error --max-time 30 https://staging.hwnix.com/staging-revision.txt)" = "$GITHUB_SHA"
+          curl --fail --silent --show-error --max-time 30 https://staging-api.hwnix.com/up > /dev/null
+
+      - name: Remove runner deployment key
+        if: always()
+        run: rm -f ~/.ssh/staging_frontend
