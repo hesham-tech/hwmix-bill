@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { storeProductsApi } from '@/modules/store/api/storeProducts.api.js'
+import { defaultCatalogFilters, normalizeCatalogFilters } from '@/modules/store/utils/catalogFilters'
 
 export const useStoreProductsStore = defineStore('storeProducts', () => {
   const products = ref([])
@@ -15,13 +16,7 @@ export const useStoreProductsStore = defineStore('storeProducts', () => {
     perPage: 15
   })
 
-  const filters = ref({
-    category_id: null,
-    search: '',
-    company_id: null,
-    min_price: null,
-    max_price: null
-  })
+  const filters = ref(defaultCatalogFilters())
 
   async function fetchProducts(page = 1) {
     const version = ++requestVersion
@@ -58,23 +53,16 @@ export const useStoreProductsStore = defineStore('storeProducts', () => {
   }
 
   function setFilters(newFilters) {
-    filters.value = { ...filters.value, ...newFilters }
-    fetchProducts(1)
+    const merged = { ...filters.value, ...newFilters }
+    if ('category_id' in newFilters && !('category_ids' in newFilters)) delete merged.category_ids
+    if ('brand_id' in newFilters && !('brand_ids' in newFilters)) delete merged.brand_ids
+    filters.value = normalizeCatalogFilters(merged)
+    return fetchProducts(1)
   }
 
   function clearFilters() {
-    filters.value = {
-      brand_id: null,
-      in_stock: false,
-      vendor_id: null,
-      sort: 'newest',
-      category_id: null,
-      search: '',
-      company_id: null,
-      min_price: null,
-      max_price: null
-    }
-    fetchProducts(1)
+    filters.value = defaultCatalogFilters()
+    return fetchProducts(1)
   }
 
   return {

@@ -24,7 +24,7 @@
               <v-card-text class="d-flex align-center justify-space-between flex-wrap gap-4 py-2 px-3 py-md-3 px-md-4">
                 
                 <div class="d-flex align-center gap-3">
-                  <div class="text-body-2 font-weight-medium text-grey-darken-2">
+                  <div class="text-body-2 font-weight-medium text-grey-darken-2" role="status" aria-live="polite" data-testid="catalog-total">
                     عرض <span class="font-weight-black text-primary mx-1">{{ storeProductsStore.pagination.total || 0 }}</span> منتج
                   </div>
                 </div>
@@ -55,6 +55,7 @@
                 </div>
               </v-card-text>
             </v-card>
+            <v-progress-linear v-if="storeProductsStore.loading && storeProductsStore.products.length" indeterminate color="primary" aria-label="جارٍ تحديث المنتجات" class="mb-3" />
 
             <!-- Active Filters -->
             <div v-if="hasActiveFilters" class="d-flex flex-wrap gap-2 mb-4 px-1">
@@ -69,15 +70,23 @@
                 البحث: {{ storeProductsStore.filters.search }}
               </v-chip>
               <v-chip
-                v-if="storeProductsStore.filters.category_id"
+                v-for="id in storeProductsStore.filters.category_ids"
+                :key="`category-${id}`"
+                :data-testid="`category-filter-${id}`"
                 closable
-                @click:close="clearFilter('category_id')"
+                @click:close="removeSelection('category_ids', id)"
                 color="primary"
                 variant="flat"
                 size="small"
               >
-                تصفية بالقسم
+                {{ categories.find(category => Number(category.id) === id)?.name || 'تصنيف محدد' }}
               </v-chip>
+              <v-chip v-for="id in storeProductsStore.filters.brand_ids" :key="`brand-${id}`" :data-testid="`brand-filter-${id}`" closable color="primary" variant="flat" size="small" @click:close="removeSelection('brand_ids', id)">
+                {{ brands.find(brand => Number(brand.id) === id)?.name || 'علامة محددة' }}
+              </v-chip>
+              <v-chip v-if="storeProductsStore.filters.in_stock" closable size="small" @click:close="applyFilters({ in_stock: false })">متوفر فقط</v-chip>
+              <v-chip v-if="storeProductsStore.filters.min_price != null" closable size="small" @click:close="clearFilter('min_price')">من {{ storeProductsStore.filters.min_price }} ج.م</v-chip>
+              <v-chip v-if="storeProductsStore.filters.max_price != null" closable size="small" @click:close="clearFilter('max_price')">إلى {{ storeProductsStore.filters.max_price }} ج.م</v-chip>
               <v-btn
                 variant="text"
                 color="error"
@@ -152,18 +161,23 @@
 
 
     <!-- Mobile Drawer -->
-    <v-navigation-drawer v-model="showMobileFilter" location="right" temporary width="300" :z-index="2200" :style="{ maxWidth: '100vw' }" class="bg-white">
-      <div class="pa-4 d-flex align-center justify-space-between border-b">
+    <v-navigation-drawer v-model="showMobileFilter" location="right" temporary disable-route-watcher width="320" :z-index="2200" :style="{ maxWidth: '100vw' }" class="bg-white store-filters-drawer" aria-label="تصفية المنتجات">
+      <div class="pa-4 d-flex align-center justify-space-between border-b flex-shrink-0">
         <h3 class="text-h6 font-weight-bold mb-0">تصفية</h3>
-        <v-btn icon="ri-close-line" variant="text" density="comfortable" @click="showMobileFilter = false"></v-btn>
+        <v-btn variant="text" size="small" @click="clearAllFilters">مسح الكل</v-btn>
+        <v-btn icon="ri-close-line" variant="text" density="comfortable" aria-label="إغلاق الفلاتر" @click="showMobileFilter = false"></v-btn>
       </div>
-      <div class="pa-4">
+      <div class="pa-4 mobile-filter-body">
         <FiltersSidebar
+          mobile
           :categories="categories"
           :brands="brands"
           :filters="storeProductsStore.filters"
           @update:filters="applyFilters"
         />
+      </div>
+      <div class="pa-3 border-t flex-shrink-0 mobile-filter-footer">
+        <v-btn color="primary" block rounded="pill" height="48" @click="showMobileFilter = false">عرض النتائج ({{ storeProductsStore.pagination.total }})</v-btn>
       </div>
     </v-navigation-drawer>
 
@@ -181,6 +195,7 @@ import ProductCardSkeleton from '@/modules/store/components/ProductCardSkeleton.
 import FiltersSidebar from '@/modules/store/components/FiltersSidebar.vue'
 import { useStoreMobileNav } from '@/modules/store/composables/useStoreMobileNav'
 import { useStoreCategories } from '@/modules/store/composables/useStoreCategories'
+import { catalogFiltersFromQuery, catalogFiltersToQuery, normalizeCatalogFilters, defaultCatalogFilters } from '@/modules/store/utils/catalogFilters'
 
 const route = useRoute()
 const router = useRouter()
@@ -201,28 +216,28 @@ const sortOptions = [
 
 const hasActiveFilters = computed(() => {
   const f = storeProductsStore.filters
-  return f.search || f.category_id || f.brand_id || f.in_stock || f.min_price != null || f.max_price != null
+  return f.search || f.category_ids.length || f.brand_ids.length || f.in_stock || f.min_price != null || f.max_price != null
 })
 
 const applyFilters = (newFilters) => {
-  storeProductsStore.setFilters(newFilters)
-  showMobileFilter.value = false
+  const filters = normalizeCatalogFilters({ ...storeProductsStore.filters, ...newFilters })
+  router.replace({ path: '/store', query: catalogFiltersToQuery(filters) })
 }
 
 const applySort = (value) => {
-  storeProductsStore.setFilters({ sort: value })
+  applyFilters({ sort: value })
 }
 
 const clearFilter = (key) => {
-  storeProductsStore.setFilters({ [key]: null })
+  applyFilters({ [key]: key === 'search' ? '' : null })
 }
 
+const removeSelection = (key, id) => applyFilters({ [key]: storeProductsStore.filters[key].filter(value => value !== id) })
+
 const clearAllFilters = () => {
-  storeProductsStore.clearFilters()
   sortBy.value = 'newest'
-  if (Object.keys(route.query).length) {
-    router.replace({ path: '/store' })
-  }
+  if (Object.keys(route.query).length) router.replace({ path: '/store' })
+  else storeProductsStore.setFilters(defaultCatalogFilters())
 }
 
 const onPageChange = (page) => {
@@ -238,19 +253,12 @@ const loadBrands = async () => {
 }
 
 watch(() => route.query, (newQuery) => {
-  storeProductsStore.setFilters({
-    search: newQuery.q || '',
-    vendor_id: newQuery.vendor_id || '',
-    category_id: newQuery.category_id || ''
-  })
-}, { deep: true })
+  const filters = catalogFiltersFromQuery(newQuery)
+  sortBy.value = filters.sort
+  storeProductsStore.setFilters(filters)
+}, { deep: true, immediate: true })
 
 onMounted(() => {
-  storeProductsStore.setFilters({
-    search: route.query.q || '',
-    vendor_id: route.query.vendor_id || '',
-    category_id: route.query.category_id || ''
-  })
   loadCategories()
   loadBrands()
 })
@@ -264,6 +272,9 @@ onMounted(() => {
 .store-main-bg {
   background: #f8fafc;
 }
+.store-filters-drawer :deep(.v-navigation-drawer__content) { display: flex; flex-direction: column; overflow: hidden; }
+.mobile-filter-body { flex: 1; min-height: 0; overflow-y: auto; }
+.mobile-filter-footer { background: white; padding-bottom: max(12px, env(safe-area-inset-bottom, 0px)) !important; }
 
 /* مساحة أمان سفلية للهاتف - تمنع تغطية الشريط السفلي للمحتوى */
 @media (max-width: 959px) {

@@ -307,7 +307,9 @@ const selectCategory = (id) => {
   router.push({ path: '/store', query: { category_id: id } })
 }
 watch(isMobileCategoriesOpen, open => { if (open) loadCategories() })
-watch(() => route.fullPath, () => {
+watch(() => route.fullPath, (_path, previous) => {
+  // Filter query updates keep the panel open so several choices can be made.
+  if (isMobileFilterOpen.value && route.path === '/store' && previous?.split(/[?#]/)[0] === '/store') return
   resetStoreMobileNav()
   cartStore.isDrawerOpen = false
 }, { immediate: true })
