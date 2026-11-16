@@ -73,3 +73,11 @@ graphify-out/
 
 # Isolated label editor verification outputs
 tools/label-templates/.qa-output/
+
+# Private SSH material
+*.pem
+*.key
+/id_rsa
+/id_ed25519
+
+/temp_ssh_key*

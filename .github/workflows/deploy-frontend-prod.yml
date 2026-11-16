@@ -5,17 +5,25 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   build-and-deploy:
+    environment: production
+    timeout-minutes: 25
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      - name: Reject tracked secret material
+        run: python3 tools/security/scan_tracked_secrets.py
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -32,25 +40,27 @@ jobs:
           VITE_API_BASE_URL: 'https://bill-api.hwnix.com/api/v1'
           VITE_API_URL: 'https://bill-api.hwnix.com/api/v1'
 
+      - name: Configure trusted SSH host
+        env:
+          SSH_KNOWN_HOSTS: ${{ secrets.PRODUCTION_SSH_KNOWN_HOSTS }}
+        run: |
+          test -n "$SSH_KNOWN_HOSTS"
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
       - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.9.0
         with:
-          ssh-private-key: |
-            -----BEGIN OPENSSH PRIVATE KEY-----
-            b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
-            QyNTUxOQAAACA6g37ShyPiZgfHaFfVnmicCN5PLQIWh4/t247UWaQcEAAAAIgdHZUuHR2V
-            LgAAAAtzc2gtZWQyNTUxOQAAACA6g37ShyPiZgfHaFfVnmicCN5PLQIWh4/t247UWaQcEA
-            AAAEBclRKUG/1G65MQ0XImU2COe0ZPBRsZaFhBvYsDc2sHlDqDftKHI+JmB8doV9WeaJwI
-            3k8tAhaHj+3bjtRZpBwQAAAABWh3bml4
-            -----END OPENSSH PRIVATE KEY-----
+          ssh-private-key: ${{ secrets.PRODUCTION_SSH_PRIVATE_KEY }}
 
       - name: Deploy via Rsync
         run: |
-          rsync -avz --delete -e "ssh -p 65002 -o StrictHostKeyChecking=no -o ConnectTimeout=30 -o ServerAliveInterval=15" \
+          rsync -avz --delete -e "ssh -p 65002 -o StrictHostKeyChecking=yes -o BatchMode=yes -o ForwardAgent=no -o ConnectTimeout=30 -o ServerAliveInterval=15" \
           --rsync-path="mkdir -p /home/u715355537/domains/hwnix.com/public_html/bill/ && rsync" \
           ./dist/ u715355537@212.107.17.234:/home/u715355537/domains/hwnix.com/public_html/bill/
 
       - name: Run Post-Deployment Health Check
         run: |
           echo "🔍 Running Frontend health check..."
-          curl -f -I -k https://bill.hwnix.com || curl -f -I -k https://hwnix.com/bill/ || exit 1
+          curl -f -I https://bill.hwnix.com || curl -f -I https://hwnix.com/bill/ || exit 1
