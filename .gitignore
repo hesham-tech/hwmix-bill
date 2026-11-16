@@ -79,3 +79,5 @@ tools/label-templates/.qa-output/
 *.key
 /id_rsa
 /id_ed25519
+
+/temp_ssh_key*
