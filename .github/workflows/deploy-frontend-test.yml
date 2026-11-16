@@ -7,11 +7,16 @@ on:
 
 jobs:
   build-and-deploy:
+    environment: legacy-testing
+    timeout-minutes: 25
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      - name: Reject tracked secret material
+        run: python3 tools/security/scan_tracked_secrets.py
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -37,15 +42,24 @@ jobs:
         env:
           VITE_API_URL: ${{ secrets.TEST_API_URL }}
 
+      - name: Configure trusted SSH host
+        env:
+          SSH_KNOWN_HOSTS: ${{ secrets.LEGACY_SSH_KNOWN_HOSTS }}
+        run: |
+          test -n "$SSH_KNOWN_HOSTS"
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
       - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.9.0
         with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh-private-key: ${{ secrets.LEGACY_SSH_PRIVATE_KEY }}
 
       - name: Ensure Remote Directory Exists
         run: |
-          ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "mkdir -p /home/u715355537/domains/hwnix.com/public_html/bill-teste/"
+          ssh -p ${{ vars.LEGACY_SSH_PORT }} -o StrictHostKeyChecking=yes -o BatchMode=yes -o ForwardAgent=no ${{ vars.LEGACY_SSH_USER }}@${{ vars.LEGACY_SSH_HOST }} "mkdir -p /home/u715355537/domains/hwnix.com/public_html/bill-teste/"
 
       - name: Deploy via Rsync
         run: |
-          rsync -avz --delete -e "ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no" ./dist/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/u715355537/domains/hwnix.com/public_html/bill-teste/
+          rsync -avz --delete -e "ssh -p ${{ vars.LEGACY_SSH_PORT }} -o StrictHostKeyChecking=yes -o BatchMode=yes -o ForwardAgent=no" ./dist/ ${{ vars.LEGACY_SSH_USER }}@${{ vars.LEGACY_SSH_HOST }}:/home/u715355537/domains/hwnix.com/public_html/bill-teste/
