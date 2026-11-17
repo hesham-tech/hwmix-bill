@@ -26,10 +26,18 @@ class BackupService extends BaseService {
   /**
    * Download a backup file
    */
-  async download(id) {
+  async confirmPassword(id, action, password) {
+    const response = await apiClient.post(`${this.resource}/confirm-password`, { backup_id: id, action, password }, { handleErrorsLocally: true });
+    return response.data.data.confirmation_token;
+  }
+
+  async download(id, password) {
     try {
+      const confirmation = await this.confirmPassword(id, 'download', password);
       const response = await apiClient.get(`${this.resource}/${id}/download`, {
         responseType: 'blob',
+        headers: { 'X-Backup-Confirmation-Token': confirmation },
+        handleErrorsLocally: true,
       });
 
       // Create downloadable link
@@ -40,10 +48,11 @@ class BackupService extends BaseService {
       document.body.appendChild(link);
       link.click();
       link.remove();
+      setTimeout(() => window.URL.revokeObjectURL(url), 60_000);
 
       return response.data;
     } catch (error) {
-      return this.handleError(error, true);
+      return this.handleError(error, false);
     }
   }
 
@@ -76,10 +85,14 @@ class BackupService extends BaseService {
   /**
    * Restore from backup
    */
-  async restore(id, token, options = {}) {
+  async restore(id, token, password, options = {}) {
     const { showToast = false, loading = true } = options;
     try {
-      const response = await apiClient.post(`${this.resource}/${id}/restore`, { token });
+      const confirmation = await this.confirmPassword(id, 'restore', password);
+      const response = await apiClient.post(`${this.resource}/${id}/restore`, { token }, {
+        headers: { 'X-Backup-Confirmation-Token': confirmation },
+        handleErrorsLocally: true,
+      });
       return this.handleSuccess(response, showToast);
     } catch (error) {
       return this.handleError(error, showToast);

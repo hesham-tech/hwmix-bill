@@ -47,14 +47,15 @@
                 variant="text"
                 color="primary"
                 size="small"
-                @click="backupService.download(item.id)"
+                aria-label="تنزيل النسخة"
+                @click="confirmDownload(item)"
               />
             </template>
           </v-tooltip>
 
           <v-tooltip text="استعادة">
             <template #activator="{ props }">
-              <v-btn v-bind="props" icon="ri-history-line" variant="text" color="warning" size="small" @click="confirmRestore(item)" />
+              <v-btn v-bind="props" aria-label="استعادة النسخة" icon="ri-history-line" variant="text" color="warning" size="small" @click="confirmRestore(item)" />
             </template>
           </v-tooltip>
 
@@ -90,8 +91,22 @@
       </v-card>
     </v-dialog>
 
+    <v-dialog v-model="downloadDialog" max-width="450" @after-leave="downloadPassword = ''">
+      <v-card rounded="md">
+        <v-card-title>تأكيد تنزيل نسخة النظام</v-card-title>
+        <v-card-text>
+          <p class="mb-4">أدخل كلمة مرور حسابك لتأكيد هويتك قبل تنزيل النسخة.</p>
+          <v-text-field v-model="downloadPassword" label="كلمة المرور الحالية" type="password" autocomplete="current-password" />
+        </v-card-text>
+        <v-card-actions>
+          <v-btn @click="downloadDialog = false">إلغاء</v-btn>
+          <v-btn color="primary" :loading="downloading" :disabled="!downloadPassword" @click="performDownload">تأكيد التنزيل</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <!-- Restore Confirmation Dialog -->
-    <v-dialog v-model="restoreDialog" max-width="600">
+    <v-dialog v-model="restoreDialog" max-width="600" @after-leave="restorePassword = ''; restoreToken = ''">
       <v-card border="error md" rounded="md">
         <v-card-title class="pa-2 pb-2 text-error d-flex align-center">
           <v-icon icon="ri-error-warning-line" class="me-2" />
@@ -112,6 +127,7 @@
             placeholder="أدخل رمز الاستعادة السري"
             type="password"
           />
+          <v-text-field v-model="restorePassword" label="كلمة المرور الحالية" type="password" autocomplete="current-password" />
         </v-card-text>
         <v-divider />
         <v-card-actions class="pa-2">
@@ -244,6 +260,36 @@ const saveSettings = async () => {
 const deleteDialog = ref(false);
 const selectedBackup = ref(null);
 const deleting = ref(false);
+const downloadDialog = ref(false);
+const downloadPassword = ref('');
+const downloading = ref(false);
+
+const showBackupError = error => {
+  const status = error?.response?.status;
+  const message = [403, 404, 422, 429].includes(status) && typeof error?.response?.data?.message === 'string'
+    ? error.response.data.message : 'تعذرت العملية. أكد هويتك وأعد المحاولة.';
+  notificationManager.error(message, { domain: 'security', code: `BACKUP_ACTION_${status || 'FAILED'}` });
+};
+
+const confirmDownload = item => {
+  selectedBackup.value = item;
+  downloadPassword.value = '';
+  downloadDialog.value = true;
+};
+
+const performDownload = async () => {
+  if (!downloadPassword.value || downloading.value) return;
+  downloading.value = true;
+  try {
+    await backupService.download(selectedBackup.value.id, downloadPassword.value);
+    downloadDialog.value = false;
+  } catch (error) {
+    showBackupError(error);
+  } finally {
+    downloadPassword.value = '';
+    downloading.value = false;
+  }
+};
 
 const confirmDelete = item => {
   selectedBackup.value = item;
@@ -265,29 +311,35 @@ const deleteBackup = async () => {
 const restoreDialog = ref(false);
 const restoring = ref(false);
 const restoreToken = ref('');
+const restorePassword = ref('');
 
 const confirmRestore = item => {
   selectedBackup.value = item;
   restoreToken.value = '';
+  restorePassword.value = '';
   restoreDialog.value = true;
 };
 
 const performRestore = async () => {
-  if (!restoreToken.value) {
-    notificationManager.error('يرجى إدخال رمز التأكيد');
+  if (!restoreToken.value || !restorePassword.value) {
+    notificationManager.error('يرجى إدخال رمز الاستعادة وكلمة المرور الحالية');
     return;
   }
 
   restoring.value = true;
   try {
-    await backupService.restore(selectedBackup.value.id, restoreToken.value);
+    await backupService.restore(selectedBackup.value.id, restoreToken.value, restorePassword.value);
     restoreDialog.value = false;
     // Potentially reload page or notify user that system is refreshing
     notificationManager.info('تمت العملية، جاري إعادة تشغيل النظام...');
     setTimeout(() => {
       window.location.reload();
     }, 2000);
+  } catch (error) {
+    showBackupError(error);
   } finally {
+    restorePassword.value = '';
+    restoreToken.value = '';
     restoring.value = false;
   }
 };
@@ -328,7 +380,7 @@ const getStatusText = status => {
 };
 
 onMounted(() => {
-  fetchBackups();
+  if (can(PERMISSIONS.ADMIN_SUPER)) fetchBackups();
 });
 </script>
 
