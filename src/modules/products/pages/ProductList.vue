@@ -81,6 +81,7 @@
                     style="height: 40px"
                     :loading="exportLoading"
                     tooltip="تحميل منتجات"
+                    data-testid="export-products"
                     @click="handleExport"
                   >
                     <span class="d-none d-sm-inline">تحميل منتجات</span>
@@ -432,7 +433,8 @@
               variant="flat"
               prepend-icon="ri-download-2-line"
               class="px-8 font-weight-bold rounded-pill"
-              @click="triggerFileDownload(exportDownloadUrl)"
+              :loading="exportDownloading"
+              @click="triggerFileDownload()"
             >
               تحميل الملف الناتج
             </v-btn>
@@ -461,6 +463,7 @@ import { usePermissions } from '@/composables/usePermissions';
 import { useDataTable } from '@/composables/useDataTable';
 import { useApi } from '@/composables/useApi';
 import productService from '@/api/services/product.service';
+import { downloadProductExport } from '../services/exportDownload';
 import { PERMISSIONS } from '@/config/permissions';
 import { useUserStore } from '@/stores/user';
 import AppDataTable from '@/components/common/AppDataTable.vue';
@@ -743,6 +746,8 @@ const confirmBulkDelete = async () => {
 // --- تصدير المنتجات بالخلفية ---
 
 const exportImportApi = useApi('/api/export-import');
+const exportScheduleApi = useApi('/api/export-import/export');
+const exportDownloading = ref(false);
 const exportLoading = ref(false);
 const exportDialogOpen = ref(false);
 const exportProgress = ref(0);
@@ -759,7 +764,7 @@ const handleExport = async () => {
   exportDownloadUrl.value = '';
   
   try {
-    const res = await exportImportApi.create({ model_type: 'products' }, { showLoading: false });
+    const res = await exportScheduleApi.create({ model_type: 'products' }, { showLoading: false });
     if (res.data && res.data.id) {
       exportJobId.value = res.data.id;
       startExportPolling(res.data.id);
@@ -791,7 +796,7 @@ const startExportPolling = (jobId) => {
           exportDownloadUrl.value = res.data.download_url;
           
           if (res.data.download_url) {
-            triggerFileDownload(res.data.download_url);
+            await triggerFileDownload();
           }
         } else if (res.data.status === 'failed') {
           clearInterval(exportPollingInterval);
@@ -805,13 +810,16 @@ const startExportPolling = (jobId) => {
   }, 2000);
 };
 
-const triggerFileDownload = (url) => {
-  const link = document.createElement('a');
-  link.href = url;
-  link.setAttribute('download', `products_export_${Date.now()}.xlsx`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+const triggerFileDownload = async () => {
+  if (exportDownloading.value) return;
+  exportDownloading.value = true;
+  try {
+    await downloadProductExport(exportJobId.value);
+  } catch {
+    exportStatusText.value = 'تعذر تنزيل الملف. تحقق من تسجيل الدخول وصلاحية التصدير، ثم أعد المحاولة.';
+  } finally {
+    exportDownloading.value = false;
+  }
 };
 
 const closeExportDialog = () => {
