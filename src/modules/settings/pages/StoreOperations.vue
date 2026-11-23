@@ -1,6 +1,6 @@
 <template>
   <div dir="rtl" class="store-operations">
-    <div class="d-flex align-center flex-wrap ga-3 mb-5"><h1 class="text-h4">إدارة المتجر</h1><v-spacer /><v-btn :loading="busy" @click="refresh">تحديث</v-btn><v-btn v-if="contactAccess.hasPermission('store.contact.manage')" to="/app/store-contact" variant="outlined">بيانات التواصل</v-btn><v-btn to="/store" variant="outlined">عرض المتجر</v-btn></div>
+    <div class="d-flex align-center flex-wrap ga-3 mb-5"><h1 class="text-h4">إدارة المتجر</h1><v-spacer /><v-btn :loading="busy" @click="refresh">تحديث</v-btn><v-btn v-if="contactAccess.hasPermission('store.contact.manage')" to="/app/store-contact" variant="outlined">بيانات التواصل</v-btn><v-btn v-if="contactAccess.hasPermission('store.maps.manage')" to="/app/store-maps" variant="outlined">الخرائط والعناوين</v-btn><v-btn to="/store" variant="outlined">عرض المتجر</v-btn></div>
     <v-alert v-if="error" type="error" closable class="mb-4" @click:close="error = ''">{{ error }}</v-alert>
     <v-progress-linear v-if="busy" indeterminate class="mb-4" />
     <template v-if="boot">
