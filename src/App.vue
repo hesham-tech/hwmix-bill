@@ -10,7 +10,7 @@
     <SaaSLimitDialog />
 
     <!-- Floating Action Button for Manual Reports/Feedback -->
-    <v-tooltip location="top">
+    <v-tooltip v-if="!companySetup.open&&!companySetup.panel" location="top">
       <template #activator="{ props: tooltipProps }">
         <v-btn
           v-bind="tooltipProps"
@@ -40,6 +40,8 @@ import { ref, onMounted, watch, provide, computed, defineAsyncComponent } from '
 import {useRoute} from 'vue-router';
 const StoreFooter=defineAsyncComponent(()=>import('@/modules/store/components/StoreFooter.vue'));
 const route=useRoute();
+import {useCompanySetupStore} from '@/modules/guidance/store/useCompanySetupStore';
+const companySetup=useCompanySetupStore();
 const showStoreFooter=computed(()=>route.meta.public&&(route.name==='landing'||String(route.name||'').startsWith('store-')));
 import AppRouteLoading from '@/components/common/AppRouteLoading.vue';
 import AppUpdateNotice from '@/components/common/AppUpdateNotice.vue';

@@ -1,5 +1,6 @@
 <template>
   <div class="warehouses-page">
+    <SetupQuickLinks :options="['warehouses', 'locations']" />
     <!-- Page Header -->
     <div class="page-header d-flex align-center justify-space-between mb-2">
       <div>
@@ -386,6 +387,7 @@
 </template>
 
 <script setup>
+import SetupQuickLinks from '@/modules/guidance/components/SetupQuickLinks.vue';
 import { ref, onMounted, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useWarehouseStore } from '../store/warehouse.store';

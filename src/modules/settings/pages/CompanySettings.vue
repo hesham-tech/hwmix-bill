@@ -6,6 +6,8 @@
       <p class="text-subtitle-1 text-grey-darken-1">تخصيص الهوية البصرية وإدارة البيانات الأساسية للنظام</p>
     </div>
 
+    <SetupOptionsHub />
+
     <!-- Main Tabbed Layout -->
     <v-row class="pb-16 mb-16">
       <!-- Tabs Column (Desktop) -->
@@ -740,6 +742,7 @@
 </template>
 
 <script setup>
+import SetupOptionsHub from '@/modules/guidance/components/SetupOptionsHub.vue';
 import {useCompanySetupStore} from '@/modules/guidance/store/useCompanySetupStore';
 const companySetup=useCompanySetupStore();
 // مكون إعدادات الشركة: يتيح تعديل الشعار، البيانات الأساسية والقانونية، قنوات التواصل، وتفضيلات النظام والطباعة.

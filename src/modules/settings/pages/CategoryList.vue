@@ -1,5 +1,6 @@
 <template>
   <div v-if="canAny(PERMISSIONS.CATEGORIES_VIEW_ALL, PERMISSIONS.CATEGORIES_VIEW_CHILDREN, PERMISSIONS.CATEGORIES_VIEW_SELF)" class="categories-page">
+    <SetupQuickLinks :options="['categories']" />
     <!-- Data Table -->
     <AppDataTable
       v-model:page="page"
@@ -302,6 +303,7 @@
 </template>
 
 <script setup>
+import SetupQuickLinks from '@/modules/guidance/components/SetupQuickLinks.vue';
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useCategoriesData } from '../composables/useCategoriesData';

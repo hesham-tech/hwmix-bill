@@ -1,5 +1,6 @@
 <template>
   <div dir="rtl" class="vendor-store">
+    <SetupQuickLinks :options="['seller_identity','policies','warehouses']" />
     <div class="d-flex flex-wrap ga-3 align-center mb-5"><h1 class="text-h4">متجر شركتي</h1><v-spacer/><v-btn :loading="busy" @click="load">تحديث</v-btn><v-btn to="/store" variant="outlined">عرض المتجر</v-btn></div>
     <v-alert v-if="error" type="error" class="mb-4">{{ error }}</v-alert>
     <StoreNotificationsPanel v-if="canOrders" scope="vendor"/>
@@ -35,6 +36,7 @@
   </div>
 </template>
 <script setup>
+import SetupQuickLinks from '@/modules/guidance/components/SetupQuickLinks.vue';
 import { computed,onMounted,ref,watch } from 'vue'
 import StoreLocalDeliverySettings from '@/modules/store/components/StoreLocalDeliverySettings.vue'
 import StorePickupOverride from '@/modules/store/components/StorePickupOverride.vue'

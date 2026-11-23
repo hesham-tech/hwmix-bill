@@ -1,5 +1,6 @@
 <template>
   <div class="role-management-page pa-2">
+    <SetupQuickLinks :options="['roles']" />
     <!-- Header -->
     <div class="d-flex align-center justify-space-between mb-8">
       <div>
@@ -135,6 +136,7 @@
 </template>
 
 <script setup>
+import SetupQuickLinks from '@/modules/guidance/components/SetupQuickLinks.vue';
 import { reactive, onMounted, ref } from 'vue';
 import { usePermissions } from '@/composables/usePermissions';
 import { PERMISSIONS } from '@/config/permissions';

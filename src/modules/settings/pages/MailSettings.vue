@@ -2,6 +2,7 @@
 
 <template>
   <div class="mail-settings-page">
+    <SetupQuickLinks :options="['email']" />
     <!-- Header -->
     <div class="page-header mb-8 d-flex align-center justify-between flex-wrap gap-4">
       <div>
@@ -319,6 +320,7 @@
 </template>
 
 <script setup>
+import SetupQuickLinks from '@/modules/guidance/components/SetupQuickLinks.vue';
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useApi } from '@/composables/useApi';

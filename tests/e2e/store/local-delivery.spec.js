@@ -39,11 +39,11 @@ test('checkout requires a confirmed location and saves the old address after GPS
   await page.route('**/store/addresses',route=>route.fulfill({json:{data:[address]}}))
   await page.route('**/store/addresses/7',async route=>{updated=route.request().postDataJSON();await route.fulfill({json:{data:{...address,...updated}}})})
   await page.goto('/store/checkout');const next=page.getByRole('button',{name:'المتابعة إلى الدفع',exact:true});await expect(next).toBeDisabled()
-  await page.getByRole('button',{name:'استخدام موقعي',exact:true}).click();await expect(page.getByText('تعذر الحصول على الموقع أو رُفض الإذن. يمكنك تحديد العنوان على الخريطة أو إدخال إحداثياته.',{exact:true})).toBeVisible()
+  await page.getByRole('button',{name:'استخدام موقعي',exact:true}).click();await expect(page.getByText('تعذر الحصول على الموقع أو رُفض الإذن. اختر النقطة على الخريطة أو أدخل إحداثياتها.',{exact:true})).toBeVisible()
   await page.route('https://tile.openstreetmap.org/**',route=>route.abort())
   await page.getByRole('button',{name:'تحديد النقطة على الخريطة',exact:true}).click()
-  await expect(page.getByText('تعذر تحميل أجزاء الخريطة. يمكنك إعادة المحاولة أو استخدام موقع الجهاز أو إدخال الإحداثيات وتأكيدها.',{exact:true})).toBeVisible()
-  await page.getByRole('spinbutton',{name:'خط العرض',exact:true}).fill('30.01');await page.getByRole('spinbutton',{name:'خط الطول',exact:true}).fill('31.02')
+  await expect(page.getByText('تعذر تحميل أجزاء الخريطة. أعد المحاولة أو استخدم موقع الجهاز أو الإحداثيات اليدوية.',{exact:true})).toBeVisible()
+  await page.locator('summary').filter({hasText:'إدخال الإحداثيات يدويًا'}).click();await page.getByRole('spinbutton',{name:'خط العرض',exact:true}).fill('30.01');await page.getByRole('spinbutton',{name:'خط الطول',exact:true}).fill('31.02')
   for (const width of [360,390,959,960,1440]) {
     await page.setViewportSize({width,height:900})
     await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true)
@@ -63,7 +63,7 @@ test('employee overrides only the pickup then dispatches and records local deliv
   await page.goto('/app/my-store');await expect(page.getByRole('heading',{name:'متجر شركتي',exact:true})).toBeVisible();await dismissWelcome(page)
   await page.getByRole('button',{name:'تعديل نقطة استلام هذا الطلب',exact:true}).click();const dialog=page.getByRole('dialog')
   await dialog.getByRole('textbox',{name:'عنوان الاستلام للطلب',exact:true}).fill('مكان تحميل بديل')
-  await dialog.getByRole('spinbutton',{name:'خط العرض',exact:true}).fill('30.5');await dialog.getByRole('button',{name:'تأكيد نقطة العنوان',exact:true}).click()
+  await dialog.locator('summary').filter({hasText:'إدخال الإحداثيات يدويًا'}).click();await dialog.getByRole('spinbutton',{name:'خط العرض',exact:true}).fill('30.5');await dialog.getByRole('button',{name:'تأكيد نقطة العنوان',exact:true}).click()
   await dialog.getByRole('textbox',{name:'سبب تعديل الاستلام',exact:true}).fill('تغيير مكان تحميل الطلب فقط');await dialog.getByRole('checkbox',{name:'أؤكد تعديل مكان الاستلام فقط لهذا الطلب',exact:true}).check();await dialog.getByRole('button',{name:'حفظ نقطة استلام الطلب',exact:true}).click();await expect(dialog).not.toBeVisible()
   expect(pickupBody.address.latitude).toBe(30.5);expect(pickupBody.warehouse_id).toBeUndefined();expect(order.pickup.original.latitude).toBe(30)
   for(const [label,action] of [['خرج للتوصيل الذاتي','dispatch'],['تأكيد تسليم التوصيل الذاتي','delivered'],['توثيق تحصيل التوصيل الذاتي','collect']]){

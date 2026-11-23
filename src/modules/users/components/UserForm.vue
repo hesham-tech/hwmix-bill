@@ -7,7 +7,7 @@
 
       <!-- Avatar Selection -->
       <div class="d-flex justify-center mb-4">
-        <div class="avatar-selection-zone position-relative cursor-pointer" @click="showMediaGallery = true">
+        <div class="avatar-selection-zone position-relative cursor-pointer" @click="openMedia()">
           <v-avatar
             size="120"
             :color="!imagePreview ? 'primary-lighten-5' : undefined"
@@ -26,7 +26,7 @@
             size="x-small"
             color="primary"
             class="position-absolute bottom-0 right-0 elevation-4"
-            @click.stop="showMediaGallery = true"
+            @click.stop="openMedia()"
           />
         </div>
       </div>
@@ -324,6 +324,7 @@ import { useBranchStore } from '@/stores/branch';
 import { companyService } from '@/api';
 
 const props = defineProps({
+  externalMedia: { type: Boolean, default: false },
   modelValue: {
     type: Object,
     default: () => ({}),
@@ -338,7 +339,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['save', 'cancel']);
+const emit = defineEmits(['save', 'cancel', 'request-media']);
 
 const store = useUserManagementStore();
 const globalUserStore = useGlobalUserStore();
@@ -347,6 +348,7 @@ const formRef = ref(null);
 const loading = ref(false);
 const loadingCompanies = ref(false);
 const showMediaGallery = ref(false);
+const openMedia = () => { if (props.externalMedia) emit('request-media'); else showMediaGallery.value = true; };
 const allCompanies = ref([]);
 const allBranches = computed(() => branchStore.branches);
 const isPasswordFocused = ref(false);
@@ -503,6 +505,7 @@ const handleSubmit = async () => {
 };
 
 defineExpose({
+  handleImageSelect,
   handleSubmit,
   loading,
   form,
