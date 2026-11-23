@@ -1,6 +1,7 @@
 <!--   شاشة إدارة قوالب الرسائل والإشعارات للشركة، تدعم عرض القائمة، إنشاء وتعديل وحذف القوالب مع توفير أزرار سريعة لإدراج المتغيرات الديناميكية مثل اسم العميل ورقم الفاتورة. -->
 <template>
   <div class="tp-page">
+    <SetupQuickLinks :options="['templates']" />
     <!-- ═══════════════════════════════ TOP BAR ═══════════════════════════════ -->
     <div class="tp-topbar">
       <div class="tp-topbar-inner">
@@ -309,6 +310,7 @@
 </template>
 
 <script setup>
+import SetupQuickLinks from '@/modules/guidance/components/SetupQuickLinks.vue';
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useApi } from '@/composables/useApi';

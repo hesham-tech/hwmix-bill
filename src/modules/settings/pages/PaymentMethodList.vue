@@ -1,5 +1,6 @@
 <template>
   <div class="payment-methods-page">
+    <SetupQuickLinks :options="['payments']" />
     <!-- Page Header -->
     <div class="page-header d-flex align-center justify-space-between mb-2">
       <div>
@@ -163,6 +164,7 @@
 </template>
 
 <script setup>
+import SetupQuickLinks from '@/modules/guidance/components/SetupQuickLinks.vue';
 import { ref, onMounted, computed, watch } from 'vue';
 import { usePaymentMethodsData } from '../composables/usePaymentMethodsData';
 import PaymentMethodForm from '../components/PaymentMethodForm.vue';

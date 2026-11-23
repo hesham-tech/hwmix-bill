@@ -502,9 +502,10 @@
     :tour-key="activeTourKey"
     @restart-tour="handleRestartTour"
   />
-  <GuidanceTour v-if="guidanceStore.guidanceEnabled && !companySetup.open && !companySetup.autoPending" />
+  <GuidanceTour v-if="guidanceStore.guidanceEnabled && !companySetup.open && !companySetup.panel && !companySetup.autoPending" />
+  <SetupOptionsHost />
   <CompanySetupWizard :blocked="!!legalAcceptanceModal?.visible || !!legalAcceptanceModal?.checking || !!systemUpdatesDialog?.visible" />
-  <HintBubble v-if="guidanceStore.guidanceEnabled && !companySetup.open && !companySetup.autoPending" />
+  <HintBubble v-if="guidanceStore.guidanceEnabled && !companySetup.open && !companySetup.panel && !companySetup.autoPending" />
   
   <!-- Legal Document Acceptance Modal -->
   <LegalAcceptanceModal ref="legalAcceptanceModal" />
@@ -582,6 +583,7 @@ import unitsTour from '@/modules/guidance/content/tours/units.tour.js';
 
 // تعريف المكونات بشكل غير متزامن (Lazy loading) لمنع زيادة حجم الـ main bundle
 const GuidanceTour = defineAsyncComponent(() => import('@/modules/guidance/components/GuidanceTour.vue'));
+const SetupOptionsHost = defineAsyncComponent(() => import('@/modules/guidance/components/SetupOptionsHost.vue'));
 const CompanySetupWizard = defineAsyncComponent(() => import('@/modules/guidance/components/CompanySetupWizard.vue'));
 import {useCompanySetupStore} from '@/modules/guidance/store/useCompanySetupStore';
 const companySetup=useCompanySetupStore();

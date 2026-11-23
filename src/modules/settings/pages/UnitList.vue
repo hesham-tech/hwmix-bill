@@ -1,5 +1,6 @@
 <template>
   <div class="units-page pa-6">
+    <SetupQuickLinks :options="['groups', 'units', 'conversions']" />
     <!-- Page Header -->
     <div class="d-flex align-center justify-space-between mb-6">
       <div>
@@ -87,6 +88,7 @@
 </template>
 
 <script setup>
+import SetupQuickLinks from '@/modules/guidance/components/SetupQuickLinks.vue';
 // صفحة إدارة وحدات القياس المحدثة (Unit Group Builder v2) تعرض المجموعات كبطاقات (Cards) وتتيح الإضافة عبر Wizard والتعديل عبر Drawer
 import { ref, computed, onMounted } from 'vue';
 import { useApi } from '@/composables/useApi';

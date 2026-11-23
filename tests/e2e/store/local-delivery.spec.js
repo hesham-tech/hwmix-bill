@@ -43,7 +43,7 @@ test('checkout requires a confirmed location and saves the old address after GPS
   await page.route('https://tile.openstreetmap.org/**',route=>route.abort())
   await page.getByRole('button',{name:'تحديد النقطة على الخريطة',exact:true}).click()
   await expect(page.getByText('تعذر تحميل أجزاء الخريطة. يمكنك إعادة المحاولة أو استخدام موقع الجهاز أو إدخال الإحداثيات وتأكيدها.',{exact:true})).toBeVisible()
-  await page.getByRole('spinbutton',{name:'خط العرض',exact:true}).fill('30.01');await page.getByRole('spinbutton',{name:'خط الطول',exact:true}).fill('31.02')
+  await page.locator('summary').filter({hasText:'إدخال الإحداثيات يدويًا'}).click();await page.getByRole('spinbutton',{name:'خط العرض',exact:true}).fill('30.01');await page.getByRole('spinbutton',{name:'خط الطول',exact:true}).fill('31.02')
   for (const width of [360,390,959,960,1440]) {
     await page.setViewportSize({width,height:900})
     await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true)

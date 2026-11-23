@@ -1,5 +1,6 @@
 <template>
   <div v-if="canAny(PERMISSIONS.BRANDS_VIEW_ALL, PERMISSIONS.BRANDS_VIEW_CHILDREN, PERMISSIONS.BRANDS_VIEW_SELF)" class="brands-page">
+    <SetupQuickLinks :options="['brands']" />
     <v-container fluid class="pa-0">
       <v-row class="ma-0">
         <v-col cols="12" class="pa-0">
@@ -288,6 +289,7 @@
 </template>
 
 <script setup>
+import SetupQuickLinks from '@/modules/guidance/components/SetupQuickLinks.vue';
 import { ref, onMounted, computed, watch } from 'vue';
 import { useBrandsData } from '../composables/useBrandsData';
 import { useDataTable } from '@/composables/useDataTable';

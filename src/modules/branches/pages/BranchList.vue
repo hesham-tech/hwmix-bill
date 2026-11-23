@@ -1,5 +1,6 @@
 <template>
   <div class="branches-page">
+    <SetupQuickLinks :options="['branches', 'locations']" />
     <div class="page-header mb-6">
       <h1 class="text-h4 font-weight-bold">إدارة الفروع</h1>
       <p class="text-body-1 text-grey">عرض وإدارة فروع شركتك، وتعيين الفرع الافتراضي.</p>
@@ -206,6 +207,7 @@
 </template>
 
 <script setup>
+import SetupQuickLinks from '@/modules/guidance/components/SetupQuickLinks.vue';
 import { ref, onMounted, computed } from 'vue';
 import { useApi } from '@/composables/useApi';
 import AppDataTable from '@/components/common/AppDataTable.vue';

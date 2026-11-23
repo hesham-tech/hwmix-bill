@@ -1,5 +1,6 @@
-﻿<template>
+<template>
   <div class="cashbox-page">
+    <SetupQuickLinks :options="['cashboxes', 'cash_customer']" />
     <AppPageHeader v-if="!hideHeader" title="الخزائن" subtitle="إدارة الخزائن النقدية والأرصدة المتاحة للعمليات" icon="ri-safe-2-line" sticky>
       <template #append>
         <AppButton
@@ -529,6 +530,7 @@
 </template>
 
 <script setup>
+import SetupQuickLinks from '@/modules/guidance/components/SetupQuickLinks.vue';
 // عرض وإدارة قائمة صناديق النقد وتصفية الأرصدة وإدارة الصلاحيات
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';

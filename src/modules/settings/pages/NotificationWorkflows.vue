@@ -1,6 +1,7 @@
 <!--   شاشة إعداد وأتمتة مسارات العمل وجدولة الإشعارات الديناميكية لكل حدث، تتيح للشركات تفعيل القواعد وتحديد قنوات وخطوات التذكير المجدولة بفروق زمنية مخصصة. -->
 <template>
   <div class="wf-page">
+    <SetupQuickLinks :options="['automation', 'templates']" />
     <!-- ═══════════════════════════════ TOP BAR ═══════════════════════════════ -->
     <div class="wf-topbar">
       <div class="wf-topbar-inner">
@@ -406,6 +407,7 @@
 </template>
 
 <script setup>
+import SetupQuickLinks from '@/modules/guidance/components/SetupQuickLinks.vue';
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useApi } from '@/composables/useApi';

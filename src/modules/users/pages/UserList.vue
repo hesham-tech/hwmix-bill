@@ -1,5 +1,6 @@
 <template>
   <div class="users-page">
+    <SetupQuickLinks :options="['users', 'permissions']" />
     <v-container fluid class="pa-0">
       <v-row class="ma-0">
         <v-col cols="12" class="pa-0">
@@ -288,6 +289,7 @@
 </template>
 
 <script setup>
+import SetupQuickLinks from '@/modules/guidance/components/SetupQuickLinks.vue';
 import { ref, computed, watch, onMounted } from 'vue';
 import { useDisplay } from 'vuetify';
 import { usePermissions } from '@/composables/usePermissions';
