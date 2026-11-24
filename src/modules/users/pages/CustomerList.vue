@@ -101,6 +101,8 @@
               </template>
 
               <template #extra-actions="{ item }">
+                <v-list-item v-if="can(PERMISSIONS.INSTALLMENT_PAYMENTS_CREATE)" title="تحصيل أقساط" prepend-icon="ri-hand-coin-line"
+                  @click="collectionCustomer = item; collectionOpen = true" />
                 <!-- Balance Management Actions -->
                 <v-list-item
                   v-if="can(PERMISSIONS.BALANCE_DEPOSIT) || can(PERMISSIONS.BALANCE_DEPOSIT_ANY)"
@@ -275,6 +277,7 @@
         <UserCompanyManager v-if="companyAccessUser" :user="companyAccessUser" @save="closeCompanyAccess(); refresh()" @cancel="closeCompanyAccess" />
       </AppDialog>
 
+      <CustomerInstallmentCollectionDialog v-model="collectionOpen" :customer="collectionCustomer" @success="refresh" />
       <!-- Balance Operations Dialog -->
       <BalanceOperations v-model="isBalanceOpen" :user="balanceUser" :initial-type="balanceType" @success="onBalanceSuccess" />
     </v-container>
@@ -296,6 +299,9 @@ const UserForm = defineAsyncComponent(() => import('../components/UserForm.vue')
 const UserPermissionManager = defineAsyncComponent(() => import('../components/UserPermissionManager.vue'));
 import UserCompanyManager from '../components/UserCompanyManager.vue';
 import BalanceOperations from '@/modules/financials/components/BalanceOperations.vue';
+import CustomerInstallmentCollectionDialog from '@/modules/installments/components/CustomerInstallmentCollectionDialog.vue';
+const collectionOpen = ref(false);
+const collectionCustomer = ref(null);
 import { AppDataTable, AppButton, AppDialog, AppConfirmDialog, AppUserBalanceProfile, AppBalanceDisplay } from '@/components';
 import { PERMISSIONS } from '@/config/permissions';
 import { formatCurrency } from '@/utils/formatters';

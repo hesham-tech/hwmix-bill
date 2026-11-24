@@ -12,7 +12,7 @@
       <template #append>
         <div class="d-flex gap-2 flex-wrap justify-end">
           <AppButton
-            v-if="plan?.status === 'active'"
+            v-if="plan && Number(plan.remaining_amount) > 0 && plan.status !== 'canceled' && can(PERMISSIONS.INSTALLMENT_PAYMENTS_CREATE)"
             color="success"
             prepend-icon="ri-hand-coin-line"
             class="font-weight-bold"
@@ -196,7 +196,7 @@
     </v-container>
 
     <!-- Dialogs -->
-    <InstallmentPaymentDialog v-model="showPaymentDialog" :installment="selectedInstallment" @success="handlePaySuccess" />
+    <InstallmentPaymentDialog v-model="showPaymentDialog" :installment="selectedInstallment" :plan="plan" @success="handlePaySuccess" />
     <PaymentSuccessDialog v-model="showSuccessDialog" :payment-details="paymentResult" @close="loadPlan" />
     <InstallmentDetailsDialog v-model="showDetailsDialog" :installment="selectedInstallment" />
   </div>

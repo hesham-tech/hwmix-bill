@@ -26,6 +26,14 @@
           @view="viewPlan"
           @delete="confirmDelete"
         >
+          <template #actions>
+            <v-btn v-if="can(PERMISSIONS.INSTALLMENT_PAYMENTS_CREATE)" color="success" prepend-icon="ri-hand-coin-line"
+              @click="openCollection()">تحصيل أقساط</v-btn>
+          </template>
+          <template #extra-actions="{ item }">
+            <v-list-item v-if="can(PERMISSIONS.INSTALLMENT_PAYMENTS_CREATE)" title="تحصيل أقساط هذا العميل" prepend-icon="ri-hand-coin-line"
+              @click="openCollection(item)" />
+          </template>
           <!-- Grid View Slot -->
           <template #grid="{ items, handleContextMenu }">
             <v-row dense>
@@ -82,6 +90,8 @@
                       </template>
                       <AppTableActions :item="item" permission-module="installment-plans" @view="viewPlan" @delete="confirmDelete">
                         <template #extra-actions="slotProps">
+                          <v-list-item v-if="can(PERMISSIONS.INSTALLMENT_PAYMENTS_CREATE)" title="تحصيل أقساط هذا العميل"
+                            prepend-icon="ri-hand-coin-line" @click="openCollection(item)" />
                           <slot name="extra-actions" v-bind="slotProps" />
                         </template>
                       </AppTableActions>
@@ -187,6 +197,7 @@
       </v-card>
     </v-container>
 
+    <CustomerInstallmentCollectionDialog v-model="collectionOpen" :customer="collectionCustomer" @success="refresh" />
     <!-- Products Detail Dialog -->
     <v-dialog v-model="productsDialog" max-width="500">
       <v-card v-if="selectedPlanForProducts" rounded="lg">
@@ -254,6 +265,17 @@ import { useDataTable } from '@/composables/useDataTable';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import { AppPageHeader, AppDataTable, AppUserBalanceProfile } from '@/components';
 import notificationManager from '@/services/notificationManager';
+import CustomerInstallmentCollectionDialog from '../components/CustomerInstallmentCollectionDialog.vue';
+import { usePermissions } from '@/composables/usePermissions';
+import { PERMISSIONS } from '@/config/permissions';
+const { can } = usePermissions();
+const collectionOpen = ref(false);
+const collectionCustomer = ref(null);
+const openCollection = (plan) => {
+  const id = plan?.user_id || plan?.customer?.id || plan?.invoice?.customer?.id;
+  collectionCustomer.value = id ? { ...(plan.customer || plan.invoice?.customer), id } : null;
+  collectionOpen.value = true;
+};
 
 // --- Initialization ---
 const router = useRouter();
@@ -312,6 +334,7 @@ const {
   changePerPage,
   changeSort,
   performSearch,
+  refresh,
   applyFilters,
   removeItem, // ✅ تم إضافة removeItem هنا
 } = useDataTable(fetchPlans, {

@@ -10,7 +10,10 @@
       <template #subtitle>عرض البيانات الكاملة للمستخدم والنشاطات</template>
 
       <!-- Header Actions Slot -->
-      <template #header-actions="{ entity }">
+      <template #header-actions="{ entity, refresh }">
+        <CustomerInstallmentCollectionDialog v-model="collectionOpen" :customer="collectionCustomer" @success="refresh" />
+        <AppButton v-if="entity && can(PERMISSIONS.INSTALLMENT_PAYMENTS_CREATE)" color="success" prepend-icon="ri-hand-coin-line"
+          @click="collectionCustomer = entity; collectionOpen = true">تحصيل أقساط</AppButton>
         <AppButton
           v-if="can(PERMISSIONS.USERS_DELETE_ALL)"
           color="error"
@@ -138,6 +141,10 @@ import { PERMISSIONS } from '@/config/permissions';
 import UserForm from '../components/UserForm.vue';
 import { AppDialog, AppConfirmDialog, AppButton, AppUserBalanceProfile } from '@/components';
 import EntityProfileContainer from '@/components/entity-profile/EntityProfileContainer.vue';
+import CustomerInstallmentCollectionDialog from '@/modules/installments/components/CustomerInstallmentCollectionDialog.vue';
+
+const collectionOpen = ref(false);
+const collectionCustomer = ref(null);
 
 const route = useRoute();
 const router = useRouter();

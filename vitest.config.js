@@ -1,9 +1,19 @@
 import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
 import { defineConfig } from 'vitest/config';
 import vue from '@vitejs/plugin-vue';
 import vueJsx from '@vitejs/plugin-vue-jsx';
 
 export default defineConfig({
+  // A worktree may reuse installed dependencies through a local directory junction.
+  server: {
+    fs: {
+      allow: [
+        fileURLToPath(new URL('.', import.meta.url)),
+        realpathSync(fileURLToPath(new URL('./node_modules/', import.meta.url))),
+      ],
+    },
+  },
   plugins: [vue(), vueJsx()],
   resolve: {
     alias: {
