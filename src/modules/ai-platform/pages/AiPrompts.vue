@@ -372,7 +372,7 @@ export default {
     async togglePromptActive(item) {
       this.togglingId = item.id;
       try {
-        await toggleAiPromptActive(item.id);
+        await toggleAiPromptActive(item.id, item.company_id === null);
         item.is_active = !item.is_active;
         this.showSnackbar(`تم ${item.is_active ? 'تفعيل' : 'تعطيل'} القالب بنجاح`, 'success');
       } catch (error) {
@@ -392,7 +392,7 @@ export default {
       
       this.deleting = true;
       try {
-        await deleteAiPrompt(this.itemToDelete.id);
+        await deleteAiPrompt(this.itemToDelete.id, this.itemToDelete.company_id === null);
         this.showSnackbar('تم حذف القالب بنجاح', 'success');
         this.deleteDialog = false;
         this.loadData();

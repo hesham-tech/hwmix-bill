@@ -65,7 +65,7 @@ jobs:
         env:
           E2E_PREVIEW: '1'
           E2E_BASE_URL: http://localhost:5050
-        run: npx playwright test tests/e2e/store/filters.spec.js tests/e2e/store/mobile-store.spec.js tests/e2e/export-download.spec.js tests/e2e/backup-security.spec.js --project=chromium --workers=1
+        run: npx playwright test tests/e2e/store/filters.spec.js tests/e2e/store/mobile-store.spec.js tests/e2e/export-download.spec.js tests/e2e/backup-security.spec.js tests/e2e/ai-administration.spec.js --project=chromium --workers=1
 
       - name: Configure dedicated staging SSH credentials
         env:

@@ -1,3 +1,5 @@
+import { PERMISSIONS } from '@/config/permissions';
+
 export default [
   {
     path: '/ai-platform',
@@ -6,6 +8,7 @@ export default [
     meta: {
       title: 'منصة الذكاء الاصطناعي',
       requiresAuth: true,
+      permission: [PERMISSIONS.ADMIN_SUPER],
     },
   },
   {
@@ -15,6 +18,7 @@ export default [
     meta: {
       title: 'الوكلاء الذكيون - AI Platform',
       requiresAuth: true,
+      permission: [PERMISSIONS.ADMIN_SUPER],
     },
   },
   {
@@ -24,6 +28,7 @@ export default [
     meta: {
       title: 'قوالب الـ Prompts - AI Platform',
       requiresAuth: true,
+      permission: [PERMISSIONS.ADMIN_SUPER],
     },
   },
   {
@@ -33,6 +38,7 @@ export default [
     meta: {
       title: 'تقرير الاستهلاك - AI Platform',
       requiresAuth: true,
+      permission: [PERMISSIONS.ADMIN_SUPER],
     },
   },
   {
@@ -42,6 +48,7 @@ export default [
     meta: {
       title: 'إدارة النماذج - AI Platform',
       requiresAuth: true,
+      permission: [PERMISSIONS.ADMIN_SUPER],
     },
   },
   {
@@ -51,6 +58,7 @@ export default [
     meta: {
       title: 'مفاتيح وحسابات API - AI Platform',
       requiresAuth: true,
+      permission: [PERMISSIONS.ADMIN_SUPER],
     },
   },
 ];

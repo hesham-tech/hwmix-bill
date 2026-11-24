@@ -52,7 +52,8 @@ export function fetchAiAccounts(params = {}) {
 }
 
 export function updateAiAccount(id, data) {
-  return apiClient.put(`/ai/admin/accounts/${id}`, data);
+  const { company_id, ...payload } = data;
+  return apiClient.put(`/ai/admin/accounts/${id}`, { ...payload, is_system: data.is_system ?? company_id === null });
 }
 
 export function deleteAiAccount(id) {
@@ -86,13 +87,14 @@ export function createAiPrompt(data) {
 }
 
 export function updateAiPrompt(id, data) {
-  return apiClient.put(`/ai/admin/prompts/${id}`, data);
+  const { company_id, ...payload } = data;
+  return apiClient.put(`/ai/admin/prompts/${id}`, { ...payload, is_system: data.is_system ?? company_id === null });
 }
 
-export function deleteAiPrompt(id) {
-  return apiClient.delete(`/ai/admin/prompts/${id}`);
+export function deleteAiPrompt(id, isSystem = false) {
+  return apiClient.delete(`/ai/admin/prompts/${id}`, { params: { is_system: isSystem ? 1 : 0 } });
 }
 
-export function toggleAiPromptActive(id) {
-  return apiClient.patch(`/ai/admin/prompts/${id}/toggle`);
+export function toggleAiPromptActive(id, isSystem = false) {
+  return apiClient.patch(`/ai/admin/prompts/${id}/toggle`, { is_system: isSystem });
 }
